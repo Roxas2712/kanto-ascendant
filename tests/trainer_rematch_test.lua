@@ -57,6 +57,14 @@ T.eq(optionRows.legend_raikou.type, "toggle",
   "Raikou can be enabled or disabled independently")
 T.eq(optionRows.legend_celebi.type, "toggle",
   "Celebi can be enabled or disabled independently")
+T.eq(optionRows.legend_mew.type, "toggle",
+  "Mew can be enabled or disabled independently")
+T.eq(optionRows.rocket_story.type, "toggle",
+  "Rocket Resurgence can be disabled independently")
+T.eq(optionRows.grand_tournament.type, "toggle",
+  "the Grand Tournament can be disabled independently")
+T.eq(optionRows.ascendant_rules.type, "choice",
+  "New Game Plus challenge rules can be relaxed")
 
 -- ------------------------------------------------ pure line resolution
 
@@ -1106,6 +1114,155 @@ T.eq(eliteBattle.rematch, true,
   "an active Elite Four circuit fight is treated as a no-money rematch")
 T.eq(eliteBattle.endBattleText:find("perfected", 1, true) ~= nil, true,
   "the circuit battle receives Lorelei's personal defeat quote")
+
+-- ------------------------------------------------ Kanto Ascendant 2.0 systems
+
+local asc = ex.ascendant
+local asd = ex.ascendantData
+T.neq(asc, nil, "the Ascendant systems controller is exported")
+T.neq(asd, nil, "the Ascendant progression data is exported")
+
+T.eq(asc.rematchRank(0).key, "rookie",
+  "a new field opponent begins at ROOKIE rank")
+T.eq(asc.rematchRank(2).key, "veteran",
+  "two completed growth tiers reach VETERAN rank")
+T.eq(asc.rematchRank(5).key, "expert",
+  "five completed growth tiers reach EXPERT rank")
+T.eq(asc.rematchRank(10).key, "master",
+  "ten completed growth tiers reach MASTER rank")
+T.eq(asc.rematchRank(20).key, "legend",
+  "twenty completed growth tiers reach LEGEND rank")
+T.eq(asc.rankBonusLoot(7500, "veteran", 10), "NUGGET",
+  "VETERAN trainers add a bonus Nugget band")
+T.eq(asc.rankBonusLoot(8000, "expert", 20), "RARE_CANDY",
+  "EXPERT trainers add a bonus Rare Candy band")
+T.eq(asc.rankBonusLoot(8500, "master", 35), "PP_UP",
+  "MASTER trainers add a bonus PP Up band")
+T.eq(asc.rankBonusLoot(9000, "legend", 50), "MAX_REVIVE",
+  "LEGEND trainers add a bonus Max Revive band")
+
+T.eq(#asd.ranks, 5, "all five field-trainer ranks are defined")
+T.eq(#asd.research, 8, "Oak offers eight sequential research assignments")
+T.eq(#asd.achievements, 14, "the Crown Archive tracks fourteen titles")
+T.eq(#asd.rocket, 4, "Rocket Resurgence has four consecutive operations")
+T.eq(#asd.tournament.opponents, 6,
+  "the Grand Tournament has six rotating level-100 opponents")
+T.eq(#asd.tournament.rules, 4,
+  "the Grand Tournament rotates four different rulesets")
+local leaderMissionCount = 0
+for key, quest in pairs(asd.gymQuests) do
+  leaderMissionCount = leaderMissionCount + 1
+  T.eq(type(quest.intro.en), "string",
+    key .. " has English personal-mission dialogue")
+  T.eq(type(quest.intro.de), "string",
+    key .. " has German personal-mission dialogue")
+  T.eq(quest.target > 0, true, key .. " has a measurable mission target")
+end
+T.eq(leaderMissionCount, 8,
+  "all eight Gym Leaders have personal missions")
+for _, operation in ipairs(asd.rocket) do
+  T.eq(#operation.team, 6,
+    operation.key .. " has a complete Rocket resurgence team")
+  T.eq(type(operation.before.en), "string",
+    operation.key .. " has English Rocket dialogue")
+  T.eq(type(operation.before.de), "string",
+    operation.key .. " has German Rocket dialogue")
+end
+T.eq(asd.mew.level, 100, "Mew is the level-100 mythic finale")
+T.eq(type(asd.mew.clues.oak.text.en), "string",
+  "Oak has the first English Mew clue")
+T.eq(type(asd.mew.clues.fuji.text.de), "string",
+  "Mr. Fuji has the second German Mew clue")
+T.eq(type(asd.mew.clues.lab.text.en), "string",
+  "the Cinnabar lab has the final English Mew clue")
+
+local ascState = asc.state()
+ascState.bossBattles = {}
+ascState.gymQuests = {}
+ascState.cycle = 0
+local adaptiveSource = {
+  { species = "FIXMON_A", level = 90, moves = { "TACKLE" } },
+  { species = "FIXMON_B", level = 91, moves = { "TACKLE" } },
+  { species = "FIXMON_A", level = 92, moves = { "TACKLE" } },
+}
+local adaptiveGame = { data = Data, save = { party = {} } }
+local adaptiveA = asc.selectBossTeam(adaptiveSource,
+  { kind = "gym", key = "brock", tier = "master" }, adaptiveGame)
+T.eq(adaptiveA[1].species, "FIXMON_A",
+  "the first adaptive boss meeting preserves the inspected base order")
+ascState.bossBattles["gym:brock:master"] = 1
+local adaptiveB = asc.selectBossTeam(adaptiveSource,
+  { kind = "gym", key = "brock", tier = "master" }, adaptiveGame)
+T.eq(adaptiveB[1].species, "FIXMON_B",
+  "a repeat boss meeting rotates its lead and battle plan")
+ascState.gymQuests.brock = { done = true }
+local adaptiveSignature = asc.selectBossTeam(adaptiveSource,
+  { kind = "gym", key = "brock", tier = "master" }, adaptiveGame)
+T.eq(adaptiveSignature[#adaptiveSignature].species, "AERODACTYL",
+  "finishing Brock's mission unlocks his signature roster variant")
+T.eq(adaptiveSource[3].species, "FIXMON_A",
+  "adaptive selection never mutates the shared base roster")
+
+local blockedItems = {
+  ascendantNoItems = true,
+  say = function(self, message) self.blockMessage = message end,
+}
+battleStateStub.openItems(blockedItems)
+T.eq(blockedItems.blockMessage:find("sealed", 1, true) ~= nil, true,
+  "NO-ITEM and Ascendant rules block the Bag inside battle")
+
+ascState.research.completed = {}
+for _, assignment in ipairs(asd.research) do
+  ascState.research.completed[assignment.id] = true
+end
+ascState.rocketStage = #asd.rocket
+livePostgame.crownChampion = true
+livePostgame.apexChampion = true
+livePostgame.catches = livePostgame.catches or {}
+for _, species in ipairs(pgd.legendOrder) do
+  livePostgame.catches[species] = true
+end
+T.eq(asc.researchComplete(ascState), true,
+  "all enabled research assignments can be completed")
+T.eq(asc.allEnabledLegendsCaught(game), true,
+  "the finale recognizes every enabled captured legend")
+T.eq(asc.mewEligible(game), true,
+  "Crown, research, Rocket and legendary completion unlock Mew's clues")
+run.loader.modOptions.trainer_rematch = { legend_mew = false }
+T.eq(asc.mewEligible(game), false,
+  "the dedicated Mew option disables the mythic finale")
+run.loader.modOptions.trainer_rematch = nil
+
+for key in pairs(asd.gymQuests) do
+  ascState.gymQuests[key] = { done = true }
+end
+ascState.tournament.wins = 1
+ascState.mewCaught = true
+asc.evaluateAchievements(game)
+T.eq(ascState.achievements.leader_confidant, true,
+  "all Leader missions unlock KANTO CONFIDANT")
+T.eq(ascState.achievements.tournament_champ, true,
+  "a completed bracket unlocks GRAND CHAMPION")
+T.eq(ascState.achievements.rocket_breaker, true,
+  "the fourth Rocket victory unlocks ROCKET BREAKER")
+T.eq(ascState.achievements.mew_found, true,
+  "catching Mew unlocks MYTH SEEKER")
+T.eq(ascState.achievements.ascendant, true,
+  "all major systems together unlock KANTO ASCENDANT")
+
+local catchesBeforeCycle = livePostgame.catches
+local newCycle = asc.beginNewGamePlus(game)
+T.eq(newCycle, 1, "the first safe New Game Plus starts Ascendant Cycle 1")
+T.eq(pg.state().apexChampion, nil,
+  "New Game Plus resets the Apex circuit")
+T.eq(pg.state().crownChampion, nil,
+  "New Game Plus resets the Crown circuit")
+T.eq(pg.state().catches, catchesBeforeCycle,
+  "New Game Plus preserves captured legendary progress")
+T.eq(asc.state().mewCaught, true,
+  "New Game Plus preserves the unique Mew capture")
+T.eq(asc.state().achievements.ascendant, true,
+  "New Game Plus preserves permanent titles")
 
 run.release()
 T.finish("trainer_rematch")

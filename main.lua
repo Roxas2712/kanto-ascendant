@@ -1,5 +1,5 @@
--- Trainer Rematch: talk to a trainer you have already beaten to get a
--- rematch.  Rematch battles award no money.  Each trainer class opens
+-- Kanto Ascendant: talk to a trainer you have already beaten to get a
+-- ranked rematch. Rematch battles award no money. Each trainer class opens
 -- with a line in its own voice, matched to the personality that class
 -- shows in its regular dialogue.
 
@@ -309,6 +309,19 @@ return function(mod)
     { key = "legend_lugia", label = "LUGIA", type = "toggle", default = true },
     { key = "legend_ho_oh", label = "HO-OH", type = "toggle", default = true },
     { key = "legend_celebi", label = "CELEBI", type = "toggle", default = true },
+    { key = "legend_mew", label = "MEW", type = "toggle", default = true },
+    { key = "rocket_story", label = menuLabel("ROCKET STORY", "ROCKET-STORY"),
+      type = "toggle", default = true },
+    { key = "grand_tournament",
+      label = menuLabel("GRAND TOURNAMENT", "GROSSES TURNIER"),
+      type = "toggle", default = true },
+    { key = "ascendant_rules",
+      label = menuLabel("NEW GAME+ RULES", "NEW-GAME+-REGELN"),
+      type = "choice", default = "ascendant",
+      choices = {
+        { menuLabel("ASCENDANT", "ASCENDANT"), "ascendant" },
+        { menuLabel("NORMAL", "NORMAL"), "normal" },
+      } },
   })
 
   local function localizedLine(classId)
@@ -339,6 +352,9 @@ return function(mod)
   })
   mod.exports.postgame = postgame
   mod.exports.postgameData = postgameData
+  local ascendantData = loadSibling(mod, "ascendant_data.lua")
+  local makeAscendant = loadSibling(mod, "ascendant.lua")
+  local ascendant
 
   -- Official Crystal battle art is an optional local pack: it is not
   -- redistributed by the mod. When the user has run the installer, this
@@ -402,6 +418,16 @@ return function(mod)
     end
     return states
   end
+
+  ascendant = makeAscendant(mod, postgameData, {
+    data = ascendantData,
+    postgame = postgame,
+    i18n = i18n,
+    trainerStates = trainerStates,
+  })
+  postgame.extension = ascendant
+  mod.exports.ascendant = ascendant
+  mod.exports.ascendantData = ascendantData
 
   local function trainerKey(overworld, npc)
     if npc and npc.id then return tostring(npc.id) end
@@ -661,11 +687,17 @@ return function(mod)
   local function awardRematchLoot(game, battle, state, deps)
     local mode = mod.options:get("loot_mode") or "balanced"
     if mode == "off" or state.pendingLoot then return nil end
-    local itemId = loot.select(lootRoll(deps), mode, {
-      averageLevel = loot.averageLevel(battle.enemyParty),
+    local roll = lootRoll(deps)
+    local averageLevel = loot.averageLevel(battle.enemyParty)
+    local itemId = loot.select(roll, mode, {
+      averageLevel = averageLevel,
       masterUnlocked = masterBallUnlocked(),
       expAllAvailable = expAllAvailable(game),
     })
+    if not itemId and mode == "balanced" and ascendant then
+      itemId = ascendant.rankBonusLoot(
+        roll, battle.rematchRank, averageLevel)
+    end
     if not itemId or not (game.data.items and game.data.items[itemId]) then
       return nil
     end
@@ -734,6 +766,7 @@ return function(mod)
       settleTraining(state, deps)
       local progress = state.rematches + state.trainingCycles
       local boost = nextLevelBoost(progress, levelGain())
+      local rank = ascendant and ascendant.rematchRank(progress)
       local rematchTeam = recruitment.expand(game.data, team, d.trainerClass,
         key, progress, boost, mod.options:get("team_growth") ~= false)
       local previewTeam = boostedTeam(rematchTeam, boost)
@@ -745,6 +778,10 @@ return function(mod)
         local wonText = header and header.won and game.data.text[header.won]
         local b = BattleState.newTrainer(game, d.trainerClass, partyIndex)
         b.rematch = true
+        b.rematchTrainerKey = key
+        b.rematchTrainerClass = d.trainerClass
+        b.rematchRank = rank and rank.key
+        if ascendant then ascendant.applyRematchRank(b, rank) end
         b.rematchNumber = (state.rematches or 0) + 1
         b.rematchTrainingCycles = state.trainingCycles
         b.rematchRecruits = appendRecruits(game, b, rematchTeam)
@@ -790,7 +827,18 @@ return function(mod)
       end
     end
 
-    game.stack:push(TextBox.new(game, localizedLine(d.trainerClass), nil, {
+    local rankState = stateFor(trainerKey(self, npc), true)
+    settleTraining(rankState, deps)
+    local opening = localizedLine(d.trainerClass)
+    if ascendant then
+      local shownRank = ascendant.rematchRank(
+        rankState.rematches + rankState.trainingCycles)
+      if shownRank and shownRank.threshold > 0 then
+        opening = ascendant.rankLine(
+          rankState.rematches + rankState.trainingCycles) .. "\f" .. opening
+      end
+    end
+    game.stack:push(TextBox.new(game, opening, nil, {
       choice = function(yes)
         if yes then accept() else decline() end
       end,
@@ -807,6 +855,8 @@ return function(mod)
     local Runtime = deps.runtime or require("src.mods.Runtime")
     local mapScripts = deps.mapScripts or require("data.scripts.init")
 
+    if ascendant then ascendant.install(game, deps) end
+
     -- one wrap per boot; hot reload re-runs entry chunks without clearing
     -- the require cache, so the module table is the idempotence sentinel
     if Overworld._rematchTalkWrapped then return end
@@ -818,6 +868,7 @@ return function(mod)
       -- Hall-of-Fame gym leaders are scripted in the base game, so the
       -- post-game controller gets first refusal before the generic/scripted
       -- split below.
+      if ascendant and ascendant.handleTalk(self, npc, game) then return end
       if postgame and postgame.handleTalk(self, npc, game) then return end
       -- only the generic-trainer branch: scripted encounters (gym leaders,
       -- rivals, story fights) keep their own flow, defeated or not
@@ -909,6 +960,7 @@ return function(mod)
   mod.events:on("world.stepped", function()
     mod.save:set("step_clock", stepClock() + 1)
     settleAllTraining()
+    if ascendant then ascendant.refreshRankMarkers() end
   end)
 
   -- game.ready runs before CONTINUE adopts the selected slot.  Seed old

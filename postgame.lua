@@ -158,6 +158,15 @@ return function(mod, data, opts)
   local forcedTeam
   local pendingRoamer
 
+  local function newForcedBattle(game, class, team, tier)
+    forcedTeam = { class = class, team = team, tier = tier }
+    local battle = require("src.battle.BattleState").newTrainer(game, class, 1)
+    forcedTeam = nil
+    battle.rematch = true
+    battle.postgameForcedTier = tier
+    return battle
+  end
+
   local function state(create)
     local s = mod.save:get("postgame")
     if type(s) ~= "table" and create ~= false then
@@ -595,7 +604,6 @@ return function(mod, data, opts)
   local function offerGymBattle(ow, npc, gym, tier)
     local game = controller.game
     local TextBox = require("src.render.TextBox")
-    local BattleState = require("src.battle.BattleState")
     local Runtime = require("src.mods.Runtime")
     local key = tier .. ":" .. gym.key
     local left = bossRestRemaining(key)
@@ -644,12 +652,18 @@ return function(mod, data, opts)
         Runtime.emit("world.trainer_engaged", {
           npc = npc, trainerClass = gym.class, partyIndex = 1,
         })
-        forcedTeam = { class = gym.class, team = gym[tier], tier = tier }
-        local battle = BattleState.newTrainer(game, gym.class, 1)
-        forcedTeam = nil
-        battle.rematch = true
+        local team = gym[tier]
+        if controller.extension and controller.extension.selectBossTeam then
+          team = controller.extension.selectBossTeam(team, {
+            kind = "gym", key = gym.key, tier = tier,
+          }, game)
+        end
+        local battle = newForcedBattle(game, gym.class, team, tier)
         battle.postgameTier = tier
         battle.postgameGym = gym.key
+        if controller.extension and controller.extension.applyBossRules then
+          controller.extension.applyBossRules(battle)
+        end
         battle.endBattleText = gymDialogue(gym, tier, "win")
         battle.onFinish = function(result)
           scheduleBossRest(key)
@@ -697,11 +711,7 @@ return function(mod, data, opts)
           require("src.mods.Runtime").emit("world.trainer_engaged", {
             npc = npc, trainerClass = def.class, partyIndex = 1,
           })
-          forcedTeam = { class = def.class, team = def.team, tier = "hunt" }
-          local battle = require("src.battle.BattleState")
-            .newTrainer(game, def.class, 1)
-          forcedTeam = nil
-          battle.rematch = true
+          local battle = newForcedBattle(game, def.class, def.team, "hunt")
           battle.postgameHuntRival = true
           battle.endBattleText = events.huntRivalDialogue("win")
           battle.onFinish = function(result)
@@ -870,6 +880,9 @@ return function(mod, data, opts)
       state(), game.save, mod.save:get("trainers")) or
       tr("The archive is\nnot available.",
         "Das Archiv ist\nnicht verfügbar.")
+    if controller.extension and controller.extension.archiveText then
+      text = text .. controller.extension.archiveText(game)
+    end
     game.stack:push(require("src.render.TextBox").new(game, text, done))
   end
 
@@ -972,8 +985,16 @@ return function(mod, data, opts)
     end
     local s = state()
     local tier = eliteTier(s, controller.game.save)
-    if tier == "crown" then return enabledTeam(data.crown[oppClass]) end
-    if tier == "apex" then return enabledTeam(data.apex[oppClass]) end
+    local team
+    if tier == "crown" then team = enabledTeam(data.crown[oppClass])
+    elseif tier == "apex" then team = enabledTeam(data.apex[oppClass]) end
+    if team and controller.extension
+        and controller.extension.selectBossTeam then
+      team = controller.extension.selectBossTeam(team, {
+        kind = "elite", key = oppClass, tier = tier,
+      }, controller.game)
+    end
+    if team then return team end
     return nextParty(oppClass, partyIndex, party)
   end)
 
@@ -1010,6 +1031,9 @@ return function(mod, data, opts)
       if tier then
         battle.postgameTier = tier
         battle.rematch = true
+        if controller.extension and controller.extension.applyBossRules then
+          controller.extension.applyBossRules(battle)
+        end
         battle.endBattleText =
           eliteDialogue(battle.oppClass, tier, "win")
             or battle.endBattleText
@@ -1142,5 +1166,6 @@ return function(mod, data, opts)
   controller.crownUnlocked = crownUnlocked
   controller.birdsCaught = birdsCaught
   controller.beastsCaught = beastsCaught
+  controller.newForcedBattle = newForcedBattle
   return controller
 end

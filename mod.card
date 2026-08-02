@@ -1,6 +1,6 @@
 -- Sharing metadata for the manager detail pane.
 return {
-  summary = "A living Kanto post-game: evolving rematches, Master and Crown circuits, legendary events, research reports and a reactive world.",
+  summary = "A living Kanto post-game: ranked rematches, Leader missions, adaptive circuits, Grand Tournament, Rocket Resurgence, legendary events, Mew and New Game Plus.",
   author = "Roxas2712",
   tags = { "gameplay", "trainers", "rematch", "postgame", "legendary" },
   differences = {
@@ -36,6 +36,16 @@ return {
       "A one-time Professor Oak scene foreshadows growing legendary sightings before the first Hall of Fame",
       "Personal Master/Crown Leader and Apex/Crown Elite Four dialogue in both languages",
       "Optional local Pokémon Crystal front/back art with automatic original-sprite fallback",
+      "Five visible trainer ranks with stronger AI, thematic growth and rank bonus loot",
+      "Eight sequential research assignments with persistent rewards and Bag-full protection",
+      "A personal mission and signature adaptive roster variant for every Gym Leader",
+      "Rotating boss orders and a Champion counter-pick based on the player's dominant type",
+      "A repeatable three-round Kanto Grand Tournament with four rulesets and six opponents",
+      "A four-chapter Rocket Resurgence across the Power Plant, Silph Co., Pokémon Tower and Viridian",
+      "A multi-stage Oak, Fuji and Cinnabar investigation ending with level-100 Mew",
+      "Fourteen permanent achievements and titles in the expanded Crown Archive",
+      "One-time environmental scenes and expanded world reactions during Rocket and Mew events",
+      "A save-safe Ascendant New Game Plus cycle that preserves Pokémon, items, legends and titles",
     },
     known = {
       "The trainer's vanilla post-battle dialogue still follows the decline reaction",

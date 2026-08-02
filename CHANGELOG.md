@@ -2,6 +2,42 @@
 
 All notable changes to this project are documented in this file.
 
+## [2.0.0] - 2026-08-02
+
+### Added
+
+- Five persistent trainer ranks: Rookie, Veteran, Expert, Master and Legend.
+- Stronger AI, visible overworld markers and new BALANCED bonus-loot bands for
+  high-rank field trainers.
+- Eight sequential Ascendant research assignments with rare rewards and
+  Bag-full reservation.
+- Personal bilingual missions for all eight Gym Leaders.
+- Leader signature roster variants, rotating boss orders and an adaptive
+  Champion counter-pick.
+- A repeatable three-round Kanto Grand Tournament with six level-100
+  opponents and Open, No-Item, Trio and Endurance rules.
+- A four-chapter Rocket Resurgence story across the Power Plant, Silph Co.,
+  Pokémon Tower and Viridian Gym.
+- Expanded Rocket/Mew world reactions and four one-time environmental scenes.
+- A three-clue Oak, Mr. Fuji and Cinnabar investigation ending with a
+  persistent level-100 Mew encounter on Route 24.
+- A dedicated Mew option plus independent Rocket and Tournament switches;
+  disabled systems are removed from completion requirements.
+- Fourteen permanent achievements and titles in the Crown Archive.
+- A double-confirmed, save-safe Ascendant New Game Plus cycle that preserves
+  base-story progress, Pokémon, items, captured legends, titles and tournament
+  records.
+
+### Changed
+
+- Master, Apex and Crown repeat battles now rotate team order.
+- Completed Leader missions unlock signature roster variants.
+- The Champion adapts one non-legendary counter-pick to the player's dominant
+  party type.
+- The Crown Archive now includes title, research, Tournament, Rocket, Mew and
+  cycle records.
+- The headless suite expanded from 1080 to 1162 checks.
+
 ## [1.1.0] - 2026-08-02
 
 ### Added

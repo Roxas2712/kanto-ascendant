@@ -1,4 +1,4 @@
--- Runtime language selection for Trainer Rematch. English is the standalone
+-- Runtime language selection for Kanto Ascendant. English is the standalone
 -- fallback; AUTO follows the active German Red/Blue/Yellow translation mod.
 
 local REMATCH = {

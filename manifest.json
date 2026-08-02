@@ -1,7 +1,7 @@
 {
   "id": "trainer_rematch",
   "name": "Kanto Ascendant",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "api": 2,
   "entry": "main.lua",
   "profile": "content",
@@ -20,6 +20,6 @@
   "conflicts": [],
   "incompatible": [],
   "experimental": false,
-  "description": "A living Kanto post-game: evolving trainer rematches, Master and Crown circuits, legendary events, research reports, world reactions and a final level-100 challenge.",
+  "description": "A living Kanto post-game with ranked rematches, personal Leader missions, adaptive circuits, a Grand Tournament, Rocket Resurgence, legendary events, Mew and New Game Plus.",
   "github": "Roxas2712/kanto-ascendant"
 }

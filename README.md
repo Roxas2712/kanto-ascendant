@@ -1,9 +1,9 @@
 # Kanto Ascendant
 
 Kanto Ascendant turns Kanto into a persistent training world and adds a full
-Hall-of-Fame post-game: stronger field trainers, eight Master Gym battles, an
-Apex Elite Four, a living legendary event, six Gen-II species and a final
-level-100 Crown Circuit. It began as Trainer Rematch; the internal
+Hall-of-Fame post-game: ranked field trainers, personal Leader missions,
+adaptive circuits, a Grand Tournament, Rocket Resurgence, a living legendary
+event, six Gen-II species, Mew and a replayable New Game Plus. The internal
 `trainer_rematch` ID remains unchanged so existing saves and options continue
 to work.
 
@@ -34,6 +34,21 @@ disabled in all rematch, Master, Apex and Crown battles.
    recruits another class-appropriate Pokémon until the party reaches six.
    The chosen evolutionary families stay deterministic for that trainer and
    evolve naturally when its projected rematch level is high enough.
+
+Every field trainer now has a persistent rank based on completed rematches and
+silent training:
+
+| Rank | Growth tiers | Additional effect |
+|---|---:|---|
+| Rookie | 0 | Normal class-specific rematch |
+| Veteran | 2 | Rank banner and bonus Nugget band |
+| Expert | 5 | Stronger battle AI and bonus Rare Candy band |
+| Master | 10 | Full battle AI, bonus PP Up band and overworld marker |
+| Legend | 20 | Full battle AI, bonus Max Revive band and enhanced marker |
+
+Master and Legend trainers display a small sparkle above their overworld
+sprite. Rank rewards extend only the BALANCED table's former no-drop range;
+they do not increase the Master Ball band.
 
 All 47 trainer classes have their own opening and rejection dialogue. Cocky
 classes mock a refusal; wise and polite classes understand. If a rematch team
@@ -105,6 +120,9 @@ challenged in any order.
 | Legendary Hunt | Apex Champion | 80-95 | Catch the awakened Kanto and Johto legends |
 | Crown Gyms | Catch Lugia and Ho-Oh | 100 | Defeat all eight level-100 specialists |
 | Crown Elite Four | Eight Crown wins | 100 | Beat the final legendary Champion team |
+| Grand Tournament | Crown Champion | 100 | Win rotating three-round brackets |
+| Origin Investigation | Crown, research and event completion | 100 | Follow the final trail to Mew |
+| Ascendant Cycle | Every major system completed | Adaptive 100 | Replay the complete mod post-game |
 
 Each boss uses a fixed six-Pokémon competitive roster with four selected moves
 per Pokémon. The Master and Apex teams contain no legendary Pokémon. Legends
@@ -127,6 +145,66 @@ non-legendary variant when that encounter is disabled in **OPTIONS**.
 Giovanni returns to Viridian Gym for the circuit. After a circuit battle, a
 leader uses the same step-based recovery period as other rematch trainers,
 reports the exact remaining steps, and becomes repeatable when ready.
+
+### Leader personal missions and adaptive teams
+
+After the Apex victory, every Gym Leader offers a personal mission built
+around their character and specialty. The assignments ask for themed field
+rematches—such as Water trainers for Misty, Psychics for Sabrina and Rockets
+for Giovanni—and report exact progress. Completing one awards a rare item and
+unlocks that Leader's signature roster variant.
+
+Master, Apex and Crown opponents no longer present one completely static plan:
+repeat battles rotate team order, completed Leader missions change signature
+slots, and the Champion can bring a non-legendary counter to the dominant type
+in the player's current party. Disabled legendary options continue to use
+their non-legendary replacements.
+
+## Oak's Ascendant research
+
+Oak's Lab scientist manages eight sequential assignments alongside the
+legendary Research Log:
+
+1. Win five field-trainer rematches.
+2. Raise three trainers to Expert rank.
+3. Earn four Master crests.
+4. Catch three enabled legendary Pokémon.
+5. Complete four Leader missions.
+6. Win three Grand Tournament rounds.
+7. Defeat all four Rocket Resurgence units.
+8. Defeat the Crown Champion.
+
+Each report has a fixed rare reward. A full Bag never destroys it: the
+scientist reserves the item until space is available. Disabled systems are
+automatically skipped so they cannot block research completion.
+
+## Kanto Grand Tournament
+
+After the Crown Champion, a new host appears in the Indigo Plateau lobby.
+Every bracket contains three consecutive level-100 battles selected from six
+new opponents. The rules rotate after every attempt:
+
+- **Open Rules** — three standard battles, with recovery between rounds.
+- **No-Item Cup** — the Bag is sealed for all three battles.
+- **Trio Cup** — only the first three party Pokémon can participate.
+- **Endurance Cup** — no healing between rounds.
+
+Opponents and bracket order change with every run. Victories, best round and
+titles are recorded in the Crown Archive. Every fifth championship awards a
+Master Ball; other completed brackets award PP Up.
+
+## Rocket Resurgence
+
+After the Apex Champion victory, a four-part Team Rocket story begins:
+
+1. Stop a legendary-energy relay inside the Power Plant.
+2. Defeat the Rocket administrator occupying Silph Co.'s top floor.
+3. Confront the executive using Pokémon Tower's spirits to trace an origin.
+4. Face Giovanni's final level-100 control experiment in Viridian Gym.
+
+Each victory changes NPC dialogue across Kanto and reveals the next location.
+The storyline can be disabled independently without blocking research, titles
+or the final Ascendant Cycle.
 
 ## A living post-game event
 
@@ -168,6 +246,10 @@ They cannot be fought or caught early with the default `APEX` settings.
   Tower's summit.
 - Catch Lugia and Ho-Oh to open the Crown Circuit and reveal the secret
   **Celebi** encounter at level 90 in Viridian Forest.
+- After the Crown Champion, every enabled legend, all research reports and
+  Rocket Resurgence are complete, Oak begins a three-clue investigation.
+  Follow Oak to Mr. Fuji and the Cinnabar fossil room to reveal **Mew** at
+  level 100 on Route 24.
 
 The new map encounters deliberately reuse the built-in overworld sheets:
 `SPRITE_MONSTER` for Raikou, Entei and Suicune, `SPRITE_BIRD` for Lugia and
@@ -180,6 +262,8 @@ The mod's own **OPTIONS** page can change this per species:
   Mewtwo at level 70, without requiring the Master/Apex circuits.
 - Raikou, Entei, Suicune, Lugia, Ho-Oh and Celebi each have an independent
   `ON/OFF` switch.
+- Mew has its own `ON/OFF` switch and is skipped as a final completion
+  requirement when disabled.
 - `OFF` removes the encounter and skips it as an unlock requirement. Crown
   boss copies are replaced by suitable non-legendary Pokémon as well.
 
@@ -235,11 +319,36 @@ submenu. It contains:
   rare-item table.
 - **LEGEND ART** — prefer locally installed Crystal battle art or force the
   original distributable four-shade sprites.
-- Individual encounter rules for all ten legendary Pokémon.
+- Individual encounter rules for all ten post-game legends plus Mew.
+- **MEW** — enable or skip the final mythic investigation.
+- **ROCKET STORY** — enable or skip Rocket Resurgence.
+- **GRAND TOURNAMENT** — enable or skip the repeatable tournament.
+- **NEW GAME+ RULES** — use Ascendant no-item boss rules in later cycles or
+  retain normal battle access.
 
 The step clock, trainer recovery, growth, pending loot, circuit wins, roaming
 routes and legendary progress are stored under `save.modData.trainer_rematch`.
 Base save structures remain compatible if the mod is disabled.
+
+## Achievements, titles and New Game Plus
+
+The Crown Archive now records fourteen permanent titles, including Rematch
+Legend, Crestbearer, Beast Tracker, Grand Champion, Rocket Breaker, Myth
+Seeker and Kanto Ascendant. Special titles also recognize a Crown victory
+without legendary party members and major fights completed without a faint.
+
+Completing the Crown, all eight Leader missions, one Grand Tournament,
+Rocket Resurgence and the enabled Mew finale unlocks an Ascendant Steward in
+the Hall of Fame. The Steward starts a double-confirmed **Ascendant Cycle**:
+
+- Master, Apex, Crown, research, Leader-mission and Rocket progress reset.
+- Base-story progress, party Pokémon, inventory and captured legends remain.
+- Permanent titles and tournament records remain.
+- Boss teams adapt again, and Ascendant rules seal battle items unless the
+  option is changed to NORMAL.
+
+A later cycle cannot be restarted until its circuits, research, Leader
+missions, Rocket story and one new tournament bracket are completed.
 
 ## Installation
 
