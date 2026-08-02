@@ -1,0 +1,25 @@
+{
+  "id": "trainer_rematch",
+  "name": "Kanto Ascendant",
+  "version": "1.1.0",
+  "api": 2,
+  "entry": "main.lua",
+  "profile": "content",
+  "game_version": ">=0.0.0-dev <1.0.0",
+  "category": "GAMEPLAY",
+  "priority": 100,
+  "permissions": [
+    "engine_internals"
+  ],
+  "dependencies": [],
+  "optional_dependencies": [
+    "deutsch",
+    "deutsch-blau",
+    "deutsch-gelb"
+  ],
+  "conflicts": [],
+  "incompatible": [],
+  "experimental": false,
+  "description": "A living Kanto post-game: evolving trainer rematches, Master and Crown circuits, legendary events, research reports, world reactions and a final level-100 challenge.",
+  "github": "Roxas2712/kanto-ascendant"
+}

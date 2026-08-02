@@ -1,0 +1,30 @@
+name: Feature request
+description: Suggest an idea, encounter, dialogue, balance change or other wish for Kanto Ascendant.
+title: "[WISH] "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping shape Kanto Ascendant. The mod is in active development, and wishes will be considered for future updates.
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would you like to see?
+      description: Describe the feature or change and where it should appear.
+      placeholder: I would like...
+    validations:
+      required: true
+  - type: textarea
+    id: reason
+    attributes:
+      label: Why would it improve the mod?
+      description: Tell us how the idea fits the post-game or improves the experience.
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: Optional details
+      description: Suggested dialogue, teams, rewards, unlock conditions or references.

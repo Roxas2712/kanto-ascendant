@@ -1,0 +1,55 @@
+name: Bug report
+description: Report a reproducible problem in Kanto Ascendant.
+title: "[BUG] "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for testing this development version. Please include enough detail to reproduce the problem.
+  - type: input
+    id: version
+    attributes:
+      label: Kanto Ascendant version
+      placeholder: 1.1.0
+    validations:
+      required: true
+  - type: dropdown
+    id: game
+    attributes:
+      label: Game
+      options:
+        - Pokémon Red
+        - Pokémon Blue
+        - Pokémon Yellow
+        - Other / unknown
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: Explain the problem and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Load...
+        2. Talk to...
+        3. Choose...
+    validations:
+      required: true
+  - type: textarea
+    id: mods
+    attributes:
+      label: Other enabled mods
+      description: List translation, gameplay and content mods that were active.
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Screenshots, save details or log output
+      description: Add anything that may help diagnose the problem. Do not upload private information.
