@@ -36,5 +36,5 @@ very welcome and will be considered.
 **Download 5.0.0:**
 https://github.com/Roxas2712/kanto-ascendant/releases/tag/v5.0.0
 
-Import the `.modpkg` through the Gen1 Recomp launcher. Do not combine it with
+Import the `.zip` through the Gen1 Recomp launcher. Do not combine it with
 another mod that adds a complete Johto species roster.

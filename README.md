@@ -878,10 +878,11 @@ missions, Rocket story and one new tournament bracket are completed.
 
 ## Installation
 
-1. Download `kanto-ascendant-5.0.0.modpkg` from the
+1. Download `kanto-ascendant-5.0.0.zip` from the
    [latest release](https://github.com/Roxas2712/kanto-ascendant/releases/latest)
-   and import it through the launcher. Developers may alternatively install
-   the checked-out mod directory.
+   and import it through the launcher. The identical `.modpkg` is also
+   available for launcher versions that use that extension. Developers may
+   alternatively install the checked-out mod directory.
 2. Restart the game and enable **Kanto Ascendant**.
 3. Existing saves work. Old trainer wins receive one initial rest period, and
    existing Pokédex ownership is imported into legendary progression.

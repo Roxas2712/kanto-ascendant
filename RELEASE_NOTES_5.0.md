@@ -54,12 +54,14 @@ features and polish will follow.
 
 ## Installation
 
-Download `kanto-ascendant-5.0.0.modpkg` below and import it through the Gen1
-Recomp launcher. Existing Kanto Ascendant saves are supported. Do not enable a
-second mod that adds a complete Johto species roster at the same time.
+Download `kanto-ascendant-5.0.0.zip` below and import it through the Gen1
+Recomp launcher. The identical `.modpkg` is included as an alternative for
+launcher versions that use that extension. Existing Kanto Ascendant saves are
+supported. Do not enable a second mod that adds a complete Johto species
+roster at the same time.
 
 SHA-256:
-`443f798766b2345c98b845cbfe680ced21ec2703595e34b1df5364d26f2fa5a4`
+`53fcc97126acda9328154ecee62de8ca7358bdb1ecd2a3d90d743b171bfda10f`
 
 Feedback, balancing reports and feature wishes are welcome at
 <https://github.com/Roxas2712/kanto-ascendant/issues>.
