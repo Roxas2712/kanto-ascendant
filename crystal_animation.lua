@@ -1,8 +1,9 @@
--- Johto half of Crystal Animated Sprites with Shiny Visuals compatibility.
+-- Complete standalone Crystal battle-animation controller for #001-251.
 --
--- The community mod owns Crystal animations for Kanto #001-151. Ascendant
--- deliberately mirrors its numbered-frame/duration format for #152-251, but
--- uses a separate battler field so both update wrappers can run together.
+-- Ascendant mirrors Crystal Animated Sprites with Shiny Visuals' numbered
+-- frame format, but uses a separate battler field. Its bundled Kanto pack is
+-- therefore usable alone and yields cleanly when an external visual mod owns
+-- the live sprite.
 
 return function(mod, opts)
   opts = opts or {}
@@ -20,20 +21,59 @@ return function(mod, opts)
   for index, species in ipairs(speciesOrder) do
     local dex = 151 + index
     dexFor[species] = dex
-    A.available[species] =
+  end
+
+  for dex = 1, 251 do
+    A.available[dex] =
       mod:read(("assets/crystal_animated/front/normal/%d/001.png"):format(dex))
         ~= nil
       and type(animationData.normal) == "table"
       and type(animationData.normal[tostring(dex)]) == "table"
-    A.shinyAvailable[species] =
+    A.shinyAvailable[dex] =
       mod:read(("assets/crystal_animated/front/shiny/%d/001.png"):format(dex))
         ~= nil
       and type(animationData.shiny) == "table"
       and type(animationData.shiny[tostring(dex)]) == "table"
   end
 
-  local function enabled()
+  local function resolveDex(ctx)
+    if not (ctx and ctx.species) then return nil end
+    if dexFor[ctx.species] then return dexFor[ctx.species] end
+    local data = ctx.data or (A.game and A.game.data)
+    local def = data and data.pokemon and data.pokemon[ctx.species]
+    local dex = def and tonumber(def.dex)
+    if dex and dex >= 1 and dex <= 251 then
+      dexFor[ctx.species] = dex
+      return dex
+    end
+    return nil
+  end
+
+  local function externalKantoActive(dex)
+    if not (dex and dex <= 151) then return false end
+    local loader = A.game and A.game.mods
+    local exports = loader and loader.exports
+    if type(exports) == "table"
+        and type(exports.crystal_animated_sprites_with_shiny_visuals)
+          == "table" then
+      return true
+    end
+    return loader and type(loader.mods) == "table"
+      and loader.mods.crystal_animated_sprites_with_shiny_visuals ~= nil
+      or false
+  end
+
+  local function artEnabled(dex)
+    if not dex then return false end
+    if dex <= 151 then
+      return mod.options:get("kanto_crystal_art") ~= false
+        and not externalKantoActive(dex)
+    end
     return mod.options:get("legend_art") == "crystal"
+  end
+
+  local function motionEnabled(dex)
+    return artEnabled(dex)
       and mod.options:get("crystal_animation") ~= false
   end
 
@@ -64,27 +104,31 @@ return function(mod, opts)
   -- result untouched.
   function A.select(ctx, selectedSide, externalOverride)
     local mon = ctx and ctx.mon
-    local dex = ctx and dexFor[ctx.species]
+    local dex = resolveDex(ctx)
     if not (mon and dex and ctx.kind == "battle" and selectedSide == "front")
-        or externalOverride or not enabled()
+        or externalOverride or not artEnabled(dex)
         or mon._ascMegaForm or mon.ascMegaForm then
       clearSelection(mon)
       return nil
     end
     local which = variant(mon)
     local ready = which == "shiny"
-      and A.shinyAvailable[ctx.species] or A.available[ctx.species]
+      and A.shinyAvailable[dex] or A.available[dex]
     local timing = ready and durations(dex, which) or nil
-    if not (timing and #timing > 1) then
+    if not (timing and #timing > 0) then
       clearSelection(mon)
       return nil
     end
-    A.selected[mon] = {
-      species = ctx.species,
-      dex = dex,
-      variant = which,
-      durations = timing,
-    }
+    if motionEnabled(dex) and #timing > 1 then
+      A.selected[mon] = {
+        species = ctx.species,
+        dex = dex,
+        variant = which,
+        durations = timing,
+      }
+    else
+      clearSelection(mon)
+    end
     ctx.trueColor = true
     return fullPath(dex, which, 1)
   end
@@ -127,7 +171,7 @@ return function(mod, opts)
   local function updateBattler(battler, dt)
     local mon = battler and battler.mon
     local selected = mon and A.selected[mon]
-    if not (selected and enabled())
+    if not (selected and motionEnabled(selected.dex))
         or mon._ascMegaForm or mon.ascMegaForm then
       if battler then battler.__ascendantCrystalAnimation = nil end
       return
@@ -206,6 +250,8 @@ return function(mod, opts)
   function A.invalidate()
     imageCache = {}
   end
+
+  A.externalKantoActive = externalKantoActive
 
   return A
 end

@@ -1,18 +1,20 @@
-# Kanto Ascendant 5.1.0 — Crystal Animation Compatibility
+# Kanto Ascendant 5.1.1 — Complete Crystal Animation Pack
 
-Kanto Ascendant now completes the animated Pokémon Crystal roster. Normal and
-shiny front animations for Johto #152-251 are bundled with their original
-timing, while **Crystal Animated Sprites with Shiny Visuals** can continue to
-provide Kanto #001-151.
+Kanto Ascendant now bundles the complete animated Pokémon Crystal roster.
+Normal and shiny front animations for every Pokémon #001-251 are included
+with their original timing. **Crystal Animated Sprites with Shiny Visuals**
+remains supported, but is no longer required for Kanto.
 
 ## What changed
 
-- Every Johto species has bundled normal and shiny Crystal animation frames.
+- Every Kanto and Johto species has bundled normal and shiny Crystal frames.
+- `KANTO CRYSTAL ART` independently switches #001-151 between the bundled
+  Crystal fronts and the original Gen-I art.
 - Original 2D battles animate the opponent and retain the authentic player
   back sprite.
 - Dramatic Shape's staged Voxel battles animate both front-facing Pokémon.
-- The external Crystal mod and Ascendant can animate Kanto and Johto in the
-  same battle without overwriting one another.
+- The optional external Crystal mod automatically retains Kanto ownership
+  when present, so both controllers never animate the same battler.
 - Duplicate shiny presentation is suppressed only where another visual mod
   owns it; Johto keeps Ascendant's sparkle, chime and Shiny Dex behavior.
 - Mega Evolution keeps its correct form art even when the Crystal mod is
@@ -28,6 +30,7 @@ its letter forms separately and the public source has no generic animated
 
 - Kanto Ascendant alone in the original 2D battle layout
 - Kanto Ascendant + Dramatic Shape in a staged Voxel battle
+- Kanto Ascendant alone with bundled Kanto and Johto animations
 - Kanto Ascendant + the LOW-K3YS Voxel fork of Crystal Animated Sprites
 - External animated shiny Kanto versus Ascendant animated shiny Johto
 - Mega-sprite priority and species-specific shiny-effect ownership
@@ -38,7 +41,7 @@ saves remain compatible.
 
 ## Installation
 
-Download `kanto-ascendant-5.1.0.zip` and import it through the Gen1 Recomp
+Download `kanto-ascendant-5.1.1.zip` and import it through the Gen1 Recomp
 launcher. The identical `.modpkg` is provided for launcher versions using
 that extension. Do not enable a second mod that registers a complete Johto
 species roster.

@@ -40,7 +40,7 @@ return {
       "A one-time Professor Oak scene foreshadows growing legendary sightings before the first Hall of Fame",
       "Personal Master/Crown Leader and Apex/Crown Elite Four dialogue in both languages",
       "Bundled normal and shiny Pokémon Crystal front/back art for all 100 Johto species",
-      "Bundled normal and shiny Crystal front animations for #152-251, plus seamless coexistence with Crystal Animated Sprites for #001-151",
+      "Bundled normal and shiny Crystal front animations for all #001-251, with optional external Crystal-mod coexistence",
       "Five visible trainer ranks with stronger AI and thematic team growth",
       "Eight sequential research assignments with persistent rewards and Bag-full protection",
       "A personal mission and signature adaptive roster variant for every Gym Leader",

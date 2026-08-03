@@ -13,7 +13,7 @@ local modPath = os.getenv("TRAINER_REMATCH_MOD_DIR")
   or "mods/trainer_rematch"
 local run = T.sdk.loadMod(modPath, { data = Data })
 T.eq(#run.errors, 0, "Kanto Ascendant loads for Atlas/Legacy tests")
-T.eq(run.mod.manifest.version, "5.1.0",
+T.eq(run.mod.manifest.version, "5.1.1",
   "the release manifest identifies the Crystal-animation feature set")
 
 local ex = assert(run.loader.exports.trainer_rematch)

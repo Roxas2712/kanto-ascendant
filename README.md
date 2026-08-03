@@ -774,16 +774,17 @@ normal or shiny Crystal front sprite is used on both sides.
 
 ### Crystal animation and external-mod compatibility
 
-Normal and shiny Crystal front animations for **#152-251** are bundled as
-numbered frames with the source-game timing. Turn them on or off with
-**CRYSTAL ANIMATION**. In the original 2D battle layout the opponent animates
-and the player's real Crystal back remains static. In Dramatic Shape's staged
-Voxel battles both front-facing Pokémon animate.
+Normal and shiny Crystal front animations for **all #001-251** are bundled as
+numbered frames with the source-game timing. **KANTO CRYSTAL ART** switches
+the first 151 between bundled Crystal fronts and the original Gen-I art;
+**CRYSTAL ANIMATION** controls motion. In the original 2D battle layout the
+opponent animates and the player's authentic back remains static. In Dramatic
+Shape's staged Voxel battles both front-facing Pokémon animate.
 
-Kanto Ascendant can be enabled beside
+The external mod is now optional. Kanto Ascendant can still be enabled beside
 [Crystal Animated Sprites with Shiny Visuals](https://github.com/distilledorion-sketch/crystal_animated_sprites_with_shiny_visuals).
-That visual mod continues to own Kanto #001-151; Ascendant supplies the
-previously missing Johto half. For Dramatic Shape, use
+When detected, that visual mod keeps ownership of Kanto #001-151 while
+Ascendant supplies Johto. For Dramatic Shape, use
 [LOW-K3YS's Voxel-compatible fork](https://github.com/LOW-K3YS/crystal_animated_sprites_with_shiny_visuals).
 Duplicate Kanto sparkle/chime presentation is suppressed automatically, while
 Johto shinies retain Ascendant's own effects. Mega forms always keep their
@@ -832,7 +833,9 @@ submenu. It contains:
   rare-item table.
 - **JOHTO ART** — use the bundled Crystal battle art for all 100 species or
   force the four-shade Kanto fallback.
-- **CRYSTAL ANIMATION** — animate normal and shiny Johto fronts with their
+- **KANTO CRYSTAL ART** — use bundled normal/shiny Crystal fronts for #001-151
+  without requiring a separate sprite mod.
+- **CRYSTAL ANIMATION** — animate normal and shiny #001-251 fronts with their
   original Crystal timing; 2D player backs stay static.
 - **SHINY HUNTS** — use Ascendant Charm/streak/outbreak bonuses or retain only
   natural 1/8192 DV shinies.
@@ -895,7 +898,7 @@ missions, Rocket story and one new tournament bracket are completed.
 
 ## Installation
 
-1. Download `kanto-ascendant-5.1.0.zip` from the
+1. Download `kanto-ascendant-5.1.1.zip` from the
    [latest release](https://github.com/Roxas2712/kanto-ascendant/releases/latest)
    and import it through the launcher. The identical `.modpkg` is also
    available for launcher versions that use that extension. Developers may
@@ -941,12 +944,12 @@ python3 tools/modkit.py validate ../trainer_rematch --base imported
 four-shade post-game sprite assets. `tools/install_crystal_sprites.py` validates
 or refreshes the bundled 400 normal/shiny Crystal front/back views.
 `tools/install_crystal_animations.py` refreshes the bundled normal/shiny
-Crystal animation frames for #152-251 and their exact timing table.
+Crystal animation frames for #001-251 and their exact timing table.
 `tools/install_gen2_followers.py` refreshes the bundled normal/shiny
 100-species Gen-2-style walking pack. `tools/shiny_qa_driver.lua`
 captures the 2D follower, voxel follower and voxel battle paths.
-`tools/crystal_animation_qa_driver.lua` exercises the 2D, Voxel and mixed
-external-Kanto/Ascendant-Johto animation paths in a real LÖVE client.
+`tools/crystal_animation_qa_driver.lua` exercises standalone Kanto, Johto,
+Voxel and mixed external-Kanto/Ascendant-Johto paths in a real LÖVE client.
 `tools/make_mega_assets.py` regenerates the four
 original four-shade Mega Raichu battle sprites. `tools/build_breeding_data.py`
 refreshes the offline 251-entry egg-group, gender-ratio and hatch-cycle table

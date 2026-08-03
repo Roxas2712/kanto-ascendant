@@ -301,6 +301,9 @@ return function(mod)
         { menuLabel("CRYSTAL (BUNDLED)", "KRISTALL (ENTHALTEN)"), "crystal" },
         { menuLabel("KANTO FALLBACK", "KANTO-ERSATZ"), "original" },
       } },
+    { key = "kanto_crystal_art",
+      label = menuLabel("KANTO CRYSTAL ART", "KANTO-KRISTALLGRAFIK"),
+      type = "toggle", default = true },
     { key = "crystal_animation",
       label = menuLabel("CRYSTAL ANIMATION", "KRISTALL-ANIMATION"),
       type = "toggle", default = true },
@@ -519,9 +522,9 @@ return function(mod)
   mod.exports.eventArchive = eventArchive
   mod.exports.eventData = eventData
 
-  -- Official Crystal battle art is bundled for all 100 Johto species. This
-  -- live seam selects the complete normal/shiny set; the authored four-shade
-  -- paths remain a crash-safe fallback for a damaged installation.
+  -- Official Crystal battle art is bundled for all 251 species. Johto also
+  -- has authentic back sprites; Kanto keeps the Gen-I player back in 2D and
+  -- uses its bundled Crystal front in ordinary enemy and Voxel positions.
   local crystalAvailable = {}
   local crystalShinyAvailable = {}
   for species, name in pairs(CRYSTAL_ASSETS) do
@@ -540,17 +543,6 @@ return function(mod)
     if shinySystem then shinySystem.prepareSprite(ctx) end
     path = nextSprite(path, ctx)
     local name = ctx and CRYSTAL_ASSETS[ctx.species]
-    if mod.options:get("legend_art") ~= "crystal"
-        or not name or not crystalAvailable[ctx.species] then
-      if crystalAnimation and ctx and ctx.mon then
-        crystalAnimation.select(ctx, nil, true)
-      end
-      return shinySystem and shinySystem.spritePath(path, ctx) or path
-    end
-    -- Pokémon Database's Crystal PNGs carry their own limited GBC palette.
-    -- Opt them out of Gen1's four-shade/SGB recolor; the original fallback
-    -- remains palette-aware.
-    ctx.trueColor = true
     local selectedSide = ctx.side == "back" and "back" or "front"
     -- Dramatic Shape asks the normal back-sprite route, then replaces its
     -- answer with the species' front path so both battlers face the voxel
@@ -574,6 +566,17 @@ return function(mod)
       end
       return shinySystem and shinySystem.spritePath(path, ctx) or path
     end
+    if mod.options:get("legend_art") ~= "crystal"
+        or not name or not crystalAvailable[ctx.species] then
+      local animated = crystalAnimation
+        and crystalAnimation.select(ctx, selectedSide, false)
+      if animated then return animated end
+      return shinySystem and shinySystem.spritePath(path, ctx) or path
+    end
+    -- Crystal PNGs carry their own limited GBC palette. Opt them out of
+    -- Gen1's four-shade/SGB recolor; the original fallback remains
+    -- palette-aware.
+    ctx.trueColor = true
     local shiny = shinySystem and shinySystem.isShiny(ctx.mon)
       and crystalShinyAvailable[ctx.species]
     local relative = "assets/crystal/" .. name .. "_"

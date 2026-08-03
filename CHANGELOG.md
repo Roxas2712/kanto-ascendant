@@ -2,6 +2,27 @@
 
 All notable changes to this project are documented in this file.
 
+## [5.1.1] - 2026-08-03
+
+### Added
+
+- Bundled authentic normal and shiny Pokémon Crystal front animations for
+  Kanto #001-151. Together with the Johto pack, Ascendant now supplies all
+  #001-251 without requiring a separate visual mod.
+- A `KANTO CRYSTAL ART` option that restores original Gen-I fronts at any
+  time while leaving the Johto art choice independent.
+- Standalone Kanto 2D QA alongside the existing Johto, Voxel and mixed-mod
+  animation scenes.
+
+### Changed
+
+- Crystal Animated Sprites with Shiny Visuals is optional. When installed it
+  automatically keeps ownership of #001-151, avoiding competing animation
+  states, duplicate shiny effects or sounds.
+- `CRYSTAL ANIMATION` now controls all bundled #001-251 front animations.
+  Original 2D player backs remain static and Dramatic Shape still receives
+  the front-facing normal or shiny frame.
+
 ## [5.1.0] - 2026-08-03
 
 ### Added

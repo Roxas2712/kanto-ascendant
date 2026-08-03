@@ -40,10 +40,10 @@ T.neq(ex.crystalAnimation, nil,
     "all 100 Johto species ship with Crystal front/back art")
   T.eq(crystalShinyCount, 100,
     "all 100 Johto species ship with shiny Crystal front/back art")
-  T.eq(animatedNormalCount, 100,
-    "all 100 Johto species ship with Crystal animation-compatible normal art")
-  T.eq(animatedShinyCount, 100,
-    "all 100 Johto species ship with Crystal animation-compatible shiny art")
+  T.eq(animatedNormalCount, 251,
+    "all 251 species ship with Crystal animation-compatible normal art")
+  T.eq(animatedShinyCount, 251,
+    "all 251 species ship with Crystal animation-compatible shiny art")
   T.eq(ex.crystalSprites.TOTODILE, true,
     "Totodile never needs the Squirtle battle fallback in a release package")
   T.eq(ex.crystalSprites.FERALIGATR, true,
@@ -79,6 +79,47 @@ if ex.crystalShinySprites.RAIKOU then
     "the official shiny Crystal palette is kept in true color")
 end
 do
+local animatedKanto = {
+  species = "FIXMON_A",
+  dvs = { attack = 9, defense = 8, speed = 8, special = 8, hp = 8 },
+}
+local animatedKantoCtx = {
+  species = "FIXMON_A", side = "front", trueColor = false,
+  mon = animatedKanto, kind = "battle", data = Data,
+}
+local animatedKantoPath = RealRuntime.call("pokemon.sprite",
+  function(path) return path end, "fallback_front.png", animatedKantoCtx)
+T.eq(animatedKantoPath:find(
+    "assets/crystal_animated/front/normal/1/001.png", 1, true) ~= nil, true,
+  "Kanto enemy fronts use the bundled Crystal animation without another mod")
+T.eq(animatedKantoCtx.trueColor, true,
+  "bundled Kanto Crystal frames keep their authored palette")
+local shinyKantoPath = RealRuntime.call("pokemon.sprite",
+  function(path) return path end, "fallback_front.png", {
+    species = "FIXMON_A", side = "front", trueColor = false,
+    mon = {
+      species = "FIXMON_A",
+      dvs = { attack = 10, defense = 10, speed = 10, special = 10, hp = 0 },
+    },
+    kind = "battle", data = Data,
+  })
+T.eq(shinyKantoPath:find(
+    "assets/crystal_animated/front/shiny/1/001.png", 1, true) ~= nil, true,
+  "Kanto shinies use the bundled matching Crystal frames")
+local kantoBackPath = RealRuntime.call("pokemon.sprite",
+  function(path) return path end, "fallback_back.png", {
+    species = "FIXMON_A", side = "back", trueColor = false,
+    mon = animatedKanto, kind = "battle", data = Data,
+  })
+T.eq(kantoBackPath, "fallback_back.png",
+  "original 2D battles keep the authentic Gen-I Kanto player back sprite")
+run.loader.modOptions.trainer_rematch = { kanto_crystal_art = false }
+local disabledKantoPath = RealRuntime.call("pokemon.sprite",
+  function(path) return path end, "fallback_front.png", animatedKantoCtx)
+T.eq(disabledKantoPath, "fallback_front.png",
+  "KANTO CRYSTAL ART can restore the original Gen-I front sprites")
+run.loader.modOptions.trainer_rematch = nil
+
 local animatedTotodile = {
   species = "TOTODILE",
   dvs = { attack = 9, defense = 8, speed = 8, special = 8, hp = 8 },
@@ -218,7 +259,9 @@ T.eq(optionRows.legend_articuno.type, "choice",
 T.eq(optionRows.shiny_hunts.type, "choice",
   "shiny hunting can use Ascendant boosts or natural 1/8192 odds")
 T.eq(optionRows.crystal_animation.type, "toggle",
-  "bundled Johto Crystal animation can be disabled independently")
+  "bundled Crystal animation can be disabled independently")
+T.eq(optionRows.kanto_crystal_art.type, "toggle",
+  "bundled Kanto Crystal art can be enabled without an external sprite mod")
 T.eq(optionRows.shiny_effects.type, "toggle",
   "built-in shiny presentation can be switched off")
 T.eq(optionRows.shiny_protection.type, "toggle",

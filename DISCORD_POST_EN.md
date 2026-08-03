@@ -1,23 +1,39 @@
-# Kanto Ascendant 5.1.0
+# KANTO ASCENDANT 5.1.1
 
-🎞️ **Crystal animation update**
+A persistent Gen-I/II adventure with **all 251 Pokémon obtainable in one
+save**. Still in development — feedback and feature wishes are welcome!
 
-• Bundled normal + shiny Crystal animations for every Johto Pokémon #152-251
-• Compatible with **Crystal Animated Sprites with Shiny Visuals** for #001-151
-• 2D keeps the authentic player back; Voxel animates both front-facing Pokémon
-• Kanto/Johto shiny effects coexist without duplicate sparkles or chimes
-• Mega forms always keep their correct official sprite
-• Static Unown form-A is the only source-accurate exception
+**FEATURES**
+• Step-based trainer rematches: trainers grow when skipped, gain fitting
+Pokémon and can drop rare items or renewable TMs.
+• Route 5 Day-Care with breeding, eggs, Move Reminder/Deleter, Field Kit
+HM use and evolution services.
+• Complete Johto research, habitats, starters, Pokédex and moves — without
+pre-filling unseen or uncaught entries.
+• Gen-II shinies, Shiny Dex, breeding inheritance, outbreaks, streaks,
+Shiny Charm and repeatable random shiny rewards from Gold.
+• Bundled Crystal animations and shiny frames for **all 251 Pokémon**.
+The external Crystal mod is optional; 2D, Dramatic Shape/Voxel and mixed
+battles are supported.
+• 30 Mega Stones for every official Mega among #001–251, including Mega
+Raichu X/Y. One temporary Mega per battle.
+• Lv.100 Leader, Elite Four and Champion rematches, personal missions,
+adaptive teams and unique bilingual dialogue.
+• Legendary event chain for the birds, beasts, Mewtwo, Mew, Lugia, Ho-Oh
+and Celebi, with optional classic-access settings.
+• Battle Frontier, rental Battle Factory, repeatable S.S. Anne Grand Tour,
+Rocket Resurgence and Heritage event cups.
+• Itemless Johto Masters battles against Silver, Kris and Gold — the final
+main challenge before the replayable Ascendant/New Game+ cycle.
+• Research Atlas, Journal quest tracking, trophies, titles, world events,
+Dex certificates and English/German auto-detection.
+• Works with existing saves and Pokémon Red, Blue and Yellow.
 
-Also includes all 5.0 features: 251 catchable Pokémon, ranked rematches,
-shinies, breeding, Mega Stones, legendary events, Research Atlas, Factory,
-S.S. Anne, Johto Masters and New Game+ — English/German.
+**DOWNLOAD 5.1.1**
+https://github.com/Roxas2712/kanto-ascendant/releases/tag/v5.1.1
 
-Tested in Red/Blue/Yellow, real 2D, Voxel and mixed Kanto/Johto battles, plus
-3,996 automated checks. Existing saves are supported.
+Import the `.zip` through the Gen1 Recomp launcher. Optional visual-mod
+compatibility:
+https://github.com/LOW-K3YS/crystal_animated_sprites_with_shiny_visuals
 
-**Download 5.1.0:**
-https://github.com/Roxas2712/kanto-ascendant/releases/tag/v5.1.0
-
-Import the `.zip` through the launcher. Do not enable another complete-Johto
-species mod. Feedback and feature wishes are welcome!
+Do not enable another complete-Johto species mod.

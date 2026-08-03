@@ -6,7 +6,7 @@
 --
 -- The driver switches to a dedicated LOVE identity before installing. It
 -- first imports the old release, then replaces it through the launcher's
--- exact .zip/.modpkg path and verifies the manager sees 5.1.0.
+-- exact .zip/.modpkg path and verifies the manager sees 5.1.1.
 
 return function()
   assert(love and love.filesystem, "launcher QA requires LOVE")
@@ -39,16 +39,16 @@ return function()
     replace = true, expectId = "trainer_rematch",
   })
   assert(ok and id == "trainer_rematch",
-    "5.1.0 .modpkg update failed: " .. tostring(id))
+    "5.1.1 .modpkg update failed: " .. tostring(id))
   local currentVersion, row = installedVersion()
-  assert(currentVersion == "5.1.0",
-    "launcher did not expose installed 5.1.0: " .. tostring(currentVersion))
+  assert(currentVersion == "5.1.1",
+    "launcher did not expose installed 5.1.1: " .. tostring(currentVersion))
   assert(row.status == "ok",
     "updated package is not launcher-ready: " .. tostring(row.statusDetail))
 
   local manifest = assert(love.filesystem.read(
     "mods/trainer_rematch/manifest.json"))
-  assert(manifest:find('"version"%s*:%s*"5%.1%.0"'),
+  assert(manifest:find('"version"%s*:%s*"5%.1%.1"'),
     "installed tree does not contain the current manifest")
 
   print(("LAUNCHER PACKAGE QA PASS: 3.1.0 -> %s (%s)")

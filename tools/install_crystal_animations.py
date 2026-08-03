@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Build bundled Crystal battle animations for Johto #152-251.
+"""Build bundled Crystal battle animations for all Pokémon #001-251.
 
 The public Crystal Animated Sprites with Shiny Visuals mod stores each
 animation as numbered PNG frames plus a Lua duration table. Kanto Ascendant
-uses the same deliberately simple format so the two mods can share a battle:
-the external mod owns #001-151 and this generated pack owns #152-251.
+uses the same deliberately simple format. Its complete bundled pack works
+standalone, while an installed external animation mod can still take
+ownership of the Kanto species it replaces.
 
 Source GIFs are the Pokémon Crystal normal/shiny animations mirrored by the
 PokeAPI sprites repository. Every species is downloaded and validated before
@@ -28,7 +29,7 @@ BASE = (
     "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"
     "versions/generation-ii/crystal/animated"
 )
-DEX_NUMBERS = range(152, 252)
+DEX_NUMBERS = range(1, 252)
 VARIANTS = {
     "normal": "{dex}.gif",
     "shiny": "shiny/{dex}.gif",
@@ -150,7 +151,7 @@ def lua_table(animation_data: dict[str, dict[int, list[int]]]) -> str:
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Build normal/shiny Crystal animation frames for #152-251."
+        description="Build normal/shiny Crystal animation frames for #001-251."
     )
     parser.add_argument(
         "--force",
@@ -192,7 +193,7 @@ def main() -> int:
         temp_data = Path(handle.name)
         handle.write(body.encode("utf-8"))
     temp_data.replace(DATA)
-    print("installed 200 Crystal animations and crystal_animation_data.lua")
+    print("installed 502 Crystal animations and crystal_animation_data.lua")
     return 0
 
 

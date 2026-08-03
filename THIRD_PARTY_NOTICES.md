@@ -14,9 +14,9 @@ mod and is not affiliated with or endorsed by them.
 
 ## Pokémon Crystal animated sprites
 
-The bundled normal and shiny front-animation frames for Johto Pokémon
-#152-251 are generated from the Pokémon Crystal GIF mirrors maintained in the
-PokeAPI sprites repository:
+The bundled normal and shiny front-animation frames for all Pokémon #001-251
+are generated from the Pokémon Crystal GIF mirrors maintained in the PokeAPI
+sprites repository:
 
 https://github.com/PokeAPI/sprites
 

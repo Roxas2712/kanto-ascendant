@@ -2,6 +2,7 @@
 -- with Shiny Visuals, and Dramatic Shape's voxel battle renderer.
 --
 -- CRYSTAL_QA_MODE=2d:    shiny Johto enemy front, original Crystal player back
+-- CRYSTAL_QA_MODE=kanto: bundled shiny Kanto enemy without the external mod
 -- CRYSTAL_QA_MODE=voxel: normal Johto enemy + shiny Johto player, both fronts
 -- CRYSTAL_QA_MODE=mixed: shiny Kanto enemy from the external mod + shiny Johto
 --                        player from Ascendant in one voxel battle
@@ -21,10 +22,11 @@ return function(game)
   local animation = assert(api.crystalAnimation,
     "Ascendant Crystal animation controller missing")
   local shiny = assert(api.shinySystem, "Ascendant shiny controller missing")
-  assert(animation.available.TOTODILE and animation.shinyAvailable.FERALIGATR,
-    "normal/shiny Johto animation packs are incomplete")
+  assert(animation.available[1] and animation.shinyAvailable[1]
+      and animation.available[158] and animation.shinyAvailable[160],
+    "normal/shiny #001-251 animation packs are incomplete")
 
-  local voxel = mode ~= "2d"
+  local voxel = mode == "voxel" or mode == "mixed"
   Pipelines.setLevel("voxel", voxel and 1 or 0)
   Pipelines.syncOptions(game.save.options)
   -- Dramatic Shape's staged-battle switch is independent from the world
@@ -50,7 +52,7 @@ return function(game)
 
   U.teleport(game, "ROUTE_1", 5, 5, "down")
   local enemySpecies = mode == "2d" and "SUICUNE"
-    or mode == "mixed" and "BULBASAUR" or "TOTODILE"
+    or (mode == "mixed" or mode == "kanto") and "BULBASAUR" or "TOTODILE"
   local battle = BattleState.newWild(game, enemySpecies, 35)
   if mode ~= "voxel" then
     assert(shiny.forceMon(battle.enemy.mon, game.data.pokemon[enemySpecies]))
@@ -69,13 +71,19 @@ return function(game)
     assert(external, "external Crystal Animated Sprites mod is not loaded")
     assert(battle.enemy.__crystalAnimation,
       "external Kanto animation did not attach to the enemy")
+    assert(not battle.enemy.__ascendantCrystalAnimation,
+      "Ascendant did not yield bundled Kanto art to the external mod")
     assert(shiny.externalActive(battle.enemy.mon),
       "external Kanto shiny presentation was not detected")
     assert(not shiny.externalActive(battle.player.mon),
       "Kanto-only external visuals incorrectly suppressed Johto effects")
   else
+    if mode == "kanto" then
+      assert(not external,
+        "standalone Kanto QA requires the external Crystal mod to be disabled")
+    end
     assert(battle.enemy.__ascendantCrystalAnimation,
-      "Ascendant Johto animation did not attach to the enemy")
+      "Ascendant bundled animation did not attach to the enemy")
   end
   if voxel then
     assert(battle.player.__ascendantCrystalAnimation,
