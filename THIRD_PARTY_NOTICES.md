@@ -30,6 +30,18 @@ https://github.com/LOW-K3YS/crystal_animated_sprites_with_shiny_visuals
 Unown uses the bundled static Crystal form-A image because the source mirrors
 do not provide a generic animated #201 GIF.
 
+## Mega Charizard X Crystal-style animation
+
+Mega Charizard X normal/shiny front animations and static backs are
+deterministically reduced to Kanto Ascendant's 56×56, four-color format from
+the Smogon-community Pokémon Showdown animation mirrors maintained in the
+PokeAPI sprites repository:
+
+https://github.com/PokeAPI/sprites
+
+The conversion uses nearest-neighbour scaling and does not distribute the
+original full-color GIF files.
+
 ## PokeWilds follower sprites
 
 The bundled normal and shiny six-pose Johto overworld sheets are sourced from

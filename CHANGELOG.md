@@ -13,6 +13,8 @@ All notable changes to this project are documented in this file.
   time while leaving the Johto art choice independent.
 - Standalone Kanto 2D QA alongside the existing Johto, Voxel and mixed-mod
   animation scenes.
+- Dedicated normal and shiny Crystal-style front animations plus static
+  player backs for Mega Charizard X.
 
 ### Changed
 
@@ -22,6 +24,8 @@ All notable changes to this project are documented in this file.
 - `CRYSTAL ANIMATION` now controls all bundled #001-251 front animations.
   Original 2D player backs remain static and Dramatic Shape still receives
   the front-facing normal or shiny frame.
+- Mega Charizard X keeps its own reduced four-color animation in both 2D and
+  Voxel battles, even when an external full-roster sprite mod is active.
 
 ## [5.1.0] - 2026-08-03
 

@@ -9,6 +9,7 @@ return function(mod, opts)
   opts = opts or {}
   local i18n = opts.i18n
   local postgame = opts.postgame
+  local animationData = opts.animationData or {}
   local enabled = opts.contentEnabled ~= false
   local M = { game = nil, enabled = enabled }
 
@@ -28,7 +29,8 @@ return function(mod, opts)
     form("VENUSAUR", "VENUSAUR", "VENUSAURITE", "MEGA VENUSAUR", "hof", 5000,
       { attack = 10, defense = 35, speed = 5, special = 50 }),
     form("CHARIZARD", "CHARIZARD_X", "CHARIZARDITE_X", "MEGA CHARIZARD X", "hof", 7500,
-      { attack = 45, defense = 25, speed = 10, special = 20 }, { "FIRE", "DRAGON" }),
+      { attack = 45, defense = 25, speed = 10, special = 20 },
+      { "FIRE", "DRAGON" }, "mega_charizard_x"),
     form("CHARIZARD", "CHARIZARD_Y", "CHARIZARDITE_Y", "MEGA CHARIZARD Y", "hof", 7500,
       { attack = 15, defense = 10, speed = 15, special = 60 }),
     form("BLASTOISE", "BLASTOISE", "BLASTOISINITE", "MEGA BLASTOISE", "hof", 5000,
@@ -109,6 +111,87 @@ return function(mod, opts)
     OPP_BRUNO = true, OPP_AGATHA = true, OPP_LANCE = true,
     OPP_RIVAL3 = true, OPP_PROF_OAK = true,
   }
+  local animationImages = {}
+
+  local function isShiny(mon)
+    if type(mon) ~= "table" then return false end
+    if mon.shiny == true then return true end
+    local ok, Stats = pcall(require, "src.pokemon.Stats")
+    return ok and Stats and Stats.isShiny
+      and Stats.isShiny(mon.dvs) or false
+  end
+
+  local function animationVariant(profile, mon)
+    local data = profile and animationData[profile.id]
+    if type(data) ~= "table" then return nil end
+    if isShiny(mon) and type(data.shiny) == "table" then return "shiny" end
+    return type(data.normal) == "table" and "normal" or nil
+  end
+
+  local function animationPath(profile, variant, frame)
+    return ("%s/assets/mega_animated/%s/%s/%03d.png"):format(
+      mod.path, profile.asset, variant, frame or 1)
+  end
+
+  local function loadAnimationImage(path)
+    if animationImages[path] then return animationImages[path] end
+    if not (love and love.graphics and love.graphics.newImage) then return nil end
+    local ok, image = pcall(love.graphics.newImage, path)
+    if not (ok and image) then return nil end
+    if image.setFilter then image:setFilter("nearest", "nearest") end
+    animationImages[path] = image
+    return image
+  end
+
+  local function updateMegaBattler(battler, dt)
+    local mon = battler and battler.mon
+    local profile = mon and FORMS_BY_ID[mon._ascMegaForm]
+    local variant = profile and animationVariant(profile, mon)
+    local timings = variant and animationData[profile.id][variant]
+    if not (profile and profile.asset and timings and #timings > 1) then
+      if battler then battler.__ascendantMegaAnimation = nil end
+      return
+    end
+    local state = battler.__ascendantMegaAnimation
+    if not state or state.form ~= profile.id or state.variant ~= variant then
+      state = {
+        form = profile.id, variant = variant, timings = timings,
+        frame = 1, elapsed = 0, image = battler.sprite,
+      }
+      battler.__ascendantMegaAnimation = state
+    elseif state.image and battler.sprite ~= state.image then
+      -- A later renderer or another form change now owns this battler.
+      battler.__ascendantMegaAnimation = nil
+      return
+    end
+    state.elapsed = state.elapsed + (tonumber(dt) or (1 / 60)) * 1000
+    local changed, guard = false, 0
+    while state.elapsed >= (state.timings[state.frame] or 100)
+        and guard < 50 do
+      state.elapsed = state.elapsed - (state.timings[state.frame] or 100)
+      state.frame = state.frame + 1
+      if state.frame > #state.timings then state.frame = 1 end
+      changed, guard = true, guard + 1
+    end
+    if not changed then return end
+    local image = loadAnimationImage(
+      animationPath(profile, variant, state.frame))
+    if image then
+      battler.sprite = image
+      state.image = image
+    end
+  end
+
+  local function updateMegaAnimations(battle, dt)
+    if not battle then return end
+    if battle.enemy and not battle.showEnemyTrainer
+        and not battle.enemySendingOut then
+      updateMegaBattler(battle.enemy, dt)
+    end
+    if battle.player and not battle.showPlayerBack and not battle.sendingOut then
+      updateMegaBattler(battle.player, dt)
+    end
+  end
 
   local function tr(en, de)
     return i18n and i18n.text(en, de) or en
@@ -232,6 +315,7 @@ return function(mod, opts)
     battler.mon._ascMegaForm = profile.id
     battler._ascMegaForm = profile.id
     battler._ascMegaProfile = profile
+    battler.__ascendantMegaAnimation = nil
     battler.curStats = boostedStats(battler, profile)
     if profile.types then battler.curTypes = profile.types end
     refreshSprite(battle, battler)
@@ -274,6 +358,12 @@ return function(mod, opts)
       battle and battle._ascMegaEnemyMon,
     }) do
       if mon then mon._ascMegaForm = nil end
+    end
+    for _, battler in ipairs({
+      battle and battle.player,
+      battle and battle.enemy,
+    }) do
+      if battler then battler.__ascendantMegaAnimation = nil end
     end
   end
 
@@ -465,13 +555,17 @@ return function(mod, opts)
           local ok = M.activate(battle, battle.enemy, "enemy")
           if ok then
             battle._ascMegaEnemyPending = nil
+            updateMegaAnimations(battle, dt)
             return
           end
         end
         local input = battle.game and battle.game.input
         if input and input:wasPressed("select") then
           local ok, reason = M.activate(battle, battle.player, "player")
-          if ok then return end
+          if ok then
+            updateMegaAnimations(battle, dt)
+            return
+          end
           local message
           if reason == "locked" then
             message = tr(
@@ -490,11 +584,14 @@ return function(mod, opts)
             battle:say(message)
             battle.phase = "messages"
             battle.afterQueue = "menu"
+            updateMegaAnimations(battle, dt)
             return
           end
         end
       end
-      return vanillaUpdate(battle, dt)
+      local result = vanillaUpdate(battle, dt)
+      updateMegaAnimations(battle, dt)
+      return result
     end
 
     local vanillaFinish = BattleState.finish
@@ -533,10 +630,12 @@ return function(mod, opts)
     path = nextSprite(path, ctx)
     local profile = ctx and ctx.mon and FORMS_BY_ID[ctx.mon._ascMegaForm]
     if not (profile and profile.asset) then return path end
-    local candidate = "assets/mega/" .. profile.asset .. "_"
-      .. (ctx.side == "back" and "back" or "front") .. ".png"
+    local side = ctx.side == "back" and "back" or "front"
+    local base = "assets/mega/" .. profile.asset .. "_" .. side
+    local shiny = isShiny(ctx.mon) and mod:read(base .. "_shiny.png")
+    local candidate = base .. (shiny and "_shiny" or "") .. ".png"
     if not mod:read(candidate) then return path end
-    ctx.trueColor = false
+    ctx.trueColor = animationData[profile.id] ~= nil
     return mod.path .. "/" .. candidate
   end, 990)
 
@@ -609,5 +708,7 @@ return function(mod, opts)
   M.boostedStats = boostedStats
   M.stoneName = stoneName
   M.caseLabel = caseLabel
+  M.animationData = animationData
+  M.updateAnimations = updateMegaAnimations
   return M
 end

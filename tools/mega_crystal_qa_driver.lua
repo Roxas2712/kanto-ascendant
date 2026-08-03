@@ -1,12 +1,14 @@
 -- Real-LOVE QA for Mega sprite ownership with bundled/external Crystal art.
 --
--- MEGA_QA_FORM=x|y chooses Mega Raichu X or Y. The same driver is run once
--- with Kanto Ascendant alone and once with Crystal Animated Sprites loaded.
+-- MEGA_QA_FORM=x|y|charizard-x chooses the visible form; MEGA_QA_SHINY=1
+-- selects its shiny palette. The same driver is run with Kanto Ascendant
+-- alone and with Crystal Animated Sprites loaded.
 
 return function(game)
   local U = dofile("tests/drivers/util.lua")
   local DIR = os.getenv("SHOT_DIR") or "/tmp/kanto-ascendant-mega-qa"
   local form = (os.getenv("MEGA_QA_FORM") or "x"):lower()
+  local forcedShiny = os.getenv("MEGA_QA_SHINY") == "1"
   local Pokemon = require("src.pokemon.Pokemon")
   local Sprites = require("src.pokemon.Sprites")
   local BattleState = require("src.battle.BattleState")
@@ -16,17 +18,23 @@ return function(game)
   local api = assert(game.mods and game.mods.exports
     and game.mods.exports.trainer_rematch, "Kanto Ascendant export missing")
   local mega = assert(api.megaEvolution, "Mega controller missing")
-  assert(form == "x" or form == "y", "MEGA_QA_FORM must be x or y")
-  local profileId = form == "y" and "RAICHU_Y" or "RAICHU_X"
-  local stone = form == "y" and "RAICHUNITE_Y" or "RAICHUNITE_X"
-  local asset = form == "y" and "mega_raichu_y" or "mega_raichu_x"
+  assert(form == "x" or form == "y" or form == "charizard-x",
+    "MEGA_QA_FORM must be x, y or charizard-x")
+  local charizard = form == "charizard-x"
+  local species = charizard and "CHARIZARD" or "RAICHU"
+  local profileId = charizard and "CHARIZARD_X"
+    or (form == "y" and "RAICHU_Y" or "RAICHU_X")
+  local stone = charizard and "CHARIZARDITE_X"
+    or (form == "y" and "RAICHUNITE_Y" or "RAICHUNITE_X")
+  local asset = charizard and "mega_charizard_x"
+    or (form == "y" and "mega_raichu_y" or "mega_raichu_x")
 
-  Pipelines.setLevel("voxel", 0)
+  Pipelines.setLevel("voxel", charizard and 1 or 0)
   Pipelines.syncOptions(game.save.options)
   local dramatic = game.mods.exports.DRAMATIC_SHAPE
   if dramatic and dramatic.lib then
     local overworldBattle = dramatic.lib.require("OverworldBattle")
-    overworldBattle.setting:setIndex(2, game)
+    overworldBattle.setting:setIndex(charizard and 1 or 2, game)
     overworldBattle.backSetting:setIndex(1, game)
   end
 
@@ -37,9 +45,10 @@ return function(game)
   mega.unlock(game)
   local megaState = mega.state()
   megaState.stones[stone] = true
-  megaState.preferences.RAICHU = profileId
+  megaState.preferences[species] = profileId
 
-  local lead = Pokemon.new(game.data, "RAICHU", 50, function() return 10 end)
+  local lead = Pokemon.new(game.data, species, 50,
+    function() return forcedShiny and 10 or 8 end)
   game.save.party = { lead }
   U.teleport(game, "ROUTE_1", 5, 5, "down")
   local battle = BattleState.newWild(game, "BULBASAUR", 35)
@@ -62,22 +71,37 @@ return function(game)
     "live Pokémon did not enter " .. profileId)
   assert(battle.player._ascMegaForm == profileId,
     "live battler did not enter " .. profileId)
-  local front = Sprites.path(game.data, "RAICHU", "front", {
+  local front = Sprites.path(game.data, species, "front", {
     mon = lead, kind = "battle",
   })
-  local back = Sprites.path(game.data, "RAICHU", "back", {
+  local back = Sprites.path(game.data, species, "back", {
     mon = lead, kind = "battle",
   })
+  local suffix = forcedShiny and "_shiny" or ""
   assert(front and front:find(
-      "assets/mega/" .. asset .. "_front.png", 1, true),
+      "assets/mega/" .. asset .. "_front" .. suffix .. ".png", 1, true),
     "Mega front lost to Crystal sprite ownership: " .. tostring(front))
   assert(back and back:find(
-      "assets/mega/" .. asset .. "_back.png", 1, true),
+      "assets/mega/" .. asset .. "_back" .. suffix .. ".png", 1, true),
     "Mega back lost to Crystal sprite ownership: " .. tostring(back))
   assert(not battle.player.__ascendantCrystalAnimation,
     "base Crystal animation kept running after Mega Evolution")
   assert(not battle.player.__crystalAnimation,
     "external Crystal animation kept running after Mega Evolution")
-  assert(U.shot(game, ("%s/mega_raichu_%s.png"):format(DIR, form)))
-  U.log("Mega Raichu " .. form:upper(), "front/back sprite ownership PASS")
+  if charizard then
+    local animation = assert(battle.player.__ascendantMegaAnimation,
+      "Mega Charizard X front animation did not attach in Voxel")
+    local first = animation.frame
+    for _ = 1, 120 do
+      U.wait(1)
+      if animation.frame ~= first then break end
+    end
+    assert(animation.frame ~= first,
+      "Mega Charizard X front animation did not advance")
+  end
+  local label = charizard and "mega_charizard_x"
+    or ("mega_raichu_" .. form)
+  if forcedShiny then label = label .. "_shiny" end
+  assert(U.shot(game, ("%s/%s.png"):format(DIR, label)))
+  U.log(label, "front/back sprite ownership PASS")
 end

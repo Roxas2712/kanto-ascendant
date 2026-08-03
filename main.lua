@@ -469,10 +469,12 @@ return function(mod)
     fieldTech = fieldTech,
   })
   local makeMegaEvolution = loadSibling(mod, "mega_evolution.lua")
+  local megaAnimationData = loadSibling(mod, "mega_animation_data.lua")
   local megaEvolution = makeMegaEvolution(mod, {
     postgame = postgame,
     i18n = i18n,
     contentEnabled = contentEnabled,
+    animationData = megaAnimationData,
   })
   daycare.setMega(megaEvolution)
   local makeShinySystem = loadSibling(mod, "shiny_system.lua")

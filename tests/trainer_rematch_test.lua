@@ -548,6 +548,55 @@ T.eq(megaPath:find("assets/mega/mega_raichu_x_front.png", 1, true) ~= nil,
 T.eq(megaCtx.trueColor, false,
   "Mega sprites remain compatible with Gen-1 palettes")
 do
+local charizardXMon = {
+  species = "CHARIZARD", _ascMegaForm = "CHARIZARD_X",
+  dvs = { attack = 9, defense = 8, speed = 8, special = 8, hp = 8 },
+}
+local charizardXCtx = {
+  species = "CHARIZARD", side = "front", trueColor = false,
+  mon = charizardXMon,
+}
+local charizardXPath = RealRuntime.call("pokemon.sprite",
+  function(path) return path end, "charizard_fallback.png", charizardXCtx)
+T.eq(charizardXPath:find(
+    "assets/mega/mega_charizard_x_front.png", 1, true) ~= nil, true,
+  "Mega Charizard X selects its dedicated Crystal-style front sprite")
+T.eq(charizardXCtx.trueColor, true,
+  "Mega Charizard X preserves its authored blue Crystal palette")
+local shinyCharizardXPath = RealRuntime.call("pokemon.sprite",
+  function(path) return path end, "charizard_fallback.png", {
+    species = "CHARIZARD", side = "front", trueColor = false,
+    mon = {
+      species = "CHARIZARD", _ascMegaForm = "CHARIZARD_X",
+      dvs = { attack = 10, defense = 10, speed = 10, special = 10, hp = 0 },
+    },
+  })
+T.eq(shinyCharizardXPath:find(
+    "assets/mega/mega_charizard_x_front_shiny.png", 1, true) ~= nil, true,
+  "shiny Mega Charizard X selects its matching four-color art")
+T.eq(#mega.animationData.CHARIZARD_X.normal, 16,
+  "Mega Charizard X ships with a reduced Crystal-style animation loop")
+for variant, timings in pairs(mega.animationData.CHARIZARD_X) do
+  for frame = 1, #timings do
+    local relative = ("assets/mega_animated/mega_charizard_x/%s/%03d.png")
+      :format(variant, frame)
+    local handle = io.open(modPath .. "/" .. relative, "rb")
+    T.neq(handle, nil, relative .. " is packaged")
+    if handle then handle:close() end
+  end
+end
+local megaAnimationBattle = {
+  enemy = { mon = charizardXMon, sprite = {} },
+  showEnemyTrainer = false,
+  enemySendingOut = false,
+}
+mega.updateAnimations(megaAnimationBattle, 0.25)
+T.neq(megaAnimationBattle.enemy.__ascendantMegaAnimation, nil,
+  "Mega Charizard X receives an independent live animation state")
+T.eq(megaAnimationBattle.enemy.__ascendantMegaAnimation.frame > 1, true,
+  "Mega Charizard X animation advances using packaged timing")
+end
+do
 local removeCrystalKanto = run.loader.hooks:wrap(
   "pokemon.sprite", function(_, _, ctx)
     if ctx and ctx.species == "RAICHU" then
