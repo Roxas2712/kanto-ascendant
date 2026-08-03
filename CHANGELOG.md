@@ -2,6 +2,27 @@
 
 All notable changes to this project are documented in this file.
 
+## [5.0.2] - 2026-08-03
+
+### Added
+
+- All 400 normal/shiny Pokémon Crystal front/back sprites for the 100 Johto
+  species are now bundled directly with ZIP and MODPKG releases.
+- All 198 normal/shiny PokeWilds six-pose sheets for the 99 standard Johto
+  followers are bundled; Unown continues to derive its matching walking art
+  from the included Crystal sprite.
+
+### Changed
+
+- `JOHTO ART` now identifies Crystal art as bundled instead of local.
+- The sprite installer scripts remain available as repair/refresh tools.
+
+### Fixed
+
+- Fresh launcher installations no longer show related Kanto fallback species
+  such as Squirtle for Totodile when the external sprite installers were not
+  run.
+
 ## [5.0.1] - 2026-08-03
 
 ### Added

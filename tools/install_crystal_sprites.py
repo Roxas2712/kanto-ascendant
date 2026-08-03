@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""Install optional Pokémon Crystal battle sprites from Pokémon Database.
+"""Repair or refresh the bundled Pokémon Crystal battle sprite set.
 
-Pokémon Database asks users to save images instead of hotlinking them. This
-tool does exactly that for a personal installation. The downloaded game art is
-deliberately excluded from source/release archives; the original four-shade
-sprites remain the distributable fallback.
+The release already includes all validated normal/shiny front/back images.
+This utility downloads fresh local copies from Pokémon Database when an
+installation needs to be repaired or refreshed.
 """
 
 from __future__ import annotations

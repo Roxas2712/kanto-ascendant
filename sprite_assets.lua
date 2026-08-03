@@ -1,4 +1,4 @@
--- Runtime preparation for optional full-colour sprite packs.
+-- Runtime preparation for the bundled full-colour sprite packs.
 --
 -- Crystal battle PNGs use an opaque color-0 background because the original
 -- games drew them against a flat battle field. A voxel battle needs actual
@@ -6,8 +6,8 @@
 --
 -- PokeWilds' Gen-2-style overworld sheets are six horizontal 16x16 frames.
 -- Gen1 Recomp expects the same poses in a vertical 16x96 sheet and a
--- different order. Converted files live in LOVE's derived cache; downloaded
--- originals remain untouched.
+-- different order. Converted files live in LOVE's derived cache; bundled
+-- source sheets remain untouched.
 
 return function(mod)
   local A = {}

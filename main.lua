@@ -298,7 +298,7 @@ return function(mod)
       type = "choice",
       default = "crystal",
       choices = {
-        { menuLabel("CRYSTAL (LOCAL)", "KRISTALL (LOKAL)"), "crystal" },
+        { menuLabel("CRYSTAL (BUNDLED)", "KRISTALL (ENTHALTEN)"), "crystal" },
         { menuLabel("KANTO FALLBACK", "KANTO-ERSATZ"), "original" },
       } },
     { key = "shiny_hunts", label = menuLabel("SHINY HUNTS", "SHINY-JAGD"),
@@ -508,10 +508,9 @@ return function(mod)
   mod.exports.eventArchive = eventArchive
   mod.exports.eventData = eventData
 
-  -- Official Crystal battle art is an optional local pack: it is not
-  -- redistributed by the mod. When the user has run the installer, this
-  -- live sprite seam selects it; otherwise the species records' original
-  -- four-shade paths remain a zero-configuration fallback.
+  -- Official Crystal battle art is bundled for all 100 Johto species. This
+  -- live seam selects the complete normal/shiny set; the authored four-shade
+  -- paths remain a crash-safe fallback for a damaged installation.
   local crystalAvailable = {}
   local crystalShinyAvailable = {}
   for species, name in pairs(CRYSTAL_ASSETS) do

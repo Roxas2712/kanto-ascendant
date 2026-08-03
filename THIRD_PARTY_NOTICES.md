@@ -1,5 +1,29 @@
 # Third-Party Notices
 
+## Pokémon Crystal battle sprites
+
+The bundled normal and shiny front/back battle sprites for Johto Pokémon
+#152-251 are the Pokémon Crystal sprite set distributed through Pokémon
+Database:
+
+https://pokemondb.net/sprites
+
+Pokémon and Pokémon character names are trademarks of Nintendo, Creatures
+Inc. and GAME FREAK inc. Kanto Ascendant is an unofficial, non-commercial fan
+mod and is not affiliated with or endorsed by them.
+
+## PokeWilds follower sprites
+
+The bundled normal and shiny six-pose Johto overworld sheets are sourced from
+the PokeWilds project:
+
+https://github.com/SheerSt/pokewilds
+
+Kanto Ascendant converts the sheets into Gen1 Recomp's follower layout at
+runtime and uses the same derived images for the 2D and voxel renderers.
+Unown is derived from its bundled Crystal art because the source project does
+not provide the same six-pose sheet for it.
+
 ## All Pokémon Catchable 151 Mod
 
 Kanto Ascendant's version-independent encounter planning was informed by

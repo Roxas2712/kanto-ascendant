@@ -1,14 +1,14 @@
-# Kanto Ascendant 5.0.1 — Complete 5.0 Release
+# Kanto Ascendant 5.0.2 — Bundled Johto Sprite Release
 
 Kanto Ascendant 5.0 expands the persistent post-game into a complete
-251-species discovery, training and collection loop. Version 5.0.1 is the
+251-species discovery, training and collection loop. Version 5.0.2 is the
 completed 5.0 release; further dialogue, balancing and feature updates can
 still follow.
 
-5.0.1 completes the release path with a one-time Oak onboarding, a shared
-Journal/Atlas objective tracker, localized locations and unlock hints. Gold is
-now the final required main battle before New Game Plus; Battle Factory and
-S.S. Anne remain optional prestige pillars.
+5.0.2 bundles the complete normal/shiny Crystal battle-art set and
+species-accurate Gen-2-style follower sheets used during development. Fresh
+installations now display Totodile, Feraligatr and every other Johto species
+correctly without running a separate installer.
 
 ## Highlights
 
@@ -40,9 +40,9 @@ S.S. Anne remain optional prestige pillars.
   Suicune, Lugia, Ho-Oh, Celebi and Mew.
 - Master Leaders, Apex Elite Four, Crown Champion, Rocket Resurgence, Heritage
   events, Ascendant Frontier, Johto Masters and level-100 New Game Plus.
-- Individual Mega Stones for supported official Mega Evolutions, plus
-  bilingual English/German presentation and optional local Crystal battle and
-  follower-art installers.
+- Individual Mega Stones for supported official Mega Evolutions, full
+  English/German presentation and bundled normal/shiny Crystal battle and
+  follower art.
 
 ## Balance and reliability
 
@@ -52,7 +52,7 @@ S.S. Anne remain optional prestige pillars.
   outbreaks and voyages always use literal walked tiles.
 - Factory parties, queued TMs, Crown signatures and Frontier purchases recover
   safely from full Bags, interrupted runs and earlier preview saves.
-- Five ROM-free regression suites pass **3,976 checks**, including a
+- Five ROM-free regression suites pass **3,982 checks**, including a
   **1,086-check historical upgrade matrix** across Red, Blue and Yellow,
   English and German, restart, mod-disable and re-enable paths. The standalone
   reachability audit confirms **251/251 obtainable species**, 580 real
@@ -61,7 +61,7 @@ S.S. Anne remain optional prestige pillars.
 
 ## Installation
 
-Download `kanto-ascendant-5.0.1.zip` below and import it through the Gen1
+Download `kanto-ascendant-5.0.2.zip` below and import it through the Gen1
 Recomp launcher. The identical `.modpkg` is included as an alternative for
 launcher versions that use that extension. Existing Kanto Ascendant saves are
 supported. Do not enable a second mod that adds a complete Johto species

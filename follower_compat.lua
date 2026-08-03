@@ -3,9 +3,10 @@
 -- Pokédex, so a Johto lead must never make such a mod request a missing
 -- follower_<SPECIES>.png and crash the renderer.
 --
--- Prefer a locally installed, species-accurate Gen-2-style sheet. Only when
--- that optional pack is absent does the bridge redirect to a related Kanto
--- Pokémon. The real name, cry, stats and party selection never change.
+-- Prefer the bundled, species-accurate Gen-2-style sheet. Only when an
+-- individual source asset is damaged or missing does the bridge redirect to
+-- a related Kanto Pokémon. The real name, cry, stats and party selection
+-- never change.
 
 return function(mod, opts)
   opts = opts or {}

@@ -754,49 +754,43 @@ story legends retain their authored front/back pixel art. Their party-menu
 icons use the game's standard animated silhouettes: quadruped for the three
 beasts, bird for Lugia and Ho-Oh, and the Mew-like fairy icon for Celebi.
 
-### Optional Crystal battle art
+### Bundled Crystal battle art
 
-For authentic normal and shiny Pokémon Crystal front/back sprites for **all
-100 Johto Pokémon**, run this once from the mod directory:
+Authentic normal and shiny Pokémon Crystal front/back sprites for **all 100
+Johto Pokémon** are included in the release. No separate download is needed.
+The repair utility can validate and refresh the complete 400-PNG set:
 
 ```sh
 python3 tools/install_crystal_sprites.py
 ```
 
-The installer validates **400 PNGs**: normal and shiny front/back views.
-Restart the game afterwards. **JOHTO ART** defaults to `CRYSTAL (LOCAL)` and
-uses each installed pair. Choose `KANTO FALLBACK` to switch back at any time.
-An incomplete or absent Crystal installation is safe: each missing normal pair
-falls back independently. Installed Crystal art is edge-keyed into a
-transparent derived copy, so the original white battle-field background never
-becomes a rectangular card in Dramatic Shape's on-map battles. When that
-renderer makes both Pokémon face its camera, the matching normal or shiny
-Crystal front sprite is used on both sides.
-
-The Crystal PNGs are downloaded for personal local use from the Pokémon
-Database sprite galleries and are excluded from source and release packages.
+**JOHTO ART** defaults to `CRYSTAL` and uses each bundled pair. Choose
+`KANTO FALLBACK` to switch back at any time. A damaged or incomplete
+installation remains safe because each missing pair falls back independently.
+Crystal art is edge-keyed into a transparent derived copy, so the white battle
+background never becomes a rectangular card in Dramatic Shape's on-map
+battles. When that renderer makes both Pokémon face its camera, the matching
+normal or shiny Crystal front sprite is used on both sides.
 
 ### Follower and voxel compatibility
 
-For species-accurate 16x16 Gen-2-style walking sprites for every Johto Pokémon,
-run this once from the mod directory:
+Species-accurate normal and shiny 16x16 Gen-2-style walking sprites are also
+bundled for every Johto Pokémon. The repair utility can refresh them:
 
 ```sh
 python3 tools/install_gen2_followers.py
 ```
 
-The installer downloads normal and shiny six-pose PokeWilds sheets for 99
+The package contains normal and shiny six-pose PokeWilds sheets for 99
 species; Unown is built from its matching Crystal front sprite. They are
 converted on first use to Gen1 Recomp's exact down/up/side walking layout.
 The selected individual determines whether the normal or shiny sheet is used.
-Both the normal 2D renderer and Dramatic Shape's voxel renderer consume that
+Both the normal 2D renderer and Dramatic Shape's voxel renderer consume the
 same converted sheet. The source project and individual sprite contributors
 are credited in the [PokeWilds project](https://github.com/SheerSt/pokewilds).
-Downloaded sheets are excluded from source and release packages.
 
-If that optional pack is incomplete or absent, Johto party leaders still use
-a related Kanto silhouette instead of requesting a missing file. The real
-species, name, cry, stats and party selection remain unchanged.
+If an individual sheet is damaged or missing, the related Kanto silhouette
+remains as a crash-safe fallback until the package is repaired.
 
 ## Options
 
@@ -815,8 +809,8 @@ submenu. It contains:
   strength tiers (default on).
 - **REMATCH LOOT** — `OFF`, `BALANCED` or the more rewarding `GENEROUS`
   rare-item table.
-- **JOHTO ART** — prefer locally installed Crystal battle art for all 100
-  species or force the distributable four-shade fallback.
+- **JOHTO ART** — use the bundled Crystal battle art for all 100 species or
+  force the four-shade Kanto fallback.
 - **SHINY HUNTS** — use Ascendant Charm/streak/outbreak bonuses or retain only
   natural 1/8192 DV shinies.
 - **SHINY EFFECTS** — enable Kanto Ascendant's built-in sparkles, chime and
@@ -878,7 +872,7 @@ missions, Rocket story and one new tournament bracket are completed.
 
 ## Installation
 
-1. Download `kanto-ascendant-5.0.1.zip` from the
+1. Download `kanto-ascendant-5.0.2.zip` from the
    [latest release](https://github.com/Roxas2712/kanto-ascendant/releases/latest)
    and import it through the launcher. The identical `.modpkg` is also
    available for launcher versions that use that extension. Developers may
@@ -921,10 +915,10 @@ python3 tools/modkit.py validate ../trainer_rematch --base imported
 ```
 
 `tools/make_postgame_assets.py` deterministically regenerates all 18 original
-four-shade post-game sprite assets. `tools/install_crystal_sprites.py` installs
-the optional 400 normal/shiny Crystal front/back views without adding them to
-release archives. `tools/install_gen2_followers.py` installs the optional
-normal/shiny 100-species Gen-2-style walking pack. `tools/shiny_qa_driver.lua`
+four-shade post-game sprite assets. `tools/install_crystal_sprites.py` validates
+or refreshes the bundled 400 normal/shiny Crystal front/back views.
+`tools/install_gen2_followers.py` refreshes the bundled normal/shiny
+100-species Gen-2-style walking pack. `tools/shiny_qa_driver.lua`
 captures the 2D follower, voxel follower and voxel battle paths.
 `tools/make_mega_assets.py` regenerates the four
 original four-shade Mega Raichu battle sprites. `tools/build_breeding_data.py`

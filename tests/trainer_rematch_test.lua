@@ -14,11 +14,28 @@ T.eq(run.mod.manifest.id, "trainer_rematch",
 local ex = run.loader.exports.trainer_rematch
 T.neq(ex, nil, "exports reachable")
 
--- ------------------------------------------------ optional Crystal art seam
+-- ------------------------------------------------ bundled Crystal art seam
 
 T.neq(ex.crystalSprites, nil, "Crystal availability is exported")
 T.neq(ex.crystalShinySprites, nil,
   "Crystal shiny availability is exported independently")
+;(function()
+  local crystalNormalCount, crystalShinyCount = 0, 0
+  for _, available in pairs(ex.crystalSprites) do
+    if available then crystalNormalCount = crystalNormalCount + 1 end
+  end
+  for _, available in pairs(ex.crystalShinySprites) do
+    if available then crystalShinyCount = crystalShinyCount + 1 end
+  end
+  T.eq(crystalNormalCount, 100,
+    "all 100 Johto species ship with Crystal front/back art")
+  T.eq(crystalShinyCount, 100,
+    "all 100 Johto species ship with shiny Crystal front/back art")
+  T.eq(ex.crystalSprites.TOTODILE, true,
+    "Totodile never needs the Squirtle battle fallback in a release package")
+  T.eq(ex.crystalSprites.FERALIGATR, true,
+    "the visually tested Feraligatr Crystal pair is bundled")
+end)()
 local RealRuntime = require("src.mods.Runtime")
 local crystalCtx = { species = "RAIKOU", side = "front", trueColor = false }
 local crystalPath = RealRuntime.call("pokemon.sprite",
@@ -532,6 +549,18 @@ end)()
 local followerCompat = ex.followerCompat
 T.neq(followerCompat, nil,
   "Johto follower compatibility is exported")
+;(function()
+  local normal = io.open(
+    modPath .. "/assets/followers/totodile.png", "rb")
+  local shiny = io.open(
+    modPath .. "/assets/followers/shiny/totodile.png", "rb")
+  T.neq(normal, nil,
+    "Totodile ships with its species-accurate follower sheet")
+  T.neq(shiny, nil,
+    "shiny Totodile ships with its species-accurate follower sheet")
+  if normal then normal:close() end
+  if shiny then shiny:close() end
+end)()
 T.eq(followerCompat.proxySpecies("TYRANITAR", Data), "RHYDON",
   "Tyranitar uses a sturdy existing follower sheet instead of crashing")
 T.eq(followerCompat.proxySpecies("LUGIA", Data), "ARTICUNO",

@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Install species-accurate Gen-2-style Johto follower sheets.
+"""Repair or refresh the bundled Gen-2-style Johto follower sheets.
 
 The source sheets come from PokeWilds and contain six 16x16 poses in a
 96x16 row. Kanto Ascendant converts them into Gen1 Recomp's 16x96 layout on
 first use and shares that derived sheet between the 2D and voxel renderers.
+The complete normal/shiny set is already included in release packages.
 """
 
 from __future__ import annotations
