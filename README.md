@@ -950,6 +950,9 @@ Crystal animation frames for #001-251 and their exact timing table.
 captures the 2D follower, voxel follower and voxel battle paths.
 `tools/crystal_animation_qa_driver.lua` exercises standalone Kanto, Johto,
 Voxel and mixed external-Kanto/Ascendant-Johto paths in a real LÖVE client.
+`tools/mega_crystal_qa_driver.lua` performs real battle transformations for
+Mega Raichu X/Y and verifies front/back ownership with bundled or external
+Crystal art.
 `tools/make_mega_assets.py` regenerates the four
 original four-shade Mega Raichu battle sprites. `tools/build_breeding_data.py`
 refreshes the offline 251-entry egg-group, gender-ratio and hatch-cycle table
