@@ -19,8 +19,8 @@ remains supported, but is no longer required for Kanto.
   owns it; Johto keeps Ascendant's sparkle, chime and Shiny Dex behavior.
 - Mega Evolution keeps its correct form art even when the Crystal mod is
   enabled.
-- Mega Charizard X has its own four-color normal and shiny front animations
-  plus static player backs in the bundled Crystal style.
+- Mega Charizard X has its own detailed 56×56 normal and shiny front
+  animations plus static player backs.
 - A new `CRYSTAL ANIMATION` option can disable the motion while keeping the
   bundled static Crystal art.
 
@@ -39,7 +39,7 @@ its letter forms separately and the public source has no generic animated
 - Mega Charizard X normal/shiny motion in real 2D and Voxel battles
 - Red, Blue and Yellow imported-ROM clients
 
-All five ROM-free suites pass **4,038 checks**, and existing Kanto Ascendant
+All five ROM-free suites pass **4,172 checks**, and existing Kanto Ascendant
 saves remain compatible.
 
 ## Installation

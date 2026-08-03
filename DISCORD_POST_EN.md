@@ -24,7 +24,7 @@ Switch Kanto between Crystal and Gen-I art. Supports 2D, Voxel and the
 optional external Crystal mod.
 
 💎 **Mega Evolution** — 30 official forms and stones, with original Mega
-Raichu X/Y art + animated Crystal-style Mega Charizard X.
+Raichu X/Y art + detailed animated Mega Charizard X.
 
 👑 **A real endgame** — Lv.100 Leaders, Elite Four and Champion teams,
 personal missions, adaptive rosters and unique dialogue.

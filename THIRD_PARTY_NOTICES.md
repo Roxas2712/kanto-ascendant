@@ -30,17 +30,17 @@ https://github.com/LOW-K3YS/crystal_animated_sprites_with_shiny_visuals
 Unown uses the bundled static Crystal form-A image because the source mirrors
 do not provide a generic animated #201 GIF.
 
-## Mega Charizard X Crystal-style animation
+## Mega Charizard X pixel animation
 
-Mega Charizard X normal/shiny front animations and static backs are
-deterministically reduced to Kanto Ascendant's 56×56, four-color format from
-the Smogon-community Pokémon Showdown animation mirrors maintained in the
-PokeAPI sprites repository:
+Mega Charizard X normal front animation and static back are adapted to Kanto
+Ascendant's 56×56 battle canvas from BLaDoM's Gen-V-style work:
 
-https://github.com/PokeAPI/sprites
+https://www.reddit.com/r/pokemon/comments/7phgbg/
 
-The conversion uses nearest-neighbour scaling and does not distribute the
-original full-color GIF files.
+The author credits the Smogon Mega Charizard X sprite as the visual basis and
+provides the animation and separated front/back part sheets in that post.
+Kanto Ascendant uses nearest-neighbour extraction and supplies its own derived
+shiny palette.
 
 ## PokeWilds follower sprites
 

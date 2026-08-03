@@ -560,7 +560,7 @@ local charizardXPath = RealRuntime.call("pokemon.sprite",
   function(path) return path end, "charizard_fallback.png", charizardXCtx)
 T.eq(charizardXPath:find(
     "assets/mega/mega_charizard_x_front.png", 1, true) ~= nil, true,
-  "Mega Charizard X selects its dedicated Crystal-style front sprite")
+  "Mega Charizard X selects its dedicated detailed front sprite")
 T.eq(charizardXCtx.trueColor, true,
   "Mega Charizard X preserves its authored blue Crystal palette")
 local shinyCharizardXPath = RealRuntime.call("pokemon.sprite",
@@ -573,9 +573,9 @@ local shinyCharizardXPath = RealRuntime.call("pokemon.sprite",
   })
 T.eq(shinyCharizardXPath:find(
     "assets/mega/mega_charizard_x_front_shiny.png", 1, true) ~= nil, true,
-  "shiny Mega Charizard X selects its matching four-color art")
-T.eq(#mega.animationData.CHARIZARD_X.normal, 16,
-  "Mega Charizard X ships with a reduced Crystal-style animation loop")
+  "shiny Mega Charizard X selects its matching authored-palette art")
+T.eq(#mega.animationData.CHARIZARD_X.normal, 82,
+  "Mega Charizard X ships with its detailed reduced animation loop")
 for variant, timings in pairs(mega.animationData.CHARIZARD_X) do
   for frame = 1, #timings do
     local relative = ("assets/mega_animated/mega_charizard_x/%s/%03d.png")
@@ -590,7 +590,7 @@ local megaAnimationBattle = {
   showEnemyTrainer = false,
   enemySendingOut = false,
 }
-mega.updateAnimations(megaAnimationBattle, 0.25)
+mega.updateAnimations(megaAnimationBattle, 1.0)
 T.neq(megaAnimationBattle.enemy.__ascendantMegaAnimation, nil,
   "Mega Charizard X receives an independent live animation state")
 T.eq(megaAnimationBattle.enemy.__ascendantMegaAnimation.frame > 1, true,

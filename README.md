@@ -513,9 +513,9 @@ Every form uses a +100-point Kanto adaptation across the four non-HP Gen-1
 stats, accounting for the fact that later games split Special Attack and
 Special Defense. Type changes supported by Kanto Ascendant are applied in battle.
 Mega Raichu X/Y have dedicated original four-shade front/back sprites. Mega
-Charizard X has dedicated normal and shiny four-color front animations plus
-static player backs in the same 56×56 Crystal-style format. Other forms use
-their normal Gen-1 sprite with a Mega aura.
+Charizard X has a detailed normal and shiny 56×56 front animation plus static
+player backs, adapted from BLaDoM's recognizable Gen-V-style pixel work.
+Other forms use their normal Gen-1 sprite with a Mega aura.
 
 **ENEMY MEGA** defaults to post-game bosses, can be expanded to every trainer
 or disabled. An opponent waits until an actually eligible team member is
@@ -955,9 +955,9 @@ Voxel and mixed external-Kanto/Ascendant-Johto paths in a real LÖVE client.
 `tools/mega_crystal_qa_driver.lua` performs real battle transformations for
 Mega Raichu X/Y and Mega Charizard X, including the latter's normal/shiny
 front animation, and verifies ownership with bundled or external Crystal art.
-`tools/install_mega_crystal_animations.py` deterministically rebuilds Mega
-Charizard X as 56×56 four-color normal/shiny animation frames and static
-backs from the credited pixel-animation source.
+`tools/install_mega_crystal_animations.py` deterministically extracts Mega
+Charizard X as clean 56×56 normal/shiny animation frames and static backs
+from the credited pixel-animation source.
 `tools/make_mega_assets.py` regenerates the four
 original four-shade Mega Raichu battle sprites. `tools/build_breeding_data.py`
 refreshes the offline 251-entry egg-group, gender-ratio and hatch-cycle table

@@ -1,15 +1,18 @@
 #!/usr/bin/env python3
-"""Build Crystal-style Mega Charizard X battle art from pixel animations.
+"""Build clean Mega Charizard X battle art from BLaDoM's animation.
 
-Pokémon Showdown's Smogon-community animation already supplies coherent
-front/back motion for this form. This tool converts that source into the
-constraints used by Kanto Ascendant's bundled Crystal pack:
+The source animation presents a hand-separated Gen-V-style front and back
+sprite on a three-times pixel canvas. This tool extracts those pixels instead
+of trying to reduce modern artwork automatically:
 
-- 56x56 transparent canvases
-- four opaque colors plus transparency
+- 56x56 transparent battle canvases matching Gen1 Recomp's Crystal slots
+- recognizable normal and derived shiny palettes
 - nearest-neighbour pixels without antialiasing
-- reduced, Crystal-like frame cadence
-- normal and shiny front animations plus static player backs
+- a reduced 11-fps front loop and static player backs
+
+Source post and author-provided animation:
+https://www.reddit.com/r/pokemon/comments/7phgbg/
+https://i.imgur.com/CyUFlo5.gif
 """
 
 from __future__ import annotations
@@ -25,39 +28,40 @@ ROOT = Path(__file__).resolve().parents[1]
 STATIC_DEST = ROOT / "assets" / "mega"
 ANIM_DEST = ROOT / "assets" / "mega_animated" / "mega_charizard_x"
 DATA_DEST = ROOT / "mega_animation_data.lua"
-BASE = (
-    "https://raw.githubusercontent.com/PokeAPI/sprites/master/"
-    "sprites/pokemon/other/showdown"
-)
-SOURCES = {
-    ("front", "normal"): f"{BASE}/10034.gif",
-    ("back", "normal"): f"{BASE}/back/10034.gif",
-    ("front", "shiny"): f"{BASE}/shiny/10034.gif",
-    ("back", "shiny"): f"{BASE}/back/shiny/10034.gif",
-}
-PALETTES = {
-    "normal": (
-        (0, 0, 0, 255),
-        (255, 255, 255, 255),
-        (48, 72, 120, 255),
-        (80, 184, 224, 255),
-    ),
-    "shiny": (
-        (0, 0, 0, 255),
-        (255, 255, 255, 255),
-        (48, 168, 112, 255),
-        (208, 72, 72, 255),
-    ),
-}
+SOURCE = "https://i.imgur.com/CyUFlo5.gif"
+
 CANVAS = 56
-VISIBLE = 54
-FRAME_STEP = 4
+FRAME_STEP = 3
+BACKGROUND = (76, 76, 76)
+FRONT_BOX = (482, 40, 778, 332)
+BACK_BOX = (45, 45, 367, 332)
+
+# BLaDoM's source contains a compact 15-color pixel palette. Shiny art keeps
+# every authored shade boundary while remapping the charcoal body toward
+# green and the blue fire/accent ramp toward red-gold.
+SHINY_MAP = {
+    (16, 16, 16): (8, 16, 13),
+    (38, 38, 38): (22, 58, 43),
+    (77, 77, 77): (43, 101, 70),
+    (115, 115, 115): (72, 148, 99),
+    (191, 191, 191): (194, 202, 171),
+    (248, 248, 248): (248, 248, 232),
+    (41, 71, 102): (91, 44, 42),
+    (61, 107, 153): (145, 66, 53),
+    (99, 144, 166): (190, 111, 67),
+    (138, 199, 229): (231, 166, 78),
+    (41, 150, 204): (201, 52, 45),
+    (115, 191, 229): (235, 95, 52),
+    (170, 218, 242): (255, 184, 81),
+    (69, 149, 229): (238, 89, 48),
+    (217, 33, 33): (222, 36, 36),
+}
 
 
 def fetch(url: str) -> bytes:
     request = urllib.request.Request(
         url,
-        headers={"User-Agent": "kanto-ascendant-mega-crystal-builder/1.0"},
+        headers={"User-Agent": "kanto-ascendant-mega-sprite-builder/2.0"},
     )
     with urllib.request.urlopen(request, timeout=30) as response:
         body = response.read()
@@ -68,75 +72,47 @@ def fetch(url: str) -> bytes:
 
 def gif_frames(body: bytes) -> tuple[list[Image.Image], list[int]]:
     gif = Image.open(io.BytesIO(body))
+    if gif.size != (804, 364):
+        raise ValueError(f"unexpected source canvas {gif.size}")
     frames, durations = [], []
     for index in range(gif.n_frames):
         gif.seek(index)
         frames.append(gif.convert("RGBA").copy())
-        durations.append(max(20, int(gif.info.get("duration") or 50)))
+        durations.append(max(20, int(gif.info.get("duration") or 30)))
     return frames, durations
 
 
-def union_bounds(frames: list[Image.Image]) -> tuple[int, int, int, int]:
-    bounds = [frame.getchannel("A").getbbox() for frame in frames]
-    bounds = [box for box in bounds if box]
-    if not bounds:
-        raise ValueError("animation is completely transparent")
-    return (
-        min(box[0] for box in bounds),
-        min(box[1] for box in bounds),
-        max(box[2] for box in bounds),
-        max(box[3] for box in bounds),
-    )
+def transparent_crop(frame: Image.Image, box: tuple[int, int, int, int]):
+    cropped = frame.crop(box)
+    pixels = []
+    for red, green, blue, _alpha in cropped.getdata():
+        if (red, green, blue) == BACKGROUND:
+            pixels.append((0, 0, 0, 0))
+        else:
+            pixels.append((red, green, blue, 255))
+    cropped.putdata(pixels)
+    return cropped.resize((CANVAS, CANVAS), Image.Resampling.NEAREST)
 
 
-def crystal_dither(image: Image.Image, variant: str) -> Image.Image:
-    """Quantize with Game-Boy-style error diffusion, preserving transparency."""
-    alpha = image.getchannel("A")
-    palette = Image.new("P", (1, 1))
-    flat = []
-    for color in PALETTES[variant]:
-        flat.extend(color[:3])
-    flat.extend([0] * (768 - len(flat)))
-    palette.putpalette(flat)
-    indexed = image.convert("RGB").quantize(
-        palette=palette,
-        dither=Image.Dither.FLOYDSTEINBERG,
-    )
-    output = indexed.convert("RGBA")
-    output.putalpha(alpha.point(lambda value: 255 if value >= 128 else 0))
+def shiny_frame(image: Image.Image) -> Image.Image:
+    pixels = []
+    for red, green, blue, alpha in image.getdata():
+        if not alpha:
+            pixels.append((0, 0, 0, 0))
+            continue
+        pixels.append((*SHINY_MAP.get((red, green, blue), (red, green, blue)), 255))
+    output = Image.new("RGBA", image.size)
+    output.putdata(pixels)
     return output
 
 
-def crystal_frame(
-    frame: Image.Image,
-    bounds: tuple[int, int, int, int],
-    variant: str,
-) -> Image.Image:
-    cropped = frame.crop(bounds)
-    # Showdown's Mega Charizard canvas is much wider than a Crystal battle
-    # slot. A proportional fit left only ~32 visible rows and looked tiny
-    # beside Crystal's original Charizard, whose silhouette occupies almost
-    # the full 56-pixel height. Crystal sprites routinely compress broad
-    # silhouettes into their square tile, so normalize both axes to the
-    # 54-pixel drawing area while retaining the source's stable canvas.
-    width = VISIBLE
-    height = VISIBLE
-    resized = cropped.resize((width, height), Image.Resampling.NEAREST)
-    resized = crystal_dither(resized, variant)
-    canvas = Image.new("RGBA", (CANVAS, CANVAS), (0, 0, 0, 0))
-    canvas.alpha_composite(resized, ((CANVAS - width) // 2, CANVAS - height))
-    return canvas
-
-
-def sampled_frames(
+def sampled_fronts(
     frames: list[Image.Image],
     durations: list[int],
-    variant: str,
 ) -> tuple[list[Image.Image], list[int]]:
-    bounds = union_bounds(frames)
     output, output_durations = [], []
     for start in range(0, len(frames), FRAME_STEP):
-        converted = crystal_frame(frames[start], bounds, variant)
+        converted = transparent_crop(frames[start], FRONT_BOX)
         duration = sum(durations[start : start + FRAME_STEP])
         if output and converted.tobytes() == output[-1].tobytes():
             output_durations[-1] += duration
@@ -162,7 +138,7 @@ def write_png(image: Image.Image, target: Path) -> None:
 def write_data(timings: dict[str, list[int]]) -> None:
     lines = [
         "-- Generated by tools/install_mega_crystal_animations.py.",
-        "-- Durations are milliseconds after Crystal-style frame reduction.",
+        "-- Durations are milliseconds after source-frame reduction.",
         "return {",
         '  ["CHARIZARD_X"] = {',
     ]
@@ -174,29 +150,35 @@ def write_data(timings: dict[str, list[int]]) -> None:
 
 
 def main() -> int:
-    timings: dict[str, list[int]] = {}
-    converted: dict[tuple[str, str], list[Image.Image]] = {}
-    for key, url in SOURCES.items():
-        side, variant = key
-        source, source_durations = gif_frames(fetch(url))
-        frames, durations = sampled_frames(source, source_durations, variant)
-        converted[key] = frames
-        if side == "front":
-            timings[variant] = durations
-            target = ANIM_DEST / variant
-            target.mkdir(parents=True, exist_ok=True)
-            for old in target.glob("*.png"):
-                old.unlink()
-            for index, frame in enumerate(frames, 1):
-                write_png(frame, target / f"{index:03d}.png")
+    source, source_durations = gif_frames(fetch(SOURCE))
+    normal, durations = sampled_fronts(source, source_durations)
+    variants = {
+        "normal": normal,
+        "shiny": [shiny_frame(frame) for frame in normal],
+    }
+    timings = {variant: list(durations) for variant in variants}
+
+    for variant, frames in variants.items():
+        target = ANIM_DEST / variant
+        target.mkdir(parents=True, exist_ok=True)
+        for old in target.glob("*.png"):
+            old.unlink()
+        for index, frame in enumerate(frames, 1):
+            write_png(frame, target / f"{index:03d}.png")
         suffix = "_shiny" if variant == "shiny" else ""
-        write_png(
-            frames[0],
-            STATIC_DEST / f"mega_charizard_x_{side}{suffix}.png",
-        )
-        print(f"{variant:6} {side:5}: {len(frames)} Crystal-style frames")
+        write_png(frames[0], STATIC_DEST / f"mega_charizard_x_front{suffix}.png")
+
+    back = transparent_crop(source[0], BACK_BOX)
+    write_png(back, STATIC_DEST / "mega_charizard_x_back.png")
+    write_png(
+        shiny_frame(back),
+        STATIC_DEST / "mega_charizard_x_back_shiny.png",
+    )
     write_data(timings)
-    print("installed Mega Charizard X normal/shiny Crystal battle art")
+    print(
+        f"installed {len(normal)} clean Mega Charizard X "
+        "normal/shiny animation frames and static backs"
+    )
     return 0
 
 
