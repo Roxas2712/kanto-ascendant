@@ -878,7 +878,7 @@ missions, Rocket story and one new tournament bracket are completed.
 
 ## Installation
 
-1. Download `kanto-ascendant-5.0.0.zip` from the
+1. Download `kanto-ascendant-5.0.1.zip` from the
    [latest release](https://github.com/Roxas2712/kanto-ascendant/releases/latest)
    and import it through the launcher. The identical `.modpkg` is also
    available for launcher versions that use that extension. Developers may
@@ -910,6 +910,7 @@ export TRAINER_REMATCH_MOD_DIR=../trainer_rematch
 ./.tools/luajit-src/src/luajit ../trainer_rematch/tests/field_economy_test.lua
 ./.tools/luajit-src/src/luajit ../trainer_rematch/tests/atlas_legacy_test.lua
 ./.tools/luajit-src/src/luajit ../trainer_rematch/tests/reachability_test.lua
+./.tools/luajit-src/src/luajit ../trainer_rematch/tests/upgrade_matrix_test.lua
 ```
 
 Validate against an imported Kanto data set:

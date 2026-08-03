@@ -96,6 +96,9 @@ return {
       "A five-battle S.S. Anne Grand Tour with rotating teams and a real 4096-step departure timer",
       "A Celadon Legacy Gallery with trophy displays and a selectable Trainer Card title",
       "One tidy Ascendant submenu for the Atlas, Journal, World, Johto, Shiny, Events, certificates, Frontier services, titles and Mega Stones",
+      "A one-time Oak onboarding for every new or upgraded Hall-of-Fame save",
+      "One shared Journal and Atlas quest tracker with localized locations and exact progress",
+      "Gold as the mandatory final main battle before each New Game Plus cycle, with Factory and S.S. Anne retained as optional prestige",
     },
     known = {
       "The trainer's vanilla post-battle dialogue still follows the decline reaction",

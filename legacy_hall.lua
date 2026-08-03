@@ -191,9 +191,15 @@ return function(mod, opts)
         row.done = math.max(0, tonumber(row.value) or 0)
           >= math.max(1, tonumber(row.target) or 1)
       end
-      row.right = row.done and tr("DISPLAYED", "AUSGEST.")
-        or (row.value and ("%d/%d"):format(row.value, row.target)
-          or tr("LOCKED", "GESPERRT"))
+      row.realLabel = row.label
+      if row.done then
+        row.right = tr("DISPLAYED", "AUSGEST.")
+      else
+        -- A covered display should not reveal the name or requirement of a
+        -- future trophy. Discovery happens when the challenge is completed.
+        row.label = "???"
+        row.right = "???"
+      end
     end
     return rows
   end

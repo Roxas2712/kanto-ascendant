@@ -2,6 +2,38 @@
 
 All notable changes to this project are documented in this file.
 
+## [5.0.1] - 2026-08-03
+
+### Added
+
+- A one-time bilingual 5.0 onboarding for every new or upgraded Hall-of-Fame
+  save. Oak introduces the Ascendant menu, Route 5, Elm's research and the
+  new Indigo, Vermilion and Celadon facilities.
+- One authoritative next-objective tracker shared by the Journal and Research
+  Atlas, with a localized location, exact progress and separate optional
+  prestige records for the Battle Factory and S.S. Anne.
+- Visible `NEW` / `NEU` markers when another Ascendant utility becomes
+  available.
+- A 1,086-check upgrade matrix based on the public 1.1.0 and 2.0.0 schemas
+  plus real 3.1.0 and 4.1.1 launcher saves. It covers Red, Blue and Yellow in
+  English and German, restart, mod-disable and re-enable paths.
+
+### Changed
+
+- Gold is now the mandatory final main battle before KANTO ASCENDANT and the
+  first or any later New Game Plus cycle can begin. Battle Factory and S.S.
+  Anne clears remain optional prestige challenges.
+- Unknown Legacy Gallery trophies display only `???` until completed.
+- Atlas locations use authored English/German names, and known Pokémon now
+  show their evolution method without revealing an unseen target.
+
+### Fixed
+
+- Disabled Johto research or Frontier options no longer leave an impossible
+  New Game Plus requirement.
+- The TM FIFO, Johto research, trainer growth, titles, shinies, Gold clears
+  and base player data survive all covered historical upgrade paths.
+
 ## [5.0.0] - 2026-08-03
 
 ### Added

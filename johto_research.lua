@@ -722,6 +722,7 @@ return function(mod, opts)
   end
 
   R.state = state
+  R.enabled = enabled
   R.allStarters = allStarters
   R.starterTrialsComplete = function(s) return allStarters(s or state()) end
   R.rewardCount = rewardCount

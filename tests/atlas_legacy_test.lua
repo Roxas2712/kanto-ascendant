@@ -13,7 +13,7 @@ local modPath = os.getenv("TRAINER_REMATCH_MOD_DIR")
   or "mods/trainer_rematch"
 local run = T.sdk.loadMod(modPath, { data = Data })
 T.eq(#run.errors, 0, "Kanto Ascendant loads for Atlas/Legacy tests")
-T.eq(run.mod.manifest.version, "5.0.0",
+T.eq(run.mod.manifest.version, "5.0.1",
   "the release manifest identifies the complete 5.0 feature set")
 
 local ex = assert(run.loader.exports.trainer_rematch)
@@ -117,7 +117,13 @@ do
       },
       encounters = {},
       pokemon = {
-        CYNDAQUIL = { dex = 155, name = "CYNDAQUIL", evolutions = {} },
+        CYNDAQUIL = {
+          dex = 155, name = "CYNDAQUIL",
+          evolutions = {
+            { method = "LEVEL", level = 14, species = "QUILAVA" },
+          },
+        },
+        QUILAVA = { dex = 156, name = "QUILAVA", evolutions = {} },
         TOTODILE = { dex = 158, name = "TOTODILE", evolutions = {} },
         CHINCHOU = { dex = 170, name = "CHINCHOU", evolutions = {} },
         EEVEE = { dex = 133, name = "EEVEE", evolutions = {} },
@@ -134,6 +140,12 @@ do
     "the Atlas identifies the habitat-pool percentage as a base chance")
   T.eq(building:find("SPECIES BASE: 1 PCT", 1, true) ~= nil, true,
     "the existing per-species split is also identified as a base chance")
+  T.eq(building:find("LEVEL 14 -> ???", 1, true) ~= nil, true,
+    "known Pokémon show evolution conditions without spoiling unseen targets")
+  habitatGame.save.pokedex.seen.QUILAVA = true
+  building = isolatedAtlas.habitatDetails(habitatGame, "CYNDAQUIL")
+  T.eq(building:find("LEVEL 14 -> QUILAVA", 1, true) ~= nil, true,
+    "the Atlas reveals an evolution target after it has been seen")
 
   local cave = isolatedAtlas.habitatDetails(habitatGame, "TOTODILE")
   T.eq(cave:find("\fcave\f", 1, true) ~= nil, true,
@@ -146,6 +158,9 @@ do
     "Eevee's post-League percentage is identified as a base chance")
 
   language = "de"
+  T.eq(isolatedAtlas.cleanMapName(
+    habitatGame, "POKEMON_MANSION_B1F"), "POKéMON-HAUS UG1",
+    "Atlas locations use their authored German map names")
   local germanBuilding =
     isolatedAtlas.habitatDetails(habitatGame, "CYNDAQUIL")
   T.eq(germanBuilding:find("\fGebäude\f", 1, true) ~= nil, true,
@@ -177,6 +192,12 @@ local rejected, unchanged = ascendant.spendFrontierPoints(10)
 T.eq(rejected, false, "the wallet rejects an unaffordable debit")
 T.eq(unchanged, 9, "a rejected debit leaves points unchanged")
 
+local covered = {}
+for _, row in ipairs(legacy.trophyRows(game)) do covered[row.id] = row end
+T.eq(covered.crown.label, "???",
+  "an unknown trophy does not reveal its name before completion")
+T.eq(covered.crown.right, "???",
+  "an unknown trophy does not reveal its completion condition")
 T.eq(legacy.selectTitle("factory_architect"), false,
   "a locked achievement cannot be selected as a title")
 T.eq(ascendant.unlockAchievement("factory_architect"), true,

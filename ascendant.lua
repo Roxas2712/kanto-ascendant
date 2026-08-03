@@ -151,11 +151,20 @@ return function(mod, baseData, opts)
   local worldEvents = opts.worldEvents
   local kantoCompletion = opts.kantoCompletion
   local johtoMasters
+  local questTracker
   local trainerStates = opts.trainerStates or function() return {} end
   local E = { game = nil }
 
+  local function johtoEnabled()
+    if not johtoResearch then return false end
+    if type(johtoResearch.enabled) == "function" then
+      return johtoResearch.enabled()
+    end
+    return johtoResearch.enabled ~= false
+  end
+
   local function johtoComplete()
-    if not johtoResearch or johtoResearch.enabled == false then return true end
+    if not johtoEnabled() then return true end
     local s = johtoResearch.state(false)
     return s and s.finalReward and true or false
   end
@@ -213,8 +222,24 @@ return function(mod, baseData, opts)
       s.mewStage = math.max(0, math.min(4,
         math.floor(tonumber(s.mewStage) or 0)))
       s.cycle = math.max(0, math.floor(tonumber(s.cycle) or 0))
+      s.cycleJohtoMastersStartClears = math.max(0, math.floor(
+        tonumber(s.cycleJohtoMastersStartClears) or 0))
     end
     return s
+  end
+
+  local function johtoMastersClears()
+    local s = johtoMasters and johtoMasters.state
+      and johtoMasters.state(false) or {}
+    return math.max(0, math.floor(tonumber(s.clears) or 0))
+  end
+
+  local function goldComplete(s)
+    s = s or state()
+    local baseline = s.cycle > 0
+      and math.max(0, math.floor(
+        tonumber(s.cycleJohtoMastersStartClears) or 0)) or 0
+    return johtoMastersClears() > baseline
   end
 
   local function persist(s)
@@ -419,7 +444,8 @@ return function(mod, baseData, opts)
         and s.achievements.leader_confidant
         and johtoComplete()
         and (mod.options:get("grand_tournament") == false
-          or s.achievements.tournament_champ) then
+          or s.achievements.tournament_champ)
+        and goldComplete(s) then
       unlock("ascendant", s)
     end
     persist(s)
@@ -1028,17 +1054,7 @@ return function(mod, baseData, opts)
 
   local function ensureNewGamePlus(game, mapId)
     local def = data.newGamePlus
-    local s = state()
-    local p = base.state()
-    local ready = s.achievements.ascendant
-    if ready and s.cycle > 0 then
-      ready = p.crownChampion and researchComplete(s)
-        and johtoComplete()
-        and (not rocketEnabled() or s.rocketStage >= #data.rocket)
-        and questDoneCount(s) >= 8
-        and s.tournament.wins > math.max(0,
-          tonumber(s.cycleTournamentStartWins) or 0)
-    end
+    local ready = E.newGamePlusReady and E.newGamePlusReady(game)
     ensureRuntimeNpc(game, def, ready and mapId == def.map)
   end
 
@@ -1067,6 +1083,7 @@ return function(mod, baseData, opts)
       mewCaught = permanentMew,
       cycle = cycle,
       cycleTournamentStartWins = records.wins,
+      cycleJohtoMastersStartClears = johtoMastersClears(),
       latestAchievement = "ascendant",
       selectedTitle = permanentSelectedTitle,
     }
@@ -1088,19 +1105,10 @@ return function(mod, baseData, opts)
   local function handleNewGamePlus(ow, npc, game)
     local s = state()
     if not s.achievements.ascendant then return false end
-    if s.cycle > 0 then
-      local p = base.state()
-      local ready = p.crownChampion and researchComplete(s)
-        and johtoComplete()
-        and (not rocketEnabled() or s.rocketStage >= #data.rocket)
-        and questDoneCount(s) >= 8
-        and s.tournament.wins > math.max(0,
-          tonumber(s.cycleTournamentStartWins) or 0)
-      if not ready then
-        return showMessage(ow, npc, game, tr(
-          "Complete this Ascendant\nCycle before beginning\nanother.",
-          "Beende diesen\nAscendant-Zyklus, bevor\nein neuer beginnt."))
-      end
+    if not E.newGamePlusReady(game) then
+      return showMessage(ow, npc, game, tr(
+        "Complete this Ascendant\nCycle and defeat GOLD\nbefore beginning another.",
+        "Beende diesen\nAscendant-Zyklus und\nbesiege GOLD, bevor ein\nneuer beginnt."))
     end
     local TextBox = require("src.render.TextBox")
     npc.frozen = true
@@ -1272,6 +1280,9 @@ return function(mod, baseData, opts)
       ascendantOrder = 10,
       onSelect = function()
         local pages = {}
+        if questTracker and questTracker.statusText then
+          pages[#pages + 1] = questTracker.statusText(game)
+        end
         if base.events and base.events.researchLog then
           pages[#pages + 1] = base.events.researchLog(base.state(), game.save)
         end
@@ -1563,6 +1574,23 @@ return function(mod, baseData, opts)
   E.copyTeam = copyTeam
   E.typeMasteryText = typeMasteryText
   E.setJohtoMasters = function(controller) johtoMasters = controller end
+  E.setQuestTracker = function(controller) questTracker = controller end
+  E.goldComplete = goldComplete
+  E.johtoMastersClears = johtoMastersClears
+  E.newGamePlusReady = function(game)
+    local s = evaluateAchievements(game)
+    if not (s.achievements.ascendant and goldComplete(s)) then return false end
+    if s.cycle == 0 then return true end
+    local p = base.state()
+    return p.crownChampion and researchComplete(s)
+      and johtoComplete()
+      and (not rocketEnabled() or s.rocketStage >= #data.rocket)
+      and questDoneCount(s) >= 8
+      and (not tournamentEnabled()
+        or s.tournament.wins > math.max(0,
+          tonumber(s.cycleTournamentStartWins) or 0))
+      and goldComplete(s)
+  end
   E.frontierBalance = function()
     return math.max(0, math.floor(tonumber(state().frontierPoints) or 0))
   end

@@ -1,9 +1,14 @@
-# Kanto Ascendant 5.0.0 — Development Preview
+# Kanto Ascendant 5.0.1 — Complete 5.0 Release
 
 Kanto Ascendant 5.0 expands the persistent post-game into a complete
-251-species discovery, training and collection loop. This release is fully
-playable, but remains an active development preview: more dialogue, balancing,
-features and polish will follow.
+251-species discovery, training and collection loop. Version 5.0.1 is the
+completed 5.0 release; further dialogue, balancing and feature updates can
+still follow.
+
+5.0.1 completes the release path with a one-time Oak onboarding, a shared
+Journal/Atlas objective tracker, localized locations and unlock hints. Gold is
+now the final required main battle before New Game Plus; Battle Factory and
+S.S. Anne remain optional prestige pillars.
 
 ## Highlights
 
@@ -47,21 +52,20 @@ features and polish will follow.
   outbreaks and voyages always use literal walked tiles.
 - Factory parties, queued TMs, Crown signatures and Frontier purchases recover
   safely from full Bags, interrupted runs and earlier preview saves.
-- Four ROM-free regression suites pass **2,871 checks**, and the standalone
+- Five ROM-free regression suites pass **3,976 checks**, including a
+  **1,086-check historical upgrade matrix** across Red, Blue and Yellow,
+  English and German, restart, mod-disable and re-enable paths. The standalone
   reachability audit confirms **251/251 obtainable species**, 580 real
   encounter slots, 122 evolution edges, 44 research habitats and five
   renewable evolution-item paths.
 
 ## Installation
 
-Download `kanto-ascendant-5.0.0.zip` below and import it through the Gen1
+Download `kanto-ascendant-5.0.1.zip` below and import it through the Gen1
 Recomp launcher. The identical `.modpkg` is included as an alternative for
 launcher versions that use that extension. Existing Kanto Ascendant saves are
 supported. Do not enable a second mod that adds a complete Johto species
 roster at the same time.
-
-SHA-256:
-`53fcc97126acda9328154ecee62de8ca7358bdb1ecd2a3d90d743b171bfda10f`
 
 Feedback, balancing reports and feature wishes are welcome at
 <https://github.com/Roxas2712/kanto-ascendant/issues>.

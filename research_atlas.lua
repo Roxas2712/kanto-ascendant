@@ -13,6 +13,7 @@ return function(mod, opts)
   local fieldTech = opts.fieldTech
   local kantoCompletion = opts.kantoCompletion
   local johtoResearch = opts.johtoResearch
+  local questTracker = opts.questTracker
   local lootBands = opts.lootBands or {}
   local trainerStates = opts.trainerStates
   local stepClock = opts.stepClock
@@ -33,6 +34,65 @@ return function(mod, opts)
     KABUTO = { en = "Fossil restored after MASTER BROCK", de = "Fossil nach MEISTER ROCKO" },
     AERODACTYL = { en = "Cinnabar fossil restoration", de = "Fossil-Restauration auf Zinnober" },
     MEW = { en = "Oak, Fuji and Cinnabar heritage finale", de = "Eich/Fuji/Zinnober-Finale" },
+  }
+
+  local MAP_NAMES = {
+    PALLET_TOWN = { en = "PALLET TOWN", de = "ALABASTIA" },
+    VIRIDIAN_CITY = { en = "VIRIDIAN CITY", de = "VERTANIA CITY" },
+    VIRIDIAN_FOREST = { en = "VIRIDIAN FOREST", de = "VERTANIA-WALD" },
+    VIRIDIAN_GYM = { en = "VIRIDIAN GYM", de = "VERTANIA-ARENA" },
+    PEWTER_GYM = { en = "PEWTER GYM", de = "MARMORIA-ARENA" },
+    CERULEAN_CITY = { en = "CERULEAN CITY", de = "AZURIA CITY" },
+    CERULEAN_GYM = { en = "CERULEAN GYM", de = "AZURIA-ARENA" },
+    CERULEAN_CAVE_1F = { en = "CERULEAN CAVE 1F", de = "AZURIA-HÖHLE EG" },
+    CERULEAN_CAVE_B1F = { en = "CERULEAN CAVE B1F", de = "AZURIA-HÖHLE UG1" },
+    VERMILION_CITY = { en = "VERMILION CITY", de = "ORANIA CITY" },
+    VERMILION_GYM = { en = "VERMILION GYM", de = "ORANIA-ARENA" },
+    LAVENDER_TOWN = { en = "LAVENDER TOWN", de = "LAVANDIA" },
+    CELADON_CITY = { en = "CELADON CITY", de = "PRISMANIA CITY" },
+    CELADON_GYM = { en = "CELADON GYM", de = "PRISMANIA-ARENA" },
+    CELADON_MANSION_3F = {
+      en = "CELADON MANSION 3F", de = "PRISMANIA-VILLA 3F",
+    },
+    FUCHSIA_CITY = { en = "FUCHSIA CITY", de = "FUCHSANIA CITY" },
+    FUCHSIA_GYM = { en = "FUCHSIA GYM", de = "FUCHSANIA-ARENA" },
+    SAFFRON_GYM = { en = "SAFFRON GYM", de = "SAFFRONIA-ARENA" },
+    CINNABAR_ISLAND = { en = "CINNABAR ISLAND", de = "ZINNOBERINSEL" },
+    CINNABAR_GYM = { en = "CINNABAR GYM", de = "ZINNOBER-ARENA" },
+    CINNABAR_LAB_FOSSIL_ROOM = {
+      en = "CINNABAR LAB", de = "ZINNOBER-LABOR",
+    },
+    OAKS_LAB = { en = "OAK'S LAB", de = "EICHS LABOR" },
+    MR_FUJIS_HOUSE = { en = "MR. FUJI'S HOUSE", de = "MR. FUJIS HAUS" },
+    MT_MOON_B2F = { en = "MT. MOON B2F", de = "MONDBERG UG2" },
+    DIGLETTS_CAVE = { en = "DIGLETT'S CAVE", de = "DIGDA-HÖHLE" },
+    POWER_PLANT = { en = "POWER PLANT", de = "KRAFTWERK" },
+    POKEMON_MANSION_B1F = {
+      en = "POKéMON MANSION B1F", de = "POKéMON-HAUS UG1",
+    },
+    POKEMON_TOWER_7F = {
+      en = "POKéMON TOWER 7F", de = "POKéMON-TURM 7F",
+    },
+    SEAFOAM_ISLANDS_B2F = {
+      en = "SEAFOAM ISLANDS B2F", de = "SEESCHAUMINSELN UG2",
+    },
+    SEAFOAM_ISLANDS_B4F = {
+      en = "SEAFOAM ISLANDS B4F", de = "SEESCHAUMINSELN UG4",
+    },
+    VICTORY_ROAD_1F = { en = "VICTORY ROAD 1F", de = "SIEGESSTRASSE 1F" },
+    VICTORY_ROAD_2F = { en = "VICTORY ROAD 2F", de = "SIEGESSTRASSE 2F" },
+    VICTORY_ROAD_3F = { en = "VICTORY ROAD 3F", de = "SIEGESSTRASSE 3F" },
+    SAFARI_ZONE_CENTER = {
+      en = "SAFARI ZONE CENTER", de = "SAFARI-ZONE ZENTRUM",
+    },
+    SAFARI_ZONE_EAST = {
+      en = "SAFARI ZONE EAST", de = "SAFARI-ZONE OST",
+    },
+    SILPH_CO_11F = { en = "SILPH CO. 11F", de = "SILPH CO. 11F" },
+    INDIGO_PLATEAU_LOBBY = {
+      en = "INDIGO PLATEAU LOBBY", de = "INDIGO-PLATEAU-LOBBY",
+    },
+    HALL_OF_FAME = { en = "HALL OF FAME", de = "RUHMESHALLE" },
   }
 
   local function tr(en, de)
@@ -67,6 +127,10 @@ return function(mod, opts)
   end
 
   local function cleanMapName(game, mapId)
+    local route = tostring(mapId or ""):match("^ROUTE_(%d+)$")
+    if route then return "ROUTE " .. route end
+    local localizedName = MAP_NAMES[mapId]
+    if localizedName then return localized(localizedName) end
     local def = game and game.data and game.data.maps
       and game.data.maps[mapId]
     local name = def and (def.name or def.label)
@@ -316,13 +380,65 @@ return function(mod, opts)
     for id, def in pairs(game.data.pokemon or {}) do
       for _, evo in ipairs(def.evolutions or {}) do
         if evo.species == species and (seen[id] or owned[id]) then
-          parents[#parents + 1] = def.name or id
+          parents[#parents + 1] = {
+            name = def.name or id,
+            evolution = evo,
+          }
         end
       end
     end
-    table.sort(parents)
+    table.sort(parents, function(a, b) return a.name < b.name end)
     if #parents == 0 then return nil end
-    return tr("EVOLUTION: ", "ENTWICKLUNG: ") .. table.concat(parents, "/")
+    return parents
+  end
+
+  local function evolutionCondition(game, evo)
+    local method = tostring(evo.method or "")
+    if method == "LEVEL" then
+      return tr(("LEVEL %d"):format(tonumber(evo.level) or 1),
+        ("LEVEL %d"):format(tonumber(evo.level) or 1))
+    elseif method == "ITEM" then
+      return itemName(game, evo.item)
+    elseif method == "FRIENDSHIP" then
+      return tr("HIGH FRIENDSHIP", "HOHE FREUNDSCHAFT")
+    elseif method == "FRIENDSHIP_DAY" then
+      return tr("HIGH FRIENDSHIP / DAY", "HOHE FREUNDSCHAFT / TAG")
+    elseif method == "FRIENDSHIP_NIGHT" then
+      return tr("HIGH FRIENDSHIP / NIGHT", "HOHE FREUNDSCHAFT / NACHT")
+    elseif method == "TYROGUE_ATTACK" then
+      return tr("LEVEL 20 / ATTACK > DEF.", "LEVEL 20 / ANGR. > VERT.")
+    elseif method == "TYROGUE_DEFENSE" then
+      return tr("LEVEL 20 / DEF. > ATTACK", "LEVEL 20 / VERT. > ANGR.")
+    elseif method == "TYROGUE_BALANCE" then
+      return tr("LEVEL 20 / ATTACK = DEF.", "LEVEL 20 / ANGR. = VERT.")
+    elseif method == "TRADE" then
+      return tr("TRADE", "TAUSCH")
+    end
+    return method ~= "" and method:gsub("_", " ")
+      or tr("SPECIAL CONDITION", "SONDERBEDINGUNG")
+  end
+
+  local function evolutionDetails(game, species)
+    local def = game.data.pokemon[species]
+    local pokedex = game.save and game.save.pokedex or {}
+    local seen = pokedex.seen or {}
+    local owned = pokedex.owned or {}
+    local lines = {}
+    for _, evo in ipairs(def and def.evolutions or {}) do
+      local target = game.data.pokemon[evo.species]
+      local targetName = (seen[evo.species] or owned[evo.species])
+        and target and target.name or "???"
+      lines[#lines + 1] = evolutionCondition(game, evo)
+        .. " -> " .. targetName
+    end
+    local parents = reverseEvolution(game, species)
+    for _, parent in ipairs(parents or {}) do
+      lines[#lines + 1] = tr("FROM ", "VON ") .. parent.name
+        .. ": " .. evolutionCondition(game, parent.evolution)
+    end
+    if #lines == 0 then return nil end
+    return tr("EVOLUTION CONDITIONS", "ENTWICKLUNGSBEDINGUNGEN")
+      .. "\n" .. table.concat(lines, "\n")
   end
 
   local function habitatDetails(game, species)
@@ -337,7 +453,7 @@ return function(mod, opts)
     if dynamic then pages[#pages + 1] = dynamic end
     local source = SPECIAL_SOURCES[species]
     if source then pages[#pages + 1] = localized(source) end
-    local evolution = reverseEvolution(game, species)
+    local evolution = evolutionDetails(game, species)
     if evolution then pages[#pages + 1] = evolution end
     if LEGENDARY[species] and not source then
       pages[#pages + 1] = tr(
@@ -379,6 +495,9 @@ return function(mod, opts)
   end
 
   local function objectiveText(game)
+    if questTracker and questTracker.objectiveText then
+      return questTracker.objectiveText(game)
+    end
     if ascendant and ascendant.activeResearch then
       local s = ascendant.state and ascendant.state()
       local row = s and ascendant.activeResearch(s)
@@ -491,5 +610,8 @@ return function(mod, opts)
   A.rewardRows = rewardRows
   A.habitatRows = habitatRows
   A.habitatDetails = habitatDetails
+  A.objectiveText = objectiveText
+  A.cleanMapName = cleanMapName
+  A.setQuestTracker = function(controller) questTracker = controller end
   return A
 end

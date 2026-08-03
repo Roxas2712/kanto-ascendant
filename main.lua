@@ -698,6 +698,30 @@ return function(mod)
   mod.exports.grandTour = grandTour
   mod.exports.grandTourData = grandTourData
 
+  local makeQuestTracker = loadSibling(mod, "quest_tracker.lua")
+  local questTracker = makeQuestTracker(mod, {
+    i18n = i18n,
+    postgame = postgame,
+    postgameData = postgameData,
+    ascendant = ascendant,
+    ascendantData = ascendantData,
+    johtoResearch = johtoResearch,
+    johtoData = johtoData,
+    johtoMasters = johtoMasters,
+    grandTour = grandTour,
+  })
+  ascendant.setQuestTracker(questTracker)
+  researchAtlas.setQuestTracker(questTracker)
+  mod.exports.questTracker = questTracker
+
+  local makeOnboarding = loadSibling(mod, "onboarding.lua")
+  local onboarding = makeOnboarding(mod, {
+    i18n = i18n,
+    postgame = postgame,
+    questTracker = questTracker,
+  })
+  mod.exports.onboarding = onboarding
+
   local makeLegacyHall = loadSibling(mod, "legacy_hall.lua")
   local legacyHall = makeLegacyHall(mod, {
     i18n = i18n,
@@ -1184,6 +1208,8 @@ return function(mod)
     if dexProgress then dexProgress.install(game, deps) end
     if researchAtlas then researchAtlas.install(game, deps) end
     if grandTour then grandTour.install(game, deps) end
+    if questTracker then questTracker.install(game, deps) end
+    if onboarding then onboarding.install(game, deps) end
     if legacyHall then legacyHall.install(game, deps) end
     if followerCompat then followerCompat.install(game) end
 

@@ -190,6 +190,9 @@ return function(mod, opts)
     }
     persist(s)
     local reward, delivered = deliverGift(game, s)
+    if ascendant and ascendant.evaluateAchievements then
+      ascendant.evaluateAchievements(game)
+    end
     local title = first and tr(
       "TITLE EARNED:\nKANTO ASCENDANT\fA golden star now\nmarks your TRAINER CARD.",
       "TITEL ERHALTEN:\nKANTO ASCENDANT\fEin goldener Stern ziert\nnun deinen TRAINERPASS.")

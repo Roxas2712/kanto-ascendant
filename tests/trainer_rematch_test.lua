@@ -161,6 +161,24 @@ T.eq(groupedRows[1].label, "JOURNAL",
   "Ascendant utilities use their intentional logical order")
 T.eq(groupedRows[2].label, "MEGA STONES",
   "the submenu can use a clearer label than the compact old Start row")
+local _, expandedRows, anyNew = ascendantMenu.collect({
+  {
+    label = "JOURNAL", ascendantMenu = true,
+    ascendantLabel = "JOURNAL", ascendantOrder = 10,
+  },
+  {
+    label = "MEGA", ascendantMenu = true,
+    ascendantLabel = "MEGA STONES", ascendantOrder = 70,
+  },
+  {
+    label = "TITLES", ascendantMenu = true,
+    ascendantLabel = "TITLES / TROPHIES", ascendantOrder = 80,
+  },
+})
+T.eq(anyNew, true,
+  "a utility unlocked after the initial menu visit raises a visible NEW hint")
+T.eq(expandedRows[3].right, "NEW",
+  "the newly unlocked utility itself carries the NEW marker")
 
 local menuOwned = {}
 for id, def in pairs(Data.pokemon) do
@@ -1026,6 +1044,25 @@ local game = {
   stack = { push = function(_, s) table.insert(pushed, s) end },
 }
 run.loader.modSave = game.save.modData
+do
+  local onboarding = assert(ex.onboarding)
+  T.eq(onboarding.text():find("ASCENDANT", 1, true) ~= nil, true,
+    "the one-time 5.0 orientation introduces the Ascendant menu")
+  T.eq(onboarding.text():find("ROUTE 5", 1, true) ~= nil, true,
+    "the orientation points both new and upgraded saves to Route 5")
+  T.eq(onboarding.text():find("ELM", 1, true) ~= nil, true,
+    "the orientation introduces Elm's research line in English")
+  local onboardingState = onboarding.state()
+  onboardingState.shown = false
+  T.eq(onboarding.shouldShow(game), false,
+    "the 5.0 orientation stays hidden before the Hall of Fame")
+  game.save.flags.EVENT_BEAT_CHAMPION_RIVAL = true
+  T.eq(onboarding.shouldShow(game), true,
+    "an existing post-game save receives the 5.0 orientation once")
+  onboardingState.shown = true
+  T.eq(onboarding.shouldShow(game), false,
+    "the orientation does not repeat after save, restart or mod re-enable")
+end
 local textBoxStub = {
   new = function(g, text, onDone, opts)
     return { text = text, onDone = onDone, opts = opts or {} }
@@ -1796,6 +1833,7 @@ end
 ascState.rocketStage = #asd.rocket
 livePostgame.crownChampion = true
 livePostgame.apexChampion = true
+for _, gym in ipairs(pgd.gyms) do livePostgame.crownWins[gym.key] = true end
 livePostgame.catches = livePostgame.catches or {}
 for _, species in ipairs(pgd.legendOrder) do
   livePostgame.catches[species] = true
@@ -1816,6 +1854,9 @@ for key in pairs(asd.gymQuests) do
 end
 ascState.tournament.wins = 1
 ascState.mewCaught = true
+local goldState = ex.johtoMasters.state()
+goldState.clears = 0
+ascState.achievements.ascendant = nil
 asc.evaluateAchievements(game)
 T.eq(ascState.achievements.leader_confidant, true,
   "all Leader missions unlock KANTO CONFIDANT")
@@ -1825,13 +1866,27 @@ T.eq(ascState.achievements.rocket_breaker, true,
   "the fourth Rocket victory unlocks ROCKET BREAKER")
 T.eq(ascState.achievements.mew_found, true,
   "catching Mew unlocks MYTH SEEKER")
+T.eq(ascState.achievements.ascendant, nil,
+  "the first Ascendant cycle remains sealed until Gold is defeated")
+T.eq(ex.questTracker.nextObjective(game).id, "gold",
+  "the shared Journal and Atlas tracker identifies Gold as the final main fight")
+T.eq(asc.newGamePlusReady(game), false,
+  "New Game Plus cannot begin before the mandatory Gold clear")
+goldState.clears = 1
+asc.evaluateAchievements(game)
 T.eq(ascState.achievements.ascendant, true,
-  "all major systems together unlock KANTO ASCENDANT")
+  "Gold completes the required main path and unlocks KANTO ASCENDANT")
+T.eq(ex.questTracker.nextObjective(game).id, "new_game_plus",
+  "the tracker advances from Gold to New Game Plus")
+T.eq(asc.newGamePlusReady(game), true,
+  "Factory and S.S. Anne records remain optional prestige goals")
 
 ascState.selectedTitle = "mew_found"
 local catchesBeforeCycle = livePostgame.catches
 local newCycle = asc.beginNewGamePlus(game)
 T.eq(newCycle, 1, "the first safe New Game Plus starts Ascendant Cycle 1")
+T.eq(asc.state().cycleJohtoMastersStartClears, 1,
+  "a new cycle records Gold progress so a fresh Gold clear is required")
 T.eq(pg.state().apexChampion, nil,
   "New Game Plus resets the Apex circuit")
 T.eq(pg.state().crownChampion, nil,
