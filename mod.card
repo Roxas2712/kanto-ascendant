@@ -40,6 +40,7 @@ return {
       "A one-time Professor Oak scene foreshadows growing legendary sightings before the first Hall of Fame",
       "Personal Master/Crown Leader and Apex/Crown Elite Four dialogue in both languages",
       "Bundled normal and shiny Pokémon Crystal front/back art for all 100 Johto species",
+      "Bundled normal and shiny Crystal front animations for #152-251, plus seamless coexistence with Crystal Animated Sprites for #001-151",
       "Five visible trainer ranks with stronger AI and thematic team growth",
       "Eight sequential research assignments with persistent rewards and Bag-full protection",
       "A personal mission and signature adaptive roster variant for every Gym Leader",
@@ -110,6 +111,10 @@ return {
     { who = "Wowabox (Darklinkduck)",
       for_ = "original all-catchable encounter placement inspiration" },
     { who = "Pokemon Gen 1 Recompilation Project", for_ = "the engine and its mod seams" },
+    { who = "distilledorion-sketch and LOW-K3YS",
+      for_ = "Crystal Animated Sprites with Shiny Visuals and its Voxel-compatible fork" },
+    { who = "PokeAPI sprites contributors",
+      for_ = "the mirrored Pokémon Crystal animation frames" },
   },
   compat = { engine = ">=0.0.0-dev <1.0.0", modApi = 2 },
 }

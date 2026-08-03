@@ -2,6 +2,40 @@
 
 All notable changes to this project are documented in this file.
 
+## [5.1.0] - 2026-08-03
+
+### Added
+
+- Authentic normal and shiny Pokémon Crystal front animations for all 100
+  Johto species. The complete numbered-frame pack and original GIF timing are
+  bundled; no separate download is required.
+- A `CRYSTAL ANIMATION` option under Kanto Ascendant. Ordinary 2D battles
+  animate the opponent while retaining the player's authentic Crystal back;
+  Dramatic Shape's staged Voxel battles animate both front-facing Pokémon.
+- First-class coexistence with **Crystal Animated Sprites with Shiny
+  Visuals**. That mod owns Kanto #001-151 while Ascendant supplies Johto
+  #152-251, including shiny artwork and presentation.
+- A real-LÖVE compatibility driver covering 2D, Voxel and a mixed
+  externally-animated Kanto versus Ascendant-animated Johto battle.
+
+### Changed
+
+- Official Mega art now resolves outside lower-priority full-species sprite
+  replacements, so Mega Evolution cannot be hidden by the Crystal mod.
+- Kanto Ascendant suppresses duplicate shiny sparkles and chimes only for the
+  Kanto species the external Crystal mod actually supports. Johto keeps
+  Ascendant's effects and Shiny Dex presentation.
+- A visual mod that explicitly replaces a Johto sprite keeps ownership of
+  that species; the bundled animation remains the safe default and fallback.
+
+### Fixed
+
+- Crystal Animated Sprites and Dramatic Shape can now run together with Kanto
+  Ascendant without Totodile-through-Celebi falling back to unrelated Kanto
+  battle art.
+- Normal 2D player backs remain static, while Dramatic Shape's intentional
+  back-to-front substitution receives the matching normal or shiny animation.
+
 ## [5.0.2] - 2026-08-03
 
 ### Added

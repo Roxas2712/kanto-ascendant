@@ -123,8 +123,25 @@ return function(mod, opts)
     return type(api) == "table" and api or nil
   end
 
-  function S.externalActive()
-    return externalApi() ~= nil
+  local function crystalVisualsActive(mon)
+    local loader = S.game and S.game.mods
+    local exports = loader and loader.exports
+    local loaded = type(exports) == "table"
+      and type(exports.crystal_animated_sprites_with_shiny_visuals) == "table"
+    if not loaded then
+      loaded = loader and type(loader.mods) == "table"
+        and loader.mods.crystal_animated_sprites_with_shiny_visuals ~= nil
+    end
+    if not (loaded and mon and mon.species) then return false end
+    local def = S.game and S.game.data and S.game.data.pokemon
+      and S.game.data.pokemon[mon.species]
+    return def and (tonumber(def.dex) or 9999) <= 151 or false
+  end
+
+  function S.externalActive(mon)
+    -- shiny_indicators owns every species. Crystal Animated Sprites currently
+    -- owns only Kanto, so Ascendant keeps its Johto sparkle/summary behavior.
+    return externalApi() ~= nil or crystalVisualsActive(mon)
   end
 
   local function huntingMode()
@@ -317,7 +334,8 @@ return function(mod, opts)
   end
 
   function S.spritePath(path, ctx)
-    if S.externalActive() or mod.options:get("shiny_effects") == false
+    if S.externalActive(ctx and ctx.mon)
+        or mod.options:get("shiny_effects") == false
         or not (ctx and S.isShiny(ctx.mon)) then return path end
     local candidate = derivedShinyPath(path)
     if candidate then ctx.trueColor = true; return candidate end
@@ -346,8 +364,8 @@ return function(mod, opts)
     return chimeData or nil
   end
 
-  local function playChime()
-    if S.externalActive() or mod.options:get("shiny_effects") == false
+  local function playChime(mon)
+    if S.externalActive(mon) or mod.options:get("shiny_effects") == false
         or not (love and love.audio and love.audio.newSource) then return end
     local data = makeChime()
     if not data then return end
@@ -397,7 +415,7 @@ return function(mod, opts)
 
   mod.hooks:wrap("battle.overlay", function(nextOverlay, battle)
     nextOverlay(battle)
-    if S.externalActive() or mod.options:get("shiny_effects") == false
+    if mod.options:get("shiny_effects") == false
         or not (battle and love and love.graphics) then return end
     local effects = battleEffects[battle]
     if not effects then
@@ -406,11 +424,12 @@ return function(mod, opts)
     end
     for _, side in ipairs({ "enemy", "player" }) do
       local battler = battle[side]
-      if battler and S.isShiny(battler.mon) and visible(battle, side) then
+      if battler and not S.externalActive(battler.mon)
+          and S.isShiny(battler.mon) and visible(battle, side) then
         if not effects.announced[battler] then
           effects.announced[battler] = true
           effects.age[battler] = battle.frame or 0
-          playChime()
+          playChime(battler.mon)
         end
         local x, y = markerPosition(battle, side)
         drawIcon(x, y, true)

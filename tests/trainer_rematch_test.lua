@@ -19,18 +19,31 @@ T.neq(ex, nil, "exports reachable")
 T.neq(ex.crystalSprites, nil, "Crystal availability is exported")
 T.neq(ex.crystalShinySprites, nil,
   "Crystal shiny availability is exported independently")
+T.neq(ex.crystalAnimation, nil,
+  "Crystal animation compatibility is exported")
 ;(function()
   local crystalNormalCount, crystalShinyCount = 0, 0
+  local animatedNormalCount, animatedShinyCount = 0, 0
   for _, available in pairs(ex.crystalSprites) do
     if available then crystalNormalCount = crystalNormalCount + 1 end
   end
   for _, available in pairs(ex.crystalShinySprites) do
     if available then crystalShinyCount = crystalShinyCount + 1 end
   end
+  for _, available in pairs(ex.crystalAnimation.available) do
+    if available then animatedNormalCount = animatedNormalCount + 1 end
+  end
+  for _, available in pairs(ex.crystalAnimation.shinyAvailable) do
+    if available then animatedShinyCount = animatedShinyCount + 1 end
+  end
   T.eq(crystalNormalCount, 100,
     "all 100 Johto species ship with Crystal front/back art")
   T.eq(crystalShinyCount, 100,
     "all 100 Johto species ship with shiny Crystal front/back art")
+  T.eq(animatedNormalCount, 100,
+    "all 100 Johto species ship with Crystal animation-compatible normal art")
+  T.eq(animatedShinyCount, 100,
+    "all 100 Johto species ship with Crystal animation-compatible shiny art")
   T.eq(ex.crystalSprites.TOTODILE, true,
     "Totodile never needs the Squirtle battle fallback in a release package")
   T.eq(ex.crystalSprites.FERALIGATR, true,
@@ -65,6 +78,95 @@ if ex.crystalShinySprites.RAIKOU then
   T.eq(crystalShinyCtx.trueColor, true,
     "the official shiny Crystal palette is kept in true color")
 end
+do
+local animatedTotodile = {
+  species = "TOTODILE",
+  dvs = { attack = 9, defense = 8, speed = 8, special = 8, hp = 8 },
+}
+local animatedTotodileCtx = {
+  species = "TOTODILE", side = "front", trueColor = false,
+  mon = animatedTotodile, kind = "battle",
+}
+local animatedTotodilePath = RealRuntime.call("pokemon.sprite",
+  function(path) return path end, "fallback_front.png", animatedTotodileCtx)
+T.eq(animatedTotodilePath:find(
+    "assets/crystal_animated/front/normal/158/001.png", 1, true) ~= nil, true,
+  "Johto enemy fronts use the bundled Crystal animation frames")
+T.eq(animatedTotodileCtx.trueColor, true,
+  "animated Crystal frames keep their authored palette")
+local animatedShinyTotodile = {
+  species = "TOTODILE",
+  dvs = { attack = 10, defense = 10, speed = 10, special = 10, hp = 0 },
+}
+local animatedShinyTotodilePath = RealRuntime.call("pokemon.sprite",
+  function(path) return path end, "fallback_front.png", {
+    species = "TOTODILE", side = "front", trueColor = false,
+    mon = animatedShinyTotodile, kind = "battle",
+  })
+T.eq(animatedShinyTotodilePath:find(
+    "assets/crystal_animated/front/shiny/158/001.png", 1, true) ~= nil, true,
+  "Johto shinies use Crystal's matching animated shiny frames")
+local totodileBackPath = RealRuntime.call("pokemon.sprite",
+  function(path) return path end, "fallback_back.png", {
+    species = "TOTODILE", side = "back", trueColor = false,
+    mon = animatedTotodile, kind = "battle",
+  })
+T.eq(totodileBackPath:find(
+    "assets/crystal/totodile_back.png", 1, true) ~= nil, true,
+  "ordinary 2D battles retain the correct Crystal back sprite")
+RealRuntime.call("pokemon.sprite", function(path) return path end,
+  "fallback_front.png", animatedTotodileCtx)
+local animatedBattle = {
+  enemy = { mon = animatedTotodile, sprite = {} },
+  showEnemyTrainer = false,
+  enemySendingOut = false,
+}
+ex.crystalAnimation.updateBattle(animatedBattle, 1.0)
+T.neq(animatedBattle.enemy.__ascendantCrystalAnimation, nil,
+  "the live battler receives an independent Ascendant animation state")
+T.eq(animatedBattle.enemy.__ascendantCrystalAnimation.frame > 1, true,
+  "Crystal animation timing advances without depending on render availability")
+do
+  local animationData = assert(loadfile(
+    modPath .. "/crystal_animation_data.lua"))()
+  local missingFrames = {}
+  for variant, byDex in pairs(animationData) do
+    for dex, timing in pairs(byDex) do
+      for frame = 1, #timing do
+        local relative = ("assets/crystal_animated/front/%s/%s/%03d.png")
+          :format(variant, dex, frame)
+        local handle = io.open(modPath .. "/" .. relative, "rb")
+        if handle then
+          handle:close()
+        else
+          missingFrames[#missingFrames + 1] = relative
+        end
+      end
+    end
+  end
+  T.eq(#missingFrames, 0,
+    "every generated Crystal timing entry has its packaged PNG frame")
+end
+
+local removeExternalCrystal = run.loader.hooks:wrap(
+  "pokemon.sprite", function(nextSprite, path, ctx)
+    nextSprite(path, ctx)
+    if ctx and ctx.species == "RAIKOU" then
+      ctx.trueColor = true
+      return "external/crystal/raikou/001.png"
+    end
+    return path
+  end, 0, "crystal_compat_test")
+local externalCrystalPath = RealRuntime.call("pokemon.sprite",
+  function(path) return path end, "fallback_front.png", {
+    species = "RAIKOU", side = "front", trueColor = false,
+    mon = { species = "RAIKOU" }, kind = "battle",
+  })
+T.eq(externalCrystalPath, "external/crystal/raikou/001.png",
+  "an external Johto animation resolver takes priority over bundled stills")
+removeExternalCrystal()
+end
+
 run.loader.modOptions.trainer_rematch = { legend_art = "original" }
 local originalCtx = { species = "RAIKOU", side = "back", trueColor = false }
 local originalPath = RealRuntime.call("pokemon.sprite",
@@ -80,13 +182,15 @@ T.same(ex.spriteAssets.followerOrder, { 4, 2, 0, 5, 3, 1 },
   "PokeWilds poses map to Gen1 Recomp's down/up/side frame order")
 local voxelCtx = {
   species = "RAIKOU", side = "back", trueColor = false,
+  mon = { species = "RAIKOU" }, kind = "battle",
   data = { pokemon = { RAIKOU = { spriteFront = "voxel_front.png" } } },
 }
 local voxelPath = RealRuntime.call("pokemon.sprite",
   function() return "voxel_front.png" end, "fallback_back.png", voxelCtx)
 if ex.crystalSprites.RAIKOU then
-  T.eq(voxelPath:find("assets/crystal/raikou_front.png", 1, true) ~= nil, true,
-    "voxel battles preserve Dramatic Shape's front-facing player sprite")
+  T.eq(voxelPath:find(
+      "assets/crystal_animated/front/normal/243/001.png", 1, true) ~= nil, true,
+    "voxel battles animate Dramatic Shape's front-facing player sprite")
 end
 
 local optionRows = {}
@@ -113,6 +217,8 @@ T.eq(optionRows.legend_articuno.type, "choice",
   "Articuno has its own APEX/VANILLA/OFF option")
 T.eq(optionRows.shiny_hunts.type, "choice",
   "shiny hunting can use Ascendant boosts or natural 1/8192 odds")
+T.eq(optionRows.crystal_animation.type, "toggle",
+  "bundled Johto Crystal animation can be disabled independently")
 T.eq(optionRows.shiny_effects.type, "toggle",
   "built-in shiny presentation can be switched off")
 T.eq(optionRows.shiny_protection.type, "toggle",
@@ -398,6 +504,27 @@ T.eq(megaPath:find("assets/mega/mega_raichu_x_front.png", 1, true) ~= nil,
   true, "Mega Raichu X selects its original four-shade front sprite")
 T.eq(megaCtx.trueColor, false,
   "Mega sprites remain compatible with Gen-1 palettes")
+do
+local removeCrystalKanto = run.loader.hooks:wrap(
+  "pokemon.sprite", function(_, _, ctx)
+    if ctx and ctx.species == "RAICHU" then
+      ctx.trueColor = true
+      return "external/crystal/raichu/001.png"
+    end
+  end, 930, "crystal_mega_compat_test")
+local megaOverCrystalCtx = {
+  species = "RAICHU", side = "front", trueColor = false,
+  mon = { species = "RAICHU", _ascMegaForm = "RAICHU_X" },
+}
+local megaOverCrystalPath = RealRuntime.call("pokemon.sprite",
+  function(path) return path end, "raichu_fallback.png", megaOverCrystalCtx)
+T.eq(megaOverCrystalPath:find(
+    "assets/mega/mega_raichu_x_front.png", 1, true) ~= nil, true,
+  "Mega forms override the external Crystal mod's priority-930 Kanto art")
+T.eq(megaOverCrystalCtx.trueColor, false,
+  "Mega art restores palette-aware rendering after external Crystal art")
+removeCrystalKanto()
+end
 
 -- ------------------------------------------------ complete Johto catalogue
 

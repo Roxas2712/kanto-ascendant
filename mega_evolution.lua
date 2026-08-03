@@ -526,6 +526,9 @@ return function(mod, opts)
     end
   end
 
+  -- Run outside Crystal Animated Sprites' priority-930 resolver. That mod
+  -- intentionally owns ordinary Kanto art without calling lower wrappers;
+  -- an active official Mega form must still win after its Crystal result.
   mod.hooks:wrap("pokemon.sprite", function(nextSprite, path, ctx)
     path = nextSprite(path, ctx)
     local profile = ctx and ctx.mon and FORMS_BY_ID[ctx.mon._ascMegaForm]
@@ -535,7 +538,7 @@ return function(mod, opts)
     if not mod:read(candidate) then return path end
     ctx.trueColor = false
     return mod.path .. "/" .. candidate
-  end, 400)
+  end, 990)
 
   mod.hooks:wrap("battle.overlay", function(nextOverlay, battle)
     nextOverlay(battle)

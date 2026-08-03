@@ -1,7 +1,7 @@
 {
   "id": "trainer_rematch",
   "name": "Kanto Ascendant",
-  "version": "5.0.2",
+  "version": "5.1.0",
   "api": 2,
   "entry": "main.lua",
   "profile": "content",
@@ -17,7 +17,9 @@
     "deutsch",
     "deutsch-blau",
     "deutsch-gelb",
-    "all_pokemon_catchable_151_mod"
+    "all_pokemon_catchable_151_mod",
+    "crystal_animated_sprites_with_shiny_visuals",
+    "DRAMATIC_SHAPE"
   ],
   "conflicts": [],
   "incompatible": [],

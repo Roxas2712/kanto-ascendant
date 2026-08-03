@@ -301,6 +301,9 @@ return function(mod)
         { menuLabel("CRYSTAL (BUNDLED)", "KRISTALL (ENTHALTEN)"), "crystal" },
         { menuLabel("KANTO FALLBACK", "KANTO-ERSATZ"), "original" },
       } },
+    { key = "crystal_animation",
+      label = menuLabel("CRYSTAL ANIMATION", "KRISTALL-ANIMATION"),
+      type = "toggle", default = true },
     { key = "shiny_hunts", label = menuLabel("SHINY HUNTS", "SHINY-JAGD"),
       type = "choice", default = "ascendant",
       choices = {
@@ -474,11 +477,19 @@ return function(mod)
     postgame = postgame,
     i18n = i18n,
   })
+  local crystalAnimationData = loadSibling(mod, "crystal_animation_data.lua")
+  local makeCrystalAnimation = loadSibling(mod, "crystal_animation.lua")
+  local crystalAnimation = makeCrystalAnimation(mod, {
+    animationData = crystalAnimationData,
+    shinySystem = shinySystem,
+    speciesOrder = johtoData.order,
+  })
   daycare.setShinySystem(shinySystem)
   mod.exports.daycare = daycare
   mod.exports.breedingData = breedingData
   mod.exports.megaEvolution = megaEvolution
   mod.exports.shinySystem = shinySystem
+  mod.exports.crystalAnimation = crystalAnimation
   local makeFollowerCompat = loadSibling(mod, "follower_compat.lua")
   local followerCompat = makeFollowerCompat(mod, {
     spriteAssets = spriteAssets,
@@ -525,11 +536,15 @@ return function(mod)
   mod.exports.crystalSprites = crystalAvailable
   mod.exports.crystalShinySprites = crystalShinyAvailable
   mod.hooks:wrap("pokemon.sprite", function(nextSprite, path, ctx)
+    local requestedPath = path
     if shinySystem then shinySystem.prepareSprite(ctx) end
     path = nextSprite(path, ctx)
     local name = ctx and CRYSTAL_ASSETS[ctx.species]
     if mod.options:get("legend_art") ~= "crystal"
         or not name or not crystalAvailable[ctx.species] then
+      if crystalAnimation and ctx and ctx.mon then
+        crystalAnimation.select(ctx, nil, true)
+      end
       return shinySystem and shinySystem.spritePath(path, ctx) or path
     end
     -- Pokémon Database's Crystal PNGs carry their own limited GBC palette.
@@ -543,13 +558,29 @@ return function(mod)
     -- sprite over it.
     local def = ctx.data and ctx.data.pokemon
       and ctx.data.pokemon[ctx.species]
-    if selectedSide == "back" and def and path == def.spriteFront then
+    local voxelFront = selectedSide == "back"
+      and def and path == def.spriteFront
+    if voxelFront then
       selectedSide = "front"
+    end
+    -- A lower-priority visual mod that explicitly replaced the requested
+    -- path owns this species. Dramatic Shape's intentional back->front swap
+    -- is the one exception: Ascendant supplies its matching Crystal front.
+    local externalOverride = type(path) == "string" and path ~= ""
+      and path ~= requestedPath and not voxelFront
+    if externalOverride then
+      if crystalAnimation then
+        crystalAnimation.select(ctx, selectedSide, true)
+      end
+      return shinySystem and shinySystem.spritePath(path, ctx) or path
     end
     local shiny = shinySystem and shinySystem.isShiny(ctx.mon)
       and crystalShinyAvailable[ctx.species]
     local relative = "assets/crystal/" .. name .. "_"
       .. selectedSide .. (shiny and "_shiny" or "") .. ".png"
+    local animated = crystalAnimation
+      and crystalAnimation.select(ctx, selectedSide, false)
+    if animated then return animated end
     return spriteAssets.crystal(relative)
       or (mod.path .. "/" .. relative)
   end, 100)
@@ -1199,6 +1230,7 @@ return function(mod)
     if frontierExchange then frontierExchange.install(game, deps) end
     if daycare then daycare.install(game, deps) end
     if shinySystem then shinySystem.install(game, deps) end
+    if crystalAnimation then crystalAnimation.install(game, deps) end
     if ascendant then ascendant.install(game, deps) end
     if eventArchive then eventArchive.install(game, deps) end
     if johtoResearch then johtoResearch.install(game, deps) end

@@ -12,6 +12,24 @@ Pokémon and Pokémon character names are trademarks of Nintendo, Creatures
 Inc. and GAME FREAK inc. Kanto Ascendant is an unofficial, non-commercial fan
 mod and is not affiliated with or endorsed by them.
 
+## Pokémon Crystal animated sprites
+
+The bundled normal and shiny front-animation frames for Johto Pokémon
+#152-251 are generated from the Pokémon Crystal GIF mirrors maintained in the
+PokeAPI sprites repository:
+
+https://github.com/PokeAPI/sprites
+
+The numbered-frame and timing integration is compatible with **Crystal
+Animated Sprites with Shiny Visuals** and its Voxel fork:
+
+https://github.com/distilledorion-sketch/crystal_animated_sprites_with_shiny_visuals
+
+https://github.com/LOW-K3YS/crystal_animated_sprites_with_shiny_visuals
+
+Unown uses the bundled static Crystal form-A image because the source mirrors
+do not provide a generic animated #201 GIF.
+
 ## PokeWilds follower sprites
 
 The bundled normal and shiny six-pose Johto overworld sheets are sourced from
