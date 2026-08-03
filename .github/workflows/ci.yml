@@ -50,3 +50,12 @@ jobs:
           luajit ../kanto-ascendant/tests/field_economy_test.lua
           luajit ../kanto-ascendant/tests/atlas_legacy_test.lua
           luajit ../kanto-ascendant/tests/reachability_test.lua
+          luajit ../kanto-ascendant/tests/upgrade_matrix_test.lua
+
+      - name: Build and inspect the launcher package
+        working-directory: gen1recomp
+        env:
+          MODKIT_LUAJIT: luajit
+        run: |
+          python3 tools/modkit.py pack ../kanto-ascendant             -o ../kanto-ascendant-5.0.1.modpkg
+          unzip -t ../kanto-ascendant-5.0.1.modpkg
