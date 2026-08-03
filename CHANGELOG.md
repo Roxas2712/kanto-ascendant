@@ -2,6 +2,373 @@
 
 All notable changes to this project are documented in this file.
 
+## [5.0.0] - 2026-08-03
+
+### Added
+
+- A spoiler-safe Research Atlas under `ASCENDANT` with Oak's current
+  objective, recorded trainer locations/ranks/exact cooldowns, authoritative
+  reward bands and gates, TM queue status and habitats only for species
+  already seen or caught.
+- Permanent thematic Kanto habitats for 44 researched Johto base species.
+  Each relevant habitat keeps a 2% total replacement chance and unlocks only
+  after its specimen, starter trial or Larvitar finale has been recorded.
+- Individual English/German Pokédex entries, classifications, canonical
+  height/weight data, explicit Crystal-shaped level plans and varied legal
+  TM/HM profiles for all 100 Johto species.
+- A Route 5 Move Reminder for legal level-up moves, moves previously forgotten
+  through the machine, exact event-provenance moves and earned Crown starter
+  signatures.
+- A Frontier Exchange after the Crown Champion. Released evolution items are
+  renewable for 6-10 Frontier Points and any individually archived TM can be
+  selected again for 3 points.
+- A level-100 Indigo Battle Factory: draft three of six changing,
+  fully-evolved non-legendary rentals and clear three sealed-Bag battles for
+  4 Frontier Points, or 6 without a faint.
+- A five-battle level-100 S.S. Anne Grand Tour with healing after rounds two
+  and four, 8 Frontier Points and a 4096-real-step departure timer.
+- A Celadon Legacy Gallery with completion and challenge trophy displays,
+  plus selection of any unlocked achievement as the active Trainer Card title.
+- Factory Architect and Sea Champion, bringing the permanent title catalogue
+  to seventeen.
+- A standalone 251-species reachability/evolution-economy audit and pinned
+  GitHub Actions regression workflow.
+
+### Changed
+
+- Training Rush now accelerates only defeated-trainer recovery and silent
+  growth. Eggs, friendship, outbreaks, world events and S.S. Anne departures
+  always count literal walked tiles.
+- TM archive rewards use a persistent FIFO. A full Bag no longer pauses the
+  win clock, later TMs queue behind earlier ones, and the exact oldest waiting
+  reward is reported and delivered first.
+- TM51-53 become permanent entitlements on the winning Crown battle even when
+  the Bag is full.
+- Rematch loot is determined only by the selected BALANCED or GENEROUS table.
+  Trainer rank still affects presentation, team growth and AI but never adds
+  hidden probability bands.
+- Shiny outbreaks require the Hall of Fame and all three Johto starter trials.
+  Larvitar cannot enter a migration before Elm's research finale.
+- The content-patching `KANTO 151` option now warns that changing it requires a
+  restart; its loaded mode is visible in the Journal.
+
+### Fixed
+
+- Battle Factory runs restore the exact original party on victory or defeat,
+  block saving while a rental party is active, and repair stale interrupted
+  saves from earlier builds on load instead of persisting temporary rentals.
+- Factory rental and opponent-construction errors now roll back the exact
+  original party immediately, clear the save veto and release the host.
+- Factory and S.S. Anne clear dialogue reports the Frontier Points actually
+  credited, including the active Frontier Festival multiplier.
+- The first TM no longer counts as a completed archive cycle.
+- Blocked TMs and blocked Crown signatures can no longer be lost, reordered or
+  require repeating a boss battle.
+- Evolution-item and archived-TM purchases are atomic: locked stock, a full
+  Bag or insufficient points never consumes Frontier Points.
+- Johto registration and habitat access never pre-fill `seen` or `owned`
+  Pokédex flags.
+- Seeing a research-gated Johto species on an opponent's team no longer
+  advertises or activates its habitat before Elm records the specimen.
+- Atlas habitats now distinguish caves, buildings and other interiors from
+  grass, and label pool/species odds as base chances before temporary
+  encounter overrides.
+- Atlas odds use the Gen-1-font-safe `PCT`/`PROZ` labels instead of a missing
+  percent glyph, with location and chance details split into readable pages.
+- Selected Trainer Card titles survive New Game Plus, stale Grand Tour title
+  flags self-heal, and localized titles are clipped by glyph rather than byte.
+
+## [4.2.2] - 2026-08-03
+
+### Added
+
+- Renewable level-25 Eevee now replace 2% of Route 7 grass encounters after
+  the first Hall of Fame, providing enough copies for all five Kanto/Johto
+  branches without trading or relying on random end-game gifts.
+
+### Changed
+
+- EXP.ALL remains unique but now occupies a 5% band in both loot modes.
+- Rare Candy now occupies 5% and Nugget 15% in both loot modes. Removed
+  probability becomes no drop; no other reward band was increased.
+
+### Fixed
+
+- Johto branch registration now appends to the original evolution list
+  instead of replacing it. Gloom retains Vileplume, Poliwhirl retains
+  Poliwrath, Eevee retains Vaporeon/Jolteon/Flareon, and Slowpoke retains
+  Slowbro while their Generation-II alternatives remain available.
+
+## [4.2.1] - 2026-08-03
+
+### Changed
+
+- Field trainers and post-game bosses now draw each new recovery/training
+  period from **151-2510 completed steps** by default.
+- The two rest-step options now use the same thematic 151 minimum and 2510
+  maximum, with single-step precision.
+- Untouched 128/256 settings from older profiles migrate automatically, while
+  genuinely customized ranges remain user-controlled.
+- Active trainer timers that were created inside the old 1-256-step window
+  are safely rerolled once into the expanded range on save load.
+- Silent cycles still keep ready trainers available while raising their next
+  team after every completed background period.
+- The headless suite now covers 1619 checks.
+
+## [4.2.0] - 2026-08-03
+
+### Added
+
+- A self-contained `KANTO 151` option with authored REWARDS, convenience WILD
+  and OFF modes. A separate all-catchable mod is no longer required.
+- Version-independent habitats for every former Red/Blue/Yellow exclusive,
+  renewable Eevee and both Fighting Dojo prize species.
+- Level evolutions for Kadabra, Graveler and Haunter at 42 and Machoke at 45.
+- Renewable ¥2100 Moon Stones in Pewter Mart and Celadon Department Store 4F.
+- Bulbasaur, Squirtle and Charmander prizes from Master Erika, Misty and
+  Blaine, with party/PC-full reservation.
+- The unchosen Dome or Helix Fossil as a Master Brock prize. Imported saves
+  missing both can receive the other from Crown Brock, and full Bags reserve
+  the fossil safely.
+- A WILD alternative with rare starter, fossil, Aerodactyl and final trade
+  evolution encounters.
+
+### Changed
+
+- Mew is explicitly removed from overlapping random encounter patches and
+  remains exclusive to Kanto Ascendant's authored event.
+- The rematch loot documentation now lists every base band, rank bonus, gate,
+  full Legend distribution and true no-drop percentage.
+- The headless suite now covers 1614 ROM-free checks plus imported-data Kanto
+  encounter, evolution, shop and reward validation.
+
+## [4.1.1] - 2026-08-03
+
+### Changed
+
+- The vanilla Start menu is tidy again: Journal, World Status, Johto Pokédex,
+  Shiny Dex, Event Archive, Dex Certificates and Mega Stones now live behind
+  one bilingual `ASCENDANT` submenu.
+- Every nested entry keeps its original progression gate, and backing out of
+  the Ascendant screen returns to the Start menu.
+- The headless suite now covers 1610 checks, with German in-engine screenshots
+  for both the cleaned Start menu and the fully unlocked submenu.
+
+## [4.1.0] - 2026-08-03
+
+### Added
+
+- A permanent Field Kit awarded after the first won field rematch. It invokes
+  CUT, FLY, SURF, STRENGTH and FLASH from the Bag without consuming a Pokémon
+  move slot while preserving each original HM and Badge requirement.
+- A guaranteed renewable TM archive after the Hall of Fame: every second won
+  field rematch awards the next original TM, and all 50 appear before the
+  archive cycles.
+- A bilingual Move Deleter and TM Archive status page in the Route 5 Day-Care
+  machine. HMs may be removed, but a Pokémon's final move is protected.
+- TM51 Frenzy Plant / Flora-Statue from Crown Erika, TM52 Blast Burn /
+  Lohekanonade from Crown Blaine and TM53 Hydro Cannon / Aquahaubitze from
+  Crown Misty. Both matching Kanto and Johto starter families can learn them.
+
+### Fixed
+
+- Independent rematch rewards are now composed without a leading empty reward
+  suppressing later Johto or shiny reward messages.
+- The headless suite expanded to 1592 checks, plus an in-engine Bag, Field Kit,
+  HM deletion, starter compatibility and renewable-TM QA route.
+
+## [4.0.0] - 2026-08-03
+
+### Added
+
+- A repeatable Silver, Kris and Gold Johto Masters gauntlet after the Crown
+  Champion. All three use changing six-Pokémon level-100 teams, maximum AI,
+  automatic between-round healing and an unconditional battle-item lock.
+- Gold awards exactly one uniformly random genuine-DV shiny from all 251
+  Pokémon after every clear. Full parties use the PC; a completely full PC
+  reserves the already-selected gift without rerolling it.
+- The permanent KANTO ASCENDANT title and a golden Trainer Card treatment
+  after the first Johto Masters clear.
+- Four Pokédex certificates for #001-150, all 151 Kanto species, #001-250 and
+  the complete #001-251 roster. Future certificate tiers remain hidden until
+  the corresponding collection milestone has actually been reached.
+- Four rotating 2048-step world events: Training Rush, Johto Migration,
+  Golden Wind and Frontier Festival.
+- A unified Start-menu Journal for legendary sightings, live roamer
+  locations, titles, type masteries, world events and Johto Masters records.
+- Per-species shiny encounter/capture records and optional protection from
+  accidental PC release.
+
+### Changed
+
+- Johto and Shiny Pokédex lists now match the original Pokédex presentation:
+  unseen entries remain `-----`, seen entries reveal their names and captured
+  entries use the Poké Ball marker instead of pre-filled `OWN/HAT` text.
+- The Grand Tournament is presented as the Ascendant Battle Frontier and now
+  awards persistent Frontier Points, doubled during Frontier Festival.
+- Crown Leader victories permanently register eight individual type
+  masteries.
+- Blue's adaptive boss roster now rotates strong Johto counter-picks as well
+  as reacting to the player's dominant party type.
+- The headless suite expanded from 1547 to 1574 checks.
+
+## [3.2.0] - 2026-08-03
+
+### Added
+
+- A self-contained Generation-II shiny system for all 251 Pokémon. Shininess
+  uses Crystal's real Defense/Speed/Special/Attack DV rule, so no proprietary
+  save flag is required and existing virtual shinies migrate automatically.
+- A bilingual 251-entry Shiny Dex with separate seen and caught records.
+- The Shiny Charm is awarded after all 251 species are owned. It grants two
+  additional 1/8192 rolls while Ascendant shiny hunting is enabled.
+- Consecutive field-rematch wins add one, three or seven shiny rolls at
+  streaks 10, 25 and 50. Every tenth victory also starts a deterministic
+  2048-step Johto outbreak with a 25% species replacement rate and fifteen
+  additional shiny rolls on its route.
+- A guaranteed red Gyarados event in Seafoam Islands B4F after a 25-win
+  post-Hall-of-Fame rematch streak. It persists until captured.
+- Crystal-accurate egg DV inheritance. A compatible shiny donor can produce
+  the authentic 1/64 shiny result; Crystal's matching Defense/Special-DV
+  incompatibility rule is retained.
+- Built-in battle sparkles, chime, battle marker and status-screen icon. An
+  active `shiny_indicators` mod is detected automatically and becomes the
+  sole effects provider, preventing doubled audio or animation.
+- Official Crystal shiny front/back downloads for all 100 Johto species and
+  PokeWilds shiny follower sheets for 99; Unown's follower is generated from
+  its Crystal shiny front sprite.
+- A scripted 2D/voxel QA driver for Shiny Feraligatr and Shiny Suicune.
+
+### Changed
+
+- The Crystal installer now validates and installs four views per Johto
+  species: normal front/back plus shiny front/back.
+- The follower bridge now resolves the selected individual, not merely its
+  species, so normal and shiny copies of the same Pokémon use the right sheet.
+- The same shiny follower art is shared by classic 2D and Dramatic Shape's
+  voxel renderer.
+- The headless suite expanded from 1525 to 1547 checks.
+
+## [3.1.0] - 2026-08-02
+
+### Added
+
+- Route 5 is now a full two-parent Day-Care. Both deposited Pokémon gain one
+  experience point per completed player step and retain the original
+  ¥100-plus-¥100-per-level retrieval price.
+- Canonical breeding data for National Pokédex entries 1-251: Generation-II
+  egg groups, Attack-DV gender ratios, Ditto rules, baby-family resolution,
+  species hatch cycles and unbreedable baby/legendary handling.
+- Real party eggs. They occupy a party slot, cannot battle or be healed,
+  count down only while carried and hatch into a level-5 Pokémon with Pokédex
+  ownership and origin metadata.
+- Elm's eight research eggs now wait at the Route 5 Day-Care and use the same
+  party-egg system. Existing queued research eggs migrate automatically.
+- A visible evolution machine inside the Day-Care. It handles every compatible
+  item evolution and, after the Hall of Fame, forges the Mega Ring.
+- A dedicated Mega Stone Case and 30 individual form-bound stones covering
+  exactly the 27 species among #001-251 that officially have Mega Evolutions
+  through July 2026. No invented Mega species are included.
+- Once-per-battle Mega Evolution, activated with SELECT from the main battle
+  menu. Every form has its own five-stat Kanto adaptation; HP and saved party
+  stats never change.
+- Optional enemy Mega Evolution for post-game bosses or all trainers.
+- Four-shade original front/back sprites for Mega Raichu X and Mega Raichu Y.
+  Other eligible species retain their normal sprite inside a visible Mega aura.
+- A Route 5 form selector for Charizard X/Y, Mewtwo X/Y and Raichu X/Y once
+  both matching stones are owned.
+
+### Changed
+
+- Crystal battle sprites now receive edge-connected transparency before use,
+  preventing opaque 56x56 background cards in on-map voxel battles. Dramatic
+  Shape's front-facing player-side choice is preserved instead of being
+  overwritten with the Crystal back view.
+- Optional species-accurate Gen-2-style follower sheets now cover all 100
+  Johto Pokémon in both 2D and voxel rendering. A local installer downloads
+  the PokeWilds art and Kanto silhouettes remain the safe per-species fallback.
+- Elm's aide now reports research and egg status while directing item
+  evolutions to the visible Route 5 machine.
+- Classic stones unlock with the Mega Ring after the first Hall of Fame, new
+  Z-A stones after all eight Master Leaders and Mewtwonite X/Y after the Apex
+  Champion.
+- The headless suite expanded from 1417 to 1525 checks.
+- Johto party leaders now fall back to related, existing Kanto follower
+  sheets when the optional all-species follower mod only ships Gen-1 art.
+  This prevents missing-texture crashes in both 2D and voxel rendering.
+- Raikou, Entei and Suicune now use the standard animated quadruped party
+  icon; Lugia and Ho-Oh use the standard bird icon; Celebi uses the standard
+  Mew-like fairy icon. The old single-frame thumbnails are no longer selected.
+
+## [3.0.0] - 2026-08-02
+
+### Added
+
+- The complete canonical Johto Pokédex from Chikorita #152 through Celebi
+  #251: 100 native species records, five-stat balancing, cries, learnsets,
+  evolutions, Pokédex entries, icons and distributable sprite fallbacks.
+- Dark and Steel types with the Generation-II matchup table. Magnemite and
+  Magneton now use their Electric/Steel typing.
+- Crunch, Metal Claw, Iron Tail, Shadow Ball, Flame Wheel, Giga Drain, Sludge
+  Bomb, Spark and Powder Snow alongside Aeroblast and Sacred Fire.
+- Three post-Hall-of-Fame starter trials in Celadon, Cinnabar and Cerulean.
+  Each has three themed rounds and awards Chikorita, Cyndaquil or Totodile;
+  all three can be earned in one save.
+- Elm's persistent Kanto research programme in Oak's Lab. Once all starters
+  are secured, every field-rematch victory awards one deterministic,
+  class-themed, never-duplicate Johto family.
+- Forty rematch specimen families, eight step-hatched baby eggs, fixed
+  evolution-item milestones and Larvitar as the final research reward.
+- Friendship, day/night Eevee and Tyrogue stat-branch evolution methods.
+- Sun Stone, Metal Coat, King's Rock, Dragon Scale and Up-Grade, plus Elm's
+  solo evolution machine.
+- Eleven version-safe Kanto research partners, including two Eevee, so every
+  Johto branch is obtainable in Red, Blue and Yellow.
+- A bilingual 100-entry Johto Research Dex in the Start menu with owned/seen
+  tracking, exact egg steps and full-PC prize reservation.
+- Optional local Pokémon Crystal front/back sprites for all 100 Johto
+  species. The installer now validates and downloads 200 views.
+
+### Changed
+
+- Raikou, Entei, Suicune, Lugia, Ho-Oh and Celebi keep their save-stable
+  species IDs but now use canonical Pokédex numbers 243-245 and 249-251.
+- `LEGEND ART` is now the broader `JOHTO ART` option. Missing Crystal pairs
+  fall back independently to built-in four-shade silhouettes.
+- The headless suite expanded from 1202 to 1417 checks and an imported-data
+  smoke test now validates the full 251-species merge.
+
+## [2.1.0] - 2026-08-02
+
+### Added
+
+- Five badge-gated, three-round Heritage Cups awarding faithful Generation-I
+  University Magikarp, Pokémon Stamp Fearow, Flying Pikachu, Pokémon Stamp
+  Rapidash and Surfing Pikachu builds at their original levels.
+- An alternative roaming mode with persistent map, DVs, HP and status,
+  optional first-action escape, relocation and three-map knockout recovery.
+- A permanent bilingual Event Archive in the Start menu, including source,
+  level, original moves, claim status and full-PC prize reservation.
+- Event provenance on each obtained Pokémon, an EVENT INFO party entry and an
+  optional battle rosette.
+- An Ascendant Lv.100 / historical Lv.5 Mew profile choice. Historical Mew
+  keeps Pound and the fixed 5/10/1/12/5 event DVs.
+- Grand Tournament catch-up prizes for enabled, missed Heritage events.
+- SET-Style and Kanto Purist Grand Tournament rules.
+- SET, Trio and Purist Ascendant Cycle rules with automatic post-battle
+  restoration of the player's saved battle style, HP and status.
+
+### Changed
+
+- Ascendant Cycle Master, Apex, Crown and Rocket teams now always reach level
+  100, even when NEW GAME+ RULES is set to NORMAL.
+- Adaptive circuit order expanded from three to six deterministic variants.
+- NEW GAME+ RULES now defaults to a four-cycle rotation: No Items, SET Style,
+  Trio and Kanto Purist. The legacy No-Item-only and unrestricted NORMAL
+  presets remain available.
+- The Grand Tournament now rotates six rulesets instead of four.
+- The headless suite expanded from 1162 to 1202 checks.
+
 ## [2.0.0] - 2026-08-02
 
 ### Added

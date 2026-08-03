@@ -76,6 +76,33 @@ local COUNTERS = {
   },
 }
 
+local RIVAL_EVOLUTIONS = {
+  {
+    species = "TYRANITAR",
+    moves = { "CRUNCH", "ROCK_SLIDE", "EARTHQUAKE", "HYPER_BEAM" },
+  },
+  {
+    species = "SCIZOR",
+    moves = { "METAL_CLAW", "SLASH", "SWORDS_DANCE", "HYPER_BEAM" },
+  },
+  {
+    species = "KINGDRA",
+    moves = { "HYDRO_PUMP", "BLIZZARD", "SMOKESCREEN", "HYPER_BEAM" },
+  },
+  {
+    species = "AMPHAROS",
+    moves = { "THUNDER", "THUNDER_WAVE", "FIRE_PUNCH", "LIGHT_SCREEN" },
+  },
+  {
+    species = "ESPEON",
+    moves = { "PSYCHIC_M", "RECOVER", "REFLECT", "SWIFT" },
+  },
+  {
+    species = "HOUNDOOM",
+    moves = { "CRUNCH", "FIRE_BLAST", "SLUDGE_BOMB", "ROAR" },
+  },
+}
+
 local function countKeys(bucket)
   local count = 0
   for _, value in pairs(type(bucket) == "table" and bucket or {}) do
@@ -119,8 +146,19 @@ return function(mod, baseData, opts)
   local data = opts.data
   local base = opts.postgame
   local i18n = opts.i18n
+  local eventArchive = opts.eventArchive
+  local johtoResearch = opts.johtoResearch
+  local worldEvents = opts.worldEvents
+  local kantoCompletion = opts.kantoCompletion
+  local johtoMasters
   local trainerStates = opts.trainerStates or function() return {} end
   local E = { game = nil }
+
+  local function johtoComplete()
+    if not johtoResearch or johtoResearch.enabled == false then return true end
+    local s = johtoResearch.state(false)
+    return s and s.finalReward and true or false
+  end
 
   local function tr(en, de)
     return i18n and i18n.text(en, de) or en
@@ -141,6 +179,8 @@ return function(mod, baseData, opts)
         metrics = {},
         bossBattles = {},
         tournament = { runs = 0, wins = 0, best = 0 },
+        frontierPoints = 0,
+        typeMastery = {},
         rocketStage = 0,
         mewStage = 0,
         cycle = 0,
@@ -165,6 +205,9 @@ return function(mod, baseData, opts)
         math.floor(tonumber(s.tournament.wins) or 0))
       s.tournament.best = math.max(0,
         math.floor(tonumber(s.tournament.best) or 0))
+      s.frontierPoints = math.max(0,
+        math.floor(tonumber(s.frontierPoints) or 0))
+      s.typeMastery = type(s.typeMastery) == "table" and s.typeMastery or {}
       s.rocketStage = math.max(0, math.min(#data.rocket,
         math.floor(tonumber(s.rocketStage) or 0)))
       s.mewStage = math.max(0, math.min(4,
@@ -345,6 +388,11 @@ return function(mod, baseData, opts)
     local s = state()
     local p = base and base.state()
     local total = rematchTotal()
+    for _, gym in ipairs(baseData.gyms or {}) do
+      if p and p.crownWins and p.crownWins[gym.key] then
+        s.typeMastery[gym.key] = true
+      end
+    end
     if total >= 10 then unlock("rematch_10", s) end
     if total >= 50 then unlock("rematch_50", s) end
     if base and base.allMaster(p) then unlock("master_circuit", s) end
@@ -369,6 +417,7 @@ return function(mod, baseData, opts)
         and (mod.options:get("legend_mew") == false
           or s.achievements.mew_found)
         and s.achievements.leader_confidant
+        and johtoComplete()
         and (mod.options:get("grand_tournament") == false
           or s.achievements.tournament_champ) then
       unlock("ascendant", s)
@@ -491,10 +540,22 @@ return function(mod, baseData, opts)
     local key = (context.kind or "boss") .. ":" .. (context.key or "unknown")
       .. ":" .. (context.tier or "open")
     local fought = math.max(0, math.floor(tonumber(s.bossBattles[key]) or 0))
-    local variant = (fought + s.cycle) % 3
+    local variant = (fought + s.cycle) % 6
     local out = copyTeam(team)
     if variant == 1 then out = rotateTeam(out, 1)
     elseif variant == 2 then out = reverseTeam(out) end
+    if variant == 3 then
+      out = rotateTeam(out, 2)
+    elseif variant == 4 then
+      out = rotateTeam(reverseTeam(out), 1)
+    elseif variant == 5 and #out > 1 then
+      local paired = {}
+      for i = 1, #out, 2 do
+        if out[i + 1] then paired[#paired + 1] = out[i + 1] end
+        paired[#paired + 1] = out[i]
+      end
+      out = paired
+    end
 
     local quest = context.kind == "gym" and s.gymQuests[context.key]
     local signature = data.signature[context.key]
@@ -518,6 +579,27 @@ return function(mod, baseData, opts)
           },
         }
       end
+      -- Blue studies Johto after every encounter instead of merely
+      -- shuffling the same six Kanto slots forever.
+      if #out > 1 then
+        local evolved = RIVAL_EVOLUTIONS[
+          ((fought + s.cycle) % #RIVAL_EVOLUTIONS) + 1]
+        if game and game.data and game.data.pokemon[evolved.species] then
+          out[2] = {
+            species = evolved.species,
+            level = context.tier == "crown" and 100 or out[2].level,
+            moves = {
+              evolved.moves[1], evolved.moves[2],
+              evolved.moves[3], evolved.moves[4],
+            },
+          }
+        end
+      end
+    end
+    -- A real Ascendant Cycle is the level ceiling circuit: every post-game
+    -- boss slot reaches 100, regardless of the optional rules preset.
+    if s.cycle > 0 then
+      for _, slot in ipairs(out) do slot.level = 100 end
     end
     return out
   end
@@ -609,6 +691,14 @@ return function(mod, baseData, opts)
     return base.newForcedBattle(game, class, team, tier)
   end
 
+  local function cycleLevelTeam(team)
+    local out = copyTeam(team)
+    if state().cycle > 0 then
+      for _, slot in ipairs(out) do slot.level = 100 end
+    end
+    return out
+  end
+
   local function startRocketBattle(ow, npc, game, index, def)
     local TextBox = require("src.render.TextBox")
     npc.frozen = true
@@ -621,13 +711,11 @@ return function(mod, baseData, opts)
             tr("Rocket will be\nwaiting.", "Rocket wird warten."), done))
           return
         end
-        local battle = newForcedBattle(game, def.class, def.team, "rocket")
+        local battle = newForcedBattle(game, def.class,
+          cycleLevelTeam(def.team), "rocket")
         battle.rematch = true
         battle.ascendantRocket = index
-        if state().cycle > 0
-            and mod.options:get("ascendant_rules") ~= "normal" then
-          battle.ascendantNoItems = true
-        end
+        E.applyBossRules(battle)
         battle.endBattleText = localized(def.win)
         battle.onFinish = function(result)
           if result == "win" then
@@ -680,28 +768,40 @@ return function(mod, baseData, opts)
   end
 
   local tournamentLock
-  local function restrictParty(game)
+  local tournamentBattleStyle
+  local function restrictParty(game, mode)
     tournamentLock = {}
-    for i = 4, #(game.save.party or {}) do
-      local mon = game.save.party[i]
-      tournamentLock[#tournamentLock + 1] = {
-        mon = mon, hp = mon.hp, status = mon.status,
-      }
-      mon.hp = 0
+    for i, mon in ipairs(game.save.party or {}) do
+      local lock = mode == "trio" and i > 3
+        or mode == "purist" and LEGENDARY[mon.species]
+      if lock then
+        tournamentLock[#tournamentLock + 1] = {
+          mon = mon, hp = mon.hp, status = mon.status,
+        }
+        mon.hp = 0
+      end
     end
   end
 
-  local function restoreParty()
+  local function restoreTournamentRules(game)
     for _, row in ipairs(tournamentLock or {}) do
       row.mon.hp, row.mon.status = row.hp, row.status
     end
     tournamentLock = nil
+    if tournamentBattleStyle and game and game.save.options then
+      game.save.options.battleStyle = tournamentBattleStyle
+    end
+    tournamentBattleStyle = nil
   end
 
   local function healParty(game, limit)
     local Pokemon = require("src.pokemon.Pokemon")
     for index, mon in ipairs(game.save.party or {}) do
-      if not limit or index <= limit then Pokemon.heal(mon) end
+      local locked = false
+      for _, row in ipairs(tournamentLock or {}) do
+        if row.mon == mon then locked = true break end
+      end
+      if not locked and (not limit or index <= limit) then Pokemon.heal(mon) end
     end
   end
 
@@ -711,22 +811,39 @@ return function(mod, baseData, opts)
     local runSeed = s.tournament.runs
     local round = 0
     local noFaints = true
-    if rule.id == "trio" then restrictParty(game) end
+    if rule.id == "trio" or rule.id == "purist" then
+      restrictParty(game, rule.id)
+    end
+    if rule.id == "set" and game.save.options then
+      tournamentBattleStyle = game.save.options.battleStyle
+      game.save.options.battleStyle = "set"
+    end
 
     local function finishRun(won)
-      restoreParty()
+      restoreTournamentRules(game)
       local current = state()
       current.tournament.runs = current.tournament.runs + 1
       current.tournament.best = math.max(current.tournament.best, round)
       local message
       if won then
         current.tournament.wins = current.tournament.wins + 1
+        local frontierGain = noFaints and 5 or 3
+        if worldEvents and worldEvents.frontierMultiplier then
+          frontierGain = frontierGain * worldEvents.frontierMultiplier()
+        end
+        current.frontierPoints = current.frontierPoints + frontierGain
         local item = current.tournament.wins % 5 == 0
           and "MASTER_BALL" or "PP_UP"
         message = tr(
-          "GRAND TOURNAMENT\nCHAMPION!\fKanto records your\nthree-round victory.",
-          "GROSSES TURNIER\nGEWONNEN!\fKanto verzeichnet\ndeinen Dreifach-Sieg.")
+          "ASCENDANT FRONTIER\nCHAMPION!\fKanto records your\nthree-round victory.",
+          "ASCENDANT-FRONTIER\nGEWONNEN!\fKanto verzeichnet\ndeinen Dreifach-Sieg.")
+          .. ("\f+%d %s\n%s: %d"):format(
+            frontierGain, tr("FRONTIER POINTS", "FRONTIER-PUNKTE"),
+            tr("TOTAL", "GESAMT"), current.frontierPoints)
           .. "\f" .. giveOrHold(game, current, item)
+        local heritage = eventArchive
+          and eventArchive.awardNext(game, "GRAND TOURNAMENT")
+        if heritage then message = message .. "\f" .. heritage end
         if noFaints then unlock("untouchable", current) end
       else
         message = tr(
@@ -755,8 +872,7 @@ return function(mod, baseData, opts)
       battle.ascendantTournamentRound = round
       battle.ascendantRule = rule.id
       battle.ascendantNoItems = rule.id == "no_items"
-        or (state().cycle > 0
-          and mod.options:get("ascendant_rules") ~= "normal")
+      E.applyBossRules(battle)
       battle.trainer = setmetatable({ name = localized(opponent.name) },
         { __index = battle.trainer })
       battle.introText = tr(
@@ -775,7 +891,7 @@ return function(mod, baseData, opts)
         if result ~= "win" then
           -- Restore temporarily locked party slots before the normal
           -- blackout handler heals the whole team.
-          restoreParty()
+          restoreTournamentRules(game)
           ow:afterBattle(result, battle)
           finishRun(false)
           return
@@ -807,8 +923,8 @@ return function(mod, baseData, opts)
     npc.frozen = true
     npc:facePlayer(ow.player)
     local message = tr(
-      "KANTO GRAND\nTOURNAMENT",
-      "GROSSES KANTO-\nTURNIER")
+      "ASCENDANT BATTLE\nFRONTIER",
+      "ASCENDANT-KAMPF-\nFRONTIER")
       .. "\n" .. localized(rule.name)
       .. "\f" .. localized(rule.intro)
       .. "\f" .. tr("Enter the bracket?", "Am Turnier teilnehmen?")
@@ -865,9 +981,11 @@ return function(mod, baseData, opts)
   local function ensureMew(game, mapId)
     local def = data.mew
     local s = state()
+    local level = eventArchive and eventArchive.mewProfile() == "historical"
+      and 5 or def.level
     ensureRuntimeNpc(game, {
       map = def.map, name = def.name, textId = def.textId,
-      sprite = def.sprite, pokemon = "MEW", level = def.level,
+      sprite = def.sprite, pokemon = "MEW", level = level,
       preferred = def.preferred,
     }, mewEnabled() and s.mewStage >= 3 and not s.mewCaught
       and mapId == def.map)
@@ -876,11 +994,16 @@ return function(mod, baseData, opts)
   local function startMewEncounter(game, ow, npc, done)
     local TextBox = require("src.render.TextBox")
     local function battle()
+      local historical = eventArchive
+        and eventArchive.mewProfile() == "historical"
+      local level = historical and 5 or data.mew.level
       local b = require("src.battle.BattleState").newWild(game, "MEW",
-        data.mew.level)
+        level)
       b.ascendantMew = true
+      if historical then eventArchive.applyHistoricalMew(b) end
       b.onFinish = function(result)
-        if result == "caught" then
+        if result == "caught"
+            and (not historical or b.eventArchiveStored ~= false) then
           local s = state()
           s.mewCaught, s.mewStage = true, 4
           persist(s)
@@ -910,6 +1033,7 @@ return function(mod, baseData, opts)
     local ready = s.achievements.ascendant
     if ready and s.cycle > 0 then
       ready = p.crownChampion and researchComplete(s)
+        and johtoComplete()
         and (not rocketEnabled() or s.rocketStage >= #data.rocket)
         and questDoneCount(s) >= 8
         and s.tournament.wins > math.max(0,
@@ -921,10 +1045,12 @@ return function(mod, baseData, opts)
   local function beginNewGamePlus(game)
     local s = state()
     local permanentAchievements = s.achievements
+    local permanentSelectedTitle = s.selectedTitle
     local permanentMew = s.mewCaught
     local records = {
       wins = s.tournament.wins,
       best = s.tournament.best,
+      frontierPoints = s.frontierPoints,
     }
     local cycle = s.cycle + 1
     s = {
@@ -934,12 +1060,15 @@ return function(mod, baseData, opts)
       metrics = {},
       bossBattles = {},
       tournament = { runs = 0, wins = records.wins, best = records.best },
+      frontierPoints = records.frontierPoints,
+      typeMastery = {},
       rocketStage = 0,
       mewStage = permanentMew and 4 or 0,
       mewCaught = permanentMew,
       cycle = cycle,
       cycleTournamentStartWins = records.wins,
       latestAchievement = "ascendant",
+      selectedTitle = permanentSelectedTitle,
     }
     mod.save:set("ascendant", s)
 
@@ -962,6 +1091,7 @@ return function(mod, baseData, opts)
     if s.cycle > 0 then
       local p = base.state()
       local ready = p.crownChampion and researchComplete(s)
+        and johtoComplete()
         and (not rocketEnabled() or s.rocketStage >= #data.rocket)
         and questDoneCount(s) >= 8
         and s.tournament.wins > math.max(0,
@@ -982,8 +1112,8 @@ return function(mod, baseData, opts)
       choice = function(yes)
         if not yes then npc.frozen = false return end
         game.stack:push(TextBox.new(game, tr(
-          "Reset MASTER, APEX,\nCROWN, research and\nRocket progress now?\fThis cannot be undone\ninside this save.",
-          "MEISTER-, APEX-,\nKRONEN-, Forschungs-\nund Rocket-Fortschritt\njetzt zurücksetzen?\fIm Spielstand nicht\nrückgängig machbar."), nil, {
+          "Reset MASTER, APEX,\nCROWN, circuit research\nand Rocket progress?\fJOHTO specimens stay.\fThis cannot be undone\ninside this save.",
+          "MEISTER, APEX, KRONE,\nKreis-Forschung und\nRocket zurücksetzen?\fJOHTO-Funde bleiben.\fIm Spielstand nicht\nrückgängig machbar."), nil, {
           choice = function(confirm)
             if not confirm then npc.frozen = false return end
             local cycle = beginNewGamePlus(game)
@@ -1115,6 +1245,54 @@ return function(mod, baseData, opts)
 
   registerTalks()
 
+  local function typeMasteryText()
+    local s = state()
+    local pages = {
+      tr("TYPE MASTERY", "TYP-MEISTERSCHAFT"),
+    }
+    local total = 0
+    for _, gym in ipairs(baseData.gyms or {}) do
+      local mastered = s.typeMastery[gym.key] == true
+      if mastered then total = total + 1 end
+      pages[#pages + 1] = ("%s: %s"):format(
+        gym.name, mastered and tr("MASTERED", "GEMEISTERT")
+          or tr("UNDISCOVERED", "UNENTDECKT"))
+    end
+    pages[1] = pages[1] .. ("\n%d/8"):format(total)
+    return table.concat(pages, "\n")
+  end
+
+  mod.hooks:wrap("ui.start_menu.items", function(nextItems, game, items)
+    local out = nextItems(game, items)
+    if type(out) ~= "table" or not base.hasHallOfFame(game.save) then return out end
+    return mod.ui.insertBefore(out, "SAVE", {
+      label = tr("JOURNAL", "JOURNAL"),
+      ascendantMenu = true,
+      ascendantLabel = tr("JOURNAL", "JOURNAL"),
+      ascendantOrder = 10,
+      onSelect = function()
+        local pages = {}
+        if base.events and base.events.researchLog then
+          pages[#pages + 1] = base.events.researchLog(base.state(), game.save)
+        end
+        pages[#pages + 1] = E.archiveText(game)
+        pages[#pages + 1] = typeMasteryText()
+        if worldEvents and worldEvents.statusText then
+          pages[#pages + 1] = tr("WORLD PULSE", "WELT-IMPULS")
+            .. "\n" .. worldEvents.statusText(game)
+        end
+        if kantoCompletion and kantoCompletion.statusText then
+          pages[#pages + 1] = kantoCompletion.statusText()
+        end
+        if johtoMasters and johtoMasters.statusText then
+          pages[#pages + 1] = johtoMasters.statusText()
+        end
+        game.stack:push(require("src.render.TextBox").new(
+          game, table.concat(pages, "\f")))
+      end,
+    })
+  end, 235)
+
   mod.events:on("battle.fainted", function(ev)
     local battle = ev and ev.battle
     if battle and ev.battler and ev.battler.isPlayer
@@ -1128,6 +1306,16 @@ return function(mod, baseData, opts)
   mod.events:on("battle.ended", function(ev)
     local battle = ev and ev.battle
     if not battle then return end
+    if battle.ascendantOriginalBattleStyle
+        and battle.game and battle.game.save.options then
+      battle.game.save.options.battleStyle =
+        battle.ascendantOriginalBattleStyle
+      battle.ascendantOriginalBattleStyle = nil
+    end
+    for _, row in ipairs(battle.ascendantPartyLock or {}) do
+      row.mon.hp, row.mon.status = row.hp, row.status
+    end
+    battle.ascendantPartyLock = nil
     if battle.rematchTrainerClass and ev.result == "win" then
       local s = state()
       for key, def in pairs(data.gymQuests) do
@@ -1162,7 +1350,9 @@ return function(mod, baseData, opts)
   end)
 
   mod.events:on("pokemon.caught", function(ev)
-    if ev and ev.species == "MEW" then
+    if ev and ev.species == "MEW"
+        and not (ev.mon and ev.mon.eventDistribution
+          and ev.battle and ev.battle.eventArchiveStored == false) then
       local s = state()
       s.mewCaught, s.mewStage = true, 4
       persist(s)
@@ -1277,19 +1467,9 @@ return function(mod, baseData, opts)
   end
 
   function E.rankBonusLoot(roll, rank, averageLevel)
-    local key = type(rank) == "table" and rank.key or rank
-    local level = tonumber(averageLevel) or 0
-    roll = math.floor(tonumber(roll) or 10000)
-    if roll >= 7401 and roll <= 7900
-        and key ~= "rookie" then return "NUGGET" end
-    if roll >= 7901 and roll <= 8400
-        and (key == "expert" or key == "master" or key == "legend")
-        and level >= 20 then return "RARE_CANDY" end
-    if roll >= 8401 and roll <= 8900
-        and (key == "master" or key == "legend")
-        and level >= 35 then return "PP_UP" end
-    if roll >= 8901 and roll <= 9100 and key == "legend"
-        and level >= 50 then return "MAX_REVIVE" end
+    -- Kept as a compatibility no-op for integrations that inspected the old
+    -- API. Trainer rank affects team strength and AI, never loot probability;
+    -- BALANCED/GENEROUS are now authoritative in rematch_loot.lua.
     return nil
   end
 
@@ -1297,11 +1477,44 @@ return function(mod, baseData, opts)
     return selectBossTeam(team, context, game)
   end
 
+  local function cycleRule(cycle, setting)
+    cycle = math.max(0, math.floor(tonumber(cycle) or 0))
+    setting = setting or mod.options:get("ascendant_rules") or "rotating"
+    if cycle == 0 or setting == "normal" then return "normal" end
+    if setting == "ascendant" then return "no_items" end
+    return ({ "no_items", "set", "trio", "purist" })[
+      ((cycle - 1) % 4) + 1]
+  end
+
+  local function lockBattleParty(battle, rule)
+    if battle.ascendantPartyLock
+        or not (battle.game and battle.game.save.party) then return end
+    local lock = {}
+    for index, mon in ipairs(battle.game.save.party) do
+      local disabled = rule == "trio" and index > 3
+        or rule == "purist" and LEGENDARY[mon.species]
+      if disabled then
+        lock[#lock + 1] = { mon = mon, hp = mon.hp, status = mon.status }
+        mon.hp = 0
+      end
+    end
+    battle.ascendantPartyLock = lock
+  end
+
   function E.applyBossRules(battle)
     local s = state()
-    if s.cycle > 0 and mod.options:get("ascendant_rules") ~= "normal" then
+    local rule = cycleRule(s.cycle)
+    if rule ~= "normal" then
       battle.ascendantNoItems = true
       battle.ascendantCycle = s.cycle
+      battle.ascendantCycleRule = rule
+      if rule == "set" and battle.game and battle.game.save.options then
+        battle.ascendantOriginalBattleStyle =
+          battle.game.save.options.battleStyle or "shift"
+        battle.game.save.options.battleStyle = "set"
+      elseif rule == "trio" or rule == "purist" then
+        lockBattleParty(battle, rule)
+      end
     end
     return battle
   end
@@ -1310,8 +1523,11 @@ return function(mod, baseData, opts)
     local s = evaluateAchievements(game)
     local unlocked = countKeys(s.achievements)
     local researchDone, researchTotal = researchCounts(s)
-    local title = s.latestAchievement
-      and achievementTitle(s.latestAchievement) or tr("CHAMPION", "CHAMP")
+    local shownTitle = s.selectedTitle
+      and s.achievements[s.selectedTitle] and s.selectedTitle
+      or s.latestAchievement
+    local title = shownTitle
+      and achievementTitle(shownTitle) or tr("CHAMPION", "CHAMP")
     local researchDone = countKeys(s.research.completed)
     return ("\f%s\n%s"):format(tr("CURRENT TITLE", "AKTIVER TITEL"), title)
       .. ("\f%s: %d/%d\n%s: %d/%d"):format(
@@ -1320,6 +1536,10 @@ return function(mod, baseData, opts)
       .. ("\f%s: %d\n%s: %d"):format(
         tr("TOURNAMENT WINS", "TURNIERSIEGE"), s.tournament.wins,
         tr("ROCKET UNITS", "ROCKET-EINHEITEN"), s.rocketStage)
+      .. ("\f%s: %d\n%s: %d/8"):format(
+        tr("FRONTIER POINTS", "FRONTIER-PUNKTE"), s.frontierPoints,
+        tr("TYPE MASTERIES", "TYP-MEISTERSCHAFTEN"),
+        countKeys(s.typeMastery))
       .. ("\fMEW: %s\n%s: %d"):format(
         s.mewCaught and tr("CAUGHT", "GEFANGEN") or tr("UNKNOWN", "UNBEKANNT"),
         tr("ASCENDANT CYCLE", "ASCENDANT-ZYKLUS"), s.cycle)
@@ -1338,6 +1558,42 @@ return function(mod, baseData, opts)
   E.worldPhase = worldPhase
   E.evaluateAchievements = evaluateAchievements
   E.beginNewGamePlus = beginNewGamePlus
+  E.cycle = function() return state().cycle end
+  E.cycleRule = cycleRule
   E.copyTeam = copyTeam
+  E.typeMasteryText = typeMasteryText
+  E.setJohtoMasters = function(controller) johtoMasters = controller end
+  E.frontierBalance = function()
+    return math.max(0, math.floor(tonumber(state().frontierPoints) or 0))
+  end
+  E.getFrontierPoints = E.frontierBalance
+  E.addFrontierPoints = function(amount)
+    amount = math.max(0, math.floor(tonumber(amount) or 0))
+    local s = state()
+    s.frontierPoints = math.max(0,
+      math.floor(tonumber(s.frontierPoints) or 0)) + amount
+    persist(s)
+    return s.frontierPoints
+  end
+  E.spendFrontierPoints = function(amount)
+    local s = state()
+    s.frontierPoints = math.max(0,
+      math.floor(tonumber(s.frontierPoints) or 0))
+    local value = tonumber(amount)
+    if not value or value < 1 or value ~= math.floor(value) then
+      return false, s.frontierPoints
+    end
+    amount = math.floor(value)
+    if s.frontierPoints < amount then return false, s.frontierPoints end
+    s.frontierPoints = s.frontierPoints - amount
+    persist(s)
+    return true, s.frontierPoints
+  end
+  E.unlockAchievement = function(id)
+    local s = state()
+    local changed = unlock(id, s)
+    if changed then persist(s) end
+    return changed
+  end
   return E
 end

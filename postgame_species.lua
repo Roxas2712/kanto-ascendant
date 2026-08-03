@@ -1,106 +1,315 @@
--- Gen-II legendary content expressed through the native Gen1 Recomp content
--- registries.  It is activated only on a full Kanto data set; the tiny
--- ROM-free CI fixture deliberately skips it while still testing progression.
+-- Johto content expressed through Gen1 Recomp's native registries.  Crystal
+-- battle sprites are optional local files; every species has a distributable
+-- Kanto-silhouette fallback so the mod remains self-contained.
 
-local function dexEntry(kind, ft, inches, weight, text)
-  return {
-    kind = kind, heightFt = ft, heightIn = inches, weight = weight,
-    text = text,
-  }
+local function evolutionRow(row)
+  local out = { method = row[1], species = row[2] }
+  if row[1] == "LEVEL" or row[1]:match("^TYROGUE_") then
+    out.level = row[3]
+  elseif row[1] == "ITEM" then
+    out.item = row[3]
+  end
+  return out
 end
 
-return function(mod, data)
+return function(mod, legends, johto, i18n)
   if not mod.content.pokemon:get("MEWTWO") then return false end
   local ChipAsm = require("src.audio.ChipAsm")
 
-  mod.content.moves:register("SACRED_FIRE", {
-    id = "SACRED_FIRE", name = "SACRED FIRE", type = "FIRE",
-    power = 100, accuracy = 95, pp = 5, effect = "BURN_SIDE_EFFECT1",
-    category = "special",
+  -- Generation-II types and their original matchup table.
+  mod.content.type_chart:register("DARK", {
+    name = "DARK", category = "special",
   })
-  mod.content.moves:register("AEROBLAST", {
-    id = "AEROBLAST", name = "AEROBLAST", type = "FLYING",
-    power = 100, accuracy = 95, pp = 5, effect = "NO_ADDITIONAL_EFFECT",
-    category = "physical", highCrit = true,
+  mod.content.type_chart:register("STEEL", {
+    name = "STEEL", category = "physical",
+  })
+  local chart = {
+    { "DARK", "PSYCHIC_TYPE", 20 }, { "DARK", "GHOST", 20 },
+    { "DARK", "FIGHTING", 5 }, { "DARK", "DARK", 5 },
+    { "DARK", "STEEL", 5 },
+    { "STEEL", "ICE", 20 }, { "STEEL", "ROCK", 20 },
+    { "STEEL", "FIRE", 5 }, { "STEEL", "WATER", 5 },
+    { "STEEL", "ELECTRIC", 5 }, { "STEEL", "STEEL", 5 },
+    { "NORMAL", "STEEL", 5 }, { "FIGHTING", "DARK", 20 },
+    { "FIGHTING", "STEEL", 20 }, { "FLYING", "STEEL", 5 },
+    { "POISON", "STEEL", 0 }, { "GROUND", "STEEL", 20 },
+    { "ROCK", "STEEL", 5 }, { "BUG", "DARK", 20 },
+    { "BUG", "STEEL", 5 }, { "GHOST", "DARK", 5 },
+    { "GHOST", "STEEL", 5 }, { "FIRE", "STEEL", 20 },
+    { "GRASS", "STEEL", 5 }, { "ICE", "STEEL", 5 },
+    { "PSYCHIC_TYPE", "DARK", 0 }, { "PSYCHIC_TYPE", "STEEL", 5 },
+    { "DRAGON", "STEEL", 5 },
+  }
+  for _, row in ipairs(chart) do
+    mod.content.type_chart:register(row[1] .. ">" .. row[2],
+      { multiplier = row[3] })
+  end
+
+  -- A compact move set gives the new families their defining Gen-II tools
+  -- without depending on another mechanics mod.
+  local moves = {
+    CRUNCH = { "CRUNCH", "DARK", 80, 100, 15, "special" },
+    METAL_CLAW = { "METAL CLAW", "STEEL", 50, 95, 35, "physical" },
+    IRON_TAIL = { "IRON TAIL", "STEEL", 100, 75, 15, "physical" },
+    SHADOW_BALL = { "SHADOW BALL", "GHOST", 80, 100, 15, "physical" },
+    FLAME_WHEEL = { "FLAME WHEEL", "FIRE", 60, 100, 25, "special" },
+    GIGA_DRAIN = { "GIGA DRAIN", "GRASS", 60, 100, 10, "special" },
+    SLUDGE_BOMB = { "SLUDGE BOMB", "POISON", 90, 100, 10, "physical" },
+    SPARK = { "SPARK", "ELECTRIC", 65, 100, 20, "special" },
+    POWDER_SNOW = { "POWDER SNOW", "ICE", 40, 100, 25, "special" },
+    SACRED_FIRE = { "SACRED FIRE", "FIRE", 100, 95, 5, "special",
+                    "BURN_SIDE_EFFECT1" },
+    AEROBLAST = { "AEROBLAST", "FLYING", 100, 95, 5, "physical" },
+  }
+  for id, row in pairs(moves) do
+    mod.content.moves:register(id, {
+      id = id, name = row[1], type = row[2], power = row[3],
+      accuracy = row[4], pp = row[5], category = row[6],
+      effect = row[7] or "NO_ADDITIONAL_EFFECT",
+      highCrit = id == "AEROBLAST" and true or nil,
+    })
+  end
+  mod.content.moves:patch("BITE", { type = "DARK", category = "special" })
+  mod.content.moves:patch("GUST", { type = "FLYING", category = "physical" })
+  mod.content.moves:patch("SAND_ATTACK", {
+    type = "GROUND", category = "status",
+  })
+  mod.content.moves:patch("KARATE_CHOP", {
+    type = "FIGHTING", category = "physical",
   })
 
-  local entries = {
-    RAIKOU = dexEntry("THUNDER", 6, 3, 3920,
-      "It races across\nthe land while\ncalling the storm."),
-    ENTEI = dexEntry("VOLCANO", 6, 11, 4370,
-      "Its roar is said\nto make volcanoes\nerupt."),
-    SUICUNE = dexEntry("AURORA", 6, 7, 4120,
-      "It runs across\nthe world to purify\npolluted water."),
-    LUGIA = dexEntry("DIVING", 17, 1, 4760,
-      "It sleeps deep in\nthe sea to contain\nits great power."),
-    HO_OH = dexEntry("RAINBOW", 12, 6, 4390,
-      "Its brilliant wings\nleave a rainbow in\ntheir wake."),
-    CELEBI = dexEntry("TIME TRAVEL", 2, 0, 110,
-      "It crosses time and\nappears where a\nbright future waits."),
-  }
+  -- Friendship is stored on the individual mon and grows through travel and
+  -- victories in johto_research.lua. AUTO follows the computer clock; the
+  -- option also lets players force either Eevee branch.
+  local function friendship(mon)
+    return math.max(0, tonumber(mon and mon.johtoBond) or 0) >= 100
+  end
+  local function timeMode()
+    local selected = mod.options and mod.options:get("johto_time") or "auto"
+    if selected ~= "auto" then return selected end
+    local hour = tonumber(os.date("*t").hour) or 12
+    return (hour >= 18 or hour < 6) and "night" or "day"
+  end
+  mod.content.evolution_methods:register("FRIENDSHIP", {
+    check = function(_, mon, _, trigger)
+      return trigger.kind == "levelup" and friendship(mon)
+    end,
+    describe = function() return "High friendship" end,
+  })
+  mod.content.evolution_methods:register("FRIENDSHIP_DAY", {
+    check = function(_, mon, _, trigger)
+      return trigger.kind == "levelup" and friendship(mon)
+        and timeMode() == "day"
+    end,
+    describe = function() return "High friendship by day" end,
+  })
+  mod.content.evolution_methods:register("FRIENDSHIP_NIGHT", {
+    check = function(_, mon, _, trigger)
+      return trigger.kind == "levelup" and friendship(mon)
+        and timeMode() == "night"
+    end,
+    describe = function() return "High friendship at night" end,
+  })
+  local function tyrogueCheck(mode)
+    return function(_, mon, evo, trigger)
+      if trigger.kind ~= "levelup" or mon.level < (evo.level or 20) then
+        return false
+      end
+      local attack = mon.stats and mon.stats.attack or 0
+      local defense = mon.stats and mon.stats.defense or 0
+      if mode == "attack" then return attack > defense end
+      if mode == "defense" then return defense > attack end
+      return attack == defense
+    end
+  end
+  mod.content.evolution_methods:register("TYROGUE_ATTACK", {
+    check = tyrogueCheck("attack"), describe = function() return "ATK > DEF" end,
+  })
+  mod.content.evolution_methods:register("TYROGUE_DEFENSE", {
+    check = tyrogueCheck("defense"), describe = function() return "DEF > ATK" end,
+  })
+  mod.content.evolution_methods:register("TYROGUE_BALANCE", {
+    check = tyrogueCheck("balance"), describe = function() return "ATK = DEF" end,
+  })
 
-  local tmhm = {
-    "TOXIC", "BODY_SLAM", "DOUBLE_EDGE", "HYPER_BEAM", "PAY_DAY",
-    "SUBMISSION", "COUNTER", "SEISMIC_TOSS", "RAGE", "MIMIC",
-    "DOUBLE_TEAM", "REFLECT", "BIDE", "REST", "SUBSTITUTE",
+  for _, row in ipairs(johto.items) do
+    mod.content.items:register(row.id, {
+      id = row.id,
+      name = i18n and i18n.isGerman() and row.de or row.name,
+      price = 2100, tossable = true, needsTarget = false,
+    })
+  end
+
+  -- Steel became part of Magnemite's family in Generation II.
+  local function replaceTypes(id, types)
+    local current = assert(mod.content.pokemon:get(id), "missing " .. id)
+    local replacement = {}
+    for key, value in pairs(current) do replacement[key] = value end
+    replacement.types = types
+    mod.content.pokemon:override(id, replacement)
+  end
+  replaceTypes("MAGNEMITE", { "ELECTRIC", "STEEL" })
+  replaceTypes("MAGNETON", { "ELECTRIC", "STEEL" })
+
+  local function sameEvolution(a, b)
+    return a.method == b.method
+      and a.species == b.species
+      and a.level == b.level
+      and a.item == b.item
+  end
+
+  -- Record patches replace arrays wholesale. Preserve every original Kanto
+  -- branch before adding Johto's new alternatives; otherwise Gloom,
+  -- Poliwhirl, Eevee and Slowpoke would lose their Gen-I evolutions.
+  for id, entries in pairs(johto.kantoEvolutions) do
+    local current = assert(mod.content.pokemon:get(id), "missing " .. id)
+    local combined = {}
+    for _, evolution in ipairs(current.evolutions or {}) do
+      local copy = {}
+      for key, value in pairs(evolution) do copy[key] = value end
+      combined[#combined + 1] = copy
+    end
+    for _, row in ipairs(entries) do
+      local addition = evolutionRow(row)
+      local duplicate = false
+      for _, existing in ipairs(combined) do
+        if sameEvolution(existing, addition) then
+          duplicate = true
+          break
+        end
+      end
+      if not duplicate then combined[#combined + 1] = addition end
+    end
+    mod.content.pokemon:patch(id, { evolutions = combined })
+  end
+
+  local templateFor = {
+    NORMAL = "RATTATA", GRASS = "BULBASAUR", FIRE = "CHARMANDER",
+    WATER = "SQUIRTLE", ELECTRIC = "PIKACHU", BUG = "CATERPIE",
+    FLYING = "PIDGEY", POISON = "EKANS", GROUND = "SANDSHREW",
+    ROCK = "GEODUDE", PSYCHIC_TYPE = "ABRA", GHOST = "GASTLY",
+    ICE = "SEEL", FIGHTING = "MACHOP", DARK = "GROWLITHE",
+    STEEL = "MAGNEMITE", DRAGON = "DRATINI",
   }
-  local artNames = {
+  local iconFor = {
+    NORMAL = "MON", GRASS = "GRASS", FIRE = "QUADRUPED",
+    WATER = "WATER", ELECTRIC = "QUADRUPED", BUG = "BUG",
+    FLYING = "BIRD", POISON = "SNAKE", GROUND = "QUADRUPED",
+    ROCK = "MON", PSYCHIC_TYPE = "FAIRY", GHOST = "MON",
+    ICE = "MON", FIGHTING = "MON", DARK = "QUADRUPED",
+    STEEL = "MON", DRAGON = "SNAKE",
+  }
+  local specialTemplates = {
+    CHIKORITA = "BULBASAUR", BAYLEEF = "IVYSAUR", MEGANIUM = "VENUSAUR",
+    CYNDAQUIL = "CHARMANDER", QUILAVA = "CHARMELEON", TYPHLOSION = "CHARIZARD",
+    TOTODILE = "SQUIRTLE", CROCONAW = "WARTORTLE", FERALIGATR = "BLASTOISE",
+    RAIKOU = "ARCANINE", ENTEI = "ARCANINE", SUICUNE = "ARCANINE",
+    LUGIA = "ARTICUNO", HO_OH = "MOLTRES", CELEBI = "MEW",
+  }
+  -- Party-menu icons deliberately reuse Gen 1's native animated classes.
+  -- Custom single-frame thumbnails looked like unrelated Pokémon once the
+  -- party menu applied its original mirrored-icon layout.
+  local specialIcons = johto.partyIcons or {}
+  local originalArt = {
     RAIKOU = "raikou", ENTEI = "entei", SUICUNE = "suicune",
     LUGIA = "lugia", HO_OH = "ho_oh", CELEBI = "celebi",
   }
 
-  for id, def in pairs(data.species) do
-    local art = artNames[id]
-    local speciesTmhm = {}
-    for _, move in ipairs(tmhm) do speciesTmhm[#speciesTmhm + 1] = move end
-    if id == "RAIKOU" then
-      speciesTmhm[#speciesTmhm + 1] = "THUNDERBOLT"
-      speciesTmhm[#speciesTmhm + 1] = "THUNDER"
-    elseif id == "ENTEI" or id == "HO_OH" then
-      speciesTmhm[#speciesTmhm + 1] = "FIRE_BLAST"
-    elseif id == "SUICUNE" or id == "LUGIA" then
-      speciesTmhm[#speciesTmhm + 1] = "SURF"
-      speciesTmhm[#speciesTmhm + 1] = "BLIZZARD"
-    elseif id == "CELEBI" then
-      speciesTmhm[#speciesTmhm + 1] = "PSYCHIC_M"
-      speciesTmhm[#speciesTmhm + 1] = "MEGA_DRAIN"
+  for _, id in ipairs(johto.order) do
+    local catalogue = johto.species[id]
+    local def = catalogue
+    local legendary = legends.species[id]
+    if legendary then
+      def = {
+        dex = def.dex, id = id, name = legendary.name, types = legendary.types,
+        stats = legendary.stats, catchRate = legendary.catchRate,
+        baseExp = legendary.baseExp, growthRate = "SLOW",
+        -- Species-authentic catalogue data remains authoritative for learning,
+        -- compatibility and Pokédex presentation.  The post-game profile only
+        -- supplies encounter balancing fields.
+        level1 = catalogue.level1, learnset = catalogue.learnset,
+        tmhm = catalogue.tmhm, dexEntry = catalogue.dexEntry,
+        weightKg = catalogue.weightKg,
+      }
     end
-
-    -- Self-contained chip cries keep the expansion valid even when the
-    -- optional imported audio table is absent.
-    local cryFrequency = 0x380 + (def.dex - 151) * 0x55
+    local primary = def.types[1]
+    local function validMove(move)
+      if mod.content.moves:get(move) then return true end
+      mod.log:warn("JOHTO skipped unavailable move %s for %s", move, id)
+      return false
+    end
+    local level1 = {}
+    for _, move in ipairs(def.level1 or {}) do
+      if validMove(move) then level1[#level1 + 1] = move end
+    end
+    if #level1 == 0 then level1[1] = "TACKLE" end
+    local learnset = {}
+    for _, row in ipairs(def.learnset or {}) do
+      if validMove(row.move) then
+        learnset[#learnset + 1] = { level = row.level, move = row.move }
+      end
+    end
+    local tmhm = {}
+    for _, move in ipairs(def.tmhm or {}) do
+      if validMove(move) then tmhm[#tmhm + 1] = move end
+    end
+    local evolutions = {}
+    for _, row in ipairs(johto.evolutions[id] or {}) do
+      evolutions[#evolutions + 1] = evolutionRow(row)
+    end
+    local templateId = specialTemplates[id] or templateFor[primary] or "RATTATA"
+    local template = assert(mod.content.pokemon:get(templateId),
+      "missing fallback species " .. templateId)
+    local art = originalArt[id]
+    local spriteFront = art and mod.path .. "/assets/" .. art .. "_front.png"
+      or template.spriteFront
+    local spriteBack = art and mod.path .. "/assets/" .. art .. "_back.png"
+      or template.spriteBack
+    local icon = specialIcons[id] or (iconFor[primary] or "MON")
+    local dex = assert(def.dexEntry, "missing Pokédex entry for " .. id)
+    local totalInches = math.floor(dex.heightM * 39.3700787 + 0.5)
+    local german = i18n and i18n.isGerman()
+    local cryFrequency = 0x300 + ((def.dex - 152) % 20) * 0x38
     mod.content.cries:register(id, {
       chip = ChipAsm.sfx{
         channels = { { hw = 1, program = {
           { pitchSweep = {
-            pace = 2 + ((def.dex - 151) % 5),
+            pace = 2 + (def.dex % 5),
             subtract = def.dex % 2 == 0, shift = 3,
           } },
           { squareNote = {
-            len = 5 + ((def.dex - 151) % 3), volume = 13, fade = 2,
+            len = 5 + (def.dex % 3), volume = 13, fade = 2,
             frequency = cryFrequency,
           } },
         } } },
       }.chip,
-      pitch = def.pitch, length = def.length,
+      pitch = 96 + (def.dex % 5) * 16,
+      length = 112 + (def.dex % 4) * 16,
     })
     mod.content.pokemon:register(id, {
-      id = id, name = def.name, dex = def.dex, types = def.types,
+      id = id,
+      name = i18n and i18n.isGerman()
+        and (johto.germanNames[id] or def.name) or def.name,
+      dex = def.dex, types = def.types,
       baseStats = def.stats, catchRate = def.catchRate, baseExp = def.baseExp,
-      growthRate = "SLOW", level1Moves = def.level1,
-      tmhm = speciesTmhm, learnset = def.learnset, evolutions = {},
-      spriteFront = mod.path .. "/assets/" .. art .. "_front.png",
-      spriteBack = mod.path .. "/assets/" .. art .. "_back.png",
-      frontSize = 7, cry = id, battleScaleBack = 1,
-      icon = { image = mod.path .. "/assets/" .. art .. "_icon.png", frames = 1 },
-      dexEntry = entries[id],
+      growthRate = def.growthRate, level1Moves = level1,
+      tmhm = tmhm, learnset = learnset, evolutions = evolutions,
+      spriteFront = spriteFront, spriteBack = spriteBack,
+      frontSize = template.frontSize or 7, cry = id,
+      battleScaleBack = art and 1 or nil, icon = icon,
+      dexEntry = {
+        kind = german and dex.kindDe or dex.kindEn,
+        heightFt = math.floor(totalInches / 12),
+        heightIn = totalInches % 12,
+        weight = math.floor((def.weightKg or 10) * 22.0462262 + 0.5),
+        heightM = dex.heightM, weightKg = def.weightKg or 10,
+        text = german and dex.textDe or dex.textEn,
+      },
     })
-    mod.content.icons:register(id, {
-      image = mod.path .. "/assets/" .. art .. "_icon.png", frames = 1,
-    })
+    mod.content.icons:register(id, icon)
   end
 
-  mod.content.constants:patch("dexSize", 157)
+  mod.content.constants:patch("dexSize", 251)
   mod.content.constants:patch("dexDigits", 3)
   return true
 end

@@ -84,6 +84,8 @@ end
 return function(mod, data, opts)
   opts = opts or {}
   local i18n = opts.i18n
+  local fieldTech = opts.fieldTech
+  local kantoCompletion = opts.kantoCompletion
   local function tr(english, german)
     return i18n and i18n.text(english, german) or english
   end
@@ -592,8 +594,13 @@ return function(mod, data, opts)
   end
 
   local function scheduleBossRest(key)
-    local lo = math.max(1, math.floor(tonumber(mod.options:get("rest_min")) or 128))
-    local hi = math.max(1, math.floor(tonumber(mod.options:get("rest_max")) or 256))
+    local rawLo = tonumber(mod.options:get("rest_min"))
+    local rawHi = tonumber(mod.options:get("rest_max"))
+    if rawLo == 128 and rawHi == 256 then rawLo, rawHi = 151, 2510 end
+    local lo = math.min(2510, math.max(151,
+      math.floor(rawLo or 151)))
+    local hi = math.min(2510, math.max(151,
+      math.floor(rawHi or 2510)))
     if lo > hi then lo, hi = hi, lo end
     local s = state()
     s.bossRest[key] = (tonumber(mod.save:get("step_clock", 0)) or 0)
@@ -667,14 +674,29 @@ return function(mod, data, opts)
         battle.endBattleText = gymDialogue(gym, tier, "win")
         battle.onFinish = function(result)
           scheduleBossRest(key)
+          local rewards = {}
+          local function addReward(text)
+            if text and text ~= "" then rewards[#rewards + 1] = text end
+          end
           if result == "win" then
             local s = state()
             if tier == "master" then s.masterWins[gym.key] = true
             else s.crownWins[gym.key] = true end
             persist(s)
+            if fieldTech then
+              addReward(fieldTech.afterBossWin(game, gym.key, tier))
+            end
+            if kantoCompletion then
+              addReward(kantoCompletion.afterBossWin(game, gym.key, tier))
+            end
           end
+          local reward = #rewards > 0 and table.concat(rewards, "\f") or nil
           ow:afterBattle(result, battle)
-          done()
+          if reward then
+            game.stack:push(TextBox.new(game, reward, done))
+          else
+            done()
+          end
         end
         ow:pushBattle(battle)
       end,

@@ -18,10 +18,31 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 DEST = ROOT / "assets" / "crystal"
 BASE = "https://img.pokemondb.net/sprites/crystal"
-SPECIES = ("raikou", "entei", "suicune", "lugia", "ho-oh", "celebi")
+SPECIES = (
+    "chikorita", "bayleef", "meganium", "cyndaquil", "quilava", "typhlosion",
+    "totodile", "croconaw", "feraligatr", "sentret", "furret", "hoothoot",
+    "noctowl", "ledyba", "ledian", "spinarak", "ariados", "crobat",
+    "chinchou", "lanturn", "pichu", "cleffa", "igglybuff", "togepi", "togetic",
+    "natu", "xatu", "mareep", "flaaffy", "ampharos", "bellossom", "marill",
+    "azumarill", "sudowoodo", "politoed", "hoppip", "skiploom", "jumpluff",
+    "aipom", "sunkern", "sunflora", "yanma", "wooper", "quagsire", "espeon",
+    "umbreon", "murkrow", "slowking", "misdreavus", "unown", "wobbuffet",
+    "girafarig", "pineco", "forretress", "dunsparce", "gligar", "steelix",
+    "snubbull", "granbull", "qwilfish", "scizor", "shuckle", "heracross",
+    "sneasel", "teddiursa", "ursaring", "slugma", "magcargo", "swinub",
+    "piloswine", "corsola", "remoraid", "octillery", "delibird", "mantine",
+    "skarmory", "houndour", "houndoom", "kingdra", "phanpy", "donphan",
+    "porygon2", "stantler", "smeargle", "tyrogue", "hitmontop", "smoochum",
+    "elekid", "magby", "miltank", "blissey", "raikou", "entei", "suicune",
+    "larvitar", "pupitar", "tyranitar", "lugia", "ho-oh", "celebi",
+)
 VIEWS = {
     "front": "normal/{name}.png",
     "back": "back-normal/{name}.png",
+    # Crystal's own alternate palettes. Keeping these as source sprites
+    # avoids approximating a Johto shiny with a runtime colour filter.
+    "front_shiny": "shiny/{name}.png",
+    "back_shiny": "back-shiny/{name}.png",
 }
 
 
@@ -49,7 +70,10 @@ def fetch(url: str, page: str) -> bytes:
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Download optional Crystal front/back sprites for the six legends."
+        description=(
+            "Download optional Crystal normal/shiny front/back sprites "
+            "for Johto #152-251."
+        )
     )
     parser.add_argument(
         "--force", action="store_true", help="replace already installed files"

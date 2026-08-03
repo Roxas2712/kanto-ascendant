@@ -5,23 +5,23 @@
 local BALANCED = {
   { item = "MASTER_BALL", from = 1, to = 100, gate = "master",
     minLevel = 80 },                                                -- 1%
-  { item = "EXP_ALL", from = 101, to = 2100, gate = "expAll",
-    minLevel = 40 },                                                -- 20%
-  { item = "RARE_CANDY", from = 2101, to = 3600, minLevel = 20 },  -- 15%
-  { item = "PP_UP", from = 3601, to = 4600, minLevel = 35 },       -- 10%
-  { item = "MAX_REVIVE", from = 4601, to = 5400, minLevel = 50 },  -- 8%
-  { item = "NUGGET", from = 5401, to = 7400 },                     -- 20%
+  { item = "EXP_ALL", from = 101, to = 600, gate = "expAll",
+    minLevel = 40 },                                                -- 5%
+  { item = "RARE_CANDY", from = 601, to = 1100, minLevel = 20 },   -- 5%
+  { item = "PP_UP", from = 1101, to = 2100, minLevel = 35 },       -- 10%
+  { item = "MAX_REVIVE", from = 2101, to = 2900, minLevel = 50 },  -- 8%
+  { item = "NUGGET", from = 2901, to = 4400 },                     -- 15%
 }
 
 local GENEROUS = {
   { item = "MASTER_BALL", from = 1, to = 200, gate = "master",
     minLevel = 80 },                                                -- 2%
-  { item = "EXP_ALL", from = 201, to = 2700, gate = "expAll",
-    minLevel = 40 },                                                -- 25%
-  { item = "RARE_CANDY", from = 2701, to = 4700, minLevel = 20 },  -- 20%
-  { item = "PP_UP", from = 4701, to = 6200, minLevel = 35 },       -- 15%
-  { item = "MAX_REVIVE", from = 6201, to = 7400, minLevel = 50 },  -- 12%
-  { item = "NUGGET", from = 7401, to = 10000 },                    -- 26%
+  { item = "EXP_ALL", from = 201, to = 700, gate = "expAll",
+    minLevel = 40 },                                                -- 5%
+  { item = "RARE_CANDY", from = 701, to = 1200, minLevel = 20 },   -- 5%
+  { item = "PP_UP", from = 1201, to = 2700, minLevel = 35 },       -- 15%
+  { item = "MAX_REVIVE", from = 2701, to = 3900, minLevel = 50 },  -- 12%
+  { item = "NUGGET", from = 3901, to = 5400 },                     -- 15%
 }
 
 local L = { bands = { balanced = BALANCED, generous = GENEROUS } }

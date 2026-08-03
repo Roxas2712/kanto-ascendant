@@ -1,13 +1,14 @@
 {
   "id": "trainer_rematch",
   "name": "Kanto Ascendant",
-  "version": "2.0.0",
+  "version": "5.0.0",
   "api": 2,
   "entry": "main.lua",
   "profile": "content",
   "game_version": ">=0.0.0-dev <1.0.0",
   "category": "GAMEPLAY",
   "priority": 100,
+  "assets_transforms": "shiny_transforms.lua",
   "permissions": [
     "engine_internals"
   ],
@@ -15,11 +16,12 @@
   "optional_dependencies": [
     "deutsch",
     "deutsch-blau",
-    "deutsch-gelb"
+    "deutsch-gelb",
+    "all_pokemon_catchable_151_mod"
   ],
   "conflicts": [],
   "incompatible": [],
   "experimental": false,
-  "description": "A living Kanto post-game with ranked rematches, personal Leader missions, adaptive circuits, a Grand Tournament, Rocket Resurgence, legendary events, Mew and New Game Plus.",
+  "description": "A living 251-Pokémon Kanto endgame with ranked rematches, research habitats, a spoiler-safe Atlas, renewable TMs and evolution items, Battle Factory, S.S. Anne Grand Tour, titles, shinies and Mega Evolution.",
   "github": "Roxas2712/kanto-ascendant"
 }

@@ -53,8 +53,8 @@ A.research = {
   {
     id = "tournament", metric = "tournamentRounds", target = 3,
     title = text("TOURNAMENT DATA", "TURNIER-DATEN"), reward = "PP_UP",
-    task = text("Win 3 Grand\nTournament rounds.",
-      "Gewinne 3 Runden im\nGroßen Turnier."),
+    task = text("Win 3 Ascendant\nFrontier rounds.",
+      "Gewinne 3 Runden in\nder Ascendant-Frontier."),
   },
   {
     id = "rocket", metric = "rocketWins", target = 4,
@@ -85,6 +85,12 @@ A.achievements = {
   { id = "purist", title = text("KANTO PURIST", "KANTO-PURIST") },
   { id = "mew_found", title = text("MYTH SEEKER", "MYTHENSUCHER") },
   { id = "ascendant", title = text("KANTO ASCENDANT", "KANTO ASCENDANT") },
+  { id = "johto_master", title = text(
+      "JOHTO MASTER", "JOHTO-MEISTER") },
+  { id = "factory_architect", title = text(
+      "FACTORY ARCHITECT", "FABRIK-ARCHITEKT") },
+  { id = "sea_champion", title = text(
+      "SEA CHAMPION", "MEERES-CHAMP") },
 }
 
 A.gymQuests = {
@@ -302,6 +308,18 @@ A.tournament = {
       name = text("ENDURANCE CUP", "AUSDAUER-CUP"),
       intro = text("No healing between\nthree full battles.",
         "Keine Heilung zwischen\ndrei vollen Kämpfen."),
+    },
+    {
+      id = "set",
+      name = text("SET-STYLE CUP", "SET-MODUS-CUP"),
+      intro = text("No free switch after\nan opponent faints.",
+        "Kein freier Wechsel,\nwenn ein Gegner fällt."),
+    },
+    {
+      id = "purist",
+      name = text("KANTO PURIST CUP", "KANTO-PURISTEN-CUP"),
+      intro = text("Legendary POKéMON are\nsealed for all rounds.",
+        "Legendäre POKéMON sind\nfür alle Runden gesperrt."),
     },
   },
 }

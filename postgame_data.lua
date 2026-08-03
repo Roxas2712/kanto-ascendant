@@ -10,7 +10,7 @@ local D = {}
 
 D.species = {
   RAIKOU = {
-    name = "RAIKOU", dex = 152, types = { "ELECTRIC" },
+    name = "RAIKOU", dex = 243, types = { "ELECTRIC" },
     stats = { hp = 90, attack = 85, defense = 75, speed = 115, special = 115 },
     catchRate = 3, baseExp = 216, cryBase = "ZAPDOS", pitch = 112, length = 144,
     level1 = { "BITE", "LEER", "THUNDERSHOCK", "ROAR" },
@@ -20,7 +20,7 @@ D.species = {
     },
   },
   ENTEI = {
-    name = "ENTEI", dex = 153, types = { "FIRE" },
+    name = "ENTEI", dex = 244, types = { "FIRE" },
     stats = { hp = 115, attack = 115, defense = 85, speed = 100, special = 90 },
     catchRate = 3, baseExp = 217, cryBase = "ARCANINE", pitch = 96, length = 160,
     level1 = { "BITE", "LEER", "EMBER", "ROAR" },
@@ -30,7 +30,7 @@ D.species = {
     },
   },
   SUICUNE = {
-    name = "SUICUNE", dex = 154, types = { "WATER" },
+    name = "SUICUNE", dex = 245, types = { "WATER" },
     stats = { hp = 100, attack = 75, defense = 115, speed = 85, special = 115 },
     catchRate = 3, baseExp = 215, cryBase = "LAPRAS", pitch = 144, length = 144,
     level1 = { "BITE", "LEER", "BUBBLEBEAM", "MIST" },
@@ -40,7 +40,7 @@ D.species = {
     },
   },
   LUGIA = {
-    name = "LUGIA", dex = 155, types = { "PSYCHIC_TYPE", "FLYING" },
+    name = "LUGIA", dex = 249, types = { "PSYCHIC_TYPE", "FLYING" },
     stats = { hp = 106, attack = 90, defense = 130, speed = 110, special = 130 },
     catchRate = 3, baseExp = 220, cryBase = "ARTICUNO", pitch = 128, length = 176,
     level1 = { "GUST", "RECOVER", "HYDRO_PUMP", "AEROBLAST" },
@@ -50,7 +50,7 @@ D.species = {
     },
   },
   HO_OH = {
-    name = "HO-OH", dex = 156, types = { "FIRE", "FLYING" },
+    name = "HO-OH", dex = 250, types = { "FIRE", "FLYING" },
     stats = { hp = 106, attack = 130, defense = 90, speed = 90, special = 110 },
     catchRate = 3, baseExp = 220, cryBase = "MOLTRES", pitch = 104, length = 176,
     level1 = { "GUST", "RECOVER", "FIRE_BLAST", "SACRED_FIRE" },
@@ -60,7 +60,7 @@ D.species = {
     },
   },
   CELEBI = {
-    name = "CELEBI", dex = 157, types = { "PSYCHIC_TYPE", "GRASS" },
+    name = "CELEBI", dex = 251, types = { "PSYCHIC_TYPE", "GRASS" },
     stats = { hp = 100, attack = 100, defense = 100, speed = 100, special = 100 },
     catchRate = 3, baseExp = 220, cryBase = "MEW", pitch = 176, length = 112,
     level1 = { "CONFUSION", "LEECH_SEED", "RECOVER", "PSYCHIC_M" },

@@ -3,8 +3,8 @@
 -- with a line in its own voice, matched to the personality that class
 -- shows in its regular dialogue.
 
-local DEFAULT_MIN_REST_STEPS = 128
-local DEFAULT_MAX_REST_STEPS = 256
+local DEFAULT_MIN_REST_STEPS = 151
+local DEFAULT_MAX_REST_STEPS = 2510
 local DEFAULT_LEVEL_GAIN = 2
 local MAX_LEVEL_GAIN = 20
 local MAX_LEVEL_BOOST = 99
@@ -39,8 +39,14 @@ local function clampedInteger(value, fallback, minimum, maximum)
 end
 
 local function normalizedRestRange(minSteps, maxSteps)
-  minSteps = clampedInteger(minSteps, DEFAULT_MIN_REST_STEPS, 1, 9999)
-  maxSteps = clampedInteger(maxSteps, DEFAULT_MAX_REST_STEPS, 1, 9999)
+  -- Existing profiles from <=4.2.0 stored the old defaults explicitly.
+  -- Treat that exact untouched pair as the new default instead of leaving
+  -- upgraded players on the legacy 128-256 range forever.
+  if tonumber(minSteps) == 128 and tonumber(maxSteps) == 256 then
+    minSteps, maxSteps = DEFAULT_MIN_REST_STEPS, DEFAULT_MAX_REST_STEPS
+  end
+  minSteps = clampedInteger(minSteps, DEFAULT_MIN_REST_STEPS, 151, 2510)
+  maxSteps = clampedInteger(maxSteps, DEFAULT_MAX_REST_STEPS, 151, 2510)
   if minSteps > maxSteps then minSteps, maxSteps = maxSteps, minSteps end
   return minSteps, maxSteps
 end
@@ -264,10 +270,10 @@ return function(mod)
                   { "DEUTSCH", "de" } } },
     { key = "rest_min", label = menuLabel("MIN REST STEPS", "MIN PAUSE"),
       type = "number",
-      default = DEFAULT_MIN_REST_STEPS, min = 1, max = 9999, step = 16 },
+      default = DEFAULT_MIN_REST_STEPS, min = 151, max = 2510, step = 1 },
     { key = "rest_max", label = menuLabel("MAX REST STEPS", "MAX PAUSE"),
       type = "number",
-      default = DEFAULT_MAX_REST_STEPS, min = 1, max = 9999, step = 16 },
+      default = DEFAULT_MAX_REST_STEPS, min = 151, max = 2510, step = 1 },
     { key = "level_gain", label = menuLabel("LEVELS / REMATCH", "LEVEL / REVANCHE"),
       type = "number",
       default = DEFAULT_LEVEL_GAIN, min = 0, max = MAX_LEVEL_GAIN, step = 1 },
@@ -280,12 +286,53 @@ return function(mod)
         { menuLabel("BALANCED", "NORMAL"), "balanced" },
         { menuLabel("GENEROUS", "VIEL"), "generous" },
       } },
-    { key = "legend_art", label = menuLabel("LEGEND ART", "LEGENDEN-GRAFIK"),
+    { key = "kanto_151",
+      label = menuLabel("KANTO 151 RESTART", "KANTO 151 NEUST."),
+      type = "choice", default = "ascendant",
+      choices = {
+        { menuLabel("REWARDS", "BELOHNUNGEN"), "ascendant" },
+        { menuLabel("WILD", "WILD"), "wild" },
+        { menuLabel("OFF", "AUS"), "off" },
+      } },
+    { key = "legend_art", label = menuLabel("JOHTO ART", "JOHTO-GRAFIK"),
       type = "choice",
       default = "crystal",
       choices = {
         { menuLabel("CRYSTAL (LOCAL)", "KRISTALL (LOKAL)"), "crystal" },
-        { menuLabel("ORIGINAL 4-SHADE", "ORIGINAL 4-FARBEN"), "original" },
+        { menuLabel("KANTO FALLBACK", "KANTO-ERSATZ"), "original" },
+      } },
+    { key = "shiny_hunts", label = menuLabel("SHINY HUNTS", "SHINY-JAGD"),
+      type = "choice", default = "ascendant",
+      choices = {
+        { menuLabel("ASCENDANT", "ASCENDANT"), "ascendant" },
+        { menuLabel("NATURAL 1/8192", "NATÜRLICH 1/8192"), "natural" },
+      } },
+    { key = "shiny_effects",
+      label = menuLabel("SHINY EFFECTS", "SHINY-EFFEKTE"),
+      type = "toggle", default = true },
+    { key = "shiny_protection",
+      label = menuLabel("SHINY RELEASE LOCK", "SHINY-SCHUTZ"),
+      type = "toggle", default = true },
+    { key = "shiny_event",
+      label = menuLabel("RED GYARADOS", "ROTES GARADOS"),
+      type = "toggle", default = true },
+    { key = "mega_evolution",
+      label = menuLabel("MEGA EVOLUTION", "MEGA-ENTWICKLUNG"),
+      type = "toggle", default = true },
+    { key = "mega_opponents",
+      label = menuLabel("ENEMY MEGA", "GEGNER-MEGA"),
+      type = "choice", default = "bosses",
+      choices = {
+        { menuLabel("BOSSES", "BOSSE"), "bosses" },
+        { menuLabel("ALL TRAINERS", "ALLE TRAINER"), "all" },
+        { menuLabel("OFF", "AUS"), "off" },
+      } },
+    { key = "johto_time", label = menuLabel("JOHTO TIME", "JOHTO-ZEIT"),
+      type = "choice", default = "auto",
+      choices = {
+        { menuLabel("AUTO CLOCK", "AUTO-UHR"), "auto" },
+        { menuLabel("DAY", "TAG"), "day" },
+        { menuLabel("NIGHT", "NACHT"), "night" },
       } },
     { key = "legend_articuno", label = "ARTICUNO", type = "choice",
       default = "apex",
@@ -310,16 +357,44 @@ return function(mod)
     { key = "legend_ho_oh", label = "HO-OH", type = "toggle", default = true },
     { key = "legend_celebi", label = "CELEBI", type = "toggle", default = true },
     { key = "legend_mew", label = "MEW", type = "toggle", default = true },
+    { key = "mew_profile", label = menuLabel("MEW PROFILE", "MEW-PROFIL"),
+      type = "choice", default = "ascendant",
+      choices = {
+        { menuLabel("ASCENDANT LV.100", "ASCENDANT LV.100"), "ascendant" },
+        { menuLabel("HISTORICAL LV.5", "HISTORISCH LV.5"), "historical" },
+      } },
+    { key = "event_mode", label = menuLabel("HERITAGE EVENTS", "HERITAGE-EVENTS"),
+      type = "choice", default = "festival",
+      choices = {
+        { menuLabel("FESTIVAL CUPS", "FESTIVAL-CUPS"), "festival" },
+        { menuLabel("ROAMING HUNTS", "WANDERNDE JAGD"), "roaming" },
+        { menuLabel("OFF", "AUS"), "off" },
+      } },
+    { key = "event_university_magikarp", label = "UNIV. MAGIKARP",
+      type = "toggle", default = true },
+    { key = "event_stamp_fearow", label = "STAMP FEAROW",
+      type = "toggle", default = true },
+    { key = "event_flying_pikachu", label = "FLYING PIKACHU",
+      type = "toggle", default = true },
+    { key = "event_stamp_rapidash", label = "STAMP RAPIDASH",
+      type = "toggle", default = true },
+    { key = "event_surfing_pikachu", label = "SURFING PIKACHU",
+      type = "toggle", default = true },
+    { key = "event_flee", label = menuLabel("ROAMERS CAN FLEE", "WANDERER FLIEHEN"),
+      type = "toggle", default = true },
+    { key = "event_rosette", label = menuLabel("EVENT ROSETTE", "EVENT-ROSETTE"),
+      type = "toggle", default = true },
     { key = "rocket_story", label = menuLabel("ROCKET STORY", "ROCKET-STORY"),
       type = "toggle", default = true },
     { key = "grand_tournament",
-      label = menuLabel("GRAND TOURNAMENT", "GROSSES TURNIER"),
+      label = menuLabel("BATTLE FRONTIER", "KAMPF-FRONTIER"),
       type = "toggle", default = true },
     { key = "ascendant_rules",
       label = menuLabel("NEW GAME+ RULES", "NEW-GAME+-REGELN"),
-      type = "choice", default = "ascendant",
+      type = "choice", default = "rotating",
       choices = {
-        { menuLabel("ASCENDANT", "ASCENDANT"), "ascendant" },
+        { menuLabel("ROTATING", "ROTIEREND"), "rotating" },
+        { menuLabel("NO ITEMS", "KEINE ITEMS"), "ascendant" },
         { menuLabel("NORMAL", "NORMAL"), "normal" },
       } },
   })
@@ -341,46 +416,143 @@ return function(mod)
   -- field-trainer rematch path stays small and backwards-compatible.
   local postgameData = loadSibling(mod, "postgame_data.lua")
   postgameData.dialogue = loadSibling(mod, "postgame_dialogue.lua")
+  local johtoData = loadSibling(mod, "johto_data.lua")
+  local makeAscendantMenu = loadSibling(mod, "ascendant_menu.lua")
+  local ascendantMenu = makeAscendantMenu(mod, { i18n = i18n })
+  mod.exports.ascendantMenu = ascendantMenu
+  local makeSpriteAssets = loadSibling(mod, "sprite_assets.lua")
+  local spriteAssets = makeSpriteAssets(mod)
+  mod.exports.spriteAssets = spriteAssets
+  for _, species in ipairs(johtoData.order) do
+    CRYSTAL_ASSETS[species] = species:lower()
+  end
+  CRYSTAL_ASSETS.HO_OH = "ho_oh"
   local registerSpecies = loadSibling(mod, "postgame_species.lua")
-  local contentEnabled = registerSpecies(mod, postgameData)
+  local contentEnabled = registerSpecies(mod, postgameData, johtoData, i18n)
+  local makeKantoCompletion = loadSibling(mod, "kanto_completion.lua")
+  local kantoCompletion = makeKantoCompletion(mod, {
+    i18n = i18n,
+    contentEnabled = contentEnabled,
+  })
+  mod.exports.kantoCompletion = kantoCompletion
+  local makeFieldTech = loadSibling(mod, "field_tech.lua")
+  local fieldTech = makeFieldTech(mod, {
+    i18n = i18n,
+    contentEnabled = contentEnabled,
+  })
+  mod.exports.fieldTech = fieldTech
   local makePostgameEvents = loadSibling(mod, "postgame_events.lua")
   local makePostgame = loadSibling(mod, "postgame.lua")
   local postgame = makePostgame(mod, postgameData, {
     contentEnabled = contentEnabled,
     i18n = i18n,
     makeEvents = makePostgameEvents,
+    fieldTech = fieldTech,
+    kantoCompletion = kantoCompletion,
   })
   mod.exports.postgame = postgame
   mod.exports.postgameData = postgameData
+  mod.exports.johtoData = johtoData
+  local breedingData = loadSibling(mod, "breeding_data.lua")
+  local makeDaycare = loadSibling(mod, "daycare.lua")
+  local daycare = makeDaycare(mod, {
+    postgame = postgame,
+    i18n = i18n,
+    contentEnabled = contentEnabled,
+    breedingData = breedingData,
+    fieldTech = fieldTech,
+  })
+  local makeMegaEvolution = loadSibling(mod, "mega_evolution.lua")
+  local megaEvolution = makeMegaEvolution(mod, {
+    postgame = postgame,
+    i18n = i18n,
+    contentEnabled = contentEnabled,
+  })
+  daycare.setMega(megaEvolution)
+  local makeShinySystem = loadSibling(mod, "shiny_system.lua")
+  local shinySystem = makeShinySystem(mod, {
+    postgame = postgame,
+    i18n = i18n,
+  })
+  daycare.setShinySystem(shinySystem)
+  mod.exports.daycare = daycare
+  mod.exports.breedingData = breedingData
+  mod.exports.megaEvolution = megaEvolution
+  mod.exports.shinySystem = shinySystem
+  local makeFollowerCompat = loadSibling(mod, "follower_compat.lua")
+  local followerCompat = makeFollowerCompat(mod, {
+    spriteAssets = spriteAssets,
+    shinySystem = shinySystem,
+  })
+  mod.exports.followerCompat = followerCompat
+  local makeJohtoResearch = loadSibling(mod, "johto_research.lua")
+  local johtoResearch = makeJohtoResearch(mod, {
+    data = johtoData,
+    postgame = postgame,
+    i18n = i18n,
+    contentEnabled = contentEnabled,
+    daycare = daycare,
+  })
+  shinySystem.setJohtoResearch(johtoResearch)
+  mod.exports.johtoResearch = johtoResearch
   local ascendantData = loadSibling(mod, "ascendant_data.lua")
   local makeAscendant = loadSibling(mod, "ascendant.lua")
   local ascendant
+  local eventData = loadSibling(mod, "event_data.lua")
+  local makeEventArchive = loadSibling(mod, "event_archive.lua")
+  local eventArchive = makeEventArchive(mod, {
+    data = eventData,
+    postgame = postgame,
+    i18n = i18n,
+  })
+  mod.exports.eventArchive = eventArchive
+  mod.exports.eventData = eventData
 
   -- Official Crystal battle art is an optional local pack: it is not
   -- redistributed by the mod. When the user has run the installer, this
   -- live sprite seam selects it; otherwise the species records' original
   -- four-shade paths remain a zero-configuration fallback.
   local crystalAvailable = {}
+  local crystalShinyAvailable = {}
   for species, name in pairs(CRYSTAL_ASSETS) do
     local front = "assets/crystal/" .. name .. "_front.png"
     local back = "assets/crystal/" .. name .. "_back.png"
     crystalAvailable[species] =
       mod:read(front) ~= nil and mod:read(back) ~= nil
+    crystalShinyAvailable[species] =
+      mod:read("assets/crystal/" .. name .. "_front_shiny.png") ~= nil
+      and mod:read("assets/crystal/" .. name .. "_back_shiny.png") ~= nil
   end
   mod.exports.crystalSprites = crystalAvailable
+  mod.exports.crystalShinySprites = crystalShinyAvailable
   mod.hooks:wrap("pokemon.sprite", function(nextSprite, path, ctx)
+    if shinySystem then shinySystem.prepareSprite(ctx) end
     path = nextSprite(path, ctx)
     local name = ctx and CRYSTAL_ASSETS[ctx.species]
     if mod.options:get("legend_art") ~= "crystal"
         or not name or not crystalAvailable[ctx.species] then
-      return path
+      return shinySystem and shinySystem.spritePath(path, ctx) or path
     end
     -- Pokémon Database's Crystal PNGs carry their own limited GBC palette.
     -- Opt them out of Gen1's four-shade/SGB recolor; the original fallback
     -- remains palette-aware.
     ctx.trueColor = true
-    return mod.path .. "/assets/crystal/" .. name .. "_"
-      .. (ctx.side == "back" and "back" or "front") .. ".png"
+    local selectedSide = ctx.side == "back" and "back" or "front"
+    -- Dramatic Shape asks the normal back-sprite route, then replaces its
+    -- answer with the species' front path so both battlers face the voxel
+    -- camera. Preserve that decision instead of forcing the Crystal back
+    -- sprite over it.
+    local def = ctx.data and ctx.data.pokemon
+      and ctx.data.pokemon[ctx.species]
+    if selectedSide == "back" and def and path == def.spriteFront then
+      selectedSide = "front"
+    end
+    local shiny = shinySystem and shinySystem.isShiny(ctx.mon)
+      and crystalShinyAvailable[ctx.species]
+    local relative = "assets/crystal/" .. name .. "_"
+      .. selectedSide .. (shiny and "_shiny" or "") .. ".png"
+    return spriteAssets.crystal(relative)
+      or (mod.path .. "/" .. relative)
   end, 100)
 
   mod.exports.resolveLine = localizedLine
@@ -406,9 +578,22 @@ return function(mod)
     maxLevelBoost = MAX_LEVEL_BOOST,
   }
 
-  local function stepClock()
+  -- `step_clock` is the literal number of tiles walked. Systems such as
+  -- friendship, eggs and world events must never observe Training Rush's
+  -- trainer-only bonus. `trainer_step_clock` is the accelerated timeline
+  -- used exclusively by field-trainer recovery and silent growth.
+  local function playerStepClock()
     return math.max(0, math.floor(tonumber(mod.save:get("step_clock", 0)) or 0))
   end
+
+  local function stepClock()
+    local clock = mod.save:get("trainer_step_clock")
+    if clock == nil then return playerStepClock() end
+    return math.max(0, math.floor(tonumber(clock) or 0))
+  end
+
+  mod.exports.playerStepClock = playerStepClock
+  mod.exports.trainerStepClock = stepClock
 
   local function trainerStates()
     local states = mod.save:get("trainers")
@@ -419,15 +604,110 @@ return function(mod)
     return states
   end
 
+  local makeWorldEvents = loadSibling(mod, "world_events.lua")
+  local worldEvents = makeWorldEvents(mod, {
+    postgame = postgame,
+    i18n = i18n,
+    johtoResearch = johtoResearch,
+  })
+  shinySystem.setWorldEvents(worldEvents)
+  mod.exports.worldEvents = worldEvents
+
   ascendant = makeAscendant(mod, postgameData, {
     data = ascendantData,
     postgame = postgame,
     i18n = i18n,
     trainerStates = trainerStates,
+    eventArchive = eventArchive,
+    johtoResearch = johtoResearch,
+    worldEvents = worldEvents,
+    kantoCompletion = kantoCompletion,
   })
+  eventArchive.setAscendant(ascendant)
   postgame.extension = ascendant
   mod.exports.ascendant = ascendant
   mod.exports.ascendantData = ascendantData
+
+  local makeFrontierExchange = loadSibling(mod, "frontier_exchange.lua")
+  local frontierExchange = makeFrontierExchange(mod, {
+    i18n = i18n,
+    postgame = postgame,
+    wallet = ascendant,
+    johtoResearch = johtoResearch,
+    fieldTech = fieldTech,
+  })
+  daycare.setFrontierExchange(frontierExchange)
+  mod.exports.frontierExchange = frontierExchange
+
+  local johtoMastersData = loadSibling(mod, "johto_masters_data.lua")
+  local makeJohtoMasters = loadSibling(mod, "johto_masters.lua")
+  local johtoMasters = makeJohtoMasters(mod, {
+    data = johtoMastersData,
+    postgame = postgame,
+    ascendant = ascendant,
+    shinySystem = shinySystem,
+    i18n = i18n,
+  })
+  ascendant.setJohtoMasters(johtoMasters)
+  mod.exports.johtoMasters = johtoMasters
+  mod.exports.johtoMastersData = johtoMastersData
+
+  local makeDexProgress = loadSibling(mod, "dex_progress.lua")
+  local dexProgress = makeDexProgress(mod, {
+    i18n = i18n,
+    postgame = postgame,
+    johtoData = johtoData,
+    shinySystem = shinySystem,
+    ascendant = ascendant,
+  })
+  mod.exports.dexProgress = dexProgress
+
+  local makeResearchAtlas = loadSibling(mod, "research_atlas.lua")
+  local researchAtlas = makeResearchAtlas(mod, {
+    i18n = i18n,
+    postgame = postgame,
+    ascendant = ascendant,
+    ascendantData = ascendantData,
+    fieldTech = fieldTech,
+    kantoCompletion = kantoCompletion,
+    johtoResearch = johtoResearch,
+    lootBands = loot.bands,
+    trainerStates = trainerStates,
+    stepClock = stepClock,
+  })
+  mod.exports.researchAtlas = researchAtlas
+
+  local grandTourData = loadSibling(mod, "grand_tour_data.lua")
+  local makeGrandTour = loadSibling(mod, "grand_tour.lua")
+  local grandTour = makeGrandTour(mod, {
+    data = grandTourData,
+    postgame = postgame,
+    i18n = i18n,
+    stepClock = playerStepClock,
+    awardFrontierPoints = function(amount)
+      local multiplier = worldEvents and worldEvents.frontierMultiplier
+        and worldEvents.frontierMultiplier() or 1
+      return ascendant.addFrontierPoints(
+        math.max(0, math.floor(tonumber(amount) or 0))
+          * math.max(1, math.floor(tonumber(multiplier) or 1)))
+    end,
+    unlockTitle = function(id)
+      return ascendant.unlockAchievement(id)
+    end,
+  })
+  mod.exports.grandTour = grandTour
+  mod.exports.grandTourData = grandTourData
+
+  local makeLegacyHall = loadSibling(mod, "legacy_hall.lua")
+  local legacyHall = makeLegacyHall(mod, {
+    i18n = i18n,
+    postgame = postgame,
+    ascendant = ascendant,
+    ascendantData = ascendantData,
+    johtoMasters = johtoMasters,
+    grandTour = grandTour,
+  })
+  mod.exports.legacyHall = legacyHall
 
   local function trainerKey(overworld, npc)
     if npc and npc.id then return tostring(npc.id) end
@@ -516,6 +796,27 @@ return function(mod)
       settleTraining(state, deps)
     end
   end
+
+  local function migrateRestTimers(deps)
+    if tonumber(mod.save:get("rest_range_version", 0)) >= 2 then return end
+    local clock = stepClock()
+    for _, state in pairs(trainerStates()) do
+      local lastRest = tonumber(state.lastRest)
+      if state.readyAt and state.readyAt > clock
+          and lastRest and lastRest >= 1 and lastRest <= 256 then
+        local duration = rollConfiguredRest(deps)
+        state.readyAt = clock + duration
+        state.lastRest = duration
+        scheduleNextTraining(state, state.readyAt, deps)
+      elseif state.readyAt and state.readyAt <= clock
+          and tonumber(state.lastTraining)
+          and tonumber(state.lastTraining) <= 256 then
+        scheduleNextTraining(state, clock, deps)
+      end
+    end
+    mod.save:set("rest_range_version", 2)
+  end
+  mod.exports.migrateRestTimers = migrateRestTimers
 
   local function remainingSteps(key)
     local state = stateFor(key, false)
@@ -694,10 +995,6 @@ return function(mod)
       masterUnlocked = masterBallUnlocked(),
       expAllAvailable = expAllAvailable(game),
     })
-    if not itemId and mode == "balanced" and ascendant then
-      itemId = ascendant.rankBonusLoot(
-        roll, battle.rematchRank, averageLevel)
-    end
     if not itemId or not (game.data.items and game.data.items[itemId]) then
       return nil
     end
@@ -730,6 +1027,7 @@ return function(mod)
   mod.exports.remainingSteps = remainingSteps
   mod.exports.trainingCycles = trainingCycles
   mod.exports.trainerKey = trainerKey
+  mod.exports.trainerStates = trainerStates
 
   local function offerRematch(self, npc, game, deps)
     local d = npc.def
@@ -763,6 +1061,11 @@ return function(mod)
       local team = record and record.parties and record.parties[partyIndex]
       local key = trainerKey(self, npc)
       local state = stateFor(key, true)
+      -- 5.0's Research Atlas remembers only trainers the player has already
+      -- met.  These presentation fields do not affect the stable trainer key
+      -- or any old save's cooldown data.
+      state.mapId = self.map and self.map.id or state.mapId
+      state.trainerClass = d.trainerClass or state.trainerClass
       settleTraining(state, deps)
       local progress = state.rematches + state.trainingCycles
       local boost = nextLevelBoost(progress, levelGain())
@@ -777,6 +1080,9 @@ return function(mod)
         local header = game.data:trainerHeader(self.map.def.label, d.index)
         local wonText = header and header.won and game.data.text[header.won]
         local b = BattleState.newTrainer(game, d.trainerClass, partyIndex)
+        state.trainerName = b.trainer and b.trainer.name
+          or state.trainerName or d.name
+        state.lastTeamSize = #(b.enemyParty or {})
         b.rematch = true
         b.rematchTrainerKey = key
         b.rematchTrainerClass = d.trainerClass
@@ -801,8 +1107,17 @@ return function(mod)
           -- strength tier only after that rest has elapsed.
           state.rematches = math.max(0, math.floor(state.rematches or 0)) + 1
           scheduleRest(key, deps)
-          local reward = result == "win"
-            and awardRematchLoot(game, b, state, deps) or nil
+          local rewards = {}
+          local function addReward(text)
+            if text then rewards[#rewards + 1] = text end
+          end
+          if result == "win" then
+            addReward(fieldTech and fieldTech.afterRematch(game, b))
+            addReward(awardRematchLoot(game, b, state, deps))
+            addReward(johtoResearch.afterRematch(game, b))
+            addReward(shinySystem and shinySystem.afterRematch(game, b))
+          end
+          local reward = #rewards > 0 and table.concat(rewards, "\f") or nil
           self:afterBattle(result, b)
           if reward then
             game.stack:push(TextBox.new(game, reward, unfreeze))
@@ -855,7 +1170,22 @@ return function(mod)
     local Runtime = deps.runtime or require("src.mods.Runtime")
     local mapScripts = deps.mapScripts or require("data.scripts.init")
 
+    if megaEvolution then megaEvolution.install(game, deps) end
+    if kantoCompletion then kantoCompletion.install(game, deps) end
+    if fieldTech then fieldTech.install(game, deps) end
+    if frontierExchange then frontierExchange.install(game, deps) end
+    if daycare then daycare.install(game, deps) end
+    if shinySystem then shinySystem.install(game, deps) end
     if ascendant then ascendant.install(game, deps) end
+    if eventArchive then eventArchive.install(game, deps) end
+    if johtoResearch then johtoResearch.install(game, deps) end
+    if worldEvents then worldEvents.install(game, deps) end
+    if johtoMasters then johtoMasters.install(game, deps) end
+    if dexProgress then dexProgress.install(game, deps) end
+    if researchAtlas then researchAtlas.install(game, deps) end
+    if grandTour then grandTour.install(game, deps) end
+    if legacyHall then legacyHall.install(game, deps) end
+    if followerCompat then followerCompat.install(game) end
 
     -- one wrap per boot; hot reload re-runs entry chunks without clearing
     -- the require cache, so the module table is the idempotence sentinel
@@ -865,9 +1195,11 @@ return function(mod)
     local vanillaTalkTo = Overworld.talkTo
     Overworld.talkTo = function(self, npc)
       local d = npc.def
+      if daycare and daycare.handleTalk(self, npc, game) then return end
       -- Hall-of-Fame gym leaders are scripted in the base game, so the
       -- post-game controller gets first refusal before the generic/scripted
       -- split below.
+      if johtoResearch and johtoResearch.handleTalk(self, npc, game) then return end
       if ascendant and ascendant.handleTalk(self, npc, game) then return end
       if postgame and postgame.handleTalk(self, npc, game) then return end
       -- only the generic-trainer branch: scripted encounters (gym leaders,
@@ -881,6 +1213,10 @@ return function(mod)
         -- so such trainers never jump straight to an immediate rematch.
         if not stateFor(key, false) then scheduleRest(key, deps) end
         local trainerState = stateFor(key, true)
+        trainerState.mapId = self.map and self.map.id or trainerState.mapId
+        trainerState.trainerClass = d.trainerClass
+          or trainerState.trainerClass
+        trainerState.trainerName = trainerState.trainerName or d.name
         if trainerState.pendingLoot then
           npc.frozen = true
           npc:facePlayer(self.player)
@@ -958,15 +1294,25 @@ return function(mod)
   mod.exports.install = install
 
   mod.events:on("world.stepped", function()
-    mod.save:set("step_clock", stepClock() + 1)
+    local realClock = playerStepClock() + 1
+    local gain = 1 + (worldEvents and worldEvents.trainingStepBonus
+      and worldEvents.trainingStepBonus() or 0)
+    local trainerClock = stepClock() + gain
+    mod.save:set("step_clock", realClock)
+    mod.save:set("trainer_step_clock", trainerClock)
     settleAllTraining()
     if ascendant then ascendant.refreshRankMarkers() end
+    if worldEvents then worldEvents.onStep(nil, realClock) end
   end)
 
   -- game.ready runs before CONTINUE adopts the selected slot.  Seed old
   -- victories again after that slot becomes the live mod.save backing.
   mod.events:on("save.loaded", function(ev)
+    if mod.save:get("trainer_step_clock") == nil then
+      mod.save:set("trainer_step_clock", playerStepClock())
+    end
     seedDefeatedTrainers(ev.save)
+    migrateRestTimers()
   end)
 
   mod.events:on("game.ready", function(ev)

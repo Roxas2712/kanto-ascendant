@@ -17,6 +17,8 @@ T.neq(ex, nil, "exports reachable")
 -- ------------------------------------------------ optional Crystal art seam
 
 T.neq(ex.crystalSprites, nil, "Crystal availability is exported")
+T.neq(ex.crystalShinySprites, nil,
+  "Crystal shiny availability is exported independently")
 local RealRuntime = require("src.mods.Runtime")
 local crystalCtx = { species = "RAIKOU", side = "front", trueColor = false }
 local crystalPath = RealRuntime.call("pokemon.sprite",
@@ -29,6 +31,23 @@ else
   T.eq(crystalPath, "fallback_front.png",
     "missing Crystal art automatically uses the original fallback")
 end
+local crystalShinyMon = {
+  species = "RAIKOU",
+  dvs = { attack = 10, defense = 10, speed = 10, special = 10, hp = 0 },
+}
+local crystalShinyCtx = {
+  species = "RAIKOU", side = "front", trueColor = false,
+  mon = crystalShinyMon,
+}
+local crystalShinyPath = RealRuntime.call("pokemon.sprite",
+  function(path) return path end, "fallback_front.png", crystalShinyCtx)
+if ex.crystalShinySprites.RAIKOU then
+  T.eq(crystalShinyPath:find(
+      "assets/crystal/raikou_front_shiny.png", 1, true) ~= nil, true,
+    "a shiny Johto mon selects Crystal's real shiny sprite")
+  T.eq(crystalShinyCtx.trueColor, true,
+    "the official shiny Crystal palette is kept in true color")
+end
 run.loader.modOptions.trainer_rematch = { legend_art = "original" }
 local originalCtx = { species = "RAIKOU", side = "back", trueColor = false }
 local originalPath = RealRuntime.call("pokemon.sprite",
@@ -38,6 +57,20 @@ T.eq(originalPath, "fallback_back.png",
 T.eq(originalCtx.trueColor, false,
   "the original four-shade sprite stays palette-aware")
 run.loader.modOptions.trainer_rematch = nil
+T.neq(ex.spriteAssets, nil,
+  "sprite preparation for transparent battle and follower art is exported")
+T.same(ex.spriteAssets.followerOrder, { 4, 2, 0, 5, 3, 1 },
+  "PokeWilds poses map to Gen1 Recomp's down/up/side frame order")
+local voxelCtx = {
+  species = "RAIKOU", side = "back", trueColor = false,
+  data = { pokemon = { RAIKOU = { spriteFront = "voxel_front.png" } } },
+}
+local voxelPath = RealRuntime.call("pokemon.sprite",
+  function() return "voxel_front.png" end, "fallback_back.png", voxelCtx)
+if ex.crystalSprites.RAIKOU then
+  T.eq(voxelPath:find("assets/crystal/raikou_front.png", 1, true) ~= nil, true,
+    "voxel battles preserve Dramatic Shape's front-facing player sprite")
+end
 
 local optionRows = {}
 for _, row in ipairs(run.loader.optionSchemas.trainer_rematch or {}) do
@@ -49,8 +82,32 @@ T.eq(optionRows.team_growth.type, "toggle",
   "class-appropriate party recruitment can be switched off")
 T.eq(optionRows.loot_mode.type, "choice",
   "rare rematch loot has OFF, BALANCED and GENEROUS modes")
+T.eq(optionRows.rest_min.min, 151,
+  "the configurable rematch range starts at Kanto's full Pokédex count")
+T.eq(optionRows.rest_max.max, 2510,
+  "the configurable rematch range reaches the complete 251 roster times ten")
+T.eq(optionRows.kanto_151.type, "choice",
+  "all 151 Kanto species support reward, wild and off modes")
+T.eq(optionRows.kanto_151.default, "ascendant",
+  "Kanto completion defaults to authored rewards instead of random starters")
+T.eq(optionRows.kanto_151.label:find("RESTART", 1, true) ~= nil, true,
+  "the content-patching KANTO 151 option visibly warns that it needs a restart")
 T.eq(optionRows.legend_articuno.type, "choice",
   "Articuno has its own APEX/VANILLA/OFF option")
+T.eq(optionRows.shiny_hunts.type, "choice",
+  "shiny hunting can use Ascendant boosts or natural 1/8192 odds")
+T.eq(optionRows.shiny_effects.type, "toggle",
+  "built-in shiny presentation can be switched off")
+T.eq(optionRows.shiny_protection.type, "toggle",
+  "shiny Pokémon can be protected from accidental PC release")
+T.eq(optionRows.shiny_event.type, "toggle",
+  "the guaranteed red Gyarados event can be switched off")
+T.eq(optionRows.johto_time.type, "choice",
+  "Johto friendship branches can follow AUTO, DAY or NIGHT")
+T.eq(optionRows.mega_evolution.type, "toggle",
+  "official Mega Evolution can be disabled")
+T.eq(optionRows.mega_opponents.type, "choice",
+  "enemy Mega Evolution supports bosses, all trainers or off")
 T.eq(optionRows.legend_mewtwo.type, "choice",
   "Mewtwo has its own APEX/VANILLA/OFF option")
 T.eq(optionRows.legend_raikou.type, "toggle",
@@ -59,12 +116,419 @@ T.eq(optionRows.legend_celebi.type, "toggle",
   "Celebi can be enabled or disabled independently")
 T.eq(optionRows.legend_mew.type, "toggle",
   "Mew can be enabled or disabled independently")
+T.eq(optionRows.mew_profile.type, "choice",
+  "Mew can use either its Ascendant or historical distribution profile")
+T.eq(optionRows.event_mode.type, "choice",
+  "Heritage events can run as cups, roaming hunts or be disabled")
+T.eq(optionRows.event_flying_pikachu.type, "toggle",
+  "Flying Pikachu can be disabled independently")
+T.eq(optionRows.event_rosette.type, "toggle",
+  "the in-battle event rosette is optional")
 T.eq(optionRows.rocket_story.type, "toggle",
   "Rocket Resurgence can be disabled independently")
 T.eq(optionRows.grand_tournament.type, "toggle",
   "the Grand Tournament can be disabled independently")
 T.eq(optionRows.ascendant_rules.type, "choice",
   "New Game Plus challenge rules can be relaxed")
+
+-- ------------------------------------------------ tidy Ascendant submenu
+
+;(function()
+local ascendantMenu = ex.ascendantMenu
+T.neq(ascendantMenu, nil,
+  "the centralized Ascendant Start-menu gateway is exported")
+local keptRows, groupedRows = ascendantMenu.collect({
+  { label = "ITEM" },
+  {
+    label = "MEGA", ascendantMenu = true,
+    ascendantLabel = "MEGA STONES", ascendantOrder = 70,
+  },
+  {
+    label = "JOURNAL", ascendantMenu = true,
+    ascendantLabel = "JOURNAL", ascendantOrder = 10,
+  },
+  { label = "SAVE" },
+})
+T.eq(#keptRows, 2,
+  "the collector preserves ordinary Start-menu rows")
+T.eq(keptRows[1].label, "ITEM",
+  "ordinary Start-menu row order remains unchanged")
+T.eq(keptRows[2].label, "SAVE",
+  "the vanilla SAVE anchor remains present")
+T.eq(#groupedRows, 2,
+  "only explicitly marked Ascendant rows enter the submenu")
+T.eq(groupedRows[1].label, "JOURNAL",
+  "Ascendant utilities use their intentional logical order")
+T.eq(groupedRows[2].label, "MEGA STONES",
+  "the submenu can use a clearer label than the compact old Start row")
+
+local menuOwned = {}
+for id, def in pairs(Data.pokemon) do
+  if def.dex and def.dex <= 150 then menuOwned[id] = true end
+end
+local pushedAscendantMenu
+local menuGame = {
+  data = Data,
+  save = {
+    flags = { EVENT_BEAT_CHAMPION_RIVAL = true },
+    hallOfFame = { {} },
+    pokedex = { seen = menuOwned, owned = menuOwned },
+    inventory = {}, bagOrder = {}, party = {},
+    player = { name = "RED" }, options = {},
+  },
+  stack = {
+    push = function(_, screen) pushedAscendantMenu = screen end,
+  },
+}
+local megaMenuState = ex.megaEvolution.state()
+local priorMegaRing = megaMenuState.ring
+megaMenuState.ring = true
+local topRows = RealRuntime.call("ui.start_menu.items",
+  function(_, rows) return rows end, menuGame, {
+    { label = "POKéMON" },
+    { label = "ITEM" },
+    { label = "SAVE" },
+    { label = "OPTION" },
+  })
+megaMenuState.ring = priorMegaRing
+local ascendantRow, ascendantRows = nil, 0
+local leakedRows = {
+  JOURNAL = true, WORLD = true, WELT = true, JOHTO = true,
+  SHINY = true, EVENTS = true, ["CERT."] = true, ZERT = true, MEGA = true,
+}
+for _, row in ipairs(topRows) do
+  if row.label == "ASCENDANT" then
+    ascendantRow, ascendantRows = row, ascendantRows + 1
+  end
+  T.eq(leakedRows[row.label], nil,
+    row.label .. " does not leak back into the tidy Start menu")
+end
+T.eq(ascendantRows, 1,
+  "all unlocked utilities produce exactly one ASCENDANT Start row")
+T.neq(ascendantRow, nil, "the ASCENDANT Start row is reachable")
+ascendantRow.onSelect()
+T.neq(pushedAscendantMenu, nil,
+  "selecting ASCENDANT opens the dedicated utility list")
+T.eq(pushedAscendantMenu.title, "KANTO ASCENDANT",
+  "the utility list carries the expansion's full title")
+T.eq(#pushedAscendantMenu.items, 8,
+  "the fixture exposes every utility whose content is available")
+T.same((function()
+  local labels = {}
+  for _, row in ipairs(pushedAscendantMenu.items) do
+    labels[#labels + 1] = row.label
+  end
+  return labels
+end)(), {
+  "RESEARCH ATLAS", "JOURNAL", "WORLD STATUS", "SHINY DEX",
+  "EVENT ARCHIVE", "MEGA STONES", "FRONTIER EXCHANGE",
+  "TITLES / TROPHIES",
+}, "available Ascendant utilities are clear and consistently ordered")
+end)()
+
+-- ------------------------------------------------ Route 5 Day-Care Plus
+
+local daycare = ex.daycare
+T.neq(daycare, nil, "the full Route 5 Day-Care controller is exported")
+T.eq(#ex.breedingData, 251,
+  "canonical breeding metadata covers every Kanto and Johto species")
+T.eq(ex.breedingData[25].gender, 4,
+  "Pikachu uses the canonical half-female Attack-DV threshold")
+T.eq(ex.breedingData[150].groups[1], "no-eggs",
+  "Mewtwo belongs to the unbreedable egg group")
+local breedingGame = { data = { pokemon = {
+  PICHU = { dex = 172, evolutions = { { species = "PIKACHU" } } },
+  PIKACHU = { dex = 25, evolutions = { { species = "RAICHU" } } },
+  RAICHU = { dex = 26, evolutions = {} },
+  MEWTWO = { dex = 150, evolutions = {} },
+  DITTO = { dex = 132, evolutions = {} },
+} } }
+local femalePikachu = { species = "PIKACHU", dvs = { attack = 7 } }
+local malePikachu = { species = "PIKACHU", dvs = { attack = 9 } }
+local compatible, eggChance = daycare.compatible(
+  breedingGame, femalePikachu, malePikachu)
+T.eq(compatible, true, "opposite-gender compatible parents can produce eggs")
+T.eq(eggChance, 70, "same-species parents receive the best egg chance")
+local legendaryCompatible = daycare.compatible(breedingGame,
+  { species = "MEWTWO", dvs = { attack = 8 } },
+  { species = "DITTO", dvs = { attack = 9 } })
+T.eq(legendaryCompatible, false, "legendary Pokémon cannot breed")
+T.eq(daycare.babyFor(breedingGame, "RAICHU"), "PICHU",
+  "the evolution graph resolves Raichu eggs to Pichu")
+local shinySystem = ex.shinySystem
+T.neq(shinySystem, nil,
+  "the self-contained Generation-II shiny controller is exported")
+T.eq(shinySystem.isShiny(crystalShinyMon), true,
+  "Defense/Speed/Special 10 plus a valid Attack DV is shiny")
+T.eq(shinySystem.isShiny({
+  dvs = { attack = 10, defense = 9, speed = 10, special = 10 },
+}), false, "near-miss DV combinations are not shiny")
+local femaleShinyParent = {
+  species = "PIKACHU",
+  dvs = { attack = 7, defense = 10, speed = 10, special = 10, hp = 0 },
+}
+local maleParent = {
+  species = "PIKACHU",
+  dvs = { attack = 9, defense = 4, speed = 4, special = 4, hp = 0 },
+}
+local inheritedRolls = { 10, 3, 10, 10 }
+local inheritedIndex = 0
+local inherited = daycare.inheritedDVs(
+  breedingGame, "PIKACHU", femaleShinyParent, maleParent, function()
+    inheritedIndex = inheritedIndex + 1
+    return inheritedRolls[inheritedIndex]
+  end)
+T.eq(inherited.defense, 10,
+  "a male Gen-II egg inherits Defense from its female parent")
+T.eq(inherited.special, 10,
+  "a Gen-II egg inherits the donor's low three Special-DV bits")
+T.eq(shinySystem.isShiny({ dvs = inherited }), true,
+  "canonical inherited DVs can produce the authentic 1/64 shiny result")
+local dittoShiny = {
+  species = "DITTO",
+  dvs = { attack = 10, defense = 10, speed = 10, special = 10, hp = 0 },
+}
+local tooSimilar, _ = daycare.compatible(
+  breedingGame, femaleShinyParent, dittoShiny)
+T.eq(tooSimilar, false,
+  "Crystal's matching Defense/Special-DV rule also applies to Ditto")
+T.eq(daycare.reserveEgg("TOGEPI", 1024, "TEST RESEARCH", "TOGEPI"), true,
+  "research eggs can be reserved at Route 5")
+local reservedSpecies, reservedSteps, reservedLocation =
+  daycare.researchEggStatus({ save = { party = {} } })
+T.eq(reservedSpecies, "TOGEPI", "reserved research egg retains its species")
+T.eq(reservedSteps, 1024, "reserved research egg retains its hatch distance")
+T.eq(reservedLocation, "reserved", "research egg reports the Day-Care location")
+
+-- ------------------------------------------------ official Mega Evolution
+
+local mega = ex.megaEvolution
+T.neq(mega, nil, "the official-species Mega controller is exported")
+T.eq(#mega.forms, 30,
+  "the Kanto/Johto roster contains the 30 official forms available by July 2026")
+local megaSpeciesCount = 0
+for _ in pairs(mega.formsBySpecies) do megaSpeciesCount = megaSpeciesCount + 1 end
+T.eq(megaSpeciesCount, 27,
+  "the official forms belong to exactly 27 of the first 251 species")
+T.eq(mega.formsBySpecies.PIKACHU, nil,
+  "Pikachu has no invented Mega Evolution")
+T.eq(#mega.formsBySpecies.CHARIZARD, 2,
+  "Charizard has distinct X and Y stone profiles")
+T.eq(#mega.formsBySpecies.MEWTWO, 2,
+  "Mewtwo has distinct X and Y stone profiles")
+T.eq(#mega.formsBySpecies.RAICHU, 2,
+  "Raichu has distinct official X and Y stone profiles")
+local xProfile = mega.formsBySpecies.RAICHU[1]
+local yProfile = mega.formsBySpecies.RAICHU[2]
+local xBonuses = xProfile.bonuses
+T.eq(xBonuses.attack > xBonuses.special, true,
+  "Mega Raichu X favors physical power")
+local yBonuses = yProfile.bonuses
+T.eq(yBonuses.speed > yBonuses.defense, true,
+  "Mega Raichu Y favors speed")
+T.eq(xProfile.stone, "RAICHUNITE_X",
+  "Mega Raichu X requires its own stone")
+T.eq(yProfile.stone, "RAICHUNITE_Y",
+  "Mega Raichu Y requires a different stone")
+T.eq(mega.stoneName(xProfile), "RAICHUNITE X",
+  "Mega Stone display names never expose internal underscore IDs")
+T.eq(mega.caseLabel(mega.formsBySpecies.CHARIZARD[1]), "CHARIZARD X",
+  "the compact Stone Case label preserves X/Y form identity")
+T.eq(#mega.caseLabel(mega.formsBySpecies.KANGASKHAN[1]) <= 13, true,
+  "the longest Stone Case species label fits the Gen-1 menu")
+local seenMegaStones = {}
+for _, profile in ipairs(mega.forms) do
+  local total = profile.bonuses.attack + profile.bonuses.defense
+    + profile.bonuses.speed + profile.bonuses.special
+  T.eq(total, 100, profile.id .. " adapts exactly +100 points to Gen 1")
+  T.eq(seenMegaStones[profile.stone], nil,
+    profile.stone .. " belongs to only one Mega form")
+  seenMegaStones[profile.stone] = true
+end
+local boosted = mega.boostedStats({
+  mon = { species = "RAICHU", level = 100,
+    stats = { hp = 200, attack = 100, defense = 100, speed = 100, special = 100 } },
+  curStats = { hp = 200, attack = 100, defense = 100, speed = 100, special = 100 },
+}, xProfile)
+T.eq(boosted.hp, 200, "Mega Evolution never changes HP")
+T.eq(boosted.attack, 180,
+  "level-100 Mega Raichu X receives its formula-correct Attack boost")
+local megaCtx = {
+  species = "RAICHU", side = "front", trueColor = false,
+  mon = { species = "RAICHU", _ascMegaForm = "RAICHU_X" },
+}
+local megaPath = RealRuntime.call("pokemon.sprite",
+  function(path) return path end, "raichu_fallback.png", megaCtx)
+T.eq(megaPath:find("assets/mega/mega_raichu_x_front.png", 1, true) ~= nil,
+  true, "Mega Raichu X selects its original four-shade front sprite")
+T.eq(megaCtx.trueColor, false,
+  "Mega sprites remain compatible with Gen-1 palettes")
+
+-- ------------------------------------------------ complete Johto catalogue
+
+local johto = ex.johtoData
+T.neq(johto, nil, "the Johto catalogue is exported")
+T.eq(#johto.order, 100, "the complete Johto dex contains 100 species")
+T.eq(johto.species.CHIKORITA.dex, 152,
+  "Chikorita opens the canonical Johto dex at 152")
+T.eq(johto.species.RAIKOU.dex, 243,
+  "Raikou uses its canonical full-dex number")
+T.eq(johto.species.HO_OH.dex, 250,
+  "Ho-Oh uses its canonical full-dex number")
+T.eq(johto.species.CELEBI.dex, 251,
+  "Celebi closes the canonical full dex at 251")
+local johtoDex, johtoIds = {}, {}
+for _, id in ipairs(johto.order) do
+  T.eq(johtoIds[id], nil, id .. " appears once in the species order")
+  T.eq(johtoDex[johto.species[id].dex], nil,
+    tostring(johto.species[id].dex) .. " is a unique dex number")
+  johtoIds[id] = true
+  johtoDex[johto.species[id].dex] = true
+end
+T.eq(johto.evolutions.CHIKORITA[1][2], "BAYLEEF",
+  "starter evolution chains are recorded")
+T.eq(johto.kantoEvolutions.EEVEE[1][1], "FRIENDSHIP_DAY",
+  "Espeon uses the daytime friendship branch")
+T.eq(johto.kantoEvolutions.EEVEE[2][1], "FRIENDSHIP_NIGHT",
+  "Umbreon uses the nighttime friendship branch")
+T.eq(johto.kantoEvolutions.SCYTHER[1][3], "METAL_COAT",
+  "Scizor uses Elm's Metal Coat machine")
+T.eq(#johto.rewards, 40,
+  "forty non-duplicate Johto family rewards fill themed rematches")
+T.eq(#johto.eggs, 8, "all eight Generation-II baby lines hatch from eggs")
+local eeveePartners = 0
+for _, row in ipairs(johto.partnerMilestones) do
+  if row.species == "EEVEE" then eeveePartners = eeveePartners + 1 end
+end
+T.eq(eeveePartners, 2,
+  "Elm supplies two Eevee so both friendship branches are obtainable")
+T.eq(johto.finalReward, "LARVITAR",
+  "Larvitar is reserved for completing every research track")
+T.eq(johto.partyIcons.RAIKOU, "QUADRUPED",
+  "Raikou uses the standard animated quadruped party icon")
+T.eq(johto.partyIcons.ENTEI, "QUADRUPED",
+  "Entei uses the standard animated quadruped party icon")
+T.eq(johto.partyIcons.SUICUNE, "QUADRUPED",
+  "Suicune uses the standard animated quadruped party icon")
+T.eq(johto.partyIcons.LUGIA, "BIRD",
+  "Lugia uses the standard animated bird party icon")
+T.eq(johto.partyIcons.HO_OH, "BIRD",
+  "Ho-Oh uses the standard animated bird party icon")
+T.eq(johto.partyIcons.CELEBI, "FAIRY",
+  "Celebi uses the standard animated Mew-like party icon")
+
+;(function()
+local johtoDexTexts, johtoLearnProfiles, johtoTmProfiles = {}, {}, {}
+for _, id in ipairs(johto.order) do
+  local def = johto.species[id]
+  T.eq(type(def.level1), "table",
+    id .. " has a species-authentic starting move set")
+  T.eq(type(def.learnset), "table",
+    id .. " has an explicit Crystal-shaped level-up plan")
+  T.eq(type(def.tmhm), "table",
+    id .. " has an explicit TM/HM compatibility profile")
+  T.eq(type(def.dexEntry), "table",
+    id .. " has individual bilingual Pokédex metadata")
+  T.eq(type(def.dexEntry.kindEn), "string",
+    id .. " has an English Pokédex classification")
+  T.eq(type(def.dexEntry.kindDe), "string",
+    id .. " has a German Pokédex classification")
+  T.eq(def.dexEntry.heightM > 0, true,
+    id .. " has its canonical nonzero metric height")
+  T.eq(type(def.dexEntry.textEn), "string",
+    id .. " has an individual English field-guide entry")
+  T.eq(type(def.dexEntry.textDe), "string",
+    id .. " has an individual German field-guide entry")
+  T.eq(johtoDexTexts[def.dexEntry.textEn], nil,
+    id .. " does not reuse another species' English Dex placeholder")
+  johtoDexTexts[def.dexEntry.textEn] = id
+  local learnSignature = table.concat(def.level1, ",")
+  for _, row in ipairs(def.learnset) do
+    learnSignature = learnSignature .. ";" .. row.level .. ":" .. row.move
+  end
+  johtoLearnProfiles[learnSignature] = true
+  johtoTmProfiles[table.concat(def.tmhm, ",")] = true
+end
+local distinctLearnProfiles, distinctTmProfiles = 0, 0
+for _ in pairs(johtoLearnProfiles) do distinctLearnProfiles = distinctLearnProfiles + 1 end
+for _ in pairs(johtoTmProfiles) do distinctTmProfiles = distinctTmProfiles + 1 end
+T.eq(distinctLearnProfiles >= 60, true,
+  "Johto no longer collapses into one generic learn plan per primary type")
+T.eq(distinctTmProfiles >= 35, true,
+  "Johto families receive varied TM/HM compatibility instead of the same ten TMs")
+T.eq(johto.species.CHIKORITA.learnset[1].move, "RAZOR_LEAF",
+  "Chikorita begins its Crystal-shaped line with Razor Leaf")
+T.eq(johto.species.SCIZOR.learnset[2].move, "METAL_CLAW",
+  "Scizor learns a defining implemented Steel move")
+T.eq(johto.species.HOUNDOOM.learnset[4].move, "CRUNCH",
+  "Houndoom's line keeps its defining Dark progression")
+T.eq(johto.species.STEELIX.dexEntry.heightM, 9.2,
+  "Steelix uses its canonical 9.2-meter Pokédex height")
+T.eq(johto.species.LUGIA.dexEntry.kindDe, "TAUCHER",
+  "legendary Pokédex classifications are localized too")
+
+local johtoResearch = ex.johtoResearch
+T.neq(johtoResearch, nil, "Elm's living-habitat research API is exported")
+T.eq(johtoResearch.state().version, 2,
+  "existing Johto research saves migrate in place to living habitats")
+local blankResearch = {
+  starters = {}, rewards = {}, eggsQueued = {}, eggsHatched = {},
+}
+T.eq(johtoResearch.starterTrialsComplete(blankResearch), false,
+  "starter-trial status is queryable without exposing any Dex entry")
+T.eq(johtoResearch.finaleUnlocked(blankResearch), false,
+  "the Larvitar finale begins locked")
+T.eq(johtoResearch.itemUnlocked("SUN_STONE", {
+    itemsClaimed = { ["3:SUN_STONE"] = true },
+  }), true,
+  "the Frontier Exchange can query an earned evolution item cleanly")
+T.eq(johtoResearch.itemUnlocked("KINGS_ROCK", {
+    itemsClaimed = { ["3:SUN_STONE"] = true },
+  }), false,
+  "a later evolution item remains locked until its own milestone")
+T.eq(johtoResearch.isSpeciesResearched("SKARMORY", blankResearch), false,
+  "seeing a mapped Johto species elsewhere cannot bypass Elm's research gate")
+T.eq(#johtoResearch.habitatCandidates("ROUTE_1", "grass", blankResearch), 0,
+  "an unrevealed Johto family cannot leak into a wild encounter")
+local livingResearch = {
+  starters = { chikorita = true, cyndaquil = true, totodile = true },
+  rewards = { SENTRET = true, HOUNDOUR = true },
+  eggsQueued = {}, eggsHatched = {}, finalReward = true,
+}
+T.eq(johtoResearch.starterTrialsComplete(livingResearch), true,
+  "all three completed starter trials are exposed as one clean status")
+T.eq(johtoResearch.isSpeciesResearched("FURRET", livingResearch), true,
+  "research status follows a revealed specimen through its evolution family")
+T.eq(johtoResearch.isSpeciesResearched("TYRANITAR", livingResearch), true,
+  "the finale status covers Larvitar's complete evolution family")
+local routeOneHabitats =
+  johtoResearch.habitatCandidates("ROUTE_1", "grass", livingResearch)
+T.eq(#routeOneHabitats, 1,
+  "a researched family establishes one permanent thematic habitat")
+T.eq(routeOneHabitats[1].species, "SENTRET",
+  "Route 1 becomes Sentret habitat only after its research reward")
+T.eq(johtoResearch.habitatFor("LARVITAR").map, "VICTORY_ROAD_3F",
+  "Larvitar's post-finale habitat is the deepest Victory Road floor")
+end)()
+
+local followerCompat = ex.followerCompat
+T.neq(followerCompat, nil,
+  "Johto follower compatibility is exported")
+T.eq(followerCompat.proxySpecies("TYRANITAR", Data), "RHYDON",
+  "Tyranitar uses a sturdy existing follower sheet instead of crashing")
+T.eq(followerCompat.proxySpecies("LUGIA", Data), "ARTICUNO",
+  "Lugia uses the standard legendary-bird follower silhouette")
+T.eq(followerCompat.proxySpecies("CELEBI", Data), "MEW",
+  "Celebi uses the small Mew-like follower silhouette")
+local missingFollowerProxy = {}
+for _, id in ipairs(johto.order) do
+  local proxy = followerCompat.proxySpecies(id, Data)
+  if type(proxy) ~= "string" or proxy == "" then
+    missingFollowerProxy[#missingFollowerProxy + 1] = id
+  end
+end
+T.eq(#missingFollowerProxy, 0,
+  "every Johto species has a safe 2D/voxel follower fallback")
 
 -- ------------------------------------------------ pure line resolution
 
@@ -114,15 +578,17 @@ T.eq(ex.isPrizeLine(123), false, "non-string texts pass")
 
 -- ------------------------------------------------ rest + growth rules
 
-T.eq(ex.rollRestSteps(function(lo) return lo end, 128, 256), 128,
+T.eq(ex.rollRestSteps(function(lo) return lo end, 151, 2510), 151,
   "rest roll includes the lower bound")
-T.eq(ex.rollRestSteps(function(_, hi) return hi end, 128, 256), 256,
+T.eq(ex.rollRestSteps(function(_, hi) return hi end, 151, 2510), 2510,
   "rest roll includes the upper bound")
-T.eq(ex.rollRestSteps(function(lo) return lo end, 256, 128), 128,
+T.eq(ex.rollRestSteps(function(lo) return lo end, 2510, 151), 151,
   "an inverted option range is normalized")
+T.eq(ex.rollRestSteps(function(_, hi) return hi end, 128, 256), 2510,
+  "untouched legacy defaults migrate to the expanded range")
 T.eq(ex.restLine(1):find("1 more step.", 1, true) ~= nil, true,
   "one remaining step uses singular dialogue")
-T.eq(ex.restLine(128):find("128 more steps.", 1, true) ~= nil, true,
+T.eq(ex.restLine(2510):find("2510 more steps.", 1, true) ~= nil, true,
   "rest dialogue tells the player exactly how long is left")
 T.eq(ex.nextLevelBoost(0, 2), 2, "the first rematch is two levels stronger")
 T.eq(ex.nextLevelBoost(1, 2), 4, "the second rematch grows again")
@@ -180,44 +646,47 @@ T.eq(ex.lootForRoll(1, "balanced",
   "the Master Ball also requires a genuinely high-level rematch")
 T.eq(ex.lootForRoll(101, "balanced",
   { averageLevel = 40, expAllAvailable = true }), "EXP_ALL",
-  "the functional EXP.ALL/EP-Teiler starts its 20-percent balanced band")
-T.eq(ex.lootForRoll(2100, "balanced",
+  "the functional EXP.ALL/EP-Teiler starts its five-percent balanced band")
+T.eq(ex.lootForRoll(600, "balanced",
   { averageLevel = 40, expAllAvailable = true }), "EXP_ALL",
-  "the functional EXP.ALL/EP-Teiler fills its 20-percent balanced band")
+  "the functional EXP.ALL/EP-Teiler fills its five-percent balanced band")
 T.eq(ex.lootForRoll(101, "balanced",
   { averageLevel = 40, expAllAvailable = false }), nil,
   "EXP.ALL can only drop once")
 T.eq(ex.lootForRoll(101, "balanced",
   { averageLevel = 39, expAllAvailable = true }), nil,
   "EXP.ALL waits for a level-40 rematch")
-T.eq(ex.lootForRoll(2101, "balanced",
+T.eq(ex.lootForRoll(601, "balanced",
   { averageLevel = 20 }), "RARE_CANDY",
-  "level-20 rematches can drop Rare Candy")
-T.eq(ex.lootForRoll(3601, "balanced",
+  "Rare Candy starts its five-percent balanced band")
+T.eq(ex.lootForRoll(1101, "balanced",
   { averageLevel = 35 }), "PP_UP",
   "level-35 rematches can drop PP Up")
-T.eq(ex.lootForRoll(4601, "balanced",
+T.eq(ex.lootForRoll(2101, "balanced",
   { averageLevel = 50 }), "MAX_REVIVE",
   "level-50 rematches can drop Max Revive")
-T.eq(ex.lootForRoll(5401, "balanced", { averageLevel = 1 }), "NUGGET",
-  "every rematch tier can drop a Nugget")
-T.eq(ex.lootForRoll(7401, "balanced",
+T.eq(ex.lootForRoll(2901, "balanced", { averageLevel = 1 }), "NUGGET",
+  "Nugget starts its fifteen-percent balanced band")
+T.eq(ex.lootForRoll(4401, "balanced",
   { averageLevel = 100, masterUnlocked = true, expAllAvailable = true }), nil,
-  "balanced loot keeps a 26-percent no-drop range at full eligibility")
+  "balanced loot keeps the removed percentages as no-drop results")
 T.eq(ex.lootForRoll(200, "generous",
   { averageLevel = 100, masterUnlocked = true }), "MASTER_BALL",
   "GENEROUS mode gives the Master Ball its full two-percent band")
 T.eq(ex.lootForRoll(201, "generous",
   { averageLevel = 40, expAllAvailable = true }), "EXP_ALL",
-  "GENEROUS mode gives EXP.ALL a 25-percent band")
-T.eq(ex.lootForRoll(2701, "generous", { averageLevel = 20 }), "RARE_CANDY",
-  "GENEROUS mode raises the Rare Candy band")
-T.eq(ex.lootForRoll(4701, "generous", { averageLevel = 35 }), "PP_UP",
-  "GENEROUS mode raises the PP Up band")
-T.eq(ex.lootForRoll(6201, "generous", { averageLevel = 50 }), "MAX_REVIVE",
-  "GENEROUS mode raises the Max Revive band")
-T.eq(ex.lootForRoll(7401, "generous", { averageLevel = 1 }), "NUGGET",
-  "GENEROUS mode fills the remaining eligible table with Nuggets")
+  "GENEROUS mode also keeps EXP.ALL at five percent")
+T.eq(ex.lootForRoll(701, "generous", { averageLevel = 20 }), "RARE_CANDY",
+  "GENEROUS mode also keeps Rare Candy at five percent")
+T.eq(ex.lootForRoll(1201, "generous", { averageLevel = 35 }), "PP_UP",
+  "GENEROUS mode retains its existing PP Up band")
+T.eq(ex.lootForRoll(2701, "generous", { averageLevel = 50 }), "MAX_REVIVE",
+  "GENEROUS mode retains its existing Max Revive band")
+T.eq(ex.lootForRoll(3901, "generous", { averageLevel = 1 }), "NUGGET",
+  "GENEROUS mode keeps Nuggets at fifteen percent")
+T.eq(ex.lootForRoll(5401, "generous",
+  { averageLevel = 100, masterUnlocked = true, expAllAvailable = true }), nil,
+  "GENEROUS leaves reduced reward space as no drop")
 T.eq(ex.lootForRoll(1, "off",
   { averageLevel = 100, masterUnlocked = true }), nil,
   "loot can be disabled completely")
@@ -750,7 +1219,7 @@ local ow = {
 local lazyNpc = freshNpc("FIX_ROUTE_obj_lazy")
 game.save.modData.trainer_rematch.trainers[lazyNpc.id] = nil
 overworldStub.talkTo(ow, lazyNpc)
-T.eq(pushed[#pushed].text:find("128 more steps.", 1, true) ~= nil, true,
+T.eq(pushed[#pushed].text:find("151 more steps.", 1, true) ~= nil, true,
   "a missing defeated-trainer record starts a visible initial rest")
 T.eq(pushed[#pushed].opts.choice, nil,
   "the repaired trainer cannot offer an immediate rematch")
@@ -791,16 +1260,21 @@ T.neq(b.onFinish, nil, "onFinish wired")
 local afterCount = calls.after
 b.onFinish("win")
 T.eq(calls.after, afterCount + 1, "afterBattle ran")
-T.eq(npc.frozen, false, "npc unfrozen after the battle")
+T.eq(pushed[#pushed].text:find("FIELD KIT", 1, true) ~= nil, true,
+  "the first won rematch awards the optional HM Field Kit")
+T.eq(npc.frozen, true,
+  "the trainer stays frozen until the Field Kit reward text closes")
+pushed[#pushed].onDone()
+T.eq(npc.frozen, false, "npc unfrozen after the reward")
 local savedState = game.save.modData.trainer_rematch.trainers[npc.id]
 T.eq(savedState.rematches, 1, "completed rematch count persists per trainer")
-T.eq(ex.remainingSteps(npc.id), 128, "trainer starts the configured rest")
+T.eq(ex.remainingSteps(npc.id), 151, "trainer starts the configured rest")
 
 -- B2: the same trainer refuses until enough real world steps pass
 pushed = {}
 overworldStub.talkTo(ow, npc)
 T.eq(#pushed, 1, "resting trainer shows one status box")
-T.eq(pushed[1].text:find("128 more steps.", 1, true) ~= nil, true,
+T.eq(pushed[1].text:find("151 more steps.", 1, true) ~= nil, true,
   "rest status shows the exact remaining steps")
 T.eq(pushed[1].text:find("\f", 1, true) ~= nil, true,
   "the trainer's normal text follows the step status as a second page")
@@ -808,7 +1282,7 @@ T.eq(pushed[1].text:find("Nice fixture.", 1, true) ~= nil, true,
   "the second cooldown page preserves the normal post-battle line")
 T.eq(pushed[1].opts.choice, nil, "resting trainer offers no battle choice")
 pushed[1].onDone()
-for _ = 1, 127 do run.loader.events:emit("world.stepped", {}) end
+for _ = 1, 150 do run.loader.events:emit("world.stepped", {}) end
 T.eq(ex.remainingSteps(npc.id), 1, "only completed world steps count down")
 pushed = {}
 overworldStub.talkTo(ow, npc)
@@ -898,18 +1372,18 @@ overworldStub.engageTrainer(owOriginal, originalNpc, function()
 end)
 T.eq(calls.vanillaEngaged, 1, "the original trainer flow still runs")
 T.eq(originalDone, 1, "the original completion callback still runs")
-T.eq(ex.remainingSteps(originalNpc.id), 128,
+T.eq(ex.remainingSteps(originalNpc.id), 151,
   "a newly beaten trainer is not immediately ready for a rematch")
 
 -- E2b: ignoring a ready trainer does not freeze its strength. The visible
 -- cooldown ends first; each additional silent cooldown grows the next team
 -- while the trainer remains continuously available.
-for _ = 1, 128 do run.loader.events:emit("world.stepped", {}) end
+for _ = 1, 151 do run.loader.events:emit("world.stepped", {}) end
 T.eq(ex.remainingSteps(originalNpc.id), 0,
   "the ignored trainer becomes ready after the visible cooldown")
 T.eq(ex.trainingCycles(originalNpc.id), 0,
   "becoming ready starts rather than completes the first silent cycle")
-for _ = 1, 127 do run.loader.events:emit("world.stepped", {}) end
+for _ = 1, 150 do run.loader.events:emit("world.stepped", {}) end
 T.eq(ex.trainingCycles(originalNpc.id), 0,
   "an incomplete silent cycle grants no speculative growth")
 run.loader.events:emit("world.stepped", {})
@@ -929,6 +1403,26 @@ T.eq(idleBattle.rematchLevelBoost, 4,
   "one silent cycle raises the first rematch from +2 to +4 levels")
 
 -- E3: enabling the mod on an existing CONTINUE slot seeds old victories
+local oldTimerSave = {
+  trainer_rematch = {
+    step_clock = 100,
+    trainers = {
+      OLD_TIMER = {
+        rematches = 1, trainingCycles = 0,
+        readyAt = 228, lastRest = 128,
+        nextTrainingAt = 356, lastTraining = 128,
+      },
+    },
+  },
+}
+run.loader.modSave = oldTimerSave
+ex.migrateRestTimers({ random = function(_, hi) return hi end })
+local migratedTimer = oldTimerSave.trainer_rematch.trainers.OLD_TIMER
+T.eq(migratedTimer.readyAt, 2610,
+  "an active legacy cooldown rerolls once into the expanded range")
+T.eq(migratedTimer.nextTrainingAt, 5120,
+  "the following silent cycle adopts the expanded range too")
+
 local legacySave = {
   defeatedTrainers = { LEGACY_ROUTE_obj_3 = true },
   modData = {},
@@ -936,7 +1430,7 @@ local legacySave = {
 run.loader.modSave = legacySave.modData
 run.loader.events:emit("save.loaded", { save = legacySave })
 local legacyLeft = ex.remainingSteps("LEGACY_ROUTE_obj_3")
-T.eq(legacyLeft >= 128 and legacyLeft <= 256, true,
+T.eq(legacyLeft >= 151 and legacyLeft <= 2510, true,
   "loaded saves give previously beaten trainers an initial rest")
 run.loader.modSave = game.save.modData
 
@@ -1046,7 +1540,7 @@ T.eq(ex.levelGap({ { level = 5 } }, nil), nil, "an empty team yields no gap")
 -- O: successful loot, full-bag reservation and later delivery
 Data.items.NUGGET = { id = "NUGGET", name = "NUGGET", price = 5000 }
 run.loader.modOptions.trainer_rematch = { loot_mode = "balanced" }
-installDeps.lootRandom = function() return 5401 end
+installDeps.lootRandom = function() return 2901 end
 game.save.inventory, game.save.bagOrder = {}, {}
 pushed = {}
 local lootNpc = freshNpc("FIX_ROUTE_obj_loot")
@@ -1119,8 +1613,21 @@ T.eq(eliteBattle.endBattleText:find("perfected", 1, true) ~= nil, true,
 
 local asc = ex.ascendant
 local asd = ex.ascendantData
+local heritage = ex.eventArchive
+local heritageData = ex.eventData
 T.neq(asc, nil, "the Ascendant systems controller is exported")
 T.neq(asd, nil, "the Ascendant progression data is exported")
+T.neq(heritage, nil, "the permanent Event Archive controller is exported")
+T.neq(heritageData, nil, "the historical event profiles are exported")
+local longestEventLabelEn, longestEventLabelDe = 0, 0
+for _, profile in ipairs(heritageData.profiles) do
+  longestEventLabelEn = math.max(longestEventLabelEn, #profile.short.en)
+  longestEventLabelDe = math.max(longestEventLabelDe, #profile.short.de)
+end
+T.eq(longestEventLabelEn <= 10, true,
+  "English Event Archive labels leave room for their status")
+T.eq(longestEventLabelDe <= 10, true,
+  "German Event Archive labels leave room for their status")
 
 T.eq(asc.rematchRank(0).key, "rookie",
   "a new field opponent begins at ROOKIE rank")
@@ -1132,23 +1639,23 @@ T.eq(asc.rematchRank(10).key, "master",
   "ten completed growth tiers reach MASTER rank")
 T.eq(asc.rematchRank(20).key, "legend",
   "twenty completed growth tiers reach LEGEND rank")
-T.eq(asc.rankBonusLoot(7500, "veteran", 10), "NUGGET",
-  "VETERAN trainers add a bonus Nugget band")
-T.eq(asc.rankBonusLoot(8000, "expert", 20), "RARE_CANDY",
-  "EXPERT trainers add a bonus Rare Candy band")
-T.eq(asc.rankBonusLoot(8500, "master", 35), "PP_UP",
-  "MASTER trainers add a bonus PP Up band")
-T.eq(asc.rankBonusLoot(9000, "legend", 50), "MAX_REVIVE",
-  "LEGEND trainers add a bonus Max Revive band")
+T.eq(asc.rankBonusLoot(7500, "veteran", 10), nil,
+  "VETERAN rank no longer inflates the configured loot table")
+T.eq(asc.rankBonusLoot(8000, "expert", 20), nil,
+  "EXPERT rank no longer adds a hidden Rare Candy band")
+T.eq(asc.rankBonusLoot(8500, "master", 35), nil,
+  "MASTER rank no longer adds a hidden PP Up band")
+T.eq(asc.rankBonusLoot(9000, "legend", 50), nil,
+  "LEGEND rank no longer adds a hidden Max Revive band")
 
 T.eq(#asd.ranks, 5, "all five field-trainer ranks are defined")
 T.eq(#asd.research, 8, "Oak offers eight sequential research assignments")
-T.eq(#asd.achievements, 14, "the Crown Archive tracks fourteen titles")
+T.eq(#asd.achievements, 17, "the Crown Archive tracks all seventeen titles")
 T.eq(#asd.rocket, 4, "Rocket Resurgence has four consecutive operations")
 T.eq(#asd.tournament.opponents, 6,
   "the Grand Tournament has six rotating level-100 opponents")
-T.eq(#asd.tournament.rules, 4,
-  "the Grand Tournament rotates four different rulesets")
+T.eq(#asd.tournament.rules, 6,
+  "the Grand Tournament rotates six different rulesets")
 local leaderMissionCount = 0
 for key, quest in pairs(asd.gymQuests) do
   leaderMissionCount = leaderMissionCount + 1
@@ -1176,6 +1683,65 @@ T.eq(type(asd.mew.clues.fuji.text.de), "string",
 T.eq(type(asd.mew.clues.lab.text.en), "string",
   "the Cinnabar lab has the final English Mew clue")
 
+T.eq(#heritageData.profiles, 6,
+  "the archive contains all six Generation-I Kanto event profiles")
+T.eq(#heritageData.catchupOrder, 5,
+  "the five non-Mew distributions have a deterministic catch-up order")
+local heritageCupCount = 0
+for id, cup in pairs(heritageData.cups) do
+  heritageCupCount = heritageCupCount + 1
+  T.eq(#cup.opponents, 3, id .. " has a complete three-round Heritage Cup")
+end
+T.eq(heritageCupCount, 5,
+  "five badge-gated Heritage Cups award the non-Mew events")
+local eventPokemon = setmetatable({}, { __index = Data.pokemon })
+for _, id in ipairs({ "MAGIKARP", "PIKACHU", "FEAROW", "RAPIDASH", "MEW" }) do
+  eventPokemon[id] = Data.pokemon.FIXMON_A
+end
+local eventMoves = setmetatable({}, { __index = Data.moves })
+for _, id in ipairs({
+  "SPLASH", "DRAGON_RAGE", "THUNDERSHOCK", "GROWL", "FLY", "SURF",
+  "LEER", "FURY_ATTACK", "PAY_DAY", "EMBER", "FIRE_SPIN", "STOMP", "POUND",
+}) do
+  eventMoves[id] = { id = id, name = id:gsub("_", " "), pp = 20 }
+end
+local eventDataSet = setmetatable({
+  pokemon = eventPokemon, moves = eventMoves,
+}, { __index = Data })
+local eventGame = {
+  data = eventDataSet,
+  save = {
+    player = { name = "RED", id = 1234 },
+    party = {}, inventory = {}, flags = {},
+    pokedex = { seen = {}, owned = {} },
+  },
+}
+local historicalKarp = Pokemon.new(eventDataSet, "MAGIKARP", 5,
+  function() return 8 end)
+heritage.stampProfile(eventGame, historicalKarp,
+  heritage.profile("university_magikarp"), "UNIVERSITY CUP")
+T.eq(historicalKarp.level, 15,
+  "University Magikarp keeps its historical distribution level")
+T.eq(historicalKarp.moves[2].id, "DRAGON_RAGE",
+  "University Magikarp keeps its unusual historical move")
+T.eq(historicalKarp.eventDistribution.id, "university_magikarp",
+  "event provenance is stored directly on the Pokémon")
+local historicalMew = Pokemon.new(eventDataSet, "MEW", 100,
+  function() return 8 end)
+heritage.stampProfile(eventGame, historicalMew,
+  heritage.profile("distribution_mew"), "FARAWAY ISLAND FINALE")
+T.eq(historicalMew.level, 5,
+  "the optional historical Mew profile restores level 5")
+T.eq(historicalMew.dvs.attack, 10,
+  "historical Mew keeps the fixed distribution DVs")
+local eventGift = heritage.give(eventGame, "flying_pikachu", "BALLOON CUP")
+T.eq(type(eventGift), "string",
+  "a Heritage Cup can deliver its one-time event prize")
+T.eq(eventGame.save.party[1].moves[3].id, "FLY",
+  "Flying Pikachu arrives with its event-exclusive move")
+T.eq(heritage.state().claimed.flying_pikachu.origin, "BALLOON CUP",
+  "the Event Archive permanently records the prize origin")
+
 local ascState = asc.state()
 ascState.bossBattles = {}
 ascState.gymQuests = {}
@@ -1202,6 +1768,18 @@ T.eq(adaptiveSignature[#adaptiveSignature].species, "AERODACTYL",
   "finishing Brock's mission unlocks his signature roster variant")
 T.eq(adaptiveSource[3].species, "FIXMON_A",
   "adaptive selection never mutates the shared base roster")
+T.eq(asc.cycleRule(1, "rotating"), "no_items",
+  "Ascendant Cycle 1 seals battle items")
+T.eq(asc.cycleRule(2, "rotating"), "set",
+  "Ascendant Cycle 2 enforces SET battle style")
+T.eq(asc.cycleRule(3, "rotating"), "trio",
+  "Ascendant Cycle 3 restricts the party to a trio")
+T.eq(asc.cycleRule(4, "rotating"), "purist",
+  "Ascendant Cycle 4 bans legendary party members")
+T.eq(asc.cycleRule(8, "rotating"), "purist",
+  "the four rotating cycle rules repeat deterministically")
+T.eq(asc.cycleRule(3, "normal"), "normal",
+  "the NORMAL preset removes extra cycle restrictions")
 
 local blockedItems = {
   ascendantNoItems = true,
@@ -1250,6 +1828,7 @@ T.eq(ascState.achievements.mew_found, true,
 T.eq(ascState.achievements.ascendant, true,
   "all major systems together unlock KANTO ASCENDANT")
 
+ascState.selectedTitle = "mew_found"
 local catchesBeforeCycle = livePostgame.catches
 local newCycle = asc.beginNewGamePlus(game)
 T.eq(newCycle, 1, "the first safe New Game Plus starts Ascendant Cycle 1")
@@ -1263,6 +1842,678 @@ T.eq(asc.state().mewCaught, true,
   "New Game Plus preserves the unique Mew capture")
 T.eq(asc.state().achievements.ascendant, true,
   "New Game Plus preserves permanent titles")
+T.eq(asc.state().selectedTitle, "mew_found",
+  "New Game Plus preserves the player's selected Trainer Card title")
+T.eq(heritage.state().claimed.flying_pikachu.origin, "BALLOON CUP",
+  "New Game Plus preserves the separate permanent Event Archive")
+local cycleTeam = asc.selectBossTeam(adaptiveSource,
+  { kind = "gym", key = "brock", tier = "master" }, adaptiveGame)
+for _, slot in ipairs(cycleTeam) do
+  T.eq(slot.level, 100,
+    "every post-game boss slot reaches level 100 in New Game Plus")
+end
+run.loader.modOptions.trainer_rematch = { ascendant_rules = "normal" }
+local relaxedCycleTeam = asc.selectBossTeam(adaptiveSource,
+  { kind = "gym", key = "misty", tier = "master" }, adaptiveGame)
+T.eq(relaxedCycleTeam[1].level, 100,
+  "level-100 cycle teams do not depend on optional challenge rules")
+run.loader.modOptions.trainer_rematch = nil
+
+local cycleRuleGame = {
+  save = {
+    options = { battleStyle = "shift" },
+    party = {
+      { species = "MEW", hp = 10, status = "PAR" },
+      { species = "FIXMON_A", hp = 11 },
+      { species = "FIXMON_A", hp = 12 },
+      { species = "FIXMON_A", hp = 13 },
+    },
+  },
+}
+asc.state().cycle = 2
+local setBattle = { game = cycleRuleGame }
+asc.applyBossRules(setBattle)
+T.eq(cycleRuleGame.save.options.battleStyle, "set",
+  "Cycle 2 temporarily forces SET battle style")
+RealRuntime.emit("battle.ended", { battle = setBattle, result = "win" })
+T.eq(cycleRuleGame.save.options.battleStyle, "shift",
+  "the player's battle-style option is restored after the boss fight")
+asc.state().cycle = 3
+local trioBattle = { game = cycleRuleGame }
+asc.applyBossRules(trioBattle)
+T.eq(cycleRuleGame.save.party[4].hp, 0,
+  "Cycle 3 seals party slots beyond the leading trio")
+RealRuntime.emit("battle.ended", { battle = trioBattle, result = "win" })
+T.eq(cycleRuleGame.save.party[4].hp, 13,
+  "sealed trio slots are restored after the fight")
+asc.state().cycle = 4
+local puristBattle = { game = cycleRuleGame }
+asc.applyBossRules(puristBattle)
+T.eq(cycleRuleGame.save.party[1].hp, 0,
+  "Cycle 4 seals legendary party members")
+RealRuntime.emit("battle.ended", { battle = puristBattle, result = "win" })
+T.eq(cycleRuleGame.save.party[1].hp, 10,
+  "sealed legendary HP and status are restored after the fight")
+T.eq(cycleRuleGame.save.party[1].status, "PAR",
+  "the Purist rule also restores the original status condition")
+asc.state().cycle = 1
+
+-- ------------------------------------------------ complete shiny progression
+
+local priorModSave = run.loader.modSave
+run.loader.modSave = {}
+local shinyOwned, shinyPokemon = {}, {}
+for dex = 1, 251 do
+  local id = ("DEX_%03d"):format(dex)
+  shinyOwned[id] = true
+  shinyPokemon[id] = { dex = dex, name = id }
+end
+local shinyProgressGame = {
+  data = { pokemon = shinyPokemon, constants = Data.constants },
+  save = {
+    inventory = {}, bagOrder = {}, party = {}, boxes = {},
+    flags = { EVENT_BEAT_CHAMPION_RIVAL = true },
+    pokedex = { seen = shinyOwned, owned = shinyOwned },
+  },
+}
+T.eq(shinySystem.unlockCharm(shinyProgressGame), true,
+  "recording all 251 species awards the permanent Shiny Charm")
+T.eq(shinySystem.hasCharm(), true,
+  "the Shiny Charm ability persists in mod save data")
+T.eq(shinyProgressGame.save.inventory.SHINY_CHARM, 1,
+  "the Shiny Charm also appears as a non-tossable key item")
+for n = 1, 10 do
+  shinySystem.afterRematch(shinyProgressGame, {
+    rematchTrainerClass = "OPP_YOUNGSTER",
+  })
+end
+local shinyProgress = shinySystem.state()
+T.eq(shinyProgress.rematchStreak, 10,
+  "consecutive field-rematch wins build the shiny hunting streak")
+T.eq(shinyProgress.outbreak, nil,
+  "a ten-win streak cannot start a swarm before Elm's starter trials")
+local gatedResearch = ex.johtoResearch.state()
+for _, key in ipairs(johto.starterOrder) do
+  gatedResearch.starters[key] = true
+end
+shinyProgress.rematchStreak = 0
+for n = 1, 10 do
+  shinySystem.afterRematch(shinyProgressGame, {
+    rematchTrainerClass = "OPP_YOUNGSTER",
+  })
+end
+T.neq(shinyProgress.outbreak, nil,
+  "Hall of Fame plus all three starter trials unlock shiny swarms")
+T.eq(shinyProgress.outbreak.steps, 2048,
+  "a new outbreak receives its full step duration")
+T.eq(shinySystem.extraRolls(), 3,
+  "Charm plus a ten-win streak grants three additional DV rolls")
+for n = 11, 25 do
+  shinySystem.afterRematch(shinyProgressGame, {
+    rematchTrainerClass = "OPP_YOUNGSTER",
+  })
+end
+T.eq(shinySystem.state().redGyaradosUnlocked, true,
+  "a 25-win post-Hall-of-Fame streak unlocks the red Gyarados event")
+T.eq(shinySystem.eventMap, "SEAFOAM_ISLANDS_B4F",
+  "the guaranteed shiny event lives in Seafoam's deepest floor")
+run.loader.modSave = priorModSave
+
+-- ------------------------------------------------ discovery Dex + Johto Masters
+
+local dexProgress = ex.dexProgress
+local johtoMasters = ex.johtoMasters
+local worldEvents = ex.worldEvents
+local fieldTech = ex.fieldTech
+local kantoCompletion = ex.kantoCompletion
+T.neq(dexProgress, nil,
+  "the original-style discovery and certificate controller is exported")
+T.neq(johtoMasters, nil,
+  "the repeatable Silver/Kris/Gold trial is exported")
+T.neq(worldEvents, nil,
+  "the step-driven Kanto world-event controller is exported")
+T.neq(fieldTech, nil,
+  "the HM Field Kit, TM archive and Move Deleter controller is exported")
+T.neq(kantoCompletion, nil,
+  "the self-contained Kanto 151 controller is exported")
+T.eq(#kantoCompletion.criticalAcquisitions, 13,
+  "the Kanto completion audit documents every former version or choice lock")
+T.eq(kantoCompletion.loadedMode(), "ascendant",
+  "KANTO 151 reports the content mode that was actually patched at startup")
+local priorKantoOptions = run.loader.modOptions.trainer_rematch
+run.loader.modOptions.trainer_rematch = { kanto_151 = "wild" }
+T.eq(kantoCompletion.configuredMode(), "wild",
+  "KANTO 151 separately observes a newly selected option")
+T.eq(kantoCompletion.restartRequired(), true,
+  "changing the KANTO 151 patch mode is reported as requiring a restart")
+T.eq(kantoCompletion.statusText():find(
+  "LOADED: REWARDS", 1, true) ~= nil, true,
+  "KANTO 151 status keeps showing the loaded mode until restart")
+T.eq(kantoCompletion.statusText():find(
+  "RESTART REQUIRED", 1, true) ~= nil, true,
+  "KANTO 151 status gives an explicit restart warning")
+run.loader.modOptions.trainer_rematch = priorKantoOptions
+
+if kantoCompletion.enabled then
+  local function encounterHas(mapId, species)
+    local enc = Data.encounters[mapId]
+    for _, slot in ipairs(enc and enc.grass and enc.grass.slots or {}) do
+      if slot.species == species then return true end
+    end
+    return false
+  end
+
+  T.eq(encounterHas("ROUTE_5", "MEOWTH"), true,
+    "Meowth is available without changing game editions")
+  T.eq(encounterHas("ROUTE_5", "BELLSPROUT"), true,
+    "Bellsprout shares a natural habitat with Oddish")
+  T.eq(encounterHas("ROUTE_8", "EKANS")
+      and encounterHas("ROUTE_8", "SANDSHREW"), true,
+    "Route 8 contains both former version-exclusive Ground/Poison families")
+  T.eq(encounterHas("SAFARI_ZONE_CENTER", "SCYTHER")
+      and encounterHas("SAFARI_ZONE_CENTER", "PINSIR"), true,
+    "both Safari bug prizes can be caught in one save")
+  T.eq(encounterHas("POWER_PLANT", "ELECTABUZZ")
+      and encounterHas("POKEMON_MANSION_B1F", "MAGMAR"), true,
+    "Electabuzz and Magmar are both obtainable")
+  T.eq(encounterHas("POKEMON_MANSION_B1F", "MEW"), false,
+    "the Kanto 151 layer never bypasses the authored Mew event")
+  T.eq(encounterHas("SEAFOAM_ISLANDS_B2F", "SQUIRTLE"), false,
+    "reward mode keeps Squirtle as Misty's Master prize")
+  T.eq(Data.pokemon.KADABRA.evolutions[1].species, "ALAKAZAM",
+    "Kadabra evolves without a trade")
+  T.eq(Data.pokemon.MACHOKE.evolutions[1].level, 45,
+    "Machoke's replacement level evolution is registered")
+
+  local function hasEvolution(species, target, method, item)
+    for _, row in ipairs(Data.pokemon[species].evolutions or {}) do
+      if row.species == target
+          and (not method or row.method == method)
+          and (not item or row.item == item) then return true end
+    end
+    return false
+  end
+  T.eq(hasEvolution("GLOOM", "VILEPLUME", "ITEM", "LEAF_STONE")
+      and hasEvolution("GLOOM", "BELLOSSOM", "ITEM", "SUN_STONE"), true,
+    "Gloom keeps Vileplume while gaining Bellossom")
+  T.eq(hasEvolution("POLIWHIRL", "POLIWRATH", "ITEM", "WATER_STONE")
+      and hasEvolution("POLIWHIRL", "POLITOED", "ITEM", "KINGS_ROCK"), true,
+    "Poliwhirl keeps Poliwrath while gaining Politoed")
+  T.eq(hasEvolution("EEVEE", "VAPOREON", "ITEM", "WATER_STONE")
+      and hasEvolution("EEVEE", "JOLTEON", "ITEM", "THUNDER_STONE")
+      and hasEvolution("EEVEE", "FLAREON", "ITEM", "FIRE_STONE")
+      and hasEvolution("EEVEE", "ESPEON", "FRIENDSHIP_DAY")
+      and hasEvolution("EEVEE", "UMBREON", "FRIENDSHIP_NIGHT"), true,
+    "Eevee exposes all five Kanto and Johto branches together")
+  T.eq(hasEvolution("SLOWPOKE", "SLOWBRO", "LEVEL")
+      and hasEvolution("SLOWPOKE", "SLOWKING", "ITEM", "KINGS_ROCK"), true,
+    "Slowpoke keeps Slowbro while gaining Slowking")
+
+  local priorHallOfFame = game.save.hallOfFame
+  local priorChampionFlag = game.save.flags.EVENT_BEAT_CHAMPION_RIVAL
+  local function eeveeRng(lo, hi)
+    if lo == 1 and hi == 100 then return 1 end
+    return hi
+  end
+  game.save.hallOfFame = {}
+  game.save.flags.EVENT_BEAT_CHAMPION_RIVAL = nil
+  local beforeLeague = RealRuntime.call("encounter.roll",
+    function() return { species = "PIDGEY", level = 22 } end,
+    Data.encounters.ROUTE_7,
+    { mapId = "ROUTE_7", terrain = "grass", rng = eeveeRng })
+  T.eq(beforeLeague.species, "PIDGEY",
+    "Route 7 does not reveal renewable Eevee before the League")
+  game.save.hallOfFame = { {} }
+  local afterLeague = RealRuntime.call("encounter.roll",
+    function() return { species = "PIDGEY", level = 22 } end,
+    Data.encounters.ROUTE_7,
+    { mapId = "ROUTE_7", terrain = "grass", rng = eeveeRng })
+  T.eq(afterLeague.species, "EEVEE",
+    "Route 7 can replace two percent of post-League grass encounters with Eevee")
+  T.eq(afterLeague.level, 25,
+    "renewable post-League Eevee use their intended level")
+  game.save.hallOfFame = priorHallOfFame
+  game.save.flags.EVENT_BEAT_CHAMPION_RIVAL = priorChampionFlag
+
+  local pewterMart =
+    Data.text_pointers.PewterMart.TEXT_PEWTERMART_CLERK.mart
+  T.eq(pewterMart[1], "POKE_BALL",
+    "adding Moon Stone preserves Pewter Mart's normal inventory")
+  T.eq(pewterMart[#pewterMart], "MOON_STONE",
+    "Moon Stone is renewable at Pewter Mart")
+
+  local priorKantoSave = run.loader.modSave
+  run.loader.modSave = {}
+  local kantoGiftGame = {
+    data = Data,
+    save = {
+      player = { name = "RED", id = 151 },
+      party = {}, inventory = {}, flags = { EVENT_GOT_HELIX_FOSSIL = true },
+      pokedex = { seen = {}, owned = {} },
+    },
+  }
+  local starterText =
+    kantoCompletion.afterBossWin(kantoGiftGame, "erika", "master")
+  T.eq(kantoGiftGame.save.party[1].species, "BULBASAUR",
+    "Master Erika awards the Grass starter in reward mode")
+  T.eq(starterText ~= nil, true,
+    "the starter prize has a visible bilingual reward message")
+  local fossilText =
+    kantoCompletion.afterBossWin(kantoGiftGame, "brock", "master")
+  T.eq(kantoGiftGame.save.inventory.DOME_FOSSIL, 1,
+    "Master Brock awards the fossil excluded by the Mt. Moon choice")
+  T.eq(fossilText ~= nil, true,
+    "the missing fossil receives its own reward message")
+  run.loader.modSave = priorKantoSave
+end
+T.eq(Data.moves.FRENZY_PLANT.power, 150,
+  "Frenzy Plant is registered as a full starter signature move")
+T.eq(Data.moves.BLAST_BURN.effect, "HYPER_BEAM_EFFECT",
+  "Blast Burn uses the authentic recharge effect")
+T.eq(Data.moves.HYDRO_CANNON.accuracy, 90,
+  "Hydro Cannon carries its intended accuracy")
+T.eq(Data.items.TM_FRENZY_PLANT.machine.number, 51,
+  "TM51 contains Frenzy Plant")
+T.eq(Data.items.TM_BLAST_BURN.machine.number, 52,
+  "TM52 contains Blast Burn")
+T.eq(Data.items.TM_HYDRO_CANNON.machine.number, 53,
+  "TM53 contains Hydro Cannon")
+T.eq(#fieldTech.starterFamilies.FRENZY_PLANT, 6,
+  "the Grass TM covers both complete Kanto and Johto starter families")
+T.eq(#fieldTech.starterFamilies.BLAST_BURN, 6,
+  "the Fire TM covers both complete Kanto and Johto starter families")
+T.eq(#fieldTech.starterFamilies.HYDRO_CANNON, 6,
+  "the Water TM covers both complete Kanto and Johto starter families")
+
+local previousFieldSave = run.loader.modSave
+run.loader.modSave = {}
+local fieldState = fieldTech.state()
+fieldState.kit = true
+local fieldSave = {
+  inventory = {
+    FIELD_KIT = 1, HM_CUT = 1, CASCADEBADGE = 1,
+    HM_SURF = 1, SOULBADGE = 1,
+  },
+  party = { { species = "FIXMON_A", moves = { { id = "FIX_TACKLE" } } } },
+}
+T.eq(fieldTech.available(fieldSave, "CUT"), true,
+  "the Field Kit activates an owned HM only after its matching badge")
+fieldSave.inventory.CASCADEBADGE = nil
+T.eq(fieldTech.available(fieldSave, "CUT"), false,
+  "the Field Kit never bypasses badge progression")
+T.eq(fieldTech.available(fieldSave, "FLY"), false,
+  "an HM that has not been found remains unavailable")
+local deletable = {
+  moves = { { id = "CUT" }, { id = "FIX_TACKLE" } },
+}
+T.eq(fieldTech.forgetMove(deletable, 1), true,
+  "the Move Deleter can remove an HM once field tools no longer need it")
+T.eq(deletable.moves[1].id, "FIX_TACKLE",
+  "deleting the selected HM keeps the other move intact")
+T.eq(fieldTech.forgetMove(deletable, 1), false,
+  "the Move Deleter protects a Pokémon's final usable move")
+run.loader.modSave = previousFieldSave
+
+T.eq(#ex.johtoMastersData.trainers, 3,
+  "Silver, Kris and Gold form the complete Johto Masters trial")
+
+for _, trainer in ipairs(ex.johtoMastersData.trainers) do
+  T.eq(#trainer.pool, 12,
+    trainer.key .. " owns twelve level-100 roster candidates")
+  local first = johtoMasters.teamFor(trainer.key, 1)
+  local second = johtoMasters.teamFor(trainer.key, 2)
+  T.eq(#first, 6, trainer.key .. " selects a full six-Pokémon team")
+  T.eq(first[1].level, 100, trainer.key .. " always fights at level 100")
+  T.eq(first[1].species ~= second[1].species, true,
+    trainer.key .. " changes the team lead on the next challenge")
+end
+
+local expandedPokemon, expandedOwned = {}, {}
+for dex = 1, 251 do
+  local id = ("DISCOVERY_%03d"):format(dex)
+  expandedPokemon[id] = {
+    id = id, dex = dex, name = id, baseStats = Data.pokemon.FIXMON_A.baseStats,
+  }
+  if dex <= 150 then expandedOwned[id] = true end
+end
+local discoveryGame = {
+  data = { pokemon = expandedPokemon },
+  save = {
+    player = { name = "RED" }, party = {}, boxes = {}, inventory = {},
+    hallOfFame = { {} },
+    pokedex = { seen = expandedOwned, owned = expandedOwned },
+  },
+}
+T.eq(dexProgress.ownedThrough(discoveryGame, 150), 150,
+  "the Kanto certificate counts the exact first 150 species")
+T.eq(dexProgress.complete(discoveryGame, 150), true,
+  "owning Kanto #001-150 unlocks the original completion tier")
+T.eq(dexProgress.complete(discoveryGame, 151), false,
+  "Mew remains a real undiscovered slot for the 151 certificate")
+expandedOwned.DISCOVERY_151 = true
+T.eq(dexProgress.complete(discoveryGame, 151), true,
+  "capturing Mew unlocks the separate 151 certificate")
+T.eq(#johtoMasters.fullRoster(discoveryGame), 251,
+  "Gold's reward roster contains every one of all 251 species")
+T.eq(johtoMasters.randomSpecies(discoveryGame, function() return 251 end),
+  "DISCOVERY_251",
+  "Gold can uniformly select Celebi as the 251st shiny reward")
+
+local isolatedModSave = run.loader.modSave
+run.loader.modSave = {}
+worldEvents.install(discoveryGame)
+local worldState = worldEvents.state()
+worldState.nextAt, worldState.active = 10, nil
+worldEvents.onStep(discoveryGame, 10)
+T.eq(worldEvents.active("training_rush"), true,
+  "the first scheduled step event starts a real Training Rush")
+T.eq(worldEvents.trainingStepBonus(), 1,
+  "Training Rush adds one trainer-only recovery tick per walked step")
+local worldBucket = run.loader.modSave.trainer_rematch
+worldBucket.step_clock, worldBucket.trainer_step_clock = 50, 50
+worldEvents.state().active = { id = "training_rush", steps = 100 }
+run.loader.events:emit("world.stepped", {})
+T.eq(ex.playerStepClock(), 51,
+  "Training Rush records exactly one real player step")
+T.eq(ex.trainerStepClock(), 52,
+  "Training Rush advances only the trainer recovery clock twice")
+T.eq(worldEvents.state().active.steps, 99,
+  "Training Rush itself and other world events lose one real step, not two")
+local migrationResearch = ex.johtoResearch.state()
+migrationResearch.finalReward = nil
+local migrationState = worldEvents.state()
+migrationState.index, migrationState.active, migrationState.nextAt = 21, nil, 60
+worldEvents.onStep(discoveryGame, 60)
+T.eq(worldEvents.active("johto_migration"), true,
+  "the Larvitar cycle still starts a Johto migration before the finale")
+T.eq(migrationState.active.species ~= "LARVITAR", true,
+  "Larvitar is excluded from migrations until Elm's research finale")
+migrationResearch.finalReward = true
+migrationState.index, migrationState.active, migrationState.nextAt = 21, nil, 61
+worldEvents.onStep(discoveryGame, 61)
+T.eq(migrationState.active.species, "LARVITAR",
+  "Larvitar joins Route 22 migrations only after the research finale")
+worldState.active = { id = "golden_wind", steps = 100 }
+T.eq(worldEvents.shinyBonusRolls(), 2,
+  "Golden Wind grants two additional shiny checks")
+worldState.active = { id = "frontier_festival", steps = 100 }
+T.eq(worldEvents.frontierMultiplier(), 2,
+  "Frontier Festival doubles Ascendant Frontier points")
+run.loader.modSave = isolatedModSave
+
+-- ------------------------------------------------ Kanto Ascendant 5.0 Grand Tour
+
+;(function()
+local grandTour = ex.grandTour
+local grandTourData = ex.grandTourData
+T.neq(grandTour, nil,
+  "the Crown Champion's Grand Tour controller is exported")
+T.neq(grandTourData, nil,
+  "the inspectable Factory and S.S. Anne rosters are exported")
+T.eq(grandTourData.cruise.cooldown, 4096,
+  "S.S. Anne voyages use the promised 4096 real-step cooldown")
+
+local factoryPokemon = {}
+for dex, row in ipairs(grandTourData.factory.candidates) do
+  local def = {}
+  for key, value in pairs(Data.pokemon.FIXMON_A) do def[key] = value end
+  def.id, def.name, def.dex = row.species, row.species, dex
+  def.evolutions = {}
+  factoryPokemon[row.species] = def
+end
+local factoryGame = {
+  data = { pokemon = factoryPokemon, moves = Data.moves },
+  save = {
+    player = { name = "RED", id = 500 },
+    party = {}, inventory = {}, pokedex = { seen = {}, owned = {} },
+  },
+}
+local firstDraft = grandTour.draftCandidates(factoryGame, 1)
+local secondDraft = grandTour.draftCandidates(factoryGame, 2)
+T.eq(#firstDraft, 6,
+  "the Battle Factory always presents six legal rentals")
+T.eq(firstDraft[1].species ~= secondDraft[1].species, true,
+  "a later Factory attempt rotates to a different draft")
+local draftedSpecies = {}
+for _, row in ipairs(firstDraft) do
+  T.eq(draftedSpecies[row.species], nil,
+    "the six Factory candidates never repeat a species")
+  draftedSpecies[row.species] = true
+  T.eq(row.level, 100, row.species .. " is offered at level 100")
+  T.eq(grandTour.isFinalEvolution(factoryGame, row.species), true,
+    row.species .. " is a fully evolved non-legendary rental")
+end
+
+local rentals = grandTour.buildRentalTeam(factoryGame,
+  { firstDraft[1], firstDraft[2], firstDraft[3] })
+T.eq(#rentals, 3,
+  "the chosen three draft entries become a three-Pokemon rental party")
+for _, mon in ipairs(rentals) do
+  T.eq(mon.level, 100, "every built Factory rental remains level 100")
+  T.eq(mon.factoryRental, true,
+    "temporary Factory Pokemon carry an explicit rental marker")
+end
+
+local factoryFoes = grandTour.factoryBracket(1)
+T.eq(#factoryFoes, 3,
+  "a Factory run selects three changing opponents")
+local factoryKeys = {}
+for _, foe in ipairs(factoryFoes) do
+  T.eq(factoryKeys[foe.key], nil,
+    "one Factory bracket never repeats an opponent")
+  factoryKeys[foe.key] = true
+  T.eq(#foe.team, 3,
+    foe.key .. " fields a fair three-Pokemon Factory team")
+  for _, slot in ipairs(foe.team) do
+    T.eq(slot.level, 100, foe.key .. " always battles at level 100")
+  end
+end
+
+local cruiseFoes = grandTour.cruiseBracket(1)
+local nextCruiseFoes = grandTour.cruiseBracket(2)
+T.eq(#cruiseFoes, 5,
+  "each S.S. Anne Grand Tour contains five authored battles")
+T.eq(cruiseFoes[1].key ~= nextCruiseFoes[1].key, true,
+  "the S.S. Anne bracket rotates on the next voyage")
+local cruiseKeys = {}
+for _, foe in ipairs(cruiseFoes) do
+  T.eq(cruiseKeys[foe.key], nil,
+    "one voyage never repeats a shipboard opponent")
+  cruiseKeys[foe.key] = true
+  T.eq(#foe.team, 6, foe.key .. " brings a complete cruise team")
+  for _, slot in ipairs(foe.team) do
+    T.eq(slot.level, 100, foe.key .. " always battles at level 100")
+  end
+end
+
+local interruptedOriginal = {
+  { species = "FIXMON_A", level = 42, hp = 17 },
+  { species = "FIXMON_B", level = 43, hp = 18 },
+}
+local interruptedSave = {
+  party = { { species = "VENUSAUR", level = 100, factoryRental = true } },
+  modData = {
+    trainer_rematch = {
+      grand_tour = {
+        factory = {
+          attempts = 1, activeRound = 2,
+          activeDraft = { "VENUSAUR", "STARMIE", "TAUROS" },
+          backupParty = interruptedOriginal,
+        },
+      },
+    },
+  },
+}
+T.eq(grandTour.recoverRawParty(interruptedSave), true,
+  "loading an interrupted Factory run detects the party backup")
+T.eq(interruptedSave.party, interruptedOriginal,
+  "interrupted Factory saves restore the exact original team")
+local recoveredFactory =
+  interruptedSave.modData.trainer_rematch.grand_tour.factory
+T.eq(recoveredFactory.backupParty, nil,
+  "successful recovery consumes the stale Factory backup")
+T.eq(recoveredFactory.activeRound, 0,
+  "successful recovery closes the interrupted Factory round")
+
+local oldGrandTour = grandTour.normalizeState({
+  factory = { attempts = -3, wins = 2, bestRound = 99 },
+  cruise = { clears = 4, bestRound = 99, nextAt = -1 },
+})
+T.eq(oldGrandTour.factory.attempts, 0,
+  "Grand Tour migration repairs invalid old Factory counters")
+T.eq(oldGrandTour.factory.wins, 2,
+  "Grand Tour migration preserves legitimate Factory wins")
+T.eq(oldGrandTour.factory.bestRound, 3,
+  "Factory best-round migration clamps to the three-round maximum")
+T.eq(oldGrandTour.cruise.clears, 4,
+  "Grand Tour migration preserves legitimate voyage clears")
+T.eq(oldGrandTour.cruise.bestRound, 5,
+  "voyage best-round migration clamps to the five-round maximum")
+
+local priorGrandTourSave = run.loader.modSave
+run.loader.modSave = {}
+local grandTourState = grandTour.state()
+run.loader.modSave.trainer_rematch.step_clock = 1000
+grandTourState.cruise.nextAt = 5096
+T.eq(grandTour.cruiseRemaining(), 4096,
+  "the voyage status measures its cooldown on literal walked tiles")
+run.loader.modSave.trainer_rematch.step_clock = 5096
+T.eq(grandTour.cruiseRemaining(), 0,
+  "the S.S. Anne returns after all 4096 real steps")
+local factoryWrites = 0
+grandTourState.factory.backupParty = {
+  { species = "FIXMON_A", level = 42 },
+}
+T.eq(RealRuntime.call("save.write", function()
+    factoryWrites = factoryWrites + 1
+    return true
+  end, {}), false,
+  "the global save hotkey is vetoed during a live Factory rental run")
+T.eq(factoryWrites, 0,
+  "a vetoed Factory save never reaches the disk-writing continuation")
+grandTourState.factory.backupParty = nil
+T.eq(RealRuntime.call("save.write", function()
+    factoryWrites = factoryWrites + 1
+    return true
+  end, {}), true,
+  "normal saving resumes as soon as the Factory party is restored")
+T.eq(factoryWrites, 1,
+  "the ordinary save path still reaches its continuation exactly once")
+
+local ascendantGrandTourState = asc.state()
+ascendantGrandTourState.achievements.factory_architect = true
+ascendantGrandTourState.achievements.sea_champion = true
+grandTourState.factory.title = false
+grandTourState.cruise.title = false
+T.eq(grandTour.state().factory.title, true,
+  "an existing Factory achievement repairs its stale local title flag")
+T.eq(grandTour.state().cruise.title, true,
+  "an existing cruise achievement repairs its stale local title flag")
+
+local factoryOriginalParty = rentals
+factoryGame.save.party = factoryOriginalParty
+local factoryMessages = {}
+factoryGame.stack = {
+  push = function(_, box) factoryMessages[#factoryMessages + 1] = box end,
+}
+local factoryNpc = { frozen = true }
+local factoryOw = {
+  afterBattle = function() end,
+  pushBattle = function(self, battle) self.battle = battle end,
+}
+
+local originalPokemonNew = Pokemon.new
+Pokemon.new = function() error("injected rental build failure") end
+local rentalCallOk, rentalStarted, rentalReason = pcall(
+  grandTour.startFactoryRun, factoryGame, factoryOw, factoryNpc,
+  { firstDraft[1], firstDraft[2], firstDraft[3] })
+Pokemon.new = originalPokemonNew
+T.eq(rentalCallOk, true,
+  "a thrown rental constructor is contained by the Factory transaction")
+T.eq(rentalStarted, false,
+  "a failed rental build cannot start a partial Factory run")
+T.eq(rentalReason, "rental_error",
+  "the failed rental transaction reports its precise stage")
+T.eq(factoryGame.save.party, factoryOriginalParty,
+  "a rental-construction failure keeps the exact original party")
+T.eq(grandTour.state().factory.backupParty, nil,
+  "a rental-construction failure consumes the temporary party backup")
+
+local originalForcedBattle = pg.newForcedBattle
+local forcedBattleCalls = 0
+pg.newForcedBattle = function()
+  forcedBattleCalls = forcedBattleCalls + 1
+  if forcedBattleCalls == 2 then error("injected battle build failure") end
+  return { trainer = { name = "FACTORY TEST" } }
+end
+factoryMessages = {}
+factoryNpc.frozen = true
+factoryGame.save.party = factoryOriginalParty
+package.loaded["src.render.TextBox"] = textBoxStub
+local partialStarted = grandTour.startFactoryRun(
+  factoryGame, factoryOw, factoryNpc,
+  { firstDraft[1], firstDraft[2], firstDraft[3] })
+T.eq(partialStarted, true,
+  "the injected Factory battle failure occurs only after round one starts")
+factoryOw.battle.onFinish("win")
+factoryMessages[#factoryMessages].onDone()
+package.loaded["src.render.TextBox"] = realTextBoxModule
+pg.newForcedBattle = originalForcedBattle
+T.eq(factoryGame.save.party, factoryOriginalParty,
+  "a later namedBattle failure restores the exact original party")
+T.eq(grandTour.state().factory.backupParty, nil,
+  "a later namedBattle failure clears the save-veto backup")
+T.eq(factoryNpc.frozen, false,
+  "a failed later Factory round releases the facility NPC")
+T.eq(factoryMessages[#factoryMessages].text:find(
+    "original team", 1, true) ~= nil, true,
+  "an asynchronous Factory rollback explains that the team was restored")
+
+local festivalState = worldEvents.state()
+local priorFestival = festivalState.active
+festivalState.active = { id = "frontier_festival", steps = 100 }
+ascendantGrandTourState.frontierPoints = 10
+pg.newForcedBattle = function()
+  return { trainer = { name = "GRAND TOUR TEST" } }
+end
+factoryMessages = {}
+factoryNpc.frozen = true
+factoryGame.save.party = factoryOriginalParty
+package.loaded["src.render.TextBox"] = textBoxStub
+T.eq(grandTour.startFactoryRun(
+    factoryGame, factoryOw, factoryNpc,
+    { firstDraft[1], firstDraft[2], firstDraft[3] }), true,
+  "a complete test Factory run starts with the valid draft")
+for round = 1, 3 do
+  factoryOw.battle.onFinish("win")
+  if round < 3 then factoryMessages[#factoryMessages].onDone() end
+end
+T.eq(ascendantGrandTourState.frontierPoints, 22,
+  "Frontier Festival actually credits twelve points for a clean Factory run")
+T.eq(factoryMessages[#factoryMessages].text:find(
+    "+12 FRONTIER POINTS", 1, true) ~= nil, true,
+  "the Factory clear dialogue shows the twelve points actually credited")
+
+factoryMessages = {}
+factoryNpc.frozen = true
+grandTour.state().cruise.nextAt = 0
+T.eq(grandTour.startCruise(factoryGame, factoryOw, factoryNpc), true,
+  "a complete test S.S. Anne Grand Tour starts off cooldown")
+for round = 1, 5 do
+  factoryOw.battle.onFinish("win")
+  if round < 5 then factoryMessages[#factoryMessages].onDone() end
+end
+package.loaded["src.render.TextBox"] = realTextBoxModule
+pg.newForcedBattle = originalForcedBattle
+festivalState.active = priorFestival
+T.eq(ascendantGrandTourState.frontierPoints, 38,
+  "Frontier Festival actually credits sixteen points for the cruise")
+T.eq(factoryMessages[#factoryMessages].text:find(
+    "+16 FRONTIER POINTS", 1, true) ~= nil, true,
+  "the cruise clear dialogue shows the sixteen points actually credited")
+
+run.loader.modSave = priorGrandTourSave
+end)()
 
 run.release()
 T.finish("trainer_rematch")
