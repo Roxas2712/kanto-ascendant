@@ -14,6 +14,34 @@ T.eq(run.mod.manifest.id, "trainer_rematch",
 local ex = run.loader.exports.trainer_rematch
 T.neq(ex, nil, "exports reachable")
 
+-- --------------------------------------------------- Gen-II audio ownership
+
+do
+  T.neq(ex.johtoAudio, nil,
+    "the late Johto cry compatibility seam is exported")
+  local externalTotodileCry = { file = "external/gen2/totodile.ogg" }
+  Data.audio = { cries = {} }
+  Data.pokemon.TOTODILE = {}
+  Data.audio.cries.TOTODILE = externalTotodileCry
+  local fallbackCount, externalCount = ex.johtoAudio.install({ data = Data })
+  T.eq(fallbackCount, 99,
+    "Ascendant fills only the 99 Johto cries that remain unavailable")
+  T.eq(externalCount, 1,
+    "one externally registered Johto cry is recognized")
+  T.eq(Data.audio.cries.TOTODILE.file, externalTotodileCry.file,
+    "an external Totodile cry wins over Ascendant's synthesized fallback")
+  T.neq(Data.audio.cries.CHIKORITA, nil,
+    "a missing Johto cry receives Ascendant's self-contained fallback")
+  T.eq(Data.pokemon.TOTODILE.cry, "TOTODILE",
+    "late audio binding connects the species to the preserved external cry")
+  local repeatedFallbacks, repeatedExternal =
+    ex.johtoAudio.install({ data = Data })
+  T.eq(repeatedFallbacks, 0, "late Johto audio binding is idempotent")
+  T.eq(repeatedExternal, 100,
+    "a repeated install preserves every already resolved cry")
+  Data.pokemon.TOTODILE = nil
+end
+
 -- ------------------------------------------------ bundled Crystal art seam
 
 T.neq(ex.crystalSprites, nil, "Crystal availability is exported")
@@ -494,6 +522,14 @@ local megaSpeciesCount = 0
 for _ in pairs(mega.formsBySpecies) do megaSpeciesCount = megaSpeciesCount + 1 end
 T.eq(megaSpeciesCount, 27,
   "the official forms belong to exactly 27 of the first 251 species")
+T.eq(#mega.secretForms, 1,
+  "fan-made secret forms are exported outside the official Mega catalog")
+T.eq(mega.formsBySpecies.TYPHLOSION, nil,
+  "Ascendant Typhlosion never appears as an official Mega Evolution")
+T.eq(mega.secretForms[1].id, "TYPHLOSION_ASCENDANT",
+  "the single secret form has an explicit non-official identity")
+T.same(mega.secretForms[1].types, { "FIRE", "GROUND" },
+  "the volcanic secret form adapts to Fire/Ground in the Kanto battle model")
 T.eq(mega.formsBySpecies.PIKACHU, nil,
   "Pikachu has no invented Mega Evolution")
 T.eq(#mega.formsBySpecies.CHARIZARD, 2,
@@ -528,6 +564,34 @@ for _, profile in ipairs(mega.forms) do
   T.eq(seenMegaStones[profile.stone], nil,
     profile.stone .. " belongs to only one Mega form")
   seenMegaStones[profile.stone] = true
+  T.neq(profile.asset, nil,
+    profile.id .. " has a dedicated installed battle asset")
+  for _, side in ipairs({ "front", "back" }) do
+    for _, variant in ipairs({ "normal", "shiny" }) do
+      local suffix = side .. (variant == "shiny" and "_shiny" or "")
+      local master = ("assets/mega/%s_%s.png"):format(profile.asset, suffix)
+      local handle = io.open(modPath .. "/" .. master, "rb")
+      T.neq(handle, nil, master .. " is packaged")
+      if handle then handle:close() end
+      local gen1 = ("assets/mega_gen1_runtime/%s_%s.png")
+        :format(profile.asset, suffix)
+      local gen1Handle = io.open(modPath .. "/" .. gen1, "rb")
+      T.neq(gen1Handle, nil, gen1 .. " is packaged")
+      if gen1Handle then gen1Handle:close() end
+      local timings = mega.animationData[profile.id][side][variant]
+      T.eq(#timings >= 3, true,
+        profile.id .. " " .. side .. "/" .. variant
+          .. " has a real motion loop")
+      for frame = 1, #timings do
+        local relative = (
+          "assets/mega_animated/%s/%s/%s/%03d.png")
+          :format(profile.asset, side, variant, frame)
+        local frameHandle = io.open(modPath .. "/" .. relative, "rb")
+        T.neq(frameHandle, nil, relative .. " is packaged")
+        if frameHandle then frameHandle:close() end
+      end
+    end
+  end
 end
 local boosted = mega.boostedStats({
   mon = { species = "RAICHU", level = 100,
@@ -543,10 +607,56 @@ local megaCtx = {
 }
 local megaPath = RealRuntime.call("pokemon.sprite",
   function(path) return path end, "raichu_fallback.png", megaCtx)
-T.eq(megaPath:find("assets/mega/mega_raichu_x_front.png", 1, true) ~= nil,
-  true, "Mega Raichu X selects its original four-shade front sprite")
-T.eq(megaCtx.trueColor, false,
-  "Mega sprites remain compatible with Gen-1 palettes")
+T.eq(megaPath:find(
+    "assets/mega_runtime/mega_raichu_x_front.png", 1, true) ~= nil,
+  true, "Mega Raichu X selects its dedicated sharp front sprite")
+T.eq(megaCtx.trueColor, true,
+  "animated Mega sprites preserve their authored palettes")
+do
+local ascendantTyphlosionCtx = {
+  species = "TYPHLOSION", side = "front", trueColor = false,
+  mon = {
+    species = "TYPHLOSION", _ascMegaForm = "TYPHLOSION_ASCENDANT",
+  },
+}
+local ascendantTyphlosionPath = RealRuntime.call("pokemon.sprite",
+  function(path) return path end, "typhlosion_fallback.png",
+  ascendantTyphlosionCtx)
+T.eq(ascendantTyphlosionPath:find(
+    "assets/mega_runtime/ascendant_typhlosion_front.png", 1, true) ~= nil,
+  true,
+  "Ascendant Typhlosion selects its sharp dedicated front sprite")
+T.eq(ascendantTyphlosionCtx.trueColor, true,
+  "the secret form preserves its authored obsidian/cyan palette")
+local shinyAscendantTyphlosionPath = RealRuntime.call("pokemon.sprite",
+  function(path) return path end, "typhlosion_fallback.png", {
+    species = "TYPHLOSION", side = "back", trueColor = false,
+    mon = {
+      species = "TYPHLOSION", _ascMegaForm = "TYPHLOSION_ASCENDANT",
+      shiny = true,
+    },
+  })
+T.eq(shinyAscendantTyphlosionPath:find(
+    "assets/mega_runtime/ascendant_typhlosion_back_shiny.png", 1, true)
+  ~= nil, true,
+  "the secret form has an independent shiny back sprite")
+for side, variants in pairs(mega.animationData.TYPHLOSION_ASCENDANT) do
+  for variant, timings in pairs(variants) do
+    local expected = side == "front" and 23 or 12
+    T.eq(#timings, expected,
+      "Ascendant Typhlosion " .. side .. "/" .. variant
+        .. " uses its full Crystal-driven motion loop")
+    for frame = 1, #timings do
+      local relative = (
+        "assets/mega_animated/ascendant_typhlosion/%s/%s/%03d.png")
+        :format(side, variant, frame)
+      local handle = io.open(modPath .. "/" .. relative, "rb")
+      T.neq(handle, nil, relative .. " is packaged")
+      if handle then handle:close() end
+    end
+  end
+end
+end
 do
 local charizardXMon = {
   species = "CHARIZARD", _ascMegaForm = "CHARIZARD_X",
@@ -559,7 +669,7 @@ local charizardXCtx = {
 local charizardXPath = RealRuntime.call("pokemon.sprite",
   function(path) return path end, "charizard_fallback.png", charizardXCtx)
 T.eq(charizardXPath:find(
-    "assets/mega/mega_charizard_x_front.png", 1, true) ~= nil, true,
+    "assets/mega_runtime/mega_charizard_x_front.png", 1, true) ~= nil, true,
   "Mega Charizard X selects its dedicated detailed front sprite")
 T.eq(charizardXCtx.trueColor, true,
   "Mega Charizard X preserves its authored blue Crystal palette")
@@ -572,17 +682,21 @@ local shinyCharizardXPath = RealRuntime.call("pokemon.sprite",
     },
   })
 T.eq(shinyCharizardXPath:find(
-    "assets/mega/mega_charizard_x_front_shiny.png", 1, true) ~= nil, true,
+    "assets/mega_runtime/mega_charizard_x_front_shiny.png", 1, true)
+  ~= nil, true,
   "shiny Mega Charizard X selects its matching authored-palette art")
-T.eq(#mega.animationData.CHARIZARD_X.normal, 82,
-  "Mega Charizard X ships with its detailed reduced animation loop")
-for variant, timings in pairs(mega.animationData.CHARIZARD_X) do
-  for frame = 1, #timings do
-    local relative = ("assets/mega_animated/mega_charizard_x/%s/%03d.png")
-      :format(variant, frame)
-    local handle = io.open(modPath .. "/" .. relative, "rb")
-    T.neq(handle, nil, relative .. " is packaged")
-    if handle then handle:close() end
+T.eq(#mega.animationData.CHARIZARD_X.front.normal >= 3, true,
+  "Mega Charizard X ships with a side-aware detailed animation loop")
+for side, variants in pairs(mega.animationData.CHARIZARD_X) do
+  for variant, timings in pairs(variants) do
+    for frame = 1, #timings do
+      local relative = (
+        "assets/mega_animated/mega_charizard_x/%s/%s/%03d.png")
+        :format(side, variant, frame)
+      local handle = io.open(modPath .. "/" .. relative, "rb")
+      T.neq(handle, nil, relative .. " is packaged")
+      if handle then handle:close() end
+    end
   end
 end
 local megaAnimationBattle = {
@@ -595,6 +709,46 @@ T.neq(megaAnimationBattle.enemy.__ascendantMegaAnimation, nil,
   "Mega Charizard X receives an independent live animation state")
 T.eq(megaAnimationBattle.enemy.__ascendantMegaAnimation.frame > 1, true,
   "Mega Charizard X animation advances using packaged timing")
+run.loader.modOptions.trainer_rematch = {
+  kanto_crystal_art = false,
+  crystal_animation = false,
+}
+charizardXMon._ascMegaAnimationFrame = nil
+local gen1CharizardCtx = {
+  species = "CHARIZARD", side = "front", trueColor = true,
+  mon = charizardXMon,
+}
+local gen1CharizardPath = RealRuntime.call("pokemon.sprite",
+  function(path) return path end, "charizard_fallback.png",
+  gen1CharizardCtx)
+T.eq(gen1CharizardPath:find(
+    "assets/mega_gen1_runtime/mega_charizard_x_front.png", 1, true)
+  ~= nil, true,
+  "disabling Kanto Crystal art selects the four-shade Gen-I Mega card")
+T.eq(gen1CharizardCtx.trueColor, false,
+  "the Gen-I Mega card receives the active Red/Blue/Yellow monster palette")
+megaAnimationBattle.enemy.__ascendantMegaAnimation = nil
+mega.updateAnimations(megaAnimationBattle, 1.0)
+T.eq(megaAnimationBattle.enemy.__ascendantMegaAnimation, nil,
+  "the Gen-I Mega presentation remains authentically static")
+run.loader.modOptions.trainer_rematch = {
+  legend_art = "original",
+  crystal_animation = false,
+}
+local gen1AmpharosCtx = {
+  species = "AMPHAROS", side = "front", trueColor = true,
+  mon = { species = "AMPHAROS", _ascMegaForm = "AMPHAROS" },
+}
+local gen1AmpharosPath = RealRuntime.call("pokemon.sprite",
+  function(path) return path end, "ampharos_fallback.png",
+  gen1AmpharosCtx)
+T.eq(gen1AmpharosPath:find(
+    "assets/mega_gen1_runtime/mega_ampharos_front.png", 1, true)
+  ~= nil, true,
+  "JOHTO ART = KANTO FALLBACK also selects the Gen-I Johto Mega card")
+T.eq(gen1AmpharosCtx.trueColor, false,
+  "Johto Gen-I Mega art also receives the active edition palette")
+run.loader.modOptions.trainer_rematch = nil
 end
 do
 local removeCrystalKanto = run.loader.hooks:wrap(
@@ -611,10 +765,10 @@ local megaOverCrystalCtx = {
 local megaOverCrystalPath = RealRuntime.call("pokemon.sprite",
   function(path) return path end, "raichu_fallback.png", megaOverCrystalCtx)
 T.eq(megaOverCrystalPath:find(
-    "assets/mega/mega_raichu_x_front.png", 1, true) ~= nil, true,
+    "assets/mega_runtime/mega_raichu_x_front.png", 1, true) ~= nil, true,
   "Mega forms override the external Crystal mod's priority-930 Kanto art")
-T.eq(megaOverCrystalCtx.trueColor, false,
-  "Mega art restores palette-aware rendering after external Crystal art")
+T.eq(megaOverCrystalCtx.trueColor, true,
+  "Mega art restores its authored palette after external Crystal art")
 removeCrystalKanto()
 end
 
@@ -2504,6 +2658,53 @@ T.eq(johtoMasters.randomSpecies(discoveryGame, function() return 251 end),
 
 local isolatedModSave = run.loader.modSave
 run.loader.modSave = {}
+;(function()
+local secretPokemon, secretOwned = {}, {}
+for dex = 1, 251 do
+  local id = dex == 157 and "TYPHLOSION"
+    or ("SECRET_DEX_%03d"):format(dex)
+  secretPokemon[id] = { id = id, dex = dex, name = id }
+  secretOwned[id] = true
+end
+local secretGame = {
+  data = { pokemon = secretPokemon },
+  save = {
+    player = { name = "RED" },
+    party = { { species = "TYPHLOSION", level = 100 } },
+    pokedex = { seen = secretOwned, owned = secretOwned },
+  },
+}
+local secretForm = ex.ascendantTyphlosion
+T.neq(secretForm, nil,
+  "the Ascendant Typhlosion discovery event is exported")
+T.eq(secretForm.ownedCount(secretGame), 251,
+  "the Basalt Seal counts an exact complete National Pokédex")
+johtoMasters.state().clears = 0
+T.eq(secretForm.ready(secretGame), false,
+  "the secret form remains sealed before Gold's final main battle")
+johtoMasters.state().clears = 1
+secretGame.save.party[1].level = 99
+T.eq(secretForm.ready(secretGame), false,
+  "the Basalt Seal requires Typhlosion to reach level 100")
+secretGame.save.party[1].level = 100
+T.eq(secretForm.ready(secretGame), true,
+  "Gold, all 251 species and level-100 Typhlosion complete the ritual")
+T.eq(secretForm.unlock(secretGame), true,
+  "the first complete Basalt ritual unlocks the form")
+T.eq(secretForm.unlock(secretGame), false,
+  "the permanent Basalt Core cannot be awarded twice")
+T.eq(mega.secretUnlocked(), true,
+  "the battle-form controller receives the permanent secret entitlement")
+T.eq(mega.profileFor(secretGame.save.party[1], false).id,
+  "TYPHLOSION_ASCENDANT",
+  "an entitled player Typhlosion resolves to the secret form")
+T.eq(mega.profileFor(secretGame.save.party[1], true), nil,
+  "ordinary enemy Typhlosion never uses the player's secret fan form")
+T.eq(secretForm.statusText(secretGame):find(
+    "BASALT CORE: AWAKE", 1, true) ~= nil, true,
+  "the unlocked Ascendant page explains the permanent relic")
+end)()
+
 worldEvents.install(discoveryGame)
 local worldState = worldEvents.state()
 worldState.nextAt, worldState.active = 10, nil
@@ -2543,6 +2744,106 @@ worldState.active = { id = "frontier_festival", steps = 100 }
 T.eq(worldEvents.frontierMultiplier(), 2,
   "Frontier Festival doubles Ascendant Frontier points")
 run.loader.modSave = isolatedModSave
+
+-- ------------------------------------------------ Johto starter relic quests
+
+;(function()
+local previousSave = run.loader.modSave
+run.loader.modSave = {}
+local relics = ex.starterRelicQuests
+T.neq(relics, nil,
+  "the acquisition-independent starter relic controller is exported")
+local relicGame = {
+  data = Data,
+  save = {
+    party = { { species = "CHIKORITA", level = 18 } },
+    boxes = { { { species = "CYNDAQUIL", level = 12 } } },
+    pokedex = {
+      seen = { CHIKORITA = true, CYNDAQUIL = true },
+      owned = { CHIKORITA = true, CYNDAQUIL = true },
+    },
+    inventory = {}, player = { name = "RED" },
+  },
+  stack = { push = function(_, box) pushed[#pushed + 1] = box end },
+}
+relics.install(relicGame)
+T.eq(relics.questState("chikorita").assigned, true,
+  "owning Chikorita assigns its relic quest on an upgraded save")
+T.eq(relics.questState("chikorita").introSeen, false,
+  "a newly assigned starter relic remains visibly unread")
+T.eq(relics.questState("cyndaquil").assigned, true,
+  "a boxed Cyndaquil family member assigns the Basalt quest")
+T.eq(relics.nextObjective(relicGame, "chikorita"):find(
+    "VIRIDIAN FOREST", 1, true) ~= nil, true,
+  "Chikorita's guide names the next required location")
+T.eq(relics.nextObjective(relicGame, "cyndaquil"):find(
+    "DEFEAT GOLD", 1, true) ~= nil, true,
+  "Cyndaquil's guide points to Gold before revealing the Basalt Seal")
+T.eq(relics.questState("totodile", false), nil,
+  "an unknown starter family does not pre-fill its quest")
+
+local chikoritaQuest = relics.questState("chikorita")
+run.loader.events:emit("world.stepped", {})
+T.eq(chikoritaQuest.steps, 1,
+  "walking with the Chikorita family advances its private quest")
+T.eq(chikoritaQuest.trialSteps, 0,
+  "ordinary walking does not bypass the Viridian Forest chapter")
+chikoritaQuest.steps = relics.quests.chikorita.steps - 1
+chikoritaQuest.wins = relics.quests.chikorita.wins - 1
+chikoritaQuest.trialSteps = relics.quests.chikorita.trialSteps - 1
+run.loader.events:emit("world.stepped", { mapId = "VIRIDIAN_FOREST" })
+T.eq(chikoritaQuest.trialSteps, relics.quests.chikorita.trialSteps,
+  "walking in Viridian Forest completes Chikorita's forest chapter")
+run.loader.events:emit("battle.ended", {
+  result = "win",
+  battle = { game = relicGame, kind = "trainer", trainer = { name = "IRIS" } },
+})
+T.eq(relics.ready("chikorita"), true,
+  "the Verdant Relic becomes ready after its steps and trainer wins")
+T.eq(relics.nextObjective(relicGame, "chikorita"):find(
+    "RELIC KEEPER", 1, true) ~= nil, true,
+  "a completed Verdant trial directs the player back to its keeper")
+
+local oldTextBox = package.loaded["src.render.TextBox"]
+package.loaded["src.render.TextBox"] = textBoxStub
+pushed = {}
+local relicNpc = {
+  def = { name = relics.quests.chikorita.npc },
+  frozen = false, facePlayer = function() end,
+}
+T.eq(relics.handleTalk({ player = {} }, relicNpc, relicGame), true,
+  "the Celadon relic keeper handles the completed quest")
+T.eq(mega.hasStone("MEGANIUMITE"), true,
+  "the one-time Verdant Relic awards Meganiumite")
+T.eq(relics.questState("chikorita").claimed, true,
+  "the Meganiumite reward is permanently recorded")
+T.eq(mega.grantStone("MEGANIUMITE"), false,
+  "Meganiumite cannot be awarded a second time")
+package.loaded["src.render.TextBox"] = oldTextBox
+
+run.loader.events:emit("pokemon.caught", {
+  game = relicGame, species = "TOTODILE",
+  mon = { species = "TOTODILE", level = 10 },
+})
+T.eq(relics.questState("totodile").assigned, true,
+  "a wild Totodile immediately assigns the Torrent Relic quest")
+relicGame.save.party = { { species = "CROCONAW", level = 25 } }
+local totodileQuest = relics.questState("totodile")
+run.loader.events:emit("world.stepped", {})
+T.eq(totodileQuest.steps, 1,
+  "an evolved Croconaw advances the same family quest")
+T.eq(totodileQuest.trialSteps, 0,
+  "Totodile's tide chapter cannot advance outside Seafoam")
+run.loader.events:emit("world.stepped", { mapId = "SEAFOAM_ISLANDS_B2F" })
+T.eq(totodileQuest.trialSteps, 1,
+  "Seafoam walking advances Totodile's dedicated tide chapter")
+T.eq(relics.statusText(relicGame, "totodile"):find(
+    "SEAFOAM ISLANDS", 1, true) ~= nil, true,
+  "the Torrent Relic page names its required story location")
+
+run.loader.modSave = previousSave
+relics.install(game)
+end)()
 
 -- ------------------------------------------------ Kanto Ascendant 5.0 Grand Tour
 

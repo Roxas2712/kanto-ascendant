@@ -13,8 +13,56 @@ local function evolutionRow(row)
 end
 
 return function(mod, legends, johto, i18n)
-  if not mod.content.pokemon:get("MEWTWO") then return false end
   local ChipAsm = require("src.audio.ChipAsm")
+  local fallbackCries = {}
+  for _, id in ipairs(johto.order) do
+    local def = assert(johto.species[id], "missing Johto species " .. id)
+    local cryFrequency = 0x300 + ((def.dex - 152) % 20) * 0x38
+    fallbackCries[id] = {
+      chip = ChipAsm.sfx{
+        channels = { { hw = 1, program = {
+          { pitchSweep = {
+            pace = 2 + (def.dex % 5),
+            subtract = def.dex % 2 == 0, shift = 3,
+          } },
+          { squareNote = {
+            len = 5 + (def.dex % 3), volume = 13, fade = 2,
+            frequency = cryFrequency,
+          } },
+        } } },
+      }.chip,
+      pitch = 96 + (def.dex % 5) * 16,
+      length = 112 + (def.dex % 4) * 16,
+    }
+  end
+
+  local audioCompat = { fallbacks = fallbackCries }
+  function audioCompat.install(game)
+    local data = game and game.data or game
+    if not data then return 0, 0 end
+    data.audio = data.audio or {}
+    data.audio.cries = data.audio.cries or {}
+    data.audio._owners = data.audio._owners or {}
+    data.audio._owners.cries = data.audio._owners.cries or {}
+
+    local installed, preserved = 0, 0
+    for _, id in ipairs(johto.order) do
+      if data.audio.cries[id] == nil then
+        data.audio.cries[id] = fallbackCries[id]
+        data.audio._owners.cries[id] = mod.manifest.id
+        installed = installed + 1
+      else
+        preserved = preserved + 1
+      end
+      local species = data.pokemon and data.pokemon[id]
+      if species then species.cry = id end
+    end
+    return installed, preserved
+  end
+
+  if not mod.content.pokemon:get("MEWTWO") then
+    return false, audioCompat
+  end
 
   -- Generation-II types and their original matchup table.
   mod.content.type_chart:register("DARK", {
@@ -269,23 +317,10 @@ return function(mod, legends, johto, i18n)
     local dex = assert(def.dexEntry, "missing Pokédex entry for " .. id)
     local totalInches = math.floor(dex.heightM * 39.3700787 + 0.5)
     local german = i18n and i18n.isGerman()
-    local cryFrequency = 0x300 + ((def.dex - 152) % 20) * 0x38
-    mod.content.cries:register(id, {
-      chip = ChipAsm.sfx{
-        channels = { { hw = 1, program = {
-          { pitchSweep = {
-            pace = 2 + (def.dex % 5),
-            subtract = def.dex % 2 == 0, shift = 3,
-          } },
-          { squareNote = {
-            len = 5 + (def.dex % 3), volume = 13, fade = 2,
-            frequency = cryFrequency,
-          } },
-        } } },
-      }.chip,
-      pitch = 96 + (def.dex % 5) * 16,
-      length = 112 + (def.dex % 4) * 16,
-    })
+    -- Do not claim the registry id during content loading. A dedicated
+    -- Gen-II audio mod may load before or after Ascendant, so the final
+    -- merged cry table is inspected at game.ready instead. Only genuinely
+    -- missing entries receive this compact synthesized fallback.
     mod.content.pokemon:register(id, {
       id = id,
       name = i18n and i18n.isGerman()
@@ -295,7 +330,7 @@ return function(mod, legends, johto, i18n)
       growthRate = def.growthRate, level1Moves = level1,
       tmhm = tmhm, learnset = learnset, evolutions = evolutions,
       spriteFront = spriteFront, spriteBack = spriteBack,
-      frontSize = template.frontSize or 7, cry = id,
+      frontSize = template.frontSize or 7,
       battleScaleBack = art and 1 or nil, icon = icon,
       dexEntry = {
         kind = german and dex.kindDe or dex.kindEn,
@@ -311,5 +346,6 @@ return function(mod, legends, johto, i18n)
 
   mod.content.constants:patch("dexSize", 251)
   mod.content.constants:patch("dexDigits", 3)
-  return true
+
+  return true, audioCompat
 end

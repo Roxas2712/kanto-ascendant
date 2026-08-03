@@ -1,4 +1,4 @@
--- Visual smoke test for Kanto Ascendant 5.1.1. Everything is changed only in
+-- Visual smoke test for Kanto Ascendant 5.2.0. Everything is changed only in
 -- the driver's in-memory save and the process exits without writing a slot.
 
 return function(game)
@@ -15,7 +15,7 @@ return function(game)
       and api.fieldTech and api.ascendantMenu and api.kantoCompletion
       and api.researchAtlas and api.frontierExchange and api.grandTour
       and api.legacyHall,
-    "5.1.1 controllers missing")
+    "5.2.0 controllers missing")
 
   local function encounterHas(mapId, species)
     local enc = game.data.encounters[mapId]

@@ -2,6 +2,63 @@
 
 All notable changes to this project are documented in this file.
 
+## [5.2.0] - 2026-08-03
+
+### Added
+
+- **Ascendant Typhlosion**, Kanto Ascendant's first deliberately unofficial
+  secret form. It is kept outside the official 30-form Mega Stone catalog and
+  requires Gold, a complete 251-species Pokédex and a level-100 Typhlosion at
+  the new Basalt Seal in Pokémon Mansion B1F.
+- A permanent Basalt Core relic, bilingual discovery sequence, spoiler-safe
+  Starter Relic tracking and optional Journal/Prestige progress.
+- Dedicated 96×96 normal/shiny front/back art for all 30 official Mega forms,
+  with 736 side-aware integer-pixel frames covering 2D enemy fronts, player
+  backs, shinies and Voxel-facing battles.
+- Static four-shade normal/shiny front/back derivatives for every official
+  Mega and Ascendant Typhlosion. Disabling Crystal art now produces genuine
+  edition-aware Red, Blue or Yellow Mega views in both 2D and Voxel instead of
+  continuing to show the full-colour Crystal-style animation.
+- Acquisition-independent Starter Relic journeys for the Chikorita, Totodile
+  and Cyndaquil families. They assign from Pokédex ownership, party or PC box,
+  so trial gifts, wild catches, other gifts and upgraded saves all work.
+- Full one-time Verdant and Torrent Relic journeys for Endivie and Karnimani.
+  Alongside their shared walking and trainer-battle bond goals, Endivie's
+  family must awaken the old growth of Viridian Forest and Karnimani's family
+  must cross the ice and tide of Seafoam Islands. Their keepers in Celadon and
+  Cerulean award the otherwise unforgeable Meganiumite and Feraligatrite.
+- Visible `NEW` markers and a bilingual next-objective guide for every Johto
+  Starter Relic. Feurigel's guide now points to Gold first, then the 251
+  Pokédex, level-100 Tornupto and only finally the Basalt Seal.
+- Late Gen-II cry binding that preserves every externally registered species
+  cry and installs Ascendant's synthesized audio only for genuinely missing
+  Johto entries. Mega and Ascendant forms retain that resolved species cry.
+
+### Changed
+
+- The transformation animator now supports distinct front and back frame
+  trees for every supported form while remaining backward-compatible with
+  older flat animation data.
+- Classic 2D Mega rear views now use larger 90×84 runtime cards. Their upper
+  bodies fill the player arena beneath the redrawn HUD, while the original
+  opaque battle-command box cleanly masks every pixel below its border.
+- Every official Mega form and Ascendant Typhlosion now has an individual
+  2D rear-view anchor derived from its complete back-animation silhouette.
+  Broad heads, wings and shoulders stay left of the player HP HUD in normal
+  and shiny frames instead of sharing one unsuitable global position.
+- Mega Charizard X's broad player-back pose is anchored farther left so its
+  right wing and body sit correctly beneath the player HUD.
+- Ascendant Typhlosion uses Fire/Ground, a +100 Gen-I stat adaptation and
+  restores 25% HP once on awakening.
+- Ascendant Typhlosion's approved design is merged with Crystal #157's full
+  23-frame front flame motion and timing. Its broad obsidian chest-and-
+  shoulder mantle, open V, bracers and greaves are now reduced directly from
+  the accepted full-resolution concept, replacing the broken geometric
+  overlays that obscured its arms. Both the front and 12-frame back loop build
+  into a full cyan volcanic eruption behind the body without covering it.
+- Meganiumite and Feraligatrite show `QUEST` instead of a price in the Stone
+  Case and can no longer be forged for money.
+
 ## [5.1.1] - 2026-08-03
 
 ### Added

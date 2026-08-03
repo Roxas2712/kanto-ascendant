@@ -495,14 +495,26 @@ are eligible. Within the mod's National Pokédex #001-251 this produces exactly
 | Mega Dimension | Raichu X/Y |
 
 Pikachu and every other species without an official Mega Evolution are
-explicitly rejected in battle. There is no mod-invented Ascendant Mega form.
+explicitly rejected by the official Mega system. The Stone Case remains a
+strictly official 30-form catalog; the separate secret fan form described
+below is never presented as a released Mega Evolution.
 
-The Route 5 machine forges every stone individually:
+The Route 5 machine forges most stones individually:
 
 - Classic non-Mewtwo stones unlock with the Ring after the first Hall of Fame
   and normally cost ¥5,000. Charizardite X/Y cost ¥7,500 each.
-- The newly discovered Z-A stones and Raichunite X/Y unlock after all eight
+- Most newly discovered Z-A stones and Raichunite X/Y unlock after all eight
   Master Leaders and cost ¥10,000 each.
+- **Meganiumite and Feraligatrite cannot be bought.** Owning any member of
+  the Chikorita or Totodile family assigns its one-time **STARTER RELIC**
+  journey, regardless of whether it came from Elm's trial, a wild encounter,
+  a gift, a PC box or an upgraded save. Keep that family in the party to
+  complete its walking and trainer-battle goals. Endivie's family must also
+  retrace Kanto's oldest growth in **Viridian Forest**; Karnimani's family must
+  brave the ice and current of the **Seafoam Islands**. The completed relic is
+  claimed from its keeper in Celadon or Cerulean. Newly assigned journeys show
+  `NEW` in both Start-menu layers; each Relic page and the shared Journal
+  tracker always name the next required objective and location.
 - Mewtwonite X/Y unlock after the Apex Champion and cost ¥15,000 each.
 - **ASCENDANT → MEGA STONES** shows the complete Stone Case and live
   `OWN`, price or `LOCK` status.
@@ -511,11 +523,43 @@ The Route 5 machine forges every stone individually:
 
 Every form uses a +100-point Kanto adaptation across the four non-HP Gen-1
 stats, accounting for the fact that later games split Special Attack and
-Special Defense. Type changes supported by Kanto Ascendant are applied in battle.
-Mega Raichu X/Y have dedicated original four-shade front/back sprites. Mega
-Charizard X has a detailed normal and shiny 56×56 front animation plus static
-player backs, adapted from BLaDoM's recognizable Gen-V-style pixel work.
-Other forms use their normal Gen-1 sprite with a Mega aura.
+Special Defense. Type changes supported by Kanto Ascendant are applied in
+battle. All **30 official forms** now have dedicated sharp 96×96 front, back,
+normal and shiny master sprites plus side-aware integer-pixel animation loops.
+Each silhouette remains crisply readable in the original 2D arena and in
+Dramatic Shape's Voxel-facing battles; the original command box cleanly masks
+the player sprite below its top border, and no form falls back to its ordinary
+species sprite. They also ship with separate static four-shade Gen-I
+derivatives. With Crystal art disabled, the engine recolours those cards
+through the active Red, Blue or Yellow monster palette instead of displaying
+the full-colour animated Mega art. Gen-I-mode shinies retain distinct
+four-shade artwork, and Voxel uses the same edition-aware palette.
+
+<details>
+<summary><strong>Secret-form spoiler: Ascendant Typhlosion</strong></summary>
+
+Owning Cyndaquil, Quilava or Typhlosion assigns the third one-time **STARTER
+RELIC** journey. Its final Basalt stage opens after defeating **Gold**, when a
+black seal appears in **Pokémon Mansion B1F**. It awakens only when the player
+has caught all **251 Pokémon** and brings a **level-100 Typhlosion** in the
+party. The permanent Basalt Core then unlocks **Ascendant Typhlosion**, a
+clearly labelled Kanto Ascendant fan form that uses the same SELECT input
+without using a Mega Stone.
+
+Ascendant Typhlosion becomes **Fire/Ground**, receives a +100 non-HP stat
+adaptation and restores 25% HP once when awakening. It has dedicated sharp
+96×96 normal/shiny front and back sprites with the approved broad obsidian
+chest-and-shoulder mantle, open V, bracers, greaves and volcanic dorsal
+plates. The front master is reduced directly from the accepted full-resolution
+concept instead of reconstructing its armor with disconnected geometric
+overlays. Its 23-frame front motion is merged with Pokémon Crystal's authentic
+#157 flame animation and timing, building from a calm mantle into a full cyan
+volcanic explosion behind the armored body before settling again. The player
+back receives the same readable eruption through a separate 12-frame loop.
+Both work in normal 2D and Voxel-facing battles. The discovered relic remains
+unlocked through New Game+ cycles.
+
+</details>
 
 **ENEMY MEGA** defaults to post-game bosses, can be expanded to every trainer
 or disabled. An opponent waits until an actually eligible team member is
@@ -750,11 +794,14 @@ from Chikorita through Celebi, including:
 - Crunch, Metal Claw, Iron Tail, Shadow Ball, Flame Wheel, Giga Drain,
   Sludge Bomb, Spark, Powder Snow, Aeroblast and Sacred Fire
 
-Every new species has base stats, typing, learnset, TM compatibility, a
-self-contained chip cry, Pokédex data and a four-shade Kanto fallback. The six
-story legends retain their authored front/back pixel art. Their party-menu
-icons use the game's standard animated silhouettes: quadruped for the three
-beasts, bird for Lugia and Ho-Oh, and the Mew-like fairy icon for Celebi.
+Every new species has base stats, typing, learnset, TM compatibility, Pokédex
+data and a four-shade Kanto fallback. After all enabled mods finish loading,
+Ascendant preserves any externally registered Gen-II cry and installs its
+self-contained synthesized chip cry only for species still missing audio.
+Mega and Ascendant forms use that resolved base-species cry. The six story
+legends retain their authored front/back pixel art. Their party-menu icons use
+the game's standard animated silhouettes: quadruped for the three beasts, bird
+for Lugia and Ho-Oh, and the Mew-like fairy icon for Celebi.
 
 ### Bundled Crystal battle art
 
@@ -790,7 +837,8 @@ Ascendant supplies Johto. For Dramatic Shape, use
 [LOW-K3YS's Voxel-compatible fork](https://github.com/LOW-K3YS/crystal_animated_sprites_with_shiny_visuals).
 Duplicate Kanto sparkle/chime presentation is suppressed automatically, while
 Johto shinies retain Ascendant's own effects. Mega forms always keep their
-official form sprite.
+form silhouette: Crystal mode uses the sharp full-colour animation, while
+Gen-I/Kanto-fallback mode uses the matching static four-shade Mega card.
 
 Unown is the sole static exception because Crystal stores its separate letter
 forms rather than a generic animated #201 sheet; the included form-A Crystal
@@ -834,9 +882,11 @@ submenu. It contains:
 - **REMATCH LOOT** — `OFF`, `BALANCED` or the more rewarding `GENEROUS`
   rare-item table.
 - **JOHTO ART** — use the bundled Crystal battle art for all 100 species or
-  force the four-shade Kanto fallback.
+  force the four-shade Kanto fallback. Johto Mega and Ascendant forms follow
+  this choice too.
 - **KANTO CRYSTAL ART** — use bundled normal/shiny Crystal fronts for #001-151
-  without requiring a separate sprite mod.
+  without requiring a separate sprite mod. Kanto Mega forms follow this
+  choice and receive the active Red/Blue/Yellow palette when disabled.
 - **CRYSTAL ANIMATION** — animate normal and shiny #001-251 fronts with their
   original Crystal timing; 2D player backs stay static.
 - **SHINY HUNTS** — use Ascendant Charm/streak/outbreak bonuses or retain only
@@ -900,7 +950,7 @@ missions, Rocket story and one new tournament bracket are completed.
 
 ## Installation
 
-1. Download `kanto-ascendant-5.1.1.zip` from the
+1. Download `kanto-ascendant-5.2.0.zip` from the
    [latest release](https://github.com/Roxas2712/kanto-ascendant/releases/latest)
    and import it through the launcher. The identical `.modpkg` is also
    available for launcher versions that use that extension. Developers may
@@ -952,13 +1002,18 @@ Crystal animation frames for #001-251 and their exact timing table.
 captures the 2D follower, voxel follower and voxel battle paths.
 `tools/crystal_animation_qa_driver.lua` exercises standalone Kanto, Johto,
 Voxel and mixed external-Kanto/Ascendant-Johto paths in a real LÖVE client.
-`tools/mega_crystal_qa_driver.lua` performs real battle transformations for
-Mega Raichu X/Y and Mega Charizard X, including the latter's normal/shiny
-front animation, and verifies ownership with bundled or external Crystal art.
-`tools/install_mega_crystal_animations.py` deterministically extracts Mega
-Charizard X as clean 56×56 normal/shiny animation frames and static backs
-from the credited pixel-animation source.
-`tools/make_mega_assets.py` regenerates the four
-original four-shade Mega Raichu battle sprites. `tools/build_breeding_data.py`
+`tools/mega_crystal_qa_driver.lua` performs real battle transformations in
+2D and Voxel layouts and verifies Mega ownership with bundled or external
+Crystal art. `tools/install_all_mega_sprites.py` installs all 30 approved
+96×96 front/back/normal/shiny masters and their side-aware integer-pixel
+animation loops. `tools/build_ascendant_typhlosion.py` merges the approved
+secret form with Crystal #157's authentic front animation and generates its
+separate back loop. `tools/build_breeding_data.py`
 refreshes the offline 251-entry egg-group, gender-ratio and hatch-cycle table
 used at runtime.
+
+The complete reusable form-art, animation, 2D HUD, Voxel, fallback and QA
+checklist is preserved in [`docs/MEGA_FORM_PIPELINE.md`](docs/MEGA_FORM_PIPELINE.md).
+Possible later Mew, Celebi and Jirachi concepts, their type requirements and
+the current Fairy-type gap are recorded in
+[`docs/FUTURE_FORM_BACKLOG.md`](docs/FUTURE_FORM_BACKLOG.md).

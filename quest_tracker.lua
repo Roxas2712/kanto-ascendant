@@ -15,6 +15,8 @@ return function(mod, opts)
   local johtoData = opts.johtoData or {}
   local johtoMasters = opts.johtoMasters
   local grandTour = opts.grandTour
+  local ascendantTyphlosion = opts.ascendantTyphlosion
+  local starterRelicQuests = opts.starterRelicQuests
   local Q = { game = nil }
 
   local function tr(en, de)
@@ -283,23 +285,68 @@ return function(mod, opts)
 
   local function prestigeText()
     local p = postgame.state(false)
+    local text
     if not (p and p.crownChampion) then
-      return tr(
+      text = tr(
         "OPTIONAL PRESTIGE\nLocked until the CROWN\nChampion is defeated.",
         "OPTIONALES PRESTIGE\nGesperrt bis zum Sieg\nüber den KRONEN-Champ.")
+    else
+      local tour = grandTour and grandTour.state
+        and grandTour.state(false) or {}
+      local factory = tour.factory or {}
+      local cruise = tour.cruise or {}
+      text = tr("OPTIONAL PRESTIGE", "OPTIONALES PRESTIGE")
+        .. ("\f%s\n%s: %d\n%s"):format(
+          tr("BATTLE FACTORY", "KAMPFFABRIK"),
+          tr("CLEARS", "SIEGE"), factory.wins or 0,
+          tr("INDIGO PLATEAU LOBBY", "INDIGO-PLATEAU-LOBBY"))
+        .. ("\fS.S. ANNE GRAND TOUR\n%s: %d\n%s"):format(
+          tr("CLEARS", "SIEGE"), cruise.clears or 0,
+          tr("VERMILION HARBOR", "ORANIA-HAFEN"))
     end
-    local tour = grandTour and grandTour.state
-      and grandTour.state(false) or {}
-    local factory = tour.factory or {}
-    local cruise = tour.cruise or {}
-    return tr("OPTIONAL PRESTIGE", "OPTIONALES PRESTIGE")
-      .. ("\f%s\n%s: %d\n%s"):format(
-        tr("BATTLE FACTORY", "KAMPFFABRIK"),
-        tr("CLEARS", "SIEGE"), factory.wins or 0,
-        tr("INDIGO PLATEAU LOBBY", "INDIGO-PLATEAU-LOBBY"))
-      .. ("\fS.S. ANNE GRAND TOUR\n%s: %d\n%s"):format(
-        tr("CLEARS", "SIEGE"), cruise.clears or 0,
-        tr("VERMILION HARBOR", "ORANIA-HAFEN"))
+    local secret = ascendantTyphlosion and ascendantTyphlosion.state
+      and ascendantTyphlosion.state(false)
+    if secret and secret.clueSeen then
+      local progress = ascendantTyphlosion.ownedCount
+        and ascendantTyphlosion.ownedCount(Q.game) or 0
+      text = text .. ("\f%s\n%s\n%s: %d/251"):format(
+        secret.unlocked
+          and tr("ASCENDANT TYPHLOSION", "ASCENDANT-TORNUPTO") or "???",
+        secret.unlocked
+          and tr("BASALT CORE: AWAKE", "BASALT-KERN: WACH")
+          or tr("POKéMON MANSION B1F", "POKéMON-HAUS UG1"),
+        tr("POKéDEX", "POKéDEX"), progress)
+    end
+    local relicState = starterRelicQuests and starterRelicQuests.state
+      and starterRelicQuests.state(false)
+    for _, key in ipairs(
+        starterRelicQuests and starterRelicQuests.order or {}) do
+      local q = relicState and relicState.quests
+        and relicState.quests[key]
+      local def = starterRelicQuests.quests[key]
+      if q and q.assigned and not q.claimed then
+        if key == "cyndaquil" then
+          text = text .. "\f" .. starterRelicQuests.nextObjective(Q.game, key)
+          break
+        end
+        text = text .. ("\f%s\n%s %d/%d  %s %d/%d\n%s"):format(
+          tr("STARTER RELIC", "STARTER-RELIKT"),
+          tr("STEPS", "SCHRITTE"), math.min(q.steps, def.steps), def.steps,
+          tr("WINS", "SIEGE"), math.min(q.wins, def.wins), def.wins,
+          tr("ASCENDANT MENU", "ASCENDANT-MENÜ"))
+        if def.trialSteps then
+          text = text .. ("\f%s\n%s %d/%d"):format(
+            key == "chikorita"
+              and tr("VIRIDIAN FOREST", "VERTANIA-WALD")
+              or tr("SEAFOAM ISLANDS", "SEESCHAUMINSELN"),
+            tr("TRIAL STEPS", "PRÜFSCHRITTE"),
+            math.min(q.trialSteps or 0, def.trialSteps), def.trialSteps)
+        end
+        text = text .. "\f" .. starterRelicQuests.nextObjective(Q.game, key)
+        break
+      end
+    end
+    return text
   end
 
   function Q.install(game)

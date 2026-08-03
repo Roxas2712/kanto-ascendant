@@ -434,7 +434,9 @@ return function(mod)
   end
   CRYSTAL_ASSETS.HO_OH = "ho_oh"
   local registerSpecies = loadSibling(mod, "postgame_species.lua")
-  local contentEnabled = registerSpecies(mod, postgameData, johtoData, i18n)
+  local contentEnabled, johtoAudio =
+    registerSpecies(mod, postgameData, johtoData, i18n)
+  mod.exports.johtoAudio = johtoAudio
   local makeKantoCompletion = loadSibling(mod, "kanto_completion.lua")
   local kantoCompletion = makeKantoCompletion(mod, {
     i18n = i18n,
@@ -697,6 +699,24 @@ return function(mod)
   })
   mod.exports.dexProgress = dexProgress
 
+  local makeAscendantTyphlosion = loadSibling(
+    mod, "ascendant_typhlosion.lua")
+  local ascendantTyphlosion = makeAscendantTyphlosion(mod, {
+    i18n = i18n,
+    johtoMasters = johtoMasters,
+    megaEvolution = megaEvolution,
+    showMenu = false,
+  })
+  mod.exports.ascendantTyphlosion = ascendantTyphlosion
+  local makeStarterRelicQuests = loadSibling(
+    mod, "starter_relic_quests.lua")
+  local starterRelicQuests = makeStarterRelicQuests(mod, {
+    i18n = i18n,
+    megaEvolution = megaEvolution,
+    ascendantTyphlosion = ascendantTyphlosion,
+  })
+  mod.exports.starterRelicQuests = starterRelicQuests
+
   local makeResearchAtlas = loadSibling(mod, "research_atlas.lua")
   local researchAtlas = makeResearchAtlas(mod, {
     i18n = i18n,
@@ -744,6 +764,8 @@ return function(mod)
     johtoData = johtoData,
     johtoMasters = johtoMasters,
     grandTour = grandTour,
+    ascendantTyphlosion = ascendantTyphlosion,
+    starterRelicQuests = starterRelicQuests,
   })
   ascendant.setQuestTracker(questTracker)
   researchAtlas.setQuestTracker(questTracker)
@@ -1229,6 +1251,11 @@ return function(mod)
     local Runtime = deps.runtime or require("src.mods.Runtime")
     local mapScripts = deps.mapScripts or require("data.scripts.init")
 
+    -- Run only after every enabled mod has merged its audio registry. Existing
+    -- Gen-II cries therefore always win; Ascendant supplies only missing
+    -- Johto entries and Mega/Ascendant forms naturally retain their species
+    -- cry.
+    if johtoAudio then johtoAudio.install(game) end
     if megaEvolution then megaEvolution.install(game, deps) end
     if kantoCompletion then kantoCompletion.install(game, deps) end
     if fieldTech then fieldTech.install(game, deps) end
@@ -1242,6 +1269,8 @@ return function(mod)
     if worldEvents then worldEvents.install(game, deps) end
     if johtoMasters then johtoMasters.install(game, deps) end
     if dexProgress then dexProgress.install(game, deps) end
+    if ascendantTyphlosion then ascendantTyphlosion.install(game, deps) end
+    if starterRelicQuests then starterRelicQuests.install(game, deps) end
     if researchAtlas then researchAtlas.install(game, deps) end
     if grandTour then grandTour.install(game, deps) end
     if questTracker then questTracker.install(game, deps) end
@@ -1258,6 +1287,8 @@ return function(mod)
     Overworld.talkTo = function(self, npc)
       local d = npc.def
       if daycare and daycare.handleTalk(self, npc, game) then return end
+      if starterRelicQuests
+          and starterRelicQuests.handleTalk(self, npc, game) then return end
       -- Hall-of-Fame gym leaders are scripted in the base game, so the
       -- post-game controller gets first refusal before the generic/scripted
       -- split below.

@@ -43,6 +43,7 @@ return function(mod, opts)
           order = tonumber(item.ascendantOrder) or 999,
           sourceIndex = index,
           ascendantKey = itemKey(item),
+          ascendantFresh = item.ascendantFresh == true,
         }
       else
         startItems[#startItems + 1] = item
@@ -60,6 +61,9 @@ return function(mod, opts)
       if s.initialized and not s.known[key] then s.fresh[key] = true end
       s.known[key] = true
       if s.fresh[key] then
+        item.right = tr("NEW", "NEU")
+        anyNew = true
+      elseif item.ascendantFresh then
         item.right = tr("NEW", "NEU")
         anyNew = true
       end

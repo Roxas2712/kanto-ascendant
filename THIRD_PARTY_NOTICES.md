@@ -30,17 +30,20 @@ https://github.com/LOW-K3YS/crystal_animated_sprites_with_shiny_visuals
 Unown uses the bundled static Crystal form-A image because the source mirrors
 do not provide a generic animated #201 GIF.
 
-## Mega Charizard X pixel animation
+## Mega-form battle sprites
 
-Mega Charizard X normal front animation and static back are adapted to Kanto
-Ascendant's 56×56 battle canvas from BLaDoM's Gen-V-style work:
+The bundled 96×96 normal/shiny front/back masters for all 30 supported
+official Mega forms come from the PokeAPI sprites repository:
 
-https://www.reddit.com/r/pokemon/comments/7phgbg/
+https://github.com/PokeAPI/sprites
 
-The author credits the Smogon Mega Charizard X sprite as the visual basis and
-provides the animation and separated front/back part sheets in that post.
-Kanto Ascendant uses nearest-neighbour extraction and supplies its own derived
-shiny palette.
+The repository mirrors the recognizable Gen-V-style Pokémon Showdown/Smogon
+sprite set. Kanto Ascendant preserves each master without interpolation and
+builds side-aware idle loops using integer-pixel movement only.
+
+Ascendant Typhlosion is an original Kanto Ascendant fan design. Its front
+flame movement is derived from the bundled Pokémon Crystal #157 animation and
+timing described above.
 
 ## PokeWilds follower sprites
 

@@ -57,5 +57,6 @@ jobs:
         env:
           MODKIT_LUAJIT: luajit
         run: |
-          python3 tools/modkit.py pack ../kanto-ascendant             -o ../kanto-ascendant-5.1.1.modpkg
-          unzip -t ../kanto-ascendant-5.1.1.modpkg
+          python3 tools/modkit.py pack ../kanto-ascendant \
+            -o ../kanto-ascendant-5.2.0.modpkg
+          unzip -t ../kanto-ascendant-5.2.0.modpkg
