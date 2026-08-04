@@ -30,8 +30,9 @@ Mew/Celebi signal hunt while preserving the normal Kanto opening.
   Rare Mew or Celebi echoes can appear in genuine Kanto grass after the
   Pokédex is active, even before the Migration Receiver is repaired. The first
   echo is guaranteed by roll 512 and later echoes by roll 2048.
-- Echoes scale from level 60 up to level 100. They remain at 1 HP, escape
-  after one to three turns and reject a Master Ball without consuming it.
+- Echoes scale from level 60 up to level 100. They remain at 1 HP, cannot be
+  escaped or caught, and reject a Master Ball without consuming it. The
+  warning battle continues until the player's party falls.
 - Exactly three echoes, a repaired receiver and four Badges let the
   Driftglass researcher create the Resonance Seal.
 - Sealed true manifestations use a protected 1:8192 counter. If one escapes

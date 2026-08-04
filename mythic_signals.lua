@@ -404,7 +404,6 @@ return function(mod, opts)
       local ticket = {
         kind = "echo",
         species = species,
-        fleeAt = ctx.rng(1, 3),
       }
       after.echoRolls = 0
       local replacement = protectedOutput(
@@ -536,6 +535,15 @@ return function(mod, opts)
       math.max(0, (tonumber(mon.hp) or 1) - 1)), info
   end, 900)
 
+  -- An echo is an overpowering warning, not a catch opportunity. RUN keeps
+  -- the player in battle; BattleState's normal failed-run branch then prints
+  -- "Can't escape!" and gives the echo its attack. Because echo HP is also
+  -- floored at one, the encounter ends only when the player's party falls.
+  mod.hooks:wrap("battle.run", function(nextRun, ctx)
+    if ctx and ctx.battle and ctx.battle.kaMythicEcho then return false end
+    return nextRun(ctx)
+  end, 900)
+
   local function applyBoundToBattle(battle, bound)
     if not (battle and battle.enemy and battle.enemy.mon and bound) then
       return
@@ -579,7 +587,6 @@ return function(mod, opts)
     if ticket.kind == "echo" then
       battle.kaMythicEcho = ticket.species
       battle.noCatch = true
-      battle.kaMythicFleeAt = integer(ticket.fleeAt, 1, 3)
     elseif ticket.kind == "true" then
       battle.kaMythicTrue = ticket.species
       battle.kaMythicRetry = ticket.retry == true
@@ -621,23 +628,6 @@ return function(mod, opts)
     -- idempotent while switching between versioned upgrade fixtures.
     M.install(ev and ev.game, M.deps)
   end, 290)
-
-  mod.events:on("battle.turn_ended", function(ev)
-    local battle = ev and ev.battle
-    if not (battle and battle.kaMythicEcho and not battle.result) then
-      return
-    end
-    battle.kaMythicTurns = integer(battle.kaMythicTurns, 0) + 1
-    if battle.kaMythicTurns < battle.kaMythicFleeAt then return end
-    battle.result = "run"
-    battle.phase = "messages"
-    battle.afterQueue = "finish"
-    if battle.sayNext then
-      battle:sayNext(tr(
-        "The bright outline\nbursts into stars!",
-        "Der helle Umriss\nwird zu Sternen!"))
-    end
-  end, 500)
 
   local function completeSpecies(species, game)
     local s = state()
@@ -977,16 +967,46 @@ return function(mod, opts)
       BattleState._kaMythicSignalsBallWrapped = true
       local vanillaThrowBall = BattleState.throwBall
       BattleState.throwBall = function(battle, ball, ...)
-        if battle and battle.kaMythicEcho and ball == "MASTER_BALL"
-            and battle.game and battle.game.save then
-          -- BagMenu has already consumed the selected ball at this point.
-          -- Put exactly that ball back before the uncatchable vanilla branch.
-          local save = battle.game.save
-          save.inventory = type(save.inventory) == "table"
-            and save.inventory or {}
-          save.inventory[ball] = (save.inventory[ball] or 0) + 1
-          appendOrder(save, ball)
-          battle.kaMythicMasterBallReturned = true
+        if battle and battle.kaMythicEcho then
+          battle.noCatch = true
+          if ball == "MASTER_BALL" and battle.game and battle.game.save then
+            -- BagMenu has already consumed the selected ball at this point.
+            -- Put exactly that ball back before the uncatchable branch.
+            local save = battle.game.save
+            save.inventory = type(save.inventory) == "table"
+              and save.inventory or {}
+            save.inventory[ball] = (save.inventory[ball] or 0) + 1
+            appendOrder(save, ball)
+            battle.kaMythicMasterBallReturned = true
+          end
+
+          -- Replace the two generic noCatch boxes with one authored warning.
+          -- The wrapper is active only while vanilla synchronously queues the
+          -- throw result, so later battle dialogue is untouched.
+          local vanillaSayNext = battle.sayNext
+          local guardedLines = 0
+          if type(vanillaSayNext) == "function" then
+            battle.sayNext = function(self, text, ...)
+              guardedLines = guardedLines + 1
+              if guardedLines == 1 then
+                local mon = self.enemy and self.enemy.mon
+                local def = mon and self.data and self.data.pokemon
+                  and self.data.pokemon[mon.species]
+                local name = self.enemy.name or (def and def.name)
+                  or (mon and mon.species) or "POKéMON"
+                return vanillaSayNext(self, tr(
+                  ("Oh no!\n%s can't be\ncaught!"):format(name),
+                  ("Oh nein!\n%s lässt sich\nnicht fangen!"):format(name)), ...)
+              elseif guardedLines == 2 then
+                return
+              end
+              return vanillaSayNext(self, text, ...)
+            end
+          end
+          local result = { pcall(vanillaThrowBall, battle, ball, ...) }
+          battle.sayNext = vanillaSayNext
+          if not result[1] then error(result[2], 2) end
+          return unpack(result, 2)
         end
         return vanillaThrowBall(battle, ball, ...)
       end

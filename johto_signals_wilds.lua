@@ -279,16 +279,17 @@ return function(mod, opts)
   end
 
   local function commitPending(ev)
-    -- This handler runs before Mythic Signals' generic priority-500 handler.
-    -- Clear any encounter.roll proposal before looking at our own exact
-    -- visible-wild transaction.
-    if type(mythic.cancelPending) == "function" then
-      mythic.cancelPending()
-    end
-
     local pending = runtime.pendingBattle
     runtime.pendingBattle = nil
     if not pending then return false, "none" end
+
+    -- This handler runs before Mythic Signals' generic priority-500 handler.
+    -- Clear an encounter.roll proposal only when this really is one of our
+    -- visible-Wilds battles. Doing it for every ordinary battle erased the
+    -- exact S16 echo ticket before Mythic Signals could apply noCatch.
+    if type(mythic.cancelPending) == "function" then
+      mythic.cancelPending()
+    end
 
     local battle, mon = battleMon(ev)
     local kind = battle and battle.kind or ev and ev.kind

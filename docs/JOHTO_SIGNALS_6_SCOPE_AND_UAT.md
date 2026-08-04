@@ -48,7 +48,8 @@ authored encounter cannot consume that guarantee.
    echoes no later than roll 2048.
 2. Echoes are level 60 or twenty levels above the player's strongest party
    member, capped at level 100. They cannot be caught or knocked out and
-   scatter after one to three turns. A Master Ball is not consumed.
+   prevent the player from running. The warning ends only at party defeat;
+   a rejected Master Ball is not consumed.
 3. Exactly three echoes are required. No additional echoes occur while the
    receiver is ready for sealing.
 4. With the repaired receiver and four badges, the Driftglass researcher
@@ -120,7 +121,7 @@ No save starts on a frozen experimental map.
 | 09 | Unleashed, Mansion B1F pity 255 | Start the 256th eligible battle | Cyndaquil appears |
 | 10 | Unleashed, Victory Road 3F pity 255 | Start the 256th eligible battle | Larvitar appears |
 | 11 | Postgame Lind | Complete matching research | Early catch is recognized; no duplicate gift |
-| 12 | Echo pity boundary | Battle, inflict status, throw Master Ball | 1 HP floor, flee, ball restored |
+| 12 | Echo pity boundary | Battle, inflict status, throw Master Ball, try RUN | 1 HP floor, ball restored, capture and escape rejected |
 | 13 | Three echoes, three badges | Ask researcher to seal | Researcher refuses and explains fourth badge |
 | 14 | Three echoes, four badges, full bag | Ask researcher to seal | Key item is safely granted; state is atomic |
 | 15 | True manifestation boundary | Start next native grass battle | Enabled unowned Mew/Celebi appears |

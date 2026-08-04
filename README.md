@@ -296,8 +296,9 @@ Independently, optional **Mythic Signals** can answer in genuine Kanto grass
 as soon as the Pokédex is active, even before the receiver is repaired. They
 are enabled by default and can be disabled separately. The first Mew or Celebi
 echo is guaranteed by roll 512 and later echoes by roll 2048. Echoes scale
-from level 60 toward the player's party, remain at 1 HP, flee after one to
-three turns and reject a Master Ball without consuming it. After exactly
+from level 60 toward the player's party, remain at 1 HP, cannot be escaped
+or caught, and reject a Master Ball without consuming it. The warning ends
+only when the player's party falls. After exactly
 three echoes, four Badges and a repaired receiver, only the Driftglass
 researcher can create the Resonance Seal.
 

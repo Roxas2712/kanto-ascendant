@@ -32,7 +32,7 @@ Im Spiel bei der Spielstandauswahl die gewünschte Nummer `6001` bis `6024`
 | 6005–6007 | Die drei Johto-Modi und mehrere Habitate testen | Anzeige und Begegnungen entsprechen 2 %, 4 % beziehungsweise 10 % |
 | 6008–6011 | `SCAN CURRENT AREA` in Wald, Küste, Vulkan und Höhle benutzen | Nur die passende Spur wird geöffnet; der Name bleibt bis zur echten Sichtung `???` |
 | 6012–6015 | Jeweils die nächste geeignete Begegnung auslösen | Endivie, Karnimani, Feurigel beziehungsweise Larvitar erscheint garantiert |
-| 6016 | Echo schwächen, Status setzen und Meisterball werfen | Es bleibt bei 1 KP, flieht und der Meisterball wird nicht verbraucht |
+| 6016 | Echo schwächen, Status setzen, Meisterball werfen und FLUCHT wählen | Es bleibt bei 1 KP, weist Fang und Flucht ab, gibt den Meisterball zurück und kämpft bis zur Niederlage |
 | 6017–6018 | Resonanz-Siegel beim Forscher anfordern | Mit drei Orden klare Ablehnung; mit vier Orden Vergabe auch bei vollem Beutel |
 | 6019 | Nächste geeignete Grasbegegnung auslösen | Ein aktiviertes, noch nicht gefangenes Mew oder Celebi erscheint fangbar |
 | 6020–6021 | Gebundenes Mew beziehungsweise Celebi erneut auslösen | Dasselbe Pokémon kehrt mit gespeichertem KP- und Statuszustand zurück |

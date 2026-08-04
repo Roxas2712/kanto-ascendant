@@ -206,7 +206,7 @@ name afterwards. Repeat the matrix in Red, Blue and Yellow.
 | 6013 | Seafoam B2F, coast pity 511 | Trigger the 512th eligible cave battle | Totodile appears |
 | 6014 | Mansion B1F, ember pity 255 | Trigger the 256th eligible battle | Cyndaquil appears |
 | 6015 | Victory Road 3F, stone pity 255 | Trigger the 256th eligible battle | Larvitar appears |
-| 6016 | Route 1, first echo pity 511 | Battle it; inflict status; throw Master Ball | Echo stays at 1 HP, flees, and Master Ball is restored |
+| 6016 | Route 1, first echo pity 511 | Battle it; inflict status; throw Master Ball; try RUN | Echo stays at 1 HP, rejects capture and escape, restores the Master Ball and battles until party defeat |
 | 6017 | Driftglass, three echoes/three badges | Ask researcher for the seal | Refusal clearly requires the fourth badge; state does not advance |
 | 6018 | Driftglass, three echoes/four badges/full Bag | Ask researcher for the seal | Seal is granted atomically despite full ordinary Bag |
 | 6019 | Route 1, true pity 8191 | Start next eligible native grass battle | An enabled, unowned Mew or Celebi manifests |

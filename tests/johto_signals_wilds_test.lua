@@ -462,6 +462,12 @@ do
     "missing Wilds reports its exact required contract")
   eq(h.adapter.installed, false,
     "a rejected install never advertises active compatibility")
+  local cancelsBeforeOrdinaryBattle = h.mythic.pendingCancels
+  h.emit("battle.started", {
+    battle = wildBattle("MEW", 60),
+  })
+  eq(h.mythic.pendingCancels, cancelsBeforeOrdinaryBattle,
+    "inactive Wilds compatibility cannot erase an ordinary Mythic ticket")
 end
 
 do

@@ -658,7 +658,7 @@ return function(game)
         echoes = 0,
         echoRolls = 511,
       },
-      action = "Trigger echo; test 1 HP floor, status, flee and Master Ball.",
+      action = "Trigger echo; test 1 HP floor, status immunity, Master Ball rejection and RUN lock.",
     },
     {
       id = "slot6017",

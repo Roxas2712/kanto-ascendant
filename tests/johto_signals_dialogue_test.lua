@@ -521,14 +521,8 @@ local function checkMythic(system, language)
     mythic.researcherSeal(game))
 
   local handlers = system.events["battle.turn_ended"] or {}
-  check(#handlers > 0, "mythic flee dialogue has an event handler")
-  local battle = {
-    kaMythicEcho = "MEW",
-    kaMythicFleeAt = 1,
-    sayNext = function(self, text) self.fleeText = text end,
-  }
-  for _, row in ipairs(handlers) do row.fn({ battle = battle }) end
-  checkText(language .. " mythic.echo-flee", battle.fleeText)
+  check(#handlers == 0,
+    "mythic echoes no longer carry a timed self-flee dialogue")
 end
 
 local function checkHub(system, language)

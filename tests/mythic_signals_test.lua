@@ -140,6 +140,10 @@ local function makeHarness(opts)
   local battleState = opts.battleState or {
     throwBall = function(battle, ball)
       battle.vanillaBall = ball
+      if battle.noCatch and battle.sayNext then
+        battle:sayNext("It dodged the thrown BALL!")
+        battle:sayNext("This POKéMON can't be caught!")
+      end
       return "vanilla-ball"
     end,
     endOfTurn = function(battle)
@@ -449,16 +453,16 @@ do
   first.events:emit("battle.started", { battle = battle })
   T.eq(battle.noCatch, true,
     "an echo is uncatchable")
-  T.eq(battle.kaMythicFleeAt, 3,
-    "the successful roll persists a deterministic 1-3 turn escape")
-  first.events:emit("battle.turn_ended", { battle = battle })
-  T.eq(battle.result, nil, "a three-turn echo stays for turn one")
-  first.events:emit("battle.turn_ended", { battle = battle })
-  T.eq(battle.result, nil, "a three-turn echo stays for turn two")
-  first.events:emit("battle.turn_ended", { battle = battle })
-  T.eq(battle.result, "run", "a three-turn echo escapes on turn three")
-  first.events:emit("battle.ended", { battle = battle, result = "run" })
-  first.events:emit("battle.ended", { battle = battle, result = "run" })
+  T.eq(first.hooks:call("battle.run", function() return true end,
+    { battle = battle }), false,
+    "the player cannot run from an overpowering echo")
+  for _ = 1, 5 do
+    first.events:emit("battle.turn_ended", { battle = battle })
+  end
+  T.eq(battle.result, nil,
+    "the echo no longer flees after a short turn timer")
+  first.events:emit("battle.ended", { battle = battle, result = "loss" })
+  first.events:emit("battle.ended", { battle = battle, result = "loss" })
   T.eq(first.controller.state().echoes, 1,
     "one witnessed battle counts once even if teardown repeats")
 
@@ -591,6 +595,7 @@ do
     "Leech Seed is cleared before residual")
 
   -- Simulate BagMenu's real order: it consumes the final ball first.
+  h.setLanguage("de")
   battle.game.save.inventory.MASTER_BALL = nil
   h.battleState.throwBall(battle, "MASTER_BALL")
   T.eq(battle.game.save.inventory.MASTER_BALL, 1,
@@ -599,6 +604,8 @@ do
     "the battle records the Master Ball return")
   T.eq(battle.vanillaBall, "MASTER_BALL",
     "the protected throw still uses vanilla noCatch presentation")
+  T.eq(battle.lastText, "Oh nein!\nMEW lässt sich\nnicht fangen!",
+    "the German echo warning clearly rejects the capture")
 
   local ordinary = wildBattle(h.game, "MEW")
   ordinary.game.save.inventory.MASTER_BALL = nil
