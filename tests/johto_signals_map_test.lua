@@ -47,6 +47,51 @@ local SaveData = require("src.core.SaveData")
 local def = assert(maps.values[content.MAP_ID])
 assert(def.tileset == "OVERWORLD",
   "Driftglass must reuse the active Red/Blue/Yellow OVERWORLD tileset")
+assert(def.palette == "CERULEAN",
+  "Driftglass must use the shared water-blue CERULEAN palette")
+
+-- A map palette is a named SGB/CGB palette, not a free-form mood label.
+-- Guard every committed pack as well as the active imported ROM table so
+-- Driftglass cannot silently fall back to uncoloured DMG rendering again.
+local PaletteFX = require("src.render.PaletteFX")
+local GameVersion = require("src.core.GameVersion")
+local importedPalettes = Data.palettes and Data.palettes.palettes
+if importedPalettes then
+  assert(importedPalettes[def.palette],
+    "active imported ROM has no Driftglass palette " .. def.palette)
+end
+local gbcPack = assert(PaletteFX.gbcPack(),
+  "ADVANCED palette pack is unavailable")
+local yellowPack = assert(PaletteFX.yellowPack(),
+  "Yellow palette pack is unavailable")
+assert(gbcPack.palettes and gbcPack.palettes[def.palette],
+  "ADVANCED has no Driftglass palette " .. def.palette)
+assert(yellowPack.palettes and yellowPack.palettes[def.palette],
+  "Yellow SGB has no Driftglass palette " .. def.palette)
+assert(yellowPack.cgbBase and yellowPack.cgbBase[def.palette],
+  "OG YELLOW has no Driftglass palette " .. def.palette)
+
+local previousVersion, previousMode = GameVersion.get(), PaletteFX.mode
+for _, version in ipairs({ "red", "blue", "yellow" }) do
+  GameVersion.set(version)
+  for _, mode in ipairs({ "ogred", "redpp" }) do
+    PaletteFX.mode = mode
+    assert(PaletteFX.pal(Data, def.palette),
+      ("%s %s cannot colour Driftglass with %s")
+        :format(version, mode, def.palette))
+  end
+  -- SGB uses the active ROM's named table. The legal fixture intentionally
+  -- omits imported palettes; imported Red/Blue/Yellow runs exercise it.
+  if importedPalettes or version == "yellow" then
+    PaletteFX.mode = "gbc"
+    assert(PaletteFX.pal(Data, def.palette),
+      ("%s SGB cannot colour Driftglass with %s")
+        :format(version, def.palette))
+  end
+end
+GameVersion.set(previousVersion)
+PaletteFX.mode = previousMode
+
 local tileset = Data.tilesets[def.tileset]
 
 -- Defence in depth for a pre-6.0/custom save that still names Driftglass:

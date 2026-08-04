@@ -364,7 +364,7 @@ function Module.create(mod, opts)
       label = "DriftglassOutpost",
       index = Module.MAP_INDEX,
       tileset = "OVERWORLD",
-      palette = "WATER",
+      palette = "CERULEAN",
       borderBlock = 67,
       width = width,
       height = height,

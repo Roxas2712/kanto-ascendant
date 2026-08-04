@@ -33,8 +33,9 @@ return function(game)
   -- pipeline. Make the two QA scenes unambiguous: ordinary 2D really asks
   -- for the player's back, while voxel mode asks for both fronts.
   local dramatic = game.mods.exports.DRAMATIC_SHAPE
+  local overworldBattle
   if dramatic and dramatic.lib then
-    local overworldBattle = dramatic.lib.require("OverworldBattle")
+    overworldBattle = dramatic.lib.require("OverworldBattle")
     overworldBattle.setting:setIndex(voxel and 1 or 2, game)
     overworldBattle.backSetting:setIndex(1, game)
   end
@@ -50,7 +51,18 @@ return function(game)
   end
   game.save.party = { lead }
 
-  U.teleport(game, "ROUTE_1", 5, 5, "down")
+  -- Dramatic Shape's own Route 1 test arena is centered on (5,8). The old
+  -- (5,5) position could legitimately decline a staged battle, causing this
+  -- Voxel-specific QA to inspect the ordinary 2D player back instead.
+  U.teleport(game, "ROUTE_1", 5, 8, "down")
+  -- Let the Route 1 map and Voxel pipeline settle before BattleState builds
+  -- the player's battler. Dramatic Shape chooses front-vs-back art at that
+  -- construction point, before pushBattle has a chance to stage the arena.
+  U.wait(30)
+  if voxel then
+    assert(overworldBattle and overworldBattle.wantsFront(),
+      "Dramatic Shape did not expose a staged Voxel arena at Route 1 (5,8)")
+  end
   local enemySpecies = mode == "2d" and "SUICUNE"
     or (mode == "mixed" or mode == "kanto") and "BULBASAUR" or "TOTODILE"
   local battle = BattleState.newWild(game, enemySpecies, 35)

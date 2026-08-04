@@ -2202,6 +2202,10 @@ end
     modPath .. "/assets/followers_runtime/normal/follower_TOTODILE.png", "rb")
   local runtimeShiny = io.open(
     modPath .. "/assets/followers_runtime/shiny/follower_TOTODILE.png", "rb")
+  local feraligatrRuntimeNormal = io.open(
+    modPath .. "/assets/followers_runtime/normal/follower_FERALIGATR.png", "rb")
+  local feraligatrRuntimeShiny = io.open(
+    modPath .. "/assets/followers_runtime/shiny/follower_FERALIGATR.png", "rb")
   T.neq(normal, nil,
     "Totodile ships with its species-accurate follower sheet")
   T.neq(shiny, nil,
@@ -2210,10 +2214,16 @@ end
     "Totodile ships with a renderer-ready mobile follower sheet")
   T.neq(runtimeShiny, nil,
     "shiny Totodile ships with a renderer-ready mobile follower sheet")
+  T.neq(feraligatrRuntimeNormal, nil,
+    "Feraligatr ships with its renderer-ready follower sheet")
+  T.neq(feraligatrRuntimeShiny, nil,
+    "shiny Feraligatr ships with its renderer-ready follower sheet")
   if normal then normal:close() end
   if shiny then shiny:close() end
   if runtimeNormal then runtimeNormal:close() end
   if runtimeShiny then runtimeShiny:close() end
+  if feraligatrRuntimeNormal then feraligatrRuntimeNormal:close() end
+  if feraligatrRuntimeShiny then feraligatrRuntimeShiny:close() end
 end)()
 T.eq(followerCompat.proxySpecies("TYRANITAR", Data), "RHYDON",
   "Tyranitar uses a sturdy existing follower sheet instead of crashing")
@@ -2230,6 +2240,58 @@ for _, id in ipairs(johto.order) do
 end
 T.eq(#missingFollowerProxy, 0,
   "every Johto species has a safe 2D/voxel follower fallback")
+
+do
+  -- Feraligatr's family fallback is intentionally Blastoise, but it must
+  -- never win while the release's species-accurate runtime sheet exists.
+  -- This catches a package or resolver regression before visual QA can
+  -- silently show the wrong Pokémon.
+  local followerGame = { data = Data }
+  local function pokepcPath(species)
+    return "pokepc/assets/follower_" .. tostring(species) .. ".png"
+  end
+  local normalMon = {
+    species = "FERALIGATR", hp = 100,
+    dvs = { attack = 9, defense = 8, speed = 8, special = 8, hp = 8 },
+  }
+  local shinyMon = {
+    species = "FERALIGATR", hp = 100,
+    dvs = { attack = 10, defense = 10, speed = 10, special = 10, hp = 0 },
+  }
+  -- The fixture LOVE filesystem is rooted at the engine checkout rather
+  -- than the external mod directory. The files were opened above with real
+  -- IO; expose those two verified package paths to the runtime resolver too.
+  local normalRuntimePath =
+    modPath .. "/assets/followers_runtime/normal/follower_FERALIGATR.png"
+  local shinyRuntimePath =
+    modPath .. "/assets/followers_runtime/shiny/follower_FERALIGATR.png"
+  local oldLocalPath = followerCompat.localPath
+  local oldGetInfo = love.filesystem.getInfo
+  followerCompat.localPath = function(species, mon)
+    if species ~= "FERALIGATR" then return oldLocalPath(species, mon) end
+    return mon == shinyMon and shinyRuntimePath or normalRuntimePath
+  end
+  love.filesystem.getInfo = function(path, ...)
+    if path == normalRuntimePath or path == shinyRuntimePath then
+      return { type = "file" }
+    end
+    return oldGetInfo(path, ...)
+  end
+  local normalPath =
+    followerCompat.resolvedPath(followerGame, normalMon, pokepcPath)
+  local shinyPath =
+    followerCompat.resolvedPath(followerGame, shinyMon, pokepcPath)
+  followerCompat.localPath = oldLocalPath
+  love.filesystem.getInfo = oldGetInfo
+  T.eq(normalPath, normalRuntimePath,
+    "bundled Feraligatr art wins over the Blastoise emergency proxy")
+  T.eq(shinyPath, shinyRuntimePath,
+    "bundled shiny Feraligatr art wins over the Blastoise emergency proxy")
+  T.eq(normalPath and normalPath:find("BLASTOISE", 1, true), nil,
+    "normal Feraligatr never silently resolves to Blastoise")
+  T.eq(shinyPath and shinyPath:find("BLASTOISE", 1, true), nil,
+    "shiny Feraligatr never silently resolves to Blastoise")
+end
 
 do
   -- A second follower/visual mod may wrap PokéPC's update function. The
