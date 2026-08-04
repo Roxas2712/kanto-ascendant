@@ -1,49 +1,55 @@
 # ⚡ KANTO ASCENDANT 5.3.0 — HEART OF THUNDER
 
-**Yellow's original partner finally gets to choose its own path.**
+**The Hall of Fame was only the beginning.**
 
-After earning the Thunder Badge, speak to Lt. Surge to begin an optional
-partner quest. Walk 251 steps and win three trainer battles together to receive
-the permanent **Thunderheart**.
+Kanto Ascendant turns Red, Blue and Yellow into a living Gen-I/II adventure
+with **all 251 Pokémon in one save** and a huge Lv.100 post-game.
 
-## 💛 PIKACHU'S CHOICE
+## 💛 NEW IN 5.3.0
 
-⚡ Evolve your original partner into Raichu, stay Pikachu or decide later.
+After the Thunder Badge, Lt. Surge offers an optional trial: walk 251 steps and
+win three trainer battles to earn the permanent **Thunderheart**.
 
-🔒 Thunderheart is permanent and cannot be consumed, sold, discarded or
-deposited.
+⚡ Evolve Yellow's original partner into Raichu, stay Pikachu or decide later.
 
-😊 Partner Raichu keeps Yellow's happiness, memories, bond moments and follower.
-Talk to it for seven animated reactions — sleepy, unwell, upset, wary, content,
-devoted and excited — with matching bubbles and spoken Raichu voices.
+😊 Partner Raichu keeps its bond, memories and follower, with seven animated
+moods, matching bubbles and spoken Raichu voices.
 
-✨ Stay Pikachu and it can later answer Raichunite X or Y directly, temporarily
-becoming the matching official Mega Raichu in battle.
+✨ Stay Pikachu and it can later answer Raichunite X/Y directly, temporarily
+becoming the matching official Mega Raichu.
 
-💾 Existing Yellow saves receive Thunderheart automatically. If several
-Pikachu or Raichu could be the original partner, the game asks you instead of
-guessing. Red and Blue remain unaffected.
+🛠️ Fixes Gen-II cries/followers, PokéPC's surprise Charmander, large back
+sprites and Wilds art.
 
-## 🛠️ ALSO FIXED
+## 🗺️ THE FULL ADVENTURE
 
-🎨 Authentic Crystal back sprites for all 151 Kanto Pokémon, including shiny
-variants, with clean Gen-I fallbacks when Crystal art is disabled.
+⚔️ Growing trainer rematches, unique dialogue, rare loot and renewable TMs.
 
-🔊 Gen-II cries, follower graphics and PokéPC compatibility have been repaired.
-Oak's Yellow starter is Pikachu again — no more surprise Charmander.
+🥚 Route 5 Day-Care: breeding, eggs, services and HM Field Kit.
 
-🌿 Wilds of Kanto now uses researched Johto habitats and the correct species art.
+🌟 Gen-II shinies, Shiny Dex, outbreaks, streaks, breeding, Shiny Charm and
+repeatable rewards.
 
-✅ Red / Blue / Yellow
-✅ Existing saves supported
-✅ English / German auto-detection
-✅ Classic 2D / Crystal animated / Voxel
+🎞️ Animated normal/shiny Crystal sprites for all 251, switchable Gen-I art,
+2D, Voxel and mod support.
+
+💎 All 30 official Megas with animated front/back art and shinies.
+
+🌿💧🔥 Guided Chikorita, Totodile and Cyndaquil Relic questlines.
+
+👑 Lv.100 Leaders, Elite Four, Champion and adaptive endgame.
+
+🌌 Legendary events for the birds, beasts, Mewtwo, Mew, Lugia, Ho-Oh and Celebi.
+
+🏆 Frontier, Factory, S.S. Anne, Rocket Resurgence, Heritage Cups and itemless
+Silver/Kris/Gold challenges.
+
+📜 Research Atlas, Journal, titles, trophies, certificates and Ascendant cycles.
+
+✅ Red / Blue / Yellow · Existing saves · English / German
 
 ## 📥 DOWNLOAD
 https://github.com/Roxas2712/kanto-ascendant/releases/tag/v5.3.0
 
 Import the `.zip` through the Gen1 Recomp launcher.
-
 ⚠️ Do not enable another complete-Johto species mod.
-
-Bug reports and balance feedback are very welcome. 💚
