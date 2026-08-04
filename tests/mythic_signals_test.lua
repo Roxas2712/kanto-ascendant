@@ -112,6 +112,7 @@ local function makeHarness(opts)
   }
   local game = opts.game or {
     data = {
+      strings = {},
       pokemon = {
         MEW = {
           name = "MEW",
@@ -242,6 +243,43 @@ local function wildBattle(game, species, hp, level)
     },
     sayNext = function(self, text) self.lastText = text end,
   }
+end
+
+-- -------------------------------------- localized no-catch fallback / queue
+
+do
+  local fallback = makeHarness({ language = "de" })
+  T.eq(fallback.game.data.strings[
+      "This POKéMON\ncan't be caught!"],
+    "Dieses POKéMON\nlässt sich nicht\nfangen!",
+    "German UAT slots never expose the English apostrophe fallback")
+end
+
+do
+  -- Model a restored/class-dispatched battle that bypasses the temporary
+  -- instance sayNext shadow but still appends the real engine queue rows.
+  local queueBattleState = {
+    throwBall = function(battle)
+      table.insert(battle.queue, { text = "It dodged the\nthrown BALL!" })
+      table.insert(battle.queue,
+        { text = "This POKéMON\ncan't be caught!" })
+      return "queued-ball"
+    end,
+  }
+  local queued = makeHarness({
+    language = "de",
+    battleState = queueBattleState,
+  })
+  local battle = wildBattle(queued.game, "MEW")
+  battle.queue = {}
+  battle.kaMythicEcho = "MEW"
+  battle.noCatch = true
+  T.eq(queued.battleState.throwBall(battle, "MASTER_BALL"), "queued-ball",
+    "the real queue-based no-catch path remains intact")
+  T.eq(#battle.queue, 1,
+    "the two generic engine boxes collapse into one authored echo warning")
+  T.eq(battle.queue[1].text, "Oh nein!\nMEW lässt sich\nnicht fangen!",
+    "restored queue battles still receive the species-specific German text")
 end
 
 -- ------------------------------------------------ pure proposal transaction

@@ -955,6 +955,21 @@ return function(mod, opts)
     if signalsState.install then signalsState.install(M.game) end
     syncOwned(M.game)
 
+    -- Keep the engine's generic no-catch fallback self-contained and safe for
+    -- the Gen-I font as well. A protected signal normally replaces both boxes
+    -- with the species-specific warning below, but this fallback also covers
+    -- a battle restored between queue creation and the wrapper running. The
+    -- English spelling deliberately avoids the unsupported apostrophe glyph.
+    local stringData = M.game and M.game.data and M.game.data.strings
+    if type(stringData) == "table" then
+      stringData["It dodged the\nthrown BALL!"] = tr(
+        "It dodged the\nthrown BALL!",
+        "Es weicht dem\nBALL aus!")
+      stringData["This POKéMON\ncan't be caught!"] = tr(
+        "This POKéMON\ncannot be caught!",
+        "Dieses POKéMON\nlässt sich nicht\nfangen!")
+    end
+
     local BattleState = M.deps.battleState
     if not BattleState then
       local ok, module = pcall(require, "src.battle.BattleState")
@@ -980,23 +995,27 @@ return function(mod, opts)
             battle.kaMythicMasterBallReturned = true
           end
 
+          local mon = battle.enemy and battle.enemy.mon
+          local def = mon and battle.data and battle.data.pokemon
+            and battle.data.pokemon[mon.species]
+          local name = battle.enemy.name or (def and def.name)
+            or (mon and mon.species) or "POKéMON"
+          local warning = tr(
+            ("Oh no!\n%s cannot be\ncaught!"):format(name),
+            ("Oh nein!\n%s lässt sich\nnicht fangen!"):format(name))
+
           -- Replace the two generic noCatch boxes with one authored warning.
           -- The wrapper is active only while vanilla synchronously queues the
           -- throw result, so later battle dialogue is untouched.
           local vanillaSayNext = battle.sayNext
           local guardedLines = 0
+          local oldQueueRows = {}
+          for _, row in ipairs(battle.queue or {}) do oldQueueRows[row] = true end
           if type(vanillaSayNext) == "function" then
             battle.sayNext = function(self, text, ...)
               guardedLines = guardedLines + 1
               if guardedLines == 1 then
-                local mon = self.enemy and self.enemy.mon
-                local def = mon and self.data and self.data.pokemon
-                  and self.data.pokemon[mon.species]
-                local name = self.enemy.name or (def and def.name)
-                  or (mon and mon.species) or "POKéMON"
-                return vanillaSayNext(self, tr(
-                  ("Oh no!\n%s can't be\ncaught!"):format(name),
-                  ("Oh nein!\n%s lässt sich\nnicht fangen!"):format(name)), ...)
+                return vanillaSayNext(self, warning, ...)
               elseif guardedLines == 2 then
                 return
               end
@@ -1006,6 +1025,34 @@ return function(mod, opts)
           local result = { pcall(vanillaThrowBall, battle, ball, ...) }
           battle.sayNext = vanillaSayNext
           if not result[1] then error(result[2], 2) end
+
+          -- The real BattleState queues text rows. Normalize newly inserted
+          -- rows as a second line of defence instead of depending on instance
+          -- method shadowing, which a restored/hot-reloaded battle may bypass.
+          local queue = battle.queue
+          if type(queue) == "table" then
+            local generic = {}
+            for index, row in ipairs(queue) do
+              if not oldQueueRows[row] and type(row) == "table"
+                  and type(row.text) == "string" then
+                local text = row.text
+                if text:find("dodged", 1, true)
+                    or text:find("weicht", 1, true)
+                    or text:find("can't be caught", 1, true)
+                    or text:find("cannot be caught", 1, true)
+                    or text:find("nicht", 1, true)
+                      and text:find("fangen", 1, true) then
+                  generic[#generic + 1] = index
+                end
+              end
+            end
+            if #generic > 0 then
+              queue[generic[1]].text = warning
+              for index = #generic, 2, -1 do
+                table.remove(queue, generic[index])
+              end
+            end
+          end
           return unpack(result, 2)
         end
         return vanillaThrowBall(battle, ball, ...)
