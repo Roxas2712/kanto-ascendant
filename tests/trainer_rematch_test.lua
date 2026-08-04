@@ -4,6 +4,39 @@ package.path = "./?.lua;./?/init.lua;" .. package.path
 local T = require("tests.modkit")
 local Data = T.fixtures.load()
 
+-- The engine's tiny three-species fixture intentionally omits Kanto. Seed the
+-- one native template Gorochu extends so this suite can exercise the complete
+-- guest registration and evolution edge without requiring ROM-derived data.
+Data.pokemon.RAICHU = {
+  id = "RAICHU", index = 26, dex = 26, name = "RAICHU",
+  types = { "ELECTRIC" },
+  baseStats = {
+    hp = 60, attack = 90, defense = 55, speed = 110, special = 90,
+  },
+  catchRate = 75, baseExp = 122,
+  level1Moves = {}, growthRate = "MEDIUM_FAST", tmhm = {},
+  learnset = {}, evolutions = {},
+  spriteFront = "tests/fixture_data/assets/fixmon_a_front.png",
+  spriteBack = "tests/fixture_data/assets/fixmon_a_back.png",
+  frontSize = 6,
+  dexEntry = {
+    kind = "MOUSE", heightFt = 2, heightIn = 7, weight = 660,
+    text = "A test Raichu.",
+  },
+}
+for index, moveId in ipairs({
+  "THUNDERSHOCK", "BITE", "THUNDER_WAVE",
+  "AGILITY", "THUNDERBOLT", "THUNDER",
+}) do
+  Data.moves[moveId] = {
+    id = moveId, index = 100 + index, name = moveId:gsub("_", " "),
+    type = moveId == "BITE" and "NORMAL" or "ELECTRIC",
+    power = (moveId == "THUNDER_WAVE" or moveId == "AGILITY")
+      and 0 or 40,
+    accuracy = 100, pp = 20, effect = "NO_ADDITIONAL_EFFECT",
+  }
+end
+
 local modPath = os.getenv("TRAINER_REMATCH_MOD_DIR") or "mods/trainer_rematch"
 local run = T.sdk.loadMod(modPath, { data = Data })
 T.eq(#run.errors, 0, "loads clean")
@@ -84,6 +117,132 @@ do
   Data.pokemon.TOTODILE = nil
 end
 
+-- -------------------------------------------------------- Gorochu guest line
+
+do
+  local gorochu = ex.gorochu
+  T.neq(gorochu, nil, "the Gorochu guest-species controller is exported")
+  T.eq(gorochu.available, true,
+    "Gorochu registers when the complete Kanto species table is present")
+  T.neq(Data.pokemon.GOROCHU, nil,
+    "Gorochu exists as its own permanent species")
+  T.eq(Data.pokemon.GOROCHU.dex, 1026,
+    "Gorochu stays outside the native 251-species Pokédex")
+  T.same(Data.pokemon.GOROCHU.types, { "ELECTRIC" },
+    "Gorochu preserves the historical line's Electric identity")
+  T.same(Data.pokemon.GOROCHU.baseStats, {
+    hp = 75, attack = 115, defense = 70, speed = 110, special = 115,
+  }, "Gorochu is a strong permanent evolution without Mega stat inflation")
+
+  local gorochuEvolution
+  for _, row in ipairs(Data.pokemon.RAICHU.evolutions or {}) do
+    if row.species == "GOROCHU" then gorochuEvolution = row break end
+  end
+  T.neq(gorochuEvolution, nil,
+    "Raichu owns a real evolution edge to Gorochu")
+  T.eq(gorochuEvolution.method, "ASCENDANT_STORM_BOND",
+    "Gorochu uses its dedicated research evolution method")
+
+  local raichu = {
+    species = "RAICHU", level = 61, johtoBond = 100,
+    moves = { { id = "THUNDER" } },
+  }
+  local evolutionGame = {
+    data = Data,
+    save = { hallOfFame = { {} }, flags = {} },
+    overworld = { map = { id = "POWER_PLANT" } },
+  }
+  T.eq(gorochu.qualifies(
+    evolutionGame, raichu, { kind = "levelup" }), true,
+    "a bonded post-League Raichu with Thunder evolves at the Power Plant")
+  local Evolution = require("src.pokemon.Evolution")
+  local target = Evolution.pendingFor(
+    evolutionGame, raichu, { kind = "levelup" })
+  T.eq(target, "GOROCHU",
+    "the engine dispatches the registered Gorochu evolution")
+  local markedRaichu = {
+    species = "RAICHU", level = 61, hp = 130, johtoBond = 100,
+    moves = { { id = "THUNDER", pp = 10 } },
+    dvs = {
+      attack = 9, defense = 8, speed = 8, special = 8, hp = 8,
+    },
+    statExp = {
+      hp = 0, attack = 0, defense = 0, speed = 0, special = 0,
+    },
+    stats = {
+      hp = 140, attack = 120, defense = 90, speed = 140, special = 120,
+    },
+    _ascendantYellowPartner = true,
+  }
+  evolutionGame.save.pokedex = { seen = {}, owned = {} }
+  Evolution.apply(
+    evolutionGame, markedRaichu, "GOROCHU", gorochu.method)
+  T.eq(markedRaichu.species, "GOROCHU",
+    "the permanent evolution mutates Raichu into Gorochu")
+  T.eq(markedRaichu._ascendantYellowPartner, true,
+    "Yellow's persistent partner identity survives the evolution")
+  T.eq(markedRaichu.moves[1].id, "THUNDER",
+    "Gorochu keeps the original partner's moves")
+  T.eq(evolutionGame.save.pokedex.owned.GOROCHU, true,
+    "evolving Gorochu records the guest species as owned")
+  evolutionGame.save.hallOfFame = {}
+  T.eq(gorochu.qualifies(
+    evolutionGame, raichu, { kind = "levelup" }), false,
+    "Gorochu cannot be reached before the Hall of Fame")
+  evolutionGame.save.hallOfFame = { {} }
+  evolutionGame.overworld.map.id = "ROUTE_10"
+  T.eq(gorochu.qualifies(
+    evolutionGame, raichu, { kind = "levelup" }), false,
+    "the evolution remains tied to the Power Plant")
+  evolutionGame.overworld.map.id = "POWER_PLANT"
+  raichu.moves = { { id = "THUNDERBOLT" } }
+  T.eq(gorochu.qualifies(
+    evolutionGame, raichu, { kind = "levelup" }), false,
+    "Thunderbolt cannot substitute for the researched Thunder condition")
+
+  Data.audio = Data.audio or {}
+  Data.audio.cries = Data.audio.cries or {}
+  Data.audio.cries.GOROCHU = nil
+  local installed, preserved = gorochu.installAudio({ data = Data })
+  T.eq(installed, 1,
+    "a missing Gorochu cry receives a portable Raichu-derived fallback")
+  T.eq(preserved, 0, "the first Gorochu fallback install owns the empty slot")
+  T.eq(Data.audio.cries.GOROCHU.base, "RAICHU",
+    "Gorochu's fallback cry remains recognizably related to Raichu")
+  T.eq(Data.pokemon.GOROCHU.cry, "GOROCHU",
+    "the guest species binds to its resolved cry")
+  local repeatedInstalled, repeatedPreserved =
+    gorochu.installAudio({ data = Data })
+  T.eq(repeatedInstalled, 0, "Gorochu audio installation is idempotent")
+  T.eq(repeatedPreserved, 1,
+    "an existing external or prior Gorochu cry is preserved")
+
+  for _, relative in ipairs({
+    "assets/crystal/gorochu_front.png",
+    "assets/crystal/gorochu_back.png",
+    "assets/crystal/gorochu_front_shiny.png",
+    "assets/crystal/gorochu_back_shiny.png",
+    "assets/followers_runtime/normal/follower_GOROCHU.png",
+    "assets/followers_runtime/shiny/follower_GOROCHU.png",
+  }) do
+    local handle = io.open(modPath .. "/" .. relative, "rb")
+    T.neq(handle, nil, relative .. " is packaged")
+    if handle then handle:close() end
+  end
+  for _, side in ipairs({ "front", "back" }) do
+    for _, variant in ipairs({ "normal", "shiny" }) do
+      for frame = 1, #gorochu.animationDurations do
+        local relative = (
+          "assets/crystal_animated/%s/%s/1026/%03d.png")
+          :format(side, variant, frame)
+        local handle = io.open(modPath .. "/" .. relative, "rb")
+        T.neq(handle, nil, relative .. " is packaged")
+        if handle then handle:close() end
+      end
+    end
+  end
+end
+
 -- ------------------------------------------------ bundled Crystal art seam
 
 T.neq(ex.crystalSprites, nil, "Crystal availability is exported")
@@ -115,14 +274,18 @@ T.neq(ex.kantoCrystalBacks, nil,
   for _, available in pairs(ex.kantoCrystalBacks.shiny) do
     if available then kantoShinyBackCount = kantoShinyBackCount + 1 end
   end
-  T.eq(crystalNormalCount, 100,
-    "all 100 Johto species ship with Crystal front/back art")
-  T.eq(crystalShinyCount, 100,
-    "all 100 Johto species ship with shiny Crystal front/back art")
-  T.eq(animatedNormalCount, 251,
-    "all 251 species ship with Crystal animation-compatible normal art")
-  T.eq(animatedShinyCount, 251,
-    "all 251 species ship with Crystal animation-compatible shiny art")
+  T.eq(crystalNormalCount, 101,
+    "all 100 Johto species plus Gorochu ship with Crystal front/back art")
+  T.eq(crystalShinyCount, 101,
+    "all 100 Johto species plus shiny Gorochu ship with Crystal art")
+  T.eq(animatedNormalCount, 252,
+    "all 251 native species plus Gorochu ship with animated normal art")
+  T.eq(animatedShinyCount, 252,
+    "all 251 native species plus Gorochu ship with animated shiny art")
+  T.eq(ex.crystalAnimation.backAvailable[1026], true,
+    "Gorochu owns animated player-side art")
+  T.eq(ex.crystalAnimation.backShinyAvailable[1026], true,
+    "shiny Gorochu owns animated player-side art")
   T.eq(kantoBackCount, 151,
     "all 151 Kanto species ship with Crystal player-side art")
   T.eq(kantoShinyBackCount, 151,
@@ -517,7 +680,8 @@ T.eq(ex.breedingData[150].groups[1], "no-eggs",
 local breedingGame = { data = { pokemon = {
   PICHU = { dex = 172, evolutions = { { species = "PIKACHU" } } },
   PIKACHU = { dex = 25, evolutions = { { species = "RAICHU" } } },
-  RAICHU = { dex = 26, evolutions = {} },
+  RAICHU = { dex = 26, evolutions = { { species = "GOROCHU" } } },
+  GOROCHU = { dex = 1026, evolutions = {} },
   MEWTWO = { dex = 150, evolutions = {} },
   DITTO = { dex = 132, evolutions = {} },
 } } }
@@ -533,6 +697,8 @@ local legendaryCompatible = daycare.compatible(breedingGame,
 T.eq(legendaryCompatible, false, "legendary Pokémon cannot breed")
 T.eq(daycare.babyFor(breedingGame, "RAICHU"), "PICHU",
   "the evolution graph resolves Raichu eggs to Pichu")
+T.eq(daycare.babyFor(breedingGame, "GOROCHU"), "PICHU",
+  "Gorochu breeding still resolves to the Pichu family root")
 local shinySystem = ex.shinySystem
 T.neq(shinySystem, nil,
   "the self-contained Generation-II shiny controller is exported")
@@ -733,8 +899,8 @@ do
     }
   end
 
-  local function reactionAt(happiness, mood, status, hp)
-    local reactionMon = mon("RAICHU")
+  local function reactionAt(happiness, mood, status, hp, speciesId)
+    local reactionMon = mon(speciesId or "RAICHU")
     reactionMon.status = status
     reactionMon.hp = hp == nil and reactionMon.hp or hp
     local reactionGame = yellowGame({ reactionMon }, true)
@@ -851,6 +1017,46 @@ do
   T.eq(Data.pokemon.RAICHU.spriteFront:find(
     "yellow_partner_raichu_portraits", 1, true) == nil, true,
     "dedicated reaction faces do not replace Raichu's battle front sprite")
+
+  local gorochuReactions = {
+    reactionAt(230, 128, "SLP", nil, "GOROCHU"),
+    reactionAt(230, 128, "PSN", nil, "GOROCHU"),
+    reactionAt(30, 128, nil, nil, "GOROCHU"),
+    reactionAt(90, 128, nil, nil, "GOROCHU"),
+    reactionAt(150, 128, nil, nil, "GOROCHU"),
+    reactionAt(220, 128, nil, nil, "GOROCHU"),
+    reactionAt(240, 150, nil, nil, "GOROCHU"),
+  }
+  local gorochuMoods = {
+    "sleepy", "unwell", "upset", "wary",
+    "content", "devoted", "excited",
+  }
+  for index, reaction in ipairs(gorochuReactions) do
+    local mood = gorochuMoods[index]
+    T.eq(reaction.id, mood,
+      "partner Gorochu selects its " .. mood .. " reaction")
+    T.eq(reaction.voice, nil,
+      mood .. " Gorochu uses its registered species cry")
+    local files = yellowPartner._portraitFrames(mon("GOROCHU"), reaction)
+    T.eq(#files > 1, true,
+      mood .. " Gorochu portrait has a live animation loop")
+    T.eq(files[1]:find(
+      "assets/yellow_partner_gorochu_portraits/normal/"
+        .. mood .. "/001.png", 1, true) ~= nil,
+      true, mood .. " Gorochu uses its own facial artwork")
+    for _, path in ipairs(files) do
+      local handle = io.open(path, "rb")
+      T.neq(handle, nil,
+        mood .. " Gorochu portrait frame is packaged")
+      if handle then handle:close() end
+    end
+  end
+  T.eq(gorochuReactions[7].text:find(
+    "GORO-GOROCHU!", 1, true), 1,
+    "Gorochu says its own name in the excited partner dialogue")
+  T.eq(Data.pokemon.GOROCHU.spriteFront:find(
+    "yellow_partner_gorochu_portraits", 1, true) == nil, true,
+    "Gorochu's seven faces never replace its battle sprite")
 
   run.loader.modSave = {}
   local legacyMon = mon("PIKACHU")
@@ -1521,7 +1727,7 @@ T.eq(#noRecruit, 2, "the first growth tier does not add a recruit immediately")
 local recruited = ex.recruitTeam(Data, fixtureTeam, "OPP_FIX_YOUNGSTER",
   "FIX_ROUTE_obj_recruit", 1, 4, true)
 T.eq(#recruited, 3, "the second growth tier recruits one new Pokémon")
-T.eq(recruited[3].species, "FIXMON_B",
+T.eq(recruited[3].species, "RAICHU",
   "an unknown mod trainer recruits a valid non-duplicate fallback species")
 T.eq(recruited[3].recruited, true,
   "new party slots are marked as background-training recruits")
@@ -2338,7 +2544,7 @@ T.eq(#b2.enemyParty, 3,
   "the second growth tier expands a two-Pokémon trainer to three")
 T.eq(b2.rematchRecruits, 1,
   "the rematch battle records one newly recruited party member")
-T.eq(b2.enemyParty[3].species, "FIXMON_B",
+T.eq(b2.enemyParty[3].species, "RAICHU",
   "the recruited Pokémon is appended to the actual battle party")
 T.eq(b2.enemyParty[3].level, 9,
   "the recruit receives the same final rematch level growth")

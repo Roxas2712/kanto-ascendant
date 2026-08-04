@@ -34,6 +34,10 @@ return function(mod, opts)
     KABUTO = { en = "Fossil restored after MASTER BROCK", de = "Fossil nach MEISTER ROCKO" },
     AERODACTYL = { en = "Cinnabar fossil restoration", de = "Fossil-Restauration auf Zinnober" },
     MEW = { en = "Oak, Fuji and Cinnabar heritage finale", de = "Eich/Fuji/Zinnober-Finale" },
+    GOROCHU = {
+      en = "Raichu evolution research at the Power Plant",
+      de = "Raichu-Entwicklungsforschung im Kraftwerk",
+    },
   }
 
   local MAP_NAMES = {
@@ -411,6 +415,10 @@ return function(mod, opts)
       return tr("LEVEL 20 / DEF. > ATTACK", "LEVEL 20 / VERT. > ANGR.")
     elseif method == "TYROGUE_BALANCE" then
       return tr("LEVEL 20 / ATTACK = DEF.", "LEVEL 20 / ANGR. = VERT.")
+    elseif method == "ASCENDANT_STORM_BOND" then
+      return tr(
+        "HALL OF FAME / HIGH BOND / THUNDER / POWER PLANT",
+        "RUHMESHALLE / HOHES BAND / DONNER / KRAFTWERK")
     elseif method == "TRADE" then
       return tr("TRADE", "TAUSCH")
     end
@@ -475,7 +483,7 @@ return function(mod, opts)
     local rows = {}
     for species, def in pairs(game.data.pokemon or {}) do
       local dex = tonumber(def.dex)
-      if dex and dex >= 1 and dex <= 251
+      if dex and dex >= 1 and (dex <= 251 or species == "GOROCHU")
           and (seen[species] or owned[species]) then
         rows[#rows + 1] = {
           label = ("%03d %s"):format(dex, def.name),

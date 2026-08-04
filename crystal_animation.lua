@@ -10,10 +10,13 @@ return function(mod, opts)
   local animationData = opts.animationData or {}
   local shinySystem = opts.shinySystem
   local speciesOrder = opts.speciesOrder or {}
+  local guestDexes = opts.guestDexes or {}
   local A = {
     selected = setmetatable({}, { __mode = "k" }),
     available = {},
     shinyAvailable = {},
+    backAvailable = {},
+    backShinyAvailable = {},
   }
   local dexFor = {}
   local imageCache = {}
@@ -23,7 +26,7 @@ return function(mod, opts)
     dexFor[species] = dex
   end
 
-  for dex = 1, 251 do
+  local function scanDex(dex)
     A.available[dex] =
       mod:read(("assets/crystal_animated/front/normal/%d/001.png"):format(dex))
         ~= nil
@@ -34,7 +37,19 @@ return function(mod, opts)
         ~= nil
       and type(animationData.shiny) == "table"
       and type(animationData.shiny[tostring(dex)]) == "table"
+    A.backAvailable[dex] =
+      mod:read(("assets/crystal_animated/back/normal/%d/001.png"):format(dex))
+        ~= nil
+      and type(animationData.normal) == "table"
+      and type(animationData.normal[tostring(dex)]) == "table"
+    A.backShinyAvailable[dex] =
+      mod:read(("assets/crystal_animated/back/shiny/%d/001.png"):format(dex))
+        ~= nil
+      and type(animationData.shiny) == "table"
+      and type(animationData.shiny[tostring(dex)]) == "table"
   end
+  for dex = 1, 251 do scanDex(dex) end
+  for dex in pairs(guestDexes) do scanDex(dex) end
 
   local function resolveDex(ctx)
     if not (ctx and ctx.species) then return nil end
@@ -42,7 +57,7 @@ return function(mod, opts)
     local data = ctx.data or (A.game and A.game.data)
     local def = data and data.pokemon and data.pokemon[ctx.species]
     local dex = def and tonumber(def.dex)
-    if dex and dex >= 1 and dex <= 251 then
+    if dex and dex >= 1 and (dex <= 251 or guestDexes[dex]) then
       dexFor[ctx.species] = dex
       return dex
     end
@@ -65,6 +80,7 @@ return function(mod, opts)
 
   local function artEnabled(dex)
     if not dex then return false end
+    if guestDexes[dex] then return true end
     if dex <= 151 then
       return mod.options:get("kanto_crystal_art") ~= false
         and not externalKantoActive(dex)
@@ -81,13 +97,13 @@ return function(mod, opts)
     return shinySystem and shinySystem.isShiny(mon) and "shiny" or "normal"
   end
 
-  local function relativePath(dex, which, frame)
-    return ("assets/crystal_animated/front/%s/%d/%03d.png")
-      :format(which, dex, frame or 1)
+  local function relativePath(dex, which, frame, side)
+    return ("assets/crystal_animated/%s/%s/%d/%03d.png")
+      :format(side or "front", which, dex, frame or 1)
   end
 
-  local function fullPath(dex, which, frame)
-    return mod.path .. "/" .. relativePath(dex, which, frame)
+  local function fullPath(dex, which, frame, side)
+    return mod.path .. "/" .. relativePath(dex, which, frame, side)
   end
 
   local function durations(dex, which)
@@ -105,15 +121,24 @@ return function(mod, opts)
   function A.select(ctx, selectedSide, externalOverride)
     local mon = ctx and ctx.mon
     local dex = resolveDex(ctx)
-    if not (mon and dex and ctx.kind == "battle" and selectedSide == "front")
+    local guestSide = guestDexes[dex]
+      and (selectedSide == "front" or selectedSide == "back")
+    if not (mon and dex and ctx.kind == "battle"
+        and (selectedSide == "front" or guestSide))
         or externalOverride or not artEnabled(dex)
         or mon._ascMegaForm or mon.ascMegaForm then
       clearSelection(mon)
       return nil
     end
     local which = variant(mon)
-    local ready = which == "shiny"
-      and A.shinyAvailable[dex] or A.available[dex]
+    local ready
+    if selectedSide == "back" then
+      ready = which == "shiny"
+        and A.backShinyAvailable[dex] or A.backAvailable[dex]
+    else
+      ready = which == "shiny"
+        and A.shinyAvailable[dex] or A.available[dex]
+    end
     local timing = ready and durations(dex, which) or nil
     if not (timing and #timing > 0) then
       clearSelection(mon)
@@ -123,6 +148,7 @@ return function(mod, opts)
       A.selected[mon] = {
         species = ctx.species,
         dex = dex,
+        side = selectedSide,
         variant = which,
         durations = timing,
       }
@@ -130,7 +156,7 @@ return function(mod, opts)
       clearSelection(mon)
     end
     ctx.trueColor = true
-    return fullPath(dex, which, 1)
+    return fullPath(dex, which, 1, selectedSide)
   end
 
   local function loadImage(path)
@@ -158,6 +184,7 @@ return function(mod, opts)
     local state = {
       species = selected.species,
       dex = selected.dex,
+      side = selected.side or "front",
       variant = selected.variant,
       durations = selected.durations,
       frame = 1,
@@ -201,7 +228,8 @@ return function(mod, opts)
     end
     if not changed then return end
 
-    local image = loadImage(fullPath(state.dex, state.variant, state.frame))
+    local image = loadImage(fullPath(
+      state.dex, state.variant, state.frame, state.side))
     if image then
       battler.sprite = image
       state.image = image

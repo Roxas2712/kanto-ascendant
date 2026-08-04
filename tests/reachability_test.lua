@@ -33,6 +33,8 @@ end
 
 T.eq(report.reachableCount, 251,
   "every original Kanto/Johto Pokédex number has an acquisition path")
+T.same(report.guestReachable, { "GOROCHU" },
+  "Raichu's Gorochu evolution is reachable outside the native 251")
 T.eq(#report.renewableJohtoItems, #report.requiredJohtoItems,
   "every consumed Johto evolution item becomes renewable")
 run.release()

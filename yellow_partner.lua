@@ -1,7 +1,7 @@
 -- Yellow's one true partner, carried safely across its optional evolution.
 --
 -- Fresh saves stamp the exact Pikachu created by Oak's lab gift. Upgraded
--- saves adopt a unique self-owned Pikachu/Raichu automatically and ask once
+-- saves adopt a unique self-owned Pikachu/Raichu/Gorochu automatically and ask once
 -- when several candidates make the old data ambiguous. The marker lives on
 -- the Pokémon table, so boxing, trading within the save and Evolution.apply
 -- preserve the identity without relying on species or party position.
@@ -31,6 +31,10 @@ return function(mod, opts)
 
   local function tr(en, de)
     return i18n and i18n.text(en, de) or en
+  end
+
+  local function isEvolvedPartnerSpecies(species)
+    return species == "RAICHU" or species == "GOROCHU"
   end
 
   local function isYellow()
@@ -114,7 +118,8 @@ return function(mod, opts)
     local out = {}
     eachPokemon(save, function(mon, where, index, boxIndex)
       if type(mon) == "table" and not mon.isEgg
-          and (mon.species == "PIKACHU" or mon.species == "RAICHU")
+          and (mon.species == "PIKACHU"
+            or isEvolvedPartnerSpecies(mon.species))
           and selfOwned(save, mon) then
         out[#out + 1] = {
           mon = mon, where = where, index = index, box = boxIndex,
@@ -206,7 +211,7 @@ return function(mod, opts)
       s.heartGiven = true
     end
     local partner = markedPartner(game.save)
-    if partner and partner.species == "RAICHU" then
+    if partner and isEvolvedPartnerSpecies(partner.species) then
       s.choice = "evolved"
     end
     s.initialized = true
@@ -224,6 +229,20 @@ return function(mod, opts)
     local name = nameOf(game, mon)
     local happiness = math.max(0,
       math.min(255, tonumber(game.save.pikachuHappiness) or 90))
+    if mon.species == "GOROCHU" then
+      if happiness < 100 then
+        return tr(
+          ("%s lowers its horns\nbeside you.\fThe storm is fierce,\nbut your old bond\nstill guides it."):format(name),
+          ("%s senkt neben dir\ndie Hörner.\fDer Sturm ist wild,\ndoch euer altes Band\nführt es weiter."):format(name))
+      elseif happiness < 200 then
+        return tr(
+          ("%s touches a horn\nto the THUNDERHEART.\fA deep rumble answers,\nwarm and familiar."):format(name),
+          ("%s berührt das\nDONNERHERZ mit einem Horn.\fTiefer Donner antwortet,\nwarm und vertraut."):format(name))
+      end
+      return tr(
+        ("%s raises its horns.\fThunder rolls above,\nbut the strongest spark\nis still your bond."):format(name),
+        ("%s hebt seine Hörner.\fDonner rollt über euch,\ndoch der stärkste Funke\nbleibt euer Band."):format(name))
+    end
     if mon.species == "RAICHU" then
       if happiness < 100 then
         return tr(
@@ -378,7 +397,7 @@ return function(mod, opts)
         "Das DONNERHERZ\nantwortet aus der Ferne.\fNimm deinen ersten\nPartner ins TEAM."))
       return true
     end
-    if mon.species == "RAICHU" then
+    if isEvolvedPartnerSpecies(mon.species) then
       showText(game, bondText(game, mon))
       return true
     end
@@ -568,10 +587,17 @@ return function(mod, opts)
     if not (spriteAssets and spriteAssets.iconFollower) then return nil end
     local shiny = shinySystem and shinySystem.isShiny
       and shinySystem.isShiny(mon) or false
+    if mon and mon.species == "GOROCHU" and spriteAssets.follower then
+      local path = spriteAssets.follower("GOROCHU", shiny)
+      if path then return path end
+    end
     local variant = shiny and "shiny" or "normal"
+    local dex = mon and mon.species == "GOROCHU" and 1026 or 26
+    local cacheSpecies = mon and mon.species == "GOROCHU"
+      and "gorochu" or "raichu"
     return spriteAssets.iconFollower(
-      ("assets/crystal_animated/front/%s/26/001.png"):format(variant),
-      "yellow_partner_raichu_" .. variant)
+      ("assets/crystal_animated/front/%s/%d/001.png"):format(variant, dex),
+      "yellow_partner_" .. cacheSpecies .. "_" .. variant)
   end
 
   local RAICHU_VOICE_PATHS = {
@@ -617,9 +643,35 @@ return function(mod, opts)
     },
   }
 
-  local function decorateReaction(row)
-    row.voice = RAICHU_VOICES[row.id]
-    row.portrait = RAICHU_PORTRAITS[row.id]
+  local GOROCHU_PORTRAITS = {
+    -- Gorochu owns seven purpose-built facial expressions. The numbered
+    -- frames below only animate each expression; they never substitute a
+    -- different mood or alter the creature's regular battle art.
+    sleepy = { sequence = { 1, 2, 1, 3 }, ticks = 18, hold = 90 },
+    unwell = { sequence = { 1, 2, 1, 3 }, ticks = 14, hold = 72 },
+    upset = { sequence = { 1, 3, 1, 2 }, ticks = 11, hold = 110 },
+    wary = { sequence = { 1, 2, 1, 3 }, ticks = 14, hold = 72 },
+    content = { sequence = { 1, 2, 1, 3 }, ticks = 12, hold = 96 },
+    devoted = { sequence = { 1, 2, 1, 3 }, ticks = 13, hold = 104 },
+    excited = { sequence = { 1, 2, 3, 1, 3, 2 }, ticks = 8, hold = 200 },
+  }
+
+  local function partnerSpeech(text, mon)
+    if not (mon and mon.species == "GOROCHU") then return text end
+    return tostring(text)
+      :gsub("RAI%-RAICHU", "GORO%-GOROCHU")
+      :gsub("RAICHU", "GOROCHU")
+  end
+
+  local function decorateReaction(row, mon)
+    row.text = partnerSpeech(row.text, mon)
+    if mon and mon.species == "GOROCHU" then
+      row.voice = nil
+      row.portrait = GOROCHU_PORTRAITS[row.id]
+    else
+      row.voice = RAICHU_VOICES[row.id]
+      row.portrait = RAICHU_PORTRAITS[row.id]
+    end
     return row
   end
 
@@ -631,67 +683,67 @@ return function(mod, opts)
       math.min(255, tonumber(save.pikachuMood) or 128))
 
     if mon and mon.status == "SLP" then
-      return decorateReaction {
+      return decorateReaction({
         id = "sleepy",
         bubble = "ZZZ_BUBBLE",
         text = tr(
           "RAICHU... zzz...\fIts tail curls\naround your feet as\nit dozes beside you.",
           "RAICHU... zzz...\fSein Schweif liegt\num deine Füße,\nwährend es neben dir\ndöst."),
-      }
+      }, mon)
     end
     if mon and ((tonumber(mon.hp) or 0) <= 0 or mon.status) then
-      return decorateReaction {
+      return decorateReaction({
         id = "unwell",
         bubble = "SKULL_BUBBLE",
         text = tr(
           "RAICHU...\fIts ears droop.\fIts sparks feel weak.\nIt needs some care.",
           "RAICHU...\fSeine Ohren hängen.\fDie Funken sind schwach.\nEs braucht etwas Pflege."),
-      }
+      }, mon)
     end
     if happiness < 50 or mood < 80 then
-      return decorateReaction {
+      return decorateReaction({
         id = "upset",
         bubble = "BOLT_BUBBLE",
         turnAway = true,
         text = tr(
           "RAICHU...\fIt looks away.\fTiny sparks crackle\nsharply.\fIt may need a little\nspace for now.",
           "RAICHU...\fEs schaut weg.\fKleine Funken\nknistern scharf.\fVielleicht braucht es\netwas Abstand."),
-      }
+      }, mon)
     end
     if happiness < 100 or mood < 120 then
-      return decorateReaction {
+      return decorateReaction({
         id = "wary",
         bubble = "QUESTION_BUBBLE",
         text = tr(
           "RAICHU?\fIt watches you,\nthen carefully steps\na little closer.",
           "RAICHU?\fEs beobachtet dich\nund kommt dann ganz\nvorsichtig näher."),
-      }
+      }, mon)
     end
     if happiness >= 240 and mood >= 140 then
-      return decorateReaction {
+      return decorateReaction({
         id = "excited",
         bubble = "EXCLAMATION_BUBBLE",
         text = tr(
           "RAI-RAICHU!\fIt races around you,\ncheeks flashing with\nbright, playful sparks!",
           "RAI-RAICHU!\fEs flitzt um dich.\fSeine Wangen sprühen\nverspielte Funken!"),
-      }
+      }, mon)
     end
     if happiness >= 200 then
-      return decorateReaction {
+      return decorateReaction({
         id = "devoted",
         bubble = "HEART_BUBBLE",
         text = tr(
           "RAICHU!\fIt presses its head\nto yours.\fYour bond feels\nstronger than ever.",
           "RAICHU!\fEs drückt seinen Kopf\nan deinen.\fEuer Band ist stärker\nals je zuvor."),
-      }
+      }, mon)
     end
-    return decorateReaction {
+    return decorateReaction({
       id = "content",
       bubble = "SMILE_BUBBLE",
       text = tr(
         "RAICHU!\fIts tail brushes\nyour hand.\fA calm, happy spark\njumps between you.",
         "RAICHU!\fSein Schweif streift\ndeine Hand.\fEin ruhiger Funke\nspringt zwischen euch."),
-    }
+    }, mon)
   end
 
   local function emotionBubble(game, name)
@@ -711,7 +763,11 @@ return function(mod, opts)
     local variant = shiny and "shiny" or "normal"
     local out = {}
     for _, frame in ipairs(portrait.sequence or {}) do
-      if reaction.id == "sleepy" or reaction.id == "unwell" then
+      if mon and mon.species == "GOROCHU" then
+        out[#out + 1] = (
+          "%s/assets/yellow_partner_gorochu_portraits/%s/%s/%03d.png")
+          :format(mod.path, variant, reaction.id, frame)
+      elseif reaction.id == "sleepy" or reaction.id == "unwell" then
         -- Crystal has no clearly sleeping/sick face, so only these two
         -- follower reactions use restrained custom portraits.
         out[#out + 1] = (
@@ -900,11 +956,12 @@ return function(mod, opts)
     local npc = okFollower and game.overworld and follower.current
       and follower.current(game.overworld)
     local okRenderer, Renderer = pcall(require, "src.render.SpriteRenderer")
+    local species = mon and mon.species or "RAICHU"
     if npc and okRenderer and Renderer and Renderer.new
         and (changed
-          or npc._ascendantYellowPartnerSpecies ~= "RAICHU") then
+          or npc._ascendantYellowPartnerSpecies ~= species) then
       npc.sprite = Renderer.new(def, npc.id)
-      npc._ascendantYellowPartnerSpecies = "RAICHU"
+      npc._ascendantYellowPartnerSpecies = species
     end
     return true
   end
@@ -936,14 +993,15 @@ return function(mod, opts)
     local _, external = externalFollowerMon(game)
     if external then return callback() end
     local mon = partnerInParty(game, true)
-    if not (mon and mon.species == "RAICHU") then
+    if not (mon and isEvolvedPartnerSpecies(mon.species)) then
       restoreVanillaFollower(game)
       return callback()
     end
     configureRaichuFollower(game, mon)
+    local species = mon.species
     mon.species = "PIKACHU"
     local packed = { pcall(callback) }
-    mon.species = "RAICHU"
+    mon.species = species
     if not packed[1] then error(packed[2], 2) end
     return unpack(packed, 2)
   end
@@ -962,9 +1020,10 @@ return function(mod, opts)
     local reaction = raichuReaction(game, mon)
     local okSound, Sound = pcall(require, "src.core.Sound")
     if okSound and Sound then
-      local spoken = Sound.play and Sound.play(game.data, reaction.voice)
+      local spoken = reaction.voice and Sound.play
+        and Sound.play(game.data, reaction.voice)
       if not spoken and Sound.playCry then
-        Sound.playCry(game.data, "RAICHU")
+        Sound.playCry(game.data, mon.species)
       end
     end
     if reaction.turnAway then
@@ -1027,10 +1086,12 @@ return function(mod, opts)
       local gameNow = holder.controller and holder.controller.game
       local partner = gameNow and gameNow.save == save
         and markedPartner(save) or nil
-      if partner and mon == partner and partner.species == "RAICHU" then
+      if partner and mon == partner
+          and isEvolvedPartnerSpecies(partner.species) then
+        local species = partner.species
         partner.species = "PIKACHU"
         local packed = { pcall(holder.modifyHappiness, save, reason, partner) }
-        partner.species = "RAICHU"
+        partner.species = species
         if not packed[1] then error(packed[2], 2) end
         return unpack(packed, 2)
       end
@@ -1050,7 +1111,7 @@ return function(mod, opts)
     end
     follower.talk = function(gameNow, ow, npc, done)
       local mon = markedPartner(gameNow and gameNow.save)
-      local active = mon and mon.species == "RAICHU"
+      local active = mon and isEvolvedPartnerSpecies(mon.species)
         and partnerIsActive(gameNow, mon)
       if active and npc and npc.pikachuFollower then
         return raichuFollowerTalk(gameNow, ow, npc, done, mon)
@@ -1146,8 +1207,8 @@ return function(mod, opts)
         or not (s.accepted or s.heartGiven) then return out end
     local mon = markedPartner(game and game.save)
     local right
-    if mon and mon.species == "RAICHU" then
-      right = "RAICHU"
+    if mon and isEvolvedPartnerSpecies(mon.species) then
+      right = mon.species
     elseif s.choice == "stay" then
       right = "PIKACHU"
     elseif s.heartGiven or questReady(s) then
@@ -1217,7 +1278,8 @@ return function(mod, opts)
   end)
 
   mod.events:on("pokemon.evolved", function(ev)
-    if ev and Y.isPartner(ev.mon) and ev.toSpecies == "RAICHU" then
+    if ev and Y.isPartner(ev.mon)
+        and isEvolvedPartnerSpecies(ev.toSpecies) then
       local s = state()
       s.choice = "evolved"
       persist(s)

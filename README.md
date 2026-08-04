@@ -531,6 +531,25 @@ with several candidates receives a one-time choice instead, so the mod never
 silently marks the wrong Pokémon. Red and Blue never receive this Yellow-only
 item or partner route.
 
+### Gorochu: the Storm Bond evolution
+
+Raichu can now evolve permanently into the guest species **Gorochu** in Red,
+Blue and Yellow. After entering the Hall of Fame, raise that individual
+Raichu's bond, teach it **Thunder**, then level it up inside the **Power
+Plant**. Yellow's original marked partner uses its existing happiness and
+keeps the same identity, memories and follower after the evolution.
+
+Gorochu is a pure Electric species with dedicated normal/shiny front, back,
+six-frame Crystal animation and follower art. Yellow's partner version also
+has seven separate animated faces for sleepy, unwell, upset, wary, content,
+devoted and excited reactions; these portraits never replace its battle art.
+Its cry is safely derived from Raichu when no external Gorochu audio is
+installed.
+
+Gorochu uses guest Pokédex number **1026**. It appears in the Research Atlas
+and Shiny Dex only after discovery, and it deliberately remains outside all
+original 151/251 completion certificates and Shiny Charm requirements.
+
 The Route 5 machine forges most stones individually:
 
 - Classic non-Mewtwo stones unlock with the Ring after the first Hall of Fame
@@ -999,7 +1018,7 @@ missions, Rocket story and one new tournament bracket are completed.
 
 ## Installation
 
-1. Download `kanto-ascendant-5.3.0.zip` from the
+1. Download `kanto-ascendant-5.4.0.zip` from the
    [latest release](https://github.com/Roxas2712/kanto-ascendant/releases/latest)
    and import it through the launcher. The identical `.modpkg` is also
    available for launcher versions that use that extension. Developers may
@@ -1008,10 +1027,11 @@ missions, Rocket story and one new tournament bracket are completed.
 3. Existing saves work. Old trainer wins receive one initial rest period, and
    existing Pokédex ownership is imported into legendary progression.
 
-This expansion registers Pokédex entries 152-251. A second full-Johto species
-mod should not be enabled at the same time. Existing Kanto Ascendant saves are
-safe: the six previously added legends keep their string species IDs, so
-captured Pokémon and progression survive the switch to canonical dex numbers.
+This expansion registers Pokédex entries 152-251 plus the separate guest
+entry 1026 for Gorochu. A second full-Johto species mod should not be enabled
+at the same time. Existing Kanto Ascendant saves are safe: the six previously
+added legends keep their string species IDs, so captured Pokémon and
+progression survive the switch to canonical dex numbers.
 
 ## Credits
 
@@ -1051,6 +1071,9 @@ Crystal animation frames for #001-251 and their exact timing table.
 captures the 2D follower, voxel follower and voxel battle paths.
 `tools/crystal_animation_qa_driver.lua` exercises standalone Kanto, Johto,
 Voxel and mixed external-Kanto/Ascendant-Johto paths in a real LÖVE client.
+`tools/gorochu_qa_driver.lua` performs the real Raichu evolution, validates
+normal/shiny front and back art, and captures Gorochu's follower plus all
+seven normal/shiny partner expressions without covering the emotion bubble.
 `tools/mega_crystal_qa_driver.lua` performs real battle transformations in
 2D and Voxel layouts and verifies Mega ownership with bundled or external
 Crystal art. `tools/install_all_mega_sprites.py` installs all 30 approved

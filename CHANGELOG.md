@@ -2,6 +2,35 @@
 
 All notable changes to this project are documented in this file.
 
+## [5.4.0] - 2026-08-04
+
+### Added
+
+- Raichu can permanently evolve into the separate guest species Gorochu in
+  Red, Blue and Yellow after the Hall of Fame by reaching high bond, knowing
+  Thunder and leveling up inside the Power Plant.
+- Gorochu is registered as guest Pokédex #1026 with an original Electric
+  stat/learn profile, Pokédex entry and safe Raichu-derived fallback cry.
+- Dedicated normal/shiny front, back, six-frame Crystal battle animation and
+  follower art.
+- Yellow's original partner keeps its per-Pokémon identity, happiness,
+  memories and follower when Raichu evolves again. Partner Gorochu has seven
+  separate animated normal/shiny faces for sleepy, unwell, upset, wary,
+  content, devoted and excited reactions.
+- The Research Atlas reveals Gorochu and its evolution condition after
+  discovery. The Shiny Dex recognizes it without adding it to the original
+  251-species completion target.
+- A real-client UAT driver verifies evolution, save identity, normal/shiny
+  battle art, follower behavior, seven expressions and emotion-bubble
+  separation.
+
+### Changed
+
+- The standalone Crystal animation controller now supports explicitly
+  registered guest Pokédex numbers and player-side guest animations.
+- Breeding resolves Gorochu back to Pichu, while follower compatibility can
+  safely proxy the full Raichu family.
+
 ## [5.3.0] - 2026-08-04
 
 ### Added

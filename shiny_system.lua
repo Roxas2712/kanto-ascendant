@@ -528,8 +528,12 @@ return function(mod, opts)
       new = function(game)
         local rows, totalCaught, totalSeen = {}, 0, 0
         local species = {}
+        local pokedex = game.save and game.save.pokedex or {}
+        local known = pokedex.seen or {}
+        local owned = pokedex.owned or {}
         for id, def in pairs(game.data.pokemon or {}) do
-          if (tonumber(def.dex) or 9999) <= 251 then
+          if (tonumber(def.dex) or 9999) <= 251
+              or (id == "GOROCHU" and (known[id] or owned[id])) then
             species[#species + 1] = { id = id, def = def }
           end
         end

@@ -24,7 +24,7 @@ return function(mod, opts)
     TYROGUE = true, SMOOCHUM = true, ELEKID = true, MAGBY = true,
   }
   local BABY_ROOTS = {
-    PIKACHU = "PICHU", RAICHU = "PICHU",
+    PIKACHU = "PICHU", RAICHU = "PICHU", GOROCHU = "PICHU",
     CLEFAIRY = "CLEFFA", CLEFABLE = "CLEFFA",
     JIGGLYPUFF = "IGGLYBUFF", WIGGLYTUFF = "IGGLYBUFF",
     TOGETIC = "TOGEPI",

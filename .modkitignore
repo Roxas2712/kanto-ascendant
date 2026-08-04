@@ -7,7 +7,12 @@ RELEASE_NOTES_5.2.1.md
 RELEASE_NOTES_5.2.2.md
 RELEASE_NOTES_5.2.3.md
 RELEASE_NOTES_5.3.0.md
+RELEASE_NOTES_5.4.0.md
 docs/NEXT_MAJOR_UPDATE_STARFALL_TIDES.md
+assets/sources/gorochu/gorochu_expression_reference.png
+assets/sources/gorochu/gorochu_expression_reference_chroma.png
+assets/sources/gorochu/gorochu_sprite_reference.png
+assets/sources/gorochu/gorochu_sprite_reference_chroma.png
 tests/atlas_legacy_test.lua
 tests/field_economy_test.lua
 tests/fixtures/upgrade_saves.lua
@@ -19,6 +24,7 @@ tools/build_raichu_expression_portraits.mjs
 tools/build_raichu_partner_voice.py
 tools/build_breeding_data.py
 tools/build_follower_runtime_assets.py
+tools/build_gorochu_assets.swift
 tools/build_mega_runtime_assets.py
 tools/build_mega_screenshot_gallery.py
 tools/build_mega_sprite_review.py
@@ -26,6 +32,7 @@ tools/capture_all_mega_ingame.sh
 tools/crystal_animation_qa_driver.lua
 tools/endgame_qa_driver.lua
 tools/field_tech_qa_driver.lua
+tools/gorochu_qa_driver.lua
 tools/hotfix_5_2_2_qa_driver.lua
 tools/hotfix_5_2_3_qa_driver.lua
 tools/install_all_mega_sprites.py

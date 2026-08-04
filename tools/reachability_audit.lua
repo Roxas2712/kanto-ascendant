@@ -322,6 +322,17 @@ function A.audit(data, exports, extraData)
         :format(id, tostring(def.dex), dex))
     end
   end
+  local guestSpecies = {}
+  local gorochu = exports.gorochu
+  if gorochu and gorochu.available then
+    local id = gorochu.id or "GOROCHU"
+    if data.pokemon and data.pokemon[id] then
+      validSpecies[id] = true
+      guestSpecies[#guestSpecies + 1] = id
+    else
+      addError(report, "Registered Gorochu controller has no species data")
+    end
+  end
   for id, def in pairs(data.pokemon or {}) do
     local dex = tonumber(def.dex)
     if dex and dex >= 1 and dex <= 251 then
@@ -572,6 +583,15 @@ function A.audit(data, exports, extraData)
     end
   end
   report.reachableCount = reachableCount
+  report.guestReachable = {}
+  for _, species in ipairs(guestSpecies) do
+    if report.reachable[species] then
+      report.guestReachable[#report.guestReachable + 1] = species
+    else
+      addError(report,
+        species .. " guest evolution has no acquisition path")
+    end
+  end
   report.speciesByDex = byDex
   report.requiredJohtoItems = sortedKeys(requiredJohtoItems)
   report.renewableJohtoItems = {}
@@ -589,6 +609,9 @@ function A.format(report)
     ("Reachability: %d/251 species"):format(report.reachableCount or 0),
     ("Encounter graph: %d real slots, %d evolution edges, %d Living-Johto habitats")
       :format(report.wildSlots or 0, #(report.edges or {}), report.habitatRows or 0),
+    "Guest evolutions reachable: "
+      .. (#(report.guestReachable or {}) > 0
+        and table.concat(report.guestReachable, ", ") or "none"),
     "Renewable Johto evolution items: "
       .. table.concat(report.renewableJohtoItems or {}, ", "),
   }

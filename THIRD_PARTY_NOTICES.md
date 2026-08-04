@@ -50,6 +50,19 @@ Ascendant Typhlosion is an original Kanto Ascendant fan design. Its front
 flame movement is derived from the bundled Pokémon Crystal #157 animation and
 timing described above.
 
+## Gorochu guest species
+
+Gorochu is based on the discarded Raichu evolution described by Pokémon
+designer Atsuko Nishida: a thunder-god-like creature with horns and fangs.
+No official complete sprite, statistics or evolution method is known.
+
+https://www.pokemon.com/us/pokemon-news/creator-profile-the-creators-of-pikachu
+
+Kanto Ascendant's battle sprites, shiny palette, follower, expressions,
+statistics, Pokédex prose and Storm Bond evolution are an original
+non-commercial fan interpretation created for this project. They are not
+official Game Freak assets or canon data.
+
 ## PokeWilds follower sprites
 
 The bundled normal and shiny six-pose Johto overworld sheets are sourced from

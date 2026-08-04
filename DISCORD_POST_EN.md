@@ -1,55 +1,48 @@
-# ⚡ KANTO ASCENDANT 5.3.0 — HEART OF THUNDER
+# ⚡ KANTO ASCENDANT 5.4.0 — THE LOST THUNDER
 
 **The Hall of Fame was only the beginning.**
 
 Kanto Ascendant turns Red, Blue and Yellow into a living Gen-I/II adventure
 with **all 251 Pokémon in one save** and a huge Lv.100 post-game.
 
-## 💛 NEW IN 5.3.0
+## 🔥 NEW IN 5.4.0: GOROCHU
 
-After the Thunder Badge, Lt. Surge offers an optional trial: walk 251 steps and
-win three trainer battles to earn the permanent **Thunderheart**.
+Raichu's lost final evolution returns as a complete guest Pokémon!
 
-⚡ Evolve Yellow's original partner into Raichu, stay Pikachu or decide later.
+⚡ After the Hall of Fame, raise Raichu's bond, teach it Thunder and level up
+inside the Power Plant.
 
-😊 Partner Raichu keeps its bond, memories and follower, with seven animated
-moods, matching bubbles and spoken Raichu voices.
+🎞️ Dedicated normal/shiny front, back, Crystal animation and follower art.
 
-✨ Stay Pikachu and it can later answer Raichunite X/Y directly, temporarily
-becoming the matching official Mega Raichu.
-
-🛠️ Fixes Gen-II cries/followers, PokéPC's surprise Charmander, large back
-sprites and Wilds art.
+😊 Yellow's original partner keeps its identity and gains seven animated
+Gorochu expressions. Gorochu stays outside the original 251 completion count.
 
 ## 🗺️ THE FULL ADVENTURE
 
-⚔️ Growing trainer rematches, unique dialogue, rare loot and renewable TMs.
+⚔️ Growing rematches, dialogue, loot and renewable TMs.
 
-🥚 Route 5 Day-Care: breeding, eggs, services and HM Field Kit.
+🥚 Day-Care breeding, eggs, services and HM Field Kit.
 
-🌟 Gen-II shinies, Shiny Dex, outbreaks, streaks, breeding, Shiny Charm and
-repeatable rewards.
+🌟 Gen-II shinies, Shiny Dex, outbreaks, streaks and Shiny Charm.
 
-🎞️ Animated normal/shiny Crystal sprites for all 251, switchable Gen-I art,
-2D, Voxel and mod support.
+🎞️ Animated normal/shiny Crystal art for all 251, Gen-I, 2D and Voxel support.
 
-💎 All 30 official Megas with animated front/back art and shinies.
+💎 All 30 official Megas, plus Yellow's optional Thunderheart partner path.
 
-🌿💧🔥 Guided Chikorita, Totodile and Cyndaquil Relic questlines.
+🌿💧🔥 Johto Starter Relic questlines.
 
 👑 Lv.100 Leaders, Elite Four, Champion and adaptive endgame.
 
 🌌 Legendary events for the birds, beasts, Mewtwo, Mew, Lugia, Ho-Oh and Celebi.
 
-🏆 Frontier, Factory, S.S. Anne, Rocket Resurgence, Heritage Cups and itemless
-Silver/Kris/Gold challenges.
+🏆 Frontier, Factory, S.S. Anne, Rocket, Heritage Cups and Johto Masters.
 
-📜 Research Atlas, Journal, titles, trophies, certificates and Ascendant cycles.
+📜 Atlas, Journal, titles, trophies, certificates and Ascendant cycles.
 
 ✅ Red / Blue / Yellow · Existing saves · English / German
 
 ## 📥 DOWNLOAD
-https://github.com/Roxas2712/kanto-ascendant/releases/tag/v5.3.0
+https://github.com/Roxas2712/kanto-ascendant/releases/tag/v5.4.0
 
 Import the `.zip` through the Gen1 Recomp launcher.
 ⚠️ Do not enable another complete-Johto species mod.

@@ -467,6 +467,10 @@ return function(mod)
   local contentEnabled, johtoAudio =
     registerSpecies(mod, postgameData, johtoData, i18n)
   mod.exports.johtoAudio = johtoAudio
+  local registerGorochu = loadSibling(mod, "gorochu.lua")
+  local gorochu = registerGorochu(mod, { i18n = i18n })
+  if gorochu.available then CRYSTAL_ASSETS.GOROCHU = "gorochu" end
+  mod.exports.gorochu = gorochu
   local makeKantoCompletion = loadSibling(mod, "kanto_completion.lua")
   local kantoCompletion = makeKantoCompletion(mod, {
     i18n = i18n,
@@ -515,11 +519,16 @@ return function(mod)
     i18n = i18n,
   })
   local crystalAnimationData = loadSibling(mod, "crystal_animation_data.lua")
+  crystalAnimationData.normal[tostring(gorochu.dex)] =
+    gorochu.animationDurations
+  crystalAnimationData.shiny[tostring(gorochu.dex)] =
+    gorochu.animationDurations
   local makeCrystalAnimation = loadSibling(mod, "crystal_animation.lua")
   local crystalAnimation = makeCrystalAnimation(mod, {
     animationData = crystalAnimationData,
     shinySystem = shinySystem,
     speciesOrder = johtoData.order,
+    guestDexes = { [gorochu.dex] = true },
   })
   daycare.setShinySystem(shinySystem)
   mod.exports.daycare = daycare
@@ -1348,6 +1357,7 @@ return function(mod)
     -- Johto entries and Mega/Ascendant forms naturally retain their species
     -- cry.
     if johtoAudio then johtoAudio.install(game) end
+    if gorochu then gorochu.installAudio(game) end
     if megaEvolution then megaEvolution.install(game, deps) end
     if kantoCompletion then kantoCompletion.install(game, deps) end
     if fieldTech then fieldTech.install(game, deps) end
@@ -1503,6 +1513,7 @@ return function(mod)
     -- slot becomes live. This is idempotent and also clears any negative
     -- Sound cache entry created by an earlier follower/UI lookup.
     if johtoAudio and activeGame then johtoAudio.install(activeGame) end
+    if gorochu and activeGame then gorochu.installAudio(activeGame) end
     if mod.save:get("trainer_step_clock") == nil then
       mod.save:set("trainer_step_clock", playerStepClock())
     end
