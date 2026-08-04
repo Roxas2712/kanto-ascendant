@@ -48,6 +48,7 @@ jobs:
         run: |
           luajit ../kanto-ascendant/tests/trainer_rematch_test.lua
           luajit ../kanto-ascendant/tests/gorochu_visuals_test.lua
+          luajit ../kanto-ascendant/tests/gorochu_audio_matrix_test.lua
           luajit ../kanto-ascendant/tests/field_economy_test.lua
           luajit ../kanto-ascendant/tests/atlas_legacy_test.lua
           luajit ../kanto-ascendant/tests/reachability_test.lua

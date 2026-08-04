@@ -1,6 +1,7 @@
 -- End-to-end Gorochu UAT for a disposable Red, Blue or Yellow profile.
 --
 -- Example:
+--   POKEPORT_VERSION=yellow \
 --   POKEPORT_DRIVER=/path/to/kanto-ascendant/tools/gorochu_qa_driver.lua \
 --   SHOT_DIR=/tmp/kanto-ascendant-gorochu-uat \
 --   GOROCHU_QA_VERSION=yellow \
@@ -39,14 +40,23 @@ return function(game)
     "Gorochu controller missing")
   assert(gorochuApi.available and game.data.pokemon.GOROCHU,
     "Gorochu species did not register")
+  gorochuApi.installAudio(game)
   local cryDef = assert(game.data.audio and game.data.audio.cries
     and game.data.audio.cries.GOROCHU, "Gorochu cry was not registered")
-  assert(type(cryDef.file) == "string"
-      and cryDef.file:find("gorochu_cry.wav", 1, true),
-    "Gorochu still uses a Raichu-derived placeholder cry")
+  if GameVersion.isYellow() then
+    assert(type(cryDef.file) == "string"
+        and cryDef.file:find("gorochu_cry.wav", 1, true),
+      "Yellow Gorochu did not select its spoken partner cry")
+  else
+    assert(cryDef.file == nil
+        and cryDef.base == "RAICHU"
+        and cryDef.pitch == 0x50
+        and cryDef.length == 0xB0,
+      "Red/Blue Gorochu did not select its original Gen-I chip cry")
+  end
   Sound.invalidate("cry:GOROCHU")
   assert(Sound.playCry(game.data, "GOROCHU"),
-    "Gorochu's spoken mono cry is not playable")
+    "Gorochu's edition-specific cry is not playable")
   local partnerApi = assert(ascendant.yellowPartner,
     "Yellow partner controller missing")
   local shotDir = os.getenv("SHOT_DIR")
@@ -196,6 +206,15 @@ return function(game)
       spritePath("back", shiny)
       U.teleport(game, "ROUTE_1", 5, 5, "down")
       local battle = BattleState.newWild(game, "GOROCHU", 61)
+      if shiny then
+        local shinySystem = assert(ascendant.shinySystem,
+          "Kanto Ascendant shiny controller missing")
+        assert(shinySystem.forceMon(
+          battle.enemy.mon, game.data.pokemon.GOROCHU),
+          "could not make the second Gorochu opponent shiny")
+        battle.enemy = BattleState.makeBattler(
+          game.data, battle.enemy.mon, false, game.save)
+      end
       battle.onFinish = function() end
       game.overworld:pushBattle(battle)
       U.wait(220)
@@ -271,8 +290,24 @@ return function(game)
           :format(shotDir, shiny and "shiny" or "normal", index, test.id)
         assert(U.shot(game, stem .. "_frame_1.png"),
           "first Gorochu portrait screenshot failed")
-        U.wait(math.max(1,
-          (emote._ascendantRaichuTicks or 8) * 2 + 1))
+        local firstPath = emote._ascendantRaichuFrames[1]
+        local phase
+        for frame = 2, #emote._ascendantRaichuFrames do
+          if emote._ascendantRaichuFrames[frame] ~= firstPath then
+            phase = frame - 1
+            break
+          end
+        end
+        assert(phase, "Gorochu portrait has no distinct animation frame")
+        -- Drive the exact animation phase instead of depending on QA's
+        -- accelerated frame step, which can jump over a short second frame.
+        local ticks = math.max(1,
+          math.floor(tonumber(emote._ascendantRaichuTicks) or 8))
+        emote.frames = math.max(1,
+          (emote.pikaTotal or emote.frames or 120) - ticks * phase)
+        partnerApi._advanceRaichuPortrait(game.overworld)
+        assert(emote.pikaPic ~= firstPath,
+          "Gorochu portrait did not advance to a distinct frame")
         assert(U.shot(game, stem .. "_frame_2.png"),
           "second Gorochu portrait screenshot failed")
       end

@@ -29,8 +29,11 @@ return function(game)
   game.save.inventory.THUNDERBADGE = 1
   game.save.inventory[partnerApi.itemId] = 1
 
+  -- All-10 DVs satisfy Gen II's shiny formula. Keep this focused Raichu
+  -- reaction run explicitly non-shiny; the full dialogue matrix separately
+  -- exercises both variants.
   local raichu = Pokemon.new(game.data, "RAICHU", 50,
-    function() return 10 end)
+    function() return 9 end)
   BattleState.stampOT(game.save, raichu)
   raichu[partnerApi.marker] = true
   raichu.hp = raichu.stats.hp
@@ -75,9 +78,26 @@ return function(game)
     assert(U.shot(game, ("%s/%02d_%s_frame_1.png")
       :format(shotDir, index, test.id)),
       "first screenshot failed for " .. test.id)
-    U.wait(math.max(1, (emote._ascendantRaichuTicks or 8) * 2 + 1))
+    local firstPath = emote._ascendantRaichuFrames[1]
+    local phase
+    for frame = 2, #emote._ascendantRaichuFrames do
+      if emote._ascendantRaichuFrames[frame] ~= firstPath then
+        phase = frame - 1
+        break
+      end
+    end
+    assert(phase, "Raichu portrait has no distinct animation frame")
+    -- Drive the exact animation phase instead of depending on QA's
+    -- accelerated frame step, which can jump over a short second frame.
+    local ticks = math.max(1,
+      math.floor(tonumber(emote._ascendantRaichuTicks) or 8))
+    emote.frames = math.max(1,
+      (emote.pikaTotal or emote.frames or 120) - ticks * phase)
+    partnerApi._advanceRaichuPortrait(game.overworld)
     assert(game.overworld.emote,
       "reaction ended before its second frame for " .. test.id)
+    assert(emote.pikaPic ~= firstPath,
+      "Raichu portrait did not advance to a distinct frame for " .. test.id)
     assert(U.shot(game, ("%s/%02d_%s_frame_2.png")
       :format(shotDir, index, test.id)),
       "second screenshot failed for " .. test.id)

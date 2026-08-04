@@ -19,6 +19,7 @@ assets/sources/gorochu/gorochu_follower_pose_reference_chroma.png
 assets/sources/gorochu/gorochu_voxel_user_reference.png
 assets/sources/raichu/raichu_expression_reference.png
 tests/atlas_legacy_test.lua
+tests/gorochu_audio_matrix_test.lua
 tests/gorochu_visuals_test.lua
 tests/field_economy_test.lua
 tests/fixtures/upgrade_saves.lua
@@ -42,6 +43,7 @@ tools/gorochu_acceptance_load_qa.lua
 tools/endgame_qa_driver.lua
 tools/field_tech_qa_driver.lua
 tools/gorochu_qa_driver.lua
+tools/gorochu_dialogue_qa_driver.lua
 tools/gorochu_voxel_qa_driver.lua
 tools/hotfix_5_2_2_qa_driver.lua
 tools/hotfix_5_2_3_qa_driver.lua

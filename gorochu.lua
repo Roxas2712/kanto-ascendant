@@ -6,6 +6,7 @@
 return function(mod, opts)
   opts = opts or {}
   local i18n = opts.i18n
+  local runtime = { gameVersion = opts.gameVersion }
   local G = {
     id = "GOROCHU",
     dex = 1026,
@@ -23,7 +24,6 @@ return function(mod, opts)
   local TRAINER_FALLBACK_MOVES = {
     "THUNDER", "BODY_SLAM", "THUNDER_WAVE", "AGILITY",
   }
-  local runtime = { gameVersion = opts.gameVersion }
 
   G.heartItemId = HEART
   G.tearItemId = TEAR
@@ -309,8 +309,20 @@ return function(mod, opts)
 
   G.audio = {
     primary = mod.path .. "/assets/audio/gorochu/gorochu_cry.wav",
-    fallback = { base = "RAICHU", pitch = 80, length = 176 },
+    fallback = {
+      base = "RAICHU",
+      pitch = 80,
+      length = 176,
+    },
   }
+
+  local function sameCry(a, b)
+    if type(a) ~= "table" or type(b) ~= "table" then return false end
+    return a.file == b.file
+      and a.base == b.base
+      and a.pitch == b.pitch
+      and a.length == b.length
+  end
 
   function G.installAudio(game)
     local data = game and game.data or game
@@ -320,10 +332,25 @@ return function(mod, opts)
     data.audio._owners = data.audio._owners or {}
     data.audio._owners.cries = data.audio._owners.cries or {}
     local installed, preserved = 0, 0
-    if data.audio.cries[G.id] == nil then
-      data.audio.cries[G.id] = { file = G.audio.primary }
+    local desired = isYellow()
+      and { file = G.audio.primary }
+      or G.audio.fallback
+    local current = data.audio.cries[G.id]
+    local owner = data.audio._owners.cries[G.id]
+    if current == nil then
+      data.audio.cries[G.id] = desired
       data.audio._owners.cries[G.id] = mod.manifest.id
       installed = 1
+    elseif owner == mod.manifest.id then
+      if sameCry(current, desired) then
+        preserved = 1
+      else
+        -- Scripted QA can select its concrete Red/Blue/Yellow identity after
+        -- mods first register. Replace only our own earlier fallback; a cry
+        -- supplied by another mod remains authoritative.
+        data.audio.cries[G.id] = desired
+        installed = 1
+      end
     else
       preserved = 1
     end
