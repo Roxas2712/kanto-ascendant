@@ -2,52 +2,58 @@
 
 **The Hall of Fame was only the beginning.**
 
-Kanto Ascendant turns Red, Blue and Yellow into one living Gen-I/II adventure:
-**all 251 Pokémon in one save**, growing rematches and a huge Lv.100 post-game.
+Kanto Ascendant expands Pokémon Red, Blue and Yellow into one living Gen-I/II
+adventure — with **all 251 Pokémon obtainable in one save**, evolving trainer
+rematches and a huge Lv.100 post-game.
 
-## ⚡ GOROCHU, REBUILT
+## 🆕 THUNDER REFORGED
 
-🔑 Obtain the permanent **Thunderheart**, locate its remote Power Plant
-condenser and create a **Thunder Tear** for the Raichu you choose.
+⚡ You now have the **option to obtain Gorochu**.
 
-🎨 Sharp dedicated normal/shiny art for classic 2D, Crystal Animated and Voxel:
-fronts, backs, six-pose followers and full Raichu/Gorochu dialogue portraits.
+🎨 Gorochu comes with complete normal and shiny support for classic 2D,
+Crystal Animated and Voxel — including fronts, backs, followers and animated
+dialogue portraits.
 
-🔊 Yellow uses Gorochu's spoken cry; Red/Blue use a new Gen-I-style chip cry.
-An externally installed Gorochu cry still takes priority.
+🔊 It also features edition-appropriate audio for Red, Blue and Yellow while
+remaining compatible with external cry mods.
 
-## 🛠️ 5.4.1 FIXES
+📖 A new independent **DEX SPRITES** option lets you choose between the
+original Red/Blue/Yellow Pokédex artwork and static Crystal sprites for Kanto
+#001–151.
 
-🎲 Authored Ascendant bosses now work correctly with the Gen-I Randomizer
-without undoing randomized species or moves.
+🎲 Ascendant boss battles now work correctly with the Gen-I Randomizer while
+preserving randomized species and moves.
 
-🧬 Researched Johto families can join suitable rematch trainers
-deterministically—old recruits never reroll.
+## 🌟 THE FULL ADVENTURE
 
-📖 New independent **DEX SPRITES** option: original Red/Blue/Yellow Pokédex
-fronts or static Crystal art, without changing battle graphics.
+⚔️ Growing trainer rematches with unique dialogue and rewards
 
-👀 Opponents cannot reveal Gorochu until you personally complete its evolution.
+🧬 Johto research, habitats and evolving trainer teams
 
-## 🗺️ THE FULL ADVENTURE
+🥚 Day-Care breeding, eggs, Move Reminder and HM Field Kit
 
-⚔️ Growing rematches, unique dialogue, loot and renewable TMs
+✨ Shinies, outbreaks, Shiny Dex and Shiny Charm
 
-🥚 Day-Care breeding, eggs, HM Field Kit and Move Reminder
+💎 30 official Mega Evolutions and special relic journeys
 
-🌟 Gen-II shinies, outbreaks, Shiny Dex and Shiny Charm
+👑 Lv.100 Gym Leaders, Elite Four and Champion battles
 
-💎 30 official Megas and Johto Starter Relic journeys
+🌌 Legendary events, Heritage Cups, Frontier and Battle Factory
 
-👑 Lv.100 Leaders, Elite Four, Champion and adaptive endgame
+🚢 S.S. Anne Grand Tour
 
-🌌 Legendary events, Heritage Cups, Frontier, Factory and S.S. Anne
-📜 Atlas, Journal, titles, trophies, certificates and New Game+
+📜 Atlas, Journal, trophies, titles, certificates and New Game+
 
-✅ Red / Blue / Yellow · Existing saves · English / German
+✅ Red / Blue / Yellow
+
+✅ English / German
+
+✅ Existing saves remain compatible
 
 ## 📥 DOWNLOAD
+
 https://github.com/Roxas2712/kanto-ascendant/releases/tag/v5.4.1
 
 Import the `.modpkg` through the Gen1 Recomp launcher.
-⚠️ Do not enable another complete-Johto species mod.
+
+⚠️ Do not enable another complete-Johto species mod alongside Kanto Ascendant.

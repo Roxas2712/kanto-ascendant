@@ -42,25 +42,14 @@ This setting never changes battle sprites, Crystal animation, summaries,
 icons, followers, evolutions, trades or Hall-of-Fame screens. Johto, guest
 species and externally owned sprite registrations retain their own art.
 
-### Gorochu's Thunder Path
+### Gorochu
 
-The former bond/Thunder/Power-Plant level-up trigger has been replaced:
+Players now have the option to obtain **Gorochu** through an optional
+in-game journey. Its clues and progression are presented inside the game, so
+the release notes do not reveal the solution.
 
-1. Red and Blue players can accept the permanent **Thunderheart** from
-   Lt. Surge after earning the Thunder Badge.
-2. Yellow keeps its original-partner trial: walk 251 steps and win three
-   trainer battles together, then return to Surge.
-3. The Thunderheart points to a silent condenser in the Power Plant's remote
-   east wing, away from Zapdos.
-4. The condenser creates one consumable **Thunder Tear** and returns the
-   permanent Heart to the Bag.
-5. Use the Tear outside battle on the Raichu you choose. The evolution is
-   permanent.
-
-The **THUNDER PATH / DONNERPFAD** menu entry always reports the next step.
-Owning a Heart or Tear does not reveal Gorochu to opposing trainers: they
-continue to receive Raichu until the player personally completes the
-evolution on that save.
+Gorochu remains undiscovered by opposing trainers until the player has
+personally obtained it on that save.
 
 ### Complete Gorochu presentation
 
@@ -84,8 +73,8 @@ evolution on that save.
 - Existing Red, Blue and Yellow saves require no manual migration.
 - A 5.4.0 save that already completed the player evolution retains Gorochu
   discovery and opponent access.
-- Saves from the unpublished Storm Bond prototype that accepted its research
-  receive the permanent Thunderheart.
+- Saves from earlier development builds migrate their relevant progress
+  automatically.
 - Existing externally registered Gorochu cries are not overwritten.
 - Kanto Ascendant owns Pokédex #152-251; do not enable another complete-Johto
   species mod at the same time.
