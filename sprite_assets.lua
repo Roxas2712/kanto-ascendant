@@ -11,7 +11,9 @@
 
 return function(mod)
   local A = {}
-  local CACHE_ROOT = "mod-derived/trainer_rematch/sprite-cache-v4"
+  -- Bump the derived cache whenever follower layout/alpha handling changes.
+  -- Mobile installations otherwise keep an older converted sheet forever.
+  local CACHE_ROOT = "mod-derived/trainer_rematch/sprite-cache-v5"
   local prepared = {}
 
   local function available()

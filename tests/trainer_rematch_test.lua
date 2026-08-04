@@ -34,6 +34,30 @@ do
     "a missing Johto cry receives Ascendant's self-contained fallback")
   T.eq(Data.pokemon.TOTODILE.cry, "TOTODILE",
     "late audio binding connects the species to the preserved external cry")
+  T.eq(ex.johtoAudio.battleScaleBack, 1,
+    "all full-size Johto player backs use native 1x scale")
+
+  -- Exercise the same synthesis path Sound.playCry uses. Presence in the
+  -- table alone would not catch a malformed chip program or a stale
+  -- negative cache entry.
+  local oldLoveAudio = love.audio
+  love.audio = {
+    newSource = function(soundData)
+      if not soundData then return nil end
+      return {
+        setVolume = function() end,
+        stop = function() end,
+        play = function() end,
+      }
+    end,
+  }
+  local Sound = require("src.core.Sound")
+  Sound.invalidate()
+  T.neq(Sound.playCry(Data, "NATU"), nil,
+    "the standalone Natu fallback cry reaches a playable audio source")
+  Sound.invalidate()
+  love.audio = oldLoveAudio
+
   local repeatedFallbacks, repeatedExternal =
     ex.johtoAudio.install({ data = Data })
   T.eq(repeatedFallbacks, 0, "late Johto audio binding is idempotent")
@@ -949,6 +973,59 @@ for _, id in ipairs(johto.order) do
 end
 T.eq(#missingFollowerProxy, 0,
   "every Johto species has a safe 2D/voxel follower fallback")
+
+do
+  -- A second follower/visual mod may wrap PokéPC's update function. The
+  -- Ascendant bridge must still find and patch PokéPC's nested assetPath
+  -- closure instead of silently leaving a missing follower_NATU.png path.
+  local PikachuFollower = require("src.world.PikachuFollower")
+  local originalUpdate = PikachuFollower.update
+  local seenPath
+  local function assetPath(species)
+    return "pokepc/assets/follower_" .. tostring(species) .. ".png"
+  end
+  local function configureSpriteDef(_, mon)
+    seenPath = assetPath(mon and mon.species)
+  end
+  local function pokepcUpdate(game)
+    configureSpriteDef(game, game.save.party[1])
+  end
+  local function followersExWrapper(game, ow)
+    return pokepcUpdate(game, ow)
+  end
+  PikachuFollower.update = followersExWrapper
+
+  local oldLocalPath = followerCompat.localPath
+  followerCompat.localPath = function(species)
+    return "ascendant/cache/follower_" .. tostring(species) .. ".png"
+  end
+  local followerGame = {
+    data = {
+      pokemon = Data.pokemon,
+      sprites = { SPRITE_PIKACHU = {} },
+    },
+    save = { party = { { species = "NATU", hp = 10 } } },
+    mods = {
+      exports = {
+        pokepc = {
+          activeMon = function(game) return game.save.party[1] end,
+        },
+      },
+    },
+  }
+  T.eq(followerCompat.install(followerGame), true,
+    "the follower bridge reaches PokéPC through an outer wrapper")
+  followersExWrapper(followerGame, {})
+  T.eq(seenPath, "ascendant/cache/follower_NATU.png",
+    "nested PokéPC rendering receives Natu's bundled Ascendant sheet")
+  T.eq(followerGame.data.sprites.SPRITE_PIKACHU.image,
+    "ascendant/cache/follower_NATU.png",
+    "the currently visible follower definition refreshes immediately")
+  T.eq(followerCompat.restore(), true,
+    "the nested follower bridge restores its original asset resolver")
+  followerCompat.localPath = oldLocalPath
+  PikachuFollower.update = originalUpdate
+end
 
 -- ------------------------------------------------ pure line resolution
 

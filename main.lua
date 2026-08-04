@@ -1243,7 +1243,9 @@ return function(mod)
 
   -- deps injectable so the headless test can drive the wraps without the
   -- engine; in-game every one resolves to the real module
+  local activeGame
   local function install(game, deps)
+    activeGame = game
     deps = deps or {}
     local Overworld = deps.overworld or require("src.world.OverworldController")
     local BattleState = deps.battleState or require("src.battle.BattleState")
@@ -1401,6 +1403,10 @@ return function(mod)
   -- game.ready runs before CONTINUE adopts the selected slot.  Seed old
   -- victories again after that slot becomes the live mod.save backing.
   mod.events:on("save.loaded", function(ev)
+    -- Reassert late-bound Johto audio after the selected Red/Blue/Yellow
+    -- slot becomes live. This is idempotent and also clears any negative
+    -- Sound cache entry created by an earlier follower/UI lookup.
+    if johtoAudio and activeGame then johtoAudio.install(activeGame) end
     if mod.save:get("trainer_step_clock") == nil then
       mod.save:set("trainer_step_clock", playerStepClock())
     end

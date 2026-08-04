@@ -36,7 +36,12 @@ return function(mod, legends, johto, i18n)
     }
   end
 
-  local audioCompat = { fallbacks = fallbackCries }
+  local audioCompat = {
+    fallbacks = fallbackCries,
+    -- Shared with every Johto registration below and exposed for the
+    -- ROM-free regression suite.
+    battleScaleBack = 1,
+  }
   function audioCompat.install(game)
     local data = game and game.data or game
     if not data then return 0, 0 end
@@ -44,6 +49,7 @@ return function(mod, legends, johto, i18n)
     data.audio.cries = data.audio.cries or {}
     data.audio._owners = data.audio._owners or {}
     data.audio._owners.cries = data.audio._owners.cries or {}
+    local okSound, Sound = pcall(require, "src.core.Sound")
 
     local installed, preserved = 0, 0
     for _, id in ipairs(johto.order) do
@@ -56,6 +62,14 @@ return function(mod, legends, johto, i18n)
       end
       local species = data.pokemon and data.pokemon[id]
       if species then species.cry = id end
+      -- Sound remembers a failed lookup as `false`. A follower interaction
+      -- or another game.ready listener can ask for a Johto cry before this
+      -- late compatibility pass runs, especially when several mods wrap the
+      -- Yellow companion. Evict that one negative entry now that the final
+      -- merged definition is known.
+      if okSound and Sound and type(Sound.invalidate) == "function" then
+        Sound.invalidate("cry:" .. id)
+      end
     end
     return installed, preserved
   end
@@ -331,7 +345,12 @@ return function(mod, legends, johto, i18n)
       tmhm = tmhm, learnset = learnset, evolutions = evolutions,
       spriteFront = spriteFront, spriteBack = spriteBack,
       frontSize = template.frontSize or 7,
-      battleScaleBack = art and 1 or nil, icon = icon,
+      -- Every bundled Crystal back is a complete 56x56 Gen-II picture.
+      -- Gen1's native player backs are compact pictures intentionally drawn
+      -- at 2x; leaving that default on ordinary Johto species made Natu and
+      -- the rest of #152-251 enormous. The six legacy legend cards already
+      -- used 1x, and the same rule belongs to the whole Johto roster.
+      battleScaleBack = audioCompat.battleScaleBack, icon = icon,
       dexEntry = {
         kind = german and dex.kindDe or dex.kindEn,
         heightFt = math.floor(totalInches / 12),

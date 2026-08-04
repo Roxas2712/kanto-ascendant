@@ -100,12 +100,15 @@ return function(mod, opts)
       for _, api in pairs(exports) do
         if type(api) == "table" and type(api.activeMon) == "function" then
           local ok, mon = pcall(api.activeMon, game)
-          if ok and mon and mon.species == species then return mon end
+          if ok and mon and (not species or mon.species == species) then
+            return mon
+          end
         end
       end
     end
     for _, mon in ipairs(game and game.save and game.save.party or {}) do
-      if mon.species == species and not mon.isEgg and (mon.hp or 0) > 0 then
+      if (not species or mon.species == species)
+          and not mon.isEgg and (mon.hp or 0) > 0 then
         return mon
       end
     end
@@ -128,7 +131,59 @@ return function(mod, opts)
     end
   end
 
+  -- Followers EX and visual wrappers can sit above PokéPC Followers' update
+  -- function. Search the closure chain instead of assuming configureSpriteDef
+  -- is a direct upvalue of the outermost wrapper.
+  local function nestedUpvalue(fn, wanted, visited, depth)
+    if type(fn) ~= "function" or not (debug and debug.getupvalue) then
+      return nil
+    end
+    visited = visited or {}
+    depth = depth or 0
+    if visited[fn] or depth > 8 then return nil end
+    visited[fn] = true
+
+    local index = 1
+    while true do
+      local name, value = debug.getupvalue(fn, index)
+      if not name then return nil end
+      if name == wanted then return index, value, fn end
+      if type(value) == "function" then
+        local foundIndex, foundValue, owner =
+          nestedUpvalue(value, wanted, visited, depth + 1)
+        if foundIndex then return foundIndex, foundValue, owner end
+      end
+      index = index + 1
+    end
+  end
+
   local STATE_KEY = "__kantoAscendantFollowerCompat"
+
+  local function refreshVisibleFollower(game, PikachuFollower, replacement)
+    local mon = selectedFollower(game)
+    local def = game and game.data and game.data.sprites
+      and game.data.sprites.SPRITE_PIKACHU
+    if not (mon and def) then return false end
+
+    def.image = replacement(mon.species)
+    def.frames = 6
+    def.walker = true
+    def.trueColor = true
+
+    local ow = game.overworld
+    local npc = ow and PikachuFollower.current
+      and PikachuFollower.current(ow)
+    if not npc then return true end
+    local okRenderer, SpriteRenderer =
+      pcall(require, "src.render.SpriteRenderer")
+    if not (okRenderer and SpriteRenderer
+        and type(SpriteRenderer.new) == "function") then
+      return false
+    end
+    npc.sprite = SpriteRenderer.new(def, npc.id)
+    npc._pokepcFollowerSpecies = mon.species
+    return true
+  end
 
   function C.install(game)
     if not (debug and debug.getupvalue and debug.setupvalue) then return false end
@@ -136,7 +191,7 @@ return function(mod, opts)
     if not ok or type(PikachuFollower) ~= "table" then return false end
 
     local _, configureSpriteDef =
-      upvalue(PikachuFollower.update, "configureSpriteDef")
+      nestedUpvalue(PikachuFollower.update, "configureSpriteDef")
     if type(configureSpriteDef) ~= "function" then
       -- The compatible follower mod is optional. Vanilla and unrelated
       -- follower implementations do not expose this seam.
@@ -186,11 +241,22 @@ return function(mod, opts)
       end
     end
     rawset(PikachuFollower, STATE_KEY, state)
+    refreshVisibleFollower(game, PikachuFollower, replacement)
     if mod.log and mod.log.info then
       mod.log:info(
         "Johto follower art enabled with species sheets and safe Kanto fallback")
     end
     return true
+  end
+
+  function C.restore()
+    local ok, PikachuFollower = pcall(require, "src.world.PikachuFollower")
+    local state = ok and rawget(PikachuFollower, STATE_KEY)
+    if state and type(state.restore) == "function" then
+      state.restore()
+      return true
+    end
+    return false
   end
 
   C.familyProxy = FAMILY_PROXY

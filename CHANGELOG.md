@@ -2,6 +2,20 @@
 
 All notable changes to this project are documented in this file.
 
+## [5.2.1] - 2026-08-04
+
+### Fixed
+
+- All 100 Johto player-side Crystal sprites now use their intended native
+  1× scale instead of Gen I's 2× back-sprite enlargement. Natu and the rest
+  of #152-251 no longer cover most of the battle screen.
+- Late Gen-II cry binding now runs again after the selected save is adopted
+  and clears stale failed audio lookups, so Johto cries remain audible when
+  follower or UI mods request them early during startup.
+- PokéPC Followers compatibility now reaches its sprite resolver through
+  additional Followers EX or graphics wrappers, refreshes an already visible
+  follower immediately and rebuilds stale mobile-derived follower sheets.
+
 ## [5.2.0] - 2026-08-03
 
 ### Added
