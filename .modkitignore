@@ -5,6 +5,8 @@ RELEASE_NOTES_5.1.md
 RELEASE_NOTES_5.2.0.md
 RELEASE_NOTES_5.2.1.md
 RELEASE_NOTES_5.2.2.md
+RELEASE_NOTES_5.2.3.md
+RELEASE_NOTES_5.3.0.md
 docs/NEXT_MAJOR_UPDATE_STARFALL_TIDES.md
 tests/atlas_legacy_test.lua
 tests/field_economy_test.lua
@@ -13,6 +15,8 @@ tests/reachability_test.lua
 tests/trainer_rematch_test.lua
 tests/upgrade_matrix_test.lua
 tools/build_ascendant_typhlosion.py
+tools/build_raichu_expression_portraits.mjs
+tools/build_raichu_partner_voice.py
 tools/build_breeding_data.py
 tools/build_follower_runtime_assets.py
 tools/build_mega_runtime_assets.py
@@ -23,9 +27,11 @@ tools/crystal_animation_qa_driver.lua
 tools/endgame_qa_driver.lua
 tools/field_tech_qa_driver.lua
 tools/hotfix_5_2_2_qa_driver.lua
+tools/hotfix_5_2_3_qa_driver.lua
 tools/install_all_mega_sprites.py
 tools/install_crystal_animations.py
 tools/install_crystal_sprites.py
+tools/install_kanto_crystal_backs.py
 tools/install_gen2_followers.py
 tools/install_mega_crystal_animations.py
 tools/launcher_upgrade_qa_driver.lua
@@ -33,5 +39,9 @@ tools/make_mega_assets.py
 tools/make_postgame_assets.py
 tools/mega_crystal_qa_driver.lua
 tools/normalize_bundled_sprites.py
+tools/create_yellow_partner_manual_saves.lua
+tools/raichu_mood_manual_test.lua
+tools/raichu_reactions_qa_driver.lua
 tools/reachability_audit.lua
 tools/shiny_qa_driver.lua
+tools/yellow_partner_qa_driver.lua

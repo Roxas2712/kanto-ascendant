@@ -12,6 +12,11 @@ Pokémon and Pokémon character names are trademarks of Nintendo, Creatures
 Inc. and GAME FREAK inc. Kanto Ascendant is an unofficial, non-commercial fan
 mod and is not affiliated with or endorsed by them.
 
+The bundled normal and shiny Kanto #001-151 back sprites are the Pokémon
+Crystal set mirrored by the PokeAPI sprites repository:
+
+https://github.com/PokeAPI/sprites
+
 ## Pokémon Crystal animated sprites
 
 The bundled normal and shiny front-animation frames for all Pokémon #001-251
@@ -56,6 +61,19 @@ Kanto Ascendant converts the sheets into Gen1 Recomp's follower layout at
 runtime and uses the same derived images for the 2D and voxel renderers.
 Unown is derived from its bundled Crystal art because the source project does
 not provide the same six-pose sheet for it.
+
+## Pokémon Channel Raichu voice clips
+
+The seven short partner-Raichu reactions are one-bit mono derivatives of
+Raichu voice clips from Pokémon Channel, using this compilation as the source:
+
+https://www.youtube.com/watch?v=H-jbBEdY47E
+
+The source video was published by NintendoTV64 and credits the voice
+performance to Urara Takano. Pokémon Channel and the original audio are
+copyright Nintendo. Kanto Ascendant uses the derived clips only in this
+unofficial, non-commercial fan mod and does not redistribute the full source
+recording.
 
 ## All Pokémon Catchable 151 Mod
 

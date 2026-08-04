@@ -2,6 +2,62 @@
 
 All notable changes to this project are documented in this file.
 
+## [5.3.0] - 2026-08-04
+
+### Added
+
+- Yellow's exact Oak-gift partner Pikachu now receives a persistent identity
+  that survives boxing, evolution, existing saves and follower wrappers.
+- After earning the Thunder Badge, Lt. Surge offers the optional bilingual
+  **Heart of Thunder** journey: walk 251 steps and win three trainer battles
+  with the partner, then return to receive the permanent **Thunderheart**.
+- Thunderheart is an unsellable, non-discardable and non-consumable key item.
+  Using it lets the partner choose Raichu, remain Pikachu or decide later.
+- An evolved partner Raichu keeps Yellow's happiness, memories, follower
+  behavior and new happiness-sensitive bond moments. Follower conversations
+  now give Raichu distinct sleepy, unwell, upset, wary, content, devoted and
+  excited reactions with matching bubbles, mood-specific animated Crystal
+  portraits and dedicated spoken Raichu clips converted to Yellow-style
+  one-bit mono PCM.
+- Partner Raichu's framed portrait now selects the screen side opposite its
+  emotion bubble, keeping both readable. Ten restrained normal/shiny custom
+  frames add the two expressions Crystal lacks: closed sleepy eyelids with the
+  original yawn, and drooping unwell eyelids with a small downturned mouth.
+  Upset, wary and all positive moods keep the cleaner official Crystal faces.
+  Raichu's Crystal battle sprites are never replaced or modified.
+- If the partner remains Pikachu, an owned Raichunite X or Y can resonate
+  directly in battle. It temporarily becomes the corresponding official Mega
+  Raichu and returns to the same Pikachu after battle.
+
+### Changed
+
+- Every upgraded Yellow save that already received Oak's starter receives
+  Thunderheart automatically with the early trial complete.
+- A unique old-save Pikachu/Raichu is adopted automatically. If several
+  self-owned candidates exist, Thunderheart asks the player to identify the
+  original partner once instead of guessing.
+- Red and Blue explicitly reject the Yellow-only item and partner-Mega bridge.
+
+## [5.2.3] - 2026-08-04
+
+### Fixed
+
+- **KANTO CRYSTAL ART** now includes authentic normal and shiny player-side
+  sprites for all #001-151. Yellow's special Pikachu and every other Kanto
+  battler now use a matching 56×56 Crystal back at native 1× scale instead of
+  retaining the enlarged Gen-I rear view.
+- Disabling **KANTO CRYSTAL ART** still restores both original Gen-I fronts
+  and backs; external Kanto visual mods retain ownership of their sprites.
+- Researched Johto habitats now feed directly into **Wilds of Kanto**. Their
+  intended two-percent post-Hall-of-Fame encounters can appear as visible
+  overworld Pokémon instead of being bypassed by Wilds' direct table picker.
+- Wilds receives stable sprite registrations for all 100 Johto species and
+  renders its generated species art rather than a shared placeholder.
+- PokéPC Followers no longer changes Yellow's scripted level-5 Pikachu into
+  Charmander. Oak now catches Pikachu in the opening again, the starter keeps
+  its correct name and dialogue, and PokéPC's follower selection remains
+  fully available.
+
 ## [5.2.2] - 2026-08-04
 
 ### Fixed

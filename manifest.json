@@ -1,7 +1,7 @@
 {
   "id": "trainer_rematch",
   "name": "Kanto Ascendant",
-  "version": "5.2.2",
+  "version": "5.3.0",
   "api": 2,
   "entry": "main.lua",
   "profile": "content",
@@ -18,12 +18,14 @@
     "deutsch-blau",
     "deutsch-gelb",
     "all_pokemon_catchable_151_mod",
+    "overworld_wild_spawns",
+    "PokePCFollowers_VoxelMerge",
     "crystal_animated_sprites_with_shiny_visuals",
     "DRAMATIC_SHAPE"
   ],
   "conflicts": [],
   "incompatible": [],
   "experimental": false,
-  "description": "A living 251-Pokémon Kanto endgame with ranked rematches, research habitats, a spoiler-safe Atlas, renewable TMs and evolution items, Battle Factory, S.S. Anne Grand Tour, titles, shinies and Mega Evolution.",
+  "description": "A living 251-Pokémon Kanto adventure with Yellow's optional partner evolution, ranked rematches, research habitats, a spoiler-safe Atlas, Battle Factory, titles, shinies and Mega Evolution.",
   "github": "Roxas2712/kanto-ascendant"
 }

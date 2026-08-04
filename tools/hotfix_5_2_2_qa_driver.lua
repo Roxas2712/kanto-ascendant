@@ -4,9 +4,11 @@
 
 return function(game)
   local U = dofile("tests/drivers/util.lua")
+  local GameVersion = require("src.core.GameVersion")
   local Pokemon = require("src.pokemon.Pokemon")
   local PikachuFollower = require("src.world.PikachuFollower")
   local Sound = require("src.core.Sound")
+  local Sprites = require("src.pokemon.Sprites")
 
   U.wait(15)
   local exports = assert(game.mods and game.mods.exports,
@@ -15,6 +17,24 @@ return function(game)
     "Kanto Ascendant export missing")
   local followers = assert(exports.PokePCFollowers_VoxelMerge,
     "PokéPC Followers export missing")
+
+  if GameVersion.isYellow() then
+    assert(game.data.strings.PIKACHU == "PIKACHU",
+      "PokéPC Followers renamed Yellow's starter to Charmander")
+    assert(not game.data.text._OaksLabPikachuDislikesPokeballsText2:find(
+      "CHARMANDER", 1, true),
+      "PokéPC Followers replaced Yellow's Pikachu story dialogue")
+    local oakPikachu = Pokemon.new(game.data, "PIKACHU", 5,
+      function() return 8 end)
+    local oakPath = Sprites.path(game.data, "PIKACHU", "front", {
+      kind = "battle",
+      mon = oakPikachu,
+    })
+    assert(oakPath and oakPath:find(
+      "assets/crystal_animated/front/normal/25/001.png", 1, true),
+      "Oak's Pikachu resolved to the wrong intro sprite: "
+        .. tostring(oakPath))
+  end
 
   local cry = assert(Sound.playCry(game.data, "NATU"),
     "Natu derived cry did not create an audio source")
@@ -44,5 +64,6 @@ return function(game)
     "follower renderer did not receive Ascendant's Natu sheet: "
       .. tostring(npc.sprite.def.image))
 
-  U.log("PASS 5.2.2 hotfix:", "Natu cry", "Natu follower", path)
+  U.log("PASS 5.2.2 hotfix:", "Oak Pikachu", "Natu cry",
+    "Natu follower", path)
 end

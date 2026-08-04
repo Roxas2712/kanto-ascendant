@@ -263,6 +263,36 @@ return function(mod)
     return i18n.isGerman() and german or english
   end
 
+  -- PokéPC Followers 1.3.0 deliberately rewrites Yellow's scripted
+  -- level-5 Pikachu into Charmander and replaces the corresponding names
+  -- and Oak dialogue. Ascendant supports arbitrary followers, but it must
+  -- not replace Yellow's canonical starter story as a side effect. Our
+  -- higher-priority content layer restores the original visible text; the
+  -- runtime constructor guard lives in follower_compat.lua.
+  local GameVersion = require("src.core.GameVersion")
+  if GameVersion.isYellow() then
+    mod.content.strings:override("PIKACHU", "PIKACHU")
+    mod.content.text:override(
+      "_OaksLabPikachuDislikesPokeballsText1",
+      i18n.text("OAK: What?", "EICH: Wie bitte?"))
+    mod.content.text:override(
+      "_OaksLabPikachuDislikesPokeballsText2",
+      i18n.text(
+        "OAK: Would you\nlook at that!\fIt's odd, but it\nappears that your"
+          .. "\nPIKACHU dislikes\nPOKé BALLs.\fYou should just\nkeep it with you."
+          .. "\fThat should make\nit happy!\fYou can talk to it\nand see how it"
+          .. "\nfeels about you.",
+        "EICH: Schau Dir\ndas an!\fEs ist seltsam,\naber Dein PIKACHU"
+          .. "\nmag scheinbar\nkeine POKéBÄLLE.\fEs muß Dich\nso begleiten."
+          .. "\fDann ist es\nauch glücklich.\fDu kannst mit ihm\nsprechen und"
+          .. "\nmerkst dann, ob\nes Dich mag."))
+    mod.content.text:override(
+      "_OaksLabOak1YouShouldTalkToIt",
+      i18n.text(
+        "OAK: You should\ntalk to it and\nsee how it feels.",
+        "EICH: Du solltest\nmit ihm sprechen\nund Dich um es\nkümmern."))
+  end
+
   mod.options:define({
     { key = "language", label = menuLabel("LANGUAGE", "SPRACHE"), type = "choice",
       default = "auto",
@@ -503,6 +533,16 @@ return function(mod)
     shinySystem = shinySystem,
   })
   mod.exports.followerCompat = followerCompat
+  local makeYellowPartner = loadSibling(mod, "yellow_partner.lua")
+  local yellowPartner = makeYellowPartner(mod, {
+    i18n = i18n,
+    spriteAssets = spriteAssets,
+    shinySystem = shinySystem,
+  })
+  if megaEvolution and megaEvolution.setYellowPartner then
+    megaEvolution.setYellowPartner(yellowPartner)
+  end
+  mod.exports.yellowPartner = yellowPartner
   local makeJohtoResearch = loadSibling(mod, "johto_research.lua")
   local johtoResearch = makeJohtoResearch(mod, {
     data = johtoData,
@@ -513,6 +553,14 @@ return function(mod)
   })
   shinySystem.setJohtoResearch(johtoResearch)
   mod.exports.johtoResearch = johtoResearch
+  local makeWildsCompat = loadSibling(mod, "wilds_compat.lua")
+  local wildsCompat = makeWildsCompat(mod, {
+    johtoResearch = johtoResearch,
+    data = johtoData,
+    crystalNames = CRYSTAL_ASSETS,
+    contentEnabled = contentEnabled,
+  })
+  mod.exports.wildsCompat = wildsCompat
   local ascendantData = loadSibling(mod, "ascendant_data.lua")
   local makeAscendant = loadSibling(mod, "ascendant.lua")
   local ascendant
@@ -526,9 +574,9 @@ return function(mod)
   mod.exports.eventArchive = eventArchive
   mod.exports.eventData = eventData
 
-  -- Official Crystal battle art is bundled for all 251 species. Johto also
-  -- has authentic back sprites; Kanto keeps the Gen-I player back in 2D and
-  -- uses its bundled Crystal front in ordinary enemy and Voxel positions.
+  -- Official Crystal battle art is bundled for all 251 species. Johto keeps
+  -- its named front/back pack, while Kanto's numbered back pack completes the
+  -- bundled animated fronts and also covers Yellow's special Pikachu route.
   local crystalAvailable = {}
   local crystalShinyAvailable = {}
   for species, name in pairs(CRYSTAL_ASSETS) do
@@ -540,8 +588,31 @@ return function(mod)
       mod:read("assets/crystal/" .. name .. "_front_shiny.png") ~= nil
       and mod:read("assets/crystal/" .. name .. "_back_shiny.png") ~= nil
   end
+  local kantoCrystalBacks = { normal = {}, shiny = {} }
+  for dex = 1, 151 do
+    local prefix = ("assets/crystal/kanto/%03d_back"):format(dex)
+    local normalRelative = prefix .. ".png"
+    local shinyRelative = prefix .. "_shiny.png"
+    if mod:read(normalRelative) ~= nil then
+      kantoCrystalBacks.normal[dex] = true
+      mod.content.battle_sprite_scales:register(
+        ("KANTO_ASCENDANT_CRYSTAL_%03d_BACK"):format(dex), {
+          path = mod.path .. "/" .. normalRelative,
+          scale = 1,
+        })
+    end
+    if mod:read(shinyRelative) ~= nil then
+      kantoCrystalBacks.shiny[dex] = true
+      mod.content.battle_sprite_scales:register(
+        ("KANTO_ASCENDANT_CRYSTAL_%03d_BACK_SHINY"):format(dex), {
+          path = mod.path .. "/" .. shinyRelative,
+          scale = 1,
+        })
+    end
+  end
   mod.exports.crystalSprites = crystalAvailable
   mod.exports.crystalShinySprites = crystalShinyAvailable
+  mod.exports.kantoCrystalBacks = kantoCrystalBacks
   mod.hooks:wrap("pokemon.sprite", function(nextSprite, path, ctx)
     local requestedPath = path
     if shinySystem then shinySystem.prepareSprite(ctx) end
@@ -569,6 +640,25 @@ return function(mod)
         crystalAnimation.select(ctx, selectedSide, true)
       end
       return shinySystem and shinySystem.spritePath(path, ctx) or path
+    end
+    local dex = def and tonumber(def.dex)
+    local bundledKantoBack = selectedSide == "back" and not voxelFront
+      and dex and dex >= 1 and dex <= 151
+      and kantoCrystalBacks.normal[dex]
+      and mod.options:get("kanto_crystal_art") ~= false
+      and not (crystalAnimation
+        and crystalAnimation.externalKantoActive(dex))
+    if bundledKantoBack then
+      -- Crystal backs are full-size 56px cards. Gen I's original player
+      -- sprites are half-size and normally drawn at 2x, so the per-image
+      -- registry above explicitly keeps these at their native 1x size.
+      ctx.trueColor = true
+      if crystalAnimation then crystalAnimation.select(ctx, "back", false) end
+      local shiny = shinySystem and shinySystem.isShiny(ctx.mon)
+        and kantoCrystalBacks.shiny[dex]
+      local relative = ("assets/crystal/kanto/%03d_back%s.png"):format(
+        dex, shiny and "_shiny" or "")
+      return mod.path .. "/" .. relative
     end
     if mod.options:get("legend_art") ~= "crystal"
         or not name or not crystalAvailable[ctx.species] then
@@ -1268,6 +1358,9 @@ return function(mod)
     if ascendant then ascendant.install(game, deps) end
     if eventArchive then eventArchive.install(game, deps) end
     if johtoResearch then johtoResearch.install(game, deps) end
+    if wildsCompat then wildsCompat.install(game, {
+      random = deps.wildsRandom,
+    }) end
     if worldEvents then worldEvents.install(game, deps) end
     if johtoMasters then johtoMasters.install(game, deps) end
     if dexProgress then dexProgress.install(game, deps) end
@@ -1279,6 +1372,7 @@ return function(mod)
     if onboarding then onboarding.install(game, deps) end
     if legacyHall then legacyHall.install(game, deps) end
     if followerCompat then followerCompat.install(game) end
+    if yellowPartner then yellowPartner.install(game, deps) end
 
     -- one wrap per boot; hot reload re-runs entry chunks without clearing
     -- the require cache, so the module table is the idempotence sentinel
@@ -1288,6 +1382,8 @@ return function(mod)
     local vanillaTalkTo = Overworld.talkTo
     Overworld.talkTo = function(self, npc)
       local d = npc.def
+      if yellowPartner
+          and yellowPartner.handleTalk(self, npc, game) then return end
       if daycare and daycare.handleTalk(self, npc, game) then return end
       if starterRelicQuests
           and starterRelicQuests.handleTalk(self, npc, game) then return end

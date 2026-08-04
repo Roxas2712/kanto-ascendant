@@ -13,8 +13,8 @@ local modPath = os.getenv("TRAINER_REMATCH_MOD_DIR")
   or "mods/trainer_rematch"
 local run = T.sdk.loadMod(modPath, { data = Data })
 T.eq(#run.errors, 0, "Kanto Ascendant loads for Atlas/Legacy tests")
-T.eq(run.mod.manifest.version, "5.2.2",
-  "the release manifest identifies the complete Mega-art feature set")
+T.eq(run.mod.manifest.version, "5.3.0",
+  "the release manifest identifies the Yellow partner update")
 
 local ex = assert(run.loader.exports.trainer_rematch)
 local atlas = assert(ex.researchAtlas)

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate and normalize the bundled Johto sprite packages.
+"""Validate and normalize the bundled Crystal and Johto follower packages.
 
 Crystal sheets arrive on an opaque color-0 battle background. Converting only
 the edge-connected background to transparent pixels preserves the sprite while
@@ -89,6 +89,11 @@ def main() -> int:
                 FOLLOWERS / f"{stem}.png",
                 FOLLOWERS / "shiny" / f"{stem}.png",
             ))
+    for dex in range(1, 152):
+        crystal_paths.extend((
+            CRYSTAL / "kanto" / f"{dex:03d}_back.png",
+            CRYSTAL / "kanto" / f"{dex:03d}_back_shiny.png",
+        ))
 
     missing = [
         path.relative_to(ROOT)

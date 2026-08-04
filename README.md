@@ -5,7 +5,8 @@ Hall-of-Fame post-game: ranked field trainers, personal Leader missions,
 adaptive circuits, the Ascendant Battle Frontier, Rocket Resurgence, a living legendary
 event, five historical Heritage Cups, the complete 100-species Johto Pokédex,
 Mew, a full Route 5 breeding Day-Care, Generation-II shinies, official Mega
-Evolutions, the Silver/Kris/Gold Johto Masters trial, a Battle Factory,
+Evolutions, Yellow's optional partner evolution, the Silver/Kris/Gold Johto
+Masters trial, a Battle Factory,
 repeatable S.S. Anne voyages, a spoiler-safe Research Atlas and a replayable
 level-100 New Game Plus. The internal
 `trainer_rematch` ID remains unchanged so existing saves and options continue
@@ -494,10 +495,41 @@ are eligible. Within the mod's National Pokédex #001-251 this produces exactly
 | Newly discovered in Z-A | Clefable; Victreebel; Starmie; Dragonite; Meganium; Feraligatr; Skarmory |
 | Mega Dimension | Raichu X/Y |
 
-Pikachu and every other species without an official Mega Evolution are
-explicitly rejected by the official Mega system. The Stone Case remains a
-strictly official 30-form catalog; the separate secret fan form described
-below is never presented as a released Mega Evolution.
+Ordinary Pikachu and every other species without an official Mega Evolution
+are rejected by the official Mega system. Yellow's specifically marked
+Oak-gift partner is the sole exception: if it remains Pikachu, Raichunite X or
+Y can bridge it directly into the corresponding official Mega Raichu for that
+battle. Its stored species remains Pikachu and it returns to Pikachu
+afterward. The Stone Case remains a strictly official 30-form catalog; the
+separate secret fan form described below is never presented as a released
+Mega Evolution.
+
+### Yellow partner: Heart of Thunder
+
+After the Thunder Badge, Lt. Surge can begin an optional early partner
+journey. Walk **251 steps** and win **three trainer battles** with Yellow's
+original Pikachu in the party, then return to Surge. He condenses its charge
+into the permanent **Thunderheart / Donnerherz**.
+
+Thunderheart is a key item: it cannot be consumed, sold, discarded or
+deposited. Using it lets Pikachu choose one of three answers:
+
+- evolve permanently into Raichu;
+- remain Pikachu;
+- wait and decide later.
+
+Raichu keeps the exact partner identity, Yellow happiness and memories, gains
+its own bond responses and continues following with or without an all-species
+follower mod. Choosing to remain Pikachu is not a weaker or failed route:
+once the late-game Mega Ring and matching Raichunite are owned, the same
+partner can use the temporary direct Mega-Raichu bridge described above.
+
+Upgraded Yellow saves that already have the Thunder Badge receive one
+Thunderheart automatically with the walking/battle trial completed. When only
+one self-owned Pikachu or Raichu exists it is adopted automatically. A save
+with several candidates receives a one-time choice instead, so the mod never
+silently marks the wrong Pokémon. Red and Blue never receive this Yellow-only
+item or partner route.
 
 The Route 5 machine forges most stones individually:
 
@@ -806,11 +838,13 @@ for Lugia and Ho-Oh, and the Mew-like fairy icon for Celebi.
 ### Bundled Crystal battle art
 
 Authentic normal and shiny Pokémon Crystal front/back sprites for **all 100
-Johto Pokémon** are included in the release. No separate download is needed.
-The repair utility can validate and refresh the complete 400-PNG set:
+Johto Pokémon**, plus matching normal/shiny player backs for **Kanto
+#001-151**, are included in the release. No separate download is needed.
+The repair utilities can validate or refresh both sets:
 
 ```sh
 python3 tools/install_crystal_sprites.py
+python3 tools/install_kanto_crystal_backs.py
 ```
 
 **JOHTO ART** defaults to `CRYSTAL` and uses each bundled pair. Choose
@@ -825,10 +859,11 @@ normal or shiny Crystal front sprite is used on both sides.
 
 Normal and shiny Crystal front animations for **all #001-251** are bundled as
 numbered frames with the source-game timing. **KANTO CRYSTAL ART** switches
-the first 151 between bundled Crystal fronts and the original Gen-I art;
-**CRYSTAL ANIMATION** controls motion. In the original 2D battle layout the
-opponent animates and the player's authentic back remains static. In Dramatic
-Shape's staged Voxel battles both front-facing Pokémon animate.
+the first 151 between bundled Crystal front/back art and the original Gen-I
+art; **CRYSTAL ANIMATION** controls front motion. In the original 2D battle
+layout the opponent animates and the player's matching Crystal back remains
+static at native size. In Dramatic Shape's staged Voxel battles both
+front-facing Pokémon animate.
 
 The external mod is now optional. Kanto Ascendant can still be enabled beside
 [Crystal Animated Sprites with Shiny Visuals](https://github.com/distilledorion-sketch/crystal_animated_sprites_with_shiny_visuals).
@@ -865,6 +900,18 @@ credited in the [PokeWilds project](https://github.com/SheerSt/pokewilds).
 If an individual sheet is damaged or missing, the related Kanto silhouette
 remains as a crash-safe fallback until the package is repaired.
 
+PokéPC Followers remains compatible in Red, Blue and Yellow. Its optional
+all-species follower selection is retained, but Ascendant neutralizes the
+mod's separate Yellow-to-Charmander story conversion: Oak catches the
+canonical level-5 Pikachu in the opening, the lab gift remains Pikachu and the
+original Pikachu name and dialogue are preserved.
+
+When **Wilds of Kanto** is active, Ascendant registers all 100 Johto species
+with its renderer. Once a family has been researched, the same rare Kanto
+habitat used by ordinary encounters can produce that species visibly in the
+overworld. Hall-of-Fame and research gates, authored levels and the original
+two-percent replacement chance remain unchanged.
+
 ## Options
 
 Open **MODS → KANTO ASCENDANT → OPTIONS** for the mod's own configuration
@@ -885,11 +932,12 @@ submenu. It contains:
 - **JOHTO ART** — use the bundled Crystal battle art for all 100 species or
   force the four-shade Kanto fallback. Johto Mega and Ascendant forms follow
   this choice too.
-- **KANTO CRYSTAL ART** — use bundled normal/shiny Crystal fronts for #001-151
-  without requiring a separate sprite mod. Kanto Mega forms follow this
-  choice and receive the active Red/Blue/Yellow palette when disabled.
+- **KANTO CRYSTAL ART** — use bundled normal/shiny Crystal fronts and player
+  backs for #001-151 without requiring a separate sprite mod. Kanto Mega
+  forms follow this choice and receive the active Red/Blue/Yellow palette
+  when disabled.
 - **CRYSTAL ANIMATION** — animate normal and shiny #001-251 fronts with their
-  original Crystal timing; 2D player backs stay static.
+  original Crystal timing; matching 2D player backs stay static.
 - **SHINY HUNTS** — use Ascendant Charm/streak/outbreak bonuses or retain only
   natural 1/8192 DV shinies.
 - **SHINY EFFECTS** — enable Kanto Ascendant's built-in sparkles, chime and
@@ -951,7 +999,7 @@ missions, Rocket story and one new tournament bracket are completed.
 
 ## Installation
 
-1. Download `kanto-ascendant-5.2.2.zip` from the
+1. Download `kanto-ascendant-5.3.0.zip` from the
    [latest release](https://github.com/Roxas2712/kanto-ascendant/releases/latest)
    and import it through the launcher. The identical `.modpkg` is also
    available for launcher versions that use that extension. Developers may

@@ -11,6 +11,7 @@ return function(mod, opts)
   local postgame = opts.postgame
   local animationData = opts.animationData or {}
   local enabled = opts.contentEnabled ~= false
+  local yellowPartner = opts.yellowPartner
   local M = { game = nil, enabled = enabled }
 
   local function form(species, id, stone, label, tier, cost, bonuses, types,
@@ -342,14 +343,22 @@ return function(mod, opts)
     return out
   end
 
+  local function directPartnerMega(mon, enemy)
+    return enemy ~= true and yellowPartner
+      and type(yellowPartner.megaEligible) == "function"
+      and yellowPartner.megaEligible(mon) == true
+  end
+
   local function preferredProfile(mon, enemy)
-    local rows = ownedProfiles(mon.species, enemy)
+    local profileSpecies = directPartnerMega(mon, enemy)
+      and "RAICHU" or mon.species
+    local rows = ownedProfiles(profileSpecies, enemy)
     if #rows == 0 then return nil end
-    local preferred = state().preferences[mon.species]
+    local preferred = state().preferences[profileSpecies]
     for _, profile in ipairs(rows) do
       if profile.id == preferred then return profile end
     end
-    if mon.species == "RAICHU" and #rows > 1 then
+    if profileSpecies == "RAICHU" and #rows > 1 then
       local stats = mon.stats or {}
       local id = (stats.attack or 0) >= (stats.special or 0)
         and "RAICHU_X" or "RAICHU_Y"
@@ -364,6 +373,23 @@ return function(mod, opts)
     profile = type(profile) == "table" and profile or FORMS_BY_ID[profile]
     if not profile then return battler.curStats end
     local source = battler.curStats or battler.mon.stats or {}
+    if profile.species == "RAICHU"
+        and directPartnerMega(battler.mon, false)
+        and M.game and M.game.data and M.game.data.pokemon
+        and M.game.data.pokemon.RAICHU then
+      local ok, Stats = pcall(require, "src.pokemon.Stats")
+      if ok and Stats and Stats.calc then
+        local raichu = Stats.calc(
+          M.game.data.pokemon.RAICHU,
+          battler.mon.level, battler.mon.dvs, battler.mon.statExp)
+        -- Direct resonance replaces Pikachu's offensive/defensive base with
+        -- Raichu's before applying the official Mega profile. HP stays on
+        -- the real Pikachu instance so transforming cannot heal, damage or
+        -- desynchronise its in-battle health bar.
+        raichu.hp = source.hp
+        source = raichu
+      end
+    end
     local out = {}
     for key, value in pairs(source) do out[key] = value end
     local level = math.max(1, math.min(100, tonumber(battler.mon.level) or 1))
@@ -661,7 +687,9 @@ return function(mod, opts)
     if battler.mon.species == "TYPHLOSION" and not secretReady then
       return false, "ineligible"
     end
-    if not FORMS_BY_SPECIES[battler.mon.species] then
+    local partnerMega = side == "player"
+      and directPartnerMega(battler.mon, false)
+    if not FORMS_BY_SPECIES[battler.mon.species] and not partnerMega then
       return false, "ineligible"
     end
     -- The Basalt Core remains player-only in the real game. The isolated
@@ -1201,6 +1229,9 @@ return function(mod, opts)
   end)
 
   M.state = state
+  M.setYellowPartner = function(controller)
+    yellowPartner = controller
+  end
   M.hasStone = function(stone)
     local s = state(false)
     return s and s.stones and s.stones[stone] == true or false

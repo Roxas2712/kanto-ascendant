@@ -676,6 +676,23 @@ return function(mod, opts)
     })
   end, 260)
 
+  -- Shared habitat selector for ordinary random encounters and companion
+  -- mods that materialize those encounters directly in the overworld.
+  function R.rollHabitat(mapId, terrain, rng, fallbackLevel, s)
+    if not (enabled and R.game and mapId and terrain
+        and postgame.hasHallOfFame(R.game.save)) then return nil end
+    rng = type(rng) == "function" and rng or math.random
+    local candidates = habitatCandidates(mapId, terrain, s or state(false))
+    if #candidates == 0 then return nil end
+    local chance = 0
+    for _, row in ipairs(candidates) do
+      chance = math.max(chance, math.max(0, math.min(100, row.chance or 2)))
+    end
+    if rng(1, 100) > chance then return nil end
+    local row = candidates[rng(1, #candidates)]
+    return { species = row.species, level = row.level or fallbackLevel }
+  end
+
   -- Once Elm has recorded a base specimen, that family establishes a rare,
   -- permanent Kanto habitat.  The replacement happens after a native roll so
   -- encounter frequency, Repel and ordinary map behavior remain untouched.
@@ -683,17 +700,9 @@ return function(mod, opts)
   -- world events replace this result.
   mod.hooks:wrap("encounter.roll", function(nextRoll, encDef, ctx)
     local out = nextRoll(encDef, ctx)
-    if not (out and enabled and R.game and ctx
-        and postgame.hasHallOfFame(R.game.save)) then return out end
-    local candidates = habitatCandidates(ctx.mapId, ctx.terrain, state(false))
-    if #candidates == 0 then return out end
-    local chance = 0
-    for _, row in ipairs(candidates) do
-      chance = math.max(chance, math.max(0, math.min(100, row.chance or 2)))
-    end
-    if ctx.rng(1, 100) > chance then return out end
-    local row = candidates[ctx.rng(1, #candidates)]
-    return { species = row.species, level = row.level or out.level }
+    if not (out and ctx) then return out end
+    return R.rollHabitat(
+      ctx.mapId, ctx.terrain, ctx.rng, out.level, state(false)) or out
   end, -20)
 
   mod.events:on("world.stepped", function()

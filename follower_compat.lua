@@ -166,6 +166,67 @@ return function(mod, opts)
 
   local STATE_KEY = "__kantoAscendantFollowerCompat"
   local RENDERER_STATE_KEY = "__kantoAscendantFollowerRendererCompat"
+  local YELLOW_STARTER_STATE_KEY = "__kantoAscendantYellowStarterCompat"
+  local POKEPC_STATE_KEY = "__pokepcFollowersUniversal"
+
+  -- PokéPC Followers 1.3.0 includes a separate Yellow-to-Charmander story
+  -- conversion: its BattleState.newWild wrapper changes every scripted
+  -- level-5 Pikachu into Charmander. That is unrelated to follower support
+  -- and changes Yellow's opening catch, starter name and story. Keep the
+  -- follower selection API, but bypass only that conversion for the
+  -- canonical Oak demo. The upstream state exposes its unwrapped
+  -- constructor specifically so this can remain surgical.
+  local function installYellowStarterGuard()
+    local okVersion, GameVersion = pcall(require, "src.core.GameVersion")
+    if not (okVersion and GameVersion and GameVersion.isYellow
+        and GameVersion.isYellow()) then return false end
+    local okBattle, BattleState = pcall(require, "src.battle.BattleState")
+    local okPikachu, PikachuFollower =
+      pcall(require, "src.world.PikachuFollower")
+    if not (okBattle and BattleState and type(BattleState.newWild) == "function"
+        and okPikachu and PikachuFollower) then return false end
+
+    local previous = rawget(BattleState, YELLOW_STARTER_STATE_KEY)
+    if previous and BattleState.newWild == previous.wrapper then return true end
+    if previous and type(previous.restore) == "function" then
+      pcall(previous.restore)
+    end
+
+    local pokepc = rawget(PikachuFollower, POKEPC_STATE_KEY)
+    if not (type(pokepc) == "table"
+        and type(pokepc.originalNewWild) == "function"
+        and type(pokepc.wrapperNewWild) == "function"
+        and BattleState.newWild == pokepc.wrapperNewWild) then
+      return false
+    end
+
+    local wrapped = BattleState.newWild
+    local original = pokepc.originalNewWild
+    local guard
+    guard = function(game, species, level, ...)
+      if species == "PIKACHU" and tonumber(level) == 5 then
+        return original(game, "PIKACHU", 5, ...)
+      end
+      return wrapped(game, species, level, ...)
+    end
+    local state = {
+      original = wrapped,
+      wrapper = guard,
+    }
+    state.restore = function()
+      if BattleState.newWild == guard then BattleState.newWild = wrapped end
+      if rawget(BattleState, YELLOW_STARTER_STATE_KEY) == state then
+        rawset(BattleState, YELLOW_STARTER_STATE_KEY, nil)
+      end
+    end
+    BattleState.newWild = guard
+    rawset(BattleState, YELLOW_STARTER_STATE_KEY, state)
+    if mod.log and mod.log.info then
+      mod.log:info(
+        "PokéPC compatibility: Yellow's original Pikachu starter restored")
+    end
+    return true
+  end
 
   local function pathExists(path)
     if type(path) ~= "string" or path == "" then return false end
@@ -276,24 +337,27 @@ return function(mod, opts)
   end
 
   function C.install(game)
+    local yellowStarterGuarded = installYellowStarterGuard()
     local guarded = installRendererGuard(game)
     if not (debug and debug.getupvalue and debug.setupvalue) then
-      return guarded
+      return guarded or yellowStarterGuarded
     end
     local ok, PikachuFollower = pcall(require, "src.world.PikachuFollower")
-    if not ok or type(PikachuFollower) ~= "table" then return guarded end
+    if not ok or type(PikachuFollower) ~= "table" then
+      return guarded or yellowStarterGuarded
+    end
 
     local _, configureSpriteDef =
       nestedUpvalue(PikachuFollower.update, "configureSpriteDef")
     if type(configureSpriteDef) ~= "function" then
       -- The compatible follower mod is optional. Vanilla and unrelated
       -- follower implementations do not expose this seam.
-      return guarded
+      return guarded or yellowStarterGuarded
     end
     local assetIndex, originalAssetPath =
       upvalue(configureSpriteDef, "assetPath")
     if not assetIndex or type(originalAssetPath) ~= "function" then
-      return guarded
+      return guarded or yellowStarterGuarded
     end
 
     local previous = rawget(PikachuFollower, STATE_KEY)
@@ -339,6 +403,13 @@ return function(mod, opts)
 
   function C.restore()
     local restored = false
+    local okBattle, BattleState = pcall(require, "src.battle.BattleState")
+    local starterState = okBattle
+      and rawget(BattleState, YELLOW_STARTER_STATE_KEY)
+    if starterState and type(starterState.restore) == "function" then
+      starterState.restore()
+      restored = true
+    end
     local ok, PikachuFollower = pcall(require, "src.world.PikachuFollower")
     local state = ok and rawget(PikachuFollower, STATE_KEY)
     if state and type(state.restore) == "function" then

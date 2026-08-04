@@ -148,6 +148,34 @@ return function(mod)
     return output
   end
 
+  -- Build a renderer-ready static six-pose follower from any bundled battle
+  -- portrait. This is intentionally a public fallback for story partners
+  -- whose species is part of Kanto and therefore not duplicated in the
+  -- bundled Johto follower pack. All six directions use the same clean
+  -- 16x16 icon; an installed all-species follower mod can still replace it
+  -- with its fully animated sheet.
+  function A.iconFollower(relativePath, cacheName)
+    if type(relativePath) ~= "string" or relativePath == "" then return nil end
+    local source = mod.path .. "/" .. relativePath
+    if not info(source) then return nil end
+    if not available() then return source end
+    cacheName = tostring(cacheName or relativePath:match("([^/]+)$")
+      or "icon"):gsub("[^%w_.-]", "_")
+    local target = CACHE_ROOT .. "/followers/icon_" .. cacheName .. ".png"
+    local key = "icon-follower:" .. source
+    if prepared[key] then return prepared[key] end
+    if current(source, target) then
+      prepared[key] = target
+      return target
+    end
+    local ok, image = pcall(iconFollower, source)
+    if ok and image and encode(image, target) then
+      prepared[key] = target
+      return target
+    end
+    return nil
+  end
+
   local function verticalFollower(source, species)
     local input = love.image.newImageData(source)
     local w, h = input:getDimensions()
