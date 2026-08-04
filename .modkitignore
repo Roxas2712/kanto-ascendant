@@ -14,8 +14,12 @@ assets/sources/gorochu/gorochu_expression_reference.png
 assets/sources/gorochu/gorochu_expression_reference_chroma.png
 assets/sources/gorochu/gorochu_sprite_reference.png
 assets/sources/gorochu/gorochu_sprite_reference_chroma.png
+assets/sources/gorochu/gorochu_follower_pose_reference.png
+assets/sources/gorochu/gorochu_follower_pose_reference_chroma.png
+assets/sources/gorochu/gorochu_voxel_user_reference.png
 assets/sources/raichu/raichu_expression_reference.png
 tests/atlas_legacy_test.lua
+tests/gorochu_visuals_test.lua
 tests/field_economy_test.lua
 tests/fixtures/upgrade_saves.lua
 tests/reachability_test.lua
@@ -27,6 +31,7 @@ tools/build_breeding_data.py
 tools/build_follower_runtime_assets.py
 tools/build_gorochu_assets.swift
 tools/build_gorochu_cry.py
+tools/build_gorochu_visual_assets.py
 tools/build_mega_runtime_assets.py
 tools/build_mega_screenshot_gallery.py
 tools/build_mega_sprite_review.py

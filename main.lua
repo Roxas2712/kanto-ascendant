@@ -526,6 +526,12 @@ return function(mod)
     postgame = postgame,
     i18n = i18n,
   })
+  local makeGorochuVisuals = loadSibling(mod, "gorochu_visuals.lua")
+  local gorochuVisuals = makeGorochuVisuals(mod, {
+    species = gorochu.id,
+    shinySystem = shinySystem,
+  })
+  mod.exports.gorochuVisuals = gorochuVisuals
   local crystalAnimationData = loadSibling(mod, "crystal_animation_data.lua")
   crystalAnimationData.normal[tostring(gorochu.dex)] =
     gorochu.animationDurations
@@ -1402,6 +1408,7 @@ return function(mod)
     if johtoAudio then johtoAudio.install(game) end
     if gorochu then gorochu.install(game, deps) end
     if megaEvolution then megaEvolution.install(game, deps) end
+    if gorochuVisuals then gorochuVisuals.install(game) end
     if kantoCompletion then kantoCompletion.install(game, deps) end
     if fieldTech then fieldTech.install(game, deps) end
     if frontierExchange then frontierExchange.install(game, deps) end

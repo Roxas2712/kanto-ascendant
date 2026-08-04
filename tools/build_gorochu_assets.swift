@@ -620,13 +620,9 @@ for view in views {
     }
 }
 
-for variant in ["normal", "shiny"] {
-    let sheet = follower(
-        front: rendered["front_\(variant)"]!,
-        back: rendered["back_\(variant)"]!)
-    save(sheet,
-         "assets/followers_runtime/\(variant)/follower_GOROCHU.png")
-}
+// Gorochu's real stand/walk/down/up/left field poses are built independently
+// by tools/build_gorochu_visual_assets.py. Never replace that authored walker
+// with a battle card reduced to 14 pixels.
 
 private let expressionSource = root.appendingPathComponent(
     "assets/sources/gorochu/gorochu_expression_reference.png")
@@ -715,6 +711,6 @@ for (index, name) in expressionNames.enumerated() {
 }
 
 print("""
-Built Gorochu front/back, shiny, six-frame animation, followers and \
+Built Gorochu front/back, shiny, six-frame animation and \
 seven animated Gorochu/Raichu partner expressions.
 """)
