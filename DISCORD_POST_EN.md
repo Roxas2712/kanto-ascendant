@@ -44,5 +44,5 @@ Gorochu expressions. Gorochu stays outside the original 251 completion count.
 ## 📥 DOWNLOAD
 https://github.com/Roxas2712/kanto-ascendant/releases/tag/v5.4.0
 
-Import the `.zip` through the Gen1 Recomp launcher.
+Import the `.modpkg` through the Gen1 Recomp launcher.
 ⚠️ Do not enable another complete-Johto species mod.
