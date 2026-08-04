@@ -6,9 +6,9 @@ adaptive circuits, the Ascendant Battle Frontier, Rocket Resurgence, a living le
 event, five historical Heritage Cups, the complete 100-species Johto Pokédex,
 Mew, a full Route 5 breeding Day-Care, Generation-II shinies, official Mega
 Evolutions, Yellow's optional partner evolution, the Silver/Kris/Gold Johto
-Masters trial, a Battle Factory,
-repeatable S.S. Anne voyages, a spoiler-safe Research Atlas and a replayable
-level-100 New Game Plus. The internal
+Masters trial, optional early Johto migration and Mew/Celebi Signals, a
+Battle Factory, repeatable S.S. Anne voyages, a spoiler-safe Research Atlas
+and a replayable level-100 New Game Plus. The internal
 `trainer_rematch` ID remains unchanged so existing saves and options continue
 to work.
 
@@ -176,10 +176,11 @@ owns neither can earn the second fossil from Crown Brock. Full parties, PC
 boxes or Bags reserve the already selected prize instead of deleting or
 rerolling it.
 
-Mew is deliberately never inserted into a random encounter table. It remains
-the finale of Kanto Ascendant's Oak/Fuji/Cinnabar heritage investigation, so
-the 151st capture still feels like an event. The three birds and Mewtwo retain
-their separate APEX/VANILLA/OFF controls.
+The KANTO 151 modes never insert Mew into an ordinary encounter table. Its
+Oak/Fuji/Cinnabar heritage investigation remains authoritative; the optional
+Mythic Signals path can surface it only after the separate three-echo and
+Resonance Seal sequence. The three birds and Mewtwo retain their separate
+APEX/VANILLA/OFF controls.
 
 If **All Pokémon Catchable 151 Mod** was previously enabled, it can now be
 disabled; Kanto Ascendant preserves compatibility during migration and its
@@ -255,6 +256,61 @@ and German text. **LANGUAGE** defaults to `AUTO`:
   translation mods.
 - The normal trainer text appended after a cooldown comes from the base game,
   so it follows the active translation mod too.
+
+## Johto Signals
+
+Version 6.0 can let Johto begin stirring during the Kanto story without
+changing the normal opening by default. After the starter and Pokédex, a
+hidden 128–768-step target activates near Pallet Town. The field capsule is
+guaranteed by the fifth eligible Pallet visit, but the player must explicitly
+accept its signal before the migration quest changes anything.
+
+The capsule opens a warned boat trip to the **Driftglass signal station**.
+The boat back to Pallet is available at every stage. Its researcher repairs
+the Migration Receiver and explains three currents. Saving during a live
+Driftglass visit does not interrupt that visit; continuing the written slot
+later resumes safely at the Pallet landing.
+
+| Current | Early encounter behavior |
+|---|---|
+| **Kanto First** | No early Johto replacement |
+| **Wanderwaves** | 2% in matching badge-aware habitats; 4% during a strong signal |
+| **Johto Unleashed** | 10% across matching Kanto habitats |
+
+The chosen current can be changed later under
+**ASCENDANT → WORLD → JOHTO SIGNALS**. Turning **EARLY JOHTO** off disables
+only the early migration encounters. If **MYTHIC SIGNALS** remains on, the
+shared capsule, receiver, Driftglass trip and researcher remain available and
+the safe **Kanto First** current is enforced. **JOHTO SIGNAL START** can keep
+the field quest or start directly in either active current for players who
+already know what they want.
+
+Four hidden primal traces separately unlock Chikorita, Totodile, Cyndaquil
+and Larvitar. Their identities remain `???` until a real sighting. Each trace
+species has a separate encounter counter: 1:512 in Wanderwaves and 1:256 in
+Johto Unleashed, with the next eligible battle guaranteed at the limit.
+Switching currents preserves progress. Repel, scripted encounters, roamers,
+outbreaks and other authored replacements cannot spend the guarantee.
+
+Independently, optional **Mythic Signals** can answer in genuine Kanto grass
+as soon as the Pokédex is active, even before the receiver is repaired. They
+are enabled by default and can be disabled separately. The first Mew or Celebi
+echo is guaranteed by roll 512 and later echoes by roll 2048. Echoes scale
+from level 60 toward the player's party, remain at 1 HP, flee after one to
+three turns and reject a Master Ball without consuming it. After exactly
+three echoes, four Badges and a repaired receiver, only the Driftglass
+researcher can create the Resonance Seal.
+
+True manifestations then use a protected 1:8192 counter. A failed catch binds
+that same Pokémon as a persistent retry with its DVs, HP and status preserved.
+Already-owned or disabled species are excluded, so the signal path never
+duplicates an existing Mew or Celebi conclusion.
+
+Journal and Research Atlas pages show the next signal step as a clearly
+optional objective without replacing Gold or another mandatory goal.
+Locations are localized in English and German, and neither the Atlas nor the
+receiver pre-fills unseen Pokédex entries. Wilds of Kanto visible encounters
+and ordinary grass battles use the same selection and pity transaction.
 
 ## Complete Johto research
 
@@ -774,11 +830,12 @@ battle rosette, and gain an **EVENT INFO** entry in their party submenu. A full
 party and PC never destroys a prize: one reserved Pokémon waits in the archive
 until space is available.
 
-Mew remains the unique mythic finale rather than a second roaming copy.
+Mew's heritage finale remains the canonical authored conclusion.
 **MEW PROFILE** chooses the Ascendant level-100 encounter or a historical
 level-5 Nintendo Space World '99 build with Pound and fixed
-HP/Attack/Defense/Speed/Special DVs of 5/10/1/12/5. Turning **MEW** off still
-skips the encounter and its completion requirement entirely.
+HP/Attack/Defense/Speed/Special DVs of 5/10/1/12/5. Optional Mythic Signals
+honor that conclusion and never create a second owned copy. Turning **MEW**
+off still skips both paths and its completion requirement entirely.
 
 Historical levels, moves and Mew DVs were checked against the
 [Generation-I Japanese distribution archive](https://bulbapedia.bulbagarden.net/wiki/List_of_Japanese_event_Pok%C3%A9mon_distributions_in_Generation_I).
@@ -881,7 +938,7 @@ They cannot be fought or caught early with the default `APEX` settings.
 
 The new map encounters deliberately reuse the built-in overworld sheets:
 `SPRITE_MONSTER` for Raikou, Entei and Suicune, `SPRITE_BIRD` for Lugia and
-Ho-Oh, and the small `SPRITE_FAIRY` silhouette for Celebi.
+Ho-Oh, and a small mythic silhouette for Celebi.
 
 The mod's own **OPTIONS** page can change this per species:
 
@@ -919,7 +976,7 @@ portable ROM-native derived cry only for species still missing audio. Mega
 and Ascendant forms use that resolved base-species cry. The six story
 legends retain their authored front/back pixel art. Their party-menu icons use
 the game's standard animated silhouettes: quadruped for the three beasts, bird
-for Lugia and Ho-Oh, and the Mew-like fairy icon for Celebi.
+for Lugia and Ho-Oh, and the Mew-like mythic icon for Celebi.
 
 Gorochu follows the same external-owner rule but selects its bundled fallback
 by edition: Yellow receives the dedicated spoken clip, while Red and Blue use
@@ -1054,6 +1111,13 @@ submenu. It contains:
   Bill's PC.
 - **RED GYARADOS** — enable or skip the guaranteed Seafoam shiny event.
 - **JOHTO TIME** — follow the system clock or force DAY/NIGHT for Eevee.
+- **EARLY JOHTO** — enable or disable only the voluntary early migration
+  encounters. Mythic Signals can still use the shared capsule, receiver and
+  Driftglass researcher with Kanto First enforced.
+- **JOHTO SIGNAL START** — discover the field quest normally or begin a new
+  save directly with Wanderwaves or Johto Unleashed.
+- **MYTHIC SIGNALS** — enable or disable the Mew/Celebi echo and Resonance
+  Seal path independently.
 - Individual encounter rules for all ten post-game legends plus Mew.
 - **MEW** — enable or skip the final mythic investigation.
 - **MEW PROFILE** — choose Ascendant Lv.100 or historical event Lv.5.
@@ -1109,7 +1173,7 @@ missions, Rocket story and one new tournament bracket are completed.
 
 ## Installation
 
-1. Download `kanto-ascendant-5.4.1.modpkg` from the
+1. Download `kanto-ascendant-6.0.0.modpkg` from the
    [latest release](https://github.com/Roxas2712/kanto-ascendant/releases/latest)
    and import it through the launcher. Developers may alternatively install
    the checked-out mod directory.
@@ -1148,6 +1212,33 @@ env -u POKEPORT_DATA_DIR ./.tools/luajit-src/src/luajit \
 ./.tools/luajit-src/src/luajit ../trainer_rematch/tests/upgrade_matrix_test.lua
 ```
 
+Run the standalone Signals gates from the mod checkout:
+
+```sh
+../gen1recomp/.tools/luajit-src/src/luajit tests/johto_signals_test.lua
+../gen1recomp/.tools/luajit-src/src/luajit tests/johto_signals_content_test.lua
+../gen1recomp/.tools/luajit-src/src/luajit tests/johto_signals_hub_test.lua
+../gen1recomp/.tools/luajit-src/src/luajit tests/johto_signals_dialogue_test.lua
+../gen1recomp/.tools/luajit-src/src/luajit tests/johto_signals_wilds_test.lua
+../gen1recomp/.tools/luajit-src/src/luajit \
+  tests/johto_signals_ui_integration_test.lua
+python3 tests/johto_signals_scope_audit_test.py
+python3 tools/johto_signals_release_audit.py .
+```
+
+The map-collision and Mythic battle suites run from the engine checkout with
+`KANTO_SIGNALS_MOD_DIR` and `TRAINER_REMATCH_MOD_DIR` pointed at this mod.
+GitHub CI runs both contracts and repeats the release-boundary audit against
+the exact `kanto-ascendant-6.0.0.modpkg`.
+
+The upgrade matrix includes separate schema-derived Kanto Ascendant 5.3
+fixtures for Red, Blue and Yellow. They pin the public 5.3 package hash and
+exercise pre/post-Hall-of-Fame Signals initialization, legacy-event and
+Mew/Celebi reconciliation, native save serialization, restart and mod off/on.
+They are sanitized test buckets rather than published player saves. Original
+full-save UAT sources remain separately identified and are never inferred
+from those fixtures.
+
 Validate against an imported Kanto data set:
 
 ```sh
@@ -1181,13 +1272,12 @@ Yellow's spoken cry, Red/Blue's chip fallback and external-owner priority.
 Crystal art. `tools/install_all_mega_sprites.py` installs all 30 approved
 96×96 front/back/normal/shiny masters and their side-aware integer-pixel
 animation loops. `tools/build_ascendant_typhlosion.py` merges the approved
-secret form with Crystal #157's authentic front animation and generates its
-separate back loop. `tools/build_breeding_data.py`
+Ascendant Typhlosion form with Crystal #157's authentic front animation and
+generates its separate back loop. `tools/build_breeding_data.py`
 refreshes the offline 251-entry egg-group, gender-ratio and hatch-cycle table
 used at runtime.
 
 The complete reusable form-art, animation, 2D HUD, Voxel, fallback and QA
 checklist is preserved in [`docs/MEGA_FORM_PIPELINE.md`](docs/MEGA_FORM_PIPELINE.md).
-Possible later Mew, Celebi and Jirachi concepts, their type requirements and
-the current Fairy-type gap are recorded in
-[`docs/FUTURE_FORM_BACKLOG.md`](docs/FUTURE_FORM_BACKLOG.md).
+The focused 6.0 flow, save contract and UAT matrix are recorded in
+[`docs/JOHTO_SIGNALS_6_SCOPE_AND_UAT.md`](docs/JOHTO_SIGNALS_6_SCOPE_AND_UAT.md).

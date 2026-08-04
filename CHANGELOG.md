@@ -2,6 +2,63 @@
 
 All notable changes to this project are documented in this file.
 
+## [6.0.0] - Unreleased
+
+### Added
+
+- **Johto Signals**, an optional early-story migration quest that begins only
+  after the starter and Pokédex. Its Pallet capsule uses a hidden 128–768-step
+  target and is guaranteed by the fifth eligible Pallet visit.
+- The reversible Driftglass signal-station trip, Migration Receiver and three
+  player-selected currents: unchanged **Kanto First**, 2%/4%
+  **Wanderwaves**, and 10% **Johto Unleashed**.
+- Four spoiler-safe primal traces that independently unlock Chikorita,
+  Totodile, Cyndaquil and Larvitar. Their 1:512 or 1:256 encounter counters
+  retain progress across mode changes and guarantee the next eligible battle
+  at the limit.
+- **Mythic Signals** for Mew and Celebi. Three protected echoes lead to a
+  physical Resonance Seal handoff after four Badges, followed by true
+  manifestations with a guaranteed 1:8192 counter.
+- Persistent bound retries for a failed true manifestation, preserving its
+  species, DVs, HP and status rather than restarting the full search.
+- Complete English/German Driftglass dialogue, receiver guidance, Journal
+  objectives and localized Atlas location names.
+
+### Changed
+
+- The Ascendant **WORLD** submenu now owns Johto Signals, Mythic Signals and
+  the existing rotating world-event report without adding duplicate Start
+  menu rows.
+- Disabling **EARLY JOHTO** now affects only migration encounters. An enabled
+  Mythic Signals path retains the shared capsule, receiver and Driftglass
+  researcher while enforcing Kanto First.
+- Journal and Atlas signal goals are explicitly optional and never replace
+  Gold or another mandatory main objective. Unseen objective species remain
+  `???`.
+- Wilds of Kanto and ordinary grass encounters share the same transactional
+  selection. Scripted encounters, roamers, outbreaks, research replacements,
+  Repel and failed visible spawns cannot spend a signal pity counter.
+- Professor Elm recognizes an early-caught Johto specimen and awards a
+  deterministic, Bag-safe research compensation instead of a duplicate.
+- The upgrade matrix now has distinct schema-derived 5.3 Red, Blue and Yellow
+  cases. It verifies non-invasive Signals defaults, pre/postgame starts,
+  legacy world-event preservation, canonical Mew/Celebi repair, native save
+  serialization, restart and mod off/on while explicitly distinguishing
+  those fixtures from original player-save evidence.
+
+### Fixed
+
+- Echoes cannot be knocked out by direct, fixed, multi-hit or residual
+  damage, and flee after one to three turns without allowing a Master Ball to
+  be consumed.
+- Exactly three echoes pause further echo rolls until the receiver is sealed.
+  Already-owned or disabled Mew/Celebi outcomes are excluded from later
+  searches.
+- Driftglass always retains a valid return route, including upgraded saves,
+  restarts and mod disable/re-enable cycles.
+- Saving during a live Driftglass visit now writes the native Pallet landing
+  as the resume point without interrupting the current visit.
+
 ## [5.4.1] - 2026-08-04
 
 ### Added

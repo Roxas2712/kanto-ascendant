@@ -981,8 +981,8 @@ T.same((function()
   end
   return labels
 end)(), {
-  "RESEARCH ATLAS", "JOURNAL", "GOROCHU RESEARCH", "WORLD STATUS",
-  "SHINY DEX", "EVENT ARCHIVE", "MEGA STONES", "FRONTIER EXCHANGE",
+  "RESEARCH ATLAS", "JOURNAL", "GOROCHU RESEARCH", "WORLD", "SHINY DEX",
+  "EVENT ARCHIVE", "MEGA STONES", "FRONTIER EXCHANGE",
   "TITLES / TROPHIES",
 }, "available Ascendant utilities are clear and consistently ordered")
 end)()
@@ -4873,6 +4873,86 @@ T.eq(factoryMessages[#factoryMessages].text:find(
   "the cruise clear dialogue shows the sixteen points actually credited")
 
 run.loader.modSave = priorGrandTourSave
+end)()
+
+-- ------------------------------------------ Johto Signals -> Lind hand-off
+
+assert(loadfile(modPath .. "/tests/johto_signals_lind_spec.lua"))()(
+  T, run.data, modPath)
+
+-- ------------------------------------------------ stable hot-reload dispatch
+
+;(function()
+  local hotPushed = {}
+  local hotGame = {
+    data = Data,
+    save = {
+      money = 3000,
+      inventory = {},
+      bagOrder = {},
+      defeatedTrainers = {},
+      flags = {},
+      modData = game.save.modData,
+      player = { name = "RED" },
+      party = {
+        { level = 5 }, { level = 6 }, { level = 7 },
+      },
+    },
+    stack = {
+      push = function(_, state)
+        hotPushed[#hotPushed + 1] = state
+      end,
+    },
+    mods = { exports = {} },
+  }
+  local hotDeps = {}
+  for key, value in pairs(installDeps) do hotDeps[key] = value end
+  hotDeps.mapScripts = {
+    talkScript = function() return false end,
+  }
+
+  local hotNpc = {
+    id = "FIX_ROUTE_obj_hot_reload",
+    def = {
+      trainerClass = "OPP_FIX_YOUNGSTER",
+      trainerParty = 1,
+      text = "HOT_RELOAD",
+      index = 1,
+    },
+    frozen = false,
+    facePlayer = function() end,
+  }
+  game.save.modData.trainer_rematch.trainers[hotNpc.id] = {
+    rematches = 0,
+    trainingCycles = 0,
+    readyAt = 0,
+  }
+  local hotOw = {
+    map = { id = "FIX_ROUTE", def = { label = "FixRoute" } },
+    player = {},
+    trainerDefeated = function() return true end,
+    afterBattle = function() end,
+    pushBattle = function() end,
+  }
+
+  local oldStackCount = #pushed
+  local stableTalkWrapper = overworldStub.talkTo
+  ex.install(hotGame, hotDeps)
+  T.eq(overworldStub.talkTo, stableTalkWrapper,
+    "hot install keeps one stable engine-facing talk wrapper")
+  overworldStub.talkTo(hotOw, hotNpc)
+  T.eq(#hotPushed, 1,
+    "the stable talk wrapper dispatches into the freshly installed game")
+  T.eq(#pushed, oldStackCount,
+    "the superseded game stack receives no post-reload dialogue")
+  T.eq(hotPushed[1].text, ex.resolveLine("OPP_FIX_YOUNGSTER"),
+    "the fresh runtime retains the normal rematch dialogue flow")
+
+  -- Leave shared controllers pointing back at the suite's original game so
+  -- release hooks exercise the same instance they were created with.
+  ex.install(game, installDeps)
+  T.eq(overworldStub.talkTo, stableTalkWrapper,
+    "restoring the original runtime also avoids wrapper stacking")
 end)()
 
 run.release()

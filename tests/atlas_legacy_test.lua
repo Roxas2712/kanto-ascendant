@@ -1,4 +1,4 @@
--- Focused Kanto Ascendant 5.0 Atlas, wallet and Legacy Gallery regression.
+-- Focused Kanto Ascendant 6.0 Atlas, wallet and Legacy Gallery regression.
 --
 -- Run from the Gen1 Recomp checkout:
 --   TRAINER_REMATCH_MOD_DIR=../trainer_rematch \
@@ -13,8 +13,8 @@ local modPath = os.getenv("TRAINER_REMATCH_MOD_DIR")
   or "mods/trainer_rematch"
 local run = T.sdk.loadMod(modPath, { data = Data })
 T.eq(#run.errors, 0, "Kanto Ascendant loads for Atlas/Legacy tests")
-T.eq(run.mod.manifest.version, "5.4.1",
-  "the release manifest identifies the Gorochu update")
+T.eq(run.mod.manifest.version, "6.0.0",
+  "the release manifest identifies the Johto Signals update")
 
 local ex = assert(run.loader.exports.trainer_rematch)
 local atlas = assert(ex.researchAtlas)

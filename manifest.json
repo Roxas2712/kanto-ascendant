@@ -1,7 +1,7 @@
 {
   "id": "trainer_rematch",
   "name": "Kanto Ascendant",
-  "version": "5.4.1",
+  "version": "6.0.0",
   "api": 2,
   "entry": "main.lua",
   "profile": "content",
@@ -26,6 +26,6 @@
   "conflicts": [],
   "incompatible": [],
   "experimental": false,
-  "description": "A living 251-Pokémon Kanto adventure with Gorochu, Yellow's optional partner evolution, ranked rematches, research habitats, a spoiler-safe Atlas, Battle Factory, titles, shinies and Mega Evolution.",
+  "description": "A living 251-Pokémon Kanto adventure with optional early Johto migrations, mythical Mew/Celebi signals, Gorochu, ranked rematches, research habitats, shinies and Mega Evolution.",
   "github": "Roxas2712/kanto-ascendant"
 }

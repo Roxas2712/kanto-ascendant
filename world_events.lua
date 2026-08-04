@@ -42,6 +42,9 @@ return function(mod, opts)
   local i18n = opts.i18n
   local postgame = opts.postgame
   local johtoResearch = opts.johtoResearch
+  -- The shared WORLD hub can own presentation while this controller keeps
+  -- driving its existing events. Omitted means enabled for 5.3 compatibility.
+  local showMenu = opts.showMenu ~= false
   local W = { game = nil }
 
   local function tr(en, de)
@@ -184,6 +187,7 @@ return function(mod, opts)
 
   mod.hooks:wrap("ui.start_menu.items", function(nextItems, game, items)
     local out = nextItems(game, items)
+    if not showMenu then return out end
     if type(out) ~= "table" or not (postgame
         and postgame.hasHallOfFame(game.save)) then return out end
     return mod.ui.insertBefore(out, "SAVE", {

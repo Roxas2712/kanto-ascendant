@@ -54,27 +54,54 @@ jobs:
           luajit ../kanto-ascendant/tests/reachability_test.lua
           luajit ../kanto-ascendant/tests/upgrade_matrix_test.lua
 
+      - name: Run the Johto Signals regression suite
+        working-directory: kanto-ascendant
+        run: |
+          luajit tests/johto_signals_test.lua
+          luajit tests/johto_signals_content_test.lua
+          luajit tests/johto_signals_hub_test.lua
+          luajit tests/johto_signals_dialogue_test.lua
+          luajit tests/johto_signals_wilds_test.lua
+          luajit tests/johto_signals_ui_integration_test.lua
+          python3 tests/johto_signals_scope_audit_test.py
+
+      - name: Run the engine-backed Johto Signals suite
+        working-directory: gen1recomp
+        env:
+          POKEPORT_DATA_DIR: tests/fixture_data
+          KANTO_SIGNALS_MOD_DIR: ../kanto-ascendant
+          TRAINER_REMATCH_MOD_DIR: ../kanto-ascendant
+        run: |
+          luajit ../kanto-ascendant/tests/johto_signals_map_test.lua
+          luajit ../kanto-ascendant/tests/mythic_signals_test.lua
+
+      - name: Audit the 6.0 release boundary
+        working-directory: kanto-ascendant
+        run: python3 tools/johto_signals_release_audit.py .
+
       - name: Build and inspect the launcher package
         working-directory: gen1recomp
         env:
           MODKIT_LUAJIT: luajit
         run: |
           python3 tools/modkit.py pack ../kanto-ascendant \
-            -o ../kanto-ascendant-5.4.1.modpkg
-          unzip -t ../kanto-ascendant-5.4.1.modpkg
-          cp ../kanto-ascendant-5.4.1.modpkg \
-            ../kanto-ascendant-5.4.1.zip
+            -o ../kanto-ascendant-6.0.0.modpkg
+          unzip -tq ../kanto-ascendant-6.0.0.modpkg
+          cp ../kanto-ascendant-6.0.0.modpkg \
+            ../kanto-ascendant-6.0.0.zip
           (
             cd ..
-            sha256sum kanto-ascendant-5.4.1.modpkg \
-              kanto-ascendant-5.4.1.zip \
-              > SHA256SUMS-5.4.1.txt
+            sha256sum kanto-ascendant-6.0.0.modpkg \
+              kanto-ascendant-6.0.0.zip \
+              > SHA256SUMS-6.0.0.txt
           )
+          python3 ../kanto-ascendant/tools/johto_signals_release_audit.py \
+            ../kanto-ascendant-6.0.0.modpkg
           python3 - <<'PY'
           import json
           import zipfile
 
-          package = "../kanto-ascendant-5.4.1.modpkg"
+          package = "../kanto-ascendant-6.0.0.modpkg"
           forbidden_prefixes = (
               "art_review/",
               "assets/sources/",
@@ -101,6 +128,12 @@ jobs:
               "assets/voxel/gorochu/gorochu_front.png",
               "assets/voxel/gorochu/gorochu_front_shiny.png",
               "gorochu_visuals.lua",
+              "johto_signals.lua",
+              "johto_signals_content.lua",
+              "johto_signals_hub.lua",
+              "johto_signals_state.lua",
+              "johto_signals_wilds.lua",
+              "mythic_signals.lua",
           }
 
           with zipfile.ZipFile(package) as archive:
@@ -128,9 +161,9 @@ jobs:
                   )
 
               manifest = json.loads(archive.read("manifest.json"))
-              if manifest.get("version") != "5.4.1":
+              if manifest.get("version") != "6.0.0":
                   raise SystemExit(
-                      "Expected manifest version 5.4.1, got "
+                      "Expected manifest version 6.0.0, got "
                       + repr(manifest.get("version"))
                   )
 
@@ -140,9 +173,9 @@ jobs:
       - name: Upload the verified release candidate
         uses: actions/upload-artifact@v4
         with:
-          name: kanto-ascendant-5.4.1-release-candidate
+          name: kanto-ascendant-6.0.0-release-candidate
           if-no-files-found: error
           path: |
-            kanto-ascendant-5.4.1.modpkg
-            kanto-ascendant-5.4.1.zip
-            SHA256SUMS-5.4.1.txt
+            kanto-ascendant-6.0.0.modpkg
+            kanto-ascendant-6.0.0.zip
+            SHA256SUMS-6.0.0.txt

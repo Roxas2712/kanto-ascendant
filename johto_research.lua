@@ -41,7 +41,7 @@ return function(mod, opts)
       for _, key in ipairs({
         "starters", "rewards", "trackWins", "eggsQueued", "eggsHatched",
         "itemsClaimed", "partnersClaimed", "eggQueue", "pendingMons",
-        "pendingItems",
+        "pendingItems", "compensations",
       }) do
         s[key] = type(s[key]) == "table" and s[key] or {}
       end
@@ -233,6 +233,69 @@ return function(mod, opts)
       ("Forschungsbonus:\n%s!\fBEUTEL voll;\nLIND bewahrt es."):format(name))
   end
 
+  -- Early Johto migration can place the same base specimens in a player's
+  -- Pokédex before Elm's post-game programme reaches them.  Completing the
+  -- later research step must still unlock its habitat and milestones, but a
+  -- second copy would make the authored early catch feel meaningless.
+  --
+  -- The replacement stays inside the programme's existing evolution-item
+  -- economy.  The mapping is stable across languages, saves and restarts;
+  -- giveItem also supplies the established full-Bag reservation path.
+  local compensationByTrack = {
+    bug = "METAL_COAT",
+    sky = "METAL_COAT",
+    water = "DRAGON_SCALE",
+    tech = "METAL_COAT",
+    mystic = "UPGRADE",
+    stone = "KINGS_ROCK",
+    night = "SUN_STONE",
+    nature = "SUN_STONE",
+  }
+  local compensationBySpecies = {
+    CHIKORITA = "SUN_STONE",
+    CYNDAQUIL = "SUN_STONE",
+    TOTODILE = "DRAGON_SCALE",
+    LARVITAR = "KINGS_ROCK",
+  }
+
+  local function compensationItemFor(species, track)
+    return compensationBySpecies[species]
+      or compensationByTrack[track]
+      or "SUN_STONE"
+  end
+
+  local function alreadyOwned(game, species)
+    local dex = game and game.save and game.save.pokedex
+    return dex and dex.owned and dex.owned[species] == true or false
+  end
+
+  local function duplicateMessage(game, species)
+    local def = game.data.pokemon[species]
+    local name = def and def.name or species
+    return name .. "\f" .. tr(
+      "was logged before.\fNo duplicate is\ncreated.",
+      "war schon erfasst.\fKein Duplikat.")
+  end
+
+  local function giveSpecimenOrCompensation(
+      game, s, species, level, origin, claimKey, track)
+    if not alreadyOwned(game, species) then
+      return giveOrReserve(game, species, level, origin), false
+    end
+
+    local itemId = compensationItemFor(species, track)
+    claimKey = tostring(claimKey or species)
+    if s.compensations[claimKey] then
+      return duplicateMessage(game, species), true
+    end
+    -- Record the entitlement before attempting delivery.  A full Bag queues
+    -- the exact item in pendingItems, so reloading or re-enabling the mod can
+    -- never roll or grant the compensation twice.
+    s.compensations[claimKey] = itemId
+    return duplicateMessage(game, species) .. "\f"
+      .. giveItem(game, itemId), true
+  end
+
   local function startNextEgg(s)
     if s.activeEgg or #s.eggQueue == 0 then return end
     s.activeEgg = table.remove(s.eggQueue, 1)
@@ -299,22 +362,38 @@ return function(mod, opts)
     local row = nextReward(s, track)
     local messages = {}
     if row then
+      local ownedBeforeResearch = alreadyOwned(game, row.species)
       s.rewards[row.species] = true
-      messages[#messages + 1] = tr(
-        ("ELM RESEARCH: %s's\ntraining revealed a\n%s specimen!"):format(
-          battle.trainer and battle.trainer.name or "the trainer",
-          game.data.pokemon[row.species].name),
-        ("LIND-FORSCHUNG:\nDie Revanche enthüllt\n%s!"):format(
-          game.data.pokemon[row.species].name))
-      messages[#messages + 1] = giveOrReserve(
-        game, row.species, 10, "THEMED TRAINER REMATCH")
+      if ownedBeforeResearch then
+        messages[#messages + 1] = tr(
+          "ELM RESEARCH:\fA known signal was\nconfirmed!",
+          "LIND-FORSCHUNG:\fBekanntes Signal\nbestätigt!")
+      else
+        messages[#messages + 1] = tr(
+          ("ELM RESEARCH: %s's\ntraining revealed a\n%s specimen!"):format(
+            battle.trainer and battle.trainer.name or "the trainer",
+            game.data.pokemon[row.species].name),
+          ("LIND-FORSCHUNG:\nDie Revanche enthüllt\n%s!"):format(
+            game.data.pokemon[row.species].name))
+      end
+      messages[#messages + 1] = giveSpecimenOrCompensation(
+        game, s, row.species, 10, "THEMED TRAINER REMATCH",
+        "reward:" .. row.species, row.track)
     elseif not s.finalReward then
+      local ownedBeforeResearch = alreadyOwned(game, data.finalReward)
       s.finalReward = true
-      messages[#messages + 1] = tr(
-        "Every research track\nis complete!\fELM releases his\nfinal rare specimen.",
-        "Alle Forschungsreihen\nsind vollständig!\fLIND gibt sein\nseltenstes Exemplar frei.")
-      messages[#messages + 1] = giveOrReserve(
-        game, data.finalReward, 15, "JOHTO RESEARCH FINALE")
+      if ownedBeforeResearch then
+        messages[#messages + 1] = tr(
+          "ALL TRACKS\nCOMPLETE!\fELM knows the rare\nfind already.",
+          "ALLE REIHEN\nSIND FERTIG!\fLIND kannte deinen\nseltenen Fund.")
+      else
+        messages[#messages + 1] = tr(
+          "Every research track\nis complete!\fELM releases his\nfinal rare specimen.",
+          "Alle Forschungsreihen\nsind vollständig!\fLIND gibt sein\nseltenstes Exemplar frei.")
+      end
+      messages[#messages + 1] = giveSpecimenOrCompensation(
+        game, s, data.finalReward, 15, "JOHTO RESEARCH FINALE",
+        "final:" .. data.finalReward, "stone")
     end
     local count = rewardCount(s)
     queueMilestones(s, count)
@@ -379,7 +458,10 @@ return function(mod, opts)
       local message = tr(
         ("%s CLEARED!\f"):format(localized(trial.title)),
         ("%s BESTANDEN!\f"):format(localized(trial.title)))
-        .. giveOrReserve(game, trial.species, 5, localized(trial.title))
+        .. giveSpecimenOrCompensation(
+          game, s, trial.species, 5, localized(trial.title),
+          "starter:" .. key, key)
+      persist(s)
       npc.frozen = false
       game.stack:push(require("src.render.TextBox").new(game, message))
       R.refresh(game, trial.map)
@@ -701,6 +783,10 @@ return function(mod, opts)
   mod.hooks:wrap("encounter.roll", function(nextRoll, encDef, ctx)
     local out = nextRoll(encDef, ctx)
     if not (out and ctx) then return out end
+    -- Johto Signals marks its transactional candidates so no later research
+    -- hook can silently replace a guaranteed trace encounter or consume the
+    -- wrong pity transaction.
+    if out.kaProtected or out.kaEncounterSource then return out end
     return R.rollHabitat(
       ctx.mapId, ctx.terrain, ctx.rng, out.level, state(false)) or out
   end, -20)
@@ -753,5 +839,6 @@ return function(mod, opts)
   R.habitatFor = function(species)
     return data.habitats and data.habitats[species] or nil
   end
+  R.compensationItemFor = compensationItemFor
   return R
 end

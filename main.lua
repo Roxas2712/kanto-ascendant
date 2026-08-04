@@ -377,6 +377,20 @@ return function(mod)
         { menuLabel("DAY", "TAG"), "day" },
         { menuLabel("NIGHT", "NACHT"), "night" },
       } },
+    { key = "johto_signals_enable",
+      label = menuLabel("EARLY JOHTO", "FRÜHES JOHTO"),
+      type = "toggle", default = true },
+    { key = "johto_signals_start",
+      label = menuLabel("JOHTO SIGNAL START", "JOHTO-SIGNALSTART"),
+      type = "choice", default = "quest",
+      choices = {
+        { menuLabel("FIELD QUEST", "FELDQUEST"), "quest" },
+        { menuLabel("WANDERWAVES NOW", "WANDERWELLEN SOFORT"), "waves" },
+        { menuLabel("UNLEASHED NOW", "ENTFESSELT SOFORT"), "unleashed" },
+      } },
+    { key = "mythic_signals",
+      label = menuLabel("MYTHIC SIGNALS", "MYTHOS-SIGNALE"),
+      type = "toggle", default = true },
     { key = "legend_articuno", label = "ARTICUNO", type = "choice",
       default = "apex",
       choices = { { "APEX", "apex" }, { "VANILLA", "vanilla" },
@@ -580,6 +594,65 @@ return function(mod)
     return johtoResearch.isRecruitFamilyEligible(species)
   end)
   mod.exports.johtoResearch = johtoResearch
+
+  local signalsStateModule = loadSibling(mod, "johto_signals_state.lua")
+  local signalsState = signalsStateModule.create(mod)
+  local signalsContentModule = loadSibling(mod, "johto_signals_content.lua")
+  local signalsContent = signalsContentModule.create(mod, {
+    state = signalsState,
+    i18n = i18n,
+  })
+  signalsContent.register()
+
+  local signalsHub
+  local makeJohtoSignals = loadSibling(mod, "johto_signals.lua")
+  local johtoSignals = makeJohtoSignals(mod, {
+    state = signalsState,
+    content = signalsContent,
+    johtoData = johtoData,
+    i18n = i18n,
+    onCapsuleReady = function(game, text, decide)
+      if signalsHub then
+        return signalsHub.offerCapsule(game, text, decide)
+      end
+    end,
+    onCapsuleFound = function(game)
+      if signalsHub then return signalsHub.onCapsuleFound(game) end
+    end,
+    onOnboardingRequired = function(game, policy, text, decide)
+      if signalsHub then
+        return signalsHub.offerOnboarding(game, policy, text, decide)
+      end
+    end,
+  })
+  local makeMythicSignals = loadSibling(mod, "mythic_signals.lua")
+  local mythicSignals = makeMythicSignals(mod, {
+    state = signalsState,
+    content = signalsContent,
+    johtoSignals = johtoSignals,
+    i18n = i18n,
+  })
+  local makeSignalsHub = loadSibling(mod, "johto_signals_hub.lua")
+  signalsHub = makeSignalsHub(mod, {
+    state = signalsState,
+    content = signalsContent,
+    early = johtoSignals,
+    mythic = mythicSignals,
+    i18n = i18n,
+  })
+  local makeSignalsWilds = loadSibling(mod, "johto_signals_wilds.lua")
+  local signalsWilds = makeSignalsWilds(mod, {
+    johtoSignals = johtoSignals,
+    mythicSignals = mythicSignals,
+    johtoResearch = johtoResearch,
+  })
+  mod.exports.johtoSignalsState = signalsState
+  mod.exports.johtoSignalsContent = signalsContent
+  mod.exports.johtoSignals = johtoSignals
+  mod.exports.mythicSignals = mythicSignals
+  mod.exports.signalsHub = signalsHub
+  mod.exports.signalsWilds = signalsWilds
+
   local makeWildsCompat = loadSibling(mod, "wilds_compat.lua")
   local wildsCompat = makeWildsCompat(mod, {
     johtoResearch = johtoResearch,
@@ -789,7 +862,9 @@ return function(mod)
     postgame = postgame,
     i18n = i18n,
     johtoResearch = johtoResearch,
+    showMenu = false,
   })
+  signalsHub.setWorldEvents(worldEvents)
   shinySystem.setWorldEvents(worldEvents)
   mod.exports.worldEvents = worldEvents
 
@@ -872,6 +947,7 @@ return function(mod)
     lootBands = loot.bands,
     trainerStates = trainerStates,
     stepClock = stepClock,
+    signalsHub = signalsHub,
   })
   mod.exports.researchAtlas = researchAtlas
 
@@ -909,9 +985,12 @@ return function(mod)
     grandTour = grandTour,
     ascendantTyphlosion = ascendantTyphlosion,
     starterRelicQuests = starterRelicQuests,
+    signalsHub = signalsHub,
   })
   ascendant.setQuestTracker(questTracker)
   researchAtlas.setQuestTracker(questTracker)
+  questTracker.setSignalsHub(signalsHub)
+  researchAtlas.setSignalsHub(signalsHub)
   mod.exports.questTracker = questTracker
 
   local makeOnboarding = loadSibling(mod, "onboarding.lua")
@@ -1418,7 +1497,19 @@ return function(mod)
     if ascendant then ascendant.install(game, deps) end
     if eventArchive then eventArchive.install(game, deps) end
     if johtoResearch then johtoResearch.install(game, deps) end
+    if signalsState then signalsState.install(game) end
+    if johtoSignals and johtoSignals.game ~= game then
+      johtoSignals.install(game)
+    end
+    if mythicSignals then mythicSignals.install(game, {
+      battleState = BattleState,
+      stats = deps.stats,
+    }) end
+    if signalsHub then signalsHub.install(game) end
     if wildsCompat then wildsCompat.install(game, {
+      random = deps.wildsRandom,
+    }) end
+    if signalsWilds then signalsWilds.install(game, {
       random = deps.wildsRandom,
     }) end
     if worldEvents then worldEvents.install(game, deps) end
@@ -1434,26 +1525,26 @@ return function(mod)
     if followerCompat then followerCompat.install(game) end
     if yellowPartner then yellowPartner.install(game, deps) end
 
-    -- one wrap per boot; hot reload re-runs entry chunks without clearing
-    -- the require cache, so the module table is the idempotence sentinel
-    if Overworld._rematchTalkWrapped then return end
-    Overworld._rematchTalkWrapped = true
-
-    local vanillaTalkTo = Overworld.talkTo
-    Overworld.talkTo = function(self, npc)
+    -- Keep the installed wrappers stable, but replace their dispatch target
+    -- on every install. Dev hot reload keeps engine module tables alive while
+    -- recreating this entry chunk; a wrapper that closes over the first game,
+    -- dependency set, or sibling controller would otherwise stay stale.
+    local talkRuntime = {}
+    function talkRuntime.handle(self, npc)
       local d = npc.def
       if yellowPartner
-          and yellowPartner.handleTalk(self, npc, game) then return end
-      if gorochu and gorochu.handleTalk(self, npc, game) then return end
-      if daycare and daycare.handleTalk(self, npc, game) then return end
+          and yellowPartner.handleTalk(self, npc, game) then return true end
+      if gorochu and gorochu.handleTalk(self, npc, game) then return true end
+      if daycare and daycare.handleTalk(self, npc, game) then return true end
       if starterRelicQuests
-          and starterRelicQuests.handleTalk(self, npc, game) then return end
+          and starterRelicQuests.handleTalk(self, npc, game) then return true end
       -- Hall-of-Fame gym leaders are scripted in the base game, so the
       -- post-game controller gets first refusal before the generic/scripted
       -- split below.
-      if johtoResearch and johtoResearch.handleTalk(self, npc, game) then return end
-      if ascendant and ascendant.handleTalk(self, npc, game) then return end
-      if postgame and postgame.handleTalk(self, npc, game) then return end
+      if johtoResearch
+          and johtoResearch.handleTalk(self, npc, game) then return true end
+      if ascendant and ascendant.handleTalk(self, npc, game) then return true end
+      if postgame and postgame.handleTalk(self, npc, game) then return true end
       -- only the generic-trainer branch: scripted encounters (gym leaders,
       -- rivals, story fights) keep their own flow, defeated or not
       local scripted = mapScripts and mapScripts.talkScript(self.map.id, d.text)
@@ -1476,7 +1567,7 @@ return function(mod)
           game.stack:push(TextBox.new(game, text, function()
             npc.frozen = false
           end))
-          return
+          return true
         end
         local left = remainingSteps(key)
         if left > 0 then
@@ -1489,9 +1580,30 @@ return function(mod)
           game.stack:push(TextBox.new(game, status, function()
             npc.frozen = false
           end))
-          return
+          return true
         end
-        return offerRematch(self, npc, game, deps)
+        return true, offerRematch(self, npc, game, deps)
+      end
+      return false
+    end
+    function talkRuntime.afterTrainer(self, npc, defeatedBefore)
+      if not defeatedBefore and self:trainerDefeated(npc) then
+        scheduleRest(trainerKey(self, npc), deps)
+      end
+    end
+    Overworld._kantoAscendantTalkRuntime = talkRuntime
+
+    -- one wrap per boot; hot reload refreshes the runtime slot above and then
+    -- leaves the stable engine-facing functions untouched
+    if Overworld._rematchTalkWrapped then return end
+    Overworld._rematchTalkWrapped = true
+
+    local vanillaTalkTo = Overworld.talkTo
+    Overworld.talkTo = function(self, npc)
+      local current = Overworld._kantoAscendantTalkRuntime
+      if current and type(current.handle) == "function" then
+        local handled, result = current.handle(self, npc)
+        if handled then return result end
       end
       return vanillaTalkTo(self, npc)
     end
@@ -1504,8 +1616,9 @@ return function(mod)
       Overworld.engageTrainer = function(self, npc, onDone)
         local defeatedBefore = self:trainerDefeated(npc)
         local function done(...)
-          if not defeatedBefore and self:trainerDefeated(npc) then
-            scheduleRest(trainerKey(self, npc), deps)
+          local current = Overworld._kantoAscendantTalkRuntime
+          if current and type(current.afterTrainer) == "function" then
+            current.afterTrainer(self, npc, defeatedBefore)
           end
           if onDone then return onDone(...) end
         end

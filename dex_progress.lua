@@ -89,6 +89,55 @@ return function(mod, opts)
     return out
   end
 
+  -- The engine deliberately quarantines mod-owned Pokémon while a mod is
+  -- disabled. Their records return to the PC when the species is available
+  -- again, but unknown Pokédex flags cannot survive the mod-off validation
+  -- pass. Rebuild only knowledge that physical save storage proves: a
+  -- Pokémon in the party, PC, Day-Care or still-known quarantine is both
+  -- seen and owned. No registered-but-unencountered species is revealed.
+  local function repairOwnedFromStorage(game)
+    local save = game and game.save
+    local known = game and game.data and game.data.pokemon
+    if type(save) ~= "table" or type(known) ~= "table" then return 0 end
+    save.pokedex = type(save.pokedex) == "table" and save.pokedex or {}
+    local seen = type(save.pokedex.seen) == "table"
+      and save.pokedex.seen or {}
+    local owned = type(save.pokedex.owned) == "table"
+      and save.pokedex.owned or {}
+    save.pokedex.seen = seen
+    save.pokedex.owned = owned
+
+    local repaired = {}
+    local function mark(mon)
+      -- Eggs already carry their eventual species internally, but the
+      -- Day-Care deliberately registers that species only when it hatches.
+      -- Treating an unhatched egg as owned here would reveal its Dex entry.
+      if type(mon) == "table" and mon.isEgg then return end
+      local species = type(mon) == "table" and mon.species
+      if type(species) ~= "string" or not known[species] then return end
+      if seen[species] ~= true or owned[species] ~= true then
+        repaired[species] = true
+      end
+      seen[species] = true
+      owned[species] = true
+    end
+    local function markList(list)
+      for _, mon in ipairs(type(list) == "table" and list or {}) do mark(mon) end
+    end
+
+    markList(save.party)
+    markList(save.box)
+    for _, box in ipairs(type(save.boxes) == "table" and save.boxes or {}) do
+      markList(box)
+    end
+    if type(save.daycare) == "table" then mark(save.daycare.mon) end
+    if type(save.orphaned) == "table" then markList(save.orphaned.mons) end
+
+    local count = 0
+    for _ in pairs(repaired) do count = count + 1 end
+    return count
+  end
+
   local function ownedThrough(game, maximum)
     local byDex = dexIndex(game)
     local owned = game and game.save and game.save.pokedex
@@ -269,14 +318,23 @@ return function(mod, opts)
 
   function D.install(game)
     D.game = game
+    repairOwnedFromStorage(game)
     state()
     refresh(game)
   end
+
+  -- save.loaded fires after the engine has reclaimed known quarantined
+  -- Pokémon, which is the exact point at which their erased Dex facts can be
+  -- derived again without pre-filling any unseen entry.
+  mod.events:on("save.loaded", function(ev)
+    D.install(ev and ev.game or D.game)
+  end, 280)
 
   D.state = state
   D.ownedThrough = ownedThrough
   D.complete = complete
   D.refresh = refresh
+  D.repairOwnedFromStorage = repairOwnedFromStorage
   D.certificates = CERTIFICATES
   D.open = openList
   return D

@@ -14,6 +14,7 @@ return function(mod, opts)
   local kantoCompletion = opts.kantoCompletion
   local johtoResearch = opts.johtoResearch
   local questTracker = opts.questTracker
+  local signalsHub = opts.signalsHub
   local lootBands = opts.lootBands or {}
   local trainerStates = opts.trainerStates
   local stepClock = opts.stepClock
@@ -133,6 +134,12 @@ return function(mod, opts)
   local function cleanMapName(game, mapId)
     local route = tostring(mapId or ""):match("^ROUTE_(%d+)$")
     if route then return "ROUTE " .. route end
+    if signalsHub and type(signalsHub.atlasLocations) == "function" then
+      local signalNames = signalsHub.atlasLocations(game)
+      if type(signalNames) == "table" and signalNames[mapId] then
+        return signalNames[mapId]
+      end
+    end
     local localizedName = MAP_NAMES[mapId]
     if localizedName then return localized(localizedName) end
     local def = game and game.data and game.data.maps
@@ -502,9 +509,71 @@ return function(mod, opts)
     return rows
   end
 
+  local function hiddenSignalText(game, objective, value, fallback)
+    local text = tostring(value or fallback or "")
+    local species = objective and objective.species
+    local pokedex = game and game.save and game.save.pokedex or {}
+    local seen = type(pokedex.seen) == "table" and pokedex.seen or {}
+    local owned = type(pokedex.owned) == "table" and pokedex.owned or {}
+    if not species or seen[species] or owned[species] then return text end
+    local names = { tostring(species) }
+    local def = game and game.data and game.data.pokemon
+      and game.data.pokemon[species]
+    if def and def.name and def.name ~= species then
+      names[#names + 1] = tostring(def.name)
+    end
+    for _, name in ipairs(names) do
+      local out, from = {}, 1
+      while true do
+        local first, last = text:find(name, from, true)
+        if not first then
+          out[#out + 1] = text:sub(from)
+          text = table.concat(out)
+          break
+        end
+        out[#out + 1] = text:sub(from, first - 1)
+        out[#out + 1] = "???"
+        from = last + 1
+      end
+    end
+    return text
+  end
+
+  local function signalsObjectiveText(game)
+    if questTracker and questTracker.signalsObjectiveText then
+      return questTracker.signalsObjectiveText(game)
+    end
+    if not (signalsHub and type(signalsHub.objective) == "function") then
+      return nil
+    end
+    local objective = signalsHub.objective(game)
+    if type(objective) ~= "table" then return nil end
+    local target = tonumber(objective.total)
+    if target == nil then target = tonumber(objective.target) end
+    local progress = ""
+    if target then
+      target = math.max(0, math.floor(target))
+      progress = ("\n%s: %d/%d"):format(
+        tr("PROGRESS", "FORTSCHRITT"),
+        math.min(target, math.max(0,
+          math.floor(tonumber(objective.current) or 0))), target)
+    end
+    return tr("OPTIONAL SIGNAL\nGOAL", "FREIWILLIGES\nSIGNALZIEL")
+      .. "\n" .. hiddenSignalText(game, objective, objective.title,
+        tr("SIGNAL OBJECTIVE", "SIGNALZIEL"))
+      .. "\f" .. tr("LOCATION: ", "ORT: ")
+      .. cleanMapName(game, objective.location)
+      .. progress
+      .. "\f" .. hiddenSignalText(game, objective, objective.detail,
+        tr("Consult the receiver.", "Prüfe den Empfänger."))
+  end
+
   local function objectiveText(game)
     if questTracker and questTracker.objectiveText then
-      return questTracker.objectiveText(game)
+      local text = questTracker.objectiveText(game)
+      local signals = signalsObjectiveText(game)
+      if signals then text = text .. "\f" .. signals end
+      return text
     end
     if ascendant and ascendant.activeResearch then
       local s = ascendant.state and ascendant.state()
@@ -512,14 +581,20 @@ return function(mod, opts)
       if row then
         local value = ascendant.metricValue
           and ascendant.metricValue(row.metric, game, s) or 0
-        return localized(row.title)
+        local text = localized(row.title)
           .. ("\n%d/%d\f"):format(math.min(value, row.target), row.target)
           .. localized(row.task)
+        local signals = signalsObjectiveText(game)
+        if signals then text = text .. "\f" .. signals end
+        return text
       end
     end
-    return tr(
+    local text = tr(
       "Oak has no unfinished\nAscendant assignment.\fConsult JOURNAL for\nworld and legend leads.",
       "Eich hat keinen offenen\nAscendant-Auftrag.\fSieh ins JOURNAL für\nWelt- und Legenden-Spuren.")
+    local signals = signalsObjectiveText(game)
+    if signals then text = text .. "\f" .. signals end
+    return text
   end
 
   if mod.content and mod.content.screens then
@@ -619,7 +694,9 @@ return function(mod, opts)
   A.habitatRows = habitatRows
   A.habitatDetails = habitatDetails
   A.objectiveText = objectiveText
+  A.signalsObjectiveText = signalsObjectiveText
   A.cleanMapName = cleanMapName
   A.setQuestTracker = function(controller) questTracker = controller end
+  A.setSignalsHub = function(controller) signalsHub = controller end
   return A
 end

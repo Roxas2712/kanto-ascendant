@@ -17,6 +17,7 @@ return function(mod, opts)
   local grandTour = opts.grandTour
   local ascendantTyphlosion = opts.ascendantTyphlosion
   local starterRelicQuests = opts.starterRelicQuests
+  local signalsHub = opts.signalsHub
   local Q = { game = nil }
 
   local function tr(en, de)
@@ -54,6 +55,71 @@ return function(mod, opts)
       target = target,
       detail = detail,
     }
+  end
+
+  local function replacePlain(text, needle, replacement)
+    text, needle = tostring(text or ""), tostring(needle or "")
+    if needle == "" then return text end
+    local out, from = {}, 1
+    while true do
+      local first, last = text:find(needle, from, true)
+      if not first then
+        out[#out + 1] = text:sub(from)
+        return table.concat(out)
+      end
+      out[#out + 1] = text:sub(from, first - 1)
+      out[#out + 1] = replacement
+      from = last + 1
+    end
+  end
+
+  local function speciesKnown(game, species)
+    local pokedex = game and game.save and game.save.pokedex or {}
+    local seen = type(pokedex.seen) == "table" and pokedex.seen or {}
+    local owned = type(pokedex.owned) == "table" and pokedex.owned or {}
+    return seen[species] == true or owned[species] == true
+  end
+
+  local function signalText(game, objective, value, fallback)
+    local text = tostring(value or fallback or "")
+    local species = objective and objective.species
+    if species and not speciesKnown(game, species) then
+      text = replacePlain(text, species, "???")
+    end
+    return text
+  end
+
+  local function signalsObjective(game)
+    game = game or Q.game
+    if not (signalsHub and type(signalsHub.objective) == "function") then
+      return nil
+    end
+    local source = signalsHub.objective(game)
+    if type(source) ~= "table" then return nil end
+
+    local location = source.location
+    if type(signalsHub.atlasLocations) == "function" then
+      local locations = signalsHub.atlasLocations(game)
+      if type(locations) == "table" and locations[location] then
+        location = locations[location]
+      end
+    end
+
+    local current = math.max(0,
+      math.floor(tonumber(source.current) or 0))
+    local target = tonumber(source.total)
+    if target == nil then target = tonumber(source.target) end
+    if target ~= nil then
+      target = math.max(0, math.floor(target))
+      current = math.min(current, target)
+    end
+    return row("signals:" .. tostring(source.key or source.id or "next"),
+      signalText(game, source, source.title,
+        tr("SIGNAL OBJECTIVE", "SIGNALZIEL")),
+      signalText(game, source, location, tr("KANTO", "KANTO")),
+      current, target,
+      signalText(game, source, source.detail,
+        tr("Consult the receiver.", "Prüfe den Empfänger.")))
   end
 
   local function optionEnabled(key)
@@ -283,6 +349,22 @@ return function(mod, opts)
       .. "\f" .. objective.detail
   end
 
+  local function signalsObjectiveText(game)
+    local objective = signalsObjective(game)
+    if not objective then return nil end
+    local progress = ""
+    if objective.target then
+      progress = ("\n%s: %d/%d"):format(
+        tr("PROGRESS", "FORTSCHRITT"),
+        objective.current, objective.target)
+    end
+    return tr("OPTIONAL SIGNAL\nGOAL", "FREIWILLIGES\nSIGNALZIEL")
+      .. "\n" .. objective.title
+      .. "\f" .. tr("LOCATION: ", "ORT: ") .. objective.location
+      .. progress
+      .. "\f" .. objective.detail
+  end
+
   local function prestigeText()
     local p = postgame.state(false)
     local text
@@ -355,9 +437,15 @@ return function(mod, opts)
 
   Q.nextObjective = mainObjective
   Q.objectiveText = objectiveText
+  Q.signalsObjective = signalsObjective
+  Q.signalsObjectiveText = signalsObjectiveText
   Q.prestigeText = prestigeText
   Q.statusText = function(game)
-    return objectiveText(game) .. "\f" .. prestigeText()
+    local text = objectiveText(game)
+    local signals = signalsObjectiveText(game)
+    if signals then text = text .. "\f" .. signals end
+    return text .. "\f" .. prestigeText()
   end
+  Q.setSignalsHub = function(controller) signalsHub = controller end
   return Q
 end

@@ -1,8 +1,10 @@
 -- Sharing metadata for the manager detail pane.
 return {
-  summary = "A living 251-Pokémon Kanto endgame with all 151 catchable, Gorochu, research habitats, a spoiler-safe Atlas, renewable TMs, ranked rematches, Battle Factory, S.S. Anne Grand Tour, shinies and Mega Evolution.",
+  summary = "A living 251-Pokémon Kanto adventure with optional early Johto and Mew/Celebi Signals, Gorochu, all 151 catchable, ranked rematches, research habitats, shinies and Mega Evolution.",
   author = "Roxas2712",
-  tags = { "gameplay", "trainers", "rematch", "postgame", "legendary" },
+  tags = {
+    "gameplay", "trainers", "rematch", "postgame", "johto", "legendary",
+  },
   differences = {
     changed = {
       "Talking to a defeated field trainer now offers a rematch with a YES/NO prompt",
@@ -34,7 +36,7 @@ return {
       "A one-time level-100 Rival hunter battle follows the first legendary capture",
       "The Hall-of-Fame Crown Archive records rematches, crests, titles and legends",
       "Six custom species, Aeroblast, Sacred Fire, cries, Pokédex records and original pixel sprites",
-      "Built-in MONSTER, BIRD and FAIRY overworld sprites for the new map encounters",
+      "Built-in MONSTER and BIRD overworld sprites plus a small mythic silhouette for the new map encounters",
       "Per-legend OPTIONS controls, including vanilla Kanto availability and complete disabling",
       "Complete English/German dialogue with automatic German translation-mod detection",
       "A one-time Professor Oak scene foreshadows growing legendary sightings before the first Hall of Fame",
@@ -111,6 +113,14 @@ return {
       "A one-time Oak onboarding for every new or upgraded Hall-of-Fame save",
       "One shared Journal and Atlas quest tracker with localized locations and exact progress",
       "Gold as the mandatory final main battle before each New Game Plus cycle, with Factory and S.S. Anne retained as optional prestige",
+      "An optional early Johto field-capsule quest after the starter and Pokédex, guaranteed by the fifth eligible Pallet visit",
+      "A reversible Driftglass signal-station trip and Migration Receiver with Kanto First, Wanderwaves and Johto Unleashed currents",
+      "Early Johto can be disabled independently while Mythic Signals retains the shared receiver under the safe Kanto First current",
+      "Four spoiler-safe primal traces with persistent protected counters for Chikorita, Totodile, Cyndaquil and Larvitar",
+      "Three protected Mew/Celebi echoes followed by a four-Badge Resonance Seal and persistent true-manifestation retries",
+      "One shared WORLD submenu for rotating Kanto events, Johto Signals and Mythic Signals",
+      "Wilds-visible and ordinary grass Signals use the same transactional pity counters without overriding authored encounters",
+      "Professor Elm recognizes early catches and grants deterministic research compensation instead of duplicate Pokémon",
     },
     known = {
       "The trainer's vanilla post-battle dialogue still follows the decline reaction",
