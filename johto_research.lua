@@ -742,6 +742,12 @@ return function(mod, opts)
   end
   R.larvitarUnlocked = R.finaleUnlocked
   R.isSpeciesResearched = speciesResearched
+  -- Shared eligibility seam for field-trainer recruitment and future
+  -- early-Johto signal systems. It deliberately reads the research
+  -- controller instead of duplicating unlock rules in either consumer.
+  R.isRecruitFamilyEligible = function(species, s)
+    return enabled and speciesResearched(species, s) or false
+  end
   R.itemUnlocked = itemUnlocked
   R.habitatCandidates = habitatCandidates
   R.habitatFor = function(species)

@@ -147,6 +147,7 @@ return function(mod, opts)
   }
   local refreshSprite
   local voxelWantsFront = function() return false end
+  local voxelBackPinned = function() return false end
 
   local function isShiny(mon)
     if type(mon) ~= "table" then return false end
@@ -716,6 +717,16 @@ return function(mod, opts)
       local ok, value = pcall(overworldBattle.wantsFront)
       return ok and value == true
     end
+    voxelBackPinned = function(battle)
+      -- BACK SPRITES leaves the player's transparent rear card in the
+      -- engine's own GB slot instead of turning it into world geometry.
+      -- Only suppress our classic white-paper relocation pass when Dramatic
+      -- Shape has actually staged this battle; unsupported maps still use
+      -- the normal 2D correction even if the preference itself is enabled.
+      if not (battle and battle.dramaticShapeShot) then return false end
+      local ok, value = pcall(overworldBattle.backPinned)
+      return ok and value == true
+    end
 
     -- Dramatic Shape normally captures a 60px battle card into a 160x144
     -- canvas. Reusing that capture here would make the Voxel renderer enlarge
@@ -880,6 +891,10 @@ return function(mod, opts)
       end
       overworldBattle.kantoAscendantMegaAnchorHook = true
     end
+  end
+
+  function M.rearOverlayAllowed(battle)
+    return not voxelWantsFront() and not voxelBackPinned(battle)
   end
 
   function M.install(game, deps)
@@ -1082,7 +1097,7 @@ return function(mod, opts)
       and FORMS_BY_ID[player.mon._ascMegaForm]
     local fxHidden = player and type(battle.fxHidden) == "function"
       and battle:fxHidden(player)
-    if profile and profile.asset and not voxelWantsFront()
+    if profile and profile.asset and M.rearOverlayAllowed(battle)
         and not battle.safari and not battle.demo and not battle.sendingOut
         and not fxHidden
         and type(battle.drawHUDs) == "function" then

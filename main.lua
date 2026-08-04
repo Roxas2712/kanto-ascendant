@@ -334,6 +334,13 @@ return function(mod)
     { key = "kanto_crystal_art",
       label = menuLabel("KANTO CRYSTAL ART", "KANTO-KRISTALLGRAFIK"),
       type = "toggle", default = true },
+    { key = "dex_sprite_style",
+      label = menuLabel("DEX SPRITES", "DEX-SPRITES"),
+      type = "choice", default = "original",
+      choices = {
+        { menuLabel("ORIGINAL", "ORIGINAL"), "original" },
+        { menuLabel("CRYSTAL", "CRYSTAL"), "crystal" },
+      } },
     { key = "crystal_animation",
       label = menuLabel("CRYSTAL ANIMATION", "KRISTALL-ANIMATION"),
       type = "toggle", default = true },
@@ -491,6 +498,7 @@ return function(mod)
     makeEvents = makePostgameEvents,
     fieldTech = fieldTech,
     kantoCompletion = kantoCompletion,
+    gorochu = gorochu,
   })
   mod.exports.postgame = postgame
   mod.exports.postgameData = postgameData
@@ -547,6 +555,7 @@ return function(mod)
     i18n = i18n,
     spriteAssets = spriteAssets,
     shinySystem = shinySystem,
+    gorochu = gorochu,
   })
   if megaEvolution and megaEvolution.setYellowPartner then
     megaEvolution.setYellowPartner(yellowPartner)
@@ -561,6 +570,9 @@ return function(mod)
     daycare = daycare,
   })
   shinySystem.setJohtoResearch(johtoResearch)
+  recruitment.configureJohto(johtoData.order, function(species)
+    return johtoResearch.isRecruitFamilyEligible(species)
+  end)
   mod.exports.johtoResearch = johtoResearch
   local makeWildsCompat = loadSibling(mod, "wilds_compat.lua")
   local wildsCompat = makeWildsCompat(mod, {
@@ -624,16 +636,42 @@ return function(mod)
   mod.exports.kantoCrystalBacks = kantoCrystalBacks
   mod.hooks:wrap("pokemon.sprite", function(nextSprite, path, ctx)
     local requestedPath = path
-    if shinySystem then shinySystem.prepareSprite(ctx) end
     path = nextSprite(path, ctx)
+    ctx = ctx or {}
+    local def = ctx.data and ctx.data.pokemon
+      and ctx.data.pokemon[ctx.species]
+    local dex = def and tonumber(def.dex)
+
+    -- Pokédex presentation is an independent, static choice. The original
+    -- result remains the active ROM's Red/Blue/Yellow front art; bundled
+    -- Crystal mode uses normal frame one without touching battle selection,
+    -- shiny state, animation timing or any other presentation surface.
+    if ctx.kind == "dex" then
+      local externalOverride = type(path) == "string" and path ~= ""
+        and path ~= requestedPath
+      if externalOverride or (crystalAnimation and dex and dex <= 151
+          and crystalAnimation.externalKantoActive(dex)) then
+        return path
+      end
+      if dex and dex >= 1 and dex <= 151
+          and mod.options:get("dex_sprite_style") == "crystal"
+          and crystalAnimation then
+        local static = crystalAnimation.staticFrameOne(ctx, "front", "normal")
+        if static then
+          ctx.trueColor = true
+          return static
+        end
+      end
+      return path or requestedPath
+    end
+
+    if shinySystem then shinySystem.prepareSprite(ctx) end
     local name = ctx and CRYSTAL_ASSETS[ctx.species]
     local selectedSide = ctx.side == "back" and "back" or "front"
     -- Dramatic Shape asks the normal back-sprite route, then replaces its
     -- answer with the species' front path so both battlers face the voxel
     -- camera. Preserve that decision instead of forcing the Crystal back
     -- sprite over it.
-    local def = ctx.data and ctx.data.pokemon
-      and ctx.data.pokemon[ctx.species]
     local voxelFront = selectedSide == "back"
       and def and path == def.spriteFront
     if voxelFront then
@@ -650,7 +688,6 @@ return function(mod)
       end
       return shinySystem and shinySystem.spritePath(path, ctx) or path
     end
-    local dex = def and tonumber(def.dex)
     local bundledKantoBack = selectedSide == "back" and not voxelFront
       and dex and dex >= 1 and dex <= 151
       and kantoCrystalBacks.normal[dex]
@@ -705,6 +742,7 @@ return function(mod)
   mod.exports.boostedTeam = boostedTeam
   mod.exports.recruitTeam = recruitment.expand
   mod.exports.recruitPools = recruitment.pools
+  mod.exports.recruitment = recruitment
   mod.exports.lootForRoll = loot.select
   mod.exports.lootBands = loot.bands
   mod.exports.defaults = {
@@ -900,7 +938,7 @@ return function(mod)
     local states = trainerStates()
     local state = states[key]
     if type(state) ~= "table" and create then
-      state = { rematches = 0, trainingCycles = 0 }
+      state = { rematches = 0, trainingCycles = 0, recruitFamilies = {} }
       states[key] = state
     end
     if type(state) == "table" then
@@ -908,6 +946,8 @@ return function(mod)
         tonumber(state.rematches) or 0))
       state.trainingCycles = math.max(0, math.floor(
         tonumber(state.trainingCycles) or 0))
+      state.recruitFamilies = type(state.recruitFamilies) == "table"
+        and state.recruitFamilies or {}
     end
     return state
   end
@@ -1048,7 +1088,8 @@ return function(mod)
         mon.level = newLevel
         mon.exp = Growth.expForLevel(species.growthRate, newLevel,
                                       game.data.growth_rates)
-        local fresh = Stats.calc(species, newLevel, mon.dvs, mon.statExp)
+        local fresh = Stats.calc(
+          species, newLevel, mon.dvs, mon.statExp, mon)
         -- The active battler points at this stats table already, so mutate
         -- it in place instead of replacing it underneath the HUD/damage code.
         mon.stats = mon.stats or {}
@@ -1077,7 +1118,7 @@ return function(mod)
           function(lo, hi) return math.floor((lo + hi) / 2) end)
         mon.dvs = trainerDvs
         mon.stats = Stats.calc(game.data.pokemon[slot.species],
-          slot.level, trainerDvs)
+          slot.level, trainerDvs, nil, mon)
         mon.hp = mon.stats.hp
         if slot.moves then
           mon.moves = {}
@@ -1251,7 +1292,9 @@ return function(mod)
       local boost = nextLevelBoost(progress, levelGain())
       local rank = ascendant and ascendant.rematchRank(progress)
       local rematchTeam = recruitment.expand(game.data, team, d.trainerClass,
-        key, progress, boost, mod.options:get("team_growth") ~= false)
+        key, progress, boost, mod.options:get("team_growth") ~= false, {
+          selections = state.recruitFamilies,
+        })
       local previewTeam = boostedTeam(rematchTeam, boost)
 
       local function battle()
@@ -1357,7 +1400,7 @@ return function(mod)
     -- Johto entries and Mega/Ascendant forms naturally retain their species
     -- cry.
     if johtoAudio then johtoAudio.install(game) end
-    if gorochu then gorochu.installAudio(game) end
+    if gorochu then gorochu.install(game, deps) end
     if megaEvolution then megaEvolution.install(game, deps) end
     if kantoCompletion then kantoCompletion.install(game, deps) end
     if fieldTech then fieldTech.install(game, deps) end
@@ -1394,6 +1437,7 @@ return function(mod)
       local d = npc.def
       if yellowPartner
           and yellowPartner.handleTalk(self, npc, game) then return end
+      if gorochu and gorochu.handleTalk(self, npc, game) then return end
       if daycare and daycare.handleTalk(self, npc, game) then return end
       if starterRelicQuests
           and starterRelicQuests.handleTalk(self, npc, game) then return end

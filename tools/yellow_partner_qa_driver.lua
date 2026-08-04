@@ -9,6 +9,7 @@ return function(game)
   local GameVersion = require("src.core.GameVersion")
   local Pokemon = require("src.pokemon.Pokemon")
   local Runtime = require("src.mods.Runtime")
+  local Stats = require("src.pokemon.Stats")
 
   U.wait(20)
   local ascendant = assert(
@@ -54,6 +55,15 @@ return function(game)
       "Yellow's story item leaked into " .. GameVersion.get())
     assert(not partnerApi.megaEligible(pikachu),
       "partner-only Mega bridge leaked into " .. GameVersion.get())
+    pikachu[partnerApi.awakeningMarker] = true
+    local calculated = Stats.calc(game.data.pokemon.PIKACHU,
+      pikachu.level, pikachu.dvs, pikachu.statExp, pikachu)
+    local ordinary = Stats.calc(game.data.pokemon.PIKACHU,
+      pikachu.level, pikachu.dvs, pikachu.statExp)
+    for _, stat in ipairs(Stats.ORDER) do
+      assert(calculated[stat] == ordinary[stat],
+        "Awakening stat override leaked into " .. GameVersion.get())
+    end
     U.log("PASS yellow-partner isolation", GameVersion.get())
     return
   end
@@ -80,6 +90,34 @@ return function(game)
   game.stack:pop()
   assert(game.save.inventory[itemId] == 1,
     "opening THUNDERHEART consumed the permanent item")
+
+  -- The one-time Stay path changes only effective base stats and the
+  -- explicit per-Pokémon marker. Damage, DVs and all identity fields stay.
+  local oldMax = pikachu.stats.hp
+  pikachu.hp = oldMax - 5
+  local dvs, statExp, moves = pikachu.dvs, pikachu.statExp, pikachu.moves
+  assert(partnerApi.awaken(game, pikachu),
+    "confirmed Stay did not awaken the original partner")
+  assert(pikachu[partnerApi.awakeningMarker] == true,
+    "Awakening marker was not stored on Pikachu")
+  local raichuStats = Stats.calc(game.data.pokemon.RAICHU,
+    pikachu.level, pikachu.dvs, pikachu.statExp)
+  for _, stat in ipairs(Stats.ORDER) do
+    assert(pikachu.stats[stat] == raichuStats[stat],
+      "awakened Pikachu lost Raichu-equivalent " .. stat)
+  end
+  assert(pikachu.hp == pikachu.stats.hp - 5,
+    "Awakening did not preserve lost HP")
+  assert(pikachu.dvs == dvs and pikachu.statExp == statExp
+      and pikachu.moves == moves,
+    "Awakening replaced identity-bearing Pokémon data")
+  assert(not partnerApi.awaken(game, pikachu),
+    "Awakening could be stacked a second time")
+  local awakenedRows = partnerApi._choiceRows(pikachu)
+  assert(#awakenedRows == 2
+      and awakenedRows[1].value == "evolve"
+      and awakenedRows[2].value == "later",
+    "Stay did not disappear alone after Awakening")
 
   -- A marked unevolved partner uses the Raichunite profile directly; its
   -- underlying species stays Pikachu before, during and after the battle.
@@ -131,9 +169,17 @@ return function(game)
   -- The same table evolves, so the identity marker and Yellow happiness are
   -- not reset. The follower bridge must now accept Raichu as the companion.
   game.save.pikachuHappiness = 230
+  local statsBeforeEvolution = pikachu.stats
+  local damageBeforeEvolution = pikachu.stats.hp - pikachu.hp
   Evolution.apply(game, pikachu, "RAICHU", "THUNDERHEART")
   assert(pikachu[partnerApi.marker] and pikachu.species == "RAICHU",
     "Thunderheart evolution lost the partner identity")
+  for _, stat in ipairs(Stats.ORDER) do
+    assert(pikachu.stats[stat] == statsBeforeEvolution[stat],
+      "later Raichu evolution granted a second " .. stat .. " increase")
+  end
+  assert(pikachu.stats.hp - pikachu.hp == damageBeforeEvolution,
+    "later Raichu evolution changed the amount of lost HP")
   assert(game.save.inventory[itemId] == 1,
     "Thunderheart evolution consumed the permanent item")
 
@@ -165,8 +211,8 @@ return function(game)
   assert(raichuEmote and raichuEmote.pikaPic,
     "Raichu did not receive its partner bond presentation")
   assert(raichuEmote.pikaPic:find(
-    "assets/crystal_animated/front/", 1, true),
-    "happy partner Raichu did not retain its original Crystal portrait")
+    "assets/yellow_partner_raichu_portraits/normal/", 1, true),
+    "happy partner Raichu did not select its dedicated facial portrait")
   assert(type(raichuEmote._ascendantRaichuFrames) == "table"
       and #raichuEmote._ascendantRaichuFrames > 1,
     "Raichu bond portrait did not receive a multi-frame animation")

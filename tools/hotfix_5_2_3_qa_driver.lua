@@ -17,6 +17,7 @@ return function(game)
     "Kanto Ascendant export missing")
   local wilds = assert(exports.overworld_wild_spawns,
     "Wilds of Kanto export missing")
+  local oakRuntimeDemo
   assert(ascendant.wildsCompat and ascendant.wildsCompat.installed,
     "Wilds of Kanto compatibility did not install")
   if GameVersion.isYellow() then
@@ -25,6 +26,39 @@ return function(game)
     assert(not game.data.text._OaksLabPikachuDislikesPokeballsText2:find(
       "CHARMANDER", 1, true),
       "a follower mod replaced Yellow's Pikachu story dialogue")
+    assert(BattleState.YELLOW_OAK_PIKACHU_ENCOUNTER
+        == "yellow_oak_pikachu",
+      "the engine does not expose the stable Oak encounter marker")
+    assert(ascendant.followerCompat
+        and ascendant.followerCompat.isYellowOakPikachuRequest,
+      "Ascendant's Yellow Oak compatibility guard is unavailable")
+
+    -- Reproduce PokéPC Followers 1.3.0 exactly outside Ascendant's wrapper:
+    -- the outer mod sees Pikachu/5, changes it to Charmander and forwards all
+    -- varargs. The explicit story marker must still win in the final battle.
+    local convertedSpecies
+    local function pokepc130Wrapper(g, species, level, ...)
+      if species == "PIKACHU" and level == 5 then
+        species = "CHARMANDER"
+      end
+      convertedSpecies = species
+      return BattleState.newWild(g, species, level, ...)
+    end
+    oakRuntimeDemo = pokepc130Wrapper(game, "PIKACHU", 5, {
+      scriptedEncounter = BattleState.YELLOW_OAK_PIKACHU_ENCOUNTER,
+    })
+    assert(convertedSpecies == "CHARMANDER",
+      "QA fixture did not reproduce PokéPC's Charmander conversion")
+    assert(oakRuntimeDemo.enemy and oakRuntimeDemo.enemy.mon
+        and oakRuntimeDemo.enemy.mon.species == "PIKACHU"
+        and oakRuntimeDemo.enemy.mon.level == 5,
+      "the marked Oak encounter was not repaired to level-5 Pikachu")
+    assert(oakRuntimeDemo.scriptedEncounter
+        == BattleState.YELLOW_OAK_PIKACHU_ENCOUNTER,
+      "the Oak encounter identity was lost through the wrapper")
+    oakRuntimeDemo:makeOldManDemo("PROF.OAK")
+    assert(oakRuntimeDemo.demo and oakRuntimeDemo.demoName == "PROF.OAK",
+      "the repaired encounter lost Professor Oak's demo presentation")
   end
   assert(ascendant.wildsCompat.registeredSprites == 100,
     "Wilds compatibility did not reserve all 100 Johto sprite IDs")
@@ -158,16 +192,15 @@ return function(game)
     while game.stack:top() and game.stack:top() ~= game.overworld do
       game.stack:pop()
     end
-    local demo = BattleState.newWild(game, "PIKACHU", 5)
-    assert(demo.enemy and demo.enemy.mon
-        and demo.enemy.mon.species == "PIKACHU",
-      "Oak's Yellow intro battle was not created with Pikachu")
-    demo:makeOldManDemo("PROF.OAK")
-    demo.onFinish = function() end
-    game.overworld:pushBattle(demo)
-    U.wait(220)
-    assert(U.shot(game, shotDir .. "/yellow_oak_pikachu_intro.png"),
-      "Oak Pikachu intro screenshot failed")
+    if GameVersion.isYellow() then
+      local demo = assert(oakRuntimeDemo,
+        "Oak's repaired Yellow demo was not prepared")
+      demo.onFinish = function() end
+      game.overworld:pushBattle(demo)
+      U.wait(220)
+      assert(U.shot(game, shotDir .. "/yellow_oak_pikachu_intro.png"),
+        "Oak Pikachu intro screenshot failed")
+    end
   end
 
   U.log("PASS 5.2.3", GameVersion.get(),

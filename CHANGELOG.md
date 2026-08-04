@@ -2,6 +2,58 @@
 
 All notable changes to this project are documented in this file.
 
+## [5.4.1] - 2026-08-04
+
+### Changed
+
+- Repeatable field trainers can now recruit a class-appropriate Johto family
+  after that family is exposed by Elm's research controller. Before its
+  unlock, the same trainer remains Kanto-only.
+- Johto recruitment is deterministic per save and trainer. Existing recruit
+  choices do not reroll when more research families become available, and
+  non-level evolution families use stable level thresholds for NPC teams.
+- Normal rematches retain their established order: the Randomizer constructs
+  the roster first, Ascendant adds earned recruits second, then persistent
+  rematch and background-training levels are applied up to level 100.
+- Added the independent **DEX SPRITES** option. `ORIGINAL` (the default)
+  preserves the active Red/Blue/Yellow ROM's palette-aware Pokédex fronts;
+  `CRYSTAL` uses bundled normal frame one for Kanto #001-151 only. Battle
+  artwork and Crystal animation remain controlled by their existing options.
+
+### Fixed
+
+- Rebuilt all authored Ascendant trainer battles around a temporary synthetic
+  trainer party. Randomizers now receive the intended Master, Crown, Apex,
+  Johto Master, Grand Tour, Heritage, research-trial, tournament and hunt
+  roster instead of the trainer's original party 1.
+- Forced battles now chain `trainer.party` cooperatively in either hook order.
+  Valid randomized species and moves are preserved while Ascendant reapplies
+  the authored team size, slot levels, stats, experience, full HP, AI and boss
+  metadata.
+- Added a final forced-battle guard that rejects empty, oversized, invalid,
+  wrong-size and obvious vanilla-party fallbacks, then reconstructs a coherent
+  authored opponent without double-boosting levels.
+- Synthetic parties and construction state are cleaned after success or error,
+  preventing hot reloads and back-to-back battles from contaminating the next
+  normal trainer encounter.
+- Hardened the engine's trainer-party hook boundary so invalid hook output
+  falls back to the registered party before Pokémon construction.
+- Gorochu now remains a player-led optional discovery in Red, Blue and Yellow.
+  Opposing trainers and Randomizer-produced trainer teams use Raichu instead
+  until the player has personally evolved a Raichu into Gorochu on that save.
+
+### Compatibility
+
+- Existing Red, Blue and Yellow saves require no migration.
+- Ordinary randomized field rematches keep their randomized species and their
+  existing persistent level/team-growth behavior.
+- Existing saves without a Dex-art preference resolve to `ORIGINAL`. Johto,
+  guest species and explicitly installed external sprite mods retain ownership
+  of their registered Pokédex art.
+- Existing 5.4.0 saves that already completed the Gorochu evolution retain
+  trainer access automatically; merely owning its quest items does not unlock
+  it for opponents.
+
 ## [5.4.0] - 2026-08-04
 
 ### Added
@@ -30,6 +82,16 @@ All notable changes to this project are documented in this file.
   registered guest Pokédex numbers and player-side guest animations.
 - Breeding resolves Gorochu back to Pichu, while follower compatibility can
   safely proxy the full Raichu family.
+
+### Fixed
+
+- Hardened Pokémon Yellow's Professor Oak intro against PokéPC Followers
+  1.3.0 and stacked graphics wrappers. The scripted catch now carries a
+  stable scene marker through `BattleState.newWild`, is normalized to the
+  canonical level-5 Pikachu inside the engine and has a tightly scoped Pallet
+  pre-starter fallback for older builds. Ordinary level-5 encounters are not
+  globally rewritten, and a temporary Charmander conversion no longer leaves
+  a false Pokédex sighting.
 
 ## [5.3.0] - 2026-08-04
 

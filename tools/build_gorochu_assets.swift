@@ -6,6 +6,8 @@ import Foundation
 private let root = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
 private let source = root.appendingPathComponent(
     "assets/sources/gorochu/gorochu_sprite_reference.png")
+private let raichuExpressionSource = root.appendingPathComponent(
+    "assets/sources/raichu/raichu_expression_reference.png")
 private let canvas = 56
 private let dex = 1026
 
@@ -24,6 +26,11 @@ private struct Bounds {
 
     var width: Int { maxX - minX + 1 }
     var height: Int { maxY - minY + 1 }
+}
+
+private struct Region {
+    let box: Bounds
+    let background: Set<Int>
 }
 
 private struct View {
@@ -124,6 +131,19 @@ private func nearestIndex(_ color: RGBA, palette: [RGBA]) -> Int {
     return best
 }
 
+private func isGreenChroma(_ color: RGBA) -> Bool {
+    // The supplied Raichu sheet uses a saturated green screen. JPEG-style
+    // edge blending leaves darker green pixels that are not equal to the
+    // original background color, so reject green-dominant spill as well as
+    // the pure key. Raichu's intended palette has no green.
+    let strongestOther = max(color.r, color.b)
+    return color.a < 0.20
+        || (color.g >= 0.05
+            && color.g >= strongestOther * 1.08
+            && color.g - color.r >= 0.025
+            && color.g - color.b >= 0.025)
+}
+
 private func bounds(
     _ image: NSBitmapImageRep,
     originX: Int,
@@ -152,11 +172,87 @@ private func bounds(
     return found
 }
 
+private func region(
+    _ image: NSBitmapImageRep,
+    originX: Int,
+    originY: Int,
+    width: Int,
+    height: Int
+) -> Region {
+    func key(_ x: Int, _ y: Int) -> Int {
+        y * image.pixelsWide + x
+    }
+    func isOutside(_ color: RGBA) -> Bool {
+        let white = color.r >= 0.93
+            && color.g >= 0.93 && color.b >= 0.93
+        let magenta = color.r >= 0.78
+            && color.g <= 0.30 && color.b >= 0.72
+        return color.a < 0.20 || white || magenta
+            || isGreenChroma(color)
+    }
+
+    var background = Set<Int>()
+    var queue: [(Int, Int)] = []
+    func seed(_ x: Int, _ y: Int) {
+        let id = key(x, y)
+        if !background.contains(id) && isOutside(rgba(image, x, y)) {
+            background.insert(id)
+            queue.append((x, y))
+        }
+    }
+    for x in originX..<(originX + width) {
+        seed(x, originY)
+        seed(x, originY + height - 1)
+    }
+    for y in originY..<(originY + height) {
+        seed(originX, y)
+        seed(originX + width - 1, y)
+    }
+
+    var cursor = 0
+    while cursor < queue.count {
+        let (x, y) = queue[cursor]
+        cursor += 1
+        for (nx, ny) in [(x - 1, y), (x + 1, y),
+                         (x, y - 1), (x, y + 1)] {
+            guard nx >= originX, nx < originX + width,
+                  ny >= originY, ny < originY + height else { continue }
+            let id = key(nx, ny)
+            if !background.contains(id) && isOutside(rgba(image, nx, ny)) {
+                background.insert(id)
+                queue.append((nx, ny))
+            }
+        }
+    }
+
+    var found = Bounds(
+        minX: originX + width,
+        minY: originY + height,
+        maxX: originX - 1,
+        maxY: originY - 1)
+    for y in originY..<(originY + height) {
+        for x in originX..<(originX + width) {
+            let color = rgba(image, x, y)
+            if color.a >= 0.20 && !background.contains(key(x, y)) {
+                found.minX = min(found.minX, x)
+                found.minY = min(found.minY, y)
+                found.maxX = max(found.maxX, x)
+                found.maxY = max(found.maxY, y)
+            }
+        }
+    }
+    guard found.maxX >= found.minX, found.maxY >= found.minY else {
+        fatalError("No foreground sprite in quadrant \(originX),\(originY)")
+    }
+    return Region(box: found, background: background)
+}
+
 private func fitted(
     _ source: NSBitmapImageRep,
-    box: Bounds,
+    region: Region,
     palette: [RGBA]
 ) -> NSBitmapImageRep {
+    let box = region.box
     let output = bitmap(width: canvas, height: canvas)
     let scale = min(
         CGFloat(canvas - 4) / CGFloat(box.width),
@@ -175,7 +271,9 @@ private func fitted(
                 box.maxY,
                 box.minY + Int((CGFloat(y) + 0.5) / scale))
             let sampled = rgba(source, sourceX, sourceY)
-            guard sampled.a >= 0.20 else { continue }
+            let sourceKey = sourceY * source.pixelsWide + sourceX
+            guard sampled.a >= 0.20,
+                  !region.background.contains(sourceKey) else { continue }
             let color = nearest(sampled, palette: palette)
             output.setColor(NSColor(
                 deviceRed: color.r,
@@ -185,6 +283,79 @@ private func fitted(
         }
     }
     return output
+}
+
+private func correctedBattleFace(
+    _ image: NSBitmapImageRep,
+    palette: [RGBA]
+) {
+    // The source illustration has a good silhouette, but nearest-neighbour
+    // reduction made its eyes and open mouth collapse into three oversized
+    // square blocks. Rebuild only the 56 px front face with deliberate Gen-II
+    // pixel clusters. The body sample keeps the same correction valid for the
+    // normal and shiny palettes.
+    let body = rgba(image, 20, 17)
+    let bodyColor = NSColor(
+        deviceRed: body.r, green: body.g, blue: body.b, alpha: 1)
+    let darkest = palette[0]
+    let darkColor = NSColor(
+        deviceRed: darkest.r,
+        green: darkest.g,
+        blue: darkest.b,
+        alpha: 1)
+    let accent = palette[2]
+    let accentColor = NSColor(
+        deviceRed: accent.r,
+        green: accent.g,
+        blue: accent.b,
+        alpha: 1)
+    let cream = palette[4]
+    let creamColor = NSColor(
+        deviceRed: cream.r,
+        green: cream.g,
+        blue: cream.b,
+        alpha: 1)
+
+    // Remove the generated face without changing the head silhouette.
+    for y in 18...29 {
+        for x in 11...27 where rgba(image, x, y).a >= 0.20 {
+            image.setColor(bodyColor, atX: x, y: y)
+        }
+    }
+
+    func pixels(_ points: [(Int, Int)], _ color: NSColor) {
+        for point in points {
+            image.setColor(color, atX: point.0, y: point.1)
+        }
+    }
+
+    // Inward-sloping brows and tiny triangular eyes. The single cream pixels
+    // read as eye whites at native scale without becoming blank square eyes.
+    pixels([
+        (12, 20), (13, 20), (14, 21), (15, 21),
+        (23, 21), (24, 21), (25, 20), (26, 20),
+        (13, 22), (14, 22), (24, 22), (25, 22),
+    ], darkColor)
+    pixels([(13, 21), (25, 21)], creamColor)
+
+    // Cheek sparks and a compact central nose.
+    pixels([
+        (11, 24), (12, 24), (12, 25),
+        (26, 24), (27, 24), (26, 25),
+    ], accentColor)
+    pixels([(19, 23), (20, 23)], darkColor)
+
+    // Small angular open grin with exactly two readable upper fangs.
+    pixels([
+        (16, 24), (23, 24),
+        (16, 25), (17, 25), (18, 25), (19, 25),
+        (20, 25), (21, 25), (22, 25), (23, 25),
+        (17, 26), (18, 26), (19, 26), (20, 26),
+        (21, 26), (22, 26),
+        (18, 27), (19, 27), (20, 27), (21, 27),
+    ], darkColor)
+    pixels([(17, 25), (22, 25)], creamColor)
+    pixels([(19, 26), (20, 26)], accentColor)
 }
 
 private func fittedPortrait(
@@ -220,6 +391,63 @@ private func fittedPortrait(
                 green: color.g,
                 blue: color.b,
                 alpha: 1), atX: offsetX + x, y: offsetY + y)
+        }
+    }
+    return output
+}
+
+private func raichuShiny(_ color: RGBA) -> RGBA {
+    // The supplied normal portraits already carry clean, intentional
+    // true-color art. Only the orange/red family changes for shiny Raichu;
+    // outline, eyes, cream belly and brown ears stay readable and stable.
+    if color.r > 0.70 && color.r > color.g * 1.45
+        && color.g < 0.48 && color.b < 0.40 {
+        return RGBA(r: 0.72, g: 0.52, b: 0.06, a: color.a)
+    }
+    if color.r > 0.78 && color.g > 0.30 && color.b < 0.28 {
+        let light = max(0, min(1, (color.r + color.g) * 0.5))
+        return light > 0.72
+            ? RGBA(r: 0.78, g: 0.63, b: 0.08, a: color.a)
+            : RGBA(r: 0.56, g: 0.43, b: 0.04, a: color.a)
+    }
+    return color
+}
+
+private func fittedTrueColorPortrait(
+    _ source: NSBitmapImageRep,
+    region: Region,
+    shiny: Bool
+) -> NSBitmapImageRep {
+    let portraitCanvas = 40
+    let box = region.box
+    let output = bitmap(width: portraitCanvas, height: portraitCanvas)
+    let scale = min(
+        CGFloat(portraitCanvas - 2) / CGFloat(box.width),
+        CGFloat(portraitCanvas - 2) / CGFloat(box.height))
+    let drawWidth = max(1, Int((CGFloat(box.width) * scale).rounded()))
+    let drawHeight = max(1, Int((CGFloat(box.height) * scale).rounded()))
+    let offsetX = (portraitCanvas - drawWidth) / 2
+    let offsetY = 1
+
+    for y in 0..<drawHeight {
+        for x in 0..<drawWidth {
+            let sourceX = min(
+                box.maxX,
+                box.minX + Int((CGFloat(x) + 0.5) / scale))
+            let sourceY = min(
+                box.maxY,
+                box.minY + Int((CGFloat(y) + 0.5) / scale))
+            let sourceKey = sourceY * source.pixelsWide + sourceX
+            let sampled = rgba(source, sourceX, sourceY)
+            guard sampled.a >= 0.20,
+                  !region.background.contains(sourceKey),
+                  !isGreenChroma(sampled) else { continue }
+            let color = shiny ? raichuShiny(sampled) : sampled
+            output.setColor(NSColor(
+                deviceRed: color.r,
+                green: color.g,
+                blue: color.b,
+                alpha: color.a), atX: offsetX + x, y: offsetY + y)
         }
     }
     return output
@@ -360,14 +588,17 @@ private let views = [
 
 var rendered: [String: NSBitmapImageRep] = [:]
 for view in views {
-    let crop = bounds(
+    let crop = region(
         input,
         originX: view.originX,
         originY: view.originY,
         width: halfWidth,
         height: halfHeight)
     let palette = view.variant == "shiny" ? shinyPalette : normalPalette
-    let image = fitted(input, box: crop, palette: palette)
+    let image = fitted(input, region: crop, palette: palette)
+    if view.side == "front" {
+        correctedBattleFace(image, palette: palette)
+    }
     let key = "\(view.side)_\(view.variant)"
     rendered[key] = image
 
@@ -443,7 +674,47 @@ for (index, name) in expressionNames.enumerated() {
     }
 }
 
+guard let raichuExpressionData = try? Data(
+          contentsOf: raichuExpressionSource),
+      let raichuExpressionInput = NSBitmapImageRep(
+          data: raichuExpressionData) else {
+    fatalError("Missing source \(raichuExpressionSource.path)")
+}
+
+private let raichuExpressionWidth =
+    raichuExpressionInput.pixelsWide / 4
+private let raichuExpressionHeight =
+    raichuExpressionInput.pixelsHigh / 2
+
+for (index, name) in expressionNames.enumerated() {
+    let column = index % 4
+    let visualRow = index / 4
+    let crop = region(
+        raichuExpressionInput,
+        originX: column * raichuExpressionWidth,
+        originY: visualRow * raichuExpressionHeight,
+        width: raichuExpressionWidth,
+        height: raichuExpressionHeight)
+
+    for variant in ["normal", "shiny"] {
+        let portrait = fittedTrueColorPortrait(
+            raichuExpressionInput,
+            region: crop,
+            shiny: variant == "shiny")
+        let frames = [
+            portrait,
+            copy(portrait, dy: 1),
+            copy(portrait, dx: index % 2 == 0 ? 1 : -1),
+        ]
+        for (frameIndex, frame) in frames.enumerated() {
+            save(frame, String(format:
+                "assets/yellow_partner_raichu_portraits/%@/%@/%03d.png",
+                variant, name, frameIndex + 1))
+        }
+    }
+}
+
 print("""
 Built Gorochu front/back, shiny, six-frame animation, followers and \
-seven animated partner expressions.
+seven animated Gorochu/Raichu partner expressions.
 """)

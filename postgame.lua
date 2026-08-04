@@ -86,6 +86,7 @@ return function(mod, data, opts)
   local i18n = opts.i18n
   local fieldTech = opts.fieldTech
   local kantoCompletion = opts.kantoCompletion
+  local gorochu = opts.gorochu
   local function tr(english, german)
     return i18n and i18n.text(english, german) or english
   end
@@ -157,17 +158,10 @@ return function(mod, data, opts)
     return true
   end
   local controller = { game = nil, contentEnabled = opts.contentEnabled and true or false }
-  local forcedTeam
+  local forcedStack = {}
+  local enabledTeam
+  local newForcedBattle
   local pendingRoamer
-
-  local function newForcedBattle(game, class, team, tier)
-    forcedTeam = { class = class, team = team, tier = tier }
-    local battle = require("src.battle.BattleState").newTrainer(game, class, 1)
-    forcedTeam = nil
-    battle.rematch = true
-    battle.postgameForcedTier = tier
-    return battle
-  end
 
   local function state(create)
     local s = mod.save:get("postgame")
@@ -251,7 +245,7 @@ return function(mod, data, opts)
     return false
   end
 
-  local function enabledTeam(team)
+  enabledTeam = function(team)
     if type(team) ~= "table" then return team end
     local out
     for i, slot in ipairs(team) do
@@ -270,7 +264,230 @@ return function(mod, data, opts)
         out[i] = slot
       end
     end
-    return out or team
+    local resolved = out or team
+    if gorochu and gorochu.sanitizeTrainerTeam then
+      resolved = gorochu.sanitizeTrainerTeam(resolved)
+    end
+    return resolved
+  end
+
+  local function copyTeam(team)
+    local out = {}
+    for i, slot in ipairs(team or {}) do
+      out[i] = {}
+      for key, value in pairs(slot) do
+        if type(value) == "table" then
+          out[i][key] = {}
+          for j, nested in ipairs(value) do out[i][key][j] = nested end
+        else
+          out[i][key] = value
+        end
+      end
+    end
+    return out
+  end
+
+  local function sourceForTier(tier)
+    if tier == "master" or tier == "crown" then return "gym" end
+    if tier == "johto_trial" then return "research_trial" end
+    if tier == "battle_factory" or tier == "ss_anne_grand_tour" then
+      return "grand_tour"
+    end
+    return tier or "forced"
+  end
+
+  local function samePartySignature(party, definition)
+    if type(party) ~= "table" or type(definition) ~= "table"
+        or #party ~= #definition then return false end
+    for i, slot in ipairs(definition) do
+      local mon = party[i]
+      if not mon or mon.species ~= slot.species
+          or tonumber(mon.level) ~= tonumber(slot.level) then
+        return false
+      end
+    end
+    return true
+  end
+
+  local function validPartyDefinition(game, party)
+    if type(party) ~= "table" or #party < 1 or #party > 6 then return false end
+    for _, slot in ipairs(party) do
+      local level = type(slot) == "table" and tonumber(slot.level)
+      if type(slot) ~= "table" or type(slot.species) ~= "string"
+          or not level or level < 1 or level > 100 then return false end
+      for _, moveId in ipairs(slot.moves or {}) do
+        if type(moveId) ~= "string" then return false end
+      end
+    end
+    return true
+  end
+
+  local function validConstructedParty(game, party, size)
+    if type(party) ~= "table" or #party ~= size or size < 1 or size > 6 then
+      return false, "wrong_size"
+    end
+    for _, mon in ipairs(party) do
+      local level = type(mon) == "table" and tonumber(mon.level)
+      if type(mon) ~= "table" or not game.data.pokemon[mon.species]
+          or not level or level < 1 or level > 100 then
+        return false, "invalid_pokemon"
+      end
+      if type(mon.moves) ~= "table" or #mon.moves > 4 then
+        return false, "invalid_moves"
+      end
+      for _, move in ipairs(mon.moves) do
+        if type(move) ~= "table" or not game.data.moves[move.id] then
+          return false, "invalid_moves"
+        end
+      end
+    end
+    return true
+  end
+
+  local function authoredParty(game, intended)
+    local Pokemon = require("src.pokemon.Pokemon")
+    local Stats = require("src.pokemon.Stats")
+    local trainerDvs = (game.data.constants and game.data.constants.trainerDvs)
+      or { hp = 8, attack = 9, defense = 8, speed = 8, special = 8 }
+    local party = {}
+    for _, slot in ipairs(intended) do
+      local level = math.max(1, math.min(100, math.floor(slot.level)))
+      local mon = Pokemon.new(game.data, slot.species, level)
+      mon.dvs = trainerDvs
+      mon.stats = Stats.calc(game.data.pokemon[slot.species],
+        level, trainerDvs, nil, mon)
+      mon.hp = mon.stats.hp
+      if slot.moves then
+        mon.moves = {}
+        for _, moveId in ipairs(slot.moves) do
+          local move = game.data.moves[moveId]
+          mon.moves[#mon.moves + 1] = { id = moveId, pp = move.pp }
+        end
+      end
+      party[#party + 1] = mon
+    end
+    return party
+  end
+
+  local function normalizeForcedParty(game, party, intended)
+    local Stats = require("src.pokemon.Stats")
+    local Growth = require("src.pokemon.Growth")
+    local trainerDvs = (game.data.constants and game.data.constants.trainerDvs)
+      or { hp = 8, attack = 9, defense = 8, speed = 8, special = 8 }
+    for i, mon in ipairs(party) do
+      local slot = intended[i]
+      local level = math.max(1, math.min(100,
+        math.floor(tonumber(slot.level) or 1)))
+      local species = game.data.pokemon[mon.species]
+      mon.level = level
+      mon.dvs = mon.dvs or trainerDvs
+      mon.statExp = mon.statExp or {}
+      mon.exp = Growth.expForLevel(species.growthRate, level,
+        game.data.growth_rates)
+      mon.stats = Stats.calc(species, level, mon.dvs, mon.statExp, mon)
+      mon.hp = mon.stats.hp
+      for _, move in ipairs(mon.moves or {}) do
+        local moveDef = game.data.moves[move.id]
+        move.pp = moveDef and moveDef.pp or move.pp
+      end
+    end
+  end
+
+  local function finalizeForcedBattle(game, battle, intended, context)
+    context = context or {}
+    intended = copyTeam(enabledTeam(intended))
+    if battle and battle.trainerPartyHookFallback then
+      context.fallback = true
+      context.fallbackReason = battle.trainerPartyHookFallbackReason
+        or "invalid_hook_party"
+    end
+    local valid, fallbackReason = validConstructedParty(
+      game, battle and battle.enemyParty, #intended)
+    if valid and context.vanillaParty
+        and not samePartySignature(context.vanillaParty, intended)
+        and samePartySignature(battle.enemyParty, context.vanillaParty) then
+      valid, fallbackReason = false, "vanilla_party"
+    end
+    if not valid then
+      battle.enemyParty = authoredParty(game, intended)
+      context.fallback = true
+      context.fallbackReason = fallbackReason
+    else
+      context.randomized = not samePartySignature(battle.enemyParty, intended)
+    end
+    normalizeForcedParty(game, battle.enemyParty, intended)
+    battle.enemyIndex = 1
+    local BattleState = require("src.battle.BattleState")
+    if BattleState.makeBattler then
+      battle.enemy = BattleState.makeBattler(
+        game.data, battle.enemyParty[1], false)
+    else
+      battle.enemy = battle.enemy or {}
+      battle.enemy.mon = battle.enemyParty[1]
+      battle.enemy.def = game.data.pokemon[battle.enemyParty[1].species]
+      battle.enemy.name = battle.enemyParty[1].nickname
+        or (battle.enemy.def and battle.enemy.def.name)
+      battle.enemy.curStats = battle.enemyParty[1].stats
+      battle.enemy.curTypes = battle.enemy.def and battle.enemy.def.types
+      battle.enemy.curMoves = battle.enemyParty[1].moves
+      battle.enemy.shownHP = battle.enemyParty[1].hp
+    end
+    if battle.aiUsesFor then battle.aiUses = battle:aiUsesFor() end
+    if game.save and game.save.pokedex then
+      game.save.pokedex.seen = game.save.pokedex.seen or {}
+      game.save.pokedex.seen[battle.enemyParty[1].species] = true
+    end
+    battle.kind = "trainer"
+    battle.rematch = true
+    battle.ascendantForcedBattle = true
+    battle.ascendantForcedSource = context.source
+      or sourceForTier(context.tier)
+    battle.postgameForcedTier = context.tier
+    battle.postgameTier = context.tier
+    battle.ascendantForcedFallback = context.fallback or false
+    battle.ascendantForcedFallbackReason = context.fallbackReason
+    battle.ascendantForcedRandomized = context.randomized or false
+    battle.ascendantForcedTeamSize = #intended
+    return battle
+  end
+
+  newForcedBattle = function(game, class, team, tier, context)
+    local BattleState = require("src.battle.BattleState")
+    local trainer = game.data.trainers and game.data.trainers[class]
+    assert(trainer, "unknown trainer class " .. tostring(class))
+    assert(type(trainer.parties) == "table",
+      "trainer " .. tostring(class) .. " has no party registry")
+    local intended = copyTeam(enabledTeam(team))
+    assert(validPartyDefinition(game, intended),
+      "invalid forced trainer party for " .. tostring(class))
+    context = context or {}
+    context.class = class
+    context.tier = tier
+    context.source = context.source or sourceForTier(tier)
+    context.intended = intended
+    context.vanillaParty = copyTeam(trainer.parties[1])
+
+    local parties = trainer.parties
+    local originalCount = #parties
+    local syntheticIndex = originalCount + 1
+    context.syntheticIndex = syntheticIndex
+    parties[syntheticIndex] = copyTeam(intended)
+    forcedStack[#forcedStack + 1] = context
+    local ok, result = xpcall(function()
+      return BattleState.newTrainer(game, class, syntheticIndex, {
+        displayPartyIndex = 1,
+      })
+    end, debug.traceback)
+    parties[syntheticIndex] = nil
+    for i = #forcedStack, 1, -1 do
+      if forcedStack[i] == context then
+        table.remove(forcedStack, i)
+        break
+      end
+    end
+    while #parties > originalCount do parties[#parties] = nil end
+    if not ok then error(result, 0) end
+    return finalizeForcedBattle(game, result, intended, context)
   end
 
   local function phaseFor(s, save)
@@ -999,8 +1216,11 @@ return function(mod, data, opts)
   registerLegendTalks()
 
   mod.hooks:wrap("trainer.party", function(nextParty, oppClass, partyIndex, party)
-    if forcedTeam and forcedTeam.class == oppClass then
-      return enabledTeam(forcedTeam.team)
+    local forced = forcedStack[#forcedStack]
+    if forced and forced.class == oppClass
+        and forced.syntheticIndex == partyIndex then
+      forced.hookVisited = true
+      return nextParty(oppClass, partyIndex, copyTeam(forced.intended))
     end
     if not ELITE_CLASSES[oppClass] or not controller.game then
       return nextParty(oppClass, partyIndex, party)
@@ -1016,9 +1236,9 @@ return function(mod, data, opts)
         kind = "elite", key = oppClass, tier = tier,
       }, controller.game)
     end
-    if team then return team end
+    if team then return nextParty(oppClass, partyIndex, copyTeam(team)) end
     return nextParty(oppClass, partyIndex, party)
-  end)
+  end, 1000)
 
   mod.hooks:wrap("encounter.roll", function(nextRoll, encDef, ctx)
     if not (controller.contentEnabled and controller.game and ctx.terrain == "grass") then
@@ -1051,8 +1271,27 @@ return function(mod, data, opts)
         and controller.game then
       local tier = eliteTier(state(), controller.game.save)
       if tier then
-        battle.postgameTier = tier
-        battle.rematch = true
+        local team = tier == "crown" and enabledTeam(data.crown[battle.oppClass])
+          or enabledTeam(data.apex[battle.oppClass])
+        if team and controller.extension
+            and controller.extension.selectBossTeam then
+          team = controller.extension.selectBossTeam(team, {
+            kind = "elite", key = battle.oppClass, tier = tier,
+          }, controller.game)
+        end
+        if team and battle.enemyParty and battle.aiUsesFor then
+          finalizeForcedBattle(controller.game, battle, team, {
+            source = "elite", tier = tier,
+            vanillaParty = battle.trainer and battle.trainer.parties
+              and copyTeam(battle.trainer.parties[battle.partyIndex or 1]),
+          })
+        else
+          battle.postgameTier = tier
+          battle.postgameForcedTier = tier
+          battle.ascendantForcedBattle = true
+          battle.ascendantForcedSource = "elite"
+          battle.rematch = true
+        end
         if controller.extension and controller.extension.applyBossRules then
           controller.extension.applyBossRules(battle)
         end
@@ -1189,5 +1428,7 @@ return function(mod, data, opts)
   controller.birdsCaught = birdsCaught
   controller.beastsCaught = beastsCaught
   controller.newForcedBattle = newForcedBattle
+  controller.finalizeForcedBattle = finalizeForcedBattle
+  controller.forcedConstructionDepth = function() return #forcedStack end
   return controller
 end

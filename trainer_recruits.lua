@@ -109,22 +109,71 @@ local function hash(value)
   return n
 end
 
+local function evolutionTarget(row)
+  return row and (row.species or row[2])
+end
+
+local function evolutionMethod(row)
+  return row and (row.method or row[1])
+end
+
+local function evolutionThreshold(row, depth)
+  local method = evolutionMethod(row)
+  if method == "LEVEL" then return tonumber(row.level or row[3]) or 101 end
+  if method == "FRIENDSHIP" then return depth == 1 and 25 or 45 end
+  if method == "ITEM" or method == "TRADE" then
+    return depth == 1 and 36 or 52
+  end
+  return depth == 1 and 30 or 48
+end
+
 local function evolvedForLevel(pokemon, species, level)
   local seen = {}
+  local depth = 1
   while pokemon[species] and not seen[species] do
     seen[species] = true
-    local nextSpecies
+    local choices = {}
     for _, evolution in ipairs(pokemon[species].evolutions or {}) do
-      if evolution.method == "LEVEL" and tonumber(evolution.level)
-          and level >= evolution.level and pokemon[evolution.species] then
-        nextSpecies = evolution.species
-        break
+      local target = evolutionTarget(evolution)
+      if target and pokemon[target]
+          and level >= evolutionThreshold(evolution, depth) then
+        choices[#choices + 1] = target
       end
     end
+    table.sort(choices)
+    local nextSpecies = choices[1]
     if not nextSpecies then break end
     species = nextSpecies
+    depth = depth + 1
   end
   return species
+end
+
+local function familyRoots(pokemon)
+  local parents = {}
+  for species, def in pairs(pokemon or {}) do
+    for _, row in ipairs(def.evolutions or {}) do
+      local target = evolutionTarget(row)
+      if target and pokemon[target] then
+        parents[target] = parents[target] or {}
+        parents[target][#parents[target] + 1] = species
+      end
+    end
+  end
+  local memo = {}
+  local function root(species, visiting)
+    if memo[species] then return memo[species] end
+    visiting = visiting or {}
+    if visiting[species] then return species end
+    visiting[species] = true
+    local choices = parents[species] or {}
+    table.sort(choices)
+    local result = choices[1] and root(choices[1], visiting) or species
+    visiting[species] = nil
+    memo[species] = result
+    return result
+  end
+  return root
 end
 
 local function teamTypes(pokemon, team)
@@ -157,11 +206,54 @@ local function fallbackPool(pokemon)
 end
 
 local R = { pools = POOLS }
+local johto = { order = {}, eligible = function() return false end }
+
+function R.configureJohto(order, eligible)
+  johto.order = type(order) == "table" and order or {}
+  johto.eligible = type(eligible) == "function"
+    and eligible or function() return false end
+end
+
+local function mergedTypes(pokemon, team, classId)
+  local out = teamTypes(pokemon, team)
+  for _, species in ipairs(POOLS[classId] or {}) do
+    local evolved = evolvedForLevel(pokemon, species, 100)
+    for _, typeId in ipairs(pokemon[evolved] and pokemon[evolved].types or {}) do
+      out[typeId] = true
+    end
+  end
+  return out
+end
+
+local function eligibleJohtoFamilies(pokemon, wantedTypes)
+  local out, represented = {}, {}
+  local rootFor = familyRoots(pokemon)
+  for _, species in ipairs(johto.order) do
+    local def = pokemon[species]
+    local dex = def and tonumber(def.dex)
+    local root = def and rootFor(species)
+    if dex and dex > 151 and dex <= 251 and not LEGENDARY[species]
+        and root and not represented[root] and johto.eligible(species)
+        and (next(wantedTypes) == nil
+          or sharesType(pokemon, species, wantedTypes)) then
+      represented[root] = true
+      out[#out + 1] = species
+    end
+  end
+  return out
+end
+
+function R.eligibleJohtoFamilies(data, team, classId)
+  local pokemon = data and data.pokemon or {}
+  return eligibleJohtoFamilies(pokemon, mergedTypes(pokemon, team, classId))
+end
 
 -- A new family joins after every second earned growth tier:
 -- progress 0 -> 0, 1/2 -> 1, 3/4 -> 2, and so on, up to six total slots.
-function R.expand(data, team, classId, trainerKey, progress, levelBoost, enabled)
+function R.expand(data, team, classId, trainerKey, progress, levelBoost, enabled,
+    options)
   if enabled == false or type(team) ~= "table" or #team >= 6 then return team end
+  options = options or {}
   progress = math.max(0, math.floor(tonumber(progress) or 0))
   local wanted = math.min(6 - #team, math.floor((progress + 1) / 2))
   if wanted <= 0 then return team end
@@ -178,14 +270,20 @@ function R.expand(data, team, classId, trainerKey, progress, levelBoost, enabled
     math.floor(baseLevel / levelCount + 0.5)) or 1
   local targetLevel = math.min(100,
     baseLevel + math.max(0, math.floor(tonumber(levelBoost) or 0)))
-  local types = teamTypes(pokemon, team)
+  local types = mergedTypes(pokemon, team, classId)
+  local rootFor = familyRoots(pokemon)
   local used = {}
   for _, slot in ipairs(team) do
-    used[slot.species] = true
-    used[evolvedForLevel(pokemon, slot.species, targetLevel)] = true
+    used[rootFor(slot.species)] = true
   end
 
-  local source = POOLS[classId] or fallbackPool(pokemon)
+  local source = {}
+  for _, family in ipairs(POOLS[classId] or fallbackPool(pokemon)) do
+    source[#source + 1] = family
+  end
+  for _, family in ipairs(eligibleJohtoFamilies(pokemon, types)) do
+    source[#source + 1] = family
+  end
   local candidates = {}
   local start = #source > 0
     and (hash(tostring(trainerKey) .. ":" .. tostring(classId)) % #source) + 1
@@ -194,10 +292,13 @@ function R.expand(data, team, classId, trainerKey, progress, levelBoost, enabled
     for offset = 0, #source - 1 do
       local family = source[((start + offset - 1) % #source) + 1]
       local species = evolvedForLevel(pokemon, family, targetLevel)
-      if pokemon[species] and not LEGENDARY[species] and not used[species]
+      local familyRoot = rootFor(species)
+      if pokemon[species] and not LEGENDARY[species] and not used[familyRoot]
           and (pass == 2 or sharesType(pokemon, species, types)) then
-        candidates[#candidates + 1] = species
-        used[species] = true
+        candidates[#candidates + 1] = {
+          family = family, species = species, root = familyRoot,
+        }
+        used[familyRoot] = true
       end
     end
   end
@@ -205,8 +306,31 @@ function R.expand(data, team, classId, trainerKey, progress, levelBoost, enabled
   if #candidates == 0 then return team end
   local out = {}
   for i, slot in ipairs(team) do out[i] = copySlot(slot) end
-  for i = 1, math.min(wanted, #candidates) do
-    out[#out + 1] = { species = candidates[i], level = baseLevel,
+  local selections = type(options.selections) == "table"
+    and options.selections or nil
+  local chosen = {}
+  for recruit = 1, math.min(wanted, #candidates) do
+    local slotIndex = #team + recruit
+    local remembered = selections
+      and (selections[slotIndex] or selections[tostring(slotIndex)])
+    local picked
+    if remembered then
+      for _, candidate in ipairs(candidates) do
+        if candidate.family == remembered and not chosen[candidate.root] then
+          picked = candidate
+          break
+        end
+      end
+    end
+    if not picked then
+      for _, candidate in ipairs(candidates) do
+        if not chosen[candidate.root] then picked = candidate break end
+      end
+    end
+    if not picked then break end
+    chosen[picked.root] = true
+    if selections then selections[slotIndex] = picked.family end
+    out[#out + 1] = { species = picked.species, level = baseLevel,
       recruited = true }
   end
   return out

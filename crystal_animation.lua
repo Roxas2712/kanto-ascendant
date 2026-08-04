@@ -17,6 +17,8 @@ return function(mod, opts)
     shinyAvailable = {},
     backAvailable = {},
     backShinyAvailable = {},
+    staticAvailable = {},
+    staticShinyAvailable = {},
   }
   local dexFor = {}
   local imageCache = {}
@@ -27,14 +29,16 @@ return function(mod, opts)
   end
 
   local function scanDex(dex)
-    A.available[dex] =
+    A.staticAvailable[dex] =
       mod:read(("assets/crystal_animated/front/normal/%d/001.png"):format(dex))
         ~= nil
-      and type(animationData.normal) == "table"
-      and type(animationData.normal[tostring(dex)]) == "table"
-    A.shinyAvailable[dex] =
+    A.staticShinyAvailable[dex] =
       mod:read(("assets/crystal_animated/front/shiny/%d/001.png"):format(dex))
         ~= nil
+    A.available[dex] = A.staticAvailable[dex]
+      and type(animationData.normal) == "table"
+      and type(animationData.normal[tostring(dex)]) == "table"
+    A.shinyAvailable[dex] = A.staticShinyAvailable[dex]
       and type(animationData.shiny) == "table"
       and type(animationData.shiny[tostring(dex)]) == "table"
     A.backAvailable[dex] =
@@ -115,10 +119,37 @@ return function(mod, opts)
     if mon then A.selected[mon] = nil end
   end
 
+  -- Static presentation seam for the Pokédex. It needs only species/data,
+  -- deliberately ignores every battle-art/animation option and never reads
+  -- or writes A.selected.
+  function A.staticFrameOne(ctx, selectedSide, which)
+    local dex = resolveDex(ctx)
+    selectedSide = selectedSide == "back" and "back" or "front"
+    which = which == "shiny" and "shiny" or "normal"
+    if not dex then return nil end
+    local ready
+    if selectedSide == "back" then
+      if which == "shiny" then
+        ready = A.backShinyAvailable[dex]
+      else
+        ready = A.backAvailable[dex]
+      end
+    else
+      if which == "shiny" then
+        ready = A.staticShinyAvailable[dex]
+      else
+        ready = A.staticAvailable[dex]
+      end
+    end
+    if not ready then return nil end
+    return fullPath(dex, which, 1, selectedSide)
+  end
+
   -- Called by the final sprite resolver. Returning a path means frame one
   -- should replace the bundled still; nil leaves the still/back/other-mod
   -- result untouched.
   function A.select(ctx, selectedSide, externalOverride)
+    if not (ctx and ctx.kind == "battle") then return nil end
     local mon = ctx and ctx.mon
     local dex = resolveDex(ctx)
     local guestSide = guestDexes[dex]

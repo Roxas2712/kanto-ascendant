@@ -14,6 +14,7 @@ return function(game)
   local form = (os.getenv("MEGA_QA_FORM") or "raichu-x"):lower()
   local layout = (os.getenv("MEGA_QA_LAYOUT") or "voxel"):lower()
   local targetSide = (os.getenv("MEGA_QA_SIDE") or "player"):lower()
+  local backSprites = os.getenv("MEGA_QA_BACK_SPRITES") == "1"
   local forcedShiny = os.getenv("MEGA_QA_SHINY") == "1"
   local captureBaseline = os.getenv("MEGA_QA_BASELINE") == "1"
   local crystalArt = os.getenv("MEGA_QA_CRYSTAL") ~= "0"
@@ -71,7 +72,7 @@ return function(game)
   if dramatic and dramatic.lib then
     overworldBattle = dramatic.lib.require("OverworldBattle")
     overworldBattle.setting:setIndex(layout == "voxel" and 1 or 2, game)
-    overworldBattle.backSetting:setIndex(1, game)
+    overworldBattle.backSetting:setIndex(backSprites and 2 or 1, game)
   end
 
   game.save.flags = game.save.flags or {}
@@ -94,6 +95,17 @@ return function(game)
     function() return forcedShiny and 10 or 8 end)
   game.save.party = { lead }
   U.teleport(game, "ROUTE_1", 5, 5, "down")
+  -- Dramatic Shape's FULL preset applies lazily on the first live overworld
+  -- frame and intentionally defaults BACK SPRITES to OFF. Re-apply the test
+  -- case after that preset has settled, otherwise a stored FULL profile can
+  -- silently turn an ON test into OFF between setup and battler creation.
+  if overworldBattle then
+    overworldBattle.setting:setIndex(layout == "voxel" and 1 or 2, game)
+    overworldBattle.backSetting:setIndex(backSprites and 2 or 1, game)
+    assert(overworldBattle.backPinned()
+        == (layout == "voxel" and backSprites),
+      "Dramatic Shape did not retain the requested BACK SPRITES state")
+  end
   local battle = BattleState.newWild(game, foeSpecies,
     targetSide == "enemy" and (secret and 100 or 50) or 35)
   battle._ascendantQaAllowSecretEnemy =
@@ -156,7 +168,8 @@ return function(game)
   end
   assert(ownsMegaPath(front, "front"),
     "Mega front lost to Crystal sprite ownership: " .. tostring(front))
-  local expectedBackSide = layout == "voxel" and "front" or "back"
+  local expectedBackSide = layout == "voxel" and not backSprites
+    and "front" or "back"
   assert(ownsMegaPath(back, expectedBackSide),
     "Mega back lost to Crystal sprite ownership: " .. tostring(back))
   assert(not target.__ascendantCrystalAnimation,
@@ -205,8 +218,18 @@ return function(game)
     end
     local textures = overworldBattle.textures(battle)
     BattleState.resolveBattleScale = previousResolve
-    assert(textures and textures[targetSide],
-      "Voxel renderer dropped the transformed Mega texture")
+    local pinnedPlayer = backSprites and targetSide == "player"
+    assert(textures and (pinnedPlayer
+        and textures.player == nil or textures[targetSide]),
+      pinnedPlayer
+        and "Voxel BACK SPRITES did not keep the player on the GB menu"
+        or "Voxel renderer dropped the transformed Mega texture")
+    if pinnedPlayer then
+      assert(overworldBattle.backPinned(),
+        "requested Voxel BACK SPRITES setting is not active")
+      assert(mega.rearOverlayAllowed(battle) == false,
+        "classic white-paper Mega overlay leaked into Voxel BACK SPRITES")
+    else
     local texture = textures[targetSide]
     assert(texture.kantoAscendantMegaSupersampled == true,
       "Voxel renderer did not select the high-resolution Mega texture")
@@ -233,9 +256,16 @@ return function(game)
     assert(voxelScale and math.abs(voxelScale - 1) < 0.001,
       ("Voxel native Mega scale was not observed: %s (values=%s)")
         :format(tostring(voxelScale), tostring(voxelValues)))
+    end
+  elseif layout == "2d" and targetSide == "player" then
+    assert(mega.rearOverlayAllowed(battle) == true,
+      "ordinary 2D lost the authored Mega rear overlay")
   end
   U.wait(30)
   local label = asset .. "_" .. layout
+  if layout == "voxel" and backSprites then
+    label = label .. "_back_sprites_on"
+  end
   if forcedShiny then label = label .. "_shiny" end
   if not crystalArt then label = label .. "_gen1_" .. version end
   assert(U.shot(game, ("%s/%s.png"):format(DIR, label)))

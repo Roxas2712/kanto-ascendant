@@ -38,7 +38,10 @@ disabled in all rematch, Master, Apex and Crown battles.
 7. At the default growth rate, reaching +4, +8, +12 and later strength tiers
    recruits another class-appropriate Pokémon until the party reaches six.
    The chosen evolutionary families stay deterministic for that trainer and
-   evolve naturally when its projected rematch level is high enough.
+   evolve naturally when its projected rematch level is high enough. Before
+   Elm's research exposes a Johto family, recruitment remains Kanto-only;
+   afterward suitable classes can add that family without rerolling recruits
+   they already trained.
 
 Every field trainer now has a persistent rank based on completed rematches and
 silent training:
@@ -67,6 +70,10 @@ so on. Existing team types are preferred within the class theme, duplicate
 species are avoided where possible, and normal trainers never recruit
 legendary Pokémon. **TEAM GROWTH** can disable party expansion without
 disabling the level or step systems.
+
+The Gen-I Randomizer remains authoritative for ordinary rematch species and
+moves. Ascendant then appends only earned recruit slots and finally applies
+the persistent rematch/background-training levels, clamped at level 100.
 
 ### Rare rematch loot
 
@@ -515,14 +522,21 @@ Thunderheart is a key item: it cannot be consumed, sold, discarded or
 deposited. Using it lets Pikachu choose one of three answers:
 
 - evolve permanently into Raichu;
-- remain Pikachu;
+- remain Pikachu and awaken Raichu's full strength once;
 - wait and decide later.
+
+Choosing **Stay Pikachu** once makes only the marked original partner use
+Raichu's complete 60/90/55/100/90 base-stat profile while preserving
+Pikachu's form and its own level-up moveset. The option then disappears, but
+Thunderheart remains and permanent evolution into Raichu stays available at
+any time. That later evolution changes only the form and grants no second
+stat increase.
 
 Raichu keeps the exact partner identity, Yellow happiness and memories, gains
 its own bond responses and continues following with or without an all-species
-follower mod. Choosing to remain Pikachu is not a weaker or failed route:
-once the late-game Mega Ring and matching Raichunite are owned, the same
-partner can use the temporary direct Mega-Raichu bridge described above.
+follower mod. Mega-Raichu X/Y remain temporary later options for the marked
+partner. Gorochu remains the stronger permanent postgame evolution reached
+through Raichu and the Thunder Tear.
 
 Upgraded Yellow saves that already have the Thunder Badge receive one
 Thunderheart automatically with the walking/battle trial completed. When only
@@ -549,6 +563,10 @@ installed.
 Gorochu uses guest Pokédex number **1026**. It appears in the Research Atlas
 and Shiny Dex only after discovery, and it deliberately remains outside all
 original 151/251 completion certificates and Shiny Charm requirements.
+It also remains hidden from every opposing trainer in Red, Blue and Yellow
+until the player personally completes the Raichu-to-Gorochu evolution on that
+save. Before then, Major Bob and Randomizer-generated trainer teams receive
+Raichu instead; owning the Heart or Tear alone never reveals Gorochu.
 
 The Route 5 machine forges most stones individually:
 
@@ -894,6 +912,13 @@ Johto shinies retain Ascendant's own effects. Mega forms always keep their
 form silhouette: Crystal mode uses the sharp full-colour animation, while
 Gen-I/Kanto-fallback mode uses the matching static four-shade Mega card.
 
+Randomizers also receive every authored Ascendant boss roster as their actual
+input, including Master/Crown Leaders, Apex/Crown Elite battles, Johto
+Masters, research trials, Grand Tour, Heritage Cups, tournaments and hunts.
+They may replace species and moves; Ascendant retains the battle type, team
+size, per-slot level pattern, AI, rewards and progression rules. Invalid or
+vanilla-party fallback output is repaired before the battle begins.
+
 Unown is the sole static exception because Crystal stores its separate letter
 forms rather than a generic animated #201 sheet; the included form-A Crystal
 art remains authentic.
@@ -923,7 +948,10 @@ PokéPC Followers remains compatible in Red, Blue and Yellow. Its optional
 all-species follower selection is retained, but Ascendant neutralizes the
 mod's separate Yellow-to-Charmander story conversion: Oak catches the
 canonical level-5 Pikachu in the opening, the lab gift remains Pikachu and the
-original Pikachu name and dialogue are preserved.
+original Pikachu name and dialogue are preserved. The Oak encounter carries a
+dedicated engine-level scene marker, so outer graphics/follower wrappers may
+not replace it; an exact Pallet pre-starter fallback also protects older
+engine builds without rewriting unrelated level-5 encounters.
 
 When **Wilds of Kanto** is active, Ascendant registers all 100 Johto species
 with its renderer. Once a family has been researched, the same rare Kanto
@@ -955,6 +983,12 @@ submenu. It contains:
   backs for #001-151 without requiring a separate sprite mod. Kanto Mega
   forms follow this choice and receive the active Red/Blue/Yellow palette
   when disabled.
+- **DEX SPRITES** — independently choose `ORIGINAL` (default), preserving the
+  active Red/Blue/Yellow ROM's palette-aware Kanto Pokédex fronts, or
+  `CRYSTAL`, using bundled static normal frame one for Kanto #001-151.
+  This never changes battles, animation, summaries, evolutions, trades,
+  Hall-of-Fame screens, icons or followers. Johto and guest species retain
+  their registered art.
 - **CRYSTAL ANIMATION** — animate normal and shiny #001-251 fronts with their
   original Crystal timing; matching 2D player backs stay static.
 - **SHINY HUNTS** — use Ascendant Charm/streak/outbreak bonuses or retain only
@@ -983,6 +1017,8 @@ submenu. It contains:
 The step clock, trainer recovery, growth, pending loot, circuit wins, roaming
 routes and legendary progress are stored under `save.modData.trainer_rematch`.
 Base save structures remain compatible if the mod is disabled.
+The Dex style persists through the standard mod-options file; old profiles
+without the key automatically use `ORIGINAL` and need no migration or restart.
 
 ## Achievements, titles and New Game Plus
 
@@ -1018,7 +1054,7 @@ missions, Rocket story and one new tournament bracket are completed.
 
 ## Installation
 
-1. Download `kanto-ascendant-5.4.0.modpkg` from the
+1. Download `kanto-ascendant-5.4.1.modpkg` from the
    [latest release](https://github.com/Roxas2712/kanto-ascendant/releases/latest)
    and import it through the launcher. Developers may alternatively install
    the checked-out mod directory.
@@ -1050,6 +1086,7 @@ export TRAINER_REMATCH_MOD_DIR=../trainer_rematch
 ./.tools/luajit-src/src/luajit ../trainer_rematch/tests/field_economy_test.lua
 ./.tools/luajit-src/src/luajit ../trainer_rematch/tests/atlas_legacy_test.lua
 ./.tools/luajit-src/src/luajit ../trainer_rematch/tests/reachability_test.lua
+./.tools/luajit-src/src/luajit ../trainer_rematch/tests/recruitment_full_data_test.lua
 ./.tools/luajit-src/src/luajit ../trainer_rematch/tests/upgrade_matrix_test.lua
 ```
 
@@ -1070,6 +1107,9 @@ Crystal animation frames for #001-251 and their exact timing table.
 captures the 2D follower, voxel follower and voxel battle paths.
 `tools/crystal_animation_qa_driver.lua` exercises standalone Kanto, Johto,
 Voxel and mixed external-Kanto/Ascendant-Johto paths in a real LÖVE client.
+`tools/dex_sprite_qa_driver.lua` runs the complete ORIGINAL/CRYSTAL and
+KANTO-CRYSTAL-ART independence matrix against Red, Blue or Yellow and captures
+Bulbasaur, Charmander and Squirtle entry pages.
 `tools/gorochu_qa_driver.lua` performs the real Raichu evolution, validates
 normal/shiny front and back art, and captures Gorochu's follower plus all
 seven normal/shiny partner expressions without covering the emotion bubble.

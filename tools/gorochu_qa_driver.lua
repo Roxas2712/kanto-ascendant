@@ -6,7 +6,8 @@
 --   GOROCHU_QA_VERSION=yellow \
 --   love /path/to/gen1recomp
 --
--- Red/Blue exercise the permanent evolution and normal/shiny battle art.
+-- Red/Blue exercise the permanent Heart -> condenser -> Tear evolution and
+-- normal/shiny battle art.
 -- Yellow additionally exercises partner identity, follower art, all seven
 -- normal/shiny bond expressions, animation and emoji-safe placement.
 
@@ -16,13 +17,20 @@ return function(game)
   local Evolution = require("src.pokemon.Evolution")
   local GameVersion = require("src.core.GameVersion")
   local PikachuFollower = require("src.world.PikachuFollower")
+  local Pipelines = require("src.render.Pipelines")
   local Pokemon = require("src.pokemon.Pokemon")
   local Runtime = require("src.mods.Runtime")
+  local Sound = require("src.core.Sound")
 
   local version = (os.getenv("GOROCHU_QA_VERSION") or "yellow"):lower()
   assert(GameVersion.VERSIONS[version],
     "GOROCHU_QA_VERSION must be red, blue or yellow")
   GameVersion.set(version)
+  -- This is the canonical 2D/Crystal quest UAT. Voxel presentation has its
+  -- own real-external-mod driver so a persisted 3D option cannot silently
+  -- change these comparison screenshots.
+  Pipelines.setLevel("voxel", 0)
+  Pipelines.syncOptions(game.save.options)
   U.wait(20)
   local ascendant = assert(
     game.mods and game.mods.exports and game.mods.exports.trainer_rematch,
@@ -31,6 +39,14 @@ return function(game)
     "Gorochu controller missing")
   assert(gorochuApi.available and game.data.pokemon.GOROCHU,
     "Gorochu species did not register")
+  local cryDef = assert(game.data.audio and game.data.audio.cries
+    and game.data.audio.cries.GOROCHU, "Gorochu cry was not registered")
+  assert(type(cryDef.file) == "string"
+      and cryDef.file:find("gorochu_cry.wav", 1, true),
+    "Gorochu still uses a Raichu-derived placeholder cry")
+  Sound.invalidate("cry:GOROCHU")
+  assert(Sound.playCry(game.data, "GOROCHU"),
+    "Gorochu's spoken mono cry is not playable")
   local partnerApi = assert(ascendant.yellowPartner,
     "Yellow partner controller missing")
   local shotDir = os.getenv("SHOT_DIR")
@@ -46,12 +62,11 @@ return function(game)
   game.save.pokedex = game.save.pokedex or { seen = {}, owned = {} }
   game.save.pokedex.seen = game.save.pokedex.seen or {}
   game.save.pokedex.owned = game.save.pokedex.owned or {}
-  game.save.hallOfFame = { {} }
+  game.save.hallOfFame = {}
 
   local raichu = Pokemon.new(game.data, "RAICHU", 61,
     function() return 9 end)
   BattleState.stampOT(game.save, raichu)
-  raichu.johtoBond = 100
   raichu.moves = { { id = "THUNDER", pp = 10 } }
   raichu.hp = raichu.stats.hp
   if GameVersion.isYellow() then
@@ -60,16 +75,80 @@ return function(game)
     game.save.pikachuMood = 128
   end
   game.save.party = { raichu }
+  assert(gorochuApi.beginQuest(game, raichu),
+    "Major Bob did not bind the chosen Raichu to the Thunder path")
+  assert(game.save.inventory[gorochuApi.heartItemId] == 1,
+    "Heart of Thunder was not granted as a permanent story item")
 
   U.teleport(game, "POWER_PLANT", 10, 10, "down")
+  U.wait(20)
+  gorochuApi.refreshShrine(game, "POWER_PLANT")
+  local condenser
+  for _, npc in ipairs(game.overworld.npcs or {}) do
+    if npc.def and npc.def.name == gorochuApi.shrineName then
+      condenser = npc
+      break
+    end
+  end
+  assert(condenser, "remote Power Plant Thunder condenser did not spawn")
+  local zapdosDistance =
+    math.abs(condenser.cellX - 4) + math.abs(condenser.cellY - 9)
+  assert(zapdosDistance >= 25 and condenser.cellX >= 24,
+    "Thunder condenser was placed too close to Zapdos or the normal route")
+  if shotDir then
+    local neighbors = {
+      { condenser.cellX, condenser.cellY + 1, "up" },
+      { condenser.cellX, condenser.cellY - 1, "down" },
+      { condenser.cellX + 1, condenser.cellY, "left" },
+      { condenser.cellX - 1, condenser.cellY, "right" },
+    }
+    local proof
+    for _, cell in ipairs(neighbors) do
+      if game.overworld.map:inBounds(cell[1], cell[2])
+          and game.overworld.map:isWalkableCell(cell[1], cell[2])
+          and not game.overworld.map:warpAtCell(cell[1], cell[2]) then
+        proof = cell
+        break
+      end
+    end
+    assert(proof, "Thunder condenser has no accessible interaction side")
+    U.teleport(game, "POWER_PLANT",
+      proof[1], proof[2], proof[3])
+    U.wait(12)
+    assert(U.shot(game, shotDir .. "/thunder_condenser_remote.png"),
+      "remote Thunder condenser screenshot failed")
+  end
+  assert(gorochuApi.grantTear(game),
+    "Power Plant condenser did not create the first Thunder Tear")
+  assert(game.save.inventory[gorochuApi.tearItemId] == 1,
+    "Thunder Tear was not placed in the Bag")
   local target, edge = Evolution.pendingFor(
-    game, raichu, { kind = "levelup" })
+    game, raichu, { kind = "item", item = gorochuApi.tearItemId })
   assert(target == "GOROCHU"
-      and edge and edge.method == gorochuApi.method,
-    "bonded Power Plant Raichu did not resolve Gorochu")
-  Evolution.apply(game, raichu, target, edge.method)
+      and edge and edge.method == "ITEM",
+    "Thunder Tear did not resolve Raichu into Gorochu")
+  game.save.inventory[gorochuApi.tearItemId] = nil
+  assert(Evolution.request(
+    game, raichu,
+    { kind = "item", item = gorochuApi.tearItemId }) == "GOROCHU",
+    "standard evolution movie did not start")
+  if shotDir then
+    assert(U.shot(game, shotDir .. "/gorochu_evolution_start.png"),
+      "Gorochu evolution start screenshot failed")
+    U.wait(84)
+    assert(U.shot(game, shotDir .. "/gorochu_evolution_flash.png"),
+      "Gorochu evolution flash screenshot failed")
+  end
+  U.wait(230)
   assert(raichu.species == "GOROCHU",
     "Raichu did not permanently evolve into Gorochu")
+  if shotDir then
+    assert(U.shot(game, shotDir .. "/gorochu_evolution_complete.png"),
+      "Gorochu evolution completion screenshot failed")
+  end
+  while game.stack:top() and game.stack:top() ~= game.overworld do
+    game.stack:pop()
+  end
   assert(raichu.moves[1] and raichu.moves[1].id == "THUNDER",
     "Gorochu evolution lost Raichu's moves")
   assert(game.save.pokedex.owned.GOROCHU,
@@ -137,7 +216,8 @@ return function(game)
 
   if not GameVersion.isYellow() then
     U.log("PASS Gorochu UAT", GameVersion.get(),
-      "evolution", "normal/shiny front+back", "save identity")
+      "Heart", "remote condenser", "Tear evolution",
+      "normal/shiny front+back", "save identity")
     love.event.quit(0)
     return
   end
@@ -202,7 +282,7 @@ return function(game)
   end
 
   U.log("PASS Gorochu UAT", GameVersion.get(),
-    "Raichu evolution", "partner identity", "follower",
+    "Heart/condenser/Tear evolution", "partner identity", "follower",
     "normal/shiny battle art", "14 animated mood states")
   love.event.quit(0)
 end

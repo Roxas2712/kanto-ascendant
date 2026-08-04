@@ -109,7 +109,8 @@ return function(mod, opts)
     if def and def.baseStats then
       local ok, Stats = pcall(require, "src.pokemon.Stats")
       if ok and Stats and Stats.calc then
-        mon.stats = Stats.calc(def, mon.level or 1, mon.dvs, mon.statExp)
+        mon.stats = Stats.calc(
+          def, mon.level or 1, mon.dvs, mon.statExp, mon)
         mon.hp = math.max(1, math.min(mon.stats.hp,
           math.floor(oldHP / math.max(1, oldMax) * mon.stats.hp + 0.5)))
       end

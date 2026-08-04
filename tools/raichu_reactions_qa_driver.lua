@@ -60,17 +60,11 @@ return function(game)
     PikachuFollower.talk(game, game.overworld, npc, function() end)
     local emote = assert(game.overworld.emote,
       "reaction did not create an emote for " .. test.id)
-    if test.id == "sleepy" or test.id == "unwell" then
-      assert(emote.pikaPic:find(
-        "/yellow_partner_raichu_portraits/", 1, true),
-        "reaction did not use its custom face for " .. test.id)
-      assert(emote.pikaPic:find("/" .. test.id .. "/", 1, true),
-        "reaction selected the wrong custom face for " .. test.id)
-    else
-      assert(emote.pikaPic:find(
-        "/crystal_animated/front/", 1, true),
-        "reaction did not retain Crystal art for " .. test.id)
-    end
+    assert(emote.pikaPic:find(
+      "/yellow_partner_raichu_portraits/", 1, true),
+      "reaction did not use its custom face for " .. test.id)
+    assert(emote.pikaPic:find("/" .. test.id .. "/", 1, true),
+      "reaction selected the wrong custom face for " .. test.id)
     local boxLeft = assert(emote._ascendantRaichuBoxX) * 8
     local boxRight = boxLeft + 56
     local cameraX = game.overworld.camera and game.overworld.camera.x or 0
@@ -92,6 +86,7 @@ return function(game)
   end
 
   U.log("PASS Raichu reactions",
-    "2 restrained custom faces", "5 Crystal faces",
+    "7 supplied custom faces",
     "7 voices", "emoji clear", "14 screenshots")
+  love.event.quit(0)
 end

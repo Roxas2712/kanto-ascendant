@@ -113,7 +113,8 @@ return function(mod, opts)
     end
     mon.statExp = mon.statExp
       or { hp = 0, attack = 0, defense = 0, speed = 0, special = 0 }
-    mon.stats = Stats.calc(species, profile.level, mon.dvs, mon.statExp)
+    mon.stats = Stats.calc(
+      species, profile.level, mon.dvs, mon.statExp, mon)
     mon.hp = math.max(1, math.min(mon.stats.hp, tonumber(mon.hp) or mon.stats.hp))
     mon.exp = Growth.expForLevel(species.growthRate, profile.level,
       game.data.growth_rates)

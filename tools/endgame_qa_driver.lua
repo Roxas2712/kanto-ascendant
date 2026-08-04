@@ -1,4 +1,4 @@
--- Visual smoke test for Kanto Ascendant 5.2.0. Everything is changed only in
+-- Visual smoke test for Kanto Ascendant 5.4.1. Everything is changed only in
 -- the driver's in-memory save and the process exits without writing a slot.
 
 return function(game)
@@ -15,7 +15,32 @@ return function(game)
       and api.fieldTech and api.ascendantMenu and api.kantoCompletion
       and api.researchAtlas and api.frontierExchange and api.grandTour
       and api.legacyHall,
-    "5.2.0 controllers missing")
+    "5.4.1 controllers missing")
+
+  local function logForcedBattle(battle)
+    local species, levels = {}, {}
+    for _, mon in ipairs(battle.enemyParty or {}) do
+      species[#species + 1] = tostring(mon.species)
+      levels[#levels + 1] = tostring(mon.level)
+    end
+    local line = ("[ASCENDANT FORCED QA] source=%s tier=%s class=%s "
+      .. "size=%d species=%s levels=%s randomized=%s fallback=%s reason=%s")
+      :format(
+        tostring(battle.ascendantForcedSource),
+        tostring(battle.postgameForcedTier),
+        tostring(battle.oppClass),
+        #species,
+        table.concat(species, ","),
+        table.concat(levels, ","),
+        tostring(battle.ascendantForcedRandomized),
+        tostring(battle.ascendantForcedFallback),
+        tostring(battle.ascendantForcedFallbackReason))
+    print(line)
+    assert(battle.ascendantForcedBattle
+        and battle.ascendantForcedSource
+        and #species == battle.ascendantForcedTeamSize,
+      "forced-battle metadata or team size is incoherent")
+  end
 
   local function encounterHas(mapId, species)
     local enc = game.data.encounters[mapId]
@@ -201,6 +226,7 @@ return function(game)
   local foe = api.grandTour.factoryBracket(1)[1]
   local battle = api.postgame.newForcedBattle(game, foe.class,
     foe.team, "battle_factory")
+  logForcedBattle(battle)
   battle.ascendantNoItems = true
   battle.enemyAIMods = { 1, 2, 3 }
   battle.trainer = setmetatable(

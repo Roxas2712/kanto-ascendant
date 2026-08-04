@@ -489,6 +489,22 @@ function A.audit(data, exports, extraData)
       renewable[item] = true
     end
   end
+  -- Gorochu's Tear is not a shop-renewable Johto item. It has its own
+  -- guarded acquisition route: Lt. Surge grants the permanent Heart and
+  -- the remote Power Plant condenser generates/reissues a Tear until the
+  -- one permanent Gorochu evolution succeeds.
+  local availableEvolutionItems = copy(renewable)
+  if gorochu and gorochu.available then
+    local heart = gorochu.heartItemId
+    local tear = gorochu.tearItemId
+    if not (heart and data.items and data.items[heart]) then
+      addError(report, "Gorochu Heart of Thunder is not registered")
+    elseif not (tear and data.items and data.items[tear]) then
+      addError(report, "Gorochu Tear of Thunder is not registered")
+    else
+      availableEvolutionItems[tear] = true
+    end
+  end
 
   local queue = {}
   for species, rows in pairs(report.sources) do
@@ -501,7 +517,9 @@ function A.audit(data, exports, extraData)
     head = head + 1
     for _, edge in ipairs(report.edges) do
       local allowed = edge.from == from
-      if allowed and edge.method == "ITEM" then allowed = renewable[edge.item] == true end
+      if allowed and edge.method == "ITEM" then
+        allowed = availableEvolutionItems[edge.item] == true
+      end
       if allowed and edge.method == "TRADE" then allowed = false end
       if allowed and validSpecies[edge.to] and not report.reachable[edge.to] then
         local detail = edge.method
@@ -519,7 +537,7 @@ function A.audit(data, exports, extraData)
       local reasons = {}
       for _, edge in ipairs(incoming[species] or {}) do
         local why
-        if edge.method == "ITEM" and not renewable[edge.item] then
+        if edge.method == "ITEM" and not availableEvolutionItems[edge.item] then
           why = "requires non-renewable " .. tostring(edge.item)
         elseif edge.method == "TRADE" then
           why = "still requires trade"

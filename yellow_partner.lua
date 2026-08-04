@@ -11,11 +11,13 @@ return function(mod, opts)
   local i18n = opts.i18n
   local spriteAssets = opts.spriteAssets
   local shinySystem = opts.shinySystem
+  local gorochu = opts.gorochu
   local Y = { game = nil }
 
   local ITEM = "ASCENDANT_THUNDERHEART"
   local STATE_KEY = "yellow_partner"
   local MARKER = "_ascendantYellowPartner"
+  local AWAKENING_MARKER = "_ascendantThunderheartAwakened"
   local REQUIRED_STEPS = 251
   local REQUIRED_WINS = 3
   local SURGE = "VERMILIONGYM_LT_SURGE"
@@ -28,6 +30,7 @@ return function(mod, opts)
     baseFollowerTrueColor = nil,
     portraitImages = {},
   }
+  local pendingEvolutionHP = setmetatable({}, { __mode = "k" })
 
   local function tr(en, de)
     return i18n and i18n.text(en, de) or en
@@ -51,7 +54,7 @@ return function(mod, opts)
     local s = mod.save:get(STATE_KEY)
     if type(s) ~= "table" and create ~= false then
       s = {
-        version = 1,
+        version = 2,
         initialized = false,
         offered = false,
         accepted = false,
@@ -64,7 +67,7 @@ return function(mod, opts)
       mod.save:set(STATE_KEY, s)
     end
     if type(s) == "table" then
-      s.version = 1
+      s.version = 2
       s.initialized = s.initialized == true
       s.offered = s.offered == true
       s.accepted = s.accepted == true
@@ -135,6 +138,61 @@ return function(mod, opts)
     return true
   end
 
+  local function isAwakenedPartner(mon)
+    return type(mon) == "table"
+      and mon[MARKER] == true
+      and mon[AWAKENING_MARKER] == true
+      and mon.species == "PIKACHU"
+  end
+
+  -- Every normal stat recalculation reaches Stats.calc with the concrete
+  -- Pokémon as its optional fifth argument. Substitute Raichu's authored
+  -- species record only for Yellow's marked, awakened partner while it is
+  -- still Pikachu. Shared Pikachu data, DVs and stat experience never move.
+  mod.hooks:wrap("pokemon.stats.def",
+    function(nextDef, speciesDef, mon)
+      local resolved = nextDef(speciesDef, mon)
+      if not (isYellow() and isAwakenedPartner(mon)) then return resolved end
+      local game = Y.game
+      local raichu = game and game.data and game.data.pokemon
+        and game.data.pokemon.RAICHU
+      return raichu or resolved
+    end, 300)
+
+  local function recalculateAwakened(game, mon)
+    if not (game and game.data and isAwakenedPartner(mon)) then return false end
+    local pikachu = game.data.pokemon and game.data.pokemon.PIKACHU
+    if not pikachu then return false end
+    local oldMax = math.max(1,
+      tonumber(mon.stats and mon.stats.hp) or tonumber(mon.hp) or 1)
+    local oldHP = math.max(0,
+      math.min(oldMax, tonumber(mon.hp) or oldMax))
+    local damage = oldMax - oldHP
+    local Stats = require("src.pokemon.Stats")
+    local fresh = Stats.calc(
+      pikachu, mon.level or 1, mon.dvs or {}, mon.statExp, mon)
+    mon.stats = fresh
+    if oldHP <= 0 then
+      mon.hp = 0
+    else
+      mon.hp = math.max(1, math.min(fresh.hp, fresh.hp - damage))
+    end
+    return true
+  end
+
+  local function awakenPartner(game, mon)
+    if not (game and game.save and isYellow()
+        and type(mon) == "table" and mon[MARKER] == true
+        and mon.species == "PIKACHU"
+        and mon[AWAKENING_MARKER] ~= true) then return false end
+    mon[AWAKENING_MARKER] = true
+    local s = state()
+    s.choice = "stay"
+    s.awakenedAt = s.awakenedAt or os.time()
+    persist(s)
+    return recalculateAwakened(game, mon)
+  end
+
   local function adoptUnique(save)
     local partner = markedPartner(save)
     if partner then return partner, false end
@@ -169,11 +227,15 @@ return function(mod, opts)
     local save = game.save
     save.inventory = save.inventory or {}
     local fresh = not save.inventory[ITEM]
-    -- A permanent story key item must not disappear because an upgraded
-    -- Gen-I bag already occupies all twenty ordinary slots.
-    save.inventory[ITEM] = 1
-    local ok, Bag = pcall(require, "src.inventory.Bag")
-    if ok and Bag and Bag.order then Bag.order(save) end
+    -- Gorochu owns the editions-wide permanent item. Keep this fallback for
+    -- ROM-free unit fixtures that instantiate Yellow's controller alone.
+    if gorochu and gorochu.grantHeart then
+      gorochu.grantHeart(game)
+    else
+      save.inventory[ITEM] = 1
+      local ok, Bag = pcall(require, "src.inventory.Bag")
+      if ok and Bag and Bag.order then Bag.order(save) end
+    end
     local s = state()
     s.heartGiven = true
     s.heartGivenAt = s.heartGivenAt or os.time()
@@ -213,6 +275,15 @@ return function(mod, opts)
     local partner = markedPartner(game.save)
     if partner and isEvolvedPartnerSpecies(partner.species) then
       s.choice = "evolved"
+    elseif partner and isAwakenedPartner(partner) then
+      s.choice = "stay"
+      changed = recalculateAwakened(game, partner) or changed
+    elseif s.choice == "stay" then
+      -- 5.4.0 used this value for an unannounced cosmetic "stay" choice.
+      -- It is not consent to the new one-time Awakening; only the marker on
+      -- the actual partner Pokémon can claim that gift.
+      s.choice = nil
+      changed = true
     end
     s.initialized = true
     persist(s)
@@ -288,6 +359,14 @@ return function(mod, opts)
     local s = state()
     s.evolutionChosenAt = os.time()
     persist(s)
+    local oldMax = math.max(1,
+      tonumber(mon.stats and mon.stats.hp) or tonumber(mon.hp) or 1)
+    local oldHP = math.max(0,
+      math.min(oldMax, tonumber(mon.hp) or oldMax))
+    pendingEvolutionHP[mon] = {
+      hp = oldHP,
+      damage = oldMax - oldHP,
+    }
     require("src.pokemon.Evolution").evolve(
       game, mon, "RAICHU", function()
         refreshFollower(game)
@@ -302,42 +381,100 @@ return function(mod, opts)
 
   local openHeart
 
-  local function choiceMenu(game, mon)
+  local function choiceRows(mon)
     local rows = {
       { label = tr("EVOLVE TO RAICHU", "ZU RAICHU"), value = "evolve" },
-      { label = tr("STAY PIKACHU", "PIKACHU BLEIBEN"), value = "stay" },
-      { label = tr("NOT YET", "NOCH NICHT"), value = "later" },
     }
+    if not isAwakenedPartner(mon) then
+      rows[#rows + 1] = {
+        label = tr("STAY PIKACHU", "PIKACHU BLEIBEN"),
+        value = "stay",
+      }
+    end
+    rows[#rows + 1] = {
+      label = tr("NOT YET", "NOCH NICHT"),
+      value = "later",
+    }
+    return rows
+  end
+
+  local choiceMenu
+
+  local function waitingText(game)
+    showText(game, tr(
+      "The THUNDERHEART\ncools gently.\fIt will wait in your\nBAG until both of\nyou are ready.",
+      "Das DONNERHERZ\nkühlt sanft ab.\fEs wartet in deinem\nBEUTEL, bis ihr\nbeide bereit seid."))
+  end
+
+  local function confirmChoice(game, mon, value)
+    if value == "evolve" then
+      local awakened = isAwakenedPartner(mon)
+      local text
+      if awakened then
+        text = tr(
+          "PIKACHU has already\nawakened RAICHU's\nstrength.\fEvolution will change\nits form, but its stats\nwill not increase again.\fRAICHU learns no new\nmoves by leveling up.\fEvolution cannot be\nreversed.\fEvolve PIKACHU?",
+          "PIKACHU besitzt bereits\nRAICHUs Stärke.\fDie Entwicklung ändert\nseine Form, erhöht seine\nWerte aber nicht erneut.\fRAICHU lernt keine\nweiteren Attacken durch\nLevelaufstieg.\fDie Entwicklung kann\nnicht rückgängig gemacht\nwerden.\fPIKACHU entwickeln?")
+      else
+        text = tr(
+          "PIKACHU will evolve\ninto RAICHU and grow\nstronger.\fRAICHU learns no new\nmoves by leveling up.\fEvolution cannot be\nreversed.\fEvolve PIKACHU?",
+          "PIKACHU entwickelt sich\nzu RAICHU und wird\nstärker.\fRAICHU lernt keine\nweiteren Attacken durch\nLevelaufstieg.\fDie Entwicklung kann\nnicht rückgängig gemacht\nwerden.\fPIKACHU entwickeln?")
+      end
+      showText(game, text, nil, {
+        choice = function(yes)
+          if yes then
+            evolvePartner(game, mon)
+          else
+            choiceMenu(game, mon)
+          end
+        end,
+      })
+      return
+    end
+
+    if value == "stay" then
+      showText(game, tr(
+        "PIKACHU can awaken\nstrength equal to\nRAICHU while keeping\nits current form.\fThis gift works only\nonce. STAY PIKACHU\nwill disappear, but\nevolution remains\npossible.\fEvolving later will\nchange its form without\nanother stat\nincrease.\fAwaken PIKACHU?",
+        "PIKACHU kann RAICHUs\nStärke erwecken und\nseine Form behalten.\fDiese Gabe wirkt nur\neinmal. PIKACHU BLEIBEN\nverschwindet danach,\naber die Entwicklung\nbleibt möglich.\fEine spätere Entwicklung\nändert nur die Form und\nerhöht die Werte nicht\nerneut.\fKraft erwecken?"),
+        nil, {
+          choice = function(yes)
+            if not yes then
+              choiceMenu(game, mon)
+              return
+            end
+            if not awakenPartner(game, mon) then
+              choiceMenu(game, mon)
+              return
+            end
+            showText(game, tr(
+              "PIKACHU presses the\nTHUNDERHEART close.\fIts hidden potential\nhas fully awakened!\fPIKACHU now possesses\nstrength equal to\nRAICHU.",
+              "PIKACHU drückt das\nDONNERHERZ an sich.\fSein verborgenes\nPotenzial ist vollständig\nerwacht!\fPIKACHU besitzt nun\nRAICHUs Stärke."))
+          end,
+        })
+      return
+    end
+
+    showText(game, tr(
+      "Leave the THUNDERHEART\nunused for now?\fYou can return to this\nchoice at any time.",
+      "Das DONNERHERZ vorerst\nnicht verwenden?\fDu kannst jederzeit zu\ndieser Wahl zurückkehren."),
+      nil, {
+        choice = function(yes)
+          if yes then
+            waitingText(game)
+          else
+            choiceMenu(game, mon)
+          end
+        end,
+      })
+  end
+
+  choiceMenu = function(game, mon)
+    local rows = choiceRows(mon)
     game.stack:push(mod.ui.ListMenu.new(game,
       tr("PARTNER'S CHOICE", "WAHL DES PARTNERS"), rows, {
         onCancel = function() end,
         onChoose = function(item, menu)
           menu:close()
-          if item.value == "evolve" then
-            showText(game, tr(
-              "The THUNDERHEART is\nwarm in both your hands.\fDoes PIKACHU choose\nto become RAICHU?",
-              "Das DONNERHERZ wird\nin euren Händen warm.\fWill PIKACHU sich zu\nRAICHU entwickeln?"), nil, {
-                choice = function(yes)
-                  if yes then
-                    evolvePartner(game, mon)
-                  else
-                    openHeart(game)
-                  end
-                end,
-              })
-          elseif item.value == "stay" then
-            local s = state()
-            s.choice = "stay"
-            s.chosenAt = os.time()
-            persist(s)
-            showText(game, tr(
-              "PIKACHU presses the\nTHUNDERHEART back\ntoward you.\fIt chooses to stay\nPIKACHU—for now.",
-              "PIKACHU schiebt das\nDONNERHERZ zu dir\nzurück.\fEs bleibt vorerst\nPIKACHU."))
-          else
-            showText(game, tr(
-              "The THUNDERHEART\ncools gently.\fIt will wait in your\nBAG until both of\nyou are ready.",
-              "Das DONNERHERZ\nkühlt sanft ab.\fEs wartet in deinem\nBEUTEL, bis ihr\nbeide bereit seid."))
-          end
+          confirmChoice(game, mon, item.value)
         end,
       }))
   end
@@ -398,7 +535,11 @@ return function(mod, opts)
       return true
     end
     if isEvolvedPartnerSpecies(mon.species) then
-      showText(game, bondText(game, mon))
+      local text = bondText(game, mon)
+      if gorochu and gorochu.statusText then
+        text = text .. "\f" .. gorochu.statusText(game)
+      end
+      showText(game, text)
       return true
     end
     local s = state()
@@ -546,9 +687,15 @@ return function(mod, opts)
           "Das geht nicht\nim Kampf.") }
       end
       if not isYellow() then
+        local controller = holder.controller
+        if gorochu and gorochu.openHeart and controller
+            and controller.game and controller.game.save == save then
+          gorochu.openHeart(controller.game)
+          return "failed", nil
+        end
         return "failed", { tr(
-          "It is waiting for\nYellow's partner.",
-          "Es wartet auf den\nGelb-Partner.") }
+          "It points toward the\nPOWER PLANT.",
+          "Es weist zum\nKRAFTWERK.") }
       end
       local controller = holder.controller
       if controller and controller.game and controller.game.save == save then
@@ -614,32 +761,30 @@ return function(mod, opts)
     RAICHU_VOICES[id] = "ASCENDANT_RAICHU_VOICE_" .. id:upper()
   end
 
-  -- Crystal #026 carries six grounded poses and five arms-raised poses.
-  -- Each mood gets a deliberately different loop and cadence rather than
-  -- showing the same static front sprite under a different bubble.
+  -- Partner Raichu has the same seven deliberately authored expressions as
+  -- Gorochu. The numbered frames animate one face; they never borrow battle
+  -- poses or pretend that a different cadence is a different emotion.
   local RAICHU_PORTRAITS = {
     sleepy = {
-      -- Closed eyes dominate the loop; #006 is only a short breathing beat.
-      sequence = { 5, 5, 6, 5 }, ticks = 18, hold = 90,
+      sequence = { 1, 1, 2, 1 }, ticks = 18, hold = 90,
     },
     unwell = {
-      sequence = { 6, 4, 6, 5 }, ticks = 14, hold = 72,
+      sequence = { 1, 2, 1, 3 }, ticks = 14, hold = 72,
     },
     upset = {
-      sequence = { 3, 4, 3, 4, 6 }, ticks = 11, hold = 110,
+      sequence = { 1, 3, 1, 2 }, ticks = 11, hold = 110,
     },
     wary = {
-      sequence = { 2, 6, 2, 3 }, ticks = 14, hold = 72,
+      sequence = { 1, 2, 3, 1 }, ticks = 14, hold = 72,
     },
     content = {
-      -- The raised paws make the positive moods immediately readable.
-      sequence = { 7, 8, 9, 8 }, ticks = 12, hold = 96,
+      sequence = { 1, 2, 1, 3 }, ticks = 12, hold = 96,
     },
     devoted = {
-      sequence = { 9, 10, 11, 10 }, ticks = 13, hold = 104,
+      sequence = { 1, 2, 3, 2 }, ticks = 13, hold = 104,
     },
     excited = {
-      sequence = { 7, 9, 10, 11, 10, 9 }, ticks = 8, hold = 200,
+      sequence = { 1, 2, 3, 1, 3, 2 }, ticks = 8, hold = 200,
     },
   }
 
@@ -767,18 +912,10 @@ return function(mod, opts)
         out[#out + 1] = (
           "%s/assets/yellow_partner_gorochu_portraits/%s/%s/%03d.png")
           :format(mod.path, variant, reaction.id, frame)
-      elseif reaction.id == "sleepy" or reaction.id == "unwell" then
-        -- Crystal has no clearly sleeping/sick face, so only these two
-        -- follower reactions use restrained custom portraits.
+      else
         out[#out + 1] = (
           "%s/assets/yellow_partner_raichu_portraits/%s/%s/%03d.png")
           :format(mod.path, variant, reaction.id, frame)
-      else
-        -- The remaining moods already read cleanly in Crystal's official
-        -- expressions. Battle and portrait both keep that original art.
-        out[#out + 1] = (
-          "%s/assets/crystal_animated/front/%s/26/%03d.png")
-          :format(mod.path, variant, frame)
       end
     end
     return out
@@ -838,6 +975,14 @@ return function(mod, opts)
     local w, h = image:getDimensions()
     local imageX = (boxX + 1) * 8
     local imageY = (boxY + 1) * 8
+    -- These are intentionally colored dialogue portraits. Exempt only the
+    -- 40x40 inner picture from the overworld shade-remap; otherwise the
+    -- Pikachu SGB palette washes Gorochu red and Raichu orange into the same
+    -- pale sepia block and makes the custom mimic box look malformed.
+    local okPalette, PaletteFX = pcall(require, "src.render.PaletteFX")
+    if okPalette and PaletteFX and PaletteFX.markTrueColor then
+      PaletteFX.markTrueColor(imageX, imageY, 40, 40)
+    end
     love.graphics.draw(image,
       math.floor(imageX + (40 - w) / 2),
       math.floor(imageY + (40 - h) / 2))
@@ -1155,6 +1300,18 @@ return function(mod, opts)
     return isYellow() and Y.isPartner(mon) and mon.species == "PIKACHU"
   end
 
+  function Y.isAwakened(mon)
+    return isAwakenedPartner(mon)
+  end
+
+  function Y.awaken(game, mon)
+    return awakenPartner(game or Y.game, mon)
+  end
+
+  function Y.recalculateAwakened(game, mon)
+    return recalculateAwakened(game or Y.game, mon)
+  end
+
   function Y.openHeart(game)
     return openHeart(game)
   end
@@ -1179,9 +1336,13 @@ return function(mod, opts)
   Y._drawRaichuPortrait = drawRaichuPortrait
   Y._portraitBoxX = portraitBoxX
   Y._portraitFrames = portraitFrames
+  Y._choiceRows = choiceRows
+  Y._confirmChoice = confirmChoice
+  Y._evolvePartner = evolvePartner
 
   Y.itemId = ITEM
   Y.marker = MARKER
+  Y.awakeningMarker = AWAKENING_MARKER
   Y.requiredSteps = REQUIRED_STEPS
   Y.requiredWins = REQUIRED_WINS
 
@@ -1191,37 +1352,33 @@ return function(mod, opts)
     })
   end
 
-  mod.content.items:register(ITEM, {
-    id = ITEM,
-    name = tr("THUNDERHEART", "DONNERHERZ"),
-    price = 0,
-    keyItem = true,
-    tossable = false,
-    needsTarget = false,
-  })
-
-  mod.hooks:wrap("ui.start_menu.items", function(nextItems, game, items)
-    local out = nextItems(game, items)
+  local function ascendantMenuRow(game)
     local s = state(false)
-    if type(out) ~= "table" or not isYellow() or not s
-        or not (s.accepted or s.heartGiven) then return out end
+    if not isYellow() or not s or not (s.accepted or s.heartGiven) then
+      return nil
+    end
     local mon = markedPartner(game and game.save)
     local right
     if mon and isEvolvedPartnerSpecies(mon.species) then
-      right = mon.species
-    elseif s.choice == "stay" then
-      right = "PIKACHU"
+      -- GOROCHU RESEARCH directly below already names the evolved form.
+      -- Leaving this side blank also keeps the permanent Heart from looking
+      -- like it has an item quantity beside it.
+      right = nil
+    elseif mon and isAwakenedPartner(mon) then
+      right = tr("AWAKE", "ERWACHT")
     elseif s.heartGiven or questReady(s) then
       right = tr("READY", "BEREIT")
     else
-      right = ("%d/%d"):format(
-        math.min(s.wins, REQUIRED_WINS), REQUIRED_WINS)
+      -- The old "0/3" trainer-win summary collided with the long heading,
+      -- visually reading as "HEART OF THUNDER x3". Exact step/win progress
+      -- remains on the detail page opened by this row.
+      right = tr("ACTIVE", "AKTIV")
     end
-    return mod.ui.insertBefore(out, tr("SAVE", "SICHERN"), {
+    return {
       label = tr("PARTNER", "PARTNER"),
       right = right,
       ascendantMenu = true,
-      ascendantLabel = tr("HEART OF THUNDER", "HERZ DES DONNERS"),
+      ascendantLabel = tr("THUNDERHEART", "DONNERHERZ"),
       ascendantOrder = 15,
       ascendantKey = "yellow_partner",
       onSelect = function()
@@ -1244,7 +1401,19 @@ return function(mod, opts)
         end
         showText(game, text)
       end,
-    })
+    }
+  end
+
+  -- Kept as a narrow QA seam so the compact heading and its status can be
+  -- regression-tested without depending on ListMenu's renderer.
+  Y._ascendantMenuRow = ascendantMenuRow
+
+  mod.hooks:wrap("ui.start_menu.items", function(nextItems, game, items)
+    local out = nextItems(game, items)
+    if type(out) ~= "table" then return out end
+    local row = ascendantMenuRow(game)
+    if not row then return out end
+    return mod.ui.insertBefore(out, tr("SAVE", "SICHERN"), row)
   end, 271)
 
   mod.events:on("world.stepped", function()
@@ -1280,6 +1449,19 @@ return function(mod, opts)
   mod.events:on("pokemon.evolved", function(ev)
     if ev and Y.isPartner(ev.mon)
         and isEvolvedPartnerSpecies(ev.toSpecies) then
+      local prior = pendingEvolutionHP[ev.mon]
+      if prior then
+        local newMax = math.max(1,
+          tonumber(ev.mon.stats and ev.mon.stats.hp)
+            or tonumber(ev.mon.hp) or 1)
+        if prior.hp <= 0 then
+          ev.mon.hp = 0
+        else
+          ev.mon.hp = math.max(1,
+            math.min(newMax, newMax - prior.damage))
+        end
+        pendingEvolutionHP[ev.mon] = nil
+      end
       local s = state()
       s.choice = "evolved"
       persist(s)

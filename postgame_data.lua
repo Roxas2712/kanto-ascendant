@@ -98,7 +98,7 @@ D.gyms = {
     key = "surge", name = "LT.SURGE", class = "OPP_LT_SURGE", map = "VERMILION_GYM",
     master = {
       mon("ELECTRODE", 80, { "THUNDER", "THUNDER_WAVE", "EXPLOSION", "REFLECT" }),
-      mon("RAICHU", 81, { "THUNDERBOLT", "SURF", "BODY_SLAM", "THUNDER_WAVE" }),
+      mon("GOROCHU", 81, { "THUNDER", "BITE", "BODY_SLAM", "THUNDER_WAVE" }),
       mon("MAGNETON", 80, { "THUNDERBOLT", "THUNDER_WAVE", "SWIFT", "SCREECH" }),
       mon("ELECTABUZZ", 81, { "THUNDERBOLT", "PSYCHIC_M", "SUBMISSION", "THUNDER_WAVE" }),
       mon("JOLTEON", 82, { "THUNDERBOLT", "PIN_MISSILE", "DOUBLE_KICK", "AGILITY" }),

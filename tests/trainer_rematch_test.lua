@@ -11,7 +11,7 @@ Data.pokemon.RAICHU = {
   id = "RAICHU", index = 26, dex = 26, name = "RAICHU",
   types = { "ELECTRIC" },
   baseStats = {
-    hp = 60, attack = 90, defense = 55, speed = 110, special = 90,
+    hp = 60, attack = 90, defense = 55, speed = 100, special = 90,
   },
   catchRate = 75, baseExp = 122,
   level1Moves = {}, growthRate = "MEDIUM_FAST", tmhm = {},
@@ -128,11 +128,56 @@ do
     "Gorochu exists as its own permanent species")
   T.eq(Data.pokemon.GOROCHU.dex, 1026,
     "Gorochu stays outside the native 251-species Pokédex")
+  local surgeMaster
+  for _, gym in ipairs(ex.postgameData.gyms or {}) do
+    if gym.key == "surge" then surgeMaster = gym.master break end
+  end
+  T.eq(surgeMaster and surgeMaster[2]
+      and surgeMaster[2].species, "GOROCHU",
+    "Lt. Surge's authored template retains Gorochu for post-discovery battles")
+  local GameVersion = require("src.core.GameVersion")
+  local Runtime = require("src.mods.Runtime")
+  for _, edition in ipairs({ "red", "blue", "yellow" }) do
+    GameVersion.set(edition)
+    local lockedTeam = ex.postgame.enabledTeam(surgeMaster)
+    T.eq(lockedTeam[2].species, "RAICHU",
+      edition .. " hides Gorochu from Major Bob before the player's evolution")
+    T.same(lockedTeam[2].moves, {
+      "THUNDER", "BODY_SLAM", "THUNDER_WAVE", "AGILITY",
+    }, edition .. " gives the locked Gorochu slot a coherent Raichu moveset")
+    local randomized = Runtime.call("trainer.party",
+      function(_, _, party) return party end,
+      "OPP_LT_SURGE", 1, {
+        { species = "GOROCHU", level = 81,
+          moves = { "THUNDER", "BITE" } },
+      })
+    T.eq(randomized[1].species, "RAICHU",
+      edition .. " masks Randomizer-produced trainer Gorochu before discovery")
+    T.eq(surgeMaster[2].species, "GOROCHU",
+      edition .. " filtering never mutates the authored unlocked template")
+  end
+  GameVersion.set("red")
+  gorochu.migrate({
+    save = {
+      inventory = {},
+      pokedex = { seen = { GOROCHU = true }, owned = { GOROCHU = true } },
+      party = { { species = "GOROCHU" } },
+      boxes = {},
+    },
+  })
+  T.eq(gorochu.trainerUnlocked(), false,
+    "seeing or receiving Gorochu without evolving it does not unlock opponents")
   T.same(Data.pokemon.GOROCHU.types, { "ELECTRIC" },
     "Gorochu preserves the historical line's Electric identity")
   T.same(Data.pokemon.GOROCHU.baseStats, {
-    hp = 75, attack = 115, defense = 70, speed = 110, special = 115,
-  }, "Gorochu is a strong permanent evolution without Mega stat inflation")
+    hp = 85, attack = 135, defense = 90, speed = 125, special = 125,
+  }, "Gorochu totals 560, 13.13 percent above either 495-point Mega Raichu")
+  local gorochuTotal = 0
+  for _, value in pairs(Data.pokemon.GOROCHU.baseStats) do
+    gorochuTotal = gorochuTotal + value
+  end
+  T.eq(gorochuTotal, 560,
+    "Gorochu stays inside the requested 10-15 percent strength band")
 
   local gorochuEvolution
   for _, row in ipairs(Data.pokemon.RAICHU.evolutions or {}) do
@@ -140,8 +185,20 @@ do
   end
   T.neq(gorochuEvolution, nil,
     "Raichu owns a real evolution edge to Gorochu")
-  T.eq(gorochuEvolution.method, "ASCENDANT_STORM_BOND",
-    "Gorochu uses its dedicated research evolution method")
+  T.eq(gorochuEvolution.method, "ITEM",
+    "Gorochu uses the engine's real item-evolution path")
+  T.eq(gorochuEvolution.item, gorochu.tearItemId,
+    "Raichu evolves only through the generated Tear of Thunder")
+  T.eq(Data.items[gorochu.heartItemId].keyItem, true,
+    "Heart of Thunder is a permanent key item in every edition")
+  T.eq(Data.items[gorochu.heartItemId].tossable, false,
+    "Heart of Thunder cannot be discarded")
+  T.eq(Data.items[gorochu.heartItemId].price, 0,
+    "Heart of Thunder cannot be sold")
+  T.eq(Data.items[gorochu.tearItemId].keyItem, true,
+    "Tear of Thunder remains protected until its chosen evolution")
+  T.eq(Data.items[gorochu.tearItemId].tossable, false,
+    "Tear of Thunder cannot be discarded accidentally")
 
   local raichu = {
     species = "RAICHU", level = 61, johtoBond = 100,
@@ -149,17 +206,61 @@ do
   }
   local evolutionGame = {
     data = Data,
-    save = { hallOfFame = { {} }, flags = {} },
+    save = {
+      inventory = {}, hallOfFame = {}, flags = {}, party = { raichu },
+    },
     overworld = { map = { id = "POWER_PLANT" } },
   }
   T.eq(gorochu.qualifies(
-    evolutionGame, raichu, { kind = "levelup" }), true,
-    "a bonded post-League Raichu with Thunder evolves at the Power Plant")
+    evolutionGame, raichu, { kind = "levelup" }), false,
+    "ordinary level-ups can never bypass the Tear of Thunder")
+  T.eq(gorochu.beginQuest(evolutionGame, raichu), true,
+    "the compatibility quest entry marks the chosen Raichu")
+  T.eq(raichu[gorochu.marker], true,
+    "the optional path is tied to the deliberately chosen individual")
+  T.eq(evolutionGame.save.inventory[gorochu.heartItemId], 1,
+    "Major Bob's story entry grants exactly one permanent Heart")
+  T.eq(gorochu.qualifies(
+    evolutionGame, raichu,
+    { kind = "item", item = "THUNDER_STONE" }), false,
+    "an ordinary Thunder Stone cannot create Gorochu")
+  T.eq(gorochu.grantTear(evolutionGame), true,
+    "the Power Plant condenser generates the first Tear")
+  T.eq(evolutionGame.save.inventory[gorochu.tearItemId], 1,
+    "the generated Tear is placed safely in the Bag")
+  T.eq(gorochu.trainerUnlocked(), false,
+    "owning both permanent quest items does not unlock trainer Gorochu")
+  local ItemEffects = require("src.inventory.ItemEffects")
+  local fakeRedVersion = {
+    isYellow = function() return false end,
+  }
+  gorochu.install(evolutionGame, { gameVersion = fakeRedVersion })
+  T.eq(ItemEffects.needsTarget(
+    gorochu.tearItemId, Data.items[gorochu.tearItemId]), true,
+    "the Tear opens the party picker like a real evolution item")
+  local wrongResult = ItemEffects.use(
+    Data, evolutionGame.save, gorochu.tearItemId,
+    { species = "PIKACHU" }, nil)
+  T.eq(wrongResult, "failed",
+    "the Tear cannot be spent on Pikachu or another species")
+  local useResult, useMessages, useExtra = ItemEffects.use(
+    Data, evolutionGame.save, gorochu.tearItemId, raichu, nil)
+  T.eq(useResult, "consumed",
+    "using the Tear on Raichu enters the standard consumable-item flow")
+  T.eq(useMessages, nil,
+    "the valid Tear path hands control directly to the evolution movie")
+  T.eq(useExtra and useExtra.evolveTo, "GOROCHU",
+    "the Tear requests Gorochu from the engine's evolution movie")
+  T.eq(gorochu.qualifies(
+    evolutionGame, raichu,
+    { kind = "item", item = gorochu.tearItemId }), true,
+    "the generated Tear qualifies the chosen Raichu in every location")
   local Evolution = require("src.pokemon.Evolution")
   local target = Evolution.pendingFor(
-    evolutionGame, raichu, { kind = "levelup" })
+    evolutionGame, raichu,
+    { kind = "item", item = gorochu.tearItemId })
   T.eq(target, "GOROCHU",
-    "the engine dispatches the registered Gorochu evolution")
+    "the engine dispatches the Tear of Thunder evolution")
   local markedRaichu = {
     species = "RAICHU", level = 61, hp = 130, johtoBond = 100,
     moves = { { id = "THUNDER", pp = 10 } },
@@ -185,30 +286,34 @@ do
     "Gorochu keeps the original partner's moves")
   T.eq(evolutionGame.save.pokedex.owned.GOROCHU, true,
     "evolving Gorochu records the guest species as owned")
-  evolutionGame.save.hallOfFame = {}
-  T.eq(gorochu.qualifies(
-    evolutionGame, raichu, { kind = "levelup" }), false,
-    "Gorochu cannot be reached before the Hall of Fame")
-  evolutionGame.save.hallOfFame = { {} }
-  evolutionGame.overworld.map.id = "ROUTE_10"
-  T.eq(gorochu.qualifies(
-    evolutionGame, raichu, { kind = "levelup" }), false,
-    "the evolution remains tied to the Power Plant")
-  evolutionGame.overworld.map.id = "POWER_PLANT"
-  raichu.moves = { { id = "THUNDERBOLT" } }
-  T.eq(gorochu.qualifies(
-    evolutionGame, raichu, { kind = "levelup" }), false,
-    "Thunderbolt cannot substitute for the researched Thunder condition")
+  T.eq(gorochu.state().playerEvolved, true,
+    "the player's completed Raichu evolution records trainer permission")
+  for _, edition in ipairs({ "red", "blue", "yellow" }) do
+    GameVersion.set(edition)
+    local unlockedTeam = ex.postgame.enabledTeam(surgeMaster)
+    T.eq(unlockedTeam[2].species, "GOROCHU",
+      edition .. " allows opposing Gorochu only after the player's evolution")
+    local randomized = Runtime.call("trainer.party",
+      function(_, _, party) return party end,
+      "OPP_LT_SURGE", 1, {
+        { species = "GOROCHU", level = 81,
+          moves = { "THUNDER", "BITE" } },
+      })
+    T.eq(randomized[1].species, "GOROCHU",
+      edition .. " stops masking Randomizer Gorochu after discovery")
+  end
+  GameVersion.set("red")
 
   Data.audio = Data.audio or {}
   Data.audio.cries = Data.audio.cries or {}
   Data.audio.cries.GOROCHU = nil
   local installed, preserved = gorochu.installAudio({ data = Data })
   T.eq(installed, 1,
-    "a missing Gorochu cry receives a portable Raichu-derived fallback")
+    "a missing Gorochu cry receives the packaged spoken species call")
   T.eq(preserved, 0, "the first Gorochu fallback install owns the empty slot")
-  T.eq(Data.audio.cries.GOROCHU.base, "RAICHU",
-    "Gorochu's fallback cry remains recognizably related to Raichu")
+  T.eq(Data.audio.cries.GOROCHU.file,
+    modPath .. "/assets/audio/gorochu/gorochu_cry.wav",
+    "Gorochu no longer reuses Raichu's cry")
   T.eq(Data.pokemon.GOROCHU.cry, "GOROCHU",
     "the guest species binds to its resolved cry")
   local repeatedInstalled, repeatedPreserved =
@@ -224,6 +329,7 @@ do
     "assets/crystal/gorochu_back_shiny.png",
     "assets/followers_runtime/normal/follower_GOROCHU.png",
     "assets/followers_runtime/shiny/follower_GOROCHU.png",
+    "assets/audio/gorochu/gorochu_cry.wav",
   }) do
     local handle = io.open(modPath .. "/" .. relative, "rb")
     T.neq(handle, nil, relative .. " is packaged")
@@ -377,6 +483,203 @@ T.eq(disabledKantoBackPath, "fallback_back.png",
   "KANTO CRYSTAL ART also restores the original Gen-I player back sprites")
 run.loader.modOptions.trainer_rematch = nil
 
+-- Pokédex art is intentionally independent from every live battle-art
+-- setting. Use the three canonical starter dex numbers and edition-shaped
+-- source paths so a hardcoded Red/Blue/Yellow fallback cannot hide here.
+local starterDexData = {
+  pokemon = {
+    BULBASAUR = { id = "BULBASAUR", dex = 1, spriteFront = "unused" },
+    CHARMANDER = { id = "CHARMANDER", dex = 4, spriteFront = "unused" },
+    SQUIRTLE = { id = "SQUIRTLE", dex = 7, spriteFront = "unused" },
+    TOTODILE = { id = "TOTODILE", dex = 158, spriteFront = "johto.png" },
+    GOROCHU = { id = "GOROCHU", dex = 1026, spriteFront = "guest.png" },
+  },
+}
+local editionBases = {
+  red = {
+    BULBASAUR = "red/bulbasaur_front.png",
+    CHARMANDER = "red/charmander_front.png",
+    SQUIRTLE = "red/squirtle_front.png",
+  },
+  blue = {
+    BULBASAUR = "blue/bulbasaur_front.png",
+    CHARMANDER = "blue/charmander_front.png",
+    SQUIRTLE = "blue/squirtle_front.png",
+  },
+  yellow = {
+    BULBASAUR = "yellow/bulbasaur_front.png",
+    CHARMANDER = "yellow/charmander_front.png",
+    SQUIRTLE = "yellow/squirtle_front.png",
+  },
+}
+local GameVersion = require("src.core.GameVersion")
+local dexMatrix = {}
+for _, crystalArt in ipairs({ false, true }) do
+  for _, dexStyle in ipairs({ "original", "crystal" }) do
+    local matrixKey = tostring(crystalArt) .. ":" .. dexStyle
+    dexMatrix[matrixKey] = { dex = {}, battle = {} }
+    run.loader.modOptions.trainer_rematch = {
+      kanto_crystal_art = crystalArt,
+      dex_sprite_style = dexStyle,
+      crystal_animation = true,
+    }
+    for edition, paths in pairs(editionBases) do
+      GameVersion.set(edition)
+      for _, species in ipairs({ "BULBASAUR", "CHARMANDER", "SQUIRTLE" }) do
+        local dexMon = { species = species }
+        local dexCtx = {
+          species = species, side = "front", kind = "dex",
+          mon = dexMon, trueColor = false, data = starterDexData,
+        }
+        local resolved = RealRuntime.call("pokemon.sprite",
+          function(path) return path end, paths[species], dexCtx)
+        dexMatrix[matrixKey].dex[edition .. ":" .. species] = resolved
+        if dexStyle == "crystal" then
+          local dex = starterDexData.pokemon[species].dex
+          T.eq(resolved:find(
+              ("assets/crystal_animated/front/normal/%d/001.png"):format(dex),
+              1, true) ~= nil, true,
+            edition .. " " .. species
+              .. " Dex uses bundled static Crystal frame one")
+          T.eq(dexCtx.trueColor, true,
+            edition .. " " .. species .. " bundled Dex frame is true color")
+        else
+          T.eq(resolved, paths[species],
+            edition .. " " .. species
+              .. " Dex preserves the active ROM's original artwork")
+          T.eq(dexCtx.trueColor, false,
+            edition .. " " .. species
+              .. " original Dex art keeps display-palette recoloring")
+        end
+        T.eq(ex.crystalAnimation.selected[dexMon], nil,
+          "Dex resolution never creates Crystal battle-animation state")
+      end
+    end
+
+    local battleMon = {
+      species = "BULBASAUR",
+      dvs = { attack = 9, defense = 8, speed = 8, special = 8, hp = 8 },
+    }
+    local battleCtx = {
+      species = "BULBASAUR", side = "front", kind = "battle",
+      mon = battleMon, trueColor = false, data = starterDexData,
+    }
+    dexMatrix[matrixKey].battle.path = RealRuntime.call("pokemon.sprite",
+      function(path) return path end, "battle/bulbasaur_front.png", battleCtx)
+  end
+end
+GameVersion.set("red")
+for _, edition in ipairs({ "red", "blue", "yellow" }) do
+  for _, species in ipairs({ "BULBASAUR", "CHARMANDER", "SQUIRTLE" }) do
+    local key = edition .. ":" .. species
+    T.eq(dexMatrix["false:original"].dex[key],
+      dexMatrix["true:original"].dex[key],
+      "KANTO CRYSTAL ART does not affect ORIGINAL Dex results")
+    T.eq(dexMatrix["false:crystal"].dex[key],
+      dexMatrix["true:crystal"].dex[key],
+      "KANTO CRYSTAL ART does not affect CRYSTAL Dex results")
+  end
+end
+T.eq(dexMatrix["false:original"].battle.path,
+  dexMatrix["false:crystal"].battle.path,
+  "DEX SPRITES does not affect original Kanto battle art")
+T.eq(dexMatrix["true:original"].battle.path,
+  dexMatrix["true:crystal"].battle.path,
+  "DEX SPRITES does not affect Crystal Kanto battle art")
+
+run.loader.modOptions.trainer_rematch = {
+  kanto_crystal_art = false,
+  dex_sprite_style = "crystal",
+  crystal_animation = false,
+}
+local noMotionCtx = {
+  species = "BULBASAUR", side = "front", kind = "dex",
+  trueColor = false, data = starterDexData,
+}
+local noMotionDex = RealRuntime.call("pokemon.sprite",
+  function(path) return path end, "red/bulbasaur_front.png", noMotionCtx)
+T.eq(noMotionDex, dexMatrix["false:crystal"].dex["red:BULBASAUR"],
+  "CRYSTAL ANIMATION has no effect on static Crystal Dex sprites")
+local dexOnlyMon = { species = "BULBASAUR" }
+ex.crystalAnimation.updateBattle({
+  enemy = { mon = dexOnlyMon, sprite = {} },
+  showEnemyTrainer = false, enemySendingOut = false,
+}, 10)
+T.eq(ex.crystalAnimation.selected[dexOnlyMon], nil,
+  "a static Dex frame cannot advance through the battle animator")
+
+for _, dexStyle in ipairs({ "original", "crystal" }) do
+  run.loader.modOptions.trainer_rematch = {
+    dex_sprite_style = dexStyle, kanto_crystal_art = true,
+  }
+  for _, row in ipairs({
+    { "TOTODILE", "registered/johto_totodile.png" },
+    { "GOROCHU", "registered/guest_gorochu.png" },
+  }) do
+    local ctx = {
+      species = row[1], side = "front", kind = "dex",
+      trueColor = false, data = starterDexData,
+    }
+    T.eq(RealRuntime.call("pokemon.sprite",
+        function(path) return path end, row[2], ctx), row[2],
+      row[1] .. " keeps its registered Dex artwork in " .. dexStyle .. " mode")
+  end
+end
+
+local originalStaticFrameOne = ex.crystalAnimation.staticFrameOne
+ex.crystalAnimation.staticFrameOne = function() return nil end
+run.loader.modOptions.trainer_rematch = { dex_sprite_style = "crystal" }
+local missingCtx = {
+  species = "BULBASAUR", side = "front", kind = "dex",
+  trueColor = false, data = starterDexData,
+}
+T.eq(RealRuntime.call("pokemon.sprite",
+    function(path) return path end, "blue/bulbasaur_front.png", missingCtx),
+  "blue/bulbasaur_front.png",
+  "a missing bundled Crystal Dex frame safely falls back to original art")
+T.eq(missingCtx.trueColor, false,
+  "a missing Crystal Dex frame does not suppress normal palette recoloring")
+ex.crystalAnimation.staticFrameOne = originalStaticFrameOne
+
+local removeExternalDex = run.loader.hooks:wrap(
+  "pokemon.sprite", function(nextSprite, path, ctx)
+    local downstream = nextSprite(path, ctx)
+    if ctx and ctx.kind == "dex" and ctx.species == "BULBASAUR" then
+      ctx.trueColor = true
+      return "external/all_species/bulbasaur_dex.png"
+    end
+    return downstream
+  end, 0, "dex_external_owner_test")
+run.loader.modOptions.trainer_rematch = { dex_sprite_style = "crystal" }
+local externalDexCtx = {
+  species = "BULBASAUR", side = "front", kind = "dex",
+  trueColor = false, data = starterDexData,
+}
+T.eq(RealRuntime.call("pokemon.sprite",
+    function(path) return path end, "yellow/bulbasaur_front.png",
+    externalDexCtx), "external/all_species/bulbasaur_dex.png",
+  "an explicitly installed external Dex sprite resolver remains authoritative")
+removeExternalDex()
+
+local Json = require("src.link.Json")
+run.loader.modOptions = Json.decode(Json.encode({
+  modOptions = {
+    trainer_rematch = { dex_sprite_style = "crystal" },
+  },
+})).modOptions
+local persistedDexCtx = {
+  species = "SQUIRTLE", side = "front", kind = "dex",
+  trueColor = false, data = starterDexData,
+}
+local persistedDexPath = RealRuntime.call("pokemon.sprite",
+  function(path) return path end, "red/squirtle_front.png", persistedDexCtx)
+T.eq(run.loader.modOptions.trainer_rematch.dex_sprite_style, "crystal",
+  "the selected Dex style survives the standard serialized options round trip")
+T.eq(persistedDexPath,
+  dexMatrix["false:crystal"].dex["red:SQUIRTLE"],
+  "a reloaded CRYSTAL Dex option takes effect without restarting the game")
+run.loader.modOptions.trainer_rematch = nil
+
 local animatedTotodile = {
   species = "TOTODILE",
   dvs = { attack = 9, defense = 8, speed = 8, special = 8, hp = 8 },
@@ -519,6 +822,13 @@ T.eq(optionRows.crystal_animation.type, "toggle",
   "bundled Crystal animation can be disabled independently")
 T.eq(optionRows.kanto_crystal_art.type, "toggle",
   "bundled Kanto Crystal art can be enabled without an external sprite mod")
+T.eq(optionRows.dex_sprite_style.type, "choice",
+  "Pokédex sprite style is an independent ORIGINAL/CRYSTAL choice")
+T.eq(optionRows.dex_sprite_style.default, "original",
+  "existing saves default to the base-ROM Pokédex presentation")
+T.same(optionRows.dex_sprite_style.choices, {
+  { "ORIGINAL", "original" }, { "CRYSTAL", "crystal" },
+}, "the Dex sprite option exposes only the two requested static styles")
 T.eq(optionRows.shiny_effects.type, "toggle",
   "built-in shiny presentation can be switched off")
 T.eq(optionRows.shiny_protection.type, "toggle",
@@ -652,7 +962,7 @@ T.neq(pushedAscendantMenu, nil,
   "selecting ASCENDANT opens the dedicated utility list")
 T.eq(pushedAscendantMenu.title, "KANTO ASCENDANT",
   "the utility list carries the expansion's full title")
-T.eq(#pushedAscendantMenu.items, 8,
+T.eq(#pushedAscendantMenu.items, 9,
   "the fixture exposes every utility whose content is available")
 T.same((function()
   local labels = {}
@@ -661,8 +971,8 @@ T.same((function()
   end
   return labels
 end)(), {
-  "RESEARCH ATLAS", "JOURNAL", "WORLD STATUS", "SHINY DEX",
-  "EVENT ARCHIVE", "MEGA STONES", "FRONTIER EXCHANGE",
+  "RESEARCH ATLAS", "JOURNAL", "GOROCHU RESEARCH", "WORLD STATUS",
+  "SHINY DEX", "EVENT ARCHIVE", "MEGA STONES", "FRONTIER EXCHANGE",
   "TITLES / TROPHIES",
 }, "available Ascendant utilities are clear and consistently ordered")
 end)()
@@ -770,6 +1080,8 @@ T.eq(#mega.formsBySpecies.MEWTWO, 2,
   "Mewtwo has distinct X and Y stone profiles")
 T.eq(#mega.formsBySpecies.RAICHU, 2,
   "Raichu has distinct official X and Y stone profiles")
+T.eq(mega.formsBySpecies.GOROCHU, nil,
+  "choosing permanent Gorochu keeps Mega Raichu X/Y exclusive to Raichu")
 local xProfile = mega.formsBySpecies.RAICHU[1]
 local yProfile = mega.formsBySpecies.RAICHU[2]
 local xBonuses = xProfile.bonuses
@@ -778,6 +1090,28 @@ T.eq(xBonuses.attack > xBonuses.special, true,
 local yBonuses = yProfile.bonuses
 T.eq(yBonuses.speed > yBonuses.defense, true,
   "Mega Raichu Y favors speed")
+do
+  (function(profiles)
+    local raichuBaseTotal, gorochuBaseTotal = 0, 0
+    for _, value in pairs(Data.pokemon.RAICHU.baseStats) do
+      raichuBaseTotal = raichuBaseTotal + value
+    end
+    for _, value in pairs(Data.pokemon.GOROCHU.baseStats) do
+      gorochuBaseTotal = gorochuBaseTotal + value
+    end
+    for _, profile in ipairs(profiles) do
+      local megaTotal = raichuBaseTotal
+      for _, value in pairs(profile.bonuses) do
+        megaTotal = megaTotal + value
+      end
+      T.eq(megaTotal, 495,
+        profile.id .. " totals 495 in the Gen-I five-stat model")
+      local lead = (gorochuBaseTotal / megaTotal - 1) * 100
+      T.eq(lead >= 10 and lead <= 15, true,
+        "Gorochu is 10-15 percent stronger than " .. profile.id)
+    end
+  end)({ xProfile, yProfile })
+end
 T.eq(xProfile.stone, "RAICHUNITE_X",
   "Mega Raichu X requires its own stone")
 T.eq(yProfile.stone, "RAICHUNITE_Y",
@@ -866,9 +1200,9 @@ do
     }
   end
   Data.pokemon.PIKACHU = species("PIKACHU", 25,
-    { hp = 35, attack = 55, defense = 40, speed = 90, special = 50 })
+    { hp = 35, attack = 55, defense = 30, speed = 90, special = 50 })
   Data.pokemon.RAICHU = species("RAICHU", 26,
-    { hp = 60, attack = 90, defense = 55, speed = 110, special = 90 })
+    { hp = 60, attack = 90, defense = 55, speed = 100, special = 90 })
 
   local function mon(speciesId)
     return {
@@ -894,6 +1228,8 @@ do
       },
       stack = {
         push = function(_, screen) pushed[#pushed + 1] = screen end,
+        pop = function() return table.remove(pushed) end,
+        top = function() return pushed[#pushed] end,
       },
       _pushed = pushed,
     }
@@ -914,8 +1250,8 @@ do
     "a sleeping partner Raichu receives its own mood")
   T.eq(sleepyReaction.bubble, "ZZZ_BUBBLE",
     "sleeping Raichu uses the sleep bubble")
-  T.eq(sleepyReaction.portrait.sequence[1], 5,
-    "sleeping Raichu starts with Crystal's closed-eye pose")
+  T.eq(sleepyReaction.portrait.sequence[1], 1,
+    "sleeping Raichu starts with its dedicated closed-eye portrait")
   local unwellReaction = reactionAt(230, 128, "PSN")
   T.eq(unwellReaction.id, "unwell",
     "a status-afflicted partner Raichu looks unwell")
@@ -929,13 +1265,13 @@ do
   T.eq(reactionAt(150, 128).id, "content",
     "mid bond gives Raichu a content reaction")
   local contentReaction = reactionAt(150, 128)
-  T.eq(contentReaction.portrait.sequence[1] >= 7, true,
-    "content Raichu immediately uses a visibly happy raised-paw pose")
+  T.eq(contentReaction.portrait.sequence[1], 1,
+    "content Raichu starts with its dedicated gentle smile")
   local devotedReaction = reactionAt(220, 128)
   T.eq(devotedReaction.id, "devoted",
     "high bond gives Raichu a devoted reaction")
-  T.eq(devotedReaction.portrait.sequence[1] >= 7, true,
-    "devoted Raichu immediately uses a visibly happy pose")
+  T.eq(devotedReaction.portrait.sequence[1], 1,
+    "devoted Raichu starts with its dedicated clasped-paw face")
   local excitedReaction = reactionAt(240, 150)
   T.eq(excitedReaction.id, "excited",
     "high bond and mood give Raichu an excited reaction")
@@ -980,6 +1316,18 @@ do
     T.eq(not portraitLoops[signature], true,
       reaction.id .. " Raichu portrait loop is mood-specific")
     portraitLoops[signature] = true
+    local files = yellowPartner._portraitFrames(
+      mon("RAICHU"), reaction)
+    T.eq(files[1]:find(
+      "assets/yellow_partner_raichu_portraits/normal/"
+        .. reaction.id .. "/001.png", 1, true) ~= nil,
+      true, reaction.id .. " Raichu uses its own facial artwork")
+    for _, path in ipairs(files) do
+      local handle = io.open(path, "rb")
+      T.neq(handle, nil,
+        reaction.id .. " Raichu portrait frame is packaged")
+      if handle then handle:close() end
+    end
   end
   local portraitOw = {
     emote = {
@@ -1005,15 +1353,15 @@ do
   local sleepyPortraitFiles = yellowPartner._portraitFrames(
     mon("RAICHU"), sleepyReaction)
   T.eq(sleepyPortraitFiles[1]:find(
-    "assets/yellow_partner_raichu_portraits/normal/sleepy/005.png",
+    "assets/yellow_partner_raichu_portraits/normal/sleepy/001.png",
     1, true) ~= nil, true,
-    "sleepy Raichu uses its restrained custom portrait")
+    "sleepy Raichu uses the supplied custom portrait")
   local contentPortraitFiles = yellowPartner._portraitFrames(
     mon("RAICHU"), contentReaction)
   T.eq(contentPortraitFiles[1]:find(
-    "assets/crystal_animated/front/normal/26/007.png",
+    "assets/yellow_partner_raichu_portraits/normal/content/001.png",
     1, true) ~= nil, true,
-    "happy Raichu keeps the clean original Crystal expression")
+    "happy Raichu uses the supplied dedicated expression")
   T.eq(Data.pokemon.RAICHU.spriteFront:find(
     "yellow_partner_raichu_portraits", 1, true) == nil, true,
     "dedicated reaction faces do not replace Raichu's battle front sprite")
@@ -1087,6 +1435,30 @@ do
   T.eq(ambiguousGame.save.inventory[yellowPartner.itemId], 1,
     "an ambiguous old save still receives its permanent story item")
 
+  run.loader.modSave = {
+    trainer_rematch = {
+      yellow_partner = {
+        version = 1, initialized = true,
+        offered = true, accepted = true, heartGiven = true,
+        steps = yellowPartner.requiredSteps,
+        wins = yellowPartner.requiredWins,
+        choice = "stay",
+      },
+    },
+  }
+  local oldStayMon = mon("PIKACHU")
+  oldStayMon[yellowPartner.marker] = true
+  local oldStayGame = yellowGame({ oldStayMon }, true)
+  oldStayGame.save.inventory[yellowPartner.itemId] = 1
+  yellowPartner.install(oldStayGame, { gameVersion = fakeYellow })
+  local migratedRows = yellowPartner._choiceRows(oldStayMon)
+  T.eq(#migratedRows, 3,
+    "a 5.4.0 stay choice without the new Pokémon marker asks again")
+  T.eq(migratedRows[2].value, "stay",
+    "legacy cosmetic consent never claims Thunderheart Awakening")
+  T.eq(oldStayMon[yellowPartner.awakeningMarker], nil,
+    "migration never stamps Awakening without explicit new consent")
+
   -- A new game initializes the feature state before Oak gives the starter,
   -- so it follows the optional quest instead of the legacy shortcut.
   run.loader.modSave = {
@@ -1097,6 +1469,11 @@ do
   yellowPartner.install(questGame, { gameVersion = fakeYellow })
   local quest = yellowPartner.state()
   quest.offered, quest.accepted = true, true
+  local activeHeartRow = yellowPartner._ascendantMenuRow(questGame)
+  T.eq(activeHeartRow.ascendantLabel, "THUNDERHEART",
+    "the Ascendant submenu uses the compact permanent-item name")
+  T.eq(activeHeartRow.right, "ACTIVE",
+    "the compact row never displays the old overlapping 0/3 counter")
   for _ = 1, yellowPartner.requiredSteps do
     run.loader.events:emit("world.stepped", {})
   end
@@ -1108,6 +1485,8 @@ do
   end
   T.eq(yellowPartner.questReady(), true,
     "251 shared steps and three trainer wins complete the early bond trial")
+  T.eq(yellowPartner._ascendantMenuRow(questGame).right, "READY",
+    "the completed bond trial replaces ACTIVE with READY")
   questGame.save.inventory.THUNDERBADGE = true
   local surge = {
     def = { name = "VERMILIONGYM_LT_SURGE" },
@@ -1122,10 +1501,187 @@ do
   T.eq(questGame.save.inventory[yellowPartner.itemId], 1,
     "the completed quest puts exactly one THUNDERHEART in the Bag")
 
+  local Stats = require("src.pokemon.Stats")
+  local SaveData = require("src.core.SaveData")
+  local beforeRows = yellowPartner._choiceRows(questMon)
+  T.eq(#beforeRows, 3,
+    "pre-Awakening Thunderheart offers Evolve, Stay and Not Yet")
+  T.eq(beforeRows[1].value, "evolve",
+    "Evolve is the first pre-Awakening choice")
+  T.eq(beforeRows[2].value, "stay",
+    "Stay is available before explicit Awakening consent")
+  T.eq(beforeRows[3].value, "later",
+    "Not Yet remains the final pre-Awakening choice")
+
+  -- Opening and cancelling the actual ListMenu does not claim the gift.
+  yellowPartner.openHeart(questGame)
+  local bondBox = questGame.stack:top()
+  T.neq(bondBox and bondBox.onDone, nil,
+    "Thunderheart opens the partner bond preface")
+  bondBox.onDone()
+  local cancelMenu = questGame.stack:top()
+  T.eq(cancelMenu.items[2].value, "stay",
+    "the live pre-Awakening menu contains Stay")
+  cancelMenu.onCancel()
+  T.eq(questMon[yellowPartner.awakeningMarker], nil,
+    "cancelling the choice menu changes no Awakening state")
+
+  -- Declining Stay's warning reopens all three choices without mutation.
+  yellowPartner._confirmChoice(questGame, questMon, "stay")
+  local declinedStay = questGame.stack:top()
+  T.eq(type(declinedStay.choice), "function",
+    "Stay is protected by an explicit confirmation")
+  declinedStay.choice(false)
+  local reopened = questGame.stack:top()
+  T.eq(#reopened.items, 3,
+    "No at the Stay warning reopens the full choice")
+  T.eq(questMon[yellowPartner.awakeningMarker], nil,
+    "No at the Stay warning grants no hidden stat state")
+
+  local choiceBeforeLater = yellowPartner.state().choice
+  yellowPartner._confirmChoice(questGame, questMon, "later")
+  local declinedLater = questGame.stack:top()
+  T.eq(type(declinedLater.choice), "function",
+    "Not Yet is also protected by an explicit confirmation")
+  declinedLater.choice(false)
+  T.eq(#questGame.stack:top().items, 3,
+    "No at Not Yet reopens the choice")
+  T.eq(yellowPartner.state().choice, choiceBeforeLater,
+    "declining Not Yet changes no persistent state")
+  yellowPartner._confirmChoice(questGame, questMon, "later")
+  questGame.stack:top().choice(true)
+  T.eq(yellowPartner.state().choice, choiceBeforeLater,
+    "confirmed Not Yet still changes no persistent state")
+  T.eq(questMon[yellowPartner.awakeningMarker], nil,
+    "confirmed Not Yet never claims Awakening")
+
+  questMon.nickname = "SPARK"
+  questMon.shiny = true
+  questMon.memories = { first = "OAKS_LAB", bond = 251 }
+  questMon.dvs = {
+    attack = 10, defense = 10, speed = 10, special = 10, hp = 0,
+  }
+  questMon.statExp = {
+    hp = 1024, attack = 2048, defense = 3072,
+    speed = 4096, special = 5120,
+  }
+  questMon.moves = {
+    { id = "THUNDERSHOCK", pp = 20 },
+    { id = "AGILITY", pp = 30 },
+  }
+  questMon.stats = Stats.calc(
+    Data.pokemon.PIKACHU, questMon.level, questMon.dvs, questMon.statExp)
+  local damageBeforeAwakening = 7
+  questMon.hp = questMon.stats.hp - damageBeforeAwakening
+  local keptDvs, keptStatExp = questMon.dvs, questMon.statExp
+  local keptMoves, keptMemories = questMon.moves, questMon.memories
+  local keptNickname, keptOT, keptOTId, keptShiny =
+    questMon.nickname, questMon.ot, questMon.otId, questMon.shiny
+
+  yellowPartner._confirmChoice(questGame, questMon, "stay")
+  local acceptedStay = questGame.stack:top()
+  acceptedStay.choice(true)
+  T.eq(questMon[yellowPartner.awakeningMarker], true,
+    "confirmed Stay stamps the permanent Pokémon Awakening marker")
+  T.eq(yellowPartner.isAwakened(questMon), true,
+    "only the marked partner Pikachu qualifies as awakened")
+  local raichuEquivalent = Stats.calc(
+    Data.pokemon.RAICHU, questMon.level, questMon.dvs, questMon.statExp)
+  T.same(questMon.stats, raichuEquivalent,
+    "awakened Pikachu calculates exactly from Raichu's dynamic base stats")
+  T.eq(questMon.hp, raichuEquivalent.hp - damageBeforeAwakening,
+    "Awakening preserves the exact amount of HP already lost")
+  T.eq(questMon.dvs, keptDvs,
+    "Awakening preserves the original DV table and shiny formula")
+  T.eq(questMon.statExp, keptStatExp,
+    "Awakening never manufactures or replaces stat experience")
+  T.eq(questMon.moves, keptMoves,
+    "Awakening preserves Pikachu's moveset")
+  T.eq(questMon.memories, keptMemories,
+    "Awakening preserves partner memories")
+  T.eq(questMon.nickname, keptNickname,
+    "Awakening preserves the nickname")
+  T.eq(questMon.ot, keptOT,
+    "Awakening preserves original-trainer name")
+  T.eq(questMon.otId, keptOTId,
+    "Awakening preserves original-trainer id")
+  T.eq(questMon.shiny, keptShiny,
+    "Awakening preserves explicit shiny state")
+  T.eq(yellowPartner.partner(questGame), questMon,
+    "Awakening preserves exact partner table identity")
+
+  local afterRows = yellowPartner._choiceRows(questMon)
+  T.eq(#afterRows, 2,
+    "only Stay disappears after confirmed Awakening")
+  T.eq(afterRows[1].value, "evolve",
+    "Evolve remains available after Awakening")
+  T.eq(afterRows[2].value, "later",
+    "Not Yet remains available after Awakening")
+  T.eq(yellowPartner._ascendantMenuRow(questGame).right, "AWAKE",
+    "the compact submenu reports Awakening without an item count")
+
+  local statsAfterFirstGift = SaveData.decode(
+    SaveData.encode(questMon.stats))
+  T.eq(yellowPartner.awaken(questGame, questMon), false,
+    "the one-time gift cannot be applied twice")
+  T.same(questMon.stats, statsAfterFirstGift,
+    "a repeated use cannot stack Raichu's base stats")
+
+  local ordinaryPikachu = mon("PIKACHU")
+  ordinaryPikachu[yellowPartner.awakeningMarker] = true
+  local ordinaryStats = Stats.calc(Data.pokemon.PIKACHU,
+    ordinaryPikachu.level, ordinaryPikachu.dvs,
+    ordinaryPikachu.statExp, ordinaryPikachu)
+  local ordinaryExpected = Stats.calc(Data.pokemon.PIKACHU,
+    ordinaryPikachu.level, ordinaryPikachu.dvs, ordinaryPikachu.statExp)
+  T.same(ordinaryStats, ordinaryExpected,
+    "an unmarked ordinary Pikachu never receives Awakening stats")
+
+  -- Rare Candy exercises the real level-up item path, which now forwards
+  -- the concrete Pokémon through the centralized stat resolver.
+  local ItemEffects = require("src.inventory.ItemEffects")
+  local candyResult = ItemEffects.use(
+    Data, questGame.save, "RARE_CANDY", questMon, nil)
+  T.eq(candyResult, "consumed",
+    "Rare Candy remains usable on the awakened partner")
+  local levelRaichu = Stats.calc(Data.pokemon.RAICHU,
+    questMon.level, questMon.dvs, questMon.statExp)
+  T.same(questMon.stats, levelRaichu,
+    "the Raichu-equivalent profile survives a real level-up recalculation")
+
+  -- Serialization and the box/status ensure path retain the marker and
+  -- rebuild from Raichu while the stored species stays Pikachu.
+  local loadedSave = SaveData.decode(SaveData.encode(questGame.save))
+  local loadedPartner = loadedSave.party[1]
+  T.eq(loadedPartner[yellowPartner.awakeningMarker], true,
+    "save/load serialization preserves the Awakening marker")
+  loadedPartner.stats = nil
+  Stats.ensure(Data.pokemon.PIKACHU, loadedPartner)
+  T.same(loadedPartner.stats, Stats.calc(Data.pokemon.RAICHU,
+    loadedPartner.level, loadedPartner.dvs, loadedPartner.statExp),
+    "box/status stat restoration preserves Raichu-equivalent strength")
+
+  local faintedPartner = mon("PIKACHU")
+  faintedPartner[yellowPartner.marker] = true
+  faintedPartner.stats = Stats.calc(Data.pokemon.PIKACHU,
+    faintedPartner.level, faintedPartner.dvs, faintedPartner.statExp)
+  faintedPartner.hp = 0
+  questMon[yellowPartner.marker] = nil
+  questGame.save.party[1] = faintedPartner
+  T.eq(yellowPartner.awaken(questGame, faintedPartner), true,
+    "a separate zero-HP fixture can claim its one permitted Awakening")
+  T.eq(faintedPartner.hp, 0,
+    "Awakening never revives a fainted partner")
+  faintedPartner[yellowPartner.marker] = nil
+  questMon[yellowPartner.marker] = true
+  questGame.save.party[1] = questMon
+
   mega.install(questGame)
   local megaState = mega.state()
   megaState.ring = true
   mega.grantStone("RAICHUNITE_X")
+  mega.grantStone("RAICHUNITE_Y")
+  megaState.preferences.RAICHU = "RAICHU_X"
   questMon[yellowPartner.marker] = true
   local directProfile = mega.profileFor(questMon, false)
   T.eq(directProfile and directProfile.id, "RAICHU_X",
@@ -1134,18 +1690,99 @@ do
     "an ordinary Pikachu never gains the partner-only Mega path")
   local directStats = mega.boostedStats({
     mon = questMon,
-    curStats = {
-      hp = 100, attack = 80, defense = 60, speed = 100, special = 70,
-    },
+    curStats = questMon.stats,
   }, directProfile)
-  local raichuBase = require("src.pokemon.Stats").calc(
+  local raichuBase = Stats.calc(
     Data.pokemon.RAICHU, questMon.level, questMon.dvs, questMon.statExp)
-  T.eq(directStats.hp, 100,
+  T.eq(directStats.hp, questMon.stats.hp,
     "direct partner resonance never changes Pikachu's live HP")
   T.eq(directStats.attack,
     raichuBase.attack + math.floor(2 * directProfile.bonuses.attack
       * questMon.level / 100),
     "direct resonance uses Raichu's base before applying Mega Raichu X")
+  for _, profile in ipairs({ xProfile, yProfile }) do
+    local transformed = mega.boostedStats({
+      mon = questMon,
+      curStats = questMon.stats,
+    }, profile)
+    for _, key in ipairs({ "attack", "defense", "speed", "special" }) do
+      T.eq(transformed[key],
+        raichuBase[key] + math.floor(
+          2 * profile.bonuses[key] * questMon.level / 100),
+        profile.id .. " applies its bonus to Raichu exactly once")
+    end
+    T.eq(transformed.hp, questMon.stats.hp,
+      profile.id .. " remains a temporary no-heal transformation")
+  end
+  T.same(questMon.stats, raichuBase,
+    "leaving the temporary Mega calculation keeps awakened Pikachu unchanged")
+
+  local evolutionDamage = 9
+  questMon.hp = questMon.stats.hp - evolutionDamage
+  local beforeEvolutionStats = SaveData.decode(
+    SaveData.encode(questMon.stats))
+  local beforeEvolutionDvs = questMon.dvs
+  local beforeEvolutionExp = questMon.statExp
+  local beforeEvolutionMoves = questMon.moves
+  local beforeEvolutionMemories = questMon.memories
+  local priorImageFactory = love.image and love.image.newImageData
+  if love.image then love.image.newImageData = nil end
+  yellowPartner._evolvePartner(questGame, questMon)
+  if love.image then love.image.newImageData = priorImageFactory end
+  T.eq(questMon.species, "RAICHU",
+    "an awakened partner may still evolve permanently to Raichu")
+  T.same(questMon.stats, beforeEvolutionStats,
+    "later evolution changes form without a second stat increase")
+  T.eq(questMon.hp, questMon.stats.hp - evolutionDamage,
+    "later evolution preserves the exact amount of lost HP")
+  T.eq(questMon[yellowPartner.marker], true,
+    "later evolution preserves Yellow's partner identity")
+  T.eq(questMon[yellowPartner.awakeningMarker], true,
+    "later evolution retains Awakening as harmless history")
+  T.eq(questMon.dvs, beforeEvolutionDvs,
+    "later evolution preserves DVs and shiny identity")
+  T.eq(questMon.statExp, beforeEvolutionExp,
+    "later evolution preserves stat experience")
+  T.eq(questMon.moves, beforeEvolutionMoves,
+    "later evolution preserves the existing Pikachu moves")
+  T.eq(questMon.memories, beforeEvolutionMemories,
+    "later evolution preserves partner memories")
+  local postEvolutionCalc = Stats.calc(Data.pokemon.RAICHU,
+    questMon.level, questMon.dvs, questMon.statExp, questMon)
+  T.same(postEvolutionCalc, questMon.stats,
+    "the historical marker does not reapply Raichu bases after evolution")
+
+  local faintedEvolution = mon("PIKACHU")
+  faintedEvolution[yellowPartner.marker] = true
+  faintedEvolution[yellowPartner.awakeningMarker] = true
+  faintedEvolution.stats = Stats.calc(Data.pokemon.PIKACHU,
+    faintedEvolution.level, faintedEvolution.dvs,
+    faintedEvolution.statExp, faintedEvolution)
+  faintedEvolution.hp = 0
+  questGame.save.party[1] = faintedEvolution
+  local priorImageFactory2 = love.image and love.image.newImageData
+  if love.image then love.image.newImageData = nil end
+  yellowPartner._evolvePartner(questGame, faintedEvolution)
+  if love.image then love.image.newImageData = priorImageFactory2 end
+  T.eq(faintedEvolution.species, "RAICHU",
+    "a fainted awakened partner may still take the chosen form")
+  T.eq(faintedEvolution.hp, 0,
+    "later evolution never revives a zero-HP partner")
+  questGame.save.party[1] = questMon
+
+  local fakeRed = { isYellow = function() return false end }
+  local redMarked = mon("PIKACHU")
+  redMarked[yellowPartner.marker] = true
+  redMarked[yellowPartner.awakeningMarker] = true
+  local redGame = yellowGame({ redMarked }, true)
+  yellowPartner.install(redGame, { gameVersion = fakeRed })
+  local redCalculated = Stats.calc(Data.pokemon.PIKACHU,
+    redMarked.level, redMarked.dvs, redMarked.statExp, redMarked)
+  T.same(redCalculated, Stats.calc(Data.pokemon.PIKACHU,
+    redMarked.level, redMarked.dvs, redMarked.statExp),
+    "Red and Blue ignore even a foreign copied Awakening marker")
+
+  -- Restore a real Yellow partner controller before leaving this fixture.
   run.loader.modSave = priorModSave
   Data.pokemon.PIKACHU, Data.pokemon.RAICHU =
     oldPikachuDef, oldRaichuDef
@@ -1476,6 +2113,51 @@ end)()
 local followerCompat = ex.followerCompat
 T.neq(followerCompat, nil,
   "Johto follower compatibility is exported")
+do
+  local oakGame = {
+    save = {
+      flags = {},
+      player = { map = "PALLET_TOWN", x = 10, y = 0 },
+      party = {},
+    },
+    overworld = {
+      map = { id = "PALLET_TOWN" },
+      player = { cellX = 10, cellY = 0 },
+    },
+  }
+  T.eq(followerCompat.isYellowOakPikachuRequest(
+      oakGame, "CHARMANDER", 5, {
+        scriptedEncounter = "yellow_oak_pikachu",
+      }), true,
+    "the explicit Oak scene marker survives a wrapper's Charmander rewrite")
+  T.eq(followerCompat.isYellowOakPikachuRequest(
+      oakGame, "CHARMANDER", 5), true,
+    "legacy engines recognize only the exact Pallet pre-starter scene")
+  oakGame.overworld.map.id = "ROUTE_1"
+  oakGame.save.player.map = "ROUTE_1"
+  T.eq(followerCompat.isYellowOakPikachuRequest(
+      oakGame, "PIKACHU", 5), false,
+    "ordinary level-5 Pikachu encounters are not mistaken for Oak's demo")
+  oakGame.overworld.map.id = "PALLET_TOWN"
+  oakGame.save.player.map = "PALLET_TOWN"
+  oakGame.save.flags.EVENT_GOT_STARTER = true
+  T.eq(followerCompat.isYellowOakPikachuRequest(
+      oakGame, "CHARMANDER", 5), false,
+    "post-starter Pallet encounters cannot trigger the legacy repair")
+
+  local repaired = false
+  local fakeDemo = {
+    repairYellowOakPikachuDemo = function(self)
+      repaired = self.scriptedEncounter == "yellow_oak_pikachu"
+      return repaired
+    end,
+  }
+  T.eq(followerCompat.repairYellowOakPikachuBattle(
+      oakGame, fakeDemo, {}), true,
+    "the compatibility layer delegates to the engine's canonical repair")
+  T.eq(repaired, true,
+    "the stable scene marker is stamped before the engine repair runs")
+end
 ;(function()
   local normal = io.open(
     modPath .. "/assets/followers/totodile.png", "rb")
@@ -1754,6 +2436,106 @@ for class, pool in pairs(ex.recruitPools) do
 end
 T.eq(recruitPoolCount, 47,
   "all 47 trainer classes have a thematic recruitment pool")
+
+do
+  local recruitment = ex.recruitment
+  local johtoOrder = ex.johtoData.order
+  local grassTeam = { { species = "FIXMON_A", level = 35 } }
+  local oldChikorita, oldBayleef, oldMeganium =
+    Data.pokemon.CHIKORITA, Data.pokemon.BAYLEEF, Data.pokemon.MEGANIUM
+  local function fixtureJohto(id, dex, evolutions)
+    return {
+      id = id, index = dex, dex = dex, name = id,
+      types = { "GRASS" },
+      baseStats = { hp = 60, attack = 60, defense = 60,
+        speed = 60, special = 60 },
+      catchRate = 45, baseExp = 64,
+      level1Moves = { "FIX_TACKLE" }, growthRate = "MEDIUM_SLOW",
+      tmhm = {}, learnset = {
+        { level = 1, move = "FIX_TACKLE" },
+      },
+      evolutions = evolutions or {},
+    }
+  end
+  Data.pokemon.CHIKORITA = fixtureJohto("CHIKORITA", 152, {
+    { method = "LEVEL", level = 16, species = "BAYLEEF" },
+  })
+  Data.pokemon.BAYLEEF = fixtureJohto("BAYLEEF", 153, {
+    { method = "LEVEL", level = 32, species = "MEGANIUM" },
+  })
+  Data.pokemon.MEGANIUM = fixtureJohto("MEGANIUM", 154)
+
+  recruitment.configureJohto(johtoOrder, function() return false end)
+  local locked = ex.recruitTeam(Data, grassTeam, "OPP_ERIKA",
+    "ERIKA_FIELD_LOCKED", 11, 45, true)
+  local lockedHasJohto = false
+  for _, slot in ipairs(locked) do
+    lockedHasJohto = lockedHasJohto
+      or (tonumber(Data.pokemon[slot.species].dex) or 0) > 151
+  end
+  T.eq(lockedHasJohto, false,
+    "field trainers remain Kanto-only before a Johto family is researched")
+
+  recruitment.configureJohto(johtoOrder, function(species)
+    return species == "CHIKORITA"
+  end)
+  T.eq(johtoOrder[1], "CHIKORITA",
+    "the Johto recruitment order begins with Chikorita")
+  T.eq(Data.pokemon.CHIKORITA and Data.pokemon.CHIKORITA.dex, 152,
+    "the registered Chikorita carries its National Dex number")
+  T.eq(Data.pokemon.CHIKORITA and Data.pokemon.CHIKORITA.types[1], "GRASS",
+    "the registered Chikorita carries its Grass typing")
+  T.eq(recruitment.eligibleJohtoFamilies(
+      Data, grassTeam, "OPP_ERIKA")[1], "CHIKORITA",
+    "the shared research callback exposes Chikorita to Grass specialists")
+  local remembered = {}
+  local unlocked = ex.recruitTeam(Data, grassTeam, "OPP_ERIKA",
+    "ERIKA_FIELD_UNLOCKED", 11, 45, true, { selections = remembered })
+  local johtoRecruit
+  for _, slot in ipairs(unlocked) do
+    if (tonumber(Data.pokemon[slot.species].dex) or 0) > 151 then
+      johtoRecruit = slot
+      break
+    end
+  end
+  T.neq(johtoRecruit, nil,
+    "a researched matching Johto family enters a suitable trainer pool")
+  if johtoRecruit then
+    T.eq(johtoRecruit.species, "MEGANIUM",
+      "NPC recruitment deterministically chooses a level-appropriate final stage")
+  end
+  T.eq(remembered[2], "CHIKORITA",
+    "the save-facing recruitment selection stores the evolutionary family")
+
+  recruitment.configureJohto(johtoOrder, function(species)
+    return species == "CHIKORITA" or species == "HOPPIP"
+  end)
+  local loadedAgain = ex.recruitTeam(Data, grassTeam, "OPP_ERIKA",
+    "ERIKA_FIELD_UNLOCKED", 11, 45, true, { selections = remembered })
+  T.eq(loadedAgain[2].species, "MEGANIUM",
+    "new research unlocks do not reroll an existing trainer recruit after load")
+
+  recruitment.configureJohto(johtoOrder, function() return true end)
+  local noLegendTeam = ex.recruitTeam(Data, grassTeam, "OPP_ERIKA",
+    "ERIKA_FIELD_ALL_JOHTO", 99, 65, true)
+  local families = {}
+  for _, slot in ipairs(noLegendTeam) do
+    T.eq(forbiddenRecruit[slot.species], nil,
+      "generic field growth excludes legendary and mythical Johto species")
+    local id = slot.species
+    T.eq(families[id], nil,
+      "a long-running field trainer never receives a duplicate exact species")
+    families[id] = true
+    T.eq(slot.level <= 100, true,
+      "long-running Johto recruitment never overflows level 100")
+  end
+
+  recruitment.configureJohto(johtoOrder, function(species)
+    return ex.johtoResearch.isRecruitFamilyEligible(species)
+  end)
+  Data.pokemon.CHIKORITA, Data.pokemon.BAYLEEF, Data.pokemon.MEGANIUM =
+    oldChikorita, oldBayleef, oldMeganium
+end
 
 T.eq(ex.lootForRoll(1, "balanced",
   { averageLevel = 100, masterUnlocked = false, expAllAvailable = true }), nil,
@@ -2174,6 +2956,145 @@ local game = {
     },
   },
 }
+
+-- ------------------------------------------ centralized forced-battle guard
+
+do
+  local BattleState = require("src.battle.BattleState")
+  local FixturePokemon = require("src.pokemon.Pokemon")
+  local forcedGame = {
+    data = Data,
+    save = {
+      inventory = {}, flags = {}, options = {},
+      pokedex = { seen = {}, owned = {} },
+      player = { name = "RED" },
+      party = {
+        FixturePokemon.new(Data, "FIXMON_A", 50, function() return 8 end),
+      },
+    },
+  }
+  local record = Data.trainers.OPP_FIX_YOUNGSTER
+  local originalParties = record.parties
+  record.parties = {
+    {
+      { species = "FIXMON_A", level = 5 },
+      { species = "FIXMON_C", level = 5 },
+    },
+  }
+  local intended = {
+    { species = "FIXMON_A", level = 77, moves = { "FIX_TACKLE" } },
+    { species = "FIXMON_B", level = 79, moves = { "FIX_SCRATCH" } },
+  }
+  local originalCount = #record.parties
+
+  local randomizedInput
+  local removeAfter = RealRuntime.hooks:wrap("trainer.party",
+    function(nextParty, class, partyIndex, party)
+      randomizedInput = party
+      local downstream = nextParty(class, partyIndex, party)
+      return {
+        { species = "FIXMON_C", level = 12,
+          moves = downstream[1].moves },
+        { species = "FIXMON_A", level = 13,
+          moves = downstream[2].moves },
+      }
+    end, -100, "forced-randomizer-after")
+  local randomized = pg.newForcedBattle(
+    forcedGame, "OPP_FIX_YOUNGSTER", intended, "master")
+  removeAfter()
+  T.eq(randomizedInput[1].level, 77,
+    "a downstream Randomizer receives the authored Master roster as input")
+  T.same({ randomized.enemyParty[1].species,
+           randomized.enemyParty[2].species },
+    { "FIXMON_C", "FIXMON_A" },
+    "a cooperative Randomizer keeps ownership of forced-battle species")
+  T.same({ randomized.enemyParty[1].level,
+           randomized.enemyParty[2].level }, { 77, 79 },
+    "Ascendant reapplies the authored per-slot level pattern exactly once")
+  T.eq(randomized.enemyParty[1].hp,
+    randomized.enemyParty[1].stats.hp,
+    "forced randomized opponents start at coherent full HP")
+  T.eq(randomized.enemy.mon, randomized.enemyParty[1],
+    "the active enemy battler is rebuilt from the finalized lead")
+  T.eq(randomized.ascendantForcedSource, "gym",
+    "Master battles carry the central gym source marker")
+  T.eq(randomized.ascendantForcedRandomized, true,
+    "QA metadata records a preserved randomized roster")
+  T.eq(#record.parties, originalCount,
+    "the synthetic trainer party is removed after construction")
+  T.eq(pg.forcedConstructionDepth(), 0,
+    "forced construction state is empty after a successful battle")
+
+  local removeBefore = RealRuntime.hooks:wrap("trainer.party",
+    function(nextParty, class, partyIndex, party)
+      local downstream = nextParty(class, partyIndex, party)
+      downstream[1] = {
+        species = "FIXMON_B", level = 6, moves = { "FIX_SCRATCH" },
+      }
+      return downstream
+    end, 2000, "forced-randomizer-before")
+  local beforeOrder = pg.newForcedBattle(
+    forcedGame, "OPP_FIX_YOUNGSTER", intended, "crown")
+  removeBefore()
+  T.eq(beforeOrder.enemyParty[1].species, "FIXMON_B",
+    "a cooperative Randomizer also survives before Ascendant in the hook chain")
+  T.eq(beforeOrder.enemyParty[1].level, 77,
+    "before-Ascendant hook ordering still normalizes the intended slot level")
+
+  local removeSwallow = RealRuntime.hooks:wrap("trainer.party",
+    function()
+      return record.parties[1]
+    end, 2000, "forced-randomizer-swallow")
+  local swallowed = pg.newForcedBattle(
+    forcedGame, "OPP_FIX_YOUNGSTER", intended, "heritage")
+  removeSwallow()
+  T.same({ swallowed.enemyParty[1].species,
+           swallowed.enemyParty[2].species },
+    { "FIXMON_A", "FIXMON_B" },
+    "an explicit swallowed vanilla party-one result falls back to authored data")
+  T.eq(swallowed.ascendantForcedFallbackReason, "vanilla_party",
+    "the central guard reports the party-one fallback reason")
+
+  local removeInvalid = RealRuntime.hooks:wrap("trainer.party",
+    function() return {} end, 2000, "forced-randomizer-invalid")
+  local recovered = pg.newForcedBattle(
+    forcedGame, "OPP_FIX_YOUNGSTER", intended, "johto_master")
+  removeInvalid()
+  T.eq(#recovered.enemyParty, 2,
+    "an empty Randomizer result recovers through the registered synthetic team")
+  T.eq(recovered.enemyParty[2].level, 79,
+    "the recovered Johto Master roster retains its authored level pattern")
+  T.eq(recovered.ascendantForcedFallbackReason, "invalid_hook_party",
+    "invalid hook output is visible in forced-battle QA metadata")
+
+  local beforeErrorCount = #record.parties
+  local ok = pcall(pg.newForcedBattle, forcedGame, "OPP_FIX_YOUNGSTER",
+    { { species = "NO_SUCH_SPECIES", level = 50 } }, "tournament")
+  T.eq(ok, false, "an invalid forced roster fails without building a corrupt battle")
+  T.eq(#record.parties, beforeErrorCount,
+    "constructor errors never leak a synthetic trainer party")
+  T.eq(pg.forcedConstructionDepth(), 0,
+    "constructor errors never leak forced hook state")
+
+  local normalRandomizer = RealRuntime.hooks:wrap("trainer.party",
+    function(nextParty, class, partyIndex, party)
+      nextParty(class, partyIndex, party)
+      return {
+        { species = "FIXMON_B", level = 5 },
+        { species = "FIXMON_B", level = 5 },
+      }
+    end, -100, "normal-rematch-randomizer")
+  local normal = BattleState.newTrainer(
+    forcedGame, "OPP_FIX_YOUNGSTER", 1)
+  normalRandomizer()
+  T.eq(normal.enemyParty[1].species, "FIXMON_B",
+    "ordinary trainer construction still preserves Randomizer species")
+  T.eq(normal.ascendantForcedBattle, nil,
+    "ordinary field fights never inherit forced-battle metadata")
+
+  record.parties = originalParties
+end
+
 run.loader.modSave = game.save.modData
 do
   local onboarding = assert(ex.onboarding)

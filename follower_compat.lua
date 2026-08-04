@@ -167,24 +167,81 @@ return function(mod, opts)
   local STATE_KEY = "__kantoAscendantFollowerCompat"
   local RENDERER_STATE_KEY = "__kantoAscendantFollowerRendererCompat"
   local YELLOW_STARTER_STATE_KEY = "__kantoAscendantYellowStarterCompat"
-  local POKEPC_STATE_KEY = "__pokepcFollowersUniversal"
+  local YELLOW_OAK_PIKACHU_ENCOUNTER = "yellow_oak_pikachu"
 
   -- PokéPC Followers 1.3.0 includes a separate Yellow-to-Charmander story
-  -- conversion: its BattleState.newWild wrapper changes every scripted
-  -- level-5 Pikachu into Charmander. That is unrelated to follower support
-  -- and changes Yellow's opening catch, starter name and story. Keep the
-  -- follower selection API, but bypass only that conversion for the
-  -- canonical Oak demo. The upstream state exposes its unwrapped
-  -- constructor specifically so this can remain surgical.
+  -- conversion: its BattleState.newWild wrapper changes every level-5
+  -- Pikachu into Charmander. That is unrelated to follower support. New
+  -- engines carry an explicit scene marker through every vararg-preserving
+  -- wrapper; the narrow Pallet/pre-starter check is retained only for older
+  -- engines and packages that predate that marker.
+  function C.isYellowOakPikachuRequest(game, species, level, requestOpts)
+    if type(requestOpts) == "table"
+        and requestOpts.scriptedEncounter
+          == YELLOW_OAK_PIKACHU_ENCOUNTER then
+      return true
+    end
+    if tonumber(level) ~= 5
+        or (species ~= "PIKACHU" and species ~= "CHARMANDER") then
+      return false
+    end
+    local save = game and game.save
+    local flags = save and save.flags or {}
+    if flags.EVENT_GOT_STARTER
+        or flags.EVENT_FOLLOWED_OAK_INTO_LAB then
+      return false
+    end
+    local ow = game and game.overworld
+    local mapId = ow and ow.map and ow.map.id
+      or save and save.player and save.player.map
+    local player = ow and ow.player
+    local x = player and player.cellX
+      or save and save.player and save.player.x
+    local y = player and player.cellY
+      or save and save.player and save.player.y
+    return mapId == "PALLET_TOWN" and y == 0 and (x == 10 or x == 11)
+  end
+
+  function C.repairYellowOakPikachuBattle(game, battle, BattleState)
+    if type(battle) ~= "table" then return false end
+    battle.scriptedEncounter = YELLOW_OAK_PIKACHU_ENCOUNTER
+    if type(battle.repairYellowOakPikachuDemo) == "function" then
+      return battle:repairYellowOakPikachuDemo()
+    end
+
+    local mon = battle.enemy and battle.enemy.mon
+    if not (mon and mon.species == "PIKACHU" and mon.level == 5) then
+      local okPokemon, Pokemon = pcall(require, "src.pokemon.Pokemon")
+      local makeBattler = BattleState and BattleState.makeBattler
+      if not (okPokemon and Pokemon and type(Pokemon.new) == "function"
+          and type(makeBattler) == "function"
+          and game and game.data) then
+        return false
+      end
+      mon = Pokemon.new(game.data, "PIKACHU", 5)
+      battle.enemy = makeBattler(game.data, mon, false)
+      local okStrings, Strings = pcall(require, "src.core.Strings")
+      if okStrings and type(Strings) == "table"
+          and getmetatable(Strings) and getmetatable(Strings).__call then
+        battle.introText = Strings(
+          "Wild %s\nappeared!", battle.enemy.name)
+      end
+    end
+    local seen = game and game.save and game.save.pokedex
+      and game.save.pokedex.seen
+    if seen then seen.PIKACHU = true end
+    return battle.enemy and battle.enemy.mon
+      and battle.enemy.mon.species == "PIKACHU"
+      and battle.enemy.mon.level == 5
+  end
+
   local function installYellowStarterGuard()
     local okVersion, GameVersion = pcall(require, "src.core.GameVersion")
     if not (okVersion and GameVersion and GameVersion.isYellow
         and GameVersion.isYellow()) then return false end
     local okBattle, BattleState = pcall(require, "src.battle.BattleState")
-    local okPikachu, PikachuFollower =
-      pcall(require, "src.world.PikachuFollower")
-    if not (okBattle and BattleState and type(BattleState.newWild) == "function"
-        and okPikachu and PikachuFollower) then return false end
+    if not (okBattle and BattleState
+        and type(BattleState.newWild) == "function") then return false end
 
     local previous = rawget(BattleState, YELLOW_STARTER_STATE_KEY)
     if previous and BattleState.newWild == previous.wrapper then return true end
@@ -192,22 +249,21 @@ return function(mod, opts)
       pcall(previous.restore)
     end
 
-    local pokepc = rawget(PikachuFollower, POKEPC_STATE_KEY)
-    if not (type(pokepc) == "table"
-        and type(pokepc.originalNewWild) == "function"
-        and type(pokepc.wrapperNewWild) == "function"
-        and BattleState.newWild == pokepc.wrapperNewWild) then
-      return false
-    end
-
     local wrapped = BattleState.newWild
-    local original = pokepc.originalNewWild
     local guard
     guard = function(game, species, level, ...)
-      if species == "PIKACHU" and tonumber(level) == 5 then
-        return original(game, "PIKACHU", 5, ...)
+      local requestOpts = select(1, ...)
+      local oakDemo = C.isYellowOakPikachuRequest(
+        game, species, level, requestOpts)
+      local seen = game and game.save and game.save.pokedex
+        and game.save.pokedex.seen
+      local charmanderWasSeen = seen and seen.CHARMANDER
+      local battle = wrapped(game, species, level, ...)
+      if oakDemo
+          and C.repairYellowOakPikachuBattle(game, battle, BattleState) then
+        if seen and not charmanderWasSeen then seen.CHARMANDER = nil end
       end
-      return wrapped(game, species, level, ...)
+      return battle
     end
     local state = {
       original = wrapped,
@@ -223,7 +279,7 @@ return function(mod, opts)
     rawset(BattleState, YELLOW_STARTER_STATE_KEY, state)
     if mod.log and mod.log.info then
       mod.log:info(
-        "PokéPC compatibility: Yellow's original Pikachu starter restored")
+        "Yellow compatibility: Oak's marked Pikachu demo is protected")
     end
     return true
   end
