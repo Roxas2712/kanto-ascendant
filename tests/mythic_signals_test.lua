@@ -699,6 +699,8 @@ do
   first.events:emit("battle.started", { battle = battle })
   T.eq(battle.kaMythicTrue, "CELEBI",
     "the pending true ticket owns the matching next battle")
+  T.eq(battle.noCatch, nil,
+    "a true manifestation is catchable after Resonance is sealed")
   T.eq(battle.enemy.mon.dvs.attack, 15,
     "the battle receives the persisted roamer DVs")
   T.eq(first.controller.state().bound.species, "CELEBI",
@@ -729,6 +731,8 @@ do
     "a retry keeps the original manifestation level")
   local retryBattle = wildBattle(restarted.game, "CELEBI", 100, 70)
   restarted.events:emit("battle.started", { battle = retryBattle })
+  T.eq(retryBattle.noCatch, nil,
+    "a persisted true-manifestation retry remains catchable")
   T.eq(retryBattle.enemy.mon.hp, 23,
     "retry restores persistent HP")
   T.eq(retryBattle.enemy.mon.status, "PAR",

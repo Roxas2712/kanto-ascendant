@@ -51,6 +51,12 @@ T.eq(run.mod.manifest.id, "trainer_rematch",
   "the stable internal id preserves existing save data")
 local ex = run.loader.exports.trainer_rematch
 T.neq(ex, nil, "exports reachable")
+T.eq(ex.dexKindCompat.MEW.en, "NEW SPECIE",
+  "Mew restores its canonical English Pokédex category")
+T.eq(ex.dexKindCompat.MEW.de, "NEUE ART",
+  "Mew restores its canonical compact German Pokédex category")
+T.eq(ex.dexKindCompat.MEWTWO.de, "GENMUTANT",
+  "Mewtwo no longer inherits the German bird-category corruption")
 
 -- --------------------------------------------------- Gen-II audio ownership
 

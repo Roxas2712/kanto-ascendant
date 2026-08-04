@@ -456,6 +456,25 @@ return function(mod)
       } },
   })
 
+  -- The German translation packs currently ship a misaligned category
+  -- table: Mew and Mewtwo both end up labelled "VOGEL".  Ascendant uses
+  -- both species in authored encounters, so restore their canonical Dex
+  -- categories in our later content layer instead of exposing the broken
+  -- external mapping.  Keep the original Gen-I English spelling
+  -- "NEW SPECIE"; "NEUE ART" is its official compact German counterpart.
+  local dexKindCompat = {
+    MEW = { en = "NEW SPECIE", de = "NEUE ART" },
+    MEWTWO = { en = "GENETIC", de = "GENMUTANT" },
+  }
+  for species, labels in pairs(dexKindCompat) do
+    if mod.content.pokemon:get(species) then
+      mod.content.pokemon:patch(species, {
+        dexEntry = { kind = i18n.isGerman() and labels.de or labels.en },
+      })
+    end
+  end
+  mod.exports.dexKindCompat = dexKindCompat
+
   local function localizedLine(classId)
     return i18n.rematch(classId, resolveLine(classId))
   end
