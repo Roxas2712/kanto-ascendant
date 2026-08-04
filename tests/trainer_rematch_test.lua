@@ -99,6 +99,33 @@ do
     "late audio binding connects the species to the preserved external cry")
   T.eq(ex.johtoAudio.battleScaleBack, 1,
     "all full-size Johto player backs use native 1x scale")
+  local localizedDexData = { pokemon = {}, text = {} }
+  for _, id in ipairs(ex.johtoData.order) do
+    localizedDexData.pokemon[id] = { dexEntry = {} }
+  end
+  T.eq(ex.johtoAudio.refreshLocalization(localizedDexData, false), 100,
+    "all one hundred Johto species receive resolvable English Dex metadata")
+  local celebiDexKey = localizedDexData.pokemon.CELEBI.dexEntry.text
+  T.eq(celebiDexKey, "_KantoAscendantJohtoDexCELEBI",
+    "Johto Dex entries store a stable Data.text key instead of raw prose")
+  T.eq(localizedDexData.text[celebiDexKey],
+    ex.johtoData.species.CELEBI.dexEntry.textEn,
+    "an owned English Celebi entry resolves to its actual description")
+  T.eq(ex.johtoAudio.refreshLocalization(localizedDexData, true), 100,
+    "all one hundred Johto species refresh after a German save loads")
+  T.eq(localizedDexData.pokemon.CHIKORITA.name, "ENDIVIE",
+    "runtime Johto localization refreshes version-specific species names")
+  T.eq(localizedDexData.pokemon.CELEBI.dexEntry.kind, "ZEITREISE",
+    "runtime Johto localization refreshes Celebi's German category")
+  T.eq(localizedDexData.text[celebiDexKey],
+    ex.johtoData.species.CELEBI.dexEntry.textDe,
+    "runtime Johto localization exposes Celebi's German Dex prose")
+  T.eq(ex.johtoAudio.refreshLocalization(localizedDexData, false), 100,
+    "all one hundred Johto species can switch back to English")
+  T.eq(localizedDexData.pokemon.CHIKORITA.name, "CHIKORITA",
+    "English Johto species names return without rebuilding content")
+  T.eq(localizedDexData.pokemon.CELEBI.dexEntry.kind, "TIME TRAVEL",
+    "English Celebi category returns without rebuilding content")
 
   -- Exercise the same derived-cry path Sound.playCry uses. Presence in the
   -- table alone would not catch a missing Kanto base or stale negative cache.

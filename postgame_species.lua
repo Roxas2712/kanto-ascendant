@@ -41,9 +41,46 @@ return function(mod, legends, johto, i18n)
     -- ROM-free regression suite.
     battleScaleBack = 1,
   }
+  local dexTextKeys = {}
+  for _, id in ipairs(johto.order) do
+    dexTextKeys[id] = "_KantoAscendantJohtoDex" .. id
+  end
+
+  -- Johto species are registered before a save slot is loaded. AUTO language
+  -- can therefore change afterwards when the matching German translation mod
+  -- or a slot-local language choice becomes active. Refresh all visible Dex
+  -- metadata at game.ready/save.loaded instead of freezing it at content-load
+  -- time. DexEntryMenu also expects `dexEntry.text` to be a key in Data.text,
+  -- never the prose itself; using the raw prose made every owned #152-251 entry
+  -- fall through to "Data unknown.".
+  function audioCompat.refreshLocalization(game, forceGerman)
+    local data = game and game.data or game
+    if not (data and data.pokemon and data.text) then return 0 end
+    local german = forceGerman
+    if german == nil then german = i18n and i18n.isGerman() or false end
+    local refreshed = 0
+    for _, id in ipairs(johto.order) do
+      local def = johto.species[id]
+      local species = data.pokemon[id]
+      if species and def and def.dexEntry then
+        species.name = german
+          and (johto.germanNames[id] or def.name) or def.name
+        species.dexEntry = species.dexEntry or {}
+        species.dexEntry.kind = german
+          and def.dexEntry.kindDe or def.dexEntry.kindEn
+        species.dexEntry.text = dexTextKeys[id]
+        data.text[dexTextKeys[id]] = german
+          and def.dexEntry.textDe or def.dexEntry.textEn
+        refreshed = refreshed + 1
+      end
+    end
+    return refreshed
+  end
+
   function audioCompat.install(game)
     local data = game and game.data or game
     if not data then return 0, 0 end
+    audioCompat.refreshLocalization(data)
     data.audio = data.audio or {}
     data.audio.cries = data.audio.cries or {}
     data.audio._owners = data.audio._owners or {}
@@ -330,6 +367,9 @@ return function(mod, legends, johto, i18n)
     local dex = assert(def.dexEntry, "missing Pokédex entry for " .. id)
     local totalInches = math.floor(dex.heightM * 39.3700787 + 0.5)
     local german = i18n and i18n.isGerman()
+    local dexTextKey = dexTextKeys[id]
+    mod.content.text:register(
+      dexTextKey, german and dex.textDe or dex.textEn)
     -- Do not claim the registry id during content loading. A dedicated
     -- Gen-II audio mod may load before or after Ascendant, so the final
     -- merged cry table is inspected at game.ready instead. Only genuinely
@@ -356,7 +396,7 @@ return function(mod, legends, johto, i18n)
         heightIn = totalInches % 12,
         weight = math.floor((def.weightKg or 10) * 22.0462262 + 0.5),
         heightM = dex.heightM, weightKg = def.weightKg or 10,
-        text = german and dex.textDe or dex.textEn,
+        text = dexTextKey,
       },
     })
     mod.content.icons:register(id, icon)
