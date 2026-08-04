@@ -13,7 +13,7 @@ return function(mod)
   local A = {}
   -- Bump the derived cache whenever follower layout/alpha handling changes.
   -- Mobile installations otherwise keep an older converted sheet forever.
-  local CACHE_ROOT = "mod-derived/trainer_rematch/sprite-cache-v5"
+  local CACHE_ROOT = "mod-derived/trainer_rematch/sprite-cache-v6"
   local prepared = {}
 
   local function available()
@@ -170,6 +170,14 @@ return function(mod)
 
   function A.follower(species, shiny)
     if type(species) ~= "string" or species == "" then return nil end
+    -- Release packages carry renderer-ready vertical sheets. Mobile builds
+    -- can consume these directly without depending on ImageData encoding or
+    -- write access during follower selection.
+    local runtimeVariant = shiny and "shiny/" or "normal/"
+    local runtime = mod.path .. "/assets/followers_runtime/"
+      .. runtimeVariant .. "follower_" .. species .. ".png"
+    if info(runtime) then return runtime end
+
     local filename = species:lower() .. ".png"
     local variant = shiny and "shiny/" or ""
     local source = mod.path .. "/assets/followers/" .. variant .. filename

@@ -2,9 +2,8 @@
 """Repair or refresh the bundled Gen-2-style Johto follower sheets.
 
 The source sheets come from PokeWilds and contain six 16x16 poses in a
-96x16 row. Kanto Ascendant converts them into Gen1 Recomp's 16x96 layout on
-first use and shares that derived sheet between the 2D and voxel renderers.
-The complete normal/shiny set is already included in release packages.
+96x16 row. Release packages also carry prebuilt Gen1 Recomp 16x96 sheets so
+mobile players never need to convert or write follower art at runtime.
 """
 
 from __future__ import annotations
@@ -83,7 +82,7 @@ def main() -> int:
 
     print(
         f"Gen-2 follower install complete ({installed} downloaded). "
-        "Restart the game after changing assets."
+        "Run tools/build_follower_runtime_assets.py after changing assets."
     )
     print(f"Sprite source and contributor credits: {PROJECT}")
     return 0

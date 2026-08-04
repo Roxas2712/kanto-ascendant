@@ -19,6 +19,7 @@ from install_crystal_sprites import SPECIES, VIEWS
 ROOT = Path(__file__).resolve().parents[1]
 CRYSTAL = ROOT / "assets" / "crystal"
 FOLLOWERS = ROOT / "assets" / "followers"
+FOLLOWERS_RUNTIME = ROOT / "assets" / "followers_runtime"
 
 
 def normalize_crystal(path: Path) -> None:
@@ -64,13 +65,25 @@ def validate_follower(path: Path) -> None:
             raise ValueError(f"{path}: expected 96x16, got {image.size}")
 
 
+def validate_runtime_follower(path: Path) -> None:
+    with Image.open(path) as image:
+        if image.size != (16, 96):
+            raise ValueError(f"{path}: expected 16x96, got {image.size}")
+
+
 def main() -> int:
     crystal_paths = []
     follower_paths = []
+    runtime_paths = []
     for crystal_name in SPECIES:
         stem = crystal_name.replace("-", "_")
+        species = stem.upper()
         for view in VIEWS:
             crystal_paths.append(CRYSTAL / f"{stem}_{view}.png")
+        runtime_paths.extend((
+            FOLLOWERS_RUNTIME / "normal" / f"follower_{species}.png",
+            FOLLOWERS_RUNTIME / "shiny" / f"follower_{species}.png",
+        ))
         if stem != "unown":
             follower_paths.extend((
                 FOLLOWERS / f"{stem}.png",
@@ -79,7 +92,7 @@ def main() -> int:
 
     missing = [
         path.relative_to(ROOT)
-        for path in crystal_paths + follower_paths
+        for path in crystal_paths + follower_paths + runtime_paths
         if not path.is_file()
     ]
     if missing:
@@ -91,10 +104,13 @@ def main() -> int:
         normalize_crystal(path)
     for path in follower_paths:
         validate_follower(path)
+    for path in runtime_paths:
+        validate_runtime_follower(path)
 
     print(
         f"Bundled sprite QA PASS: {len(crystal_paths)} Crystal + "
-        f"{len(follower_paths)} follower PNGs"
+        f"{len(follower_paths)} source follower + "
+        f"{len(runtime_paths)} runtime follower PNGs"
     )
     return 0
 

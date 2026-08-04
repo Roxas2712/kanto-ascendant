@@ -28,10 +28,10 @@ return function(game)
       api.spriteAssets.follower(mon.species, isShiny),
       stem .. " follower sheet missing")
     if isShiny then
-      assert(followerPath:find("_shiny.png", 1, true),
+      assert(followerPath:find("/shiny/", 1, true),
         "shiny follower did not select its shiny cache variant")
     else
-      assert(not followerPath:find("_shiny.png", 1, true),
+      assert(not followerPath:find("/shiny/", 1, true),
         "normal follower selected a shiny cache variant")
     end
     U.log(stem .. " follower:", followerPath)

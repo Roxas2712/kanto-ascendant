@@ -13,24 +13,23 @@ local function evolutionRow(row)
 end
 
 return function(mod, legends, johto, i18n)
-  local ChipAsm = require("src.audio.ChipAsm")
+  -- Derived cries reuse a ROM-native Gen-I cry program and only change its
+  -- pitch/length. This is the engine's portable extension path and avoids
+  -- asking mobile audio backends to synthesize a mod-local ChipAsm program.
+  local CRY_BASE_BY_TYPE = {
+    NORMAL = "RATTATA", FIRE = "CHARMANDER", WATER = "SQUIRTLE",
+    ELECTRIC = "PIKACHU", GRASS = "BULBASAUR", ICE = "SEEL",
+    FIGHTING = "MACHOP", POISON = "EKANS", GROUND = "SANDSHREW",
+    FLYING = "PIDGEY", PSYCHIC = "ABRA", PSYCHIC_TYPE = "ABRA",
+    BUG = "CATERPIE", ROCK = "GEODUDE", GHOST = "GASTLY",
+    DRAGON = "DRATINI", DARK = "MEOWTH", STEEL = "MAGNEMITE",
+  }
   local fallbackCries = {}
   for _, id in ipairs(johto.order) do
     local def = assert(johto.species[id], "missing Johto species " .. id)
-    local cryFrequency = 0x300 + ((def.dex - 152) % 20) * 0x38
+    local primaryType = def.types and def.types[1]
     fallbackCries[id] = {
-      chip = ChipAsm.sfx{
-        channels = { { hw = 1, program = {
-          { pitchSweep = {
-            pace = 2 + (def.dex % 5),
-            subtract = def.dex % 2 == 0, shift = 3,
-          } },
-          { squareNote = {
-            len = 5 + (def.dex % 3), volume = 13, fade = 2,
-            frequency = cryFrequency,
-          } },
-        } } },
-      }.chip,
+      base = CRY_BASE_BY_TYPE[primaryType] or "RHYDON",
       pitch = 96 + (def.dex % 5) * 16,
       length = 112 + (def.dex % 4) * 16,
     }
@@ -334,7 +333,7 @@ return function(mod, legends, johto, i18n)
     -- Do not claim the registry id during content loading. A dedicated
     -- Gen-II audio mod may load before or after Ascendant, so the final
     -- merged cry table is inspected at game.ready instead. Only genuinely
-    -- missing entries receive this compact synthesized fallback.
+    -- missing entries receive this compact ROM-native derived fallback.
     mod.content.pokemon:register(id, {
       id = id,
       name = i18n and i18n.isGerman()

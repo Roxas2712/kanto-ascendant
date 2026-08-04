@@ -2,6 +2,20 @@
 
 All notable changes to this project are documented in this file.
 
+## [5.2.2] - 2026-08-04
+
+### Fixed
+
+- Johto fallback cries now use Gen1 Recomp's ROM-native derived-cry path
+  instead of mod-local chip synthesis, restoring Gen-II audio on Android.
+- Release packages now include all 200 normal/shiny Johto follower sheets in
+  renderer-ready 16×96 form, removing mobile runtime conversion and cache
+  writes from follower selection.
+- A renderer-level compatibility guard redirects PokéPC Followers and wrapper
+  mods to Ascendant's bundled Johto art even when Lua closure inspection is
+  unavailable. Selecting a Gen-II follower can no longer reach a missing
+  `follower_<SPECIES>.png` path and crash.
+
 ## [5.2.1] - 2026-08-04
 
 ### Fixed

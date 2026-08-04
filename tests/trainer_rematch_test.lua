@@ -20,7 +20,24 @@ do
   T.neq(ex.johtoAudio, nil,
     "the late Johto cry compatibility seam is exported")
   local externalTotodileCry = { file = "external/gen2/totodile.ogg" }
+  local baseCries = Data.audio and Data.audio.cries or {}
   Data.audio = { cries = {} }
+  for id, def in pairs(baseCries) do Data.audio.cries[id] = def end
+  -- The ROM-free fixture intentionally has no imported audio. Seed one
+  -- valid native-style program under every Kanto base used by the derived
+  -- fallbacks so the real Sound.resolveCry path can still be exercised.
+  local seedChip = require("src.audio.ChipAsm").sfx{
+    channels = { { hw = 1, program = {
+      { squareNote = {
+        len = 6, volume = 13, fade = 2, frequency = 0x500,
+      } },
+    } } },
+  }.chip
+  for _, fallback in pairs(ex.johtoAudio.fallbacks) do
+    Data.audio.cries[fallback.base] = Data.audio.cries[fallback.base] or {
+      chip = seedChip, pitch = 128, length = 128,
+    }
+  end
   Data.pokemon.TOTODILE = {}
   Data.audio.cries.TOTODILE = externalTotodileCry
   local fallbackCount, externalCount = ex.johtoAudio.install({ data = Data })
@@ -29,17 +46,18 @@ do
   T.eq(externalCount, 1,
     "one externally registered Johto cry is recognized")
   T.eq(Data.audio.cries.TOTODILE.file, externalTotodileCry.file,
-    "an external Totodile cry wins over Ascendant's synthesized fallback")
+    "an external Totodile cry wins over Ascendant's derived fallback")
   T.neq(Data.audio.cries.CHIKORITA, nil,
     "a missing Johto cry receives Ascendant's self-contained fallback")
+  T.eq(Data.audio.cries.NATU.base, "ABRA",
+    "Natu uses a portable ROM-native derived cry")
   T.eq(Data.pokemon.TOTODILE.cry, "TOTODILE",
     "late audio binding connects the species to the preserved external cry")
   T.eq(ex.johtoAudio.battleScaleBack, 1,
     "all full-size Johto player backs use native 1x scale")
 
-  -- Exercise the same synthesis path Sound.playCry uses. Presence in the
-  -- table alone would not catch a malformed chip program or a stale
-  -- negative cache entry.
+  -- Exercise the same derived-cry path Sound.playCry uses. Presence in the
+  -- table alone would not catch a missing Kanto base or stale negative cache.
   local oldLoveAudio = love.audio
   love.audio = {
     newSource = function(soundData)
@@ -951,12 +969,22 @@ T.neq(followerCompat, nil,
     modPath .. "/assets/followers/totodile.png", "rb")
   local shiny = io.open(
     modPath .. "/assets/followers/shiny/totodile.png", "rb")
+  local runtimeNormal = io.open(
+    modPath .. "/assets/followers_runtime/normal/follower_TOTODILE.png", "rb")
+  local runtimeShiny = io.open(
+    modPath .. "/assets/followers_runtime/shiny/follower_TOTODILE.png", "rb")
   T.neq(normal, nil,
     "Totodile ships with its species-accurate follower sheet")
   T.neq(shiny, nil,
     "shiny Totodile ships with its species-accurate follower sheet")
+  T.neq(runtimeNormal, nil,
+    "Totodile ships with a renderer-ready mobile follower sheet")
+  T.neq(runtimeShiny, nil,
+    "shiny Totodile ships with a renderer-ready mobile follower sheet")
   if normal then normal:close() end
   if shiny then shiny:close() end
+  if runtimeNormal then runtimeNormal:close() end
+  if runtimeShiny then runtimeShiny:close() end
 end)()
 T.eq(followerCompat.proxySpecies("TYRANITAR", Data), "RHYDON",
   "Tyranitar uses a sturdy existing follower sheet instead of crashing")
@@ -996,6 +1024,15 @@ do
   PikachuFollower.update = followersExWrapper
 
   local oldLocalPath = followerCompat.localPath
+  local oldGetInfo = love.filesystem.getInfo
+  love.filesystem.getInfo = function(path, ...)
+    if type(path) == "string"
+        and (path:find("ascendant/cache/", 1, true) == 1
+          or path:find("pokepc/assets/", 1, true) == 1) then
+      return { type = "file" }
+    end
+    return oldGetInfo(path, ...)
+  end
   followerCompat.localPath = function(species)
     return "ascendant/cache/follower_" .. tostring(species) .. ".png"
   end
@@ -1024,7 +1061,81 @@ do
   T.eq(followerCompat.restore(), true,
     "the nested follower bridge restores its original asset resolver")
   followerCompat.localPath = oldLocalPath
+  love.filesystem.getInfo = oldGetInfo
   PikachuFollower.update = originalUpdate
+end
+
+do
+  -- Release/mobile runtimes may not expose the closure seam at all. The
+  -- renderer guard must replace a missing Johto path before image loading,
+  -- so selecting that follower cannot crash even without debug patching.
+  local PikachuFollower = require("src.world.PikachuFollower")
+  local SpriteRenderer = require("src.render.SpriteRenderer")
+  local originalUpdate = PikachuFollower.update
+  local originalNew = SpriteRenderer.new
+  local oldLocalPath = followerCompat.localPath
+  local oldGetInfo = love.filesystem.getInfo
+  local renderedPath
+
+  love.filesystem.getInfo = function(path, ...)
+    if type(path) == "string"
+        and (path:find("ascendant/runtime/", 1, true) == 1
+          or path:find("pokepc/assets/follower_CHARMANDER", 1, true)) then
+      return { type = "file" }
+    end
+    return oldGetInfo(path, ...)
+  end
+  followerCompat.localPath = function(species)
+    return "ascendant/runtime/follower_" .. tostring(species) .. ".png"
+  end
+  SpriteRenderer.new = function(def)
+    renderedPath = def.image
+    if renderedPath == "pokepc/assets/follower_NATU.png" then
+      error("missing follower_NATU.png")
+    end
+    return { def = def }
+  end
+  PikachuFollower.update = function(game)
+    local def = game.data.sprites.SPRITE_PIKACHU
+    def.image = "pokepc/assets/follower_" .. game.save.party[1].species .. ".png"
+    return SpriteRenderer.new(def, "follower")
+  end
+
+  local followerGame = {
+    data = {
+      pokemon = Data.pokemon,
+      sprites = {
+        SPRITE_PIKACHU = {
+          id = "SPRITE_PIKACHU", image = "pokepc/assets/follower_CHARMANDER.png",
+          frames = 6, walker = true,
+        },
+      },
+    },
+    save = { party = { { species = "NATU", hp = 10 } } },
+    mods = {
+      exports = {
+        pokepc = {
+          activeMon = function(game) return game.save.party[1] end,
+          assetPath = function(species)
+            return "pokepc/assets/follower_" .. tostring(species) .. ".png"
+          end,
+        },
+      },
+    },
+  }
+  T.eq(followerCompat.install(followerGame), true,
+    "the follower renderer guard installs without a PokéPC closure seam")
+  T.eq(pcall(PikachuFollower.update, followerGame, {}), true,
+    "selecting a Johto follower cannot reach the missing PokéPC sheet")
+  T.eq(renderedPath, "ascendant/runtime/follower_NATU.png",
+    "the renderer receives Natu's bundled mobile-ready sheet")
+  T.eq(followerCompat.restore(), true,
+    "the renderer-only follower guard restores cleanly")
+
+  followerCompat.localPath = oldLocalPath
+  love.filesystem.getInfo = oldGetInfo
+  PikachuFollower.update = originalUpdate
+  SpriteRenderer.new = originalNew
 end
 
 -- ------------------------------------------------ pure line resolution

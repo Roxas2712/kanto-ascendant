@@ -94,16 +94,23 @@ return function(mod, opts)
     return spriteAssets.follower(species, shiny)
   end
 
-  local function selectedFollower(game, species)
+  local function followerApi(game)
     local exports = game and game.mods and game.mods.exports
     if type(exports) == "table" then
       for _, api in pairs(exports) do
         if type(api) == "table" and type(api.activeMon) == "function" then
-          local ok, mon = pcall(api.activeMon, game)
-          if ok and mon and (not species or mon.species == species) then
-            return mon
-          end
+          return api
         end
+      end
+    end
+  end
+
+  local function selectedFollower(game, species)
+    local api = followerApi(game)
+    if api then
+      local ok, mon = pcall(api.activeMon, game)
+      if ok and mon and (not species or mon.species == species) then
+        return mon
       end
     end
     for _, mon in ipairs(game and game.save and game.save.party or {}) do
@@ -158,6 +165,89 @@ return function(mod, opts)
   end
 
   local STATE_KEY = "__kantoAscendantFollowerCompat"
+  local RENDERER_STATE_KEY = "__kantoAscendantFollowerRendererCompat"
+
+  local function pathExists(path)
+    if type(path) ~= "string" or path == "" then return false end
+    local fs = love and love.filesystem
+    if not (fs and fs.getInfo) then return true end
+    local ok, found = pcall(fs.getInfo, path)
+    return ok and found ~= nil
+  end
+
+  local function resolvedFollowerPath(game, mon, originalAssetPath)
+    if type(mon) ~= "table" or type(mon.species) ~= "string" then return nil end
+    local localPath = C.localPath(mon.species, mon)
+    if pathExists(localPath) then return localPath end
+
+    local api = followerApi(game)
+    local assetPath = originalAssetPath
+      or (api and type(api.assetPath) == "function" and api.assetPath)
+    if type(assetPath) ~= "function" then return nil end
+
+    local proxy = C.proxySpecies(mon.species, game and game.data)
+    local ok, path = pcall(assetPath, proxy)
+    if ok and pathExists(path) then return path end
+    ok, path = pcall(assetPath, "CHARMANDER")
+    if ok and pathExists(path) then return path end
+    return nil
+  end
+
+  C.resolvedPath = resolvedFollowerPath
+
+  -- Android and some release sandboxes do not expose debug.getupvalue, so
+  -- closure patching cannot be the only compatibility path. Every follower
+  -- implementation eventually constructs SPRITE_PIKACHU through this
+  -- renderer. Correct the sheet at that last safe point before a missing
+  -- follower_<JOHTO>.png path can reach love.graphics.newImage and crash.
+  local function installRendererGuard(game)
+    if not followerApi(game) then return false end
+    local ok, SpriteRenderer = pcall(require, "src.render.SpriteRenderer")
+    if not ok or type(SpriteRenderer) ~= "table"
+        or type(SpriteRenderer.new) ~= "function" then
+      return false
+    end
+
+    local previous = rawget(SpriteRenderer, RENDERER_STATE_KEY)
+    if previous and previous.game == game
+        and SpriteRenderer.new == previous.wrapper then
+      return true
+    end
+    if previous and type(previous.restore) == "function" then
+      pcall(previous.restore)
+    end
+
+    local originalNew = SpriteRenderer.new
+    local wrapper
+    wrapper = function(def, seed)
+      local followerDef = type(def) == "table"
+        and (def.id == "SPRITE_PIKACHU"
+          or def == (game and game.data and game.data.sprites
+            and game.data.sprites.SPRITE_PIKACHU))
+      if followerDef then
+        local mon = selectedFollower(game)
+        local path = resolvedFollowerPath(game, mon)
+        if path then
+          def.image = path
+          def.frames = 6
+          def.walker = true
+          def.trueColor = true
+        end
+      end
+      return originalNew(def, seed)
+    end
+
+    local state = { game = game, original = originalNew, wrapper = wrapper }
+    state.restore = function()
+      if SpriteRenderer.new == wrapper then SpriteRenderer.new = originalNew end
+      if rawget(SpriteRenderer, RENDERER_STATE_KEY) == state then
+        rawset(SpriteRenderer, RENDERER_STATE_KEY, nil)
+      end
+    end
+    SpriteRenderer.new = wrapper
+    rawset(SpriteRenderer, RENDERER_STATE_KEY, state)
+    return true
+  end
 
   local function refreshVisibleFollower(game, PikachuFollower, replacement)
     local mon = selectedFollower(game)
@@ -186,20 +276,25 @@ return function(mod, opts)
   end
 
   function C.install(game)
-    if not (debug and debug.getupvalue and debug.setupvalue) then return false end
+    local guarded = installRendererGuard(game)
+    if not (debug and debug.getupvalue and debug.setupvalue) then
+      return guarded
+    end
     local ok, PikachuFollower = pcall(require, "src.world.PikachuFollower")
-    if not ok or type(PikachuFollower) ~= "table" then return false end
+    if not ok or type(PikachuFollower) ~= "table" then return guarded end
 
     local _, configureSpriteDef =
       nestedUpvalue(PikachuFollower.update, "configureSpriteDef")
     if type(configureSpriteDef) ~= "function" then
       -- The compatible follower mod is optional. Vanilla and unrelated
       -- follower implementations do not expose this seam.
-      return false
+      return guarded
     end
     local assetIndex, originalAssetPath =
       upvalue(configureSpriteDef, "assetPath")
-    if not assetIndex or type(originalAssetPath) ~= "function" then return false end
+    if not assetIndex or type(originalAssetPath) ~= "function" then
+      return guarded
+    end
 
     local previous = rawget(PikachuFollower, STATE_KEY)
     if previous and previous.configure == configureSpriteDef
@@ -212,16 +307,9 @@ return function(mod, opts)
 
     local replacement
     replacement = function(species)
-      local localPath = C.localPath(species,
-        selectedFollower(game, species))
-      if localPath then return localPath end
-      local proxy = C.proxySpecies(species, game and game.data)
-      local path = originalAssetPath(proxy)
-      local fs = love and love.filesystem
-      if fs and fs.getInfo and not fs.getInfo(path) then
-        path = originalAssetPath("CHARMANDER")
-      end
-      return path
+      local mon = selectedFollower(game, species) or { species = species }
+      return resolvedFollowerPath(game, mon, originalAssetPath)
+        or originalAssetPath("CHARMANDER")
     end
     debug.setupvalue(configureSpriteDef, assetIndex, replacement)
 
@@ -250,13 +338,22 @@ return function(mod, opts)
   end
 
   function C.restore()
+    local restored = false
     local ok, PikachuFollower = pcall(require, "src.world.PikachuFollower")
     local state = ok and rawget(PikachuFollower, STATE_KEY)
     if state and type(state.restore) == "function" then
       state.restore()
-      return true
+      restored = true
     end
-    return false
+    local okRenderer, SpriteRenderer =
+      pcall(require, "src.render.SpriteRenderer")
+    local rendererState = okRenderer
+      and rawget(SpriteRenderer, RENDERER_STATE_KEY)
+    if rendererState and type(rendererState.restore) == "function" then
+      rendererState.restore()
+      restored = true
+    end
+    return restored
   end
 
   C.familyProxy = FAMILY_PROXY

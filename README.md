@@ -797,8 +797,8 @@ from Chikorita through Celebi, including:
 Every new species has base stats, typing, learnset, TM compatibility, Pokédex
 data and a four-shade Kanto fallback. After all enabled mods finish loading,
 Ascendant preserves any externally registered Gen-II cry and installs its
-self-contained synthesized chip cry only for species still missing audio.
-Mega and Ascendant forms use that resolved base-species cry. The six story
+portable ROM-native derived cry only for species still missing audio. Mega
+and Ascendant forms use that resolved base-species cry. The six story
 legends retain their authored front/back pixel art. Their party-menu icons use
 the game's standard animated silhouettes: quadruped for the three beasts, bird
 for Lugia and Ho-Oh, and the Mew-like fairy icon for Celebi.
@@ -854,12 +854,13 @@ python3 tools/install_gen2_followers.py
 ```
 
 The package contains normal and shiny six-pose PokeWilds sheets for 99
-species; Unown is built from its matching Crystal front sprite. They are
-converted on first use to Gen1 Recomp's exact down/up/side walking layout.
+species; Unown is built from its matching Crystal front sprite. Every release
+also includes renderer-ready 16×96 copies in Gen1 Recomp's exact down/up/side
+walking layout, so mobile devices do not need to generate or cache them.
 The selected individual determines whether the normal or shiny sheet is used.
 Both the normal 2D renderer and Dramatic Shape's voxel renderer consume the
-same converted sheet. The source project and individual sprite contributors
-are credited in the [PokeWilds project](https://github.com/SheerSt/pokewilds).
+same packaged sheet. The source project and individual sprite contributors are
+credited in the [PokeWilds project](https://github.com/SheerSt/pokewilds).
 
 If an individual sheet is damaged or missing, the related Kanto silhouette
 remains as a crash-safe fallback until the package is repaired.
@@ -950,7 +951,7 @@ missions, Rocket story and one new tournament bracket are completed.
 
 ## Installation
 
-1. Download `kanto-ascendant-5.2.1.zip` from the
+1. Download `kanto-ascendant-5.2.2.zip` from the
    [latest release](https://github.com/Roxas2712/kanto-ascendant/releases/latest)
    and import it through the launcher. The identical `.modpkg` is also
    available for launcher versions that use that extension. Developers may
