@@ -562,12 +562,12 @@ discovery.choose(false)
 discovery.hub.offerCapsule(discovery.game, "INSPECT IT?",
   function(yes)
     equal(yes, false, "the capsule prompt defaults to NO")
-    return false, "declined", "The capsule waits."
+    return false, "declined", "Return later to inspect it."
   end)
 equal(#discovery.displays, 2,
   "declining the capsule still shows an authored follow-up")
-contains(discovery.displays[2].text, "waits",
-  "the capsule decline is visible")
+contains(discovery.displays[2].text, "Return later",
+  "the capsule decline explains that the choice remains available")
 
 discovery.choose(true)
 discovery.hub.offerCapsule(discovery.game, "INSPECT IT?",
@@ -575,8 +575,8 @@ discovery.hub.offerCapsule(discovery.game, "INSPECT IT?",
     equal(yes, true, "the capsule choice reaches Early Johto")
     return true, "found", "Sender recovered."
   end)
-equal(discovery.travelRefreshes, 1,
-  "finding the capsule immediately refreshes Pallet travel")
+equal(discovery.travelRefreshes, 2,
+  "finding the capsule refreshes Pallet travel immediately and after the result closes")
 
 local direct = newHarness()
 direct.choose(true)

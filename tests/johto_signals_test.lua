@@ -272,9 +272,13 @@ do
   h.api.onMapEntered({ game = game, map = { id = "PALLET_TOWN" } })
   eq(h.callbacks.capsule, 1,
     "an available capsule produces one prompt on Pallet entry")
-  local ok, reason = h.callbacks.inspect(false)
+  local ok, reason, declineText = h.callbacks.inspect(false)
   eq(ok, false, "declining the capsule remains a non-completion")
   eq(reason, "declined", "declining reports its authored reason")
+  contains(declineText, "Return later",
+    "declining explains that inspection remains available later")
+  notContains(declineText, "waits on shore",
+    "declining does not claim that the capsule waits on the shore")
   for _ = 1, 8 do
     h.api.onStep(game, { game = game, mapId = "PALLET_TOWN" })
   end
@@ -284,6 +288,15 @@ do
   h.api.onMapEntered({ game = game, map = { id = "PALLET_TOWN" } })
   eq(h.callbacks.capsule, 2,
     "leaving and returning makes the optional capsule prompt available again")
+  local accepted, acceptedReason = h.callbacks.inspect(true)
+  eq(accepted, true,
+    "accepting after an earlier decline still discovers the capsule")
+  eq(acceptedReason, "found",
+    "accepting after an earlier decline reaches the found stage")
+  eq(h.state.capsuleFound, true,
+    "an earlier decline cannot suppress the later accepted discovery")
+  eq(h.state.questStarted, true,
+    "an earlier decline cannot suppress the boatman's travel permission")
 
   local savePriority
   for _, row in ipairs(h.handlers["save.loaded"] or {}) do

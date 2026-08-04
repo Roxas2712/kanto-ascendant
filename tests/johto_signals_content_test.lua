@@ -240,6 +240,8 @@ equal(#catalogFixture.scripts.order, 2,
   "the supported catalog receives Driftglass and Pallet scripts")
 truthy(catalogFixture.events.rows["map.entered"],
   "the supported catalog enables the departure-boat lifecycle")
+truthy(catalogFixture.events.rows["player.step"],
+  "the supported catalog enables the active-map boatman retry")
 truthy(catalogFixture.events.rows["save.writing"],
   "the supported catalog installs its native-map save safety hook")
 
@@ -391,6 +393,17 @@ equal(palletBoat.name, content.PALLET_BOAT.name,
   "the runtime NPC is the Driftglass boatman")
 equal(palletBoat.x, 8, "the boatman prefers the safe Pallet coast")
 equal(palletBoat.y, 14, "the boatman prefers the safe Pallet coast")
+
+truthy(mod.world:removeNpc("PALLET_TOWN_obj_" .. palletBoat.index),
+  "the live retry test can remove the first boatman")
+equal(#game.data.maps.PALLET_TOWN.objects, 0,
+  "the simulated failed live boatman is absent")
+for _, row in ipairs(fixture.events.rows["player.step"] or {}) do
+  row.fn({ game = game, mapId = "PALLET_TOWN" })
+end
+equal(#game.data.maps.PALLET_TOWN.objects, 1,
+  "the next Pallet step recreates a missing accepted boatman")
+palletBoat = game.data.maps.PALLET_TOWN.objects[1]
 
 fixture.choose(false)
 local departureNpc = { frozen = false }

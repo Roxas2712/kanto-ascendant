@@ -446,8 +446,10 @@ return function(mod, opts)
           .. "Auf DRIFTGLAS\nkennt man den Weg.")
     end
     return tr(
-      "The dark capsule\nwaits on shore.",
-      "Die dunkle Kapsel\nbleibt am Strand.")
+      "You leave it\nuntouched for now.\f"
+        .. "Return later to\ninspect it.",
+      "Du lässt sie\nvorerst liegen.\f"
+        .. "Komm später zurück\nund prüfe sie.")
   end
 
   local function queueCapsuleOffer(game)

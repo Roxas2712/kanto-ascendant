@@ -313,7 +313,20 @@ function Module.create(mod, opts)
     local ow = mod.world:overworld()
     mapId = mapId or (ow and ow.map and ow.map.id)
     if mapId ~= Module.PALLET_MAP_ID then return false, "not in Pallet Town" end
-    if #ids > 0 then return true, "present" end
+    if #ids > 0 then
+      -- A failed active-map instantiation can leave the runtime definition
+      -- behind without a visible NPC. Remove that ghost and recreate it.
+      if ow and ow.map and ow.map.id == Module.PALLET_MAP_ID
+          and type(mod.world.npc) == "function" then
+        local live = mod.world:npc(
+          Module.PALLET_MAP_ID, Module.PALLET_BOAT.name)
+        if live then return true, "present" end
+        for _, id in ipairs(ids) do mod.world:removeNpc(id) end
+        ids = {}
+      else
+        return true, "present"
+      end
+    end
     if not (ow and ow.map and ow.map.id == Module.PALLET_MAP_ID) then
       return false, "Pallet Town is not active"
     end
@@ -431,6 +444,16 @@ function Module.create(mod, opts)
         local game = ev and ev.game or C.game
         local mapId = ev and (ev.mapId or ev.map and ev.map.id)
         if game then C.refreshTravelNpc(game, mapId) end
+      end, 120)
+      mod.events:on("player.step", function(ev)
+        local game = ev and ev.game or C.game
+        local mapId = ev and (ev.mapId or ev.map and ev.map.id)
+        if not mapId and game and game.overworld and game.overworld.map then
+          mapId = game.overworld.map.id
+        end
+        if game and mapId == Module.PALLET_MAP_ID then
+          C.refreshTravelNpc(game, mapId)
+        end
       end, 120)
       mod.events:on("save.loaded", function(ev)
         C.game = ev and ev.game or C.game

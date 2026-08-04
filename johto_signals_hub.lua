@@ -188,8 +188,15 @@ return function(mod, opts)
       defaultNo = true,
       choice = function(yes)
         local ok, reason, resultText = decide(yes)
-        if ok and reason == "found" then H.onCapsuleFound(game) end
-        if resultText then show(game, resultText) end
+        local found = ok and reason == "found"
+        if found then H.onCapsuleFound(game) end
+        if resultText then
+          -- Runtime NPC creation can race the discovery TextBox on an active
+          -- map. Refresh once immediately and once after that box closes.
+          show(game, resultText, found and function()
+            H.onCapsuleFound(game)
+          end or nil)
+        end
       end,
     })
   end
