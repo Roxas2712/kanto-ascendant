@@ -57,3 +57,9 @@ https://github.com/Roxas2712/kanto-ascendant/releases/tag/v5.4.1
 Import the `.modpkg` through the Gen1 Recomp launcher.
 
 ⚠️ Do not enable another complete-Johto species mod alongside Kanto Ascendant.
+
+## 🤝 ALSO CHECK OUT
+
+**Gender Mod by WizzStar**
+
+https://discord.com/channels/1019387038820216882/1534259604471418941
