@@ -74,12 +74,13 @@ original Red or Blue player save is currently claimed by this repository.
 Run the package boundary audit before creating saves:
 
 ```sh
-cd /Users/maarten/Documents/Recompile/kanto-ascendant-6.0
+cd /Users/maarten/Documents/Recompile/kanto-ascendant-6.0-current
 python3 tools/johto_signals_release_audit.py \
   /absolute/path/to/kanto-ascendant-6.0.0.modpkg
 ```
 
-Use `tools/johto_signals_launcher_smoke/` to import the actual 5.3 package
+Use `tools/johto_signals_launcher_smoke/` to import the actual current
+5.4.1 package
 and then replace it with the actual 6.0 package under the same isolated
 identity. That smoke tool has its own identity guard. Do not substitute the
 source directory for this final package gate.
@@ -98,17 +99,17 @@ LOVE_BIN=/Users/maarten/Documents/Recompile/gen1recomp/.tools/love-11.5-macos/lo
 
 POKEPORT_IDENTITY=kanto-ascendant-signals-uat \
 POKEPORT_VERSION=red \
-POKEPORT_DRIVER=/Users/maarten/Documents/Recompile/kanto-ascendant-6.0/tools/johto_signals_uat_save_builder.lua \
+POKEPORT_DRIVER=/Users/maarten/Documents/Recompile/kanto-ascendant-6.0-current/tools/johto_signals_uat_save_builder.lua \
 "$LOVE_BIN" .
 
 POKEPORT_IDENTITY=kanto-ascendant-signals-uat \
 POKEPORT_VERSION=blue \
-POKEPORT_DRIVER=/Users/maarten/Documents/Recompile/kanto-ascendant-6.0/tools/johto_signals_uat_save_builder.lua \
+POKEPORT_DRIVER=/Users/maarten/Documents/Recompile/kanto-ascendant-6.0-current/tools/johto_signals_uat_save_builder.lua \
 "$LOVE_BIN" .
 
 POKEPORT_IDENTITY=kanto-ascendant-signals-uat \
 POKEPORT_VERSION=yellow \
-POKEPORT_DRIVER=/Users/maarten/Documents/Recompile/kanto-ascendant-6.0/tools/johto_signals_uat_save_builder.lua \
+POKEPORT_DRIVER=/Users/maarten/Documents/Recompile/kanto-ascendant-6.0-current/tools/johto_signals_uat_save_builder.lua \
 "$LOVE_BIN" .
 ```
 
@@ -137,7 +138,7 @@ LOVE_BIN=/Users/maarten/Documents/Recompile/gen1recomp/.tools/love-11.5-macos/lo
 KA_SIGNALS_UPGRADE_RED_SAVE=/absolute/path/to/original-5.3-red-save.lua \
 POKEPORT_IDENTITY=kanto-ascendant-signals-uat \
 POKEPORT_VERSION=red \
-POKEPORT_DRIVER=/Users/maarten/Documents/Recompile/kanto-ascendant-6.0/tools/johto_signals_uat_save_builder.lua \
+POKEPORT_DRIVER=/Users/maarten/Documents/Recompile/kanto-ascendant-6.0-current/tools/johto_signals_uat_save_builder.lua \
 "$LOVE_BIN" .
 ```
 
@@ -149,7 +150,7 @@ LOVE_BIN=/Users/maarten/Documents/Recompile/gen1recomp/.tools/love-11.5-macos/lo
 KA_SIGNALS_UPGRADE_RED_SAVES='/abs/original-1.x.lua;/abs/original-5.3.lua' \
 POKEPORT_IDENTITY=kanto-ascendant-signals-uat \
 POKEPORT_VERSION=red \
-POKEPORT_DRIVER=/Users/maarten/Documents/Recompile/kanto-ascendant-6.0/tools/johto_signals_uat_save_builder.lua \
+POKEPORT_DRIVER=/Users/maarten/Documents/Recompile/kanto-ascendant-6.0-current/tools/johto_signals_uat_save_builder.lua \
 "$LOVE_BIN" .
 ```
 

@@ -6,6 +6,7 @@
 --
 -- Optional but required for the final release gate:
 --   KA_SIGNALS_OLD_PACKAGE=/absolute/path/to/kanto-ascendant-5.3.0.modpkg
+--   KA_SIGNALS_OLD_VERSION=5.3.0
 
 local function fail(message)
   io.stderr:write("JOHTO SIGNALS LAUNCHER QA FAIL: "
@@ -28,6 +29,7 @@ function love.load()
     local packagePath = assert(os.getenv("KA_SIGNALS_PACKAGE"),
       "KA_SIGNALS_PACKAGE is required")
     local oldPackage = os.getenv("KA_SIGNALS_OLD_PACKAGE")
+    local oldVersion = os.getenv("KA_SIGNALS_OLD_VERSION") or "5.3.0"
     package.path = engine .. "/?.lua;" .. engine .. "/?/init.lua;"
       .. package.path
 
@@ -45,8 +47,9 @@ function love.load()
       for _, row in ipairs(LauncherMods.list()) do
         if row.id == id then found = row break end
       end
-      assert(found and found.version == "5.3.0",
-        "upgrade base is not Kanto Ascendant 5.3.0")
+      assert(found and found.version == oldVersion,
+        ("upgrade base is %s, expected Kanto Ascendant %s")
+          :format(tostring(found and found.version), oldVersion))
     end
 
     local installedOk, result = LauncherMods.installZip(packagePath, {
