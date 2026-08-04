@@ -309,14 +309,22 @@ return function(mod, data, opts)
     return true
   end
 
-  local function validPartyDefinition(game, party)
+  local function validPartyDefinition(game, party, requireRegistered)
     if type(party) ~= "table" or #party < 1 or #party > 6 then return false end
     for _, slot in ipairs(party) do
       local level = type(slot) == "table" and tonumber(slot.level)
       if type(slot) ~= "table" or type(slot.species) ~= "string"
-          or not level or level < 1 or level > 100 then return false end
+          or not level or level ~= math.floor(level)
+          or level < 1 or level > 100 then return false end
+      if slot.moves ~= nil and type(slot.moves) ~= "table" then return false end
+      if requireRegistered and not game.data.pokemon[slot.species] then
+        return false
+      end
       for _, moveId in ipairs(slot.moves or {}) do
-        if type(moveId) ~= "string" then return false end
+        if type(moveId) ~= "string"
+            or requireRegistered and not game.data.moves[moveId] then
+          return false
+        end
       end
     end
     return true
@@ -458,7 +466,8 @@ return function(mod, data, opts)
     assert(type(trainer.parties) == "table",
       "trainer " .. tostring(class) .. " has no party registry")
     local intended = copyTeam(enabledTeam(team))
-    assert(validPartyDefinition(game, intended),
+    local requireRegistered = type(BattleState.makeBattler) == "function"
+    assert(validPartyDefinition(game, intended, requireRegistered),
       "invalid forced trainer party for " .. tostring(class))
     context = context or {}
     context.class = class
@@ -468,24 +477,52 @@ return function(mod, data, opts)
     context.vanillaParty = copyTeam(trainer.parties[1])
 
     local parties = trainer.parties
-    local originalCount = #parties
-    local syntheticIndex = originalCount + 1
-    context.syntheticIndex = syntheticIndex
-    parties[syntheticIndex] = copyTeam(intended)
+    context.syntheticIndex = 1
     forcedStack[#forcedStack + 1] = context
+
+    -- Run the complete Randomizer/mod hook chain once while the authored
+    -- roster is the input. Older public engines construct Pokémon
+    -- immediately after the hook and can crash on an empty/invalid result,
+    -- so validate here before entering BattleState.
+    local Runtime = require("src.mods.Runtime")
+    local resolved = Runtime.call("trainer.party",
+      function(_, _, party) return party end,
+      class, 1, copyTeam(intended))
+    if not validPartyDefinition(game, resolved, requireRegistered)
+        or #resolved ~= #intended then
+      resolved = copyTeam(intended)
+      context.fallback = true
+      context.fallbackReason = "invalid_hook_party"
+    elseif not samePartySignature(context.vanillaParty, intended)
+        and samePartySignature(resolved, context.vanillaParty) then
+      resolved = copyTeam(intended)
+      context.fallback = true
+      context.fallbackReason = "vanilla_party"
+    end
+
+    -- The hook result is already final. Construct through the engine with
+    -- party 1 temporarily replaced and the trainer.party chain suspended.
+    -- This is compatible with both the frozen launcher engine and newer
+    -- engines that provide skipPartyHook/displayPartyIndex options.
+    local originalParty = parties[1]
+    parties[1] = copyTeam(resolved)
+    local hookChains = Runtime.hooks and Runtime.hooks.chains
+    local savedPartyChain = hookChains and hookChains["trainer.party"]
+    if hookChains then hookChains["trainer.party"] = nil end
     local ok, result = xpcall(function()
-      return BattleState.newTrainer(game, class, syntheticIndex, {
+      return BattleState.newTrainer(game, class, 1, {
+        skipPartyHook = true,
         displayPartyIndex = 1,
       })
     end, debug.traceback)
-    parties[syntheticIndex] = nil
+    parties[1] = originalParty
+    if hookChains then hookChains["trainer.party"] = savedPartyChain end
     for i = #forcedStack, 1, -1 do
       if forcedStack[i] == context then
         table.remove(forcedStack, i)
         break
       end
     end
-    while #parties > originalCount do parties[#parties] = nil end
     if not ok then error(result, 0) end
     return finalizeForcedBattle(game, result, intended, context)
   end

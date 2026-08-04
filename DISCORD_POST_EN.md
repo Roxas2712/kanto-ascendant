@@ -1,48 +1,53 @@
-# ⚡ KANTO ASCENDANT 5.4.0 — THE LOST THUNDER
+# ⚡ KANTO ASCENDANT 5.4.1 — THUNDER REFORGED
 
 **The Hall of Fame was only the beginning.**
 
-Kanto Ascendant turns Red, Blue and Yellow into a living Gen-I/II adventure
-with **all 251 Pokémon in one save** and a huge Lv.100 post-game.
+Kanto Ascendant turns Red, Blue and Yellow into one living Gen-I/II adventure:
+**all 251 Pokémon in one save**, growing rematches and a huge Lv.100 post-game.
 
-## 🔥 NEW IN 5.4.0: GOROCHU
+## ⚡ GOROCHU, REBUILT
 
-Raichu's lost final evolution returns as a complete guest Pokémon!
+🔑 Obtain the permanent **Thunderheart**, locate its remote Power Plant
+condenser and create a **Thunder Tear** for the Raichu you choose.
 
-⚡ After the Hall of Fame, raise Raichu's bond, teach it Thunder and level up
-inside the Power Plant.
+🎨 Sharp dedicated normal/shiny art for classic 2D, Crystal Animated and Voxel:
+fronts, backs, six-pose followers and full Raichu/Gorochu dialogue portraits.
 
-🎞️ Dedicated normal/shiny front, back, Crystal animation and follower art.
+🔊 Yellow uses Gorochu's spoken cry; Red/Blue use a new Gen-I-style chip cry.
+An externally installed Gorochu cry still takes priority.
 
-😊 Yellow's original partner keeps its identity and gains seven animated
-Gorochu expressions. Gorochu stays outside the original 251 completion count.
+## 🛠️ 5.4.1 FIXES
+
+🎲 Authored Ascendant bosses now work correctly with the Gen-I Randomizer
+without undoing randomized species or moves.
+
+🧬 Researched Johto families can join suitable rematch trainers
+deterministically—old recruits never reroll.
+
+📖 New independent **DEX SPRITES** option: original Red/Blue/Yellow Pokédex
+fronts or static Crystal art, without changing battle graphics.
+
+👀 Opponents cannot reveal Gorochu until you personally complete its evolution.
 
 ## 🗺️ THE FULL ADVENTURE
 
-⚔️ Growing rematches, dialogue, loot and renewable TMs.
+⚔️ Growing rematches, unique dialogue, loot and renewable TMs
 
-🥚 Day-Care breeding, eggs, services and HM Field Kit.
+🥚 Day-Care breeding, eggs, HM Field Kit and Move Reminder
 
-🌟 Gen-II shinies, Shiny Dex, outbreaks, streaks and Shiny Charm.
+🌟 Gen-II shinies, outbreaks, Shiny Dex and Shiny Charm
 
-🎞️ Animated normal/shiny Crystal art for all 251, Gen-I, 2D and Voxel support.
+💎 30 official Megas and Johto Starter Relic journeys
 
-💎 All 30 official Megas, plus Yellow's optional Thunderheart partner path.
+👑 Lv.100 Leaders, Elite Four, Champion and adaptive endgame
 
-🌿💧🔥 Johto Starter Relic questlines.
-
-👑 Lv.100 Leaders, Elite Four, Champion and adaptive endgame.
-
-🌌 Legendary events for the birds, beasts, Mewtwo, Mew, Lugia, Ho-Oh and Celebi.
-
-🏆 Frontier, Factory, S.S. Anne, Rocket, Heritage Cups and Johto Masters.
-
-📜 Atlas, Journal, titles, trophies, certificates and Ascendant cycles.
+🌌 Legendary events, Heritage Cups, Frontier, Factory and S.S. Anne
+📜 Atlas, Journal, titles, trophies, certificates and New Game+
 
 ✅ Red / Blue / Yellow · Existing saves · English / German
 
 ## 📥 DOWNLOAD
-https://github.com/Roxas2712/kanto-ascendant/releases/tag/v5.4.0
+https://github.com/Roxas2712/kanto-ascendant/releases/tag/v5.4.1
 
 Import the `.modpkg` through the Gen1 Recomp launcher.
 ⚠️ Do not enable another complete-Johto species mod.

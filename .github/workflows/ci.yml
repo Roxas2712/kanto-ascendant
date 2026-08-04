@@ -60,5 +60,89 @@ jobs:
           MODKIT_LUAJIT: luajit
         run: |
           python3 tools/modkit.py pack ../kanto-ascendant \
-            -o ../kanto-ascendant-5.4.0.modpkg
-          unzip -t ../kanto-ascendant-5.4.0.modpkg
+            -o ../kanto-ascendant-5.4.1.modpkg
+          unzip -t ../kanto-ascendant-5.4.1.modpkg
+          cp ../kanto-ascendant-5.4.1.modpkg \
+            ../kanto-ascendant-5.4.1.zip
+          (
+            cd ..
+            sha256sum kanto-ascendant-5.4.1.modpkg \
+              kanto-ascendant-5.4.1.zip \
+              > SHA256SUMS-5.4.1.txt
+          )
+          python3 - <<'PY'
+          import json
+          import zipfile
+
+          package = "../kanto-ascendant-5.4.1.modpkg"
+          forbidden_prefixes = (
+              "art_review/",
+              "assets/sources/",
+              "qa/",
+              "tests/",
+              "tools/",
+          )
+          forbidden_files = {
+              ".luarc.json",
+              "DISCORD_FIXES_EN.md",
+              "DISCORD_POST_EN.md",
+              "docs/FUTURE_FORM_BACKLOG.md",
+              "docs/MEGA_FORM_PIPELINE.md",
+              "docs/NEXT_MAJOR_UPDATE_STARFALL_TIDES.md",
+          }
+          required_files = {
+              "assets/audio/gorochu/gorochu_cry.wav",
+              "assets/followers/gorochu.png",
+              "assets/followers/shiny/gorochu.png",
+              "assets/followers_runtime/normal/follower_GOROCHU.png",
+              "assets/followers_runtime/shiny/follower_GOROCHU.png",
+              "assets/voxel/gorochu/gorochu_back.png",
+              "assets/voxel/gorochu/gorochu_back_shiny.png",
+              "assets/voxel/gorochu/gorochu_front.png",
+              "assets/voxel/gorochu/gorochu_front_shiny.png",
+              "gorochu_visuals.lua",
+          }
+
+          with zipfile.ZipFile(package) as archive:
+              names = set(archive.namelist())
+              leaked = sorted(
+                  name for name in names
+                  if name in forbidden_files
+                  or name.startswith(forbidden_prefixes)
+                  or (
+                      name.startswith("RELEASE_NOTES_")
+                      and name.endswith(".md")
+                  )
+              )
+              if leaked:
+                  raise SystemExit(
+                      "Release-only files leaked into the package:\n"
+                      + "\n".join(leaked)
+                  )
+
+              missing = sorted(required_files - names)
+              if missing:
+                  raise SystemExit(
+                      "Required Gorochu runtime files are missing:\n"
+                      + "\n".join(missing)
+                  )
+
+              manifest = json.loads(archive.read("manifest.json"))
+              if manifest.get("version") != "5.4.1":
+                  raise SystemExit(
+                      "Expected manifest version 5.4.1, got "
+                      + repr(manifest.get("version"))
+                  )
+
+          print("Package contents and manifest version are release-clean.")
+          PY
+
+      - name: Upload the verified release candidate
+        uses: actions/upload-artifact@v4
+        with:
+          name: kanto-ascendant-5.4.1-release-candidate
+          if-no-files-found: error
+          path: |
+            kanto-ascendant-5.4.1.modpkg
+            kanto-ascendant-5.4.1.zip
+            SHA256SUMS-5.4.1.txt

@@ -1,5 +1,6 @@
 DISCORD_POST_EN.md
 DISCORD_FIXES_EN.md
+.luarc.json
 RELEASE_NOTES_5.0.md
 RELEASE_NOTES_5.1.md
 RELEASE_NOTES_5.2.0.md
@@ -8,8 +9,12 @@ RELEASE_NOTES_5.2.2.md
 RELEASE_NOTES_5.2.3.md
 RELEASE_NOTES_5.3.0.md
 RELEASE_NOTES_5.4.0.md
+RELEASE_NOTES_5.4.1.md
+docs/FUTURE_FORM_BACKLOG.md
+docs/MEGA_FORM_PIPELINE.md
 docs/NEXT_MAJOR_UPDATE_STARFALL_TIDES.md
 qa/
+art_review/
 assets/sources/gorochu/gorochu_expression_reference.png
 assets/sources/gorochu/gorochu_expression_reference_chroma.png
 assets/sources/gorochu/gorochu_sprite_reference.png
@@ -24,6 +29,7 @@ tests/gorochu_visuals_test.lua
 tests/field_economy_test.lua
 tests/fixtures/upgrade_saves.lua
 tests/reachability_test.lua
+tests/recruitment_full_data_test.lua
 tests/trainer_rematch_test.lua
 tests/upgrade_matrix_test.lua
 tools/build_ascendant_typhlosion.py
@@ -40,6 +46,7 @@ tools/capture_all_mega_ingame.sh
 tools/crystal_animation_qa_driver.lua
 tools/create_gorochu_acceptance_saves.lua
 tools/gorochu_acceptance_load_qa.lua
+tools/dex_sprite_qa_driver.lua
 tools/endgame_qa_driver.lua
 tools/field_tech_qa_driver.lua
 tools/gorochu_qa_driver.lua

@@ -38,6 +38,11 @@ for index, moveId in ipairs({
 end
 
 local modPath = os.getenv("TRAINER_REMATCH_MOD_DIR") or "mods/trainer_rematch"
+local function packagedPath(runtimePath)
+  local relative = type(runtimePath) == "string"
+    and runtimePath:match("(assets/.*)$")
+  return relative and (modPath .. "/" .. relative) or runtimePath
+end
 local run = T.sdk.loadMod(modPath, { data = Data })
 T.eq(#run.errors, 0, "loads clean")
 T.eq(run.mod.manifest.name, "Kanto Ascendant",
@@ -309,11 +314,16 @@ do
   Data.audio.cries.GOROCHU = nil
   local installed, preserved = gorochu.installAudio({ data = Data })
   T.eq(installed, 1,
-    "a missing Gorochu cry receives the packaged spoken species call")
+    "a missing Red/Blue Gorochu cry receives its Gen-I chip program")
   T.eq(preserved, 0, "the first Gorochu fallback install owns the empty slot")
-  T.eq(Data.audio.cries.GOROCHU.file,
-    modPath .. "/assets/audio/gorochu/gorochu_cry.wav",
-    "Gorochu no longer reuses Raichu's cry")
+  T.eq(Data.audio.cries.GOROCHU.file, nil,
+    "Red/Blue Gorochu does not use Yellow's spoken partner call")
+  T.eq(Data.audio.cries.GOROCHU.base, "RAICHU",
+    "Red/Blue Gorochu derives its original-style program from Raichu")
+  T.eq(Data.audio.cries.GOROCHU.pitch, 0x50,
+    "Red/Blue Gorochu uses its authored Gen-I cry pitch")
+  T.eq(Data.audio.cries.GOROCHU.length, 0xB0,
+    "Red/Blue Gorochu uses its authored Gen-I cry length")
   T.eq(Data.pokemon.GOROCHU.cry, "GOROCHU",
     "the guest species binds to its resolved cry")
   local repeatedInstalled, repeatedPreserved =
@@ -1245,6 +1255,27 @@ do
     return yellowPartner.raichuReaction(reactionGame, reactionMon)
   end
 
+  local partnerTextKey = "_CeladonMansion1Text10"
+  local previousPartnerText = Data.text[partnerTextKey]
+  Data.text[partnerTextKey] = "Your PIKACHU looks happy."
+  local textMon = mon("RAICHU")
+  textMon[yellowPartner.marker] = true
+  local textGame = yellowGame({ textMon }, true)
+  T.eq(yellowPartner._adaptPartnerText(
+      textGame, Data.text[partnerTextKey]),
+    "Your RAICHU looks happy.",
+    "Yellow NPC text follows the evolved partner's Raichu identity")
+  textMon.species = "GOROCHU"
+  T.eq(yellowPartner._adaptPartnerText(
+      textGame, Data.text[partnerTextKey]),
+    "Your GOROCHU looks happy.",
+    "Yellow NPC text follows the evolved partner's Gorochu identity")
+  T.eq(yellowPartner._adaptPartnerText(
+      textGame, "My PIKACHU is adorable."),
+    "My PIKACHU is adorable.",
+    "unrelated NPC-owned Pikachu text is never rewritten")
+  Data.text[partnerTextKey] = previousPartnerText
+
   local sleepyReaction = reactionAt(230, 128, "SLP")
   T.eq(sleepyReaction.id, "sleepy",
     "a sleeping partner Raichu receives its own mood")
@@ -1323,7 +1354,7 @@ do
         .. reaction.id .. "/001.png", 1, true) ~= nil,
       true, reaction.id .. " Raichu uses its own facial artwork")
     for _, path in ipairs(files) do
-      local handle = io.open(path, "rb")
+      local handle = io.open(packagedPath(path), "rb")
       T.neq(handle, nil,
         reaction.id .. " Raichu portrait frame is packaged")
       if handle then handle:close() end
@@ -1393,7 +1424,7 @@ do
         .. mood .. "/001.png", 1, true) ~= nil,
       true, mood .. " Gorochu uses its own facial artwork")
     for _, path in ipairs(files) do
-      local handle = io.open(path, "rb")
+      local handle = io.open(packagedPath(path), "rb")
       T.neq(handle, nil,
         mood .. " Gorochu portrait frame is packaged")
       if handle then handle:close() end
@@ -1589,6 +1620,10 @@ do
     Data.pokemon.RAICHU, questMon.level, questMon.dvs, questMon.statExp)
   T.same(questMon.stats, raichuEquivalent,
     "awakened Pikachu calculates exactly from Raichu's dynamic base stats")
+  local frozenEngineStyle = Stats.calc(
+    Data.pokemon.PIKACHU, questMon.level, questMon.dvs, questMon.statExp)
+  T.same(frozenEngineStyle, raichuEquivalent,
+    "the mod-only shim preserves Awakening on the frozen four-argument Stats API")
   T.eq(questMon.hp, raichuEquivalent.hp - damageBeforeAwakening,
     "Awakening preserves the exact amount of HP already lost")
   T.eq(questMon.dvs, keptDvs,

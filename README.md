@@ -19,6 +19,28 @@ to work.
 > [GitHub Issues](https://github.com/Roxas2712/kanto-ascendant/issues) and will
 > be considered for future updates.
 
+## What's new in 5.4.1
+
+- Authored Ascendant boss battles now hand their intended temporary roster to
+  the Gen-I Randomizer. Randomized species and moves remain authoritative,
+  while Ascendant safely reapplies the authored team size, levels, rules, AI,
+  rewards and progression.
+- Repeatable field trainers can recruit suitable Johto families after Elm's
+  research exposes them. Each trainer's choices are deterministic and never
+  reroll when later families become available.
+- **DEX SPRITES** independently switches Kanto #001-151 between the active
+  Red/Blue/Yellow Pokédex fronts and bundled static Crystal frame-one art,
+  without changing any battle, animation or follower setting.
+- Gorochu's optional discovery is now a clear item journey: obtain the
+  permanent Thunderheart from Lt. Surge, find its remote Power Plant
+  condenser, create one consumable Thunder Tear and use it on the Raichu you
+  choose.
+- Gorochu now has dedicated sharp 96×96 normal/shiny Voxel fronts and backs,
+  an independent six-pose follower sheet, and complete Raichu/Gorochu
+  conversation portraits. Yellow uses its spoken Gorochu cry; Red and Blue
+  use an edition-fitting Gen-I chip cry. External Gorochu audio remains first
+  priority.
+
 Every rematch is fought for pride. Trainer prize money and Pay Day payouts are
 disabled in all rematch, Master, Apex and Crown battles.
 
@@ -542,23 +564,50 @@ Upgraded Yellow saves that already have the Thunder Badge receive one
 Thunderheart automatically with the walking/battle trial completed. When only
 one self-owned Pikachu or Raichu exists it is adopted automatically. A save
 with several candidates receives a one-time choice instead, so the mod never
-silently marks the wrong Pokémon. Red and Blue never receive this Yellow-only
-item or partner route.
+silently marks the wrong Pokémon. Red and Blue do not receive Yellow's partner
+choice or Awakening route; their Thunderheart powers only the separate
+Gorochu journey described below.
 
-### Gorochu: the Storm Bond evolution
+### Gorochu: the Thunder Path evolution
 
 Raichu can now evolve permanently into the guest species **Gorochu** in Red,
-Blue and Yellow. After entering the Hall of Fame, raise that individual
-Raichu's bond, teach it **Thunder**, then level it up inside the **Power
-Plant**. Yellow's original marked partner uses its existing happiness and
-keeps the same identity, memories and follower after the evolution.
+Blue and Yellow through a voluntary item journey:
+
+1. In Red and Blue, return to Lt. Surge after earning the Thunder Badge and
+   accept the permanent **Thunderheart**. In Yellow, complete the original
+   partner's Heart of Thunder trial—251 steps and three trainer victories—
+   before returning to Surge for the same item.
+2. Follow the Thunderheart to a silent condenser in the Power Plant's remote
+   east wing, far from Zapdos.
+3. Let the condenser form one consumable **Thunder Tear**. The permanent
+   Thunderheart returns to the Bag.
+4. Use the Tear outside battle on the Raichu you choose. The item is consumed
+   and the evolution is permanent.
+
+This replaces 5.4.0's bond/Thunder/Power-Plant level-up condition; no Hall of
+Fame or level-up trigger is required by the new path. Yellow's original marked
+partner keeps the same identity, happiness, memories and follower after the
+evolution. Existing saves that already completed the 5.4.0 evolution retain
+their Gorochu discovery and opponent unlock.
+
+Yellow dialogue that explicitly addresses the player's tracked partner follows
+that identity too: relevant Celadon Mansion, Pewter Museum, Gym and Surfing
+lines say Pikachu, Raichu or Gorochu as appropriate. Text about another
+character's Pikachu, wild Pikachu and the Pokédex is left untouched.
 
 Gorochu is a pure Electric species with dedicated normal/shiny front, back,
-six-frame Crystal animation and follower art. Yellow's partner version also
-has seven separate animated faces for sleepy, unwell, upset, wary, content,
-devoted and excited reactions; these portraits never replace its battle art.
-Its cry is safely derived from Raichu when no external Gorochu audio is
-installed.
+six-frame Crystal animation and an independent six-pose follower sheet.
+Dramatic Shape/Voxel uses separate sharp 96×96 normal/shiny front and back
+masters instead of enlarging the smaller 2D battle card. Yellow's partner
+version also has seven separate animated normal/shiny faces for sleepy,
+unwell, upset, wary, content, devoted and excited reactions; Raichu has the
+same complete dialogue-portrait coverage, and these portraits never replace
+battle art.
+
+Audio follows the active edition. Yellow uses the dedicated spoken Gorochu
+cry, while Red and Blue use a Gen-I-style chip cry derived from Raichu with
+their native audio path. A Gorochu cry registered by another mod always takes
+priority over both bundled fallbacks.
 
 Gorochu uses guest Pokédex number **1026**. It appears in the Research Atlas
 and Shiny Dex only after discovery, and it deliberately remains outside all
@@ -872,6 +921,12 @@ legends retain their authored front/back pixel art. Their party-menu icons use
 the game's standard animated silhouettes: quadruped for the three beasts, bird
 for Lugia and Ho-Oh, and the Mew-like fairy icon for Celebi.
 
+Gorochu follows the same external-owner rule but selects its bundled fallback
+by edition: Yellow receives the dedicated spoken clip, while Red and Blue use
+the Raichu-derived Gen-I chip definition. Changing editions during scripted
+testing replaces only Ascendant's own previous fallback, never another mod's
+registered cry.
+
 ### Bundled Crystal battle art
 
 Authentic normal and shiny Pokémon Crystal front/back sprites for **all 100
@@ -1083,10 +1138,13 @@ Run the ROM-free headless suite from the Gen1 Recomp engine checkout:
 export POKEPORT_DATA_DIR=tests/fixture_data
 export TRAINER_REMATCH_MOD_DIR=../trainer_rematch
 ./.tools/luajit-src/src/luajit ../trainer_rematch/tests/trainer_rematch_test.lua
+./.tools/luajit-src/src/luajit ../trainer_rematch/tests/gorochu_visuals_test.lua
+./.tools/luajit-src/src/luajit ../trainer_rematch/tests/gorochu_audio_matrix_test.lua
 ./.tools/luajit-src/src/luajit ../trainer_rematch/tests/field_economy_test.lua
 ./.tools/luajit-src/src/luajit ../trainer_rematch/tests/atlas_legacy_test.lua
 ./.tools/luajit-src/src/luajit ../trainer_rematch/tests/reachability_test.lua
-./.tools/luajit-src/src/luajit ../trainer_rematch/tests/recruitment_full_data_test.lua
+env -u POKEPORT_DATA_DIR ./.tools/luajit-src/src/luajit \
+  ../trainer_rematch/tests/recruitment_full_data_test.lua
 ./.tools/luajit-src/src/luajit ../trainer_rematch/tests/upgrade_matrix_test.lua
 ```
 
@@ -1113,6 +1171,11 @@ Bulbasaur, Charmander and Squirtle entry pages.
 `tools/gorochu_qa_driver.lua` performs the real Raichu evolution, validates
 normal/shiny front and back art, and captures Gorochu's follower plus all
 seven normal/shiny partner expressions without covering the emotion bubble.
+`tools/gorochu_voxel_qa_driver.lua` verifies the dedicated 96×96 normal/shiny
+front and back masters plus all six follower poses.
+`tools/gorochu_dialogue_qa_driver.lua` captures the complete English/German
+Raichu and Gorochu conversation matrix. The headless audio matrix verifies
+Yellow's spoken cry, Red/Blue's chip fallback and external-owner priority.
 `tools/mega_crystal_qa_driver.lua` performs real battle transformations in
 2D and Voxel layouts and verifies Mega ownership with bundled or external
 Crystal art. `tools/install_all_mega_sprites.py` installs all 30 approved

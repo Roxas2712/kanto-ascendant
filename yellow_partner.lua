@@ -145,10 +145,86 @@ return function(mod, opts)
       and mon.species == "PIKACHU"
   end
 
-  -- Every normal stat recalculation reaches Stats.calc with the concrete
-  -- Pokémon as its optional fifth argument. Substitute Raichu's authored
-  -- species record only for Yellow's marked, awakened partner while it is
-  -- still Pikachu. Shared Pikachu data, DVs and stat experience never move.
+  -- Released engines before the per-Pokémon stats hook do not forward `mon`
+  -- to Stats.calc. Keep a mod-owned compatibility index by the concrete DV
+  -- and stat-exp tables instead: every recalculation of an existing Pokémon
+  -- passes those identity-bearing tables, even on the frozen engine API.
+  --
+  -- The wrapper is process-global because Stats is a shared engine module,
+  -- but its resolver is replaced on a mod reload and remains inert unless
+  -- the current Yellow save owns the exact marked, awakened Pikachu. On a
+  -- newer engine we still pass `mon` to the original calculator; substituting
+  -- Raichu before its hook runs is idempotent, so the Gen-I formula executes
+  -- once and the boost can never stack.
+  local STATS_COMPAT_KEY = "__kantoAscendantYellowPartnerStatsCompat"
+  local statsCompat
+
+  local function installStatsCompatibility()
+    local Stats = require("src.pokemon.Stats")
+    local compat = rawget(Stats, STATS_COMPAT_KEY)
+    if type(compat) ~= "table" or type(compat.originalCalc) ~= "function" then
+      compat = {
+        originalCalc = Stats.calc,
+        byDvs = setmetatable({}, { __mode = "kv" }),
+        byStatExp = setmetatable({}, { __mode = "kv" }),
+      }
+      compat.wrapper = function(speciesDef, level, dvs, statExp, mon)
+        local concrete = type(mon) == "table" and mon
+          or compat.byDvs[dvs] or compat.byStatExp[statExp]
+        local resolved = speciesDef
+        if type(compat.resolve) == "function" then
+          local candidate = compat.resolve(speciesDef, concrete)
+          if type(candidate) == "table"
+              and type(candidate.baseStats) == "table" then
+            resolved = candidate
+          end
+        end
+        return compat.originalCalc(
+          resolved, level, dvs, statExp, mon)
+      end
+      rawset(Stats, STATS_COMPAT_KEY, compat)
+      Stats.calc = compat.wrapper
+    end
+    if type(Stats.ensure) == "function"
+        and type(compat.originalEnsure) ~= "function" then
+      compat.originalEnsure = Stats.ensure
+      compat.ensureWrapper = function(speciesDef, mon)
+        if type(mon) == "table" then
+          if type(mon.dvs) == "table" then compat.byDvs[mon.dvs] = mon end
+          if type(mon.statExp) == "table" then
+            compat.byStatExp[mon.statExp] = mon
+          end
+        end
+        return compat.originalEnsure(speciesDef, mon)
+      end
+      Stats.ensure = compat.ensureWrapper
+    end
+
+    compat.resolve = function(speciesDef, mon)
+      if not (isYellow() and isAwakenedPartner(mon)) then return nil end
+      local pokemon = Y.game and Y.game.data and Y.game.data.pokemon
+      if not (pokemon and speciesDef == pokemon.PIKACHU) then return nil end
+      return pokemon.RAICHU
+    end
+    statsCompat = compat
+    return compat
+  end
+
+  local function trackStatsIdentity(mon)
+    if type(mon) ~= "table" then return false end
+    local compat = statsCompat or installStatsCompatibility()
+    if type(mon.dvs) == "table" then compat.byDvs[mon.dvs] = mon end
+    if type(mon.statExp) == "table" then
+      compat.byStatExp[mon.statExp] = mon
+    end
+    return true
+  end
+
+  installStatsCompatibility()
+
+  -- Newer engines reach this hook with the concrete Pokémon. It remains the
+  -- preferred path there; the compatibility wrapper above covers the same
+  -- rule on older engines without requiring an engine update.
   mod.hooks:wrap("pokemon.stats.def",
     function(nextDef, speciesDef, mon)
       local resolved = nextDef(speciesDef, mon)
@@ -163,6 +239,7 @@ return function(mod, opts)
     if not (game and game.data and isAwakenedPartner(mon)) then return false end
     local pikachu = game.data.pokemon and game.data.pokemon.PIKACHU
     if not pikachu then return false end
+    trackStatsIdentity(mon)
     local oldMax = math.max(1,
       tonumber(mon.stats and mon.stats.hp) or tonumber(mon.hp) or 1)
     local oldHP = math.max(0,
@@ -186,6 +263,7 @@ return function(mod, opts)
         and mon.species == "PIKACHU"
         and mon[AWAKENING_MARKER] ~= true) then return false end
     mon[AWAKENING_MARKER] = true
+    trackStatsIdentity(mon)
     local s = state()
     s.choice = "stay"
     s.awakenedAt = s.awakenedAt or os.time()
@@ -213,6 +291,54 @@ return function(mod, opts)
       end
     end
     return nil
+  end
+
+  -- Yellow has a small set of NPC lines that explicitly mean the player's
+  -- original partner, not a generic Pikachu in the world. Keep those lines
+  -- accurate after the tracked partner becomes Raichu or Gorochu while
+  -- leaving Pokédex entries, fans' own Pikachu and pre-starter dialogue
+  -- untouched.
+  local PARTNER_TEXT_KEYS = {
+    "_CeladonMansion1Text6",
+    "_CeladonMansion1Text8",
+    "_CeladonMansion1Text10",
+    "_CeladonMansion1Text11",
+    "_CeladonMansion1Text12",
+    "_Museum2FPikachuText1",
+    "_Museum2FPikachuText2",
+    "_PewterGymGuyText",
+    "_SummerBeachHouseSurfinDudeText1",
+  }
+  local TEXTBOX_COMPAT_KEY = "__kantoAscendantYellowPartnerTextCompat"
+
+  local function adaptPartnerText(game, text)
+    if type(text) ~= "string" then return text end
+    local partner = partnerInParty(game, false)
+    if not (partner and isEvolvedPartnerSpecies(partner.species)) then
+      return text
+    end
+    local dataText = game and game.data and game.data.text or {}
+    for _, key in ipairs(PARTNER_TEXT_KEYS) do
+      if dataText[key] == text then
+        return (text:gsub("PIKACHU", partner.species))
+      end
+    end
+    return text
+  end
+
+  local function installPartnerTextCompatibility()
+    local TextBox = require("src.render.TextBox")
+    local compat = rawget(TextBox, TEXTBOX_COMPAT_KEY)
+    if type(compat) ~= "table" or TextBox.new ~= compat.wrapper then
+      local original = TextBox.new
+      compat = {}
+      compat.wrapper = function(game, text, ...)
+        return original(game, adaptPartnerText(game, text), ...)
+      end
+      TextBox.new = compat.wrapper
+      rawset(TextBox, TEXTBOX_COMPAT_KEY, compat)
+    end
+    return true
   end
 
   local function questReady(s)
@@ -273,6 +399,7 @@ return function(mod, opts)
       s.heartGiven = true
     end
     local partner = markedPartner(game.save)
+    if partner then trackStatsIdentity(partner) end
     if partner and isEvolvedPartnerSpecies(partner.species) then
       s.choice = "evolved"
     elseif partner and isAwakenedPartner(partner) then
@@ -1276,6 +1403,7 @@ return function(mod, opts)
     installFollowerBridge(game)
     installPortraitAnimator()
     installPortraitRenderer()
+    installPartnerTextCompatibility()
     Y.migrate(game)
   end
 
@@ -1336,6 +1464,7 @@ return function(mod, opts)
   Y._drawRaichuPortrait = drawRaichuPortrait
   Y._portraitBoxX = portraitBoxX
   Y._portraitFrames = portraitFrames
+  Y._adaptPartnerText = adaptPartnerText
   Y._choiceRows = choiceRows
   Y._confirmChoice = confirmChoice
   Y._evolvePartner = evolvePartner

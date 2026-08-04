@@ -1,6 +1,6 @@
 -- Sharing metadata for the manager detail pane.
 return {
-  summary = "A living 251-Pokémon Kanto endgame with all 151 catchable, research habitats, a spoiler-safe Atlas, renewable TMs and evolution items, ranked rematches, Battle Factory, S.S. Anne Grand Tour, shinies and Mega Evolution.",
+  summary = "A living 251-Pokémon Kanto endgame with all 151 catchable, Gorochu, research habitats, a spoiler-safe Atlas, renewable TMs, ranked rematches, Battle Factory, S.S. Anne Grand Tour, shinies and Mega Evolution.",
   author = "Roxas2712",
   tags = { "gameplay", "trainers", "rematch", "postgame", "legendary" },
   differences = {
@@ -94,9 +94,15 @@ return {
       "A legal Move Reminder for level-up, forgotten, event and earned Crown-signature moves",
       "Permanent 2% Kanto habitats for 44 researched Johto base species without pre-filling their Dex entries",
       "Visible researched Johto habitats and registered species art when Wilds of Kanto is enabled",
+      "Randomizer-safe authored Ascendant boss battles that preserve randomized species and moves while retaining intended rules and progression",
+      "Deterministic class-fitting Johto recruits after their research families are exposed",
+      "An independent DEX SPRITES switch for original Red/Blue/Yellow or bundled static Crystal Kanto Pokédex fronts",
       "PokéPC Followers compatibility preserves Yellow's original Pikachu opening and starter dialogue",
       "An optional post-Surge Yellow partner quest with a permanent Thunderheart and a genuine Raichu-or-Pikachu choice",
       "Yellow's evolved partner Raichu retains happiness, bond dialogue and following; an unevolved partner can bridge directly into official Mega Raichu X/Y",
+      "A Red/Blue/Yellow Thunderheart journey leading to a remote Power Plant condenser, one consumable Thunder Tear and permanent chosen-Raichu evolution into Gorochu",
+      "Sharp normal/shiny Gorochu art for 2D, Crystal animation and dedicated 96px Voxel fronts/backs, plus six-pose followers and complete Raichu/Gorochu dialogue portraits",
+      "Edition-aware Gorochu audio: Yellow's spoken clip, a Red/Blue Gen-I chip cry and priority for externally registered audio",
       "A Frontier Exchange for renewable research evolution items and individually selected archived TMs",
       "A save-guarded level-100 Battle Factory with six rentals, a three-Pokémon draft and exact original-party restoration",
       "A five-battle S.S. Anne Grand Tour with rotating teams and a real 4096-step departure timer",

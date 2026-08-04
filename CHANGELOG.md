@@ -4,6 +4,20 @@ All notable changes to this project are documented in this file.
 
 ## [5.4.1] - 2026-08-04
 
+### Added
+
+- Added a persistent bilingual **THUNDER PATH / DONNERPFAD** guide after the
+  Thunderheart is obtained. It points to the Power Plant condenser, reports
+  when the Thunder Tear is ready and records the completed Gorochu discovery.
+- Added dedicated sharp 96×96 normal/shiny Gorochu front and back masters for
+  Dramatic Shape/Voxel. They are rendered on a supersampled battle texture
+  instead of enlarging the smaller 2D Crystal card.
+- Added independent normal/shiny six-pose Gorochu follower sheets for classic
+  2D and Voxel follower paths.
+- Completed the animated normal/shiny dialogue-portrait sets for both Raichu
+  and Gorochu across sleepy, unwell, upset, wary, content, devoted and excited
+  partner moods.
+
 ### Changed
 
 - Repeatable field trainers can now recruit a class-appropriate Johto family
@@ -19,6 +33,15 @@ All notable changes to this project are documented in this file.
   preserves the active Red/Blue/Yellow ROM's palette-aware Pokédex fronts;
   `CRYSTAL` uses bundled normal frame one for Kanto #001-151 only. Battle
   artwork and Crystal animation remain controlled by their existing options.
+- Replaced 5.4.0's Gorochu bond/Thunder/Power-Plant level-up trigger with a
+  deliberate item journey. Red and Blue receive the permanent Thunderheart
+  from Lt. Surge after the Thunder Badge; Yellow retains its 251-step,
+  three-trainer-battle partner trial. A remote condenser in the Power Plant's
+  east wing turns the Heart's charge into one consumable Thunder Tear, which
+  permanently evolves the Raichu selected from the Bag.
+- Gorochu audio is now edition-aware. Yellow uses the dedicated spoken clip;
+  Red and Blue use a Raichu-derived Gen-I chip cry with pitch/length data.
+  Any Gorochu cry owned by another mod remains authoritative.
 
 ### Fixed
 
@@ -36,11 +59,22 @@ All notable changes to this project are documented in this file.
 - Synthetic parties and construction state are cleaned after success or error,
   preventing hot reloads and back-to-back battles from contaminating the next
   normal trainer encounter.
-- Hardened the engine's trainer-party hook boundary so invalid hook output
-  falls back to the registered party before Pokémon construction.
+- Hardened Ascendant's trainer-party construction boundary so invalid hook
+  output falls back before Pokémon construction, including on the frozen
+  public engine API.
 - Gorochu now remains a player-led optional discovery in Red, Blue and Yellow.
   Opposing trainers and Randomizer-produced trainer teams use Raichu instead
   until the player has personally evolved a Raichu into Gorochu on that save.
+- Dramatic Shape/Voxel no longer enlarges Gorochu's smaller Crystal battle
+  card. Normal and shiny player/enemy views now route to their dedicated
+  high-resolution front or back master with nearest-neighbor filtering.
+- Replaced the temporary repeated follower views with readable species-shaped
+  walking art containing six distinct poses in both normal and shiny colors.
+- Raichu and Gorochu bond conversations now keep their selected normal/shiny
+  portrait animation separate from battle art and from the emotion bubble.
+- Yellow NPC lines that explicitly refer to the player's original partner now
+  say Pikachu, Raichu or Gorochu as appropriate; unrelated wild, fan-owned and
+  Pokédex references to Pikachu remain unchanged.
 
 ### Compatibility
 
@@ -53,6 +87,9 @@ All notable changes to this project are documented in this file.
 - Existing 5.4.0 saves that already completed the Gorochu evolution retain
   trainer access automatically; merely owning its quest items does not unlock
   it for opponents.
+- Accepted saves from the unpublished Storm Bond prototype receive the
+  permanent Thunderheart. Existing externally registered Gorochu cries and
+  sprite ownership are not overwritten.
 
 ## [5.4.0] - 2026-08-04
 

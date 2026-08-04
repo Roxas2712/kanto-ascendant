@@ -1,7 +1,6 @@
-## 🛠️ KANTO ASCENDANT 5.4.1 — RANDOMIZER HOTFIX
+## 🛠️ KANTO ASCENDANT 5.4.1 FIXES — POST 1/2
 
-This hotfix repairs Ascendant's authored post-game battles when the Gen-I
-Randomizer is enabled.
+### 🎲 RANDOMIZER & TRAINERS
 
 - Master/Crown Leaders, Apex/Crown Elite battles, Johto Masters, Grand Tour,
   Heritage Cups, research trials, tournaments and hunts now give the
@@ -12,6 +11,9 @@ Randomizer is enabled.
   team, and temporary battle data is always cleaned up.
 - Ordinary field rematches keep their existing randomized species and continue
   persistent training up to level 100.
+
+### 🧬 TEAM GROWTH & DEX
+
 - Researched Johto families can now join suitable field trainers
   deterministically; locked families remain absent and existing recruits never
   reroll.
@@ -22,12 +24,42 @@ Randomizer is enabled.
   Red/Blue/Yellow Pokédex fronts (default), or select static Crystal frame-one
   art for Kanto #001-151. Battle graphics and animation settings are unchanged;
   Johto, Gorochu and external sprite mods retain their own art.
-- Existing Red, Blue and Yellow saves need no migration.
 
 📥 https://github.com/Roxas2712/kanto-ascendant/releases/tag/v5.4.1
 
 Please retest both normal rematches and Ascendant boss battles with your usual
 Randomizer settings. Thank you! 💚
+
+---
+
+## ⚡ KANTO ASCENDANT 5.4.1 FIXES — POST 2/2
+
+### 🔑 GOROCHU QUEST
+
+- Replaced the old bond/Thunder/Power-Plant level-up trigger with a guided item
+  journey.
+- Red/Blue: receive the permanent Thunderheart from Lt. Surge after the
+  Thunder Badge.
+- Yellow: complete the existing 251-step and three-trainer-win partner trial.
+- Find the remote condenser in the Power Plant's east wing, create one
+  consumable Thunder Tear and use it outside battle on the Raichu you choose.
+- THUNDER PATH now shows the next objective. Existing completed 5.4.0 saves
+  keep their discovery and opponent unlock.
+
+### 🎨 VISUALS, FOLLOWERS & AUDIO
+
+- Added sharp dedicated 96×96 normal/shiny Voxel front and back art instead of
+  enlarging Gorochu's smaller 2D Crystal card.
+- Added independent normal/shiny six-pose follower sheets.
+- Completed all seven animated normal/shiny dialogue portraits for both Raichu
+  and Gorochu without replacing their battle sprites.
+- Yellow NPCs now say Pikachu, Raichu or Gorochu when they mean your partner.
+  Unrelated Pikachu dialogue remains original.
+- Yellow uses Gorochu's spoken cry. Red/Blue use a Raichu-derived Gen-I chip
+  cry. Any cry registered by another mod keeps priority.
+- Existing Red, Blue and Yellow saves need no manual migration.
+
+📥 https://github.com/Roxas2712/kanto-ascendant/releases/tag/v5.4.1
 
 ---
 
@@ -69,6 +101,6 @@ latest fixes and compatibility hardening:
 
 Existing Red, Blue and Yellow saves remain fully compatible.
 
-📥 https://github.com/Roxas2712/kanto-ascendant/releases/tag/v5.3.0
+📥 https://github.com/Roxas2712/kanto-ascendant/releases/tag/v5.4.0
 
 Please feel free to retest and report anything unusual. Thank you! 💚
