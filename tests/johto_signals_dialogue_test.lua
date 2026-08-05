@@ -17,6 +17,8 @@ local ContentModule =
   assert(loadfile(rootDir .. "/johto_signals_content.lua"))()
 local createHub = assert(loadfile(rootDir .. "/johto_signals_hub.lua"))()
 local createMythic = assert(loadfile(rootDir .. "/mythic_signals.lua"))()
+local PrismModule =
+  assert(loadfile(rootDir .. "/driftglass_prisms.lua"))()
 
 local assertions = 0
 local checkedTexts = 0
@@ -89,6 +91,7 @@ local function newSystem(language)
   local root = {
     earlyJohto = {},
     resonance = { echoes = 0, completed = {} },
+    prismGrotto = {},
   }
   local state = {}
   function state.section(name)
@@ -195,6 +198,9 @@ local function newSystem(language)
         LARVITAR = { name = "LARVITAR" },
         MEW = { name = "MEW" },
         CELEBI = { name = "CELEBI" },
+        EEVEE = { name = "EEVEE" },
+        ESPEON = { name = "ESPEON" },
+        UMBREON = { name = "UMBREON" },
       },
     },
     save = {
@@ -233,11 +239,27 @@ local function newSystem(language)
     johtoSignals = early,
     i18n = i18n,
   })
+  local prism = PrismModule.create(mod, {
+    state = state,
+    content = content,
+    i18n = i18n,
+    showText = showText,
+    openMenu = openMenu,
+    addItem = function(addGame, item)
+      if bagFull then return false end
+      addGame.save.inventory[item] = 1
+      addGame.save.bagOrder[#addGame.save.bagOrder + 1] = item
+      return true
+    end,
+  })
+  prism.register()
+  prism.install(game)
   local hub = createHub(mod, {
     state = state,
     content = content,
     early = early,
     mythic = mythic,
+    prisms = prism,
     i18n = i18n,
     showText = showText,
     openMenu = openMenu,
@@ -257,6 +279,7 @@ local function newSystem(language)
     content = content,
     early = early,
     mythic = mythic,
+    prism = prism,
     hub = hub,
     shown = shown,
     menus = menus,
@@ -283,6 +306,14 @@ local function setMythic(system, values)
     system.root.resonance[key] = value
   end
   return system.mythic.state()
+end
+
+local function setPrism(system, values)
+  clear(system.root.prismGrotto)
+  for key, value in pairs(values or {}) do
+    system.root.prismGrotto[key] = value
+  end
+  return system.root.prismGrotto
 end
 
 local function addBadges(game, amount)
@@ -558,6 +589,90 @@ local function checkMythic(system, language)
     "mythic echoes no longer carry a timed self-flee dialogue")
 end
 
+local function checkPrism(system, language)
+  local prism, game = system.prism, system.game
+  local function shown()
+    return assert(system.shown[#system.shown], "expected Prism TextBox")
+  end
+  local function finishText()
+    local row = shown()
+    if row.onDone then row.onDone() end
+    return row
+  end
+  local function choosePuzzle(key, yes)
+    local menu = assert(system.menus[#system.menus],
+      "expected Prism archive menu")
+    local selected
+    for _, row in ipairs(menu.rows or {}) do
+      if row.value == key then selected = row break end
+    end
+    check(selected ~= nil, "Prism archive exposes " .. key)
+    menu.options.onChoose(selected, {
+      close = function() end,
+    })
+    local prompt = shown()
+    check(prompt.options and type(prompt.options.choice) == "function",
+      key .. " renders a yes/no inscription prompt")
+    prompt.options.choice(yes)
+  end
+
+  for key, text in pairs(prism.dialogues(game)) do
+    checkText(language .. " prism." .. key, text)
+  end
+  for key, puzzle in pairs(prism.puzzles) do
+    local index = language == "de" and 2 or 1
+    checkText(language .. " prism.riddle." .. key, puzzle.riddle[index])
+  end
+  checkText(language .. " prism.mode.unleashed",
+    prism.modeHint("UNLEASHED"))
+  checkText(language .. " prism.mode.optional",
+    prism.modeHint("KANTO_FIRST"))
+
+  setEarly(system, {})
+  prism.enter(game)
+  setEarly(system, { receiverRepaired = true })
+  prism.enter(game)
+  shown().options.choice(false)
+
+  setPrism(system, {})
+  game.save.party = {}
+  prism.interactReader(game, { frozen = false })
+  finishText() -- one-time introduction opens the archive
+  choosePuzzle("twilight", true)
+  -- Refusal returns to the archive after its explanatory text.
+  finishText()
+
+  game.save.party = {
+    { species = "ESPEON" },
+    { species = "UMBREON" },
+    { species = "EEVEE", johtoBond = 0 },
+  }
+  choosePuzzle("twilight", true)
+  for _, statue in ipairs(prism.puzzles.twilight.sequence) do
+    prism.touchStatue(game, statue)
+  end
+
+  for _, key in ipairs({
+    "sunStone", "kingsRock", "metalCoat", "dragonScale", "upgrade",
+  }) do
+    prism.openArchive(game, { frozen = false })
+    choosePuzzle(key, true)
+    prism.touchStatue(game, "MOON") -- also renders the reset explanation
+    for _, statue in ipairs(prism.puzzles[key].sequence) do
+      prism.touchStatue(game, statue)
+    end
+  end
+
+  prism.openArchive(game, { frozen = false })
+  choosePuzzle("sunStone", true)
+  for _, statue in ipairs(prism.puzzles.sunStone.sequence) do
+    prism.touchStatue(game, statue)
+  end
+  prism.leave(game)
+  shown().options.choice(false)
+  game.save.party = { { species = "BULBASAUR", level = 20 } }
+end
+
 local function checkHub(system, language)
   local hub, game = system.hub, system.game
   setEarly(system, {
@@ -734,10 +849,15 @@ local function checkHub(system, language)
     checkText(language .. " objective detail " .. index, objective.detail)
   end
   system.options.johto_signals_enable = true
+  local atlasCount = 0
   for mapId, label in pairs(hub.atlasLocations()) do
-    check(mapId == system.hub.MAP_ID, "Atlas exposes only its authored map")
+    atlasCount = atlasCount + 1
+    check(mapId == system.hub.MAP_ID
+        or mapId == system.prism.MAP_ID,
+      "Atlas exposes only its authored Johto maps")
     checkCompact(language .. " Atlas label", label)
   end
+  check(atlasCount == 2, "Atlas exposes Driftglass and Prism Grotto")
 end
 
 for _, language in ipairs({ "en", "de" }) do
@@ -745,6 +865,7 @@ for _, language in ipairs({ "en", "de" }) do
   checkContent(system, language)
   checkEarly(system, language)
   checkMythic(system, language)
+  checkPrism(system, language)
   checkHub(system, language)
 end
 

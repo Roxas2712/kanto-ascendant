@@ -613,6 +613,32 @@ A full party or Bag reserves the reward.
 </details>
 
 <details>
+<summary><strong>⚠️ SPOILER — Where is the early Johto evolution-item grotto?</strong></summary>
+
+Repair the Migration Receiver at Driftglass, then inspect the second glass
+seam near the researcher. It opens the optional **Prism Grotto**.
+
+The Prism Reader stores six inscriptions. Five are short pillar sequences
+that each award one guaranteed item:
+
+- Sun Stone
+- King's Rock
+- Metal Coat
+- Dragon Scale
+- Up-Grade
+
+A wrong pillar resets only the current sequence. Solved inscriptions can be
+rehearsed but never duplicate their reward. If the Bag is full, the Prism
+Reader keeps the formed item until space is available.
+
+The repeatable Twilight Mirror inscription requires Eevee in the party. Its
+ten-note rite raises Eevee to the required bond threshold; level it once by
+day for Espeon or by night for Umbreon. **JOHTO TIME** controls day/night.
+Espeon and Umbreon in the party provide extra pillar hints.
+
+</details>
+
+<details>
 <summary><strong>⚠️ SPOILER — Where can I get more Johto evolution items?</strong></summary>
 
 After the Crown Champion, the Frontier Exchange opens at Route 5 and under

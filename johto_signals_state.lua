@@ -6,12 +6,13 @@
 
 local Module = {
   SAVE_KEY = "johto_signals",
-  SCHEMA_VERSION = 1,
+  SCHEMA_VERSION = 2,
 }
 
 local SECTIONS = {
   earlyJohto = true,
   resonance = true,
+  prismGrotto = true,
 }
 
 local TRANSIENT_KEYS = {
@@ -67,18 +68,22 @@ local function normalize(raw)
     changed = true
   end
   local resonance = raw.resonance
+  local prismGrotto = raw.prismGrotto
 
-  local earlyChanged, resonanceChanged
+  local earlyChanged, resonanceChanged, prismChanged
   early, earlyChanged = scrubSection(early)
   resonance, resonanceChanged = scrubSection(resonance)
-  changed = changed or earlyChanged or resonanceChanged
+  prismGrotto, prismChanged = scrubSection(prismGrotto)
+  changed = changed or earlyChanged or resonanceChanged or prismChanged
 
   if raw.version ~= Module.SCHEMA_VERSION then changed = true end
   raw.version = Module.SCHEMA_VERSION
   if raw.earlyJohto ~= early then changed = true end
   if raw.resonance ~= resonance then changed = true end
+  if raw.prismGrotto ~= prismGrotto then changed = true end
   raw.earlyJohto = early
   raw.resonance = resonance
+  raw.prismGrotto = prismGrotto
 
   for key in pairs(raw) do
     if key ~= "version" and not SECTIONS[key] then
@@ -157,6 +162,7 @@ function Module.create(mod, opts)
       present = root ~= nil,
       earlyJohto = root and copy(root.earlyJohto) or {},
       resonance = root and copy(root.resonance) or {},
+      prismGrotto = root and copy(root.prismGrotto) or {},
     }
   end
 

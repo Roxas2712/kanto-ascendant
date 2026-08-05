@@ -11,6 +11,7 @@ return function(mod, opts)
   local content = assert(opts.content, "Johto Signals content missing")
   local early = assert(opts.early, "Early Johto controller missing")
   local mythic = assert(opts.mythic, "Mythic Signals controller missing")
+  local prisms = opts.prisms
   local i18n = opts.i18n
   local worldEvents = opts.worldEvents
   local dexProgress = opts.dexProgress
@@ -473,6 +474,9 @@ return function(mod, opts)
             if menu and type(menu.close) == "function" then menu:close() end
             local ok, _, message = early.setMode(game, item.value)
             if ok then refreshVisibleWilds("Johto current changed") end
+            if ok and prisms and type(prisms.modeHint) == "function" then
+              message = message .. prisms.modeHint(item.value)
+            end
             show(game, message, function()
               if onDone then onDone(ok == true) end
             end)
@@ -1136,9 +1140,14 @@ return function(mod, opts)
   end
 
   function H.atlasLocations()
-    return {
+    local locations = {
       [H.MAP_ID] = tr("DRIFTGLASS POST", "DRIFTGLAS-POSTEN"),
     }
+    if prisms and prisms.MAP_ID then
+      locations[prisms.MAP_ID] = tr(
+        "PRISM GROTTO", "PRISMENGROTTE")
+    end
+    return locations
   end
 
   function H.setWorldEvents(value)
@@ -1178,6 +1187,13 @@ return function(mod, opts)
       end,
       onResearcher = function(researchGame, ow, npc, onDone)
         return H.onResearcher(researchGame, ow, npc, onDone)
+      end,
+      onPrismEntrance = function(prismGame, _, _, onDone)
+        if prisms and type(prisms.enter) == "function" then
+          return prisms.enter(prismGame, onDone)
+        end
+        if onDone then onDone() end
+        return false
       end,
     })
   end

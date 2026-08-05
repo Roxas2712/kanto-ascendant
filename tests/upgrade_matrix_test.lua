@@ -136,14 +136,15 @@ local function verifySignals(fixture, bucket, label)
   local root = bucket.johto_signals
   T.eq(type(root), "table",
     label .. " creates the production Signals root")
-  T.eq(root.version, 1,
+  T.eq(root.version, 2,
     label .. " writes the stable Signals root schema")
 
   local rootKeys = {}
   for key in pairs(root) do rootKeys[#rootKeys + 1] = key end
   table.sort(rootKeys)
-  T.same(rootKeys, { "earlyJohto", "resonance", "version" },
-    label .. " keeps only the two production Signals sections")
+  T.same(rootKeys, {
+    "earlyJohto", "prismGrotto", "resonance", "version",
+  }, label .. " keeps only the three production Signals sections")
 
   local early = root.earlyJohto
   T.eq(early.version, 2,
@@ -195,6 +196,12 @@ local function verifySignals(fixture, bucket, label)
   T.eq(resonance.bound, nil,
     label .. " does not invent a bound mythical")
 
+  local prism = root.prismGrotto
+  T.eq(type(prism), "table",
+    label .. " initializes the Prism Grotto save section")
+  T.eq(next(prism), nil,
+    label .. " does not invent Prism Grotto progress")
+
   local completed = fixture.expect.signalsCompleted or {}
   for _, species in ipairs({ "MEW", "CELEBI" }) do
     T.eq(resonance.completed[species] == true,
@@ -202,7 +209,7 @@ local function verifySignals(fixture, bucket, label)
       label .. " reconciles existing " .. species .. " ownership")
   end
 
-  for _, section in ipairs({ early, resonance }) do
+  for _, section in ipairs({ early, resonance, prism }) do
     for _, transient in ipairs({
       "capsulePromptOpen", "confirmationOpen", "dialogOpen", "menuOpen",
       "pendingBattle", "pendingEncounter", "pendingSpecies", "promptOpen",

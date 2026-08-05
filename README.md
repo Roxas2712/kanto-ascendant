@@ -362,6 +362,21 @@ the safe **Kanto First** current is enforced. **JOHTO SIGNAL START** can keep
 the field quest or start directly in either active current for players who
 already know what they want.
 
+After the receiver is repaired, a glass seam at Driftglass opens the optional
+**Prism Grotto**. Its six native cave pillars form five short sequence riddles
+for one guaranteed Sun Stone, King's Rock, Metal Coat, Dragon Scale and
+Up-Grade. The Prism Reader keeps every inscription available, repeats hints
+after any current choice and holds a formed item safely if the Bag is full.
+Each item is awarded only once; solved riddles remain replayable without
+duplicating it.
+
+The sixth inscription is the repeatable **Twilight Mirror** rite. With Eevee
+in the party, its ten-note sequence raises that Eevee to the existing Johto
+friendship threshold. One later level by day produces Espeon; one by night
+produces Umbreon. **JOHTO TIME** still controls which period applies. Players
+who choose Johto Unleashed receive a stronger early hint toward this grotto,
+while Kanto First and Wanderwaves keep it clearly optional.
+
 Four hidden primal traces separately unlock Chikorita, Totodile, Cyndaquil
 and Larvitar. Their identities remain `???` until a real sighting. Each trace
 species has a separate encounter counter: 1:512 in Wanderwaves and 1:256 in

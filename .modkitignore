@@ -28,6 +28,11 @@ assets/sources/gorochu/gorochu_follower_pose_reference.png
 assets/sources/gorochu/gorochu_follower_pose_reference_chroma.png
 assets/sources/gorochu/gorochu_voxel_user_reference.png
 assets/sources/raichu/raichu_expression_reference.png
+assets/prism_grotto/prism_objects_preview.png
+assets/sources/prism_grotto/prism_objects_concept_v1.png
+assets/sources/prism_grotto/prism_objects_concept_v1_alpha.png
+assets/sources/prism_grotto/prism_objects_hollow_concept_v3.png
+assets/sources/prism_grotto/prism_objects_readable_concept_v2.png
 tests/atlas_legacy_test.lua
 tests/gorochu_audio_matrix_test.lua
 tests/gorochu_visuals_test.lua
@@ -35,6 +40,8 @@ tests/field_economy_test.lua
 tests/fixtures/upgrade_saves.lua
 tests/johto_signals_content_test.lua
 tests/johto_signals_dialogue_test.lua
+tests/driftglass_prisms_map_test.lua
+tests/driftglass_prisms_test.lua
 tests/johto_signals_hub_test.lua
 tests/johto_signals_lind_spec.lua
 tests/johto_signals_map_test.lua
@@ -55,6 +62,7 @@ tools/build_follower_runtime_assets.py
 tools/build_gorochu_assets.swift
 tools/build_gorochu_cry.py
 tools/build_gorochu_visual_assets.py
+tools/build_prism_object_sprites.py
 tools/build_mega_runtime_assets.py
 tools/build_mega_screenshot_gallery.py
 tools/build_mega_sprite_review.py
@@ -84,6 +92,7 @@ tools/johto_catch_adversarial_qa_driver.lua
 tools/johto_signals_adversarial_qa_driver.lua
 tools/manifest_probe_qa_driver.lua
 tools/mythic_signals_adversarial_qa_driver.lua
+tools/prism_grotto_qa_driver.lua
 tools/national_dex_migration_qa_driver.lua
 tools/gorochu_retroactive_qa_driver.lua
 tools/celebi_presentation_qa_driver.lua

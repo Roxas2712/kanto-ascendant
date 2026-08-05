@@ -2,6 +2,21 @@
 
 All notable changes to this project are documented in this file.
 
+## [Unreleased]
+
+### Added
+
+- Added the optional **Prism Grotto** beneath Driftglass. Six native cave
+  pillars and a bilingual Prism Reader provide short, reusable sequence
+  riddles for the Sun Stone, King's Rock, Metal Coat, Dragon Scale and
+  Up-Grade.
+- Added a repeatable ten-note Twilight Mirror rite. An Eevee in the party
+  reaches the existing friendship threshold, after which its next level by
+  day or night produces Espeon or Umbreon.
+- Added persistent puzzle progress, non-duplicating rewards, full-Bag
+  reservation, mode-aware researcher guidance and safe map fallback when the
+  mod is disabled.
+
 ## [6.0.3] - 2026-08-05
 
 ### Added

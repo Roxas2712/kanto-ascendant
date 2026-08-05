@@ -61,6 +61,7 @@ jobs:
           luajit tests/johto_signals_content_test.lua
           luajit tests/johto_signals_hub_test.lua
           luajit tests/johto_signals_dialogue_test.lua
+          luajit tests/driftglass_prisms_test.lua
           luajit tests/johto_signals_wilds_test.lua
           luajit tests/wilds_1_7_1_compat_test.lua
           luajit tests/johto_signals_ui_integration_test.lua
@@ -74,6 +75,7 @@ jobs:
           TRAINER_REMATCH_MOD_DIR: ../kanto-ascendant
         run: |
           luajit ../kanto-ascendant/tests/johto_signals_map_test.lua
+          luajit ../kanto-ascendant/tests/driftglass_prisms_map_test.lua
           luajit ../kanto-ascendant/tests/mythic_signals_test.lua
 
       - name: Audit the 6.0 release boundary
@@ -129,6 +131,7 @@ jobs:
               "assets/voxel/gorochu/gorochu_front.png",
               "assets/voxel/gorochu/gorochu_front_shiny.png",
               "gorochu_visuals.lua",
+              "driftglass_prisms.lua",
               "johto_signals.lua",
               "johto_signals_content.lua",
               "johto_signals_hub.lua",

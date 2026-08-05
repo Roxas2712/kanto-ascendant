@@ -654,12 +654,20 @@ return function(mod)
     johtoSignals = johtoSignals,
     i18n = i18n,
   })
+  local prismModule = loadSibling(mod, "driftglass_prisms.lua")
+  local driftglassPrisms = prismModule.create(mod, {
+    state = signalsState,
+    content = signalsContent,
+    i18n = i18n,
+  })
+  driftglassPrisms.register()
   local makeSignalsHub = loadSibling(mod, "johto_signals_hub.lua")
   signalsHub = makeSignalsHub(mod, {
     state = signalsState,
     content = signalsContent,
     early = johtoSignals,
     mythic = mythicSignals,
+    prisms = driftglassPrisms,
     i18n = i18n,
   })
   local makeSignalsWilds = loadSibling(mod, "johto_signals_wilds.lua")
@@ -672,6 +680,7 @@ return function(mod)
   mod.exports.johtoSignalsContent = signalsContent
   mod.exports.johtoSignals = johtoSignals
   mod.exports.mythicSignals = mythicSignals
+  mod.exports.driftglassPrisms = driftglassPrisms
   mod.exports.signalsHub = signalsHub
   mod.exports.signalsWilds = signalsWilds
 
@@ -1534,6 +1543,7 @@ return function(mod)
       battleState = BattleState,
       stats = deps.stats,
     }) end
+    if driftglassPrisms then driftglassPrisms.install(game) end
     if signalsHub then signalsHub.install(game) end
     if wildsCompat then wildsCompat.install(game, {
       random = deps.wildsRandom,

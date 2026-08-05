@@ -23,6 +23,13 @@ local Module = {
       { 14, 14 }, { 14, 15 }, { 13, 14 }, { 13, 15 }, { 15, 14 },
     },
   },
+  PRISM_ENTRANCE = {
+    name = "DRIFTGLASS_PRISM_SEAM",
+    sprite = "SPRITE_KA_PRISM_SEAM",
+    x = 12,
+    y = 9,
+    approach = { x = 11, y = 9, facing = "right" },
+  },
   ARRIVAL = { x = 8, y = 12, facing = "up" },
   PALLET_RETURN = { x = 10, y = 12, facing = "up" },
 }
@@ -34,6 +41,7 @@ local TEXT = {
   LOOKOUT = "TEXT_KA_SIGNALS_LOOKOUT",
   RETURN_BOAT = "TEXT_KA_SIGNALS_RETURN_BOAT",
   SIGN = "TEXT_KA_SIGNALS_SIGN",
+  PRISM_ENTRANCE = "TEXT_KA_SIGNALS_PRISM_ENTRANCE",
 }
 
 local function packed(rows)
@@ -95,6 +103,7 @@ function Module.create(mod, opts)
   local canShowCapsuleCallback = opts.canShowCapsule
   local capsuleCallback = opts.onCapsule
   local boatmanCallback = opts.onBoatman
+  local prismEntranceCallback = opts.onPrismEntrance
 
   local function tr(english, german)
     return i18n and i18n.text(english, german) or english
@@ -321,6 +330,20 @@ function Module.create(mod, opts)
     return C.offerTravel(game, npc, onDone)
   end
 
+  function C.interactPrismEntrance(game, ow, npc, onDone)
+    local callback = prismEntranceCallback
+    if callback then
+      local ok, handled = pcall(callback, game, ow, npc, onDone, C)
+      if ok and handled ~= false then return handled end
+      if not ok and mod.log and mod.log.error then
+        mod.log:error("Prism Grotto entrance callback failed: %s",
+          tostring(handled))
+      end
+    end
+    if onDone then onDone() end
+    return false
+  end
+
   local function runtimeIds(game, objectName)
     local ids = {}
     local map = game and game.data and game.data.maps
@@ -460,6 +483,16 @@ function Module.create(mod, opts)
   function C.register()
     if C.registered then return false, "already registered" end
 
+    if mod.content.sprites then
+      mod.content.sprites:register(Module.PRISM_ENTRANCE.sprite, {
+        id = Module.PRISM_ENTRANCE.sprite,
+        image = mod.path .. "/assets/prism_grotto/prism_seam.png",
+        frames = 1,
+        walker = false,
+        trueColor = true,
+      })
+    end
+
     for _, row in ipairs({
       { Module.ITEMS.MIGRATION_RECEIVER,
         tr("MIGR. RECEIVER", "MIGR.-EMPF.") },
@@ -513,6 +546,13 @@ function Module.create(mod, opts)
           movement = "STAY", range = "UP", sprite = "SPRITE_SAILOR",
           text = TEXT.RETURN_BOAT, x = 8, y = 15,
         },
+        {
+          index = 4, name = Module.PRISM_ENTRANCE.name,
+          movement = "STAY", range = "NONE",
+          sprite = Module.PRISM_ENTRANCE.sprite,
+          text = TEXT.PRISM_ENTRANCE,
+          x = Module.PRISM_ENTRANCE.x, y = Module.PRISM_ENTRANCE.y,
+        },
       },
       signs = {
         { text = TEXT.SIGN, x = 12, y = 13 },
@@ -538,6 +578,9 @@ function Module.create(mod, opts)
           end,
           [TEXT.SIGN] = function(game, _, _, onDone)
             return show(game, C.dialogue().sign, onDone)
+          end,
+          [TEXT.PRISM_ENTRANCE] = function(game, ow, npc, onDone)
+            return C.interactPrismEntrance(game, ow, npc, onDone)
           end,
         },
       })
@@ -603,6 +646,9 @@ function Module.create(mod, opts)
     end
     if callbacks and callbacks.onBoatman then
       boatmanCallback = callbacks.onBoatman
+    end
+    if callbacks and callbacks.onPrismEntrance then
+      prismEntranceCallback = callbacks.onPrismEntrance
     end
     if state.install then state.install(C.game) end
     C.installed = C.game ~= nil

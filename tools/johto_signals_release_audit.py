@@ -21,6 +21,7 @@ import zipfile
 
 
 REQUIRED_COMPONENTS = {
+    "driftglass_prisms.lua",
     "johto_signals.lua",
     "johto_signals_content.lua",
     "johto_signals_hub.lua",

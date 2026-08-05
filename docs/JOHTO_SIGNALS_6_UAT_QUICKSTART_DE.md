@@ -39,6 +39,7 @@ Im Spiel bei der Spielstandauswahl die gewünschte Nummer `6001` bis `6024`
 | 6022 | Speichern, Mod aus, laden/speichern, Mod wieder an | Johto-Pokémon, Dex und beide Zähler bleiben erhalten |
 | 6023 | Endivie-Prüfung in Prismania abschließen | Früher Fang wird erkannt; Belohnung ist Ersatz statt eines Duplikats |
 | 6024 | Auf Driftglass speichern, Mod aus/an und neu laden | Sicherer Rückfall nach Alabastia; kein unbekannter Karten-Crash oder Datenverlust |
+| 6025 | Zweite Glasfuge betreten; Prismengrotte absichtlich richtig und falsch spielen | Alle Säulen erreichbar; falscher Ton setzt nur die Folge zurück; Items nie doppelt; EVOLI-Ritual wiederholbar |
 
 ## Was unbedingt gemeldet werden soll
 

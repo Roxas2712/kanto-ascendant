@@ -265,7 +265,7 @@ local bucket = {
 local mod, i18n, fixture = fakeMod(bucket)
 local state = StateModule.create(mod)
 local rootState = state.root()
-equal(rootState.version, 1, "old state migrates to schema version 1")
+equal(rootState.version, 2, "old state migrates to schema version 2")
 equal(rootState.earlyJohto.mode, "waves",
   "the legacy early section migrates")
 equal(rootState.earlyJohto.outpostVisits, 2,
@@ -275,7 +275,9 @@ equal(rootState.earlyJohto.capsulePromptOpen, nil,
 equal(rootState.resonance.pendingSpecies, nil,
   "a pending encounter is runtime-only")
 equal(rootState.obsoleteCampaign, nil,
-  "only the two public progression sections survive")
+  "only the three public progression sections survive")
+truthy(type(rootState.prismGrotto) == "table",
+  "the Prism Grotto section is introduced without losing old progress")
 local normalizedSetCalls = fixture.saveStats.set
 state.root()
 state.section("earlyJohto")
@@ -300,8 +302,9 @@ equal(restartedFixture.saveStats.set, 0,
 local topKeys = {}
 for key in pairs(bucket.johto_signals) do topKeys[#topKeys + 1] = key end
 table.sort(topKeys)
-equal(table.concat(topKeys, ","), "earlyJohto,resonance,version",
-  "the save root has one version and exactly two sections")
+equal(table.concat(topKeys, ","),
+  "earlyJohto,prismGrotto,resonance,version",
+  "the save root has one version and exactly three sections")
 
 -- ------------------------------------------------------------ static content
 
@@ -356,17 +359,26 @@ equal(#map.blocks, map.width * map.height,
   "the map owns a complete rectangular block layer")
 equal(#map.warps, 0, "the outpost has no unsafe map warp")
 equal(#map.connections, 0, "the outpost cannot leak into another map")
-equal(#map.objects, 3,
-  "researcher, lookout and return boat are authored")
+equal(#map.objects, 4,
+  "researcher, lookout, return boat and visible Prism seam are authored")
 equal(map.objects[3].name, "DRIFTGLASS_RETURN_BOAT",
   "the permanent third NPC is the return boat")
-equal(#map.signs, 1, "the outpost has an authored station sign")
+equal(map.objects[4].name, "DRIFTGLASS_PRISM_SEAM",
+  "the Prism Grotto entrance is a visible object")
+equal(map.objects[4].sprite, "SPRITE_KA_PRISM_SEAM",
+  "the Prism Grotto entrance uses its own 2D/voxel-safe sprite")
+equal(map.objects[4].text, content.TEXT.PRISM_ENTRANCE,
+  "the visible seam owns the Prism entrance interaction")
+equal(#map.signs, 1,
+  "the outpost keeps only its station sign")
 
 local talk = fixture.scripts:get(content.MAP_ID).talk
 truthy(talk[content.TEXT.RESEARCHER], "the researcher has a handler")
 truthy(talk[content.TEXT.LOOKOUT], "the lookout has a handler")
 truthy(talk[content.TEXT.RETURN_BOAT], "the return boat has a handler")
 truthy(talk[content.TEXT.SIGN], "the station sign has a handler")
+truthy(talk[content.TEXT.PRISM_ENTRANCE],
+  "the Prism Grotto entrance has a delegated handler")
 local palletTalk = fixture.scripts:get("PALLET_TOWN").talk
 truthy(palletTalk[content.TEXT.PALLET_BOAT],
   "Pallet Town owns the physical departure handler")

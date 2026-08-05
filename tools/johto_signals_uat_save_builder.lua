@@ -21,7 +21,15 @@
 -- BLUE and YELLOW use the corresponding environment-variable names.  The
 -- source file is read only.  No fabricated "old-version" save is generated.
 
-local IDENTITY = "kanto-ascendant-signals-uat"
+local REQUESTED_IDENTITY = os.getenv("KA_SIGNALS_UAT_IDENTITY")
+  or "kanto-ascendant-signals-uat"
+local ALLOWED_IDENTITIES = {
+  ["kanto-ascendant-signals-uat"] = true,
+  ["kanto-ascendant-signals-voxel-uat"] = true,
+}
+assert(ALLOWED_IDENTITIES[REQUESTED_IDENTITY],
+  "REFUSING TO WRITE: unsupported Signals UAT identity")
+local IDENTITY = REQUESTED_IDENTITY
 local MOD_ID = "trainer_rematch"
 local MOD_VERSION = "6.0.3"
 local MANIFEST_SCHEMA = 1
@@ -112,12 +120,16 @@ return function(game)
     end
   end
   assert(exports.johtoSignalsState and exports.johtoSignals
-      and exports.mythicSignals and exports.signalsHub,
+      and exports.mythicSignals and exports.signalsHub
+      and exports.driftglassPrisms,
     "enabled Kanto Ascendant build does not expose the 6.0 Signals APIs")
   local signalsContent = assert(exports.johtoSignalsContent,
     "6.0 Driftglass content export is missing")
+  local prisms = exports.driftglassPrisms
   assert(signalsContent.MAP_ID == "KANTO_ASCENDANT_DRIFTGLASS",
     "unexpected Signals hub map: " .. tostring(signalsContent.MAP_ID))
+  assert(prisms.MAP_ID == "KANTO_ASCENDANT_PRISM_GROTTO",
+    "unexpected Prism Grotto map: " .. tostring(prisms.MAP_ID))
 
   local function copy(value)
     if type(value) ~= "table" then return value end
@@ -207,9 +219,15 @@ return function(game)
     signalsContent.MAP_ID, "walkable",
     merge({ x = 8, y = 12, facing = "up" },
       signalsContent.ARRIVAL))
+  local prismEntrance = safeCell(
+    signalsContent.MAP_ID, "walkable",
+    merge({ x = 11, y = 9, facing = "right" },
+      signalsContent.PRISM_ENTRANCE
+        and signalsContent.PRISM_ENTRANCE.approach))
   local cells = {
     pallet = pallet,
     driftglass = driftglass,
+    prismEntrance = prismEntrance,
     route1 = safeCell("ROUTE_1", "grass"),
     route24 = safeCell("ROUTE_24", "grass"),
     viridianForest = safeCell("VIRIDIAN_FOREST", "walkable"),
@@ -404,9 +422,10 @@ return function(game)
     save.modData = {
       [MOD_ID] = {
         johto_signals = {
-          version = 1,
+          version = 2,
           earlyJohto = earlyState(spec.early),
           resonance = resonanceState(spec.resonance),
+          prismGrotto = copy(spec.prismGrotto or {}),
         },
       },
     }
@@ -804,6 +823,24 @@ return function(game)
       ownedBoxSpecies = "CHIKORITA",
       action = "Save here; disable mod; load/save; re-enable at Pallet.",
     },
+    {
+      id = "slot6025",
+      label = "S25 PRISM GROTTO",
+      location = cells.prismEntrance,
+      badges = 4,
+      receiver = true,
+      early = repairedState({
+        mode = "UNLEASHED",
+      }),
+      prismGrotto = {
+        version = 1,
+        introduced = false,
+        heard = {},
+        solved = {},
+        pendingRewards = {},
+      },
+      action = "Enter the glass seam; test all six Prism inscriptions.",
+    },
   }
 
   local rows = {}
@@ -932,7 +969,14 @@ return function(game)
     }
   end
 
-  assert(SaveData.setActiveSlot(version, "slot6001") == "slot6001")
+  local activeSlot = os.getenv("KA_SIGNALS_UAT_ACTIVE_SLOT")
+    or "slot6001"
+  local validActive = false
+  for _, row in ipairs(rows) do
+    if row.id == activeSlot then validActive = true break end
+  end
+  assert(validActive, "unknown KA_SIGNALS_UAT_ACTIVE_SLOT: " .. activeSlot)
+  assert(SaveData.setActiveSlot(version, activeSlot) == activeSlot)
 
   local options = SaveData.loadOptions()
   options.mods = options.mods or {}
