@@ -60,6 +60,12 @@ Mew/Celebi signal hunt while preserving the normal Kanto opening.
   Power Plant condenser does not close the Gorochu path.
 - Once the Thunderheart has been received, Lt. Surge/Major Bob resumes his
   regular postgame conversation path, including Master and Crown rematches.
+- Master and Crown Leader victories are recorded through both battle
+  completion paths. Upgraded saves repair a missing circuit clear from their
+  existing Ascendant victory history.
+- The complete spoiler-protected FAQ and Event Archive guidance from 5.4.2
+  are included; `READY` now points to the relevant Cup city or roaming
+  habitat instead of looking like an unresponsive claim button.
 - Visible Wilds encounters and ordinary grass battles use the same protected
   selection and pity transactions. Repel, scripted events, roamers, outbreaks
   and other authored encounters cannot consume a guaranteed signal.
@@ -79,5 +85,7 @@ Mew/Celebi signal hunt while preserving the normal Kanto opening.
   public 5.3 package hash but are not presented as published player saves;
   original full-save UAT evidence is reported separately when a source is
   available.
+- The final launcher gate replaces the published 5.4.2 package with the exact
+  6.0.0 release archive under the unchanged `trainer_rematch` identity.
 
 Existing Kanto Ascendant saves remain compatible.
