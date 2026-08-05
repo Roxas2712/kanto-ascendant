@@ -2,7 +2,7 @@
 --
 -- Required:
 --   POKEPORT_ENGINE_ROOT=/absolute/path/to/gen1recomp
---   KA_SIGNALS_PACKAGE=/absolute/path/to/kanto-ascendant-6.0.3.modpkg
+--   KA_SIGNALS_PACKAGE=/absolute/path/to/kanto-ascendant-6.0.4.modpkg
 --
 -- Optional but required for the final release gate:
 --   KA_SIGNALS_OLD_PACKAGE=/absolute/path/to/kanto-ascendant-5.3.0.modpkg
@@ -64,8 +64,8 @@ function love.load()
       if row.id == id then installed = row break end
     end
     assert(installed, "launcher did not discover trainer_rematch")
-    assert(installed.version == "6.0.3",
-      ("launcher exposed version %s, expected 6.0.3")
+    assert(installed.version == "6.0.4",
+      ("launcher exposed version %s, expected 6.0.4")
         :format(tostring(installed.version)))
     assert(installed.status == "ok",
       "installed package is not launcher-ready: "

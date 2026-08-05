@@ -23,6 +23,23 @@ collapsed so players can reveal only the information they want.
 > [GitHub Issues](https://github.com/Roxas2712/kanto-ascendant/issues) and will
 > be considered for future updates.
 
+## What's new in 6.0.4
+
+- Driftglass now hides an optional **Prism Grotto** with five short reusable
+  symbol-sequence riddles for guaranteed Johto evolution items and a separate
+  Twilight rite for Eevee's day/night evolutions.
+- The central crystal tablet offers optional **Johto Move Resonance** for 104
+  original Kanto species. It grants only compatible Gen-II moves already
+  implemented by Ascendant, preserves Crystal's original level gates and
+  works with the existing Route 5 Move Deleter and Move Reminder.
+- Johto #152-251 now consistently use their bundled species-authentic Crystal
+  fronts, backs and legacy cries. Johto onboarding choices are saved
+  immediately and no longer reappear after restarting without another manual
+  save.
+- Guaranteed and bonus-roll shinies are prepared before Crystal, Voxel or
+  other battle-art wrappers select a sprite, preventing events such as the Red
+  Gyarados from appearing in normal colours.
+
 ## What's new in 6.0.3
 
 - The ordinary Pokédex now stays Kanto-only until Driftglass research
@@ -323,8 +340,8 @@ and German text. **LANGUAGE** defaults to `AUTO`:
 
 ## Johto Signals
 
-Version 6.0.3 can let Johto begin stirring during the Kanto story without
-changing the normal opening by default. After the starter and Pokédex,
+Version 6.0.3 and later can let Johto begin stirring during the Kanto story
+without changing the normal opening by default. After the starter and Pokédex,
 Professor Oak calls within 1–200 eligible steps. That call places a real dark
 capsule on Pallet Town's southern coast. If it remains untouched, Oak gives
 one reminder after another 400 eligible steps and never calls a third time.
@@ -1296,7 +1313,7 @@ missions, Rocket story and one new tournament bracket are completed.
 
 ## Installation
 
-1. Download `kanto-ascendant-6.0.3.modpkg` from the
+1. Download `kanto-ascendant-6.0.4.modpkg` from the
    [latest release](https://github.com/Roxas2712/kanto-ascendant/releases/latest)
    and import it through the launcher. Developers may alternatively install
    the checked-out mod directory.
@@ -1354,7 +1371,7 @@ python3 tools/johto_signals_release_audit.py .
 The map-collision and Mythic battle suites run from the engine checkout with
 `KANTO_SIGNALS_MOD_DIR` and `TRAINER_REMATCH_MOD_DIR` pointed at this mod.
 GitHub CI runs both contracts and repeats the release-boundary audit against
-the exact `kanto-ascendant-6.0.3.modpkg`.
+the exact `kanto-ascendant-6.0.4.modpkg`.
 
 The upgrade matrix includes separate schema-derived Kanto Ascendant 5.3
 fixtures for Red, Blue and Yellow. They pin the public 5.3 package hash and

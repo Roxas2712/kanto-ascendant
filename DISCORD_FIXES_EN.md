@@ -1,19 +1,34 @@
-# 🛠️ KANTO ASCENDANT 6.0.3 — UPDATE LIVE
+# 🛠️ KANTO ASCENDANT 6.0.4 — UPDATE NOTES
 
-📖 **National Dex progression**
-• Your Pokédex stays Kanto-only until the Driftglass researcher upgrades it
-• Seen Johto Pokémon reveal their identity; catching them reveals full data
-• Already activated Johto Signals saves receive the National Dex automatically
-• If you only started the quest, your progress is kept and Driftglass grants it normally
+💎 **Prism Grotto**
+• New optional Driftglass cave with five short sequence riddles
+• Guaranteed Sun Stone, King's Rock, Metal Coat, Dragon Scale and Up-Grade
+• Separate repeatable Eevee day/night rite
+• Solved rewards cannot duplicate; full Bags keep rewards safely reserved
 
-🌿 **Wilds of Kanto 1.7.1 compatibility**
-• Optional visible Johto encounters now follow your selected current and habitats
-• A new Wilds Link page shows whether the bridge is active
-• Johto normal/Shiny walkers no longer replace the Kanto follower provider
+✨ **Johto Move Resonance**
+• The central crystal teaches compatible implemented Gen-II moves to 104
+original Kanto species
+• Crystal's genuine level requirements are preserved
+• Full movesets use the existing Route 5 Move Deleter
+• Crystal-taught moves remain available through the Move Reminder
 
-✅ Save-safe for Red, Blue and Yellow in English and German. No Johto,
-Mythic, trace or encounter-counter progress is reset.
+🎨 **Visual and audio fixes**
+• Johto #152-251 use their species-authentic bundled fronts, backs and cries
+• Guaranteed and bonus Shinies are prepared before Crystal/Voxel wrappers
+choose artwork
+• Prevents event Shinies from appearing in normal colours
 
-📥 https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.0.3
+💾 **Save and onboarding fixes**
+• YES/NO for direct Johto Signals start is remembered immediately
+• The startup question no longer returns after restarting without another
+manual save
+• Existing Johto, Mythic, National Dex, trace and encounter progress remains
+unchanged
 
-Thanks for testing and reporting! 💚
+✅ Tested across Red, Blue and Yellow, English/German, 2D, Crystal and Voxel
+integration.
+
+📥 https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.0.4
+
+Thanks for all reports and testing! 💚

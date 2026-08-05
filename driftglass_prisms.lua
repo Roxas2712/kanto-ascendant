@@ -1103,7 +1103,14 @@ function Module.create(mod, opts)
     mod.content.maps:register(Module.MAP_ID, P.mapRecord)
     -- The grotto keeps a distinct, ominous cave identity instead of carrying
     -- the island song through the custom-map transition.
-    mod.content.map_songs:register(Module.MAP_ID, "Music_Dungeon1")
+    -- The ROM-free Modkit fixture intentionally has no music catalog. Skip
+    -- the optional assignment only there; imported R/B/Y data exposes the
+    -- native song and receives the intended cave theme.
+    local music = mod.content.music
+    if not (music and type(music.get) == "function")
+        or music:get("Music_Dungeon1") then
+      mod.content.map_songs:register(Module.MAP_ID, "Music_Dungeon1")
+    end
     local talk = {
       [TEXT.TABLET] = function(game, _, _, onDone)
         return P.interactTablet(game, onDone)

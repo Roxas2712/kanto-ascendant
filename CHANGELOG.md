@@ -4,6 +4,8 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+## [6.0.4] - 2026-08-06
+
 ### Added
 
 - Added the optional **Prism Grotto** beneath Driftglass. Six native cave
@@ -39,6 +41,9 @@ All notable changes to this project are documented in this file.
 - Guaranteed and bonus-roll wild shinies now receive their shiny state before
   Crystal, Voxel or other battle-graphics wrappers select artwork, preventing
   non-delegating visual wrappers from displaying their normal sprites.
+- Optional native Driftglass and Prism Grotto music now remains active with
+  imported Red, Blue or Yellow audio while cleanly skipping the deliberately
+  audio-free ROM-less Modkit fixture, restoring strict package validation.
 
 ## [6.0.3] - 2026-08-05
 

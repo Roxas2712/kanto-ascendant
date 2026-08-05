@@ -1,52 +1,58 @@
-# 🌌 KANTO ASCENDANT 6.0.3 — JOHTO SIGNALS
-
-**6.0.3 UPDATE:** Driftglass now grants the National Dex, existing active
-Signals saves upgrade automatically, and optional Wilds of Kanto 1.7.1
-integration is available.
+# 🌌 KANTO ASCENDANT 6.0.4 — PRISM UPDATE
 
 **The Hall of Fame was only the beginning.**
 
-Kanto Ascendant turns Red, Blue and Yellow into one Gen-I/II adventure with **all 251 Pokémon obtainable in one save**.
+Kanto Ascendant turns Red, Blue and Yellow into one evolving Gen-I/II
+adventure with **all 251 Pokémon obtainable in one save**.
 
-## ✨ FEATURES
+## 💎 NEW IN 6.0.4
 
-📡 **Johto Signals:** optionally let Johto Pokémon migrate into suitable Kanto habitats during the main story — or keep the original Kanto-first experience.
+🔹 Discover an optional hidden **Prism Grotto** beneath Driftglass
 
-🌠 **Mythic Signals:** investigate rare and dangerous Mew and Celebi sightings through a new optional hunt.
+🧩 Solve reusable crystal-sequence riddles for guaranteed Johto evolution
+items
 
-⚔️ Growing trainer rematches with expanding teams and rare rewards
+🌗 Uncover a special day/night rite connected to Eevee
 
-🧬 All 251 Pokémon, Johto research, breeding, eggs, Move Reminder and HM Field Kit
+✨ Use **Johto Move Resonance** to awaken compatible Gen-II moves in original
+Kanto Pokémon, with authentic Crystal level requirements
 
-✨ Shinies, outbreaks, Shiny Dex and Shiny Charm
+🎨 Improved Johto fronts, backs, cries and Crystal/Voxel Shiny compatibility
 
-💎 30 official Mega Evolutions and special relic journeys
+💾 Restart-safe Johto onboarding and full compatibility with existing saves
 
-👑 Lv.100 Gym Leaders, Elite Four, Champion and Johto Masters
+## 🌌 ASCENDANT FEATURES
 
-🌌 Legendary events, Cups, Frontier, Battle Factory and S.S. Anne Tour
+📡 Optional early Johto migrations and dangerous Mew/Celebi Signals
 
-📜 Atlas, Journal, trophies, titles, certificates and New Game+
+⚔️ Growing trainer rematches, expanding teams and rare rewards
 
-⚡ The option to obtain Gorochu
+🧬 All 251 Pokémon, breeding, eggs, Move Reminder and HM Field Kit
 
-🎨 Classic 2D, Crystal Animated and Voxel support, including normal and Shiny artwork
+✨ Shinies, outbreaks, Shiny Dex, Shiny Charm and event hunts
+
+💎 Mega Evolution, relic journeys and the option to obtain Gorochu
+
+👑 Lv.100 Leaders, Elite Four, Champion, Johto Masters and New Game+
+
+🏆 Cups, Frontier, Battle Factory and repeatable S.S. Anne voyages
 
 ## ✅ COMPATIBILITY
 
 • Pokémon Red, Blue and Yellow
 • English and German
-• New games and existing Kanto Ascendant saves — no restart required
-• Johto and Mythic Signals can be enabled or disabled independently
-• Optional Wilds of Kanto 1.7.1 visible-encounter link
+• New and existing saves — no restart required
+• Classic 2D, Crystal Animated and Voxel rendering
+• Optional Wilds of Kanto 1.7.1 link
 
 ## 📥 DOWNLOAD
 
-https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.0.3
+https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.0.4
 
-Import the `.modpkg` through the launcher. Do not enable another complete-Johto species mod at the same time.
+Import the `.modpkg` through the launcher. Do not enable another complete
+Johto-species mod at the same time.
 
-Kanto Ascendant is still growing. Bug reports, feedback and feature wishes are always welcome! 💚
+Bug reports, feedback and wishes are always welcome! 💚
 
 ## 🤝 ALSO TRY
 

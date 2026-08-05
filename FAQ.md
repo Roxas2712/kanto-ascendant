@@ -1,6 +1,6 @@
 # Kanto Ascendant FAQ and Spoiler Guide
 
-This is the public reference for **Kanto Ascendant 6.0.3**. It applies to Red,
+This is the public reference for **Kanto Ascendant 6.0.4**. It applies to Red,
 Blue and Yellow and is maintained from the current mod code, release
 documentation and confirmed support reports.
 
@@ -296,7 +296,7 @@ Mankey in every active KANTO 151 game.
 <details>
 <summary><strong>⚠️ SPOILER — Do I need to start a new game for Johto Signals?</strong></summary>
 
-No. Version 6.0.3 upgrades existing Red, Blue and Yellow saves in place.
+No. Version 6.0.4 upgrades existing Red, Blue and Yellow saves in place.
 
 The signal system does not count steps taken before 6.0 was installed. Once
 the updated save has a starter and the Pokédex, it begins its own hidden
@@ -1293,7 +1293,7 @@ proven from a screenshot alone.
 | Lt. Surge only repeats Gorochu dialogue after the evolution | **Fixed in current GitHub source.** Completed owners return to the normal rematch conversation. |
 | Event Archive says READY but nothing happens | **Clarified in current GitHub source.** READY means unlocked; the details page now directs Festival players to the Cup city or Roaming players to habitats. |
 | Randomized Master battles | **Confirmed working.** Randomizer species/moves remain authoritative while Ascendant progression is preserved. |
-| Red Gyarados appears with normal colours | **Confirmed compatibility defect; fix prepared for maintainer review.** The event and progression state are valid, but a Crystal/Voxel graphics wrapper can choose normal artwork before Ascendant applies the event DVs. The prepared fix adds an early shiny preflight before external artwork selection; no public release contains it yet. |
+| Red Gyarados appears with normal colours | **Fixed in 6.0.4.** Guaranteed and bonus-roll shinies now receive their shiny state before Crystal, Voxel or another battle-art wrapper selects the visible sprite. |
 | Story Sabrina's Alakazam did not Mega Evolve | **Expected.** Enemy Mega defaults to post-game Ascendant bosses. |
 | Mankey/Nidoran location confusion | **Documented above.** Active KANTO 151 adds Mankey to Route 5 in every edition; native Route 22 remains edition-specific. |
 | Stale trainer_rematch install on a handheld PC | **Launcher/filesystem support, not a gameplay defect.** Recovery steps are documented above. |

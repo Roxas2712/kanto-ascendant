@@ -31,7 +31,7 @@ assert(ALLOWED_IDENTITIES[REQUESTED_IDENTITY],
   "REFUSING TO WRITE: unsupported Signals UAT identity")
 local IDENTITY = REQUESTED_IDENTITY
 local MOD_ID = "trainer_rematch"
-local MOD_VERSION = "6.0.3"
+local MOD_VERSION = "6.0.4"
 local MANIFEST_SCHEMA = 1
 
 local FORBIDDEN_MAP_WORDS = {

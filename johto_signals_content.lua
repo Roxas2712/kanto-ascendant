@@ -563,7 +563,14 @@ function Module.create(mod, opts)
       -- A remote research island should not inherit Pallet Town's theme from
       -- the departure map. Cinnabar supplies the native island atmosphere in
       -- Red, Blue and Yellow without bundling or replacing anyone's music.
-      mod.content.map_songs:register(Module.MAP_ID, "Music_Cinnabar")
+      -- The ROM-free Modkit fixture intentionally has no music catalog. Skip
+      -- the optional assignment only there; imported R/B/Y data exposes the
+      -- native song and receives the intended map theme.
+      local music = mod.content.music
+      if not (music and type(music.get) == "function")
+          or music:get("Music_Cinnabar") then
+        mod.content.map_songs:register(Module.MAP_ID, "Music_Cinnabar")
+      end
       mod.content.map_scripts:register(Module.MAP_ID, {
         priority = 2600,
         talk = {
