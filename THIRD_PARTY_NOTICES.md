@@ -17,6 +17,17 @@ Crystal set mirrored by the PokeAPI sprites repository:
 
 https://github.com/PokeAPI/sprites
 
+## Pokémon legacy cries
+
+The bundled OGG cries for Johto Pokémon #152-251 come from the PokéAPI cries
+repository's legacy set:
+
+https://github.com/PokeAPI/cries
+
+That repository is distributed under CC0 1.0 Universal and states that the
+audio content is Copyright The Pokémon Company. Kanto Ascendant uses the
+files only in this unofficial, non-commercial fan mod.
+
 ## Pokémon Crystal animated sprites
 
 The bundled normal and shiny front-animation frames for all Pokémon #001-251

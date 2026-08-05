@@ -1526,9 +1526,9 @@ return function(mod)
     local mapScripts = deps.mapScripts or require("data.scripts.init")
 
     -- Run only after every enabled mod has merged its audio registry. Existing
-    -- Gen-II cries therefore always win; Ascendant supplies only missing
-    -- Johto entries and Mega/Ascendant forms naturally retain their species
-    -- cry.
+    -- Gen-II cries therefore always win; Ascendant supplies its bundled
+    -- species-authentic legacy files only for missing Johto entries, and
+    -- Mega/Ascendant forms naturally retain their species cry.
     if johtoAudio then johtoAudio.install(game) end
     if gorochu then gorochu.install(game, deps) end
     if megaEvolution then megaEvolution.install(game, deps) end

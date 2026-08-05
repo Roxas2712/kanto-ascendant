@@ -444,6 +444,11 @@ do
     state = {},
   })
   local game = gameFixture(false)
+  local diskWrites = 0
+  function game:writeSave()
+    diskWrites = diskWrites + 1
+    return true
+  end
   h.api.install(game)
   eq(h.state.receiverRepaired, false,
     "a launcher policy never silently repairs the receiver")
@@ -463,16 +468,31 @@ do
     "accepted onboarding applies the requested public mode")
   eq(h.state.onboardingComplete, true,
     "the from-start onboarding is persistently one-time")
+  eq(diskWrites, 1,
+    "accepting direct start immediately writes the one-time choice to disk")
   eq(h.callbacks.repairSource, "onboarding",
     "content receives the authored onboarding repair source")
   ok, reason = h.api.completeOnboarding(true, "WANDERWAVES", game)
   eq(ok, false, "the one-time onboarding cannot be replayed")
   eq(reason, "already-complete", "a replay reports its stable reason")
+
+  local reloaded = newHarness({
+    startPolicy = "unleashed",
+    state = h.state,
+  })
+  reloaded.api.install(gameFixture(false))
+  eq(reloaded.callbacks.onboarding, 0,
+    "a rebuilt controller does not ask again after the saved YES choice")
 end
 
 do
   local h = newHarness({ startPolicy = "waves" })
   local game = gameFixture(false)
+  local diskWrites = 0
+  function game:writeSave()
+    diskWrites = diskWrites + 1
+    return true
+  end
   h.api.install(game)
   local ok, reason = h.api.completeOnboarding(false, "WANDERWAVES", game)
   eq(ok, true, "declining the authored onboarding is a valid choice")
@@ -481,6 +501,8 @@ do
     "declining onboarding cannot activate encounters")
   eq(h.state.startPolicy, "quest",
     "declining onboarding preserves the discoverable field quest")
+  eq(diskWrites, 1,
+    "declining direct start also saves the one-time choice immediately")
 end
 
 -- ------------------------------------------------------- primal trace UX

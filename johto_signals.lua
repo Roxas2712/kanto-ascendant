@@ -298,6 +298,19 @@ return function(mod, opts)
     return game or J.game
   end
 
+  -- The direct-start question is shown immediately after a slot loads. Merely
+  -- changing mod.save updates the live slot, but closing/reloading before the
+  -- player's next manual save restores the old on-disk value and asks again.
+  -- A conscious YES/NO choice is therefore a small autosave checkpoint.
+  local function persistOnboardingChoice(game)
+    persist()
+    game = activeGame(game)
+    if game and type(game.writeSave) == "function" then
+      local ok = pcall(game.writeSave, game)
+      if not ok then pcall(game.writeSave) end
+    end
+  end
+
   local function playerName(game)
     game = activeGame(game)
     local name = game and game.save and game.save.player
@@ -606,7 +619,7 @@ return function(mod, opts)
     runtime.onboardingPending = nil
     if not accepted then
       s.startPolicy = "quest"
-      persist()
+      persistOnboardingChoice(game)
       return true, "field-quest", tr(
         "The field quest\nstays active.",
         "Die Feldquest\nbleibt aktiv.")
@@ -624,7 +637,7 @@ return function(mod, opts)
     s.mode = normalizeMode(policy)
     s.modeChosen = true
     if s.mode == MODES.WANDERWAVES then ensureWave(s, game) end
-    persist()
+    persistOnboardingChoice(game)
     receiverCallback(game, "onboarding")
     return true, "configured", tr(
       "Receiver ready.\nCurrent:\n" .. modeName(s.mode) .. ".",

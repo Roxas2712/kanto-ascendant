@@ -13,9 +13,10 @@ local function evolutionRow(row)
 end
 
 return function(mod, legends, johto, i18n)
-  -- Derived cries reuse a ROM-native Gen-I cry program and only change its
-  -- pitch/length. This is the engine's portable extension path and avoids
-  -- asking mobile audio backends to synthesize a mod-local ChipAsm program.
+  -- Every Johto species ships with its short legacy cry as a mobile-safe OGG.
+  -- Keep the old derived Gen-I definitions as a last-resort recovery path for
+  -- incomplete development packages; release packages always contain all 100
+  -- files. An externally registered cry remains authoritative.
   local CRY_BASE_BY_TYPE = {
     NORMAL = "RATTATA", FIRE = "CHARMANDER", WATER = "SQUIRTLE",
     ELECTRIC = "PIKACHU", GRASS = "BULBASAUR", ICE = "SEEL",
@@ -25,6 +26,7 @@ return function(mod, legends, johto, i18n)
     DRAGON = "DRATINI", DARK = "MEOWTH", STEEL = "MAGNEMITE",
   }
   local fallbackCries = {}
+  local bundledCries = {}
   for _, id in ipairs(johto.order) do
     local def = assert(johto.species[id], "missing Johto species " .. id)
     local primaryType = def.types and def.types[1]
@@ -33,9 +35,15 @@ return function(mod, legends, johto, i18n)
       pitch = 96 + (def.dex % 5) * 16,
       length = 112 + (def.dex % 4) * 16,
     }
+    local relative = ("assets/audio/johto_cries/%d.ogg"):format(def.dex)
+    bundledCries[id] = {
+      file = mod.path .. "/" .. relative,
+      available = mod:read(relative) ~= nil,
+    }
   end
 
   local audioCompat = {
+    bundled = bundledCries,
     fallbacks = fallbackCries,
     -- Shared with every Johto registration below and exposed for the
     -- ROM-free regression suite.
@@ -89,8 +97,15 @@ return function(mod, legends, johto, i18n)
 
     local installed, preserved = 0, 0
     for _, id in ipairs(johto.order) do
-      if data.audio.cries[id] == nil then
-        data.audio.cries[id] = fallbackCries[id]
+      local owner = data.audio._owners.cries[id]
+      local ownDefinition = owner == mod.manifest.id
+      local bundled = bundledCries[id]
+      local current = data.audio.cries[id]
+      local staleOwnDefinition = ownDefinition and bundled.available
+        and (type(current) ~= "table" or current.file ~= bundled.file)
+      if current == nil or staleOwnDefinition then
+        data.audio.cries[id] = bundled.available
+          and { file = bundled.file } or fallbackCries[id]
         data.audio._owners.cries[id] = mod.manifest.id
         installed = installed + 1
       else

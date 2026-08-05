@@ -1065,8 +1065,8 @@ from Chikorita through Celebi, including:
 Every new species has base stats, typing, learnset, TM compatibility, Pokédex
 data and a four-shade Kanto fallback. After all enabled mods finish loading,
 Ascendant preserves any externally registered Gen-II cry and installs its
-portable ROM-native derived cry only for species still missing audio. Mega
-and Ascendant forms use that resolved base-species cry. The six story
+bundled species-authentic legacy cry only for species still missing audio.
+Mega and Ascendant forms use that resolved base-species cry. The six story
 legends retain their authored front/back pixel art. Their party-menu icons use
 the game's standard animated silhouettes: quadruped for the three beasts, bird
 for Lugia and Ho-Oh, and the Mew-like mythic icon for Celebi.

@@ -19,6 +19,12 @@ All notable changes to this project are documented in this file.
 
 ### Fixed
 
+- Johto Signals now writes accepted or declined onboarding choices to the
+  selected game save immediately, so the prompt does not return after a
+  restart merely because the player had not reached another manual save.
+- All #152-251 species now use their bundled species-authentic legacy cries
+  instead of type-based Gen-I pitch/length substitutes. External cry providers
+  remain authoritative.
 - All #152-251 species now register their own bundled Crystal front/back art
   instead of a same-type Kanto silhouette. The National Dex also resolves
   every Johto entry to its species-authentic static Crystal frame in either

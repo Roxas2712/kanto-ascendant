@@ -63,25 +63,20 @@ T.eq(ex.dexKindCompat.MEWTWO.de, "GENMUTANT",
 do
   T.neq(ex.johtoAudio, nil,
     "the late Johto cry compatibility seam is exported")
+  local bundledCryCount = 0
+  for id, bundled in pairs(ex.johtoAudio.bundled) do
+    T.eq(bundled.available, true,
+      id .. " has its bundled legacy cry in the release package")
+    T.eq(type(bundled.file), "string",
+      id .. " exposes a playable bundled cry path")
+    bundledCryCount = bundledCryCount + 1
+  end
+  T.eq(bundledCryCount, 100,
+    "all one hundred Johto species have bundled legacy cries")
   local externalTotodileCry = { file = "external/gen2/totodile.ogg" }
   local baseCries = Data.audio and Data.audio.cries or {}
   Data.audio = { cries = {} }
   for id, def in pairs(baseCries) do Data.audio.cries[id] = def end
-  -- The ROM-free fixture intentionally has no imported audio. Seed one
-  -- valid native-style program under every Kanto base used by the derived
-  -- fallbacks so the real Sound.resolveCry path can still be exercised.
-  local seedChip = require("src.audio.ChipAsm").sfx{
-    channels = { { hw = 1, program = {
-      { squareNote = {
-        len = 6, volume = 13, fade = 2, frequency = 0x500,
-      } },
-    } } },
-  }.chip
-  for _, fallback in pairs(ex.johtoAudio.fallbacks) do
-    Data.audio.cries[fallback.base] = Data.audio.cries[fallback.base] or {
-      chip = seedChip, pitch = 128, length = 128,
-    }
-  end
   Data.pokemon.TOTODILE = {}
   Data.audio.cries.TOTODILE = externalTotodileCry
   local fallbackCount, externalCount = ex.johtoAudio.install({ data = Data })
@@ -90,11 +85,12 @@ do
   T.eq(externalCount, 1,
     "one externally registered Johto cry is recognized")
   T.eq(Data.audio.cries.TOTODILE.file, externalTotodileCry.file,
-    "an external Totodile cry wins over Ascendant's derived fallback")
+    "an external Totodile cry wins over Ascendant's bundled legacy cry")
   T.neq(Data.audio.cries.CHIKORITA, nil,
-    "a missing Johto cry receives Ascendant's self-contained fallback")
-  T.eq(Data.audio.cries.NATU.base, "ABRA",
-    "Natu uses a portable ROM-native derived cry")
+    "a missing Johto cry receives Ascendant's bundled legacy cry")
+  T.eq(Data.audio.cries.NATU.file:find(
+      "assets/audio/johto_cries/177.ogg", 1, true) ~= nil, true,
+    "Natu resolves to its species-authentic bundled Gen-II cry")
   T.eq(Data.pokemon.TOTODILE.cry, "TOTODILE",
     "late audio binding connects the species to the preserved external cry")
   T.eq(ex.johtoAudio.battleScaleBack, 1,
@@ -127,8 +123,8 @@ do
   T.eq(localizedDexData.pokemon.CELEBI.dexEntry.kind, "TIME TRAVEL",
     "English Celebi category returns without rebuilding content")
 
-  -- Exercise the same derived-cry path Sound.playCry uses. Presence in the
-  -- table alone would not catch a missing Kanto base or stale negative cache.
+  -- Exercise the same file-backed path Sound.playCry uses. Presence in the
+  -- table alone would not catch a missing package asset or stale cache.
   local oldLoveAudio = love.audio
   love.audio = {
     newSource = function(soundData)
@@ -143,7 +139,7 @@ do
   local Sound = require("src.core.Sound")
   Sound.invalidate()
   T.neq(Sound.playCry(Data, "NATU"), nil,
-    "the standalone Natu fallback cry reaches a playable audio source")
+    "the standalone Natu legacy cry reaches a playable audio source")
   Sound.invalidate()
   love.audio = oldLoveAudio
 
@@ -152,6 +148,17 @@ do
   T.eq(repeatedFallbacks, 0, "late Johto audio binding is idempotent")
   T.eq(repeatedExternal, 100,
     "a repeated install preserves every already resolved cry")
+  Data.audio.cries.CHIKORITA = ex.johtoAudio.fallbacks.CHIKORITA
+  Data.audio._owners.cries.CHIKORITA = "trainer_rematch"
+  local upgradedOwn, preservedAfterUpgrade =
+    ex.johtoAudio.install({ data = Data })
+  T.eq(upgradedOwn, 1,
+    "an Ascendant-owned legacy substitute upgrades to the bundled cry")
+  T.eq(preservedAfterUpgrade, 99,
+    "upgrading one old substitute preserves every other resolved cry")
+  T.eq(Data.audio.cries.CHIKORITA.file,
+    ex.johtoAudio.bundled.CHIKORITA.file,
+    "the hot-reloaded Chikorita definition points at its real legacy OGG")
   Data.pokemon.TOTODILE = nil
 end
 

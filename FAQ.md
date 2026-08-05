@@ -1237,7 +1237,8 @@ First report:
 - exact species and front/back/follower context;
 - screenshot or short clip.
 
-Ascendant preserves external Gen-II/Gorochu audio and fills only missing cries.
+Ascendant bundles species-authentic legacy cries for #152-251, preserves
+external Gen-II/Gorochu audio and fills only missing cries.
 It also includes mobile-ready follower sheets, so clearing or rebuilding a
 third-party graphics cache may be necessary after updating an older wrapper.
 
