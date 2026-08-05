@@ -73,6 +73,8 @@ with tempfile.TemporaryDirectory(prefix="signals-audit-") as raw:
     archive = temp / "clean.modpkg"
     with zipfile.ZipFile(archive, "w") as zf:
         for path in clean.iterdir():
+            if path.name == "RELEASE_NOTES_6.0.0.md":
+                continue
             zf.write(path, "kanto-ascendant/" + path.name)
     assert AUDIT.audit(archive, False) == []
 

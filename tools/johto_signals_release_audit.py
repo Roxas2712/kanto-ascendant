@@ -29,11 +29,14 @@ REQUIRED_COMPONENTS = {
     "mythic_signals.lua",
 }
 
-REQUIRED_RELEASE_FILES = {
+REQUIRED_PACKAGE_FILES = {
     "README.md",
-    "RELEASE_NOTES_6.0.0.md",
     "manifest.json",
     "mod.card",
+}
+
+REQUIRED_SOURCE_FILES = REQUIRED_PACKAGE_FILES | {
+    "RELEASE_NOTES_6.0.0.md",
 }
 
 PUBLIC_RELEASE_TEXTS = {
@@ -137,7 +140,11 @@ def audit(source: Path, component_only: bool) -> list[str]:
             sorted(REQUIRED_COMPONENTS & present) if component_only else names
         )
         if not component_only:
-            missing_release = sorted(REQUIRED_RELEASE_FILES - present)
+            required_files = (
+                REQUIRED_PACKAGE_FILES if source.is_file()
+                else REQUIRED_SOURCE_FILES
+            )
+            missing_release = sorted(required_files - present)
             if missing_release:
                 errors.append(
                     "missing release files: " + ", ".join(missing_release)
