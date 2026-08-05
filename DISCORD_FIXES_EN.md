@@ -1,45 +1,35 @@
-# 🛠️ KANTO ASCENDANT 5.4.1 — FIXES & NEW FEATURES
+# 📡 KANTO ASCENDANT 6.0.0 — RELEASE NOTES
 
-## ⚡ GOROCHU
+## 🌊 JOHTO SIGNALS
 
-- You now have the option to obtain Gorochu.
-- Gorochu remains completely optional and will not be revealed by opposing
-  trainers before the player obtains it.
-- Added sharp normal/shiny sprites for classic 2D, Crystal Animated and Voxel.
-- Added dedicated front and back sprites plus normal/shiny six-pose followers.
-- Added complete animated Raichu and Gorochu dialogue portraits.
-- Added edition-appropriate Gorochu audio for Red, Blue and Yellow.
-- External cry mods continue to take priority.
-- Existing saves that already obtained Gorochu remain compatible.
+• A new optional Pallet Town signal can begin during the Kanto story.
+• Discover Driftglass, repair its receiver and choose how strongly Johto Pokémon migrate into suitable Kanto habitats.
+• Choose **Kanto First**, **Wanderwaves** or **Johto Unleashed** — and change it later.
+• Hidden traces can unlock four especially rare Johto families.
+• Protected counters prevent endless bad luck.
+• Journal, Atlas and the **ASCENDANT → WORLD** menu guide the next step without revealing unseen Pokémon.
 
-## 🎲 RANDOMIZER & TRAINERS
+## 🌠 MYTHIC SIGNALS
 
-- Ascendant Leaders, Elite Four, Johto Masters, Grand Tour, Heritage Cups,
-  trials, tournaments and hunts now work correctly with the Gen-I Randomizer.
-- Randomized species and moves stay randomized.
-- Intended team sizes, levels, boss rules, rewards and progression remain
-  intact.
-- Invalid Randomizer output now falls back safely.
-- Normal rematches continue persistent training up to Lv.100.
-- Researched Johto families can join suitable trainer classes without
-  rerolling existing recruits.
+• Rare Mew and Celebi echoes can appear after receiving the Pokédex.
+• These warnings are deliberately dangerous and cannot simply be caught.
+• Complete the research to begin the true persistent hunt.
+• Mythic Signals have their own toggle and do not require early Johto.
+• Celebi now has corrected Dex, battle, capture, Shiny and Voxel presentation.
 
-## 📖 POKÉDEX & YELLOW
+## 🛠️ FIXES & COMPATIBILITY
 
-- Added **DEX SPRITES**:
-  - `ORIGINAL`: Red/Blue/Yellow Pokédex artwork
-  - `CRYSTAL`: static Crystal artwork for Kanto #001–151
-- This option does not change battle sprites, Voxel or Crystal Animated
-  settings.
-- Partner-specific Yellow dialogue now correctly says Pikachu, Raichu or
-  Gorochu.
-- Unrelated Pikachu dialogue remains unchanged.
-- Partner tracking and stat compatibility were hardened for older engine
-  versions.
+• Existing Red, Blue and Yellow saves upgrade automatically.
+• Declining Driftglass never closes the quest; accepting it later works.
+• Driftglass always provides a safe return to Kanto.
+• Repel, scripted battles, roamers and outbreaks cannot consume protected signals.
+• Unseen Johto species remain `???` until genuinely encountered.
+• Lt. Surge/Major Bob now gives a missing Thunderheart after the Elite Four, then returns to Master/Crown rematches.
+• Declining either Gorochu step no longer blocks progress.
+• Master/Crown victories and affected older saves now register correctly.
+• Event Archive `READY` entries now point toward the relevant location.
+• Red/Blue/Yellow, English/German, restart, mod off/on, 2D, Crystal Animated and Voxel paths were tested.
 
-✅ Existing Red, Blue and Yellow saves require no manual migration.
+📥 https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.0.0
 
-📥 https://github.com/Roxas2712/kanto-ascendant/releases/tag/v5.4.1
-
-Please report anything unusual — feedback and feature wishes are always
-welcome! 💚
+Please report anything unusual — screenshots and save details help a lot! 💚

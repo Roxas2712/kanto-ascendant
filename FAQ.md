@@ -1,8 +1,8 @@
 # Kanto Ascendant FAQ and Spoiler Guide
 
-This is the public reference for Kanto Ascendant. It applies to Red, Blue and
-Yellow and is maintained from the current mod code, release documentation and
-confirmed support reports.
+This is the public reference for **Kanto Ascendant 6.0.0**. It applies to Red,
+Blue and Yellow and is maintained from the current mod code, release
+documentation and confirmed support reports.
 
 > [!WARNING]
 > **Every gameplay FAQ entry may contain spoilers.** Those answers are collapsed
@@ -13,6 +13,7 @@ confirmed support reports.
 
 - [Installation and compatibility](#installation-and-compatibility)
 - [Main story, rematches and Kanto 151](#main-story-rematches-and-kanto-151)
+- [Johto Signals and Mythic Signals](#johto-signals-and-mythic-signals)
 - [Johto research, breeding and items](#johto-research-breeding-and-items)
 - [Shinies, outbreaks and the red Gyarados](#shinies-outbreaks-and-the-red-gyarados)
 - [Mega Evolution, Yellow's partner and Gorochu](#mega-evolution-yellows-partner-and-gorochu)
@@ -29,8 +30,8 @@ confirmed support reports.
 Kanto Ascendant is a gameplay and content mod for Pokémon Gen 1 Recomp. It is
 not a ROM hack and does not contain a Pokémon ROM. Gen 1 Recomp imports the
 player's Red, Blue or Yellow data; Ascendant then adds persistent rematches,
-all 251 Kanto/Johto species, breeding, shinies, Mega Evolution, Gorochu and a
-large Hall-of-Fame post-game.
+all 251 Kanto/Johto species, optional early Johto and Mythic Signals,
+breeding, shinies, Mega Evolution, Gorochu and a large Hall-of-Fame post-game.
 
 </details>
 
@@ -196,8 +197,9 @@ Yes, when **KANTO 151** is set to **REWARDS** or **WILD**.
 - **OFF** disables Ascendant's catchability, evolution and renewable Moon
   Stone additions.
 
-Mew is never a random encounter. It remains a dedicated late-game
-investigation.
+KANTO 151 never inserts Mew into an ordinary encounter table. Mew's original
+late-game investigation remains available, while the independent optional
+**Mythic Signals** system can create its own protected encounters.
 
 </details>
 
@@ -276,13 +278,172 @@ Mankey in every active KANTO 151 game.
 
 </details>
 
+## Johto Signals and Mythic Signals
+
+<details>
+<summary><strong>⚠️ SPOILER — Do I need to start a new game for Johto Signals?</strong></summary>
+
+No. Version 6.0.0 upgrades existing Red, Blue and Yellow saves in place.
+
+The signal system does not count steps taken before 6.0 was installed. Once
+the updated save has a starter and the Pokédex, it begins its own hidden
+counter normally. Party, PC, Bag, money, trainer progress and existing
+Pokédex records are preserved.
+
+</details>
+
+<details>
+<summary><strong>⚠️ SPOILER — How does the first Johto signal begin?</strong></summary>
+
+After choosing a starter and receiving the Pokédex, complete **128–768 new
+player steps**. The exact target is intentionally hidden. Return to Pallet
+Town after travelling; a glint at the southern coast can reveal the field
+capsule. The fifth eligible Pallet visit guarantees the discovery even if the
+random step target has not been reached.
+
+The Atlas and Journal do not reveal the capsule before it is genuinely
+available. If both Early Johto and Mythic Signals are disabled, no Signals
+quest is forced into the Kanto opening.
+
+</details>
+
+<details>
+<summary><strong>⚠️ SPOILER — What happens if I decline the capsule or Driftglass trip?</strong></summary>
+
+Nothing is lost.
+
+- Declining the capsule leaves it undiscovered. Leave Pallet Town and return
+  to receive the optional prompt again.
+- Accepting the capsule makes the boatman available at Pallet's coast.
+- Declining the boat trip leaves the boatman available for later.
+- Driftglass has a return boat during every quest stage, including before the
+  receiver is repaired.
+
+The trip never permanently removes the player from Kanto. Disabling and
+re-enabling either Signals option also preserves its counters.
+
+</details>
+
+<details>
+<summary><strong>⚠️ SPOILER — What do the three Johto currents change?</strong></summary>
+
+Repair the Migration Receiver at Driftglass, then choose:
+
+| Current | Effect |
+|---|---|
+| **Kanto First** | No early Johto replacements; normal Kanto encounters remain unchanged |
+| **Wanderwaves** | Badge- and habitat-aware Johto groups at about 2%, or 4% during a strong signal |
+| **Johto Unleashed** | About 10% Johto share across matching authored habitats |
+
+Only suitable base species are introduced. Legendary and Mythical Pokémon are
+never part of the Johto migration pool.
+
+The current can be changed later under
+**ASCENDANT → WORLD → JOHTO SIGNALS**. Choosing Kanto First does not disable
+the independent Mythic Signals system.
+
+</details>
+
+<details>
+<summary><strong>⚠️ FULL SPOILER — Where are the four primal traces and their rare encounters?</strong></summary>
+
+After repairing the receiver, follow its clue to the relevant map and choose
+**ASCENDANT → WORLD → JOHTO SIGNALS → SCAN CURRENT AREA**.
+
+| Trace scan | Species unlocked | Encounter habitat | Level |
+|---|---|---|---:|
+| Deep Viridian Forest | Chikorita | Route 24 grass | 18 |
+| Route 6, south of Cerulean | Totodile | Seafoam Islands B2F | 22 |
+| Pokémon Mansion B1F | Cyndaquil | Pokémon Mansion B1F | 22 |
+| Victory Road 3F | Larvitar | Victory Road 3F | 45 |
+
+Each trace unlocks only its own base species. Until the species is genuinely
+seen, Dex-aware screens display `???`.
+
+Every suitable wild battle then receives a separate protected rare roll:
+
+| Current | Chance | Hard guarantee |
+|---|---:|---:|
+| Wanderwaves | 1/512 | Next suitable encounter at attempt 512 |
+| Johto Unleashed | 1/256 | Next suitable encounter at attempt 256 |
+
+Changing currents does not erase the counters. Repel, scripted encounters,
+roamers, outbreaks and other authored battles cannot consume a guaranteed
+trace result.
+
+</details>
+
+<details>
+<summary><strong>⚠️ SPOILER — Are Mew and Celebi roaming from the beginning, and can I catch them?</strong></summary>
+
+**Mythic Signals are enabled by default**, but nothing can appear before the
+Pokédex is active. After that, rare Mew or Celebi **echoes** may replace a
+genuine Kanto grass encounter even before the Driftglass receiver is repaired.
+
+An echo is a warning, not a catch opportunity:
+
+- it appears at level 60–100, based on the player's party;
+- it cannot be caught with any Ball;
+- a Master Ball is rejected and returned rather than consumed;
+- it cannot be escaped from or reduced below 1 HP;
+- the battle continues until the player's party falls.
+
+The first echo is guaranteed by the 512th eligible grass encounter. Later
+echoes begin at 1/2048, gain pressure during the hunt and are guaranteed by
+encounter 2048.
+
+</details>
+
+<details>
+<summary><strong>⚠️ FULL SPOILER — How do Mew and Celebi become catchable?</strong></summary>
+
+1. Witness three Mythic echoes in genuine Kanto grass.
+2. Repair the Driftglass receiver.
+3. Earn at least four Badges.
+4. Ask the Driftglass researcher to complete the **Resonance Seal**.
+5. Search genuine Kanto grass for a true manifestation.
+
+A true manifestation uses a protected 1/8192 counter and can be caught
+normally. If it escapes or defeats the party, the same species remains bound:
+it keeps its level, DVs, HP and status, returns at 1/16 and is guaranteed
+within 32 further eligible encounters.
+
+Already-owned species and individually disabled Mew/Celebi outcomes are
+removed from the pool. Existing canonical Mew or Celebi story conclusions
+remain authoritative, so Signals do not create required duplicates.
+
+Use **ASCENDANT → WORLD → MYTHIC SIGNALS** to inspect progress or disable this
+system independently from Early Johto.
+
+</details>
+
+<details>
+<summary><strong>⚠️ SPOILER — Do Signals reveal the complete Johto Pokédex?</strong></summary>
+
+No. Signals never pre-fill seen or owned records. Unknown species stay hidden
+as `???` until a real sighting, and ownership is recorded only after a real
+catch, evolution, egg or reward.
+
+Early Johto catches are recognized by Elm's later research. When a later
+milestone would award a duplicate specimen, the research system supplies its
+safe compensation instead.
+
+</details>
+
 ## Johto research, breeding and items
 
 <details>
 <summary><strong>⚠️ SPOILER — When do Johto Pokémon start appearing?</strong></summary>
 
-The first Hall of Fame places Elm's aide in Oak's Lab. Complete all three
-starter trials:
+There are now two independent routes:
+
+- Optional **Johto Signals** can introduce habitat-aware Johto encounters
+  during the Kanto story.
+- The original research campaign still begins after the first Hall of Fame
+  and eventually exposes every normal Johto base family.
+
+For the postgame research route, the first Hall of Fame places Elm's aide in
+Oak's Lab. Complete all three starter trials:
 
 | Trial | Location | Reward |
 |---|---|---|
@@ -292,7 +453,8 @@ starter trials:
 
 After all three, every won ordinary field rematch awards one still-missing
 Johto base family. There are 40 normal specimen tracks; the first further
-rematch after all 40 awards Larvitar.
+rematch after all 40 awards Larvitar. Johto Pokémon already obtained through
+Signals are recognized rather than incorrectly counted as new discoveries.
 
 Once a family is researched, its base species also establishes a renewable
 2% Kanto habitat. Multiple eligible families sharing a location split the
@@ -966,6 +1128,8 @@ NORMAL removes extra restrictions while retaining level-100 teams.
   cooldowns/ranks/locations, exact loot gates, TM queue and revealed habitats.
 - **ASCENDANT → JOURNAL:** legends and roamer routes, titles, type mastery,
   world event and Johto Masters records.
+- **ASCENDANT → WORLD:** Early Johto current, primal-trace progress, Mythic
+  Signals and the next optional Signals objective.
 - **Oak's Lab scientist:** Research Log and exact post-game objective.
 - **Hall-of-Fame console, right side:** Crown Archive.
 - **ASCENDANT → JOHTO POKéDEX:** specimen, egg and habitat progress.
