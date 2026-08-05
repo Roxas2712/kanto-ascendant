@@ -558,6 +558,10 @@ return function(mod, opts)
           and game.save.inventory.THUNDERBADGE) then
       return false
     end
+    -- THUNDERHEART is the durable hand-off marker. If it is missing, always
+    -- offer it first, even on an upgraded postgame save that already records
+    -- Gorochu: this repairs saves whose permanent quest item was lost. Once
+    -- it exists, release Surge to the normal Master/Crown rematch chain.
     if itemOwned(game, HEART) then
       -- The Thunderheart proves that Surge's optional hand-off is complete.
       -- Stop intercepting him here so the post-game controller (Master/Crown

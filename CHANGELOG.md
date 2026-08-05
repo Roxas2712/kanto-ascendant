@@ -2,7 +2,7 @@
 
 All notable changes to this project are documented in this file.
 
-## [6.0.0] - Unreleased
+## [6.0.0] - 2026-08-05
 
 ### Added
 
@@ -70,6 +70,27 @@ All notable changes to this project are documented in this file.
 - After giving the Thunderheart, Lt. Surge/Major Bob now hands later
   conversations back to the normal postgame controller. His Master and Crown
   rematches are therefore reachable even while Gorochu is in the party.
+
+## [5.4.2] - 2026-08-05
+
+### Added
+
+- Added a complete public `FAQ.md` with GitHub-native spoiler sections for
+  installation, Kanto/Johto acquisition, item milestones, shiny odds,
+  outbreaks, the red Gyarados, Mega Evolution, Gorochu, Heritage events,
+  post-game progression and troubleshooting.
+- Event Archive entries now explain that `READY` means unlocked and direct
+  Festival players to the correct Cup city or Roaming Hunt players to the
+  appropriate habitat.
+
+### Fixed
+
+- Master and Crown Leader victories are now committed on `battle.ended` as
+  well as the battle callback. Existing saves with a missing circuit crest are
+  repaired safely from Ascendant's victory-only boss history.
+- Lt. Surge/Major Bob now keys his optional hand-off to the permanent
+  Thunderheart itself: a postgame save missing the item receives it first,
+  while an owner immediately reaches the normal Master/Crown rematch chain.
 
 ## [5.4.1] - 2026-08-04
 

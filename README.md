@@ -12,12 +12,44 @@ and a replayable level-100 New Game Plus. The internal
 `trainer_rematch` ID remains unchanged so existing saves and options continue
 to work.
 
+Looking for a specific mechanic, item or location? Open the
+**[complete FAQ and spoiler guide](FAQ.md)**. Every detailed answer is
+collapsed so players can reveal only the information they want.
+
 > [!IMPORTANT]
 > **Development Preview:** Kanto Ascendant is in active development. More
 > features, dialogue and polish will follow. Bug reports, balancing feedback
 > and feature wishes are welcome in
 > [GitHub Issues](https://github.com/Roxas2712/kanto-ascendant/issues) and will
 > be considered for future updates.
+
+## What's new in 6.0.0
+
+- **Johto Signals** can optionally bring habitat-aware Johto encounters into
+  the Kanto story. The original Kanto-first flow remains available at all
+  times.
+- A hidden Pallet signal opens the reversible Driftglass research trip,
+  Migration Receiver and three player-controlled encounter currents.
+- Four concealed primal traces separately unlock Chikorita, Totodile,
+  Cyndaquil and Larvitar with protected rare-encounter counters.
+- Independent **Mythic Signals** introduce dangerous Mew and Celebi echoes,
+  the Resonance Seal and persistent true-manifestation hunts.
+- Journal, Research Atlas and the shared **WORLD** menu guide every optional
+  objective in English and German without revealing unseen species.
+- Existing Red, Blue and Yellow saves upgrade in place. The complete 5.4.2
+  support hotfix, FAQ and progression repairs are included.
+
+## What's new in 5.4.2
+
+- Missing Master or Crown Leader victories are now committed through a second
+  victory-only path, and affected saves repair their circuit progress safely.
+- Event Archive entries explain that `READY` means unlocked and point to the
+  relevant Cup city or roaming habitat.
+- Lt. Surge/Major Bob repairs a missing permanent Thunderheart before entering
+  his postgame rematch dialogue. Once the item exists, Master and Crown
+  challenges remain reachable even with Gorochu in the party.
+- The public FAQ now consolidates installation, mechanics, locations and
+  current support status behind individually protected spoiler sections.
 
 ## What's new in 5.4.1
 
