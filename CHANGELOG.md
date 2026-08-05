@@ -2,6 +2,39 @@
 
 All notable changes to this project are documented in this file.
 
+## [6.0.1] - 2026-08-05
+
+### Changed
+
+- Rebuilt the opening Johto Signals sequence as a coherent field quest.
+  Professor Oak now calls after 1–200 eligible post-Pokédex steps and directs
+  the player to Pallet Town's southern coast.
+- Oak gives one reminder after another 400 eligible steps if the shore object
+  remains untouched. Taking the capsule permanently cancels further calls.
+- The dark capsule is now a real, persistent coast object. It can be left
+  alone, taken and opened immediately, or kept sealed and opened later from
+  **ASCENDANT → WORLD → JOHTO SIGNALS**.
+- Opening the capsule reveals foreign pollen, starry sand, a damaged receiver
+  and coordinates. The Pallet boatman must identify those coordinates before
+  offering the reversible Driftglass crossing.
+- Rewrote and reflowed the English and German Oak, capsule, boatman,
+  researcher, menu, Journal and Mythic guidance text.
+
+### Fixed
+
+- Repeatedly declining the first prompt can no longer produce a false
+  “capsule waiting” message or permanently remove the quest giver.
+- Existing 6.0 saves migrate to the staged capsule flow without losing an
+  already opened capsule, Driftglass access, receiver progress or encounter
+  counters.
+- The original 128–768-step/five-visit discovery condition is replaced by a
+  strict 200-step maximum, including upgraded saves whose old hidden target
+  was higher.
+- The physical capsule and boatman refresh independently and cannot duplicate
+  each other on Pallet Town's coast.
+- Long German lines in the researcher and Mythic guidance now fit the Gen-I
+  text renderer.
+
 ## [6.0.0] - 2026-08-05
 
 ### Added

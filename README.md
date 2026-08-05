@@ -23,6 +23,18 @@ collapsed so players can reveal only the information they want.
 > [GitHub Issues](https://github.com/Roxas2712/kanto-ascendant/issues) and will
 > be considered for future updates.
 
+## What's new in 6.0.1
+
+- Professor Oak now starts the optional Johto Signals field quest after
+  **1–200 eligible post-Pokédex steps** and points the player toward Pallet
+  Town's southern coast.
+- A real dark-capsule object persists on the coast until it is taken. Oak
+  gives only one reminder after 400 more eligible steps.
+- The capsule can be opened immediately or later from the Johto Signals menu.
+  Its coordinates lead through the Pallet boatman to Driftglass.
+- The complete opening dialogue, Journal guidance and German text layout were
+  rewritten. Existing 6.0 saves retain their progress.
+
 ## What's new in 6.0.0
 
 - **Johto Signals** can optionally bring habitat-aware Johto encounters into
@@ -291,17 +303,20 @@ and German text. **LANGUAGE** defaults to `AUTO`:
 
 ## Johto Signals
 
-Version 6.0 can let Johto begin stirring during the Kanto story without
-changing the normal opening by default. After the starter and Pokédex, a
-hidden 128–768-step target activates near Pallet Town. The field capsule is
-guaranteed by the fifth eligible Pallet visit, but the player must explicitly
-accept its signal before the migration quest changes anything.
+Version 6.0.1 can let Johto begin stirring during the Kanto story without
+changing the normal opening by default. After the starter and Pokédex,
+Professor Oak calls within 1–200 eligible steps. That call places a real dark
+capsule on Pallet Town's southern coast. If it remains untouched, Oak gives
+one reminder after another 400 eligible steps and never calls a third time.
 
-The capsule opens a warned boat trip to the **Driftglass signal station**.
-The boat back to Pallet is available at every stage. Its researcher repairs
-the Migration Receiver and explains three currents. Saving during a live
-Driftglass visit does not interrupt that visit; continuing the written slot
-later resumes safely at the Pallet landing.
+The capsule remains visible when declined. Once taken, it can be opened
+immediately or later under **ASCENDANT → WORLD → JOHTO SIGNALS**. Inside are
+foreign pollen, starry sand, a damaged receiver and etched coordinates. The
+Pallet boatman identifies the coordinates and offers the warned trip to the
+**Driftglass signal station**. The boat back to Pallet is available at every
+stage. Driftglass' researcher repairs the Migration Receiver and explains
+three currents. Saving during a live Driftglass visit does not interrupt that
+visit; continuing the written slot later resumes safely at the Pallet landing.
 
 | Current | Early encounter behavior |
 |---|---|
@@ -1206,7 +1221,7 @@ missions, Rocket story and one new tournament bracket are completed.
 
 ## Installation
 
-1. Download `kanto-ascendant-6.0.0.modpkg` from the
+1. Download `kanto-ascendant-6.0.1.modpkg` from the
    [latest release](https://github.com/Roxas2712/kanto-ascendant/releases/latest)
    and import it through the launcher. Developers may alternatively install
    the checked-out mod directory.
@@ -1262,7 +1277,7 @@ python3 tools/johto_signals_release_audit.py .
 The map-collision and Mythic battle suites run from the engine checkout with
 `KANTO_SIGNALS_MOD_DIR` and `TRAINER_REMATCH_MOD_DIR` pointed at this mod.
 GitHub CI runs both contracts and repeats the release-boundary audit against
-the exact `kanto-ascendant-6.0.0.modpkg`.
+the exact `kanto-ascendant-6.0.1.modpkg`.
 
 The upgrade matrix includes separate schema-derived Kanto Ascendant 5.3
 fixtures for Red, Blue and Yellow. They pin the public 5.3 package hash and

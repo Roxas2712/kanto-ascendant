@@ -311,7 +311,9 @@ end
 
 local function checkEarly(system, language)
   local early, game = system.early, system.game
-  for _, key in ipairs({ "offer", "found", "declined" }) do
+  for _, key in ipairs({
+    "offer", "taken", "postponed", "sealed", "opened", "declined",
+  }) do
     checkText(language .. " early.capsule." .. key, early.capsuleText(key))
   end
   for _, mode in ipairs({
@@ -344,16 +346,31 @@ local function checkEarly(system, language)
   })
   textResult(language .. " early.inspect.declined",
     early.inspectCapsule(false, game))
-  textResult(language .. " early.inspect.found",
+  textResult(language .. " early.inspect.taken",
     early.inspectCapsule(true, game))
   textResult(language .. " early.inspect.already",
     early.inspectCapsule(true, game))
-  check(ready.capsuleFound == true, "capsule action reached found state")
+  check(ready.capsuleTaken == true, "capsule action reached taken state")
+  check(ready.capsuleFound ~= true,
+    "taking the capsule does not silently open it")
+  textResult(language .. " early.open.postponed",
+    early.openCapsule(false, game))
+  textResult(language .. " early.open.opened",
+    early.openCapsule(true, game))
+  textResult(language .. " early.open.already",
+    early.openCapsule(true, game))
+  check(ready.capsuleFound == true and ready.capsuleOpened == true,
+    "opening the capsule begins the field quest")
+  textResult(language .. " early.boatman.briefed",
+    early.onBoatmanCoordinates(game))
 
   setEarly(system, {})
   textResult(language .. " early.repair.missing",
     early.onResearcherRepair(game))
-  setEarly(system, { capsuleFound = true })
+  setEarly(system, {
+    capsuleFound = true, capsuleTaken = true, capsuleOpened = true,
+    boatmanBriefed = true, questStarted = true,
+  })
   textResult(language .. " early.repair.success",
     early.onResearcherRepair(game))
   textResult(language .. " early.repair.already",
@@ -418,29 +435,45 @@ local function checkEarly(system, language)
         game.save.flags.EVENT_GOT_POKEDEX = true
       end },
     { "shore", { capsuleAvailable = true } },
-    { "repair", { capsuleFound = true, questStarted = true } },
+    { "sealed", {
+        capsuleTaken = true, capsuleAvailable = true,
+      } },
+    { "boatman", {
+        capsuleFound = true, capsuleTaken = true, capsuleOpened = true,
+        questStarted = true,
+      } },
+    { "repair", {
+        capsuleFound = true, capsuleTaken = true, capsuleOpened = true,
+        boatmanBriefed = true, questStarted = true,
+      } },
     { "choice", {
-        capsuleFound = true, receiverRepaired = true, questStarted = true,
+        capsuleFound = true, capsuleTaken = true, capsuleOpened = true,
+        boatmanBriefed = true, receiverRepaired = true, questStarted = true,
       } },
     { "kanto", {
-        capsuleFound = true, receiverRepaired = true, questStarted = true,
+        capsuleFound = true, capsuleTaken = true, capsuleOpened = true,
+        boatmanBriefed = true, receiverRepaired = true, questStarted = true,
         modeChosen = true, mode = early.modes.KANTO_FIRST,
       } },
     { "trace", {
-        capsuleFound = true, receiverRepaired = true, questStarted = true,
+        capsuleFound = true, capsuleTaken = true, capsuleOpened = true,
+        boatmanBriefed = true, receiverRepaired = true, questStarted = true,
         modeChosen = true, mode = early.modes.WANDERWAVES,
       } },
     { "strong-wave", {
-        capsuleFound = true, receiverRepaired = true, questStarted = true,
+        capsuleFound = true, capsuleTaken = true, capsuleOpened = true,
+        boatmanBriefed = true, receiverRepaired = true, questStarted = true,
         modeChosen = true, mode = early.modes.WANDERWAVES,
         strongSignal = true,
       } },
     { "unleashed", {
-        capsuleFound = true, receiverRepaired = true, questStarted = true,
+        capsuleFound = true, capsuleTaken = true, capsuleOpened = true,
+        boatmanBriefed = true, receiverRepaired = true, questStarted = true,
         modeChosen = true, mode = early.modes.UNLEASHED,
       } },
     { "complete", {
-        capsuleFound = true, receiverRepaired = true, questStarted = true,
+        capsuleFound = true, capsuleTaken = true, capsuleOpened = true,
+        boatmanBriefed = true, receiverRepaired = true, questStarted = true,
         modeChosen = true, mode = early.modes.WANDERWAVES,
         traces = {
           forest = true, coast = true, ember = true, stone = true,
@@ -530,6 +563,9 @@ local function checkHub(system, language)
   setEarly(system, {
     questStarted = true,
     capsuleFound = true,
+    capsuleTaken = true,
+    capsuleOpened = true,
+    boatmanBriefed = true,
     receiverRepaired = true,
     modeChosen = true,
     mode = system.early.modes.WANDERWAVES,
@@ -561,20 +597,23 @@ local function checkHub(system, language)
   for _, row in ipairs(hub.mythicRows(game)) do row.onSelect() end
 
   setEarly(system, {
-    questStarted = true, capsuleFound = true, receiverRepaired = false,
+    questStarted = true, capsuleFound = true, capsuleTaken = true,
+    capsuleOpened = true, boatmanBriefed = true, receiverRepaired = false,
   })
   hub.onResearcher(game, nil, { frozen = false })
 
   game.save.inventory.MIGRATION_RECEIVER = nil
   setEarly(system, {
-    questStarted = true, capsuleFound = true, receiverRepaired = false,
+    questStarted = true, capsuleFound = true, capsuleTaken = true,
+    capsuleOpened = true, boatmanBriefed = true, receiverRepaired = false,
   })
   system.setBagFull(true)
   hub.onResearcher(game, nil, { frozen = false })
   system.setBagFull(false)
   game.save.inventory.MIGRATION_RECEIVER = 1
   setEarly(system, {
-    questStarted = true, capsuleFound = true, receiverRepaired = false,
+    questStarted = true, capsuleFound = true, capsuleTaken = true,
+    capsuleOpened = true, boatmanBriefed = true, receiverRepaired = false,
   })
   hub.onResearcher(game, nil, { frozen = false })
   setEarly(system, {
@@ -623,25 +662,34 @@ local function checkHub(system, language)
       early = {}, mythic = {},
     },
     {
-      early = { questStarted = true, capsuleFound = true },
-      mythic = {},
-    },
-    {
       early = {
-        questStarted = true, capsuleFound = true, receiverRepaired = true,
+        questStarted = true, capsuleFound = true, capsuleTaken = true,
+        capsuleOpened = true, boatmanBriefed = true,
       },
       mythic = {},
     },
     {
       early = {
-        questStarted = true, capsuleFound = true, receiverRepaired = true,
+        questStarted = true, capsuleFound = true, capsuleTaken = true,
+        capsuleOpened = true, boatmanBriefed = true,
+        receiverRepaired = true,
+      },
+      mythic = {},
+    },
+    {
+      early = {
+        questStarted = true, capsuleFound = true, capsuleTaken = true,
+        capsuleOpened = true, boatmanBriefed = true,
+        receiverRepaired = true,
         modeChosen = true, mode = system.early.modes.WANDERWAVES,
       },
       mythic = {},
     },
     {
       early = {
-        questStarted = true, capsuleFound = true, receiverRepaired = true,
+        questStarted = true, capsuleFound = true, capsuleTaken = true,
+        capsuleOpened = true, boatmanBriefed = true,
+        receiverRepaired = true,
         modeChosen = true, mode = system.early.modes.WANDERWAVES,
         traces = {
           forest = true, coast = true, ember = true, stone = true,
@@ -652,7 +700,9 @@ local function checkHub(system, language)
     },
     {
       early = {
-        questStarted = true, capsuleFound = true, receiverRepaired = true,
+        questStarted = true, capsuleFound = true, capsuleTaken = true,
+        capsuleOpened = true, boatmanBriefed = true,
+        receiverRepaired = true,
         modeChosen = true, mode = system.early.modes.WANDERWAVES,
         traces = {
           forest = true, coast = true, ember = true, stone = true,

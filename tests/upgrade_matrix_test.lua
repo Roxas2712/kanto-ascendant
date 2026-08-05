@@ -146,8 +146,8 @@ local function verifySignals(fixture, bucket, label)
     label .. " keeps only the two production Signals sections")
 
   local early = root.earlyJohto
-  T.eq(early.version, 1,
-    label .. " initializes early-Johto schema v1")
+  T.eq(early.version, 2,
+    label .. " initializes early-Johto schema v2")
   T.eq(early.mode, "KANTO_FIRST",
     label .. " upgrades into the non-invasive Kanto current")
   T.eq(early.modeChosen, false,

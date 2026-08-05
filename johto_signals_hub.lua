@@ -171,34 +171,81 @@ return function(mod, opts)
 
   function H.onCapsuleFound(game)
     game = game or H.game
-    if content and type(content.refreshTravelNpc) == "function" then
+    if content and type(content.refreshPalletActors) == "function" then
+      content.refreshPalletActors(game, content.PALLET_MAP_ID or "PALLET_TOWN")
+    elseif content and type(content.refreshTravelNpc) == "function" then
       content.refreshTravelNpc(game, content.PALLET_MAP_ID or "PALLET_TOWN")
     end
     return true
+  end
+
+  function H.showOakCall(game, text, onDone)
+    H.game = game or H.game
+    return show(game or H.game, text, onDone)
+  end
+
+  function H.openCapsule(game, onDone)
+    H.game = game or H.game
+    game = game or H.game
+    return show(game, early.capsuleText("sealed"), nil, {
+      choice = function(yes)
+        local ok, _, resultText = early.openCapsule(yes, game)
+        if ok then H.onCapsuleFound(game) end
+        if resultText then
+          return show(game, resultText, onDone)
+        end
+        if onDone then onDone() end
+      end,
+    })
   end
 
   -- Early owns the persisted decision; Hub owns its actual TextBox flow.
   -- Returning the controller result from `decide` lets us present both the
   -- accepted and declined authored follow-up instead of silently mutating
   -- state behind the field screen.
-  function H.offerCapsule(game, text, decide)
+  function H.offerCapsule(game, text, decide, onDone)
     H.game = game or H.game
     game = game or H.game
     return show(game, text, nil, {
       defaultNo = true,
       choice = function(yes)
         local ok, reason, resultText = decide(yes)
-        local found = ok and reason == "found"
-        if found then H.onCapsuleFound(game) end
-        if resultText then
-          -- Runtime NPC creation can race the discovery TextBox on an active
-          -- map. Refresh once immediately and once after that box closes.
-          show(game, resultText, found and function()
-            H.onCapsuleFound(game)
-          end or nil)
+        local taken = ok and reason == "taken"
+        if taken then H.onCapsuleFound(game) end
+        if not taken then
+          if resultText then return show(game, resultText, onDone) end
+          if onDone then onDone() end
+          return
         end
+        show(game, resultText, nil, {
+          choice = function(openNow)
+            local opened, _, openText = early.openCapsule(openNow, game)
+            if opened then H.onCapsuleFound(game) end
+            show(game, openText, onDone)
+          end,
+        })
       end,
     })
+  end
+
+  function H.onBoatman(game, _, npc, onDone)
+    H.game = game or H.game
+    game = game or H.game
+    local s = earlyState()
+    if s.boatmanBriefed then
+      return content.offerTravel(game, npc, onDone)
+    end
+    setFrozen(npc, true)
+    local ok, _, text = early.onBoatmanCoordinates(game)
+    if not ok then
+      return show(game, text, function()
+        setFrozen(npc, false)
+        if onDone then onDone() end
+      end)
+    end
+    return show(game, text, function()
+      content.offerTravel(game, npc, onDone)
+    end)
   end
 
   function H.offerOnboarding(game, _, text, decide)
@@ -224,7 +271,7 @@ return function(mod, opts)
       return tr("WANDERWAVES", "WANDERWELLEN")
     end
     if mode == MODES.UNLEASHED then
-      return tr("JOHTO UNLEASHED", "JOHTO ENTFESSELT")
+      return tr("UNLEASHED", "ENTFESSELT")
     end
     return tr("KANTO FIRST", "KANTO ZUERST")
   end
@@ -336,8 +383,9 @@ return function(mod, opts)
         .. "Echo sources:\n" .. sources .. "\f"
         .. "Names reveal when\ntruly seen.\f"
         .. "Echo level: 60+\nor team best +20.\f"
-        .. "They can attack.\nThey flee in 1-3\nturns.\f"
+        .. "They can attack.\nA strange force\nblocks escape.\f"
         .. "They stay at 1 HP.\nNo BALL can catch.\f"
+        .. "The echo remains\nuntil your party\nfalls.\f"
         .. "MASTER BALL comes\nback unused.\f"
         .. "Need 3 echoes.\nRepeats count.\f"
         .. "Repair receiver.\nEarn 4 BADGES.\f"
@@ -352,8 +400,9 @@ return function(mod, opts)
         .. "Echoquellen:\n" .. sources .. "\f"
         .. "Namen erscheinen\nnach Sichtung.\f"
         .. "Echo-Level: 60+\noder bestes +20.\f"
-        .. "Sie greifen an.\nFlucht nach 1-3\nRunden.\f"
+        .. "Sie greifen an.\nEine fremde Kraft\nverhindert Flucht.\f"
         .. "Sie bleiben bei\n1 KP.\f"
+        .. "Das Echo bleibt,\nbis dein Team\nfällt.\f"
         .. "Kein BALL wirkt.\nMEISTERBALL\nbleibt erhalten.\f"
         .. "3 Echos nötig.\nGleiche zählen.\f"
         .. "Empfänger richten.\n4 ORDEN holen.\f"
@@ -402,7 +451,7 @@ return function(mod, opts)
         detail = modeDetail(mode),
       }
     end
-    return openList(game, tr("CHOOSE CURRENT", "STROM WÄHLEN"), rows, {
+    return openList(game, tr("CHOOSE CURRENT", "STRÖMUNG WÄHLEN"), rows, {
       onCancel = function()
         if onDone then onDone(false) end
       end,
@@ -595,12 +644,13 @@ return function(mod, opts)
   end
 
   function H.johtoRows(game)
-    local repaired = earlyState().receiverRepaired == true
+    local s = earlyState()
+    local repaired = s.receiverRepaired == true
     local enabled = earlyEnabled()
     local rowState = not enabled and tr("OFF", "AUS")
       or (not repaired and tr("LOCKED", "GESPERRT"))
       or nil
-    return {
+    local rows = {
       {
         label = tr("EXPLANATION", "ERKLÄRUNG"),
         value = "guide",
@@ -651,6 +701,16 @@ return function(mod, opts)
         end,
       },
     }
+    if s.capsuleTaken and not s.capsuleOpened then
+      table.insert(rows, 3, {
+        label = tr("OPEN CAPSULE", "KAPSEL ÖFFNEN"),
+        value = "open_capsule",
+        onSelect = function()
+          H.openCapsule(game)
+        end,
+      })
+    end
+    return rows
   end
 
   function H.openJohto(game)
@@ -790,6 +850,18 @@ return function(mod, opts)
     if mythicOn and m.echoes == 3 and m.sealed ~= true then
       if not e.receiverRepaired then
         if not e.questStarted then
+          if e.capsuleTaken and not e.capsuleOpened then
+            return {
+              key = "johto_open_capsule",
+              title = tr("OPEN CAPSULE", "KAPSEL ÖFFNEN"),
+              location = tr("ASCENDANT / WORLD", "ASCENDANT / WELT"),
+              current = 0,
+              total = 1,
+              detail = tr(
+                "Open DARK CAPSULE\nunder JOHTO SIGNALS.",
+                "Öffne DUNKLE\nKAPSEL unter\nJOHTO-SIGNALE."),
+            }
+          end
           if e.capsuleAvailable or e.capsuleFound then
             return {
               key = "johto_capsule",
@@ -811,6 +883,18 @@ return function(mod, opts)
             detail = tr(
               "Third echo clear.\nKeep exploring.",
               "Drittes Echo klar.\nErkunde Kanto."),
+          }
+        end
+        if not e.boatmanBriefed then
+          return {
+            key = "signals_boatman",
+            title = tr("SHOW COORDINATES", "KOORDINATEN ZEIGEN"),
+            location = tr("PALLET PIER", "ALABASTIA-STEG"),
+            current = 0,
+            total = 1,
+            detail = tr(
+              "Show the capsule\ncoordinates.",
+              "Zeige die Kapsel-\nKoordinaten."),
           }
         end
         return {
@@ -851,8 +935,20 @@ return function(mod, opts)
     if johtoOn then
       if not e.questStarted then
         -- The capsule is meant to be a genuine field discovery.  Do not let
-        -- Journal or Atlas announce Pallet Town before the hidden step/visit
-        -- gate has actually made the shore signal available.
+        -- Do not let Journal or Atlas announce the shore object before Oak's
+        -- hidden step gate has actually made it available.
+        if e.capsuleTaken and not e.capsuleOpened then
+          return {
+            key = "johto_open_capsule",
+            title = tr("OPEN CAPSULE", "KAPSEL ÖFFNEN"),
+            location = tr("ASCENDANT / WORLD", "ASCENDANT / WELT"),
+            current = 0,
+            total = 1,
+            detail = tr(
+              "Open DARK CAPSULE\nunder JOHTO SIGNALS.",
+              "Öffne DUNKLE\nKAPSEL unter\nJOHTO-SIGNALE."),
+          }
+        end
         if e.capsuleAvailable or e.capsuleFound then
           return {
             key = "johto_capsule",
@@ -865,9 +961,30 @@ return function(mod, opts)
               "Folge dem fremden\nKüstensignal."),
           }
         end
-        if not mythicOn then return nil end
+        return {
+          key = "johto_oak_call",
+          title = tr("WAIT FOR OAK", "WARTE AUF EICH"),
+          location = tr("KANTO", "KANTO"),
+          current = math.min(200, tonumber(e.pokedexSteps) or 0),
+          total = tonumber(e.capsuleTarget) or 200,
+          detail = tr(
+            "Keep traveling.\nOAK will call.",
+            "Reise weiter.\nEICH meldet sich."),
+        }
       end
       if e.questStarted and not e.receiverRepaired then
+        if not e.boatmanBriefed then
+          return {
+            key = "signals_boatman",
+            title = tr("SHOW COORDINATES", "KOORDINATEN ZEIGEN"),
+            location = tr("PALLET PIER", "ALABASTIA-STEG"),
+            current = 0,
+            total = 1,
+            detail = tr(
+              "Show the capsule\ncoordinates.",
+              "Zeige die Kapsel-\nKoordinaten."),
+          }
+        end
         return {
           key = "signals_repair",
           title = tr("REPAIR RECEIVER", "EMPFÄNGER DEFEKT"),
@@ -962,7 +1079,25 @@ return function(mod, opts)
     if type(state.install) == "function" then state.install(H.game) end
     return content.install(H.game, {
       canTravel = function()
-        return earlyState().questStarted == true
+        local s = earlyState()
+        return s.boatmanBriefed == true or s.receiverRepaired == true
+      end,
+      canShowBoatman = function()
+        local s = earlyState()
+        return s.capsuleOpened == true or s.receiverRepaired == true
+      end,
+      canShowCapsule = function()
+        return type(early.capsuleVisible) == "function"
+          and early.capsuleVisible() == true
+      end,
+      onCapsule = function(capsuleGame, _, _, onDone)
+        return H.offerCapsule(capsuleGame, early.capsuleText("offer"),
+          function(yes)
+            return early.inspectCapsule(yes, capsuleGame)
+          end, onDone)
+      end,
+      onBoatman = function(boatGame, ow, npc, onDone)
+        return H.onBoatman(boatGame, ow, npc, onDone)
       end,
       onResearcher = function(researchGame, ow, npc, onDone)
         return H.onResearcher(researchGame, ow, npc, onDone)

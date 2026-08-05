@@ -1,8 +1,11 @@
-# 📡 KANTO ASCENDANT 6.0.0 — RELEASE NOTES
+# 📡 KANTO ASCENDANT 6.0.1 — STORY HOTFIX
 
 ## 🌊 JOHTO SIGNALS
 
-• A new optional Pallet Town signal can begin during the Kanto story.
+• Professor Oak now calls within 1–200 eligible post-Pokédex steps.
+• A real dark capsule appears on Pallet Town's southern coast and remains there if declined.
+• It can be opened now or later; its contents and coordinates lead naturally to Driftglass.
+• Oak gives one reminder after 400 more steps, then stops.
 • Discover Driftglass, repair its receiver and choose how strongly Johto Pokémon migrate into suitable Kanto habitats.
 • Choose **Kanto First**, **Wanderwaves** or **Johto Unleashed** — and change it later.
 • Hidden traces can unlock four especially rare Johto families.
@@ -20,7 +23,8 @@
 ## 🛠️ FIXES & COMPATIBILITY
 
 • Existing Red, Blue and Yellow saves upgrade automatically.
-• Declining Driftglass never closes the quest; accepting it later works.
+• Repeated refusals can no longer hide or block the capsule quest.
+• Existing 6.0 saves keep their capsule, receiver, Driftglass and signal progress.
 • Driftglass always provides a safe return to Kanto.
 • Repel, scripted battles, roamers and outbreaks cannot consume protected signals.
 • Unseen Johto species remain `???` until genuinely encountered.
@@ -30,6 +34,6 @@
 • Event Archive `READY` entries now point toward the relevant location.
 • Red/Blue/Yellow, English/German, restart, mod off/on, 2D, Crystal Animated and Voxel paths were tested.
 
-📥 https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.0.0
+📥 https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.0.1
 
 Please report anything unusual — screenshots and save details help a lot! 💚

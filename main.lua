@@ -630,9 +630,9 @@ return function(mod)
     content = signalsContent,
     johtoData = johtoData,
     i18n = i18n,
-    onCapsuleReady = function(game, text, decide)
+    onOakCall = function(game, text, onDone)
       if signalsHub then
-        return signalsHub.offerCapsule(game, text, decide)
+        return signalsHub.showOakCall(game, text, onDone)
       end
     end,
     onCapsuleFound = function(game)

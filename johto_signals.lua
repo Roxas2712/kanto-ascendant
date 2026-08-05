@@ -181,8 +181,7 @@ return function(mod, opts)
 
   local runtime = {
     pendingCandidate = nil,
-    capsuleOfferPending = false,
-    capsuleDeclinedMapStay = false,
+    oakCallPending = false,
     lastEnteredMap = nil,
     onboardingPending = nil,
     candidateSerial = 0,
@@ -240,18 +239,35 @@ return function(mod, opts)
   end
 
   local function normalizeState(s)
-    s.version = 1
+    local priorVersion = tonumber(s.version) or 1
+    local legacyCapsuleFlow = priorVersion < 2
+    s.version = 2
     s.mode = normalizeMode(s.mode)
     s.modeChosen = s.modeChosen == true
     s.receiverRepaired = s.receiverRepaired == true or s.repaired == true
     s.repaired = nil
     s.questStarted = s.questStarted == true
+    -- 6.0 used capsuleFound for the complete shore interaction. Preserve that
+    -- meaning for old saves while splitting the new physical-item sequence
+    -- into taken/opened/boatman stages.
     s.capsuleFound = s.capsuleFound == true
+    s.capsuleTaken = s.capsuleTaken == true or s.capsuleFound
+      or s.receiverRepaired
+    s.capsuleOpened = s.capsuleOpened == true or s.capsuleFound
+      or s.receiverRepaired
+    s.boatmanBriefed = s.boatmanBriefed == true or s.receiverRepaired
+      or (legacyCapsuleFlow and s.capsuleFound and s.questStarted)
     s.capsuleAvailable = s.capsuleAvailable == true
+    s.oakCallShown = s.oakCallShown == true or s.capsuleTaken
+    s.oakReminderShown = s.oakReminderShown == true
+    s.oakReminderSteps = integer(s.oakReminderSteps, 0, 400)
     s.pokedexSteps = integer(s.pokedexSteps, 0)
     s.palletVisits = integer(s.palletVisits, 0)
     local target = tonumber(s.capsuleTarget)
-    s.capsuleTarget = target and integer(target, 128, 768) or nil
+    -- Public 6.0 targets reached as high as 768. Hotfix saves clamp them so
+    -- every existing player receives Oak's call within at most 200 new/total
+    -- eligible steps.
+    s.capsuleTarget = target and integer(target, 1, 200) or nil
     s.waveIndex = integer(s.waveIndex, 0, #WAVES)
     s.waveSteps = integer(s.waveSteps, 0)
     s.strongSignal = s.strongSignal == true
@@ -420,49 +436,94 @@ return function(mod, opts)
 
   local function capsuleReady(s)
     s = s or state()
-    return s.capsuleFound or s.capsuleAvailable
-      or s.palletVisits >= 5
+    return s.capsuleTaken or s.capsuleAvailable
       or (s.capsuleTarget ~= nil and s.pokedexSteps >= s.capsuleTarget)
   end
 
   local function capsuleText(key)
     if key == "offer" then
       return tr(
-        "Something glints\nsouth of PALLET.\f"
-          .. "A dark-glass pod\nrests in the wood.\f"
-          .. "INSPECT IT?",
-        "Etwas glitzert\nsüdlich von\nALABASTIA.\f"
-          .. "Eine Glaskapsel\nliegt im Holz.\f"
-          .. "UNTERSUCHEN?")
-    elseif key == "found" then
+        "A glass capsule\nrests among the\ndriftwood.\f"
+          .. "Its dark surface\nglints in the sun.\f"
+          .. "TAKE IT?",
+        "Zwischen dem\nTreibholz steckt\neine Glaskapsel.\f"
+          .. "Das dunkle Glas\nglänzt im Licht.\f"
+          .. "MITNEHMEN?")
+    elseif key == "taken" then
       return tr(
-        "Foreign pollen and\nstar-shaped sand.\f"
-          .. "Inside: a damaged\nJOHTO sender.\f"
-          .. "Ask the boatman at\nPALLET's pier.\f"
-          .. "The DRIFTGLASS lab\nmay know its path.",
-        "Fremder Pollen und\nSternensand.\f"
-          .. "Darin liegt ein\ndefekter JOHTO-\nSender.\f"
-          .. "Frag den Bootsmann\nam ALABASTIA-Steg.\f"
-          .. "Auf DRIFTGLAS\nkennt man den Weg.")
+        "You received:\fDARK CAPSULE!\f"
+          .. "It is tightly\nsealed.\f"
+          .. "OPEN IT NOW?",
+        "Du erhältst:\fDUNKLE KAPSEL!\f"
+          .. "Sie ist fest\nverschlossen.\f"
+          .. "JETZT ÖFFNEN?")
+    elseif key == "postponed" then
+      return tr(
+        "You put the sealed\ncapsule away.\f"
+          .. "Open it later in\nJOHTO SIGNALS.",
+        "Du lässt die\nKapsel noch zu.\f"
+          .. "Öffne sie später\nunter\nJOHTO-SIGNALE.")
+    elseif key == "sealed" then
+      return tr(
+        "The DARK CAPSULE\nis still sealed.\f"
+          .. "OPEN IT NOW?",
+        "Die DUNKLE KAPSEL\nist noch\nverschlossen.\f"
+          .. "JETZT ÖFFNEN?")
+    elseif key == "opened" or key == "found" then
+      return tr(
+        "The seal clicks\nopen.\f"
+          .. "Golden dust and\nstrange petals\nspill out.\f"
+          .. "Beneath them is a\ndamaged signal\nreceiver.\f"
+          .. "Coordinates are\netched inside the\nlid.\f"
+          .. "The boatman may\nknow these waters.",
+        "Der Verschluss\nklickt auf.\f"
+          .. "Goldener Staub und\nfremde Blüten\nrieseln heraus.\f"
+          .. "Darunter liegt ein\nbeschädigter\nEmpfänger.\f"
+          .. "In den Deckel sind\nKoordinaten\neingeritzt.\f"
+          .. "Vielleicht kennt\nder Bootsmann\ndiese Gewässer.")
     end
     return tr(
-      "You leave it\nuntouched for now.\f"
-        .. "Return later to\ninspect it.",
-      "Du lässt sie\nvorerst liegen.\f"
-        .. "Komm später zurück\nund prüfe sie.")
+      "You leave the\ncapsule untouched.\f"
+        .. "It remains in the\ndriftwood.",
+      "Du lässt die\nKapsel unberührt.\f"
+        .. "Sie bleibt im\nTreibholz liegen.")
   end
 
-  local function queueCapsuleOffer(game)
+  local function oakCallText(reminder)
+    if reminder then
+      return tr(
+        "PROF. OAK:\n[PLAYER]!\f"
+          .. "Have you checked\nPALLET coast yet?\f"
+          .. "Look for dark\nglass on shore.",
+        "PROF. EICH:\n[PLAYER]!\f"
+          .. "Hast du schon an\nALABASTIAS Küste\nnachgesehen?\f"
+          .. "Suche im Treibholz\nnach dunklem Glas.")
+    end
+    return tr(
+      "PROF. OAK:\nHello, [PLAYER]!\f"
+        .. "Come back to\nPALLET TOWN when\nyou have time.\f"
+        .. "Strange objects\nhave washed ashore\nfor several days.\f"
+        .. "One report says it\nshines like dark\nglass.\f"
+        .. "Such a find may\nhelp you complete\nthe POKéDEX.\f"
+        .. "Take a look along\nthe coast!",
+      "PROF. EICH:\nHallo, [PLAYER]!\f"
+        .. "Komm bei\nGelegenheit nach\nALABASTIA zurück.\f"
+        .. "An der Küste\nwerden seit Tagen\nseltsame Dinge\nangespült.\f"
+        .. "Eines davon soll\nwie dunkles Glas\nschimmern.\f"
+        .. "Vielleicht hilft\ndir so ein Fund,\nden POKéDEX zu\nvervollständigen.\f"
+        .. "Sieh dich dort\neinmal um!")
+  end
+
+  local function queueOakCall(game, reminder)
     local s = state()
-    if s.capsuleFound or not capsuleReady(s) then return false end
-    s.capsuleAvailable = true
-    if runtime.capsuleDeclinedMapStay then return false end
-    if runtime.capsuleOfferPending then return true end
-    runtime.capsuleOfferPending = true
-    if type(opts.onCapsuleReady) == "function" then
-      opts.onCapsuleReady(activeGame(game), capsuleText("offer"), function(yes)
-        return J.inspectCapsule(yes, game)
+    if s.capsuleTaken or runtime.oakCallPending then return false end
+    runtime.oakCallPending = true
+    if type(opts.onOakCall) == "function" then
+      opts.onOakCall(activeGame(game), oakCallText(reminder), function()
+        runtime.oakCallPending = false
       end)
+    else
+      runtime.oakCallPending = false
     end
     return true
   end
@@ -541,6 +602,11 @@ return function(mod, opts)
     end
     s.startPolicy = policy
     s.capsuleFound = true
+    s.capsuleTaken = true
+    s.capsuleOpened = true
+    s.boatmanBriefed = true
+    s.oakCallShown = true
+    s.oakReminderShown = true
     s.capsuleAvailable = true
     s.questStarted = true
     s.receiverRepaired = true
@@ -556,37 +622,82 @@ return function(mod, opts)
 
   function J.inspectCapsule(accepted, game)
     local s = state()
-    if s.capsuleFound then
-      runtime.capsuleOfferPending = false
-      return false, "already-found", capsuleText("found")
+    if s.capsuleTaken then
+      return false, "already-taken",
+        s.capsuleOpened and capsuleText("opened") or capsuleText("sealed")
     end
     if not capsuleReady(s) then
       return false, "not-ready", tr(
         "No foreign capsule\nhas reached shore.",
         "Keine Glaskapsel\nliegt am Strand.")
     end
-    runtime.capsuleOfferPending = false
     if accepted ~= true then
-      runtime.capsuleDeclinedMapStay = true
       return false, "declined", capsuleText("declined")
     end
-    runtime.capsuleDeclinedMapStay = false
     s.capsuleAvailable = true
+    s.capsuleTaken = true
+    s.oakReminderShown = true
+    persist()
+    if type(opts.onCapsuleFound) == "function" then
+      opts.onCapsuleFound(activeGame(game), J)
+    end
+    return true, "taken", capsuleText("taken")
+  end
+
+  function J.openCapsule(accepted, game)
+    local s = state()
+    if not s.capsuleTaken then
+      return false, "capsule-missing", tr(
+        "The dark capsule\nis still ashore.",
+        "Die dunkle Kapsel\nliegt noch am Ufer.")
+    end
+    if s.capsuleOpened then
+      return false, "already-opened", capsuleText("opened")
+    end
+    if accepted ~= true then
+      return false, "postponed", capsuleText("postponed")
+    end
+    s.capsuleOpened = true
     s.capsuleFound = true
     s.questStarted = true
     persist()
     if type(opts.onCapsuleFound) == "function" then
       opts.onCapsuleFound(activeGame(game), J)
     end
-    return true, "found", capsuleText("found")
+    return true, "opened", capsuleText("opened")
+  end
+
+  function J.onBoatmanCoordinates(game)
+    local s = state()
+    if not s.capsuleOpened then
+      return false, "coordinates-missing", tr(
+        "BOATMAN: Bring me\nsomething with a\ncourse to follow.",
+        "BOOTSMANN: Bring\nmir einen Kurs,\ndem ich folgen kann.")
+    end
+    if s.boatmanBriefed then
+      return false, "already-briefed"
+    end
+    s.boatmanBriefed = true
+    persist()
+    return true, "briefed", tr(
+      "BOATMAN:\nYou want to show\nme something?\f"
+        .. "Coordinates inside\nthe capsule lid...\f"
+        .. "Yes. I know them.\f"
+        .. "They lead to the\nDRIFTGLASS POST.\f"
+        .. "I thought that\nstation had been\nabandoned.",
+      "BOOTSMANN:\nDu willst mir\netwas zeigen?\f"
+        .. "Koordinaten im\nKapseldeckel...\f"
+        .. "Ja. Die kenne ich.\f"
+        .. "Sie führen zum\nDRIFTGLAS-POSTEN.\f"
+        .. "Ich hielt die\nStation für\nverlassen.")
   end
 
   function J.onResearcherRepair(game)
     local s = state()
-    if not s.capsuleFound then
+    if not s.capsuleOpened then
       return false, "capsule-missing", tr(
-        "RESEARCHER: I need\nthe source capsule\nto tune the relay.",
-        "FORSCHER: Ich\nbrauche die Kapsel\nfür das Relais.")
+        "RESEARCHER:\nWithout that\ncapsule, I cannot\nread the signal.",
+        "FORSCHER:\nOhne die Kapsel\nfehlt mir das\nSignalmuster.")
     end
     if s.receiverRepaired then
       return false, "already-repaired", tr(
@@ -600,16 +711,24 @@ return function(mod, opts)
     persist()
     receiverCallback(game, "researcher")
     return true, "repaired", tr(
-      "RESEARCHER: Signal\nrestored.\f"
-        .. "Nothing crosses\nuntil you choose\na current.\f"
-        .. "KANTO FIRST\nseals the current.\f"
-        .. "WANDERWAVES\n2 PCT / 4 PCT.\f"
-        .. "JOHTO UNLEASHED\nabout 10 PCT.",
-      "FORSCHER: Signal\nrepariert.\f"
-        .. "Nichts wandert\nohne deine Wahl.\f"
-        .. "KANTO ZUERST\nversiegelt.\f"
-        .. "WANDERWELLEN\n2 PROZ / 4 PROZ.\f"
-        .. "JOHTO ENTFESSELT\netwa 10 PROZ.")
+      "RESEARCHER:\nForeign pollen...\f"
+        .. "And starry sand!\f"
+        .. "These traces come\nfrom JOHTO.\f"
+        .. "This is our lost\nsignal capsule.\f"
+        .. "The current must\nhave carried it to\nPALLET TOWN.\f"
+        .. "The receiver was\nbadly damaged...\f"
+        .. "It is responding\nagain!\f"
+        .. "No wild encounter\nchanges without\nyour approval.\f"
+        .. "How far should\nJohto migration\nreach into Kanto?",
+      "FORSCHER:\nFremder Pollen...\f"
+        .. "Und Sternensand!\f"
+        .. "Diese Spuren sind\naus JOHTO.\f"
+        .. "Das ist unsere\nverlorene Kapsel.\f"
+        .. "Die Strömung muss\nsie nach ALABASTIA\ngetragen haben.\f"
+        .. "Der Empfänger\nwar schwer defekt.\f"
+        .. "Er reagiert!\f"
+        .. "Keine Begegnung\nändert sich ohne\ndeine Zustimmung.\f"
+        .. "Wie weit soll\nJohtos Wanderung\nKanto erreichen?")
   end
 
   function J.setMode(game, mode)
@@ -725,20 +844,35 @@ return function(mod, opts)
         "Choose your first\nPOKéMON with OAK.",
         "Wähle dein erstes\nPOKéMON bei EICH.")
     end
-    if not hasDex(game) and not s.capsuleFound then
+    if not hasDex(game) and not s.capsuleTaken then
       return tr(
         "Finish OAK's task.\nGet the POKéDEX.",
         "Hilf PROF.EICH.\nHol den POKéDEX.")
     end
-    if not s.capsuleFound then
-      if capsuleReady(s) then
+    if not s.oakCallShown then
+      return tr(
+        "Keep traveling.\nOAK will call with\nany news.",
+        "Reise weiter.\nEICH meldet sich\nbei Neuigkeiten.")
+    end
+    if not s.capsuleTaken then
+      if s.capsuleAvailable then
         return tr(
-          "Inspect the glint\nsouth of PALLET.",
-          "Prüfe das Glitzern\nan ALABASTIAS\nSüdküste.")
+          "Search driftwood on\nPALLET's south\ncoast.",
+          "Suche Treibholz an\nALABASTIAS\nSüdküste.")
       end
       return tr(
-        "No foreign signal.\nContinue through\nKanto.",
-        "Noch kein Signal.\nReise durch Kanto.")
+        "Return to\nPALLET TOWN.",
+        "Kehre nach\nALABASTIA zurück.")
+    end
+    if not s.capsuleOpened then
+      return tr(
+        "Open DARK CAPSULE\nunder JOHTO\nSIGNALS.",
+        "Öffne DUNKLE\nKAPSEL unter\nJOHTO-SIGNALE.")
+    end
+    if not s.boatmanBriefed then
+      return tr(
+        "Show coordinates to\nPALLET's boatman.",
+        "Zeige dem Bootsmann\ndie Koordinaten.")
     end
     if not s.receiverRepaired then
       return tr(
@@ -781,10 +915,14 @@ return function(mod, opts)
     local stage
     if not signalsEnabled() then
       stage = tr("DISABLED", "AUSGESCHALTET")
-    elseif not s.capsuleFound then
-      stage = capsuleReady(s)
-        and tr("SHORE SIGNAL", "KÜSTENSIGNAL")
-        or tr("NO SIGNAL", "KEIN SIGNAL")
+    elseif not s.oakCallShown then
+      stage = tr("AWAITING OAK", "WARTE AUF EICH")
+    elseif not s.capsuleTaken then
+      stage = tr("CAPSULE ASHORE", "KAPSEL AM UFER")
+    elseif not s.capsuleOpened then
+      stage = tr("CAPSULE SEALED", "KAPSEL VERSIEGELT")
+    elseif not s.boatmanBriefed then
+      stage = tr("COORDINATES", "KOORDINATEN")
     elseif not s.receiverRepaired then
       stage = tr("RECEIVER DAMAGED", "EMPFÄNGER DEFEKT")
     elseif not s.modeChosen then
@@ -1085,19 +1223,31 @@ return function(mod, opts)
     maybeRequestOnboarding(game)
     local s = state()
     local changed = false
-    if hasStarter(game) and hasDex(game) and not s.capsuleFound then
+    local queuedCall
+    local reminderCall = false
+    if hasStarter(game) and hasDex(game) and not s.capsuleTaken then
       if not s.capsuleTarget then
-        s.capsuleTarget = stepRandom(128, 768)
+        s.capsuleTarget = stepRandom(1, 200)
         changed = true
       end
-      s.pokedexSteps = s.pokedexSteps + 1
-      changed = true
-      if capsuleReady(s) and not s.capsuleAvailable then
+      if not s.oakCallShown then
+        s.pokedexSteps = math.min(200, s.pokedexSteps + 1)
+        changed = true
+      end
+      if not s.oakCallShown and capsuleReady(s) then
+        s.oakCallShown = true
         s.capsuleAvailable = true
+        s.oakReminderSteps = 0
         changed = true
-      end
-      if s.capsuleAvailable and mapIdOf(ev, game) == "PALLET_TOWN" then
-        queueCapsuleOffer(game)
+        queuedCall = true
+      elseif s.oakCallShown and not s.oakReminderShown then
+        s.oakReminderSteps = math.min(400, s.oakReminderSteps + 1)
+        changed = true
+        if s.oakReminderSteps >= 400 then
+          s.oakReminderShown = true
+          queuedCall = true
+          reminderCall = true
+        end
       end
     end
     if signalsEnabled() and s.receiverRepaired and s.modeChosen
@@ -1108,34 +1258,18 @@ return function(mod, opts)
       if s.waveSteps == 0 then chooseWave(s, game, stepRandom) end
     end
     if changed then persist() end
+    if queuedCall then queueOakCall(game, reminderCall) end
   end
 
   local function onMapEntered(ev)
     local game = activeGame(ev and ev.game)
     if game then J.game = game end
-    local mapId = mapIdOf(ev, game)
-    if mapId == "PALLET_TOWN" and runtime.lastEnteredMap ~= "PALLET_TOWN" then
-      runtime.capsuleDeclinedMapStay = false
-    elseif mapId ~= "PALLET_TOWN" then
-      runtime.capsuleDeclinedMapStay = false
-    end
-    runtime.lastEnteredMap = mapId
-    if mapId ~= "PALLET_TOWN" then
-      runtime.capsuleOfferPending = false
-    end
+    runtime.lastEnteredMap = mapIdOf(ev, game)
     if not questInfrastructureEnabled() then
       runtime.onboardingPending = nil
       return
     end
     maybeRequestOnboarding(game)
-    local s = state()
-    if mapId == "PALLET_TOWN" and hasStarter(game) and hasDex(game)
-        and not s.capsuleFound then
-      s.palletVisits = s.palletVisits + 1
-      if s.palletVisits >= 5 then s.capsuleAvailable = true end
-      persist()
-      if capsuleReady(s) then queueCapsuleOffer(game) end
-    end
   end
 
   local function onBattleStarted(ev)
@@ -1153,8 +1287,7 @@ return function(mod, opts)
     -- save.loaded may point the same controller at a different slot.
     cachedSection = nil
     runtime.pendingCandidate = nil
-    runtime.capsuleOfferPending = false
-    runtime.capsuleDeclinedMapStay = false
+    runtime.oakCallPending = false
     runtime.lastEnteredMap = nil
     runtime.onboardingPending = nil
     local s = state()
@@ -1214,6 +1347,10 @@ return function(mod, opts)
   J.hasStarter = function(game) return hasStarter(activeGame(game)) end
   J.hasPokedex = function(game) return hasDex(activeGame(game)) end
   J.capsuleReady = function() return capsuleReady(state()) end
+  J.capsuleVisible = function()
+    local s = state()
+    return s.capsuleAvailable and not s.capsuleTaken
+  end
   J.requestedStartPolicy = requestedStartPolicy
   J.maybeRequestOnboarding = maybeRequestOnboarding
   J.onboardingText = onboardingText
@@ -1223,8 +1360,7 @@ return function(mod, opts)
   J.pendingCandidate = function() return runtime.pendingCandidate end
   J.runtimeStatus = function()
     return {
-      capsuleOfferPending = runtime.capsuleOfferPending,
-      capsuleDeclinedMapStay = runtime.capsuleDeclinedMapStay,
+      oakCallPending = runtime.oakCallPending,
       onboardingPending = runtime.onboardingPending,
       pendingCandidate = runtime.pendingCandidate,
     }

@@ -23,16 +23,19 @@ package.
 
 ### Early Johto
 
-1. After the starter and Pokédex, a hidden target of 128–768 steps starts.
-2. The field capsule appears in Pallet Town. The fifth eligible Pallet visit
-   guarantees the discovery.
-3. Accepting the signal adds a Journal objective and opens a clearly
-   confirmed boat trip to the independent Driftglass signal station.
-4. The station researcher repairs the receiver and explains all three modes:
+1. After the starter and Pokédex, Professor Oak calls after a hidden target of
+   1–200 eligible steps.
+2. The call places a physical dark capsule on Pallet Town's southern coast.
+   If it remains untouched, Oak gives one reminder after another 400 steps.
+3. The capsule may be declined, taken and opened now, or taken and opened
+   later from the Johto Signals menu.
+4. Its coordinates must be shown to Pallet's boatman before the clearly
+   confirmed trip to the independent Driftglass signal station opens.
+5. The station researcher repairs the receiver and explains all three modes:
    Kanto First, Wanderwaves and Johto Unleashed.
-5. Four unknown traces unlock Chikorita, Totodile, Cyndaquil and Larvitar
+6. Four unknown traces unlock Chikorita, Totodile, Cyndaquil and Larvitar
    separately. Names remain `???` until a real Pokédex sighting.
-6. The player can always return to Pallet Town immediately and can later
+7. The player can always return to Pallet Town immediately and can later
    change the current under `ASCENDANT → WORLD → JOHTO SIGNALS`.
 
 Wanderwaves use badge-dependent habitat groups at 2 PCT, or 4 PCT during a

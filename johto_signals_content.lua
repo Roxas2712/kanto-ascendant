@@ -16,12 +16,20 @@ local Module = {
       { 8, 14 }, { 9, 14 }, { 8, 15 }, { 9, 15 }, { 6, 12 },
     },
   },
+  PALLET_CAPSULE = {
+    name = "DRIFTGLASS_DARK_CAPSULE",
+    sprite = "SPRITE_POKE_BALL",
+    preferred = {
+      { 14, 14 }, { 14, 15 }, { 13, 14 }, { 13, 15 }, { 15, 14 },
+    },
+  },
   ARRIVAL = { x = 8, y = 12, facing = "up" },
   PALLET_RETURN = { x = 10, y = 12, facing = "up" },
 }
 
 local TEXT = {
   PALLET_BOAT = "TEXT_KA_SIGNALS_PALLET_BOAT",
+  PALLET_CAPSULE = "TEXT_KA_SIGNALS_PALLET_CAPSULE",
   RESEARCHER = "TEXT_KA_SIGNALS_RESEARCHER",
   LOOKOUT = "TEXT_KA_SIGNALS_LOOKOUT",
   RETURN_BOAT = "TEXT_KA_SIGNALS_RETURN_BOAT",
@@ -75,6 +83,7 @@ function Module.create(mod, opts)
     MAP_INDEX = Module.MAP_INDEX,
     PALLET_MAP_ID = Module.PALLET_MAP_ID,
     PALLET_BOAT = Module.PALLET_BOAT,
+    PALLET_CAPSULE = Module.PALLET_CAPSULE,
     ITEMS = Module.ITEMS,
     ARRIVAL = Module.ARRIVAL,
     PALLET_RETURN = Module.PALLET_RETURN,
@@ -82,6 +91,10 @@ function Module.create(mod, opts)
   }
   local researcherCallback = opts.onResearcher
   local canTravelCallback = opts.canTravel
+  local canShowBoatmanCallback = opts.canShowBoatman
+  local canShowCapsuleCallback = opts.canShowCapsule
+  local capsuleCallback = opts.onCapsule
+  local boatmanCallback = opts.onBoatman
 
   local function tr(english, german)
     return i18n and i18n.text(english, german) or english
@@ -111,6 +124,16 @@ function Module.create(mod, opts)
     return false
   end
 
+  local function callbackAllowed(callback, game, label)
+    if type(callback) ~= "function" then return false end
+    local ok, allowed = pcall(callback, game, C)
+    if ok then return allowed == true end
+    if mod.log and mod.log.error then
+      mod.log:error(label .. " callback failed: %s", tostring(allowed))
+    end
+    return false
+  end
+
   local function count(name)
     local s = state.section("earlyJohto")
     s[name] = math.max(0, math.floor(tonumber(s[name]) or 0)) + 1
@@ -133,14 +156,16 @@ function Module.create(mod, opts)
   function C.dialogue()
     return {
       travel = tr(
-        "BOATMAN: The route\nto DRIFTGLASS is\na short crossing."
-          .. "\fMy launch waits\nthere for every\nreturn trip."
-          .. "\fA save made there\nresumes at the\nPALLET landing."
-          .. "\fSail to the\noutpost?",
-        "BOOTSMANN: Der Weg\nnach DRIFTGLAS\nist kurz."
-          .. "\fMein Boot wartet\nauf die Rückfahrt."
-          .. "\fSpeicherst du,\nstartest du am\nAnleger Alabastia."
-          .. "\fZum Außenposten?"),
+        "BOATMAN:\nThe trip is short.\f"
+          .. "I can always bring\nyou back.\f"
+          .. "NOTICE:\nSaving is safe.\f"
+          .. "You will resume at\nPALLET pier.\f"
+          .. "Sail to\nDRIFTGLASS?",
+        "BOOTSMANN:\nDie Überfahrt ist\nkurz.\f"
+          .. "Ich bringe dich\nsicher zurück.\f"
+          .. "HINWEIS:\nSpeichern ist\nsicher.\f"
+          .. "Du beginnst wieder\nam ALABASTIA-Steg.\f"
+          .. "Nach DRIFTGLAS?"),
       returnTrip = tr(
         "BOATMAN: My launch\nis ready for\nPALLET TOWN."
           .. "\fNo current can\nstrand you here."
@@ -149,15 +174,17 @@ function Module.create(mod, opts)
           .. "\fKeine Strömung\nhält dich fest."
           .. "\fJetzt zurück?"),
       researcher = tr(
-        "RESEARCHER: This\nrelay listens for\nJohto currents."
-          .. "\fIts final setting\nis always your\nchoice.",
-        "FORSCHER: Das\nRelais lauscht auf\nStrömungen aus\nJohto."
-          .. "\fDie letzte Wahl\nbleibt deine."),
+        "RESEARCHER:\nPokémon follow\nclimate and food.\f"
+          .. "This receiver only\nshows their paths.\f"
+          .. "You decide which\npaths may open.",
+        "FORSCHER:\nPokémon folgen\nKlima und Nahrung.\f"
+          .. "Dieser Empfänger\nzeigt ihre Wege.\f"
+          .. "Was sich öffnet,\nbestimmst du."),
       lookout = tr(
-        "LOOKOUT: The glass\ntide points toward\nKanto today."
-          .. "\fNothing crosses\nwithout a signal.",
-        "AUSGUCK: Die helle\nGlasflut weist\nheute nach Kanto."
-          .. "\fOhne dein Signal\nkommt nichts an."),
+        "LOOKOUT:\nDriftglass shines\nunder the water.\f"
+          .. "The current flows\nto Kanto today.",
+        "AUSGUCK:\nUnter dem Wasser\nglänzt Driftglas.\f"
+          .. "Die Strömung geht\nheute nach Kanto."),
       sign = tr(
         "DRIFTGLASS POST\nKANTO MIGRATION\nRESEARCH STATION",
         "DRIFTGLAS-POSTEN\nKANTO-MIGRATION\nFORSCHUNGSSTATION"),
@@ -267,13 +294,40 @@ function Module.create(mod, opts)
     end)
   end
 
-  local function runtimeBoatIds(game)
+  function C.interactCapsule(game, ow, npc, onDone)
+    local callback = capsuleCallback
+    if callback then
+      local ok, handled = pcall(callback, game, ow, npc, onDone, C)
+      if ok and handled ~= false then return handled end
+      if not ok and mod.log and mod.log.error then
+        mod.log:error("Pallet capsule callback failed: %s",
+          tostring(handled))
+      end
+    end
+    if onDone then onDone() end
+    return false
+  end
+
+  function C.interactBoatman(game, ow, npc, onDone)
+    local callback = boatmanCallback
+    if callback then
+      local ok, handled = pcall(callback, game, ow, npc, onDone, C)
+      if ok and handled ~= false then return handled end
+      if not ok and mod.log and mod.log.error then
+        mod.log:error("Pallet boatman callback failed: %s",
+          tostring(handled))
+      end
+    end
+    return C.offerTravel(game, npc, onDone)
+  end
+
+  local function runtimeIds(game, objectName)
     local ids = {}
     local map = game and game.data and game.data.maps
       and game.data.maps[Module.PALLET_MAP_ID]
     for _, object in ipairs(map and map.objects or {}) do
       if object.runtime and object.owner == mod.id
-          and object.name == Module.PALLET_BOAT.name then
+          and object.name == objectName then
         ids[#ids + 1] = Module.PALLET_MAP_ID
           .. "_obj_" .. tostring(object.index)
       end
@@ -281,13 +335,21 @@ function Module.create(mod, opts)
     return ids
   end
 
-  local function findSpawnCell(ow)
+  local function runtimeBoatIds(game)
+    return runtimeIds(game, Module.PALLET_BOAT.name)
+  end
+
+  local function runtimeCapsuleIds(game)
+    return runtimeIds(game, Module.PALLET_CAPSULE.name)
+  end
+
+  local function findSpawnCell(ow, preferred)
     local function free(x, y)
       return ow.map:inBounds(x, y) and ow.map:isWalkableCell(x, y)
         and not ow.map:warpAtCell(x, y) and not ow:npcAtCell(x, y)
         and not (ow.player.cellX == x and ow.player.cellY == y)
     end
-    for _, cell in ipairs(Module.PALLET_BOAT.preferred) do
+    for _, cell in ipairs(preferred or {}) do
       if free(cell[1], cell[2]) then return cell[1], cell[2] end
     end
     for y = 0, ow.map.heightCells - 1 do
@@ -305,7 +367,10 @@ function Module.create(mod, opts)
       for _, id in ipairs(ids) do mod.world:removeNpc(id) end
       return false, "OVERWORLD tileset unavailable"
     end
-    if not travelAllowed(game) then
+    local showBoatman = callbackAllowed(
+      canShowBoatmanCallback, game, "Pallet boatman")
+      or travelAllowed(game)
+    if not showBoatman then
       for _, id in ipairs(ids) do mod.world:removeNpc(id) end
       return false, "travel not unlocked"
     end
@@ -330,7 +395,7 @@ function Module.create(mod, opts)
     if not (ow and ow.map and ow.map.id == Module.PALLET_MAP_ID) then
       return false, "Pallet Town is not active"
     end
-    local x, y = findSpawnCell(ow)
+    local x, y = findSpawnCell(ow, Module.PALLET_BOAT.preferred)
     if not x then return false, "no safe Pallet Town cell" end
     local id, reason = mod.world:spawnNpc(Module.PALLET_MAP_ID, {
       name = Module.PALLET_BOAT.name,
@@ -342,6 +407,54 @@ function Module.create(mod, opts)
       y = y,
     })
     return id ~= nil, reason or id
+  end
+
+  function C.refreshCapsule(game, mapId)
+    game = game or C.game
+    if not (game and mod.world) then return false, "no game" end
+    local ids = runtimeCapsuleIds(game)
+    local visible = C.mapSupported and callbackAllowed(
+      canShowCapsuleCallback, game, "Pallet capsule")
+    if not visible then
+      for _, id in ipairs(ids) do mod.world:removeNpc(id) end
+      return false, "capsule unavailable"
+    end
+
+    local ow = mod.world:overworld()
+    mapId = mapId or (ow and ow.map and ow.map.id)
+    if mapId ~= Module.PALLET_MAP_ID then return false, "not in Pallet Town" end
+    if #ids > 0 then
+      if ow and ow.map and ow.map.id == Module.PALLET_MAP_ID
+          and type(mod.world.npc) == "function" then
+        local live = mod.world:npc(
+          Module.PALLET_MAP_ID, Module.PALLET_CAPSULE.name)
+        if live then return true, "present" end
+        for _, id in ipairs(ids) do mod.world:removeNpc(id) end
+      else
+        return true, "present"
+      end
+    end
+    if not (ow and ow.map and ow.map.id == Module.PALLET_MAP_ID) then
+      return false, "Pallet Town is not active"
+    end
+    local x, y = findSpawnCell(ow, Module.PALLET_CAPSULE.preferred)
+    if not x then return false, "no safe Pallet Town cell" end
+    local id, reason = mod.world:spawnNpc(Module.PALLET_MAP_ID, {
+      name = Module.PALLET_CAPSULE.name,
+      sprite = Module.PALLET_CAPSULE.sprite,
+      movement = "STAY",
+      range = "DOWN",
+      text = TEXT.PALLET_CAPSULE,
+      x = x,
+      y = y,
+    })
+    return id ~= nil, reason or id
+  end
+
+  function C.refreshPalletActors(game, mapId)
+    local capsuleOk, capsuleReason = C.refreshCapsule(game, mapId)
+    local boatOk, boatReason = C.refreshTravelNpc(game, mapId)
+    return capsuleOk or boatOk, capsuleOk and capsuleReason or boatReason
   end
 
   function C.register()
@@ -432,7 +545,10 @@ function Module.create(mod, opts)
         priority = 2600,
         talk = {
           [TEXT.PALLET_BOAT] = function(game, _, npc, onDone)
-            return C.offerTravel(game, npc, onDone)
+            return C.interactBoatman(game, nil, npc, onDone)
+          end,
+          [TEXT.PALLET_CAPSULE] = function(game, ow, npc, onDone)
+            return C.interactCapsule(game, ow, npc, onDone)
           end,
         },
       })
@@ -443,7 +559,7 @@ function Module.create(mod, opts)
       mod.events:on("map.entered", function(ev)
         local game = ev and ev.game or C.game
         local mapId = ev and (ev.mapId or ev.map and ev.map.id)
-        if game then C.refreshTravelNpc(game, mapId) end
+        if game then C.refreshPalletActors(game, mapId) end
       end, 120)
       mod.events:on("player.step", function(ev)
         local game = ev and ev.game or C.game
@@ -452,12 +568,12 @@ function Module.create(mod, opts)
           mapId = game.overworld.map.id
         end
         if game and mapId == Module.PALLET_MAP_ID then
-          C.refreshTravelNpc(game, mapId)
+          C.refreshPalletActors(game, mapId)
         end
       end, 120)
       mod.events:on("save.loaded", function(ev)
         C.game = ev and ev.game or C.game
-        if C.game then C.refreshTravelNpc(C.game) end
+        if C.game then C.refreshPalletActors(C.game) end
       end, 120)
       -- Run after ordinary progress snapshotters so this final location in
       -- the encoded file is always a native, mod-independent landing.
@@ -476,9 +592,21 @@ function Module.create(mod, opts)
     if callbacks and callbacks.canTravel then
       canTravelCallback = callbacks.canTravel
     end
+    if callbacks and callbacks.canShowBoatman then
+      canShowBoatmanCallback = callbacks.canShowBoatman
+    end
+    if callbacks and callbacks.canShowCapsule then
+      canShowCapsuleCallback = callbacks.canShowCapsule
+    end
+    if callbacks and callbacks.onCapsule then
+      capsuleCallback = callbacks.onCapsule
+    end
+    if callbacks and callbacks.onBoatman then
+      boatmanCallback = callbacks.onBoatman
+    end
     if state.install then state.install(C.game) end
     C.installed = C.game ~= nil
-    if C.installed then C.refreshTravelNpc(C.game) end
+    if C.installed then C.refreshPalletActors(C.game) end
     return C.installed
   end
 

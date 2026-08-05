@@ -42,7 +42,7 @@ its assertions.
 
 ## Prerequisites
 
-- A candidate Kanto Ascendant `6.0.0` `.modpkg`.
+- A candidate Kanto Ascendant `6.0.1` `.modpkg`.
 - A clean `gen1recomp` checkout capable of launching all three game
   versions.
 - Legally supplied Red, Blue and Yellow ROM caches already prepared for the
@@ -76,7 +76,7 @@ Run the package boundary audit before creating saves:
 ```sh
 cd /Users/maarten/Documents/Recompile/kanto-ascendant-6.0-current
 python3 tools/johto_signals_release_audit.py \
-  /absolute/path/to/kanto-ascendant-6.0.0.modpkg
+  /absolute/path/to/kanto-ascendant-6.0.1.modpkg
 ```
 
 Use `tools/johto_signals_launcher_smoke/` to import the actual current

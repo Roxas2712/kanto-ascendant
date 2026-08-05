@@ -308,6 +308,8 @@ equal(table.concat(topKeys, ","), "earlyJohto,resonance,version",
 local shown = {}
 local researcherCalls = 0
 local travelUnlocked = false
+local capsuleVisible = false
+local capsuleCalls = 0
 local content = ContentModule.create(mod, {
   state = state,
   i18n = i18n,
@@ -326,6 +328,15 @@ local content = ContentModule.create(mod, {
     return true
   end,
   canTravel = function() return travelUnlocked end,
+  canShowBoatman = function() return travelUnlocked end,
+  canShowCapsule = function() return capsuleVisible end,
+  onCapsule = function(game, _, _, onDone, instance)
+    capsuleCalls = capsuleCalls + 1
+    capsuleVisible = false
+    instance.refreshCapsule(game, "PALLET_TOWN")
+    if onDone then onDone() end
+    return true
+  end,
 })
 
 truthy(content.register(), "content registers once")
@@ -359,6 +370,8 @@ truthy(talk[content.TEXT.SIGN], "the station sign has a handler")
 local palletTalk = fixture.scripts:get("PALLET_TOWN").talk
 truthy(palletTalk[content.TEXT.PALLET_BOAT],
   "Pallet Town owns the physical departure handler")
+truthy(palletTalk[content.TEXT.PALLET_CAPSULE],
+  "Pallet Town owns the physical dark-capsule handler")
 
 -- --------------------------------------------------------------- round trip
 
@@ -374,11 +387,33 @@ local game = {
 fixture.bindGame(game)
 content.install(game)
 equal(#game.data.maps.PALLET_TOWN.objects, 0,
-  "the departure NPC stays absent before quest permission")
+  "Pallet actors stay absent before their quest gates")
 local locked, lockedReason = content.travelToOutpost(game)
 equal(locked, false, "the helper cannot bypass quest permission")
 equal(lockedReason, "travel not unlocked",
   "locked travel reports its actual reason")
+
+capsuleVisible = true
+truthy(content.refreshCapsule(game, "PALLET_TOWN"),
+  "Oak's call spawns the physical dark capsule")
+equal(#game.data.maps.PALLET_TOWN.objects, 1,
+  "exactly one physical capsule is spawned")
+local palletCapsule = game.data.maps.PALLET_TOWN.objects[1]
+equal(palletCapsule.name, content.PALLET_CAPSULE.name,
+  "the shore object uses the dedicated capsule identity")
+equal(palletCapsule.sprite, "SPRITE_POKE_BALL",
+  "the shore object is visibly represented by an item-ball sprite")
+equal(palletCapsule.x, 14, "the capsule prefers the southern coast")
+equal(palletCapsule.y, 14, "the capsule prefers the southern coast")
+content.refreshCapsule(game, "PALLET_TOWN")
+equal(#game.data.maps.PALLET_TOWN.objects, 1,
+  "refreshing cannot duplicate the capsule")
+palletTalk[content.TEXT.PALLET_CAPSULE](
+  game, nil, { frozen = false }, function() end)
+equal(capsuleCalls, 1,
+  "interacting with the shore object reaches the authored capsule flow")
+equal(#game.data.maps.PALLET_TOWN.objects, 0,
+  "taking the capsule removes the physical object immediately")
 
 travelUnlocked = true
 truthy(content.refreshTravelNpc(game, "PALLET_TOWN"),
@@ -537,16 +572,16 @@ equal(content.status().safeSaveRedirects, 1,
 -- ------------------------------------------------------------- localization
 
 fixture.language("en")
-truthy(content.dialogue().travel:find("Sail to the\noutpost?", 1, true),
+truthy(content.dialogue().travel:find("Sail to\nDRIFTGLASS?", 1, true),
   "English outbound confirmation is explicit")
-truthy(content.dialogue().travel:find("resumes at the\nPALLET landing", 1, true),
+truthy(content.dialogue().travel:find("resume at\nPALLET pier", 1, true),
   "English travel dialogue discloses the safe resume point")
 truthy(content.dialogue().returnTrip:find("Return now?", 1, true),
   "English return confirmation is explicit")
 fixture.language("de")
-truthy(content.dialogue().travel:find("Außenposten", 1, true),
+truthy(content.dialogue().travel:find("Nach DRIFTGLAS?", 1, true),
   "German outbound confirmation is explicit")
-truthy(content.dialogue().travel:find("Anleger Alabastia", 1, true),
+truthy(content.dialogue().travel:find("ALABASTIA-Steg", 1, true),
   "German travel dialogue discloses the safe resume point")
 truthy(content.dialogue().returnTrip:find("Jetzt zurück?", 1, true),
   "German return confirmation is explicit")

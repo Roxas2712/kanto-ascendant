@@ -57,6 +57,9 @@ local function newHarness(config)
     earlyJohto = config.early or {
       questStarted = true,
       capsuleFound = true,
+      capsuleTaken = true,
+      capsuleOpened = true,
+      boatmanBriefed = true,
       receiverRepaired = false,
       modeChosen = false,
       mode = "KANTO_FIRST",
@@ -154,10 +157,10 @@ local function newHarness(config)
   function early.onResearcherRepair()
     fixture.repairCalls = fixture.repairCalls + 1
     local s = root.earlyJohto
-    if not s.capsuleFound then
+    if not s.capsuleOpened then
       return false, "capsule-missing", i18n.text(
-        "The source capsule\nis still missing.",
-        "Die Quellkapsel\nfehlt noch.")
+        "Open the dark\ncapsule first.",
+        "Öffne zuerst die\ndunkle Kapsel.")
     end
     if s.receiverRepaired then
       return false, "already-repaired", i18n.text(
@@ -203,6 +206,62 @@ local function newHarness(config)
     return i18n.text(
       "Follow the next trace.",
       "Folge der nächsten Spur.")
+  end
+  function early.capsuleVisible()
+    local s = root.earlyJohto
+    return s.capsuleAvailable == true and s.capsuleTaken ~= true
+  end
+  function early.capsuleText(key)
+    local text = {
+      offer = i18n.text(
+        "A DARK CAPSULE\nrests in the sand.\fTAKE IT?",
+        "Eine DUNKLE KAPSEL\nliegt im Sand.\fMITNEHMEN?"),
+      sealed = i18n.text(
+        "The DARK CAPSULE\nis still sealed.\fOPEN IT?",
+        "Die DUNKLE KAPSEL\nist noch versiegelt.\fÖFFNEN?"),
+    }
+    return text[key] or ""
+  end
+  function early.inspectCapsule(accepted)
+    local s = root.earlyJohto
+    if not accepted then
+      return false, "declined", i18n.text(
+        "The capsule remains\non the shore.",
+        "Die Kapsel bleibt\nan der Küste.")
+    end
+    s.capsuleTaken = true
+    s.capsuleFound = true
+    s.questStarted = true
+    state.persist()
+    return true, "taken", i18n.text(
+      "You take the sealed\nDARK CAPSULE.\fOPEN IT NOW?",
+      "Du nimmst die\nDUNKLE KAPSEL.\fJETZT ÖFFNEN?")
+  end
+  function early.openCapsule(accepted)
+    local s = root.earlyJohto
+    if not accepted then
+      return false, "postponed", i18n.text(
+        "You can open it\nunder JOHTO SIGNALS.",
+        "Du kannst sie unter\nJOHTO-SIGNALE öffnen.")
+    end
+    s.capsuleOpened = true
+    state.persist()
+    return true, "opened", i18n.text(
+      "Inside: golden dust,\nforeign pollen and\na damaged receiver.\fCoordinates are\netched into the lid.",
+      "Darin: Goldstaub,\nfremder Pollen und\nein defekter Sender.\fKoordinaten sind\nin den Deckel geritzt.")
+  end
+  function early.onBoatmanCoordinates()
+    local s = root.earlyJohto
+    if not s.capsuleOpened then
+      return false, "capsule-sealed", i18n.text(
+        "Bring me the\ncoordinates.",
+        "Bring mir die\nKoordinaten.")
+    end
+    s.boatmanBriefed = true
+    state.persist()
+    return true, "briefed", i18n.text(
+      "BOATMAN: Those marks\npoint to DRIFTGLASS.",
+      "BOOTSMANN: Diese\nZeichen weisen nach\nDRIFTGLAS.")
   end
 
   local badges = config.badges or 0
@@ -276,6 +335,16 @@ local function newHarness(config)
   }
   function content.refreshTravelNpc()
     fixture.travelRefreshes = fixture.travelRefreshes + 1
+    return true
+  end
+  function content.refreshPalletActors()
+    fixture.travelRefreshes = fixture.travelRefreshes + 1
+    return true
+  end
+  function content.offerTravel(_, npc, onDone)
+    fixture.travelOffers = (fixture.travelOffers or 0) + 1
+    if npc then npc.frozen = false end
+    if onDone then onDone() end
     return true
   end
   function content.install(game, callbacks)
@@ -374,11 +443,13 @@ local repair = newHarness()
 check(repair.hub.install(repair.game), "the hub installs its content binding")
 equal(#repair.installs, 1, "content is installed once")
 equal(repair.contentCallbacks.canTravel(), true,
-  "physical travel unlocks only after the field quest starts")
-repair.root.earlyJohto.questStarted = false
+  "physical travel unlocks after the boatman reads the coordinates")
+repair.root.earlyJohto.boatmanBriefed = false
 equal(repair.contentCallbacks.canTravel(), false,
-  "the WORLD menu cannot bypass the field quest")
-repair.root.earlyJohto.questStarted = true
+  "the WORLD menu cannot bypass the boatman briefing")
+equal(repair.contentCallbacks.canShowBoatman(), true,
+  "the boatman appears once the capsule is open")
+repair.root.earlyJohto.boatmanBriefed = true
 
 local npc = { frozen = false }
 repair.contentCallbacks.onResearcher(repair.game, nil, npc, function()
@@ -558,6 +629,18 @@ equal(#full.root.earlyJohto.pendingKeyItems, 0,
 -- ------------------------------------------ authored discovery/onboarding UI
 
 local discovery = newHarness()
+discovery.root.earlyJohto = {
+  questStarted = false,
+  capsuleAvailable = true,
+  capsuleFound = false,
+  capsuleTaken = false,
+  capsuleOpened = false,
+  boatmanBriefed = false,
+  receiverRepaired = false,
+  modeChosen = false,
+  mode = "KANTO_FIRST",
+  traces = {},
+}
 discovery.choose(false)
 discovery.hub.offerCapsule(discovery.game, "INSPECT IT?",
   function(yes)
@@ -570,13 +653,26 @@ contains(discovery.displays[2].text, "Return later",
   "the capsule decline explains that the choice remains available")
 
 discovery.choose(true)
+discovery.choose(false)
 discovery.hub.offerCapsule(discovery.game, "INSPECT IT?",
   function(yes)
     equal(yes, true, "the capsule choice reaches Early Johto")
-    return true, "found", "Sender recovered."
+    return discovery.early.inspectCapsule(yes)
   end)
-equal(discovery.travelRefreshes, 2,
-  "finding the capsule refreshes Pallet travel immediately and after the result closes")
+equal(discovery.travelRefreshes, 1,
+  "taking the capsule immediately refreshes the Pallet actors")
+equal(discovery.root.earlyJohto.capsuleTaken, true,
+  "the sealed capsule persists as quest state")
+equal(discovery.root.earlyJohto.capsuleOpened, false,
+  "postponing does not silently open the capsule")
+
+discovery.choose(true)
+discovery.hub.openCapsule(discovery.game)
+equal(discovery.root.earlyJohto.capsuleOpened, true,
+  "the WORLD menu can open a postponed capsule")
+discovery.hub.install(discovery.game)
+equal(discovery.contentCallbacks.canShowBoatman(), true,
+  "opening the capsule makes the Pallet boatman relevant")
 
 local direct = newHarness()
 direct.choose(true)
@@ -672,8 +768,8 @@ local hiddenCapsule = newHarness({
     traces = {},
   },
 })
-equal(hiddenCapsule.hub.objective(hiddenCapsule.game), nil,
-  "Journal and Atlas do not reveal Pallet before the hidden capsule gate")
+equal(hiddenCapsule.hub.objective(hiddenCapsule.game).key, "johto_oak_call",
+  "Journal tracks the wait for Oak without revealing the shore capsule")
 hiddenCapsule.root.earlyJohto.capsuleAvailable = true
 equal(hiddenCapsule.hub.objective(hiddenCapsule.game).key, "johto_capsule",
   "the shore objective appears once the capsule can really be found")
@@ -777,7 +873,7 @@ local german = newHarness({ language = "de" })
 german.hub.onResearcher(german.game, nil, { frozen = false })
 contains(german.displays[1].text, "FORSCHER",
   "the physical researcher speaks German")
-equal(german.lastMenu.title, "STROM WÄHLEN",
+equal(german.lastMenu.title, "STRÖMUNG WÄHLEN",
   "the forced mode selector is localized")
 equal(#german.lastMenu.rows, 3,
   "the German flow preserves all three choices")

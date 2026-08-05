@@ -1,4 +1,4 @@
-# 🌌 KANTO ASCENDANT 6.0.0 — JOHTO SIGNALS
+# 🌌 KANTO ASCENDANT 6.0.1 — JOHTO SIGNALS
 
 **The Hall of Fame was only the beginning.**
 
@@ -37,7 +37,7 @@ Kanto Ascendant expands Pokémon Red, Blue and Yellow into one living Gen-I/II a
 
 ## 📥 DOWNLOAD
 
-https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.0.0
+https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.0.1
 
 Import the `.modpkg` through the Gen1 Recomp launcher. Do not enable another complete-Johto species mod at the same time.
 

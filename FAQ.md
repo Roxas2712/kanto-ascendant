@@ -1,6 +1,6 @@
 # Kanto Ascendant FAQ and Spoiler Guide
 
-This is the public reference for **Kanto Ascendant 6.0.0**. It applies to Red,
+This is the public reference for **Kanto Ascendant 6.0.1**. It applies to Red,
 Blue and Yellow and is maintained from the current mod code, release
 documentation and confirmed support reports.
 
@@ -283,7 +283,7 @@ Mankey in every active KANTO 151 game.
 <details>
 <summary><strong>⚠️ SPOILER — Do I need to start a new game for Johto Signals?</strong></summary>
 
-No. Version 6.0.0 upgrades existing Red, Blue and Yellow saves in place.
+No. Version 6.0.1 upgrades existing Red, Blue and Yellow saves in place.
 
 The signal system does not count steps taken before 6.0 was installed. Once
 the updated save has a starter and the Pokédex, it begins its own hidden
@@ -295,15 +295,14 @@ Pokédex records are preserved.
 <details>
 <summary><strong>⚠️ SPOILER — How does the first Johto signal begin?</strong></summary>
 
-After choosing a starter and receiving the Pokédex, complete **128–768 new
-player steps**. The exact target is intentionally hidden. Return to Pallet
-Town after travelling; a glint at the southern coast can reveal the field
-capsule. The fifth eligible Pallet visit guarantees the discovery even if the
-random step target has not been reached.
+After choosing a starter and receiving the Pokédex, Professor Oak calls after
+**1–200 eligible player steps**. He reports unusual objects on Pallet Town's
+southern coast. The call places a visible dark capsule there.
 
-The Atlas and Journal do not reveal the capsule before it is genuinely
-available. If both Early Johto and Mythic Signals are disabled, no Signals
-quest is forced into the Kanto opening.
+If the capsule remains untouched, Oak gives exactly one reminder after
+another 400 eligible steps. There is no third call. If both Early Johto and
+Mythic Signals are disabled, no Signals quest is forced into the Kanto
+opening.
 
 </details>
 
@@ -312,9 +311,11 @@ quest is forced into the Kanto opening.
 
 Nothing is lost.
 
-- Declining the capsule leaves it undiscovered. Leave Pallet Town and return
-  to receive the optional prompt again.
-- Accepting the capsule makes the boatman available at Pallet's coast.
+- Declining the capsule leaves the physical object on the coast.
+- Taking it cancels Oak's reminder. The sealed capsule can be opened
+  immediately or later under **ASCENDANT → WORLD → JOHTO SIGNALS**.
+- Opening it reveals coordinates. Show those coordinates to Pallet's boatman
+  to unlock the Driftglass trip.
 - Declining the boat trip leaves the boatman available for later.
 - Driftglass has a return boat during every quest stage, including before the
   receiver is repaired.

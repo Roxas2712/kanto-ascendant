@@ -146,7 +146,7 @@ local function newHarness(config)
   function i18n.text(en, de) return language == "de" and de or en end
 
   local callbacks = {
-    capsule = 0,
+    oak = 0,
     onboarding = 0,
     repaired = 0,
   }
@@ -166,11 +166,11 @@ local function newHarness(config)
     i18n = i18n,
     startPolicy = config.startPolicy,
     random = config.random or sequence({}, "max"),
-    onCapsuleReady = function(game, text, done)
-      callbacks.capsule = callbacks.capsule + 1
-      callbacks.capsuleGame = game
-      callbacks.capsuleText = text
-      callbacks.inspect = done
+    onOakCall = function(game, text, done)
+      callbacks.oak = callbacks.oak + 1
+      callbacks.oakGame = game
+      callbacks.oakText = text
+      callbacks.finishOakCall = done
     end,
     onOnboardingRequired = function(game, policy, text, done)
       callbacks.onboarding = callbacks.onboarding + 1
@@ -205,62 +205,100 @@ end
 -- ------------------------------------------------------ discovery cadence
 
 do
-  local h = newHarness({ random = sequence({ 768 }, "max") })
-  local game = gameFixture(false)
-  h.api.install(game)
+  local completed = newHarness({
+    state = {
+      version = 1,
+      capsuleFound = true,
+      questStarted = true,
+      receiverRepaired = false,
+    },
+  })
+  completed.api.state()
+  eq(completed.state.version, 2,
+    "public 6.0 Signals saves migrate to the staged capsule schema")
+  eq(completed.state.capsuleTaken, true,
+    "a completed 6.0 shore interaction preserves capsule ownership")
+  eq(completed.state.capsuleOpened, true,
+    "a completed 6.0 shore interaction preserves its opened capsule")
+  eq(completed.state.boatmanBriefed, true,
+    "a completed 6.0 field quest never loses Driftglass travel")
 
-  for _ = 1, 5 do
-    h.api.onMapEntered({ game = game, map = { id = "PALLET_TOWN" } })
-  end
-  eq(h.state.palletVisits, 0,
-    "Pallet visits before the Pokédex do not advance the hidden quest")
-  eq(h.callbacks.capsule, 0,
-    "the capsule is never advertised before starter plus Pokédex")
-
-  game.save.flags.EVENT_GOT_POKEDEX = true
-  for visit = 1, 4 do
-    h.api.onMapEntered({ game = game, map = { id = "PALLET_TOWN" } })
-    eq(h.state.palletVisits, visit,
-      "eligible Pallet visits use ev.map.id and count exactly once")
-    eq(h.api.capsuleReady(), false,
-      "the guaranteed capsule does not appear before visit five")
-  end
-  eq(h.callbacks.capsule, 0,
-    "no capsule callback is emitted during the first four visits")
-
-  h.api.onMapEntered({ game = game, map = { id = "PALLET_TOWN" } })
-  eq(h.state.palletVisits, 5, "the fifth eligible Pallet visit is recorded")
-  eq(h.api.capsuleReady(), true,
-    "the fifth eligible Pallet visit guarantees the capsule")
-  eq(h.callbacks.capsule, 1,
-    "the exact fifth visit emits one authored capsule offer")
-  eq(h.state.capsulePromptOpen, nil,
-    "runtime prompt guards never leak into the public save")
-
-  local found, reason, text = h.api.inspectCapsule(true, game)
-  eq(found, true, "accepting the shore prompt records the capsule")
-  eq(reason, "found", "capsule acceptance reports its authored stage")
-  contains(text, "Inside: a damaged\nJOHTO sender",
-    "the English discovery dialogue explains the sender")
-  eq(h.state.capsuleFound, true, "capsule discovery persists")
-  eq(h.state.questStarted, true, "capsule discovery starts the field quest")
+  local waiting = newHarness({
+    state = {
+      version = 1,
+      capsuleTarget = 768,
+      pokedexSteps = 300,
+      capsuleAvailable = false,
+    },
+  })
+  local game = gameFixture(true)
+  waiting.api.install(game)
+  eq(waiting.state.capsuleTarget, 200,
+    "an oversized public 6.0 discovery target is clamped to 200")
+  waiting.api.onStep(game, { game = game, mapId = "ROUTE_1" })
+  eq(waiting.callbacks.oak, 1,
+    "an upgraded save already beyond 200 steps receives Oak's call")
+  eq(waiting.state.capsuleAvailable, true,
+    "Oak's upgrade call places the physical capsule on the coast")
 end
 
 do
-  local h = newHarness({ random = sequence({ 128 }, "max") })
-  local game = gameFixture(true)
+  local h = newHarness({ random = sequence({ 200 }, "max") })
+  local game = gameFixture(false)
   h.api.install(game)
-  for step = 1, 127 do
+
+  for _ = 1, 250 do
+    h.api.onStep(game, { game = game, mapId = "ROUTE_1" })
+  end
+  eq(h.state.capsuleTarget, nil,
+    "steps before the Pokédex do not start Oak's hidden timer")
+  eq(h.callbacks.oak, 0,
+    "Oak never calls before starter plus Pokédex")
+
+  game.save.flags.EVENT_GOT_POKEDEX = true
+  for step = 1, 199 do
     h.api.onStep(game, { game = game, mapId = "ROUTE_1" })
     eq(h.api.capsuleReady(), false,
-      "the hidden 128-step minimum stays hidden until its exact step")
+      "the exact 200-step maximum remains hidden through step 199")
   end
+  eq(h.callbacks.oak, 0, "Oak has not called before the target")
   h.api.onStep(game, { game = game, mapId = "ROUTE_1" })
-  eq(h.state.pokedexSteps, 128,
-    "the hidden counter advances only after starter plus Pokédex")
+  eq(h.state.pokedexSteps, 200,
+    "the initial discovery counter reaches its maximum at 200")
   eq(h.api.capsuleReady(), true,
-    "the configured hidden step target makes the capsule available")
-  notContains(h.api.objective(game), "128",
+    "the capsule becomes physically available by step 200")
+  eq(h.callbacks.oak, 1, "the first Oak call occurs at the target")
+  contains(h.callbacks.oakText, "help you complete\nthe POKéDEX",
+    "Oak explains how the shore find may help the Pokédex")
+  h.callbacks.finishOakCall()
+  eq(h.state.oakCallShown, true, "the first call persists")
+  eq(h.state.capsuleAvailable, true, "the shore object is now visible")
+
+  for _ = 1, 399 do
+    h.api.onStep(game, { game = game, mapId = "ROUTE_2" })
+  end
+  eq(h.callbacks.oak, 1, "the reminder waits through step 399")
+  h.api.onStep(game, { game = game, mapId = "ROUTE_2" })
+  eq(h.callbacks.oak, 2, "exactly one reminder occurs at step 400")
+  contains(h.callbacks.oakText, "checked\nPALLET coast",
+    "the one reminder points back to Pallet's coast")
+  for _ = 1, 800 do
+    h.api.onStep(game, { game = game, mapId = "ROUTE_3" })
+  end
+  eq(h.callbacks.oak, 2, "no third Oak call is ever scheduled")
+end
+
+do
+  local h = newHarness({ random = sequence({ 1 }, "min") })
+  local game = gameFixture(true)
+  h.api.install(game)
+  h.api.onStep(game, { game = game, mapId = "ROUTE_1" })
+  eq(h.state.pokedexSteps, 1,
+    "the configured minimum can call Oak after the first eligible step")
+  eq(h.api.capsuleReady(), true,
+    "the one-step target makes the physical capsule available")
+  eq(h.callbacks.oak, 1, "the minimum target emits Oak's first call")
+  notContains(h.api.objective(game), "1",
     "the hidden target is never exposed by the quest objective")
 end
 
@@ -269,34 +307,58 @@ do
   local game = gameFixture(true)
   h.api.install(game)
   h.state.capsuleAvailable = true
-  h.api.onMapEntered({ game = game, map = { id = "PALLET_TOWN" } })
-  eq(h.callbacks.capsule, 1,
-    "an available capsule produces one prompt on Pallet entry")
-  local ok, reason, declineText = h.callbacks.inspect(false)
+  h.state.oakCallShown = true
+  local ok, reason, declineText = h.api.inspectCapsule(false, game)
   eq(ok, false, "declining the capsule remains a non-completion")
   eq(reason, "declined", "declining reports its authored reason")
-  contains(declineText, "Return later",
-    "declining explains that inspection remains available later")
-  notContains(declineText, "waits on shore",
-    "declining does not claim that the capsule waits on the shore")
-  for _ = 1, 8 do
-    h.api.onStep(game, { game = game, mapId = "PALLET_TOWN" })
-  end
-  eq(h.callbacks.capsule, 1,
-    "declining never reopens the prompt every Pallet step")
-  h.api.onMapEntered({ game = game, map = { id = "ROUTE_1" } })
-  h.api.onMapEntered({ game = game, map = { id = "PALLET_TOWN" } })
-  eq(h.callbacks.capsule, 2,
-    "leaving and returning makes the optional capsule prompt available again")
-  local accepted, acceptedReason = h.callbacks.inspect(true)
+  contains(declineText, "remains in the\ndriftwood",
+    "declining explains that the physical object remains")
+  eq(h.api.capsuleVisible(), true,
+    "declining leaves the capsule visible on the coast")
+
+  local accepted, acceptedReason, takenText =
+    h.api.inspectCapsule(true, game)
   eq(accepted, true,
-    "accepting after an earlier decline still discovers the capsule")
-  eq(acceptedReason, "found",
-    "accepting after an earlier decline reaches the found stage")
+    "accepting after an earlier decline takes the capsule")
+  eq(acceptedReason, "taken",
+    "the physical pickup reaches the sealed-item stage")
+  contains(takenText, "DARK CAPSULE",
+    "pickup grants the authored quest item")
+  eq(h.state.capsuleTaken, true, "capsule pickup persists")
+  eq(h.state.capsuleFound, false,
+    "taking the capsule does not silently open it")
+  eq(h.api.capsuleVisible(), false,
+    "taking the capsule removes its physical object")
+  eq(h.state.oakReminderShown, true,
+    "taking the capsule cancels the one pending reminder")
+
+  local postponed, postponedReason, postponedText =
+    h.api.openCapsule(false, game)
+  eq(postponed, false, "opening can be postponed")
+  eq(postponedReason, "postponed", "postpone stage is explicit")
+  contains(postponedText, "JOHTO SIGNALS",
+    "postponing points to the menu action")
+  eq(h.state.capsuleOpened, false, "postponing preserves the sealed item")
+
+  local opened, openedReason, openedText =
+    h.api.openCapsule(true, game)
+  eq(opened, true, "the quest item can be opened later")
+  eq(openedReason, "opened", "opening has its own state")
+  contains(openedText, "Coordinates are",
+    "opening reveals the boatman's coordinate clue")
   eq(h.state.capsuleFound, true,
-    "an earlier decline cannot suppress the later accepted discovery")
+    "legacy capsuleFound is written only after opening")
   eq(h.state.questStarted, true,
-    "an earlier decline cannot suppress the boatman's travel permission")
+    "opening starts the field quest")
+
+  local briefed, briefReason, briefText =
+    h.api.onBoatmanCoordinates(game)
+  eq(briefed, true, "the opened capsule can brief the boatman")
+  eq(briefReason, "briefed", "boatman briefing has an explicit stage")
+  contains(briefText, "DRIFTGLASS POST",
+    "the boatman identifies the destination")
+  eq(h.state.boatmanBriefed, true,
+    "travel permission persists only after showing coordinates")
 
   local savePriority
   for _, row in ipairs(h.handlers["save.loaded"] or {}) do
@@ -325,6 +387,8 @@ do
 
   h.state.capsuleAvailable = true
   h.api.inspectCapsule(true, game)
+  h.api.openCapsule(true, game)
+  h.api.onBoatmanCoordinates(game)
   ok, reason, text = h.api.onResearcherRepair(game)
   eq(ok, true, "the discovered capsule enables researcher repair")
   eq(reason, "repaired", "repair reports its story stage")
@@ -332,10 +396,12 @@ do
     "repair defaults to Kanto First rather than silently enabling Johto")
   eq(h.state.modeChosen, false,
     "repair still requires a conscious current choice")
-  contains(text, "2 PCT",
-    "English receiver dialogue uses the requested PCT notation")
+  contains(text, "Foreign pollen",
+    "the researcher identifies the foreign residue")
+  contains(text, "How far should",
+    "repair leads naturally into the current choice")
   notContains(text, "%",
-    "English receiver dialogue never uses a percent glyph")
+    "the story dialogue leaves exact rates to the details page")
 
   ok, reason = h.api.setMode(game, "WANDERWAVES")
   eq(ok, true, "the repaired receiver accepts Wanderwaves")
@@ -399,6 +465,8 @@ do
   h.api.install(game)
   h.state.capsuleAvailable = true
   h.api.inspectCapsule(true, game)
+  h.api.openCapsule(true, game)
+  h.api.onBoatmanCoordinates(game)
   h.api.onResearcherRepair(game)
   h.api.setMode(game, "UNLEASHED")
 
