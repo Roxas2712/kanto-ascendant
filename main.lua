@@ -745,10 +745,19 @@ return function(mod)
   mod.exports.crystalSprites = crystalAvailable
   mod.exports.crystalShinySprites = crystalShinyAvailable
   mod.exports.kantoCrystalBacks = kantoCrystalBacks
+  -- Run before Crystal Animated Sprites' priority-930 resolver and the
+  -- priority-990 Mega resolver. Some visual mods intentionally return their
+  -- selected Kanto artwork without calling lower-priority hooks, so shiny DVs
+  -- must be committed in a dedicated preflight rather than in our later
+  -- priority-100 art-selection wrapper.
+  mod.hooks:wrap("pokemon.sprite", function(nextSprite, path, ctx)
+    if shinySystem then shinySystem.prepareSprite(ctx) end
+    return nextSprite(path, ctx)
+  end, 2000)
   mod.hooks:wrap("pokemon.sprite", function(nextSprite, path, ctx)
     local requestedPath = path
-    path = nextSprite(path, ctx)
     ctx = ctx or {}
+    path = nextSprite(path, ctx)
     local def = ctx.data and ctx.data.pokemon
       and ctx.data.pokemon[ctx.species]
     local dex = def and tonumber(def.dex)
@@ -783,7 +792,6 @@ return function(mod)
       return path or requestedPath
     end
 
-    if shinySystem then shinySystem.prepareSprite(ctx) end
     local name = ctx and CRYSTAL_ASSETS[ctx.species]
     local selectedSide = ctx.side == "back" and "back" or "front"
     -- Dramatic Shape asks the normal back-sprite route, then replaces its

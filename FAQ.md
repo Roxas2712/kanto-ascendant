@@ -1270,7 +1270,7 @@ proven from a screenshot alone.
 ## Current support-report status
 
 <details>
-<summary><strong>Verified reports reviewed on 5 August 2026</strong></summary>
+<summary><strong>Verified reports reviewed on 6 August 2026</strong></summary>
 
 | Report | Status |
 |---|---|
@@ -1278,7 +1278,7 @@ proven from a screenshot alone.
 | Lt. Surge only repeats Gorochu dialogue after the evolution | **Fixed in current GitHub source.** Completed owners return to the normal rematch conversation. |
 | Event Archive says READY but nothing happens | **Clarified in current GitHub source.** READY means unlocked; the details page now directs Festival players to the Cup city or Roaming players to habitats. |
 | Randomized Master battles | **Confirmed working.** Randomizer species/moves remain authoritative while Ascendant progression is preserved. |
-| Red Gyarados not appearing | **Not yet a confirmed defect.** Verify ASCENDANT shiny mode, event enabled, first Hall of Fame, current 25-win streak and Seafoam B4F; attach the save if all are true. |
+| Red Gyarados appears with normal colours | **Confirmed compatibility defect; fix prepared for maintainer review.** The event and progression state are valid, but a Crystal/Voxel graphics wrapper can choose normal artwork before Ascendant applies the event DVs. The prepared fix adds an early shiny preflight before external artwork selection; no public release contains it yet. |
 | Story Sabrina's Alakazam did not Mega Evolve | **Expected.** Enemy Mega defaults to post-game Ascendant bosses. |
 | Mankey/Nidoran location confusion | **Documented above.** Active KANTO 151 adds Mankey to Route 5 in every edition; native Route 22 remains edition-specific. |
 | Stale trainer_rematch install on a handheld PC | **Launcher/filesystem support, not a gameplay defect.** Recovery steps are documented above. |

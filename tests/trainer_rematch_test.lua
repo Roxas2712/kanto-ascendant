@@ -4377,6 +4377,93 @@ T.eq(shinySystem.state().redGyaradosUnlocked, true,
   "a 25-win post-Hall-of-Fame streak unlocks the red Gyarados event")
 T.eq(shinySystem.eventMap, "SEAFOAM_ISLANDS_B4F",
   "the guaranteed shiny event lives in Seafoam's deepest floor")
+do
+  local eventEncounter = RealRuntime.call("encounter.roll",
+    function() return { species = "ZUBAT", level = 32 } end,
+    Data.encounters.SEAFOAM_ISLANDS_B4F,
+    {
+      mapId = "SEAFOAM_ISLANDS_B4F",
+      terrain = "indoor",
+      rng = function(_, hi) return hi end,
+    })
+  T.eq(eventEncounter.species, "GYARADOS",
+    "the unlocked Seafoam event replaces a normal encounter with Gyarados")
+  T.eq(eventEncounter.level, 50,
+    "the guaranteed red Gyarados event uses level 50")
+  local eventMon = {
+    species = "GYARADOS", level = 50, hp = 100, stats = { hp = 100 },
+    dvs = { attack = 8, defense = 8, speed = 8, special = 8, hp = 8 },
+  }
+  local externalSawShiny
+  local removeEventVisual = RealRuntime.hooks:wrap("pokemon.sprite",
+    function(_, _, ctx)
+      externalSawShiny = shinySystem.isShiny(ctx.mon)
+      return externalSawShiny
+        and "external/gyarados_shiny.png"
+        or "external/gyarados_normal.png"
+    end, 930, "red-gyarados-visual-compat-test")
+  local eventPath = RealRuntime.call("pokemon.sprite",
+    function(path) return path end, "base/gyarados.png", {
+      data = Data,
+      mon = eventMon,
+      species = "GYARADOS",
+      side = "front",
+      kind = "battle",
+    })
+  removeEventVisual()
+  T.eq(externalSawShiny, true,
+    "priority-930 Crystal/Voxel wrappers see shiny DVs before choosing art")
+  T.eq(eventPath, "external/gyarados_shiny.png",
+    "a non-delegating graphics wrapper selects shiny Gyarados art")
+  T.eq(eventMon.ascendantShinyEvent, true,
+    "the prepared event Gyarados keeps its one-time capture marker")
+end
+do
+  local savedCaught = shinyProgress.redGyaradosCaught
+  local savedOutbreak = shinyProgress.outbreak
+  shinyProgress.redGyaradosCaught = true
+  shinyProgress.outbreak = nil
+  local bonusEncounter = RealRuntime.call("encounter.roll",
+    function() return { species = "ZUBAT", level = 21 } end,
+    Data.encounters.ROUTE_1,
+    {
+      mapId = "ROUTE_1",
+      terrain = "grass",
+      rng = function() return 1 end,
+    })
+  local bonusMon = {
+    species = bonusEncounter.species,
+    level = bonusEncounter.level,
+    hp = 50,
+    stats = { hp = 50 },
+    dvs = { attack = 8, defense = 8, speed = 8, special = 8, hp = 8 },
+  }
+  local externalSawShiny
+  local removeBonusVisual = RealRuntime.hooks:wrap("pokemon.sprite",
+    function(_, _, ctx)
+      externalSawShiny = shinySystem.isShiny(ctx.mon)
+      return externalSawShiny
+        and "external/bonus_shiny.png"
+        or "external/bonus_normal.png"
+    end, 930, "bonus-shiny-visual-compat-test")
+  local bonusPath = RealRuntime.call("pokemon.sprite",
+    function(path) return path end, "base/zubat.png", {
+      data = Data,
+      mon = bonusMon,
+      species = bonusEncounter.species,
+      side = "front",
+      kind = "battle",
+    })
+  removeBonusVisual()
+  T.eq(externalSawShiny, true,
+    "priority-930 wrappers see Charm/streak bonus shinies before art selection")
+  T.eq(bonusPath, "external/bonus_shiny.png",
+    "a non-delegating graphics wrapper selects bonus-shiny artwork")
+  T.eq(bonusMon.ascendantShinyEvent, nil,
+    "ordinary bonus shinies do not receive the Red Gyarados event marker")
+  shinyProgress.redGyaradosCaught = savedCaught
+  shinyProgress.outbreak = savedOutbreak
+end
 run.loader.modSave = priorModSave
 
 -- ------------------------------------------------ discovery Dex + Johto Masters

@@ -304,9 +304,9 @@ return function(mod, opts)
     return out
   end, 180)
 
-  -- Called from the final art-selection hook, before the selected bitmap is
-  -- loaded. This timing is what makes a boosted encounter shiny from its
-  -- first visible frame rather than recolouring it one frame late.
+  -- Called from the high-priority sprite preflight before any visual wrapper
+  -- selects a bitmap. This timing makes a boosted encounter genuinely shiny
+  -- from its first visible frame, including with non-delegating Crystal art.
   function S.prepareSprite(ctx)
     if not (pendingForce and ctx and ctx.mon and ctx.side == "front"
         and ctx.kind == "battle" and ctx.species == pendingForce.species) then

@@ -29,6 +29,9 @@ All notable changes to this project are documented in this file.
   instead of a same-type Kanto silhouette. The National Dex also resolves
   every Johto entry to its species-authentic static Crystal frame in either
   Dex style, including UI paths that previously exposed the fallback.
+- Guaranteed and bonus-roll wild shinies now receive their shiny state before
+  Crystal, Voxel or other battle-graphics wrappers select artwork, preventing
+  non-delegating visual wrappers from displaying their normal sprites.
 
 ## [6.0.3] - 2026-08-05
 
