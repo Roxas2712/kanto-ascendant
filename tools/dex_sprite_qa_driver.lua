@@ -11,6 +11,7 @@ return function(game)
   local DIR = os.getenv("SHOT_DIR") or "/tmp/kanto-ascendant-dex-sprite-qa"
   local version = GameVersion.get()
   local speciesOrder = { "BULBASAUR", "CHARMANDER", "SQUIRTLE" }
+  local johtoOrder = { "SENTRET", "FURRET", "HOOTHOOT", "NOCTOWL" }
 
   U.wait(20)
   local api = assert(game.mods and game.mods.exports
@@ -23,6 +24,10 @@ return function(game)
   game.save.pokedex.seen = game.save.pokedex.seen or {}
   game.save.pokedex.owned = game.save.pokedex.owned or {}
   for _, species in ipairs(speciesOrder) do
+    game.save.pokedex.seen[species] = true
+    game.save.pokedex.owned[species] = true
+  end
+  for _, species in ipairs(johtoOrder) do
     game.save.pokedex.seen[species] = true
     game.save.pokedex.owned[species] = true
   end
@@ -75,8 +80,23 @@ return function(game)
     end
   end
 
-  local function capture(style)
-    for _, species in ipairs(speciesOrder) do
+  local function assertJohtoDex()
+    for _, species in ipairs(johtoOrder) do
+      local dex = game.data.pokemon[species].dex
+      local expected = ("assets/crystal_animated/front/normal/%d/001.png")
+        :format(dex)
+      local path, trueColor = Sprites.path(
+        game.data, species, "front", { kind = "dex" })
+      assert(path:find(expected, 1, true),
+        version .. " Johto Dex used a Kanto fallback for " .. species
+          .. ": " .. tostring(path))
+      assert(trueColor,
+        version .. " Johto Dex frame was not marked true-color for " .. species)
+    end
+  end
+
+  local function capture(style, order)
+    for _, species in ipairs(order or speciesOrder) do
       Screens.push(game, "DexEntryMenu", species)
       U.wait(45)
       assert(U.shot(game, ("%s/%s_%s_%s.png"):format(
@@ -89,14 +109,18 @@ return function(game)
   setOption("dex_sprite_style", "original")
   setOption("kanto_crystal_art", false)
   assertOriginalDex()
+  assertJohtoDex()
   capture("original")
+  capture("johto_original", johtoOrder)
 
   setOption("kanto_crystal_art", true)
   assertOriginalDex()
 
   setOption("dex_sprite_style", "crystal")
   assertCrystalDex()
+  assertJohtoDex()
   capture("crystal")
+  capture("johto_crystal", johtoOrder)
 
   setOption("kanto_crystal_art", false)
   assertCrystalDex()
@@ -119,6 +143,6 @@ return function(game)
   assert(battleOriginal.original == battleOriginal.crystal,
     "DEX SPRITES changed Bulbasaur's battle artwork")
 
-  print(("[ASCENDANT DEX QA] version=%s original+crystal matrix PASS; shots=%s")
+  print(("[ASCENDANT DEX QA] version=%s Kanto+Johto original+crystal matrix PASS; shots=%s")
     :format(version, DIR))
 end

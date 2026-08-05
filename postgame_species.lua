@@ -359,9 +359,18 @@ return function(mod, legends, johto, i18n)
     local template = assert(mod.content.pokemon:get(templateId),
       "missing fallback species " .. templateId)
     local art = originalArt[id]
+    local crystalName = id == "HO_OH" and "ho_oh" or id:lower()
+    local crystalFront = "assets/crystal/" .. crystalName .. "_front.png"
+    local crystalBack = "assets/crystal/" .. crystalName .. "_back.png"
+    -- Every public #152-251 package now contains the complete Crystal pair.
+    -- Register those species-authentic files as the native data paths too,
+    -- so Pokédex/UI mods which read `spriteFront` directly cannot expose the
+    -- old Kanto silhouette fallback (for example Rattata on Hoothoot).
     local spriteFront = art and mod.path .. "/assets/" .. art .. "_front.png"
+      or (mod:read(crystalFront) and mod.path .. "/" .. crystalFront)
       or template.spriteFront
     local spriteBack = art and mod.path .. "/assets/" .. art .. "_back.png"
+      or (mod:read(crystalBack) and mod.path .. "/" .. crystalBack)
       or template.spriteBack
     local icon = specialIcons[id] or (iconFor[primary] or "MON")
     local dex = assert(def.dexEntry, "missing Pokédex entry for " .. id)

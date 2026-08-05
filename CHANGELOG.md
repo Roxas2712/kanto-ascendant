@@ -17,6 +17,13 @@ All notable changes to this project are documented in this file.
   reservation, mode-aware researcher guidance and safe map fallback when the
   mod is disabled.
 
+### Fixed
+
+- All #152-251 species now register their own bundled Crystal front/back art
+  instead of a same-type Kanto silhouette. The National Dex also resolves
+  every Johto entry to its species-authentic static Crystal frame in either
+  Dex style, including UI paths that previously exposed the fallback.
+
 ## [6.0.3] - 2026-08-05
 
 ### Added

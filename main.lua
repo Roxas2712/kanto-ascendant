@@ -754,15 +754,22 @@ return function(mod)
     local dex = def and tonumber(def.dex)
 
     -- Pokédex presentation is an independent, static choice. The original
-    -- result remains the active ROM's Red/Blue/Yellow front art; bundled
-    -- Crystal mode uses normal frame one without touching battle selection,
-    -- shiny state, animation timing or any other presentation surface.
+    -- result remains the active ROM's Red/Blue/Yellow front art. Johto has no
+    -- native R/B/Y art, so #152-251 always uses its bundled species-authentic
+    -- Crystal frame instead of the old Kanto silhouette fallback.
     if ctx.kind == "dex" then
       local externalOverride = type(path) == "string" and path ~= ""
         and path ~= requestedPath
       if externalOverride or (crystalAnimation and dex and dex <= 151
           and crystalAnimation.externalKantoActive(dex)) then
         return path
+      end
+      if dex and dex >= 152 and dex <= 251 and crystalAnimation then
+        local static = crystalAnimation.staticFrameOne(ctx, "front", "normal")
+        if static then
+          ctx.trueColor = true
+          return static
+        end
       end
       if dex and dex >= 1 and dex <= 151
           and mod.options:get("dex_sprite_style") == "crystal"

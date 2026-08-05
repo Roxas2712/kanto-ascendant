@@ -475,8 +475,8 @@ T.neq(ex.kantoCrystalBacks, nil,
     "all 151 Kanto species ship with shiny Crystal player-side art")
   T.eq(ex.crystalSprites.TOTODILE, true,
     "Totodile never needs the Squirtle battle fallback in a release package")
-  T.eq(ex.crystalSprites.FERALIGATR, true,
-    "the visually tested Feraligatr Crystal pair is bundled")
+T.eq(ex.crystalSprites.FERALIGATR, true,
+  "the visually tested Feraligatr Crystal pair is bundled")
 end)()
 local RealRuntime = require("src.mods.Runtime")
 local crystalCtx = { species = "RAIKOU", side = "front", trueColor = false }
@@ -689,18 +689,42 @@ for _, dexStyle in ipairs({ "original", "crystal" }) do
   run.loader.modOptions.trainer_rematch = {
     dex_sprite_style = dexStyle, kanto_crystal_art = true,
   }
-  for _, row in ipairs({
-    { "TOTODILE", "registered/johto_totodile.png" },
-    { "GOROCHU", "registered/guest_gorochu.png" },
-  }) do
-    local ctx = {
-      species = row[1], side = "front", kind = "dex",
-      trueColor = false, data = starterDexData,
+  local johtoDexData = { pokemon = {} }
+  for _, species in ipairs(ex.johtoData.order) do
+    johtoDexData.pokemon[species] = {
+      id = species,
+      dex = ex.johtoData.species[species].dex,
+      -- Deliberately model a third-party UI receiving the historical Kanto
+      -- fallback. The Dex resolver must replace every one of these paths.
+      spriteFront = "kanto-fallback/" .. species:lower() .. ".png",
     }
-    T.eq(RealRuntime.call("pokemon.sprite",
-        function(path) return path end, row[2], ctx), row[2],
-      row[1] .. " keeps its registered Dex artwork in " .. dexStyle .. " mode")
   end
+  for _, species in ipairs(ex.johtoData.order) do
+    local dex = assert(johtoDexData.pokemon[species].dex)
+    local ctx = {
+      species = species, side = "front", kind = "dex",
+      trueColor = false, data = johtoDexData,
+    }
+    local resolved = RealRuntime.call("pokemon.sprite",
+      function(path) return path end,
+      johtoDexData.pokemon[species].spriteFront, ctx)
+    T.eq(resolved:find(
+        ("assets/crystal_animated/front/normal/%d/001.png"):format(dex),
+        1, true) ~= nil, true,
+      species .. " Dex uses its own Crystal frame in " .. dexStyle .. " mode")
+    T.eq(ctx.trueColor, true,
+      species .. " Dex Crystal frame is true-color in " .. dexStyle .. " mode")
+  end
+
+  local guestCtx = {
+    species = "GOROCHU", side = "front", kind = "dex",
+    trueColor = false, data = starterDexData,
+  }
+  T.eq(RealRuntime.call("pokemon.sprite",
+      function(path) return path end, "registered/guest_gorochu.png",
+      guestCtx), "registered/guest_gorochu.png",
+    "GOROCHU keeps its registered guest Dex artwork in "
+      .. dexStyle .. " mode")
 end
 
 local originalStaticFrameOne = ex.crystalAnimation.staticFrameOne
