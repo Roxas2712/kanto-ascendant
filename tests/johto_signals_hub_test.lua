@@ -71,6 +71,11 @@ local function newHarness(config)
       completed = {},
     },
   }
+  local dexUnlocked = config.early
+    and config.early.receiverRepaired == true or false
+  if config.dexUnlocked ~= nil then
+    dexUnlocked = config.dexUnlocked == true
+  end
   local fixture = {
     root = root,
     persistCount = 0,
@@ -88,6 +93,8 @@ local function newHarness(config)
     doneCalls = 0,
     closedMenus = 0,
     bagFull = config.bagFull == true,
+    dexUnlocks = 0,
+    dexUnlocked = dexUnlocked,
   }
 
   local state = {}
@@ -410,6 +417,18 @@ local function newHarness(config)
     return true
   end
 
+  local dexProgress = {}
+  function dexProgress.unlockNationalDex()
+    if fixture.dexUnlocked then
+      return false, "already-unlocked"
+    end
+    fixture.dexUnlocked = true
+    fixture.dexUnlocks = fixture.dexUnlocks + 1
+    return true, "unlocked", i18n.text(
+      "Your POKéDEX was\nupgraded to the\nNATIONAL DEX!",
+      "Dein POKéDEX wurde\nzum NATIONALDEX\nerweitert!")
+  end
+
   local hub = createHub(mod, {
     state = state,
     content = content,
@@ -419,6 +438,7 @@ local function newHarness(config)
     showText = showText,
     openMenu = openMenu,
     addItem = addItem,
+    dexProgress = dexProgress,
   })
 
   fixture.hub = hub
@@ -460,6 +480,10 @@ equal(repair.root.earlyJohto.receiverRepaired, true,
   "receiver repair persists before later choices")
 equal(repair.game.save.inventory.MIGRATION_RECEIVER, 1,
   "the physical researcher grants the receiver")
+equal(repair.dexUnlocks, 1,
+  "the physical Driftglass repair grants the National Dex exactly once")
+contains(repair.displays[1].text, "NATIONAL DEX",
+  "the repair dialogue visibly announces the National Dex upgrade")
 equal(repair.lastMenu.title, "CHOOSE CURRENT",
   "repair leads to an explicit three-current choice")
 equal(#repair.lastMenu.rows, 3, "all three currents are offered")
@@ -506,6 +530,28 @@ repair.choose(true)
 laterModeMenu.options.onChoose(laterModeMenu.rows[3], laterModeMenu)
 equal(repair.root.earlyJohto.mode, "UNLEASHED",
   "later current changes use the same explicit selector")
+
+local onboarded = newHarness({
+  dexUnlocked = false,
+  early = {
+    questStarted = true,
+    capsuleFound = true,
+    capsuleTaken = true,
+    capsuleOpened = true,
+    boatmanBriefed = true,
+    receiverRepaired = true,
+    modeChosen = true,
+    mode = "WANDERWAVES",
+    startPolicy = "waves",
+    traces = {},
+  },
+})
+onboarded.hub.onResearcher(
+  onboarded.game, nil, { frozen = false })
+equal(onboarded.dexUnlocks, 1,
+  "remote old-save onboarding receives no Dex until the island researcher")
+contains(onboarded.displays[1].text, "NATIONAL DEX",
+  "the first physical visit announces the deferred National Dex")
 
 local mythicOnly = newHarness({
   johtoEnabled = false,

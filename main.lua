@@ -939,6 +939,12 @@ return function(mod)
     ascendant = ascendant,
   })
   mod.exports.dexProgress = dexProgress
+  if signalsHub and type(signalsHub.setDexProgress) == "function" then
+    signalsHub.setDexProgress(dexProgress)
+  end
+  if johtoResearch and type(johtoResearch.setDexProgress) == "function" then
+    johtoResearch.setDexProgress(dexProgress)
+  end
 
   local makeAscendantTyphlosion = loadSibling(
     mod, "ascendant_typhlosion.lua")

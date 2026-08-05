@@ -6,6 +6,8 @@ All notable changes to this project are documented in this file.
 
 ### Added
 
+- Driftglass' researcher now upgrades the ordinary Kanto Pokédex into the
+  **National Dex** when the Migration Receiver is repaired.
 - Added an optional **VISIBLE JOHTO** bridge for Wilds of Kanto 1.7.1.
 - Added an in-game **WILDS LINK** status page that explains whether visible
   encounters are linked, disabled or unavailable.
@@ -14,6 +16,12 @@ All notable changes to this project are documented in this file.
 
 ### Fixed
 
+- The Pokédex no longer exposes #152-251 merely because Johto species are
+  registered by the mod. Before the Driftglass upgrade it remains Kanto-only.
+- The former immediately available Johto submenu is now a gated National Dex
+  shortcut with the complete ordinary data pages.
+- Existing saves that already completed the physical Driftglass repair receive
+  the National Dex retroactively; remote onboarding alone does not grant it.
 - Early Johto currents and researched Johto habitats now apply to newly
   generated Wilds of Kanto overworld encounters.
 - Changing the current, scanning a primal trace or toggling the related

@@ -6,6 +6,7 @@ return function(mod, opts)
   opts = opts or {}
   local i18n = opts.i18n
   local D = { game = nil }
+  local KANTO_DEX_SIZE = 151
 
   local CERTIFICATES = {
     {
@@ -63,19 +64,109 @@ return function(mod, opts)
   local function state(create)
     local s = mod.save:get("dex_progress")
     if type(s) ~= "table" and create ~= false then
-      s = { version = 1, certificates = {} }
+      s = {
+        version = 2,
+        certificates = {},
+        nationalDexUnlocked = false,
+      }
       mod.save:set("dex_progress", s)
     end
     if type(s) == "table" then
-      s.version = 1
+      s.version = 2
       s.certificates = type(s.certificates) == "table"
         and s.certificates or {}
+      s.nationalDexUnlocked = s.nationalDexUnlocked == true
     end
     return s
   end
 
   local function persist(s)
     if s then mod.save:set("dex_progress", s) end
+  end
+
+  local function nationalDexText()
+    return tr(
+      "POKéDEX linked to\nJohto records!\f"
+        .. "Your POKéDEX was\nupgraded to the\nNATIONAL DEX!",
+      "POKéDEX mit Johto-\nDaten verbunden!\f"
+        .. "Dein POKéDEX wurde\nzum NATIONALDEX\nerweitert!")
+  end
+
+  function D.hasNationalDex()
+    local s = state(false)
+    return type(s) == "table" and s.nationalDexUnlocked == true
+  end
+
+  function D.unlockNationalDex(game)
+    D.game = game or D.game
+    local s = state()
+    if s.nationalDexUnlocked then
+      return false, "already-unlocked", nationalDexText()
+    end
+    s.nationalDexUnlocked = true
+    persist(s)
+    return true, "unlocked", nationalDexText()
+  end
+
+  -- 6.0.0-6.0.2 already let some players repair the physical receiver at
+  -- Driftglass before the National Dex milestone existed.  Recognize only
+  -- that completed field route.  Remote onboarding may also set
+  -- receiverRepaired, so that flag alone must never reveal Johto early.
+  function D.reconcileNationalDex(game)
+    D.game = game or D.game
+    if D.hasNationalDex() then return false, "already-unlocked" end
+    local exports = mod.exports or {}
+    local signals = exports.johtoSignals
+    local early = signals and type(signals.state) == "function"
+      and signals.state() or nil
+    local inventory = D.game and D.game.save and D.game.save.inventory or {}
+    local physicalRepair = type(early) == "table"
+      and early.receiverRepaired == true
+      and (early.startPolicy == "quest"
+        or inventory.MIGRATION_RECEIVER ~= nil)
+    if not physicalRepair then return false, "driftglass-required" end
+    local unlocked, reason = D.unlockNationalDex(D.game)
+    return unlocked, reason
+  end
+
+  function D.dexLimit(game)
+    local constants = game and game.data and game.data.constants or {}
+    local registered = math.max(KANTO_DEX_SIZE,
+      math.floor(tonumber(constants.dexSize) or KANTO_DEX_SIZE))
+    return D.hasNationalDex() and registered or KANTO_DEX_SIZE
+  end
+
+  -- The engine's ordinary Pokédex builds its list directly from the global
+  -- dexSize constant. Johto species must remain registered for encounters,
+  -- saves and battles, so temporarily narrowing that one menu construction
+  -- is safer than removing species data. The dispatch slot survives hot
+  -- reloads while always calling the newest controller instance.
+  local function installPokedexGate()
+    local PokedexMenu = require("src.ui.PokedexMenu")
+    local patch = rawget(PokedexMenu, "_kantoAscendantNationalDex")
+    if type(patch) ~= "table" then
+      patch = {
+        original = assert(PokedexMenu.new),
+        limit = nil,
+      }
+      PokedexMenu._kantoAscendantNationalDex = patch
+      PokedexMenu.new = function(game, menuOpts)
+        local constants = game and game.data and game.data.constants
+        if type(constants) ~= "table" or type(patch.limit) ~= "function" then
+          return patch.original(game, menuOpts)
+        end
+        local originalSize = constants.dexSize
+        constants.dexSize = patch.limit(game)
+        local ok, menu = pcall(patch.original, game, menuOpts)
+        constants.dexSize = originalSize
+        if not ok then error(menu, 0) end
+        return menu
+      end
+    end
+    patch.limit = function(game)
+      return D.dexLimit(game)
+    end
+    return true
   end
 
   local function dexIndex(game)
@@ -318,8 +409,10 @@ return function(mod, opts)
 
   function D.install(game)
     D.game = game
+    installPokedexGate()
     repairOwnedFromStorage(game)
     state()
+    D.reconcileNationalDex(game)
     refresh(game)
   end
 
@@ -334,6 +427,8 @@ return function(mod, opts)
   D.ownedThrough = ownedThrough
   D.complete = complete
   D.refresh = refresh
+  D.nationalDexText = nationalDexText
+  D.installPokedexGate = installPokedexGate
   D.repairOwnedFromStorage = repairOwnedFromStorage
   D.certificates = CERTIFICATES
   D.open = openList

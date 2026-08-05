@@ -434,13 +434,22 @@ system independently from Early Johto.
 <details>
 <summary><strong>⚠️ SPOILER — Do Signals reveal the complete Johto Pokédex?</strong></summary>
 
-No. Signals never pre-fill seen or owned records. Unknown species stay hidden
-as `???` until a real sighting, and ownership is recorded only after a real
-catch, evolution, egg or reward.
+No. Before visiting Driftglass, the ordinary Pokédex remains Kanto-only and
+ends at #151. Repairing the Migration Receiver there upgrades it into the
+**National Dex** with slots through #251.
+
+The upgrade never pre-fills seen or owned records. An unseen species remains
+hidden, a real sighting reveals its name and sprite, and its height, weight
+and description remain **Data unknown** until a real catch, evolution, egg or
+reward records ownership.
 
 Early Johto catches are recognized by Elm's later research. When a later
 milestone would award a duplicate specimen, the research system supplies its
 safe compensation instead.
+
+Existing 6.0 saves that already completed the physical Driftglass repair
+receive the National Dex automatically. Selecting a remote Johto onboarding
+mode by itself does not bypass the island upgrade.
 
 </details>
 
@@ -1146,7 +1155,8 @@ NORMAL removes extra restrictions while retaining level-100 teams.
   Signals and the next optional Signals objective.
 - **Oak's Lab scientist:** Research Log and exact post-game objective.
 - **Hall-of-Fame console, right side:** Crown Archive.
-- **ASCENDANT → JOHTO POKéDEX:** specimen, egg and habitat progress.
+- **ASCENDANT → NATIONAL DEX:** all discovered #001-251 entries after the
+  Driftglass upgrade.
 - **ASCENDANT → SHINY DEX:** revealed shiny statistics.
 - **ASCENDANT → EVENT ARCHIVE:** Heritage profiles and claims.
 - **ASCENDANT → MEGA STONES:** Stone Case status.

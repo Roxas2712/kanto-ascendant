@@ -322,9 +322,18 @@ immediately or later under **ASCENDANT → WORLD → JOHTO SIGNALS**. Inside are
 foreign pollen, starry sand, a damaged receiver and etched coordinates. The
 Pallet boatman identifies the coordinates and offers the warned trip to the
 **Driftglass signal station**. The boat back to Pallet is available at every
-stage. Driftglass' researcher repairs the Migration Receiver and explains
-three currents. Saving during a live Driftglass visit does not interrupt that
-visit; continuing the written slot later resumes safely at the Pallet landing.
+stage. Driftglass' researcher repairs the Migration Receiver, upgrades the
+ordinary Kanto Pokédex into the **National Dex**, and explains three currents.
+Before that upgrade, the Pokédex ends at #151 even though Johto species are
+already registered internally. Saving during a live Driftglass visit does not
+interrupt that visit; continuing the written slot later resumes safely at the
+Pallet landing.
+
+The National Dex preserves discovery-first behavior: an unseen species stays
+hidden, a real sighting reveals its name and sprite, and height, weight and
+description remain unknown until the species is actually caught. Existing
+saves that already repaired the receiver at Driftglass receive the upgrade
+automatically.
 
 | Current | Early encounter behavior |
 |---|---|
@@ -409,9 +418,9 @@ Eight baby Pokémon arrive as research eggs at fixed specimen milestones:
 Pichu, Cleffa/Pii, Igglybuff/Fluffeluff, Togepi, Tyrogue/Rabauz, Smoochum/
 Kussilla, Elekid and Magby. They are reserved at the Route 5 Day-Care, become
 real party eggs when collected and hatch after their displayed 256-448 actual
-player steps. **ASCENDANT → JOHTO POKéDEX** and Elm's aide both show persistent
-progress; the aide reports whether an egg is waiting at Route 5 or its exact
-remaining steps while carried. A full party never destroys a prize.
+player steps. Elm's aide and the Research Atlas show persistent progress; the
+aide reports whether an egg is waiting at Route 5 or its exact remaining steps
+while carried. A full party never destroys a prize.
 
 Generation-II evolution support includes:
 

@@ -8,6 +8,7 @@ return function(mod, opts)
   local postgame = assert(opts.postgame, "postgame controller missing")
   local i18n = opts.i18n
   local daycare = opts.daycare
+  local dexProgress = opts.dexProgress
   local enabled = opts.contentEnabled ~= false
   local R = { game = nil, enabled = enabled }
   local activeTrial
@@ -706,41 +707,7 @@ return function(mod, opts)
   if mod.content and mod.content.screens then
     mod.content.screens:register("JohtoResearchDex", {
       new = function(game)
-        local rows, totalSeen, totalOwned = {}, 0, 0
-        local seen = game.save.pokedex and game.save.pokedex.seen or {}
-        local owned = game.save.pokedex and game.save.pokedex.owned or {}
-        for _, id in ipairs(data.order) do
-          local recorded = seen[id] or owned[id]
-          if recorded then totalSeen = totalSeen + 1 end
-          if owned[id] then totalOwned = totalOwned + 1 end
-          local def = game.data.pokemon[id]
-          rows[#rows + 1] = {
-            -- Match the original Pokédex: an unseen slot exposes only its
-            -- number, while an owned species uses the Poké Ball marker
-            -- supplied by ListMenu instead of a pre-filled "OWN/HAT" label.
-            label = recorded and ("%03d %s"):format(def.dex, def.name)
-              or ("%03d -----"):format(def.dex),
-            ball = owned[id] or nil,
-            value = recorded and id or nil,
-          }
-        end
-        return mod.ui.ListMenu.new(game, tr("JOHTO POKéDEX", "JOHTO-POKéDEX"),
-          rows, {
-            footer = tr(
-              ("SEEN %d  OWNED %d"):format(totalSeen, totalOwned),
-              ("GESEHEN %d  GEF. %d"):format(totalSeen, totalOwned)),
-            pageJump = true,
-            onChoose = function(item)
-              if not item.value then return end
-              local def = game.data.pokemon[item.value]
-              local status = owned[item.value] and tr("OWNED", "GEFANGEN")
-                or (seen[item.value] and tr("SEEN", "GESEHEN")
-                  or tr("NOT RECORDED", "NICHT ERFASST"))
-              game.stack:push(require("src.render.TextBox").new(game,
-                ("%03d %s\f%s\f%s"):format(
-                  def.dex, def.name, table.concat(def.types, "/"), status)))
-            end,
-          })
+        return require("src.ui.PokedexMenu").new(game)
       end,
     })
   end
@@ -748,15 +715,22 @@ return function(mod, opts)
   mod.hooks:wrap("ui.start_menu.items", function(nextItems, game, items)
     local out = nextItems(game, items)
     if type(out) ~= "table" or not enabled
-        or not postgame.hasHallOfFame(game.save) then return out end
+        or not dexProgress
+        or type(dexProgress.hasNationalDex) ~= "function"
+        or not dexProgress.hasNationalDex(game) then return out end
     return mod.ui.insertBefore(out, "SAVE", {
-      label = tr("JOHTO", "JOHTO"),
+      label = tr("NAT.DEX", "NAT.DEX"),
       ascendantMenu = true,
-      ascendantLabel = tr("JOHTO POKéDEX", "JOHTO-POKéDEX"),
+      ascendantLabel = tr("NATIONAL DEX", "NATIONALDEX"),
       ascendantOrder = 30,
       onSelect = function() mod.ui.push(game, "JohtoResearchDex") end,
     })
   end, 260)
+
+  function R.setDexProgress(value)
+    dexProgress = value
+    return R
+  end
 
   -- Shared habitat selector for ordinary random encounters and companion
   -- mods that materialize those encounters directly in the overworld.

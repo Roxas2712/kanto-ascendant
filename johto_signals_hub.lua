@@ -13,6 +13,7 @@ return function(mod, opts)
   local mythic = assert(opts.mythic, "Mythic Signals controller missing")
   local i18n = opts.i18n
   local worldEvents = opts.worldEvents
+  local dexProgress = opts.dexProgress
 
   local H = {
     game = nil,
@@ -537,6 +538,16 @@ return function(mod, opts)
     if onDone then onDone() end
   end
 
+  local function grantNationalDex(game)
+    local progress = dexProgress
+      or (mod.exports and mod.exports.dexProgress)
+    if not (progress and type(progress.unlockNationalDex) == "function") then
+      return nil
+    end
+    local unlocked, _, text = progress.unlockNationalDex(game)
+    return unlocked and text or nil
+  end
+
   local function statusOrMode(game, npc, onDone)
     local s = earlyState()
     if not earlyEnabled() then
@@ -616,6 +627,18 @@ return function(mod, opts)
     local _, _, claimText = H.claimPendingItems(game)
     local function begin()
       local s = earlyState()
+      -- A player may have configured Signals through the one-time old-save
+      -- onboarding before ever visiting Driftglass.  The receiver exists,
+      -- but the National Dex is still awarded only by speaking to the
+      -- physical researcher here.
+      if s.receiverRepaired then
+        local dexText = grantNationalDex(game)
+        if dexText then
+          return show(game, dexText, function()
+            nextResearcherStage(game, npc, onDone)
+          end)
+        end
+      end
       if not s.receiverRepaired then
         local ok, _, repairText = early.onResearcherRepair(game)
         if not ok then
@@ -630,7 +653,10 @@ return function(mod, opts)
           early.setMode(game, MODES.KANTO_FIRST)
         end
         local _, itemText = grantReceiver(game)
-        return show(game, repairText .. "\f" .. itemText, function()
+        local dexText = grantNationalDex(game)
+        local fullText = repairText .. "\f" .. itemText
+        if dexText then fullText = fullText .. "\f" .. dexText end
+        return show(game, fullText, function()
           nextResearcherStage(game, npc, onDone)
         end)
       end
@@ -1117,6 +1143,11 @@ return function(mod, opts)
 
   function H.setWorldEvents(value)
     worldEvents = value
+    return H
+  end
+
+  function H.setDexProgress(value)
+    dexProgress = value
     return H
   end
 

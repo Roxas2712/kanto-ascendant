@@ -4564,6 +4564,61 @@ T.eq(johtoMasters.randomSpecies(discoveryGame, function() return 251 end),
   "DISCOVERY_251",
   "Gold can uniformly select Celebi as the 251st shiny reward")
 
+run.__priorNationalDexSave = run.loader.modSave
+run.loader.modSave = {}
+;(function()
+local pokemon, seen, owned = {}, {}, {}
+for dex = 1, 251 do
+  local id = ("NATIONAL_%03d"):format(dex)
+  pokemon[id] = { id = id, dex = dex, name = id }
+end
+seen.NATIONAL_161 = true
+local nationalGame = {
+  data = {
+    pokemon = pokemon,
+    constants = { dexSize = 251, dexDigits = 3 },
+  },
+  save = {
+    player = { name = "RED" },
+    party = {},
+    boxes = {},
+    inventory = {},
+    pokedex = { seen = seen, owned = owned },
+  },
+}
+local signals = ex.johtoSignals.state()
+signals.receiverRepaired = true
+signals.startPolicy = "waves"
+dexProgress.install(nationalGame)
+T.eq(dexProgress.hasNationalDex(nationalGame), false,
+  "remote onboarding never grants the National Dex before Driftglass")
+local PokedexMenu = require("src.ui.PokedexMenu")
+local lockedDex = PokedexMenu.new(nationalGame)
+T.eq(#lockedDex.items, 151,
+  "the ordinary Pokédex remains Kanto-only before Driftglass")
+T.eq(nationalGame.data.constants.dexSize, 251,
+  "the menu gate restores the registered 251-species data immediately")
+signals.startPolicy = "quest"
+local unlocked, reason = dexProgress.reconcileNationalDex(nationalGame)
+T.eq(unlocked, true,
+  "an existing physical Driftglass repair receives the upgrade retroactively")
+T.eq(reason, "unlocked",
+  "the National Dex migration reports its explicit result")
+local nationalDex = PokedexMenu.new(nationalGame)
+T.eq(#nationalDex.items, 251,
+  "the upgraded National Dex exposes all 251 registered slots")
+T.eq(nationalDex.items[161].value, "NATIONAL_161",
+  "a seen Johto species reveals its retained name after the upgrade")
+T.eq(nationalDex.items[161].ball, nil,
+  "a seen-only Johto species remains visibly uncaught")
+owned.NATIONAL_161 = true
+local caughtDex = PokedexMenu.new(nationalGame)
+T.eq(caughtDex.items[161].ball, true,
+  "catching the Johto species adds the ordinary owned marker")
+end)()
+run.loader.modSave = run.__priorNationalDexSave
+run.__priorNationalDexSave = nil
+
 local isolatedModSave = run.loader.modSave
 run.loader.modSave = {}
 ;(function()
