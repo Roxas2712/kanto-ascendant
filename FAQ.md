@@ -4,9 +4,11 @@ This is the public reference for Kanto Ascendant. It applies to Red, Blue and
 Yellow and is maintained from the current mod code, release documentation and
 confirmed support reports.
 
-Most answers are collapsed deliberately. Open only the question you want
-answered. Sections labelled **full spoiler** reveal exact locations,
-requirements or progression.
+> [!WARNING]
+> **Every FAQ entry may contain gameplay spoilers.** All answers are collapsed
+> by default and every individual dropdown carries its own spoiler warning.
+> Open only the question you want answered. Entries labelled **full spoiler**
+> reveal exact locations, requirements or progression.
 
 - [Installation and compatibility](#installation-and-compatibility)
 - [Main story, rematches and Kanto 151](#main-story-rematches-and-kanto-151)
@@ -21,7 +23,7 @@ requirements or progression.
 ## Installation and compatibility
 
 <details>
-<summary><strong>What is Kanto Ascendant?</strong></summary>
+<summary><strong>⚠️ SPOILER — What is Kanto Ascendant?</strong></summary>
 
 Kanto Ascendant is a gameplay and content mod for Pokémon Gen 1 Recomp. It is
 not a ROM hack and does not contain a Pokémon ROM. Gen 1 Recomp imports the
@@ -32,7 +34,7 @@ large Hall-of-Fame post-game.
 </details>
 
 <details>
-<summary><strong>How do I install or update it?</strong></summary>
+<summary><strong>⚠️ SPOILER — How do I install or update it?</strong></summary>
 
 1. Download the current `.modpkg` from the
    [latest GitHub release](https://github.com/Roxas2712/kanto-ascendant/releases/latest).
@@ -45,7 +47,7 @@ your save file when updating.
 </details>
 
 <details>
-<summary><strong>The launcher says trainer_rematch is already installed, but Kanto Ascendant is missing from the list. What do I do?</strong></summary>
+<summary><strong>⚠️ SPOILER — The launcher says trainer_rematch is already installed, but Kanto Ascendant is missing from the list. What do I do?</strong></summary>
 
 `trainer_rematch` is Kanto Ascendant's permanent internal ID. A stale or
 incomplete installed copy can therefore block a new import even when its
@@ -71,7 +73,7 @@ defect.
 </details>
 
 <details>
-<summary><strong>Which other mods are compatible?</strong></summary>
+<summary><strong>⚠️ SPOILER — Which other mods are compatible?</strong></summary>
 
 Kanto Ascendant is designed to coexist with the Gen-I Randomizer, PokéPC
 Followers, Followers EX, Wilds of Kanto, Dramatic Shape/Voxel, Crystal
@@ -92,7 +94,7 @@ Important limits:
 </details>
 
 <details>
-<summary><strong>Do option changes apply immediately?</strong></summary>
+<summary><strong>⚠️ SPOILER — Do option changes apply immediately?</strong></summary>
 
 Most runtime options do. Encounter-table options such as **KANTO 151** are
 loaded while the mod starts and require a restart. The in-game KANTO 151
@@ -103,7 +105,7 @@ status page shows both the loaded and selected mode when they differ.
 ## Main story, rematches and Kanto 151
 
 <details>
-<summary><strong>Does Ascendant replace the original Kanto story?</strong></summary>
+<summary><strong>⚠️ SPOILER — Does Ascendant replace the original Kanto story?</strong></summary>
 
 No. The original story, Gyms, Team Rocket, Elite Four and first Hall of Fame
 remain familiar. Some mechanics, encounter availability and early field
@@ -117,7 +119,7 @@ turning the original story into a completely different campaign.
 </details>
 
 <details>
-<summary><strong>How do field-trainer rematches work?</strong></summary>
+<summary><strong>⚠️ SPOILER — How do field-trainer rematches work?</strong></summary>
 
 After a trainer is defeated, they train for a configurable **151-2510 completed
 player steps**. Talking early shows the exact remaining count. When ready,
@@ -144,7 +146,7 @@ no prize money and Pay Day payouts are disabled.
 </details>
 
 <details>
-<summary><strong>What can field rematches drop?</strong></summary>
+<summary><strong>⚠️ SPOILER — What can field rematches drop?</strong></summary>
 
 Only one reward band is rolled per victory. An ineligible band becomes no
 drop; it is not rerolled.
@@ -164,7 +166,7 @@ Generous. A full Bag never destroys a reward: that trainer reserves it.
 </details>
 
 <details>
-<summary><strong>How do I obtain the Field Kit and renewable TMs?</strong></summary>
+<summary><strong>⚠️ SPOILER — How do I obtain the Field Kit and renewable TMs?</strong></summary>
 
 - The first won field rematch awards the permanent **Field Kit**.
 - It can use Cut, Fly, Surf, Strength or Flash from the Bag, but the matching
@@ -182,7 +184,7 @@ Deleter can remove HMs but never leaves a Pokémon with no usable move.
 </details>
 
 <details>
-<summary><strong>Can all original 151 Pokémon be obtained in one save?</strong></summary>
+<summary><strong>⚠️ SPOILER — Can all original 151 Pokémon be obtained in one save?</strong></summary>
 
 Yes, when **KANTO 151** is set to **REWARDS** or **WILD**.
 
@@ -199,7 +201,7 @@ investigation.
 </details>
 
 <details>
-<summary><strong>Full spoiler: exact shared Kanto 151 locations</strong></summary>
+<summary><strong>⚠️ SPOILER — Full spoiler: exact shared Kanto 151 locations</strong></summary>
 
 These changes apply in every edition when KANTO 151 is active:
 
@@ -228,7 +230,7 @@ Trading still works as an earlier alternative.
 </details>
 
 <details>
-<summary><strong>Full spoiler: exact REWARDS and WILD-only Kanto locations</strong></summary>
+<summary><strong>⚠️ SPOILER — Full spoiler: exact REWARDS and WILD-only Kanto locations</strong></summary>
 
 In default **REWARDS** mode:
 
@@ -259,7 +261,7 @@ Renewable Moon Stones cost ¥2100 in Pewter Mart and Celadon Department Store
 </details>
 
 <details>
-<summary><strong>Where are Mankey and the two Nidoran?</strong></summary>
+<summary><strong>⚠️ SPOILER — Where are Mankey and the two Nidoran?</strong></summary>
 
 With KANTO 151 active, **Mankey is on Route 5 in Red, Blue and Yellow**.
 
@@ -276,7 +278,7 @@ Mankey in every active KANTO 151 game.
 ## Johto research, breeding and items
 
 <details>
-<summary><strong>When do Johto Pokémon start appearing?</strong></summary>
+<summary><strong>⚠️ SPOILER — When do Johto Pokémon start appearing?</strong></summary>
 
 The first Hall of Fame places Elm's aide in Oak's Lab. Complete all three
 starter trials:
@@ -298,7 +300,7 @@ same combined 2%; they do not each receive 2%.
 </details>
 
 <details>
-<summary><strong>Full spoiler: all researched Johto habitats</strong></summary>
+<summary><strong>⚠️ SPOILER — Full spoiler: all researched Johto habitats</strong></summary>
 
 | Base species | Habitat | Level |
 |---|---|---:|
@@ -353,7 +355,7 @@ finale is recorded.
 </details>
 
 <details>
-<summary><strong>How does the Route 5 Day-Care work?</strong></summary>
+<summary><strong>⚠️ SPOILER — How does the Route 5 Day-Care work?</strong></summary>
 
 The Route 5 house is a complete two-parent Generation-II-style Day-Care:
 
@@ -374,7 +376,7 @@ parents sharing the relevant Defense and lower Special bits are incompatible.
 </details>
 
 <details>
-<summary><strong>Full spoiler: research eggs, evolution items and partner rewards</strong></summary>
+<summary><strong>⚠️ SPOILER — Full spoiler: research eggs, evolution items and partner rewards</strong></summary>
 
 Baby eggs:
 
@@ -424,7 +426,7 @@ A full party or Bag reserves the reward.
 </details>
 
 <details>
-<summary><strong>Where can I get more Johto evolution items?</strong></summary>
+<summary><strong>⚠️ SPOILER — Where can I get more Johto evolution items?</strong></summary>
 
 After the Crown Champion, the Frontier Exchange opens at Route 5 and under
 **ASCENDANT**:
@@ -443,7 +445,7 @@ and unrecorded TMs remain unavailable.
 </details>
 
 <details>
-<summary><strong>How do special Johto evolutions work?</strong></summary>
+<summary><strong>⚠️ SPOILER — How do special Johto evolutions work?</strong></summary>
 
 - Crobat, Togetic and Blissey evolve through friendship.
 - Espeon and Umbreon use friendship plus day/night. **JOHTO TIME** can follow
@@ -460,7 +462,7 @@ and unrecorded TMs remain unavailable.
 ## Shinies, outbreaks and the red Gyarados
 
 <details>
-<summary><strong>What are the base shiny odds?</strong></summary>
+<summary><strong>⚠️ SPOILER — What are the base shiny odds?</strong></summary>
 
 Natural shinies use the authentic Generation-II DV formula and are
 **1/8192**. Defense, Speed and Special DVs must be 10; Attack must be
@@ -473,7 +475,7 @@ is a guest species outside the 251-species completion requirement.
 </details>
 
 <details>
-<summary><strong>How do Ascendant's extra shiny rolls stack?</strong></summary>
+<summary><strong>⚠️ SPOILER — How do Ascendant's extra shiny rolls stack?</strong></summary>
 
 With **SHINY HUNTS = ASCENDANT**, each bonus is an additional independent
 1/8192 roll:
@@ -514,7 +516,7 @@ Gyarados event while retaining natural DV shinies.
 </details>
 
 <details>
-<summary><strong>How do streaks and Johto outbreaks work?</strong></summary>
+<summary><strong>⚠️ SPOILER — How do streaks and Johto outbreaks work?</strong></summary>
 
 Only won ordinary field-trainer rematches increase the streak. Losing a field
 rematch resets it; wild battles do not.
@@ -542,7 +544,7 @@ It then repeats from Sentret.
 </details>
 
 <details>
-<summary><strong>Full spoiler: how do I trigger and find the red Gyarados?</strong></summary>
+<summary><strong>⚠️ SPOILER — Full spoiler: how do I trigger and find the red Gyarados?</strong></summary>
 
 All of these conditions must be true:
 
@@ -564,7 +566,7 @@ list in a bug report.
 </details>
 
 <details>
-<summary><strong>How do I obtain the Shiny Charm, and what does the Shiny Dex track?</strong></summary>
+<summary><strong>⚠️ SPOILER — How do I obtain the Shiny Charm, and what does the Shiny Dex track?</strong></summary>
 
 After the Hall of Fame, **ASCENDANT → SHINY DEX** tracks:
 
@@ -582,7 +584,7 @@ It is a safety feature only; it does not change shiny odds.
 </details>
 
 <details>
-<summary><strong>Are there any other guaranteed shinies?</strong></summary>
+<summary><strong>⚠️ SPOILER — Are there any other guaranteed shinies?</strong></summary>
 
 Yes:
 
@@ -598,7 +600,7 @@ Yes:
 ## Mega Evolution, Yellow's partner and Gorochu
 
 <details>
-<summary><strong>When and how do I unlock Mega Evolution?</strong></summary>
+<summary><strong>⚠️ SPOILER — When and how do I unlock Mega Evolution?</strong></summary>
 
 After the first Hall of Fame, use the Route 5 Day-Care machine to synchronize
 the **Mega Ring** and register the separate **Mega Stone Case**.
@@ -613,7 +615,7 @@ example, is not expected to Mega Evolve before the Master circuit.
 </details>
 
 <details>
-<summary><strong>Which Mega forms exist and where are their stones?</strong></summary>
+<summary><strong>⚠️ SPOILER — Which Mega forms exist and where are their stones?</strong></summary>
 
 The official catalog contains 30 forms for 27 species:
 
@@ -642,7 +644,7 @@ the preferred Charizard, Mewtwo or Raichu form.
 </details>
 
 <details>
-<summary><strong>Full spoiler: what is Ascendant Typhlosion?</strong></summary>
+<summary><strong>⚠️ SPOILER — Full spoiler: what is Ascendant Typhlosion?</strong></summary>
 
 Owning the Cyndaquil family assigns its Starter Relic journey. After defeating
 Gold, a black seal appears in **Pokémon Mansion B1F**. Bring a
@@ -656,7 +658,7 @@ The unlock survives Ascendant Cycles.
 </details>
 
 <details>
-<summary><strong>How does Yellow's Heart of Thunder quest work?</strong></summary>
+<summary><strong>⚠️ SPOILER — How does Yellow's Heart of Thunder quest work?</strong></summary>
 
 After the Thunder Badge, speak to Lt. Surge. Keep Yellow's original partner
 Pikachu in the party, walk **251 steps** and win **three trainer battles**,
@@ -680,7 +682,7 @@ several candidates exist it asks instead of guessing.
 </details>
 
 <details>
-<summary><strong>Full spoiler: how do I obtain Gorochu?</strong></summary>
+<summary><strong>⚠️ SPOILER — Full spoiler: how do I obtain Gorochu?</strong></summary>
 
 Gorochu is optional in Red, Blue and Yellow:
 
@@ -701,7 +703,7 @@ sold, tossed, traded or deposited.
 </details>
 
 <details>
-<summary><strong>What makes Gorochu special?</strong></summary>
+<summary><strong>⚠️ SPOILER — What makes Gorochu special?</strong></summary>
 
 - Permanent pure Electric guest species, Pokédex number 1026
 - Base stats: 85 HP / 135 Attack / 90 Defense / 125 Speed / 125 Special
@@ -720,7 +722,7 @@ follower state after evolving.
 </details>
 
 <details>
-<summary><strong>Can opponents use Gorochu if I do not?</strong></summary>
+<summary><strong>⚠️ SPOILER — Can opponents use Gorochu if I do not?</strong></summary>
 
 No. Gorochu stays hidden from every opposing trainer in Red, Blue and Yellow
 until the player personally completes a Raichu-to-Gorochu evolution on that
@@ -735,7 +737,7 @@ seeing Gorochu or receiving one externally does not unlock opponent use.
 ## Heritage events and the Event Archive
 
 <details>
-<summary><strong>What does READY mean in the Event Archive?</strong></summary>
+<summary><strong>⚠️ SPOILER — What does READY mean in the Event Archive?</strong></summary>
 
 **READY means unlocked; it is not a claim button.**
 
@@ -747,7 +749,7 @@ unclaimed READY entry.
 </details>
 
 <details>
-<summary><strong>Full spoiler: where are all five Heritage Cups?</strong></summary>
+<summary><strong>⚠️ SPOILER — Full spoiler: where are all five Heritage Cups?</strong></summary>
 
 | Cup | Unlock | Host location | One-time prize |
 |---|---|---|---|
@@ -763,7 +765,7 @@ between rounds. Full party/PC storage reserves the already selected prize.
 </details>
 
 <details>
-<summary><strong>How do Roaming Hunts work?</strong></summary>
+<summary><strong>⚠️ SPOILER — How do Roaming Hunts work?</strong></summary>
 
 Set **HERITAGE EVENTS = ROAMING HUNTS**. The same five historical Pokémon
 wander suitable habitats:
@@ -780,7 +782,7 @@ visits when knocked out.
 </details>
 
 <details>
-<summary><strong>What does the Event Archive preserve?</strong></summary>
+<summary><strong>⚠️ SPOILER — What does the Event Archive preserve?</strong></summary>
 
 It records every distribution's original level, moves, source and obtained
 location across Ascendant Cycles. Event Pokémon carry provenance, a battle
@@ -794,7 +796,7 @@ available. Mew is handled separately as the mythic finale.
 ## Post-game, legends and facilities
 
 <details>
-<summary><strong>What is the main post-game order?</strong></summary>
+<summary><strong>⚠️ SPOILER — What is the main post-game order?</strong></summary>
 
 | Stage | Requirement | Level |
 |---|---|---:|
@@ -813,7 +815,7 @@ Leader uses the same step-based recovery system as rematch trainers.
 </details>
 
 <details>
-<summary><strong>When do bosses use Mega Evolution?</strong></summary>
+<summary><strong>⚠️ SPOILER — When do bosses use Mega Evolution?</strong></summary>
 
 Enemy Mega Evolution defaults to Ascendant's post-game bosses. Master, Apex
 and Crown battles use authored six-Pokémon plans and the strongest allowed AI;
@@ -827,7 +829,7 @@ battle's intended size, level, rules, AI, reward or progression.
 </details>
 
 <details>
-<summary><strong>Full spoiler: legendary unlock order and locations</strong></summary>
+<summary><strong>⚠️ SPOILER — Full spoiler: legendary unlock order and locations</strong></summary>
 
 With default APEX settings, all legendary encounters remain sealed until the
 Apex Champion:
@@ -856,7 +858,7 @@ ON/OFF switches; disabled requirements are skipped.
 </details>
 
 <details>
-<summary><strong>What are Leader missions and Oak's research assignments?</strong></summary>
+<summary><strong>⚠️ SPOILER — What are Leader missions and Oak's research assignments?</strong></summary>
 
 After Apex, each Leader offers a personal themed-rematch mission. Completing
 it gives a rare reward and unlocks that Leader's signature roster variant.
@@ -877,7 +879,7 @@ Disabled systems are skipped and full-Bag rewards are reserved.
 </details>
 
 <details>
-<summary><strong>Full spoiler: Rocket Resurgence locations</strong></summary>
+<summary><strong>⚠️ SPOILER — Full spoiler: Rocket Resurgence locations</strong></summary>
 
 After Apex:
 
@@ -891,7 +893,7 @@ The storyline can be disabled without blocking the rest of the mod.
 </details>
 
 <details>
-<summary><strong>How do the Frontier, Factory and S.S. Anne work?</strong></summary>
+<summary><strong>⚠️ SPOILER — How do the Frontier, Factory and S.S. Anne work?</strong></summary>
 
 After the Crown Champion:
 
@@ -911,7 +913,7 @@ A Frontier Festival world event doubles Frontier Point awards.
 </details>
 
 <details>
-<summary><strong>How do Johto Masters and the random shiny reward work?</strong></summary>
+<summary><strong>⚠️ SPOILER — How do Johto Masters and the random shiny reward work?</strong></summary>
 
 After the Crown Champion, defeat Silver, Kris and Gold consecutively at level
 100 with the Bag sealed. The team heals before each round.
@@ -927,7 +929,7 @@ Trainer Card treatment.
 </details>
 
 <details>
-<summary><strong>What are world events?</strong></summary>
+<summary><strong>⚠️ SPOILER — What are world events?</strong></summary>
 
 After the Hall of Fame, Kanto rotates events lasting 2048 walked steps:
 
@@ -941,7 +943,7 @@ The current event appears in **ASCENDANT → JOURNAL**.
 </details>
 
 <details>
-<summary><strong>What survives an Ascendant Cycle / New Game Plus?</strong></summary>
+<summary><strong>⚠️ SPOILER — What survives an Ascendant Cycle / New Game Plus?</strong></summary>
 
 Starting a double-confirmed Cycle resets Master/Apex/Crown circuits, circuit
 research, Leader missions and Rocket progress. It preserves the base story,
@@ -957,7 +959,7 @@ NORMAL removes extra restrictions while retaining level-100 teams.
 ## Menus, art, followers and troubleshooting
 
 <details>
-<summary><strong>Where can I see my current objective instead of guessing?</strong></summary>
+<summary><strong>⚠️ SPOILER — Where can I see my current objective instead of guessing?</strong></summary>
 
 - **ASCENDANT → RESEARCH ATLAS:** current Oak objective, known trainer
   cooldowns/ranks/locations, exact loot gates, TM queue and revealed habitats.
@@ -975,7 +977,7 @@ NORMAL removes extra restrictions while retaining level-100 teams.
 </details>
 
 <details>
-<summary><strong>How do followers work?</strong></summary>
+<summary><strong>⚠️ SPOILER — How do followers work?</strong></summary>
 
 Enable a compatible follower provider such as PokéPC Followers or its Voxel
 merge. Then open **Start → Pokémon**, select a party member and choose
@@ -992,7 +994,7 @@ Pikachu and unrelated level-5 encounters are not rewritten.
 </details>
 
 <details>
-<summary><strong>What do the art options change?</strong></summary>
+<summary><strong>⚠️ SPOILER — What do the art options change?</strong></summary>
 
 - **JOHTO ART:** bundled Crystal art or four-shade Kanto fallback for #152-251.
 - **KANTO CRYSTAL ART:** battle art for #001-151.
@@ -1008,7 +1010,7 @@ Hall of Fame screens or party icons.
 </details>
 
 <details>
-<summary><strong>Why are cries, followers or sprites missing or wrong?</strong></summary>
+<summary><strong>⚠️ SPOILER — Why are cries, followers or sprites missing or wrong?</strong></summary>
 
 First report:
 
@@ -1030,7 +1032,7 @@ one at a time.
 </details>
 
 <details>
-<summary><strong>How should I report a reproducible bug?</strong></summary>
+<summary><strong>⚠️ SPOILER — How should I report a reproducible bug?</strong></summary>
 
 Use [GitHub Issues](https://github.com/Roxas2712/kanto-ascendant/issues) and
 include:
@@ -1050,8 +1052,8 @@ proven from a screenshot alone.
 
 ## Current support-report status
 
-<details open>
-<summary><strong>Verified reports reviewed on 5 August 2026</strong></summary>
+<details>
+<summary><strong>⚠️ SPOILER — Verified reports reviewed on 5 August 2026</strong></summary>
 
 | Report | Status |
 |---|---|
