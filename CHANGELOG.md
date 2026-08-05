@@ -2,6 +2,25 @@
 
 All notable changes to this project are documented in this file.
 
+## [Unreleased]
+
+### Added
+
+- Added an optional **VISIBLE JOHTO** bridge for Wilds of Kanto 1.7.1.
+- Added an in-game **WILDS LINK** status page that explains whether visible
+  encounters are linked, disabled or unavailable.
+- Added normal and shiny six-frame Johto walker providers that preserve the
+  existing PokéPC/Followers EX provider for Kanto species.
+
+### Fixed
+
+- Early Johto currents and researched Johto habitats now apply to newly
+  generated Wilds of Kanto overworld encounters.
+- Changing the current, scanning a primal trace or toggling the related
+  runtime options now clears stale visible encounter rolls.
+- Visible Johto species no longer fall back to static Crystal battle
+  portraits in Wilds of Kanto.
+
 ## [6.0.2] - 2026-08-05
 
 ### Fixed

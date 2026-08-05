@@ -561,25 +561,34 @@ local locked = newHarness({
   },
 })
 local lockedRows = locked.hub.johtoRows(locked.game)
-equal(lockedRows[3].right, "LOCKED",
+local function rowByValue(rows, value)
+  for _, row in ipairs(rows) do
+    if row.value == value then return row end
+  end
+end
+local lockedScan = assert(rowByValue(lockedRows, "scan"))
+local lockedCurrent = assert(rowByValue(lockedRows, "set"))
+equal(lockedScan.right, "LOCKED",
   "the compact scan row visibly reports its lock")
-equal(lockedRows[4].right, "LOCKED",
+equal(lockedCurrent.right, "LOCKED",
   "the compact current row visibly reports its lock")
-lockedRows[3].onSelect()
-lockedRows[4].onSelect()
+lockedScan.onSelect()
+lockedCurrent.onSelect()
 equal(locked.scanCalls, 0, "locked scan never reaches the controller")
 equal(locked.setModeCalls, 0,
   "locked current selection never reaches the controller")
 locked.options.johto_signals_enable = false
 locked.root.earlyJohto.receiverRepaired = true
 local offRows = locked.hub.johtoRows(locked.game)
-equal(offRows[3].right, "OFF",
+local offScan = assert(rowByValue(offRows, "scan"))
+local offCurrent = assert(rowByValue(offRows, "set"))
+equal(offScan.right, "OFF",
   "the compact scan row visibly reports an OFF system")
-equal(offRows[4].right, "OFF",
+equal(offCurrent.right, "OFF",
   "the compact current row visibly reports an OFF system")
 local menusBeforeOffSelection = #locked.menus
-offRows[3].onSelect()
-offRows[4].onSelect()
+offScan.onSelect()
+offCurrent.onSelect()
 equal(locked.scanCalls, 0,
   "an OFF Johto system cannot mutate primal traces")
 equal(#locked.menus, menusBeforeOffSelection,

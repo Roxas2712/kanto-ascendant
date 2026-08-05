@@ -1,4 +1,4 @@
--- Contract tests for the Wilds of Kanto 0.4.2 Johto Signals adapter.
+-- Contract tests for the Wilds of Kanto 1.7.1 Johto Signals adapter.
 --
 -- Run from the mod directory:
 --   ../gen1recomp/.tools/luajit-src/src/luajit \
@@ -76,6 +76,13 @@ local function newHarness(config)
   local logs = {}
   local mod = {
     events = events,
+    options = {
+      get = function(_, key)
+        if key == "johto_wilds_integration" then
+          return config.integrationEnabled ~= false
+        end
+      end,
+    },
     log = {
       info = function(_, fmt, ...)
         logs[#logs + 1] = string.format(fmt, ...)
@@ -329,7 +336,7 @@ local function newHarness(config)
   end
 
   local wilds = {
-    version = "0.4.2",
+    version = config.wildsVersion or "1.7.1",
     logic = logic,
     lib = {},
   }
@@ -458,7 +465,7 @@ do
   local missingGame = gameFixture()
   local ok, reason = h.adapter.install(missingGame)
   eq(ok, false, "install is harmless when Wilds is not active")
-  eq(reason, "Wilds of Kanto 0.4.2 API is not active",
+  eq(reason, "Compatible Wilds of Kanto API is not active",
     "missing Wilds reports its exact required contract")
   eq(h.adapter.installed, false,
     "a rejected install never advertises active compatibility")
@@ -475,7 +482,7 @@ do
   h.wilds.lib.require = nil
   local ok, reason = h.adapter.install(h.game)
   eq(ok, false, "install rejects an export without lib.require")
-  eq(reason, "Wilds of Kanto 0.4.2 API is not active",
+  eq(reason, "Compatible Wilds of Kanto API is not active",
     "the missing public library reports a stable reason")
 end
 
@@ -494,8 +501,8 @@ do
   local h = newHarness({ earlyMode = "special", withLind = true,
     lindSpecies = "NATU", mythicMode = "echo" })
   eq(h.adapter.install(h.game), true,
-    "the real Wilds 0.4.2-shaped export installs")
-  eq(h.adapter.wildsVersion, "0.4.2",
+    "the real Wilds 1.7.1-shaped export installs")
+  eq(h.adapter.wildsVersion, "1.7.1",
     "the active Wilds version remains inspectable")
   eq(h.adapter.EVENT_PRIORITY, 900,
     "the visible battle bridge precedes Mythic's generic priority 500")
@@ -559,6 +566,25 @@ do
     "despawn never consumes Early pity")
   eq(h.mythic.stateChanges or 0, 0,
     "despawn never consumes Mythic pressure")
+end
+
+do
+  local h = newHarness({
+    earlyMode = "special",
+    mythicMode = "echo",
+    integrationEnabled = false,
+  })
+  eq(h.adapter.install(h.game), true,
+    "the Wilds bridge remains installed while visible Johto is disabled")
+  local record = assert(h.logic:trySpawn(h.game, {}))
+  eq(record.species, "PIDGEY",
+    "disabling visible Johto leaves Wilds on its native encounter")
+  eq(h.early.rolls, 0,
+    "the disabled bridge performs no Early-Johto roll")
+  eq(h.mythic.rolls, 0,
+    "the disabled bridge performs no visible Mythic roll")
+  eq(h.adapter.runtimeStatus().enabled, false,
+    "runtime diagnostics expose the disabled integration")
 end
 
 -- ---------------------------------------------------- exact battle commit
@@ -655,7 +681,7 @@ do
     "a species mismatch consumes no Mythic state")
 end
 
--- Wilds 0.4.2 keeps several records in logic.spawns simultaneously.  A
+-- Wilds 1.7.1 keeps several records in logic.spawns simultaneously.  A
 -- saved 511/255 pity therefore needs one outstanding rare claim, not one
 -- guaranteed rare result per visible entity.
 do

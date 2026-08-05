@@ -380,6 +380,9 @@ return function(mod)
     { key = "johto_signals_enable",
       label = menuLabel("EARLY JOHTO", "FRÜHES JOHTO"),
       type = "toggle", default = true },
+    { key = "johto_wilds_integration",
+      label = menuLabel("VISIBLE JOHTO", "JOHTO SICHTBAR"),
+      type = "toggle", default = true },
     { key = "johto_signals_start",
       label = menuLabel("JOHTO SIGNAL START", "JOHTO-SIGNALSTART"),
       type = "choice", default = "quest",
@@ -677,6 +680,7 @@ return function(mod)
     johtoResearch = johtoResearch,
     data = johtoData,
     crystalNames = CRYSTAL_ASSETS,
+    spriteAssets = spriteAssets,
     contentEnabled = contentEnabled,
   })
   mod.exports.wildsCompat = wildsCompat

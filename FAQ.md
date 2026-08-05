@@ -92,13 +92,26 @@ Important limits:
   doubled sparkles and sounds.
 - Gorochu registered by another compatible graphics/audio provider keeps that
   provider's asset; Ascendant fills only missing assets.
+- Wilds of Kanto 1.7.1 is supported through its public API. Enable that mod's
+  **Show Wild Mons** option and Ascendant's **VISIBLE JOHTO** option for visible
+  early-Johto rolls. `AUTO` or `FOLLOWERS EX` sprite style uses Ascendant's
+  bundled normal/shiny Johto walker sheets and keeps the follower provider for
+  Kanto species.
+- Wilds rolls a visible encounter when it appears. Fighting an entity that was
+  already standing on the map does not roll it again. Changing the Johto
+  current, scanning a trace or toggling **VISIBLE JOHTO** refreshes old visible
+  rolls. Check **ASCENDANT → WORLD → JOHTO SIGNALS → WILDS LINK** for the live
+  connection state. Turning **EARLY JOHTO** or **MYTHIC SIGNALS** on/off also
+  clears stale visible rolls.
 
 </details>
 
 <details>
 <summary><strong>⚠️ SPOILER — Do option changes apply immediately?</strong></summary>
 
-Most runtime options do. Encounter-table options such as **KANTO 151** are
+Most runtime options do. **VISIBLE JOHTO** refreshes Wilds of Kanto's existing
+visible encounter rolls immediately; classic grass encounters are unaffected
+when the visible bridge is off. Encounter-table options such as **KANTO 151** are
 loaded while the mod starts and require a restart. The in-game KANTO 151
 status page shows both the loaded and selected mode when they differ.
 

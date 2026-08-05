@@ -1122,10 +1122,25 @@ not replace it; an exact Pallet pre-starter fallback also protects older
 engine builds without rewriting unrelated level-5 encounters.
 
 When **Wilds of Kanto** is active, Ascendant registers all 100 Johto species
-with its renderer. Once a family has been researched, the same rare Kanto
-habitat used by ordinary encounters can produce that species visibly in the
-overworld. Hall-of-Fame and research gates, authored levels and the original
-two-percent replacement chance remain unchanged.
+with its renderer as normal/shiny six-frame walker sheets rather than static
+battle portraits. Wilds 1.7.1's public spawn, sprite-provider and refresh APIs
+are supported. `AUTO` or `FOLLOWERS EX` sprite style uses Ascendant's bundled
+Johto walkers while retaining PokéPC/Followers EX art for Kanto species.
+
+Early Wanderwaves and Johto Unleashed apply to newly created visible Wilds
+entities as well as classic grass encounters. A visible Pokémon is rolled when
+it appears, not when the player later touches it. Changing the Johto current,
+scanning a primal trace or toggling **VISIBLE JOHTO**, **EARLY JOHTO** or
+**MYTHIC SIGNALS** clears stale visible rolls so the next entities use the new
+state. The Johto Signals submenu has a **WILDS LINK** page showing whether
+Wilds is linked, disabled or absent.
+
+Once a family has been researched, the same rare Kanto habitat used by
+ordinary encounters can also produce that species visibly in the overworld.
+Hall-of-Fame and research gates, authored levels and the original two-percent
+replacement chance remain unchanged. At two percent, a long dry run is
+possible: even 50 eligible fresh rolls still have roughly a 36% chance of no
+ordinary Johto replacement.
 
 ## Options
 
@@ -1170,6 +1185,10 @@ submenu. It contains:
 - **EARLY JOHTO** — enable or disable only the voluntary early migration
   encounters. Mythic Signals can still use the shared capsule, receiver and
   Driftglass researcher with Kanto First enforced.
+- **VISIBLE JOHTO** — let Wilds of Kanto's newly generated visible encounters
+  use the active early-Johto current and researched habitat replacements.
+  Turning it off keeps Wilds Kanto-only without disabling Johto in classic
+  grass battles.
 - **JOHTO SIGNAL START** — discover the field quest normally or begin a new
   save directly with Wanderwaves or Johto Unleashed.
 - **MYTHIC SIGNALS** — enable or disable the Mew/Celebi echo and Resonance
@@ -1276,6 +1295,8 @@ Run the standalone Signals gates from the mod checkout:
 ../gen1recomp/.tools/luajit-src/src/luajit tests/johto_signals_hub_test.lua
 ../gen1recomp/.tools/luajit-src/src/luajit tests/johto_signals_dialogue_test.lua
 ../gen1recomp/.tools/luajit-src/src/luajit tests/johto_signals_wilds_test.lua
+../gen1recomp/.tools/luajit-src/src/luajit \
+  tests/wilds_1_7_1_compat_test.lua
 ../gen1recomp/.tools/luajit-src/src/luajit \
   tests/johto_signals_ui_integration_test.lua
 python3 tests/johto_signals_scope_audit_test.py

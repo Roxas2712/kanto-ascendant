@@ -440,6 +440,13 @@ return function(mod, opts)
       and game.save.player.map
   end
 
+  local function refreshVisibleWilds(reason)
+    local compat = mod.exports and mod.exports.wildsCompat
+    if compat and type(compat.refreshVisible) == "function" then
+      compat.refreshVisible(reason)
+    end
+  end
+
   function H.openModeChoice(game, onDone)
     local rows = {}
     for _, mode in ipairs({
@@ -464,6 +471,7 @@ return function(mod, opts)
             if not yes then return end
             if menu and type(menu.close) == "function" then menu:close() end
             local ok, _, message = early.setMode(game, item.value)
+            if ok then refreshVisibleWilds("Johto current changed") end
             show(game, message, function()
               if onDone then onDone(ok == true) end
             end)
@@ -666,6 +674,43 @@ return function(mod, opts)
         end,
       },
       {
+        label = tr("WILDS LINK", "WILDS-VERBIND."),
+        value = "wilds",
+        onSelect = function()
+          local wilds = game and game.mods and game.mods.exports
+            and game.mods.exports.overworld_wild_spawns
+          local compat = mod.exports and mod.exports.wildsCompat
+          local status = compat and type(compat.runtimeStatus) == "function"
+            and compat.runtimeStatus() or {}
+          if not wilds then
+            return show(game, tr(
+              "WILDS OF KANTO is\nnot active.\f"
+                .. "Classic grass\nencounters use\nJOHTO SIGNALS.",
+              "WILDS OF KANTO ist\nnicht aktiv.\f"
+                .. "Normale Gras-\nBegegnungen nutzen\nJOHTO-SIGNALE."))
+          end
+          if status.enabled == false then
+            return show(game, tr(
+              "VISIBLE JOHTO is\nOFF.\f"
+                .. "WILDS stays Kanto-\nonly.\f"
+                .. "Classic battles\nstill use current.",
+              "JOHTO SICHTBAR ist\nAUS.\f"
+                .. "WILDS bleibt\nKanto.\f"
+                .. "Normale Kämpfe\nnutzen den Strom."))
+          end
+          return show(game, tr(
+            "WILDS OF KANTO\n" .. tostring(status.wildsVersion
+              or wilds.version or "?") .. " LINKED.\f"
+              .. "Johto is rolled\nwhen a visible\nPokemon appears--\nnot when an old\none is battled.\f"
+              .. "Changing current\nrefreshes visible\nencounters.",
+            "WILDS OF KANTO\n" .. tostring(status.wildsVersion
+              or wilds.version or "?") .. " VERBUNDEN.\f"
+              .. "Johto wird beim\nErscheinen neu\nausgewürfelt.\f"
+              .. "Nicht erst beim\nKampf.\f"
+              .. "Ein neuer Strom\naktualisiert alte\nBegegnungen."))
+        end,
+      },
+      {
         label = rowState and tr("SCAN", "SCANNEN")
           or tr("SCAN AREA", "GEBIET SCANNEN"),
         right = rowState,
@@ -679,7 +724,8 @@ return function(mod, opts)
           if not earlyState().receiverRepaired then
             return show(game, lockedText())
           end
-          local _, _, text = early.scanTrace(game, currentMap(game))
+          local ok, _, text = early.scanTrace(game, currentMap(game))
+          if ok then refreshVisibleWilds("Johto trace scan") end
           show(game, text)
         end,
       },

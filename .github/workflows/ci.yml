@@ -62,6 +62,7 @@ jobs:
           luajit tests/johto_signals_hub_test.lua
           luajit tests/johto_signals_dialogue_test.lua
           luajit tests/johto_signals_wilds_test.lua
+          luajit tests/wilds_1_7_1_compat_test.lua
           luajit tests/johto_signals_ui_integration_test.lua
           python3 tests/johto_signals_scope_audit_test.py
 

@@ -41,6 +41,7 @@ tests/johto_signals_scope_audit_test.py
 tests/johto_signals_test.lua
 tests/johto_signals_ui_integration_test.lua
 tests/johto_signals_wilds_test.lua
+tests/wilds_1_7_1_compat_test.lua
 tests/mythic_signals_test.lua
 tests/reachability_test.lua
 tests/recruitment_full_data_test.lua

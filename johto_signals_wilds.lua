@@ -1,4 +1,4 @@
--- Kanto Ascendant 6.0 compatibility for Wilds of Kanto 0.4.2.
+-- Kanto Ascendant 6.x compatibility for Wilds of Kanto.
 --
 -- Wilds creates visible encounters directly from its map table and therefore
 -- never reaches encounter.roll.  This adapter uses Wilds' exported
@@ -47,6 +47,13 @@ return function(mod, opts)
       or runtime.random
       or (love and love.math and love.math.random)
       or math.random
+  end
+
+  local function integrationEnabled()
+    if mod.options and type(mod.options.get) == "function" then
+      return mod.options:get("johto_wilds_integration") ~= false
+    end
+    return true
   end
 
   local function copyTable(source)
@@ -349,6 +356,12 @@ return function(mod, opts)
   function W.dispatchTrySpawn(originalTrySpawn, logic, spawnGame, spawnOpts)
     local incoming = spawnOpts or {}
     local activeGame = spawnGame or W.game
+    if not integrationEnabled() then
+      if type(mythic.cancelPending) == "function" then
+        mythic.cancelPending()
+      end
+      return originalTrySpawn(logic, spawnGame, incoming)
+    end
     local skipped = skipSignals(activeGame, incoming)
     if skipped then
       if type(mythic.cancelPending) == "function" then
@@ -490,7 +503,7 @@ return function(mod, opts)
         or type(library) ~= "table"
         or type(library.require) ~= "function" then
       W.installed = false
-      return false, "Wilds of Kanto 0.4.2 API is not active"
+      return false, "Compatible Wilds of Kanto API is not active"
     end
 
     local okPick, encounterPick =
@@ -572,7 +585,7 @@ return function(mod, opts)
     if mod.log and type(mod.log.info) == "function" then
       mod.log:info(
         "Johto Signals: Wilds of Kanto %s transactional adapter active",
-        tostring(W.wildsVersion or "0.4.2"))
+        tostring(W.wildsVersion or "unknown"))
     end
     return true, rebound and "rebound"
       or (alreadyBound and "already installed" or nil)
@@ -613,6 +626,7 @@ return function(mod, opts)
     table.sort(claims)
     return {
       installed = W.installed,
+      enabled = integrationEnabled(),
       wildsVersion = W.wildsVersion,
       serial = runtime.serial,
       installs = runtime.installs,
