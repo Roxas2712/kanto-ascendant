@@ -766,8 +766,8 @@ return function(mod, opts)
           "A primal echo\npoints toward:\f" .. row.traceEn .. ".",
           "Ein Ur-Echo\nweist auf:\f" .. row.traceDe .. ".")
           .. tr(
-            "\fASCENDANT > WORLD\fJOHTO SIGNALS >\nSCAN CURRENT AREA",
-            "\fASCENDANT > WELT\fJOHTO-SIGNALE >\nGEBIET SCANNEN")
+            "\fASCENDANT / WORLD\fJOHTO SIGNALS /\nSCAN CURRENT AREA",
+            "\fASCENDANT / WELT\fJOHTO-SIGNALE /\nGEBIET SCANNEN")
       end
     end
     return tr(

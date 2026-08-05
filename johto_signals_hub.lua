@@ -899,10 +899,10 @@ return function(mod, opts)
           current = traces,
           total = 4,
           detail = tr(
-            "At target habitat:\fASCENDANT > WORLD\f"
-              .. "JOHTO SIGNALS >\nSCAN CURRENT AREA",
-            "Am Zielgebiet:\fASCENDANT > WELT\f"
-              .. "JOHTO-SIGNALE >\nGEBIET SCANNEN"),
+            "At target habitat:\fASCENDANT / WORLD\f"
+              .. "JOHTO SIGNALS /\nSCAN CURRENT AREA",
+            "Am Zielgebiet:\fASCENDANT / WELT\f"
+              .. "JOHTO-SIGNALE /\nGEBIET SCANNEN"),
         }
       end
     end

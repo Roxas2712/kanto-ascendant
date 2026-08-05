@@ -566,7 +566,7 @@ return function(game)
       badges = 4,
       receiver = true,
       early = repairedState({ mode = "WANDERWAVES" }),
-      action = "ASCENDANT > WORLD > JOHTO SIGNALS > SCAN CURRENT AREA.",
+      action = "ASCENDANT / WORLD / JOHTO SIGNALS / SCAN CURRENT AREA.",
     },
     {
       id = "slot6009",

@@ -58,6 +58,18 @@ All notable changes to this project are documented in this file.
   restarts and mod disable/re-enable cycles.
 - Saving during a live Driftglass visit now writes the native Pallet landing
   as the resume point without interrupting the current visit.
+- Celebi's ordinary Pokédex/fallback presentation now uses its sharp bundled
+  Crystal sprite instead of the obsolete placeholder. Normal, Shiny, 2D,
+  Crystal Animated and Voxel battle paths retain the same Celebi identity.
+- Reflowed Celebi's English and German Pokédex prose to the real Gen-1 text
+  width so no words are cut off.
+- Verified the retroactive Gorochu route after an already-completed Lt. Surge
+  battle: repeated refusals remain reversible, the permanent Thunderheart is
+  still available from Surge, and the remote condenser can be declined and
+  used later without consuming the Heart.
+- After giving the Thunderheart, Lt. Surge/Major Bob now hands later
+  conversations back to the normal postgame controller. His Master and Crown
+  rematches are therefore reachable even while Gorochu is in the party.
 
 ## [5.4.1] - 2026-08-04
 

@@ -310,7 +310,7 @@ return function(mod, legends, johto, i18n)
   local specialIcons = johto.partyIcons or {}
   local originalArt = {
     RAIKOU = "raikou", ENTEI = "entei", SUICUNE = "suicune",
-    LUGIA = "lugia", HO_OH = "ho_oh", CELEBI = "celebi",
+    LUGIA = "lugia", HO_OH = "ho_oh", CELEBI = "crystal/celebi",
   }
 
   for _, id in ipairs(johto.order) do

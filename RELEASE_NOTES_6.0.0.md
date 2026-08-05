@@ -52,6 +52,14 @@ Mew/Celebi signal hunt while preserving the normal Kanto opening.
   replacing Gold or another required main objective.
 - Signal locations are localized in English and German, and unseen species
   remain hidden in every Dex-aware view.
+- Celebi uses its proper sharp Crystal sprite in the Pokédex, normal/Shiny
+  battles, capture flow and Voxel presentation. Its English and German Dex
+  descriptions fit the original text window without clipping.
+- A save that defeated Lt. Surge before installing the update can still
+  return to him for the permanent Thunderheart. Declining either Surge or the
+  Power Plant condenser does not close the Gorochu path.
+- Once the Thunderheart has been received, Lt. Surge/Major Bob resumes his
+  regular postgame conversation path, including Master and Crown rematches.
 - Visible Wilds encounters and ordinary grass battles use the same protected
   selection and pity transactions. Repel, scripted events, roamers, outbreaks
   and other authored encounters cannot consume a guaranteed signal.

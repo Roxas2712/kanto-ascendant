@@ -1,4 +1,4 @@
--- Visual smoke test for Kanto Ascendant 5.4.1. Everything is changed only in
+-- Visual smoke test for Kanto Ascendant 6.0. Everything is changed only in
 -- the driver's in-memory save and the process exits without writing a slot.
 
 return function(game)
@@ -119,22 +119,24 @@ return function(game)
   U.wait(45)
   local ascendantScreen = game.stack:top()
   assert(ascendantScreen.title == "KANTO ASCENDANT")
-  local utility = {}
+  local utility, utilityLabels = {}, {}
   for _, item in ipairs(ascendantScreen.items or {}) do
     utility[item.label] = item
+    utilityLabels[#utilityLabels + 1] = tostring(item.label)
   end
   local function row(en, de)
     return utility[en] or utility[de]
   end
   assert(row("RESEARCH ATLAS", "FORSCHUNGSATLAS")
       and row("JOURNAL", "JOURNAL")
-      and row("WORLD STATUS", "WELT-STATUS")
+      and row("WORLD", "WELT")
       and row("SHINY DEX", "SHINY-DEX")
       and row("EVENT ARCHIVE", "EVENT-ARCHIV")
       and row("DEX CERTIFICATES", "DEX-ZERTIFIKATE")
       and row("MEGA STONES", "MEGA-STEINE")
       and row("TITLES / TROPHIES", "TITEL / TROPHÄEN"),
-    "5.0 Ascendant utilities are incomplete")
+    "6.0 Ascendant utilities are incomplete; present: "
+      .. table.concat(utilityLabels, ", "))
   assert(U.shot(game, DIR .. "/ascendant_submenu.png"))
 
   ascendantScreen.index = (function()
@@ -183,6 +185,24 @@ return function(game)
   U.wait(20)
 
   ascendantScreen = game.stack:top()
+  if not (ascendantScreen and ascendantScreen.title == "KANTO ASCENDANT"
+      and type(ascendantScreen.items) == "table") then
+    Screens.push(game, "StartMenu")
+    U.wait(45)
+    local reopenedStart = game.stack:top()
+    for index, item in ipairs(reopenedStart.items or {}) do
+      if item.label == "ASCENDANT" then
+        reopenedStart.index = index
+        break
+      end
+    end
+    U.tap(game, "a")
+    U.wait(45)
+    ascendantScreen = game.stack:top()
+  end
+  assert(ascendantScreen and ascendantScreen.title == "KANTO ASCENDANT"
+      and type(ascendantScreen.items) == "table",
+    "could not reopen the Ascendant utility menu after Atlas navigation")
   ascendantScreen.index = (function()
     for index, item in ipairs(ascendantScreen.items) do
       if item.label == "TITLES / TROPHIES"

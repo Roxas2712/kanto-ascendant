@@ -262,7 +262,7 @@ local dexRows = {
   { 2.0, "ARMOR", "PANZER", "A single step can shift\nthe ground when it leaves\nits mountain nest.", "Schon ein Schritt bewegt\nden Boden, wenn es sein\nBergnest verlässt." },
   { 5.2, "DIVING", "TAUCHER", "It rests in deep trenches\nso its immense power does\nnot stir the sea.", "Es ruht in tiefen Gräben,\ndamit seine Kraft das\nMeer nicht aufwühlt." },
   { 3.8, "RAINBOW", "REGENBOGEN", "Its radiant wings scatter\nseven colors through the\nmorning mist.", "Seine strahlenden Flügel\nwerfen sieben Farben in\nden Morgennebel." },
-  { .6, "TIME TRAVEL", "ZEITREISE", "Healthy forests are said\nto await wherever it\nappears from time.", "Wo es aus der Zeit tritt,\nsoll ein gesunder Wald\nauf die Zukunft warten." },
+  { .6, "TIME TRAVEL", "ZEITREISE", "Where it appears,\nforests flourish\nacross time.", "Wo es erscheint,\ngedeihen Waelder\nueber alle Zeiten." },
 }
 
 assert(#dexRows == #J.order, "Johto Pokédex metadata is incomplete")

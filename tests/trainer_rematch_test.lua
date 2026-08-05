@@ -273,6 +273,13 @@ do
     isYellow = function() return false end,
   }
   gorochu.install(evolutionGame, { gameVersion = fakeRedVersion })
+  T.eq(gorochu.handleTalk({
+    map = { id = "VERMILION_GYM" }, player = {},
+  }, {
+    def = { name = "VERMILIONGYM_LT_SURGE" },
+    facePlayer = function() end,
+  }, evolutionGame), false,
+    "owning THUNDERHEART releases Surge to Master and Crown rematch dialogue")
   T.eq(ItemEffects.needsTarget(
     gorochu.tearItemId, Data.items[gorochu.tearItemId]), true,
     "the Tear opens the party picker like a real evolution item")

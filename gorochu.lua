@@ -559,10 +559,11 @@ return function(mod, opts)
       return false
     end
     if itemOwned(game, HEART) then
-      npc.frozen = true
-      if npc.facePlayer then npc:facePlayer(ow.player) end
-      return showText(game, statusText(game),
-        function() npc.frozen = false end)
+      -- The Thunderheart proves that Surge's optional hand-off is complete.
+      -- Stop intercepting him here so the post-game controller (Master/Crown
+      -- rematches) or his original script can handle every later conversation.
+      -- Quest status remains available from ASCENDANT -> THUNDER PATH.
+      return false
     end
     return offerHeart(ow, npc, game)
   end

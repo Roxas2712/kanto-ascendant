@@ -37,8 +37,12 @@ return function(game)
   game.save.boxes = game.save.boxes or {}
   game.save.options = game.save.options or {}
 
+  -- Keep this focused partner-path smoke explicitly non-shiny.  All-10 DVs
+  -- satisfy the Generation-II shiny formula and would correctly select the
+  -- shiny portrait tree, making the normal-portrait assertion below test the
+  -- wrong fixture rather than the production follower bridge.
   local pikachu = Pokemon.new(game.data, "PIKACHU", 50,
-    function() return 10 end)
+    function() return 9 end)
   BattleState.stampOT(game.save, pikachu)
   pikachu[partnerApi.marker] = true
   game.save.party = { pikachu }

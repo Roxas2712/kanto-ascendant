@@ -74,6 +74,12 @@ tools/johto_signals_launcher_smoke/conf.lua
 tools/johto_signals_launcher_smoke/main.lua
 tools/johto_signals_release_audit.py
 tools/johto_signals_uat_save_builder.lua
+tools/johto_catch_adversarial_qa_driver.lua
+tools/johto_signals_adversarial_qa_driver.lua
+tools/mythic_signals_adversarial_qa_driver.lua
+tools/gorochu_retroactive_qa_driver.lua
+tools/celebi_presentation_qa_driver.lua
+tools/celebi_voxel_qa_driver.lua
 tools/launcher_upgrade_qa_driver.lua
 tools/make_mega_assets.py
 tools/make_postgame_assets.py
