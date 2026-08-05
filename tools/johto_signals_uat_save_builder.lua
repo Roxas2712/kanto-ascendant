@@ -23,7 +23,7 @@
 
 local IDENTITY = "kanto-ascendant-signals-uat"
 local MOD_ID = "trainer_rematch"
-local MOD_VERSION = "6.0.2"
+local MOD_VERSION = "6.0.3"
 local MANIFEST_SCHEMA = 1
 
 local FORBIDDEN_MAP_WORDS = {

@@ -4615,6 +4615,62 @@ owned.NATIONAL_161 = true
 local caughtDex = PokedexMenu.new(nationalGame)
 T.eq(caughtDex.items[161].ball, true,
   "catching the Johto species adds the ordinary owned marker")
+
+run.loader.modSave = {
+  trainer_rematch = {
+    dex_progress = { version = 1, certificates = {} },
+  },
+}
+local legacySignals = ex.johtoSignals.state()
+legacySignals.receiverRepaired = true
+legacySignals.modeChosen = true
+legacySignals.mode = "WANDERWAVES"
+legacySignals.startPolicy = "waves"
+local legacyGame = {
+  data = nationalGame.data,
+  save = {
+    player = { name = "RED" },
+    party = {},
+    boxes = {},
+    inventory = {},
+    pokedex = { seen = {}, owned = {} },
+  },
+}
+dexProgress.install(legacyGame)
+T.eq(dexProgress.hasNationalDex(legacyGame), true,
+  "an already-active public 6.0 Signals save receives the National Dex")
+T.eq(dexProgress.state().nationalDexLegacyMigration, false,
+  "the automatic active-save upgrade is consumed exactly once")
+
+run.loader.modSave = {
+  trainer_rematch = {
+    dex_progress = { version = 1, certificates = {} },
+  },
+}
+local startedSignals = ex.johtoSignals.state()
+startedSignals.questStarted = true
+startedSignals.capsuleOpened = true
+startedSignals.receiverRepaired = false
+local startedGame = {
+  data = nationalGame.data,
+  save = {
+    player = { name = "RED" },
+    party = {},
+    boxes = {},
+    inventory = {},
+    pokedex = { seen = {}, owned = {} },
+  },
+}
+dexProgress.install(startedGame)
+T.eq(dexProgress.hasNationalDex(startedGame), false,
+  "an old quest that only started still earns the National Dex on Driftglass")
+startedSignals.receiverRepaired = true
+startedSignals.modeChosen = true
+startedSignals.mode = "WANDERWAVES"
+startedSignals.startPolicy = "waves"
+dexProgress.install(startedGame)
+T.eq(dexProgress.hasNationalDex(startedGame), false,
+  "activating after the upgrade cannot reuse the legacy auto-grant")
 end)()
 run.loader.modSave = run.__priorNationalDexSave
 run.__priorNationalDexSave = nil

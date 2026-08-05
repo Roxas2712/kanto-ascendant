@@ -1,6 +1,6 @@
 # Kanto Ascendant FAQ and Spoiler Guide
 
-This is the public reference for **Kanto Ascendant 6.0.2**. It applies to Red,
+This is the public reference for **Kanto Ascendant 6.0.3**. It applies to Red,
 Blue and Yellow and is maintained from the current mod code, release
 documentation and confirmed support reports.
 
@@ -296,7 +296,7 @@ Mankey in every active KANTO 151 game.
 <details>
 <summary><strong>⚠️ SPOILER — Do I need to start a new game for Johto Signals?</strong></summary>
 
-No. Version 6.0.2 upgrades existing Red, Blue and Yellow saves in place.
+No. Version 6.0.3 upgrades existing Red, Blue and Yellow saves in place.
 
 The signal system does not count steps taken before 6.0 was installed. Once
 the updated save has a starter and the Pokédex, it begins its own hidden
@@ -447,9 +447,10 @@ Early Johto catches are recognized by Elm's later research. When a later
 milestone would award a duplicate specimen, the research system supplies its
 safe compensation instead.
 
-Existing 6.0 saves that already completed the physical Driftglass repair
-receive the National Dex automatically. Selecting a remote Johto onboarding
-mode by itself does not bypass the island upgrade.
+Existing 6.0.0-6.0.2 saves whose Johto receiver was already active receive
+the National Dex automatically when upgraded. If the old quest had only
+started, every capsule, boat and counter flag is retained and the researcher
+still awards the National Dex on Driftglass.
 
 </details>
 

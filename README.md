@@ -23,6 +23,18 @@ collapsed so players can reveal only the information they want.
 > [GitHub Issues](https://github.com/Roxas2712/kanto-ascendant/issues) and will
 > be considered for future updates.
 
+## What's new in 6.0.3
+
+- The ordinary Pokédex now stays Kanto-only until Driftglass research
+  upgrades it into the **National Dex**. Seen Johto Pokémon reveal their
+  identity; complete species data still requires catching them.
+- Existing 6.0.0-6.0.2 saves whose Migration Receiver was already active
+  receive the National Dex automatically. A quest that was only started keeps
+  its progress and receives the upgrade from the Driftglass researcher.
+- Added optional Wilds of Kanto 1.7.1 integration for visible Johto
+  encounters, plus a clear in-game link status and refreshed normal/Shiny
+  Johto walkers without replacing the existing Kanto follower provider.
+
 ## What's new in 6.0.2
 
 - Professor Oak and Professor Eich now use the trainer's actual saved name in
@@ -311,7 +323,7 @@ and German text. **LANGUAGE** defaults to `AUTO`:
 
 ## Johto Signals
 
-Version 6.0.2 can let Johto begin stirring during the Kanto story without
+Version 6.0.3 can let Johto begin stirring during the Kanto story without
 changing the normal opening by default. After the starter and Pokédex,
 Professor Oak calls within 1–200 eligible steps. That call places a real dark
 capsule on Pallet Town's southern coast. If it remains untouched, Oak gives
@@ -332,8 +344,9 @@ Pallet landing.
 The National Dex preserves discovery-first behavior: an unseen species stays
 hidden, a real sighting reveals its name and sprite, and height, weight and
 description remain unknown until the species is actually caught. Existing
-saves that already repaired the receiver at Driftglass receive the upgrade
-automatically.
+6.0.0-6.0.2 saves whose Johto receiver was already active receive the upgrade
+automatically. If the old quest had only begun, its exact progress is retained
+and the National Dex is still awarded by the Driftglass researcher.
 
 | Current | Early encounter behavior |
 |---|---|
@@ -1257,7 +1270,7 @@ missions, Rocket story and one new tournament bracket are completed.
 
 ## Installation
 
-1. Download `kanto-ascendant-6.0.2.modpkg` from the
+1. Download `kanto-ascendant-6.0.3.modpkg` from the
    [latest release](https://github.com/Roxas2712/kanto-ascendant/releases/latest)
    and import it through the launcher. Developers may alternatively install
    the checked-out mod directory.
@@ -1315,7 +1328,7 @@ python3 tools/johto_signals_release_audit.py .
 The map-collision and Mythic battle suites run from the engine checkout with
 `KANTO_SIGNALS_MOD_DIR` and `TRAINER_REMATCH_MOD_DIR` pointed at this mod.
 GitHub CI runs both contracts and repeats the release-boundary audit against
-the exact `kanto-ascendant-6.0.2.modpkg`.
+the exact `kanto-ascendant-6.0.3.modpkg`.
 
 The upgrade matrix includes separate schema-derived Kanto Ascendant 5.3
 fixtures for Red, Blue and Yellow. They pin the public 5.3 package hash and

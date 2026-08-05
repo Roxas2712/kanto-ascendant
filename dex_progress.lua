@@ -72,10 +72,21 @@ return function(mod, opts)
       mod.save:set("dex_progress", s)
     end
     if type(s) == "table" then
+      local previousVersion = math.floor(tonumber(s.version) or 1)
+      -- Public 6.0.0-6.0.2 saves predate the National Dex flag. Remember
+      -- exactly one migration opportunity: players whose receiver was
+      -- already active at upgrade time receive the National Dex
+      -- automatically, while a merely started quest keeps its island gate.
+      if previousVersion < 2
+          and s.nationalDexLegacyMigration == nil then
+        s.nationalDexLegacyMigration = true
+      end
       s.version = 2
       s.certificates = type(s.certificates) == "table"
         and s.certificates or {}
       s.nationalDexUnlocked = s.nationalDexUnlocked == true
+      s.nationalDexLegacyMigration =
+        s.nationalDexLegacyMigration == true
     end
     return s
   end
@@ -104,6 +115,7 @@ return function(mod, opts)
       return false, "already-unlocked", nationalDexText()
     end
     s.nationalDexUnlocked = true
+    s.nationalDexLegacyMigration = false
     persist(s)
     return true, "unlocked", nationalDexText()
   end
@@ -115,6 +127,7 @@ return function(mod, opts)
   function D.reconcileNationalDex(game)
     D.game = game or D.game
     if D.hasNationalDex() then return false, "already-unlocked" end
+    local s = state()
     local exports = mod.exports or {}
     local signals = exports.johtoSignals
     local early = signals and type(signals.state) == "function"
@@ -124,7 +137,19 @@ return function(mod, opts)
       and early.receiverRepaired == true
       and (early.startPolicy == "quest"
         or inventory.MIGRATION_RECEIVER ~= nil)
-    if not physicalRepair then return false, "driftglass-required" end
+    local legacyActive = s.nationalDexLegacyMigration == true
+      and type(early) == "table"
+      and early.receiverRepaired == true
+    -- Consume the one-time upgrade inspection even when the old quest had
+    -- only begun. A later activation under the new release must still earn
+    -- its National Dex at the physical Driftglass researcher.
+    if s.nationalDexLegacyMigration then
+      s.nationalDexLegacyMigration = false
+      persist(s)
+    end
+    if not physicalRepair and not legacyActive then
+      return false, "driftglass-required"
+    end
     local unlocked, reason = D.unlockNationalDex(D.game)
     return unlocked, reason
   end

@@ -93,7 +93,10 @@ return function(game)
   assert(U.shot(game, shotDir .. "/03_echo_capture_rejected.png"))
   game.stack:pop()
 
-  assert(waitForMenu(echo, 180), "echo did not return to battle menu")
+  -- Yellow's partner/audio cadence may leave one more text/cry transition
+  -- pending than Red/Blue. Keep advancing the real stack instead of
+  -- assuming the shorter edition timing.
+  assert(waitForMenu(echo, 500), "echo did not return to battle menu")
   echo.menuIndex = 4
   U.tap(game, "a")
   U.wait(35)

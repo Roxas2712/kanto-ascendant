@@ -1,11 +1,19 @@
-# 🛠️ KANTO ASCENDANT 6.0.2 — HOTFIX LIVE
+# 🛠️ KANTO ASCENDANT 6.0.3 — UPDATE LIVE
 
-Professor Oak now correctly uses your trainer's saved name in both Johto
-Signals calls. The visible `[PLAYER]` placeholder from 6.0.1 is gone.
+📖 **National Dex progression**
+• Your Pokédex stays Kanto-only until the Driftglass researcher upgrades it
+• Seen Johto Pokémon reveal their identity; catching them reveals full data
+• Already activated Johto Signals saves receive the National Dex automatically
+• If you only started the quest, your progress is kept and Driftglass grants it normally
 
-This is a save-safe update for Red, Blue and Yellow in English and German.
-No quest, encounter, Pokédex or Mythic progress is reset.
+🌿 **Wilds of Kanto 1.7.1 compatibility**
+• Optional visible Johto encounters now follow your selected current and habitats
+• A new Wilds Link page shows whether the bridge is active
+• Johto normal/Shiny walkers no longer replace the Kanto follower provider
 
-📥 https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.0.2
+✅ Save-safe for Red, Blue and Yellow in English and German. No Johto,
+Mythic, trace or encounter-counter progress is reset.
 
-Thanks for the immediate screenshot report! 💚
+📥 https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.0.3
+
+Thanks for testing and reporting! 💚

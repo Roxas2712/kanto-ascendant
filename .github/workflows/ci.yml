@@ -86,23 +86,23 @@ jobs:
           MODKIT_LUAJIT: luajit
         run: |
           python3 tools/modkit.py pack ../kanto-ascendant \
-            -o ../kanto-ascendant-6.0.2.modpkg
-          unzip -tq ../kanto-ascendant-6.0.2.modpkg
-          cp ../kanto-ascendant-6.0.2.modpkg \
-            ../kanto-ascendant-6.0.2.zip
+            -o ../kanto-ascendant-6.0.3.modpkg
+          unzip -tq ../kanto-ascendant-6.0.3.modpkg
+          cp ../kanto-ascendant-6.0.3.modpkg \
+            ../kanto-ascendant-6.0.3.zip
           (
             cd ..
-            sha256sum kanto-ascendant-6.0.2.modpkg \
-              kanto-ascendant-6.0.2.zip \
-              > SHA256SUMS-6.0.2.txt
+            sha256sum kanto-ascendant-6.0.3.modpkg \
+              kanto-ascendant-6.0.3.zip \
+              > SHA256SUMS-6.0.3.txt
           )
           python3 ../kanto-ascendant/tools/johto_signals_release_audit.py \
-            ../kanto-ascendant-6.0.2.modpkg
+            ../kanto-ascendant-6.0.3.modpkg
           python3 - <<'PY'
           import json
           import zipfile
 
-          package = "../kanto-ascendant-6.0.2.modpkg"
+          package = "../kanto-ascendant-6.0.3.modpkg"
           forbidden_prefixes = (
               "art_review/",
               "assets/sources/",
@@ -162,9 +162,9 @@ jobs:
                   )
 
               manifest = json.loads(archive.read("manifest.json"))
-              if manifest.get("version") != "6.0.2":
+              if manifest.get("version") != "6.0.3":
                   raise SystemExit(
-                      "Expected manifest version 6.0.2, got "
+                      "Expected manifest version 6.0.3, got "
                       + repr(manifest.get("version"))
                   )
 
@@ -174,9 +174,9 @@ jobs:
       - name: Upload the verified release candidate
         uses: actions/upload-artifact@v4
         with:
-          name: kanto-ascendant-6.0.2-release-candidate
+          name: kanto-ascendant-6.0.3-release-candidate
           if-no-files-found: error
           path: |
-            kanto-ascendant-6.0.2.modpkg
-            kanto-ascendant-6.0.2.zip
-            SHA256SUMS-6.0.2.txt
+            kanto-ascendant-6.0.3.modpkg
+            kanto-ascendant-6.0.3.zip
+            SHA256SUMS-6.0.3.txt

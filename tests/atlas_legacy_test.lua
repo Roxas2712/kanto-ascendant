@@ -13,8 +13,8 @@ local modPath = os.getenv("TRAINER_REMATCH_MOD_DIR")
   or "mods/trainer_rematch"
 local run = T.sdk.loadMod(modPath, { data = Data })
 T.eq(#run.errors, 0, "Kanto Ascendant loads for Atlas/Legacy tests")
-T.eq(run.mod.manifest.version, "6.0.2",
-  "the release manifest identifies the trainer-name hotfix")
+T.eq(run.mod.manifest.version, "6.0.3",
+  "the release manifest identifies the National Dex compatibility update")
 
 local ex = assert(run.loader.exports.trainer_rematch)
 local atlas = assert(ex.researchAtlas)

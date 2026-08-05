@@ -1,11 +1,12 @@
-# 🌌 KANTO ASCENDANT 6.0.2 — JOHTO SIGNALS
+# 🌌 KANTO ASCENDANT 6.0.3 — JOHTO SIGNALS
 
-**6.0.2 HOTFIX:** Professor Oak now correctly uses your trainer's saved name
-in both Johto Signals calls instead of showing `[PLAYER]`.
+**6.0.3 UPDATE:** Driftglass now grants the National Dex, existing active
+Signals saves upgrade automatically, and optional Wilds of Kanto 1.7.1
+integration is available.
 
 **The Hall of Fame was only the beginning.**
 
-Kanto Ascendant expands Pokémon Red, Blue and Yellow into one living Gen-I/II adventure — with **all 251 Pokémon obtainable in one save**, evolving rematches and a huge Lv.100 postgame.
+Kanto Ascendant turns Red, Blue and Yellow into one Gen-I/II adventure with **all 251 Pokémon obtainable in one save**.
 
 ## ✨ FEATURES
 
@@ -13,7 +14,7 @@ Kanto Ascendant expands Pokémon Red, Blue and Yellow into one living Gen-I/II a
 
 🌠 **Mythic Signals:** investigate rare and dangerous Mew and Celebi sightings through a new optional hunt.
 
-⚔️ Trainer rematches that grow stronger over time, expand their teams and offer rare rewards
+⚔️ Growing trainer rematches with expanding teams and rare rewards
 
 🧬 All 251 Pokémon, Johto research, breeding, eggs, Move Reminder and HM Field Kit
 
@@ -23,7 +24,7 @@ Kanto Ascendant expands Pokémon Red, Blue and Yellow into one living Gen-I/II a
 
 👑 Lv.100 Gym Leaders, Elite Four, Champion and Johto Masters
 
-🌌 Legendary events, Heritage Cups, Frontier, Battle Factory and S.S. Anne Grand Tour
+🌌 Legendary events, Cups, Frontier, Battle Factory and S.S. Anne Tour
 
 📜 Atlas, Journal, trophies, titles, certificates and New Game+
 
@@ -35,14 +36,15 @@ Kanto Ascendant expands Pokémon Red, Blue and Yellow into one living Gen-I/II a
 
 • Pokémon Red, Blue and Yellow
 • English and German
-• New games and existing Kanto Ascendant saves
+• New games and existing Kanto Ascendant saves — no restart required
 • Johto and Mythic Signals can be enabled or disabled independently
+• Optional Wilds of Kanto 1.7.1 visible-encounter link
 
 ## 📥 DOWNLOAD
 
-https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.0.2
+https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.0.3
 
-Import the `.modpkg` through the Gen1 Recomp launcher. Do not enable another complete-Johto species mod at the same time.
+Import the `.modpkg` through the launcher. Do not enable another complete-Johto species mod at the same time.
 
 Kanto Ascendant is still growing. Bug reports, feedback and feature wishes are always welcome! 💚
 

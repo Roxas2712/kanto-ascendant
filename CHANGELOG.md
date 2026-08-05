@@ -2,7 +2,7 @@
 
 All notable changes to this project are documented in this file.
 
-## [Unreleased]
+## [6.0.3] - 2026-08-05
 
 ### Added
 
@@ -20,8 +20,9 @@ All notable changes to this project are documented in this file.
   registered by the mod. Before the Driftglass upgrade it remains Kanto-only.
 - The former immediately available Johto submenu is now a gated National Dex
   shortcut with the complete ordinary data pages.
-- Existing saves that already completed the physical Driftglass repair receive
-  the National Dex retroactively; remote onboarding alone does not grant it.
+- Existing 6.0.0-6.0.2 saves whose Johto receiver was already active receive
+  the National Dex automatically. A quest that had only begun keeps the
+  intended Driftglass researcher unlock.
 - Early Johto currents and researched Johto habitats now apply to newly
   generated Wilds of Kanto overworld encounters.
 - Changing the current, scanning a primal trace or toggling the related

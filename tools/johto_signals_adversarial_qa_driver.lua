@@ -32,6 +32,9 @@ return function(game)
   local content = assert(exports.johtoSignalsContent,
     "Signals content export missing")
   local hub = assert(exports.signalsHub, "Signals hub export missing")
+  local dexProgress = assert(exports.dexProgress,
+    "National Dex progress export missing")
+  local PokedexMenu = require("src.ui.PokedexMenu")
   local shotDir = assert(os.getenv("SHOT_DIR"), "SHOT_DIR is required")
   local version = os.getenv("POKEPORT_VERSION") or "red"
   local qaLanguage = os.getenv("QA_LANGUAGE")
@@ -112,6 +115,9 @@ return function(game)
   s.pokedexSteps = 127
   s.palletVisits = 0
   early.persist()
+  local preDriftglassDex = PokedexMenu.new(game)
+  assert(#preDriftglassDex.items == 151,
+    "the ordinary Pokédex exposed Johto before Driftglass")
 
   -- The one real step which reaches the hidden threshold.
   U.teleport(game, "PALLET_TOWN", 10, 12, "left")
@@ -119,17 +125,24 @@ return function(game)
   U.wait(45)
   assert(s.pokedexSteps == 128 and s.capsuleAvailable == true,
     "step 128 did not make the capsule available")
-  assert(U.shot(game, shotDir .. "/01_capsule_offer.png"))
+  assert(U.shot(game, shotDir .. "/01_oak_call.png"))
+  assert(closeText(), "Oak's first call did not close")
+  assert(content.refreshCapsule(game, "PALLET_TOWN"),
+    "Oak's call did not place the physical capsule")
+  assert(U.shot(game, shotDir .. "/02_capsule_on_coast.png"))
 
+  content.interactCapsule(game, nil, { frozen = false })
   local firstChoice = waitForChoice()
   assert(firstChoice.index == 2,
     "capsule prompt must default to NO")
-  assert(U.shot(game, shotDir .. "/02_capsule_default_no.png"))
+  assert(U.shot(game, shotDir .. "/03_capsule_default_no.png"))
   U.tap(game, "a") -- deliberately decline
   U.wait(45)
   assert(s.capsuleFound ~= true,
     "declining the capsule incorrectly completed the quest")
-  assert(U.shot(game, shotDir .. "/03_capsule_declined.png"))
+  assert(s.capsuleTaken ~= true,
+    "declining the capsule incorrectly removed the physical object")
+  assert(U.shot(game, shotDir .. "/04_capsule_declined.png"))
   assert(closeText(), "decline result did not close")
 
   -- Repeated same-map steps must not nag. Leaving and returning must retry.
@@ -142,27 +155,38 @@ return function(game)
   early.onMapEntered({ game = game, map = { id = "ROUTE_1" } })
   U.teleport(game, "PALLET_TOWN", 10, 1, "down")
   early.onMapEntered({ game = game, map = { id = "PALLET_TOWN" } })
+  content.refreshCapsule(game, "PALLET_TOWN")
   U.wait(45)
-  assert(U.shot(game, shotDir .. "/04_capsule_retry_after_map_change.png"))
+  assert(U.shot(game, shotDir .. "/05_capsule_retry_after_map_change.png"))
 
+  content.interactCapsule(game, nil, { frozen = false })
   local retryChoice = waitForChoice()
   assert(retryChoice.index == 2,
     "retried capsule prompt must still default to NO")
   U.tap(game, "up")
-  U.tap(game, "a") -- now accept
+  U.tap(game, "a") -- now take it
+  U.wait(20)
+  local openChoice = waitForChoice()
+  assert(openChoice.index == 1 or openChoice.index == 2,
+    "opening prompt did not expose a valid YES/NO selection")
+  if openChoice.index == 2 then U.tap(game, "up") end
+  U.tap(game, "a") -- and open it now
   U.wait(50)
-  assert(s.capsuleFound == true and s.questStarted == true,
-    "accepting after a decline did not start the quest")
-  assert(U.shot(game, shotDir .. "/05_capsule_accepted_late.png"))
+  assert(s.capsuleTaken == true and s.capsuleOpened == true
+      and s.capsuleFound == true and s.questStarted == true,
+    ("taking/opening failed: taken=%s opened=%s found=%s quest=%s")
+      :format(tostring(s.capsuleTaken), tostring(s.capsuleOpened),
+        tostring(s.capsuleFound), tostring(s.questStarted)))
+  assert(U.shot(game, shotDir .. "/06_capsule_accepted_late.png"))
   assert(closeText(), "accepted capsule text did not close")
   content.refreshTravelNpc(game, "PALLET_TOWN")
   U.wait(30)
-  assert(U.shot(game, shotDir .. "/06_pallet_boatman_after_retry.png"))
+  assert(U.shot(game, shotDir .. "/07_pallet_boatman_after_retry.png"))
 
   -- Boat warning defaults to NO and can be declined without losing travel.
-  content.offerTravel(game, { frozen = false })
+  hub.onBoatman(game, nil, { frozen = false })
   U.wait(45)
-  assert(U.shot(game, shotDir .. "/07_departure_warning.png"))
+  assert(U.shot(game, shotDir .. "/08_departure_warning.png"))
   local travelNo = waitForChoice()
   assert(travelNo.index == 2, "departure prompt must default to NO")
   U.tap(game, "a")
@@ -177,7 +201,7 @@ return function(game)
   U.wait(90)
   assert(game.overworld.map.id == content.MAP_ID,
     "accepting departure did not reach Driftglass")
-  assert(U.shot(game, shotDir .. "/08_driftglass_arrival.png"))
+  assert(U.shot(game, shotDir .. "/09_driftglass_arrival.png"))
 
   local copy = {
     player = {
@@ -209,6 +233,21 @@ return function(game)
   assert(unwindToOverworld(), "researcher repair flow did not unwind")
   assert(s.receiverRepaired == true,
     "researcher did not repair the receiver")
+  assert(dexProgress.hasNationalDex() == true,
+    "researcher repair did not grant the National Dex")
+  game.save.pokedex.seen.CELEBI = true
+  local nationalDex = PokedexMenu.new(game)
+  assert(#nationalDex.items == 251,
+    "the repaired receiver did not expose all 251 National Dex slots")
+  assert(nationalDex.items[251].value == "CELEBI"
+      and nationalDex.items[251].ball == nil,
+    "seen-only Celebi did not reveal its name without an owned marker")
+  nationalDex.index = 251
+  nationalDex.scroll = 244
+  game.stack:push(nationalDex)
+  U.wait(30)
+  assert(U.shot(game, shotDir .. "/10_national_dex_seen_only.png"))
+  game.stack:pop()
 
   -- Wrong direction first, then every trace in a deliberately odd order.
   local ok, why, text = early.scanTrace(game, "ROUTE_3")
