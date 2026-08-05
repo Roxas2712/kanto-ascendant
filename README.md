@@ -370,6 +370,17 @@ after any current choice and holds a formed item safely if the Bag is full.
 Each item is awarded only once; solved riddles remain replayable without
 duplicating it.
 
+The central crystal tablet behind the Prism Reader has a separate optional
+**Johto Move Resonance** function. Select a party member first recorded in
+Kanto to see the Generation-II moves that species could legally carry in
+Pokémon Crystal and that Ascendant currently implements. TM and inherited
+access is available immediately. A genuine level-up move keeps its original
+required level; an under-levelled partner is told the exact level at which to
+return. The tablet never replaces a move. If all four slots are occupied, it
+directs the player to the existing Route 5 Move Deleter, which may also remove
+an HM but always leaves at least one move. After returning to the tablet, every
+newly awakened move is recorded for the existing Route 5 Move Reminder.
+
 The sixth inscription is the repeatable **Twilight Mirror** rite. With Eevee
 in the party, its ten-note sequence raises that Eevee to the existing Johto
 friendship threshold. One later level by day produces Espeon; one by night

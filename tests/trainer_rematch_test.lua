@@ -3,6 +3,13 @@
 package.path = "./?.lua;./?/init.lua;" .. package.path
 local T = require("tests.modkit")
 local Data = T.fixtures.load()
+Data.audio = Data.audio or {}
+Data.audio.songs = Data.audio.songs or {}
+Data.audio.mapSongs = Data.audio.mapSongs or {}
+for _, song in ipairs({ "Music_Cinnabar", "Music_Dungeon1" }) do
+  Data.audio.songs[song] = Data.audio.songs[song]
+    or { address = 0, bank = 0 }
+end
 
 -- The engine's tiny three-species fixture intentionally omits Kanto. Seed the
 -- one native template Gorochu extends so this suite can exercise the complete

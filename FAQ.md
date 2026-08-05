@@ -636,6 +636,21 @@ ten-note rite raises Eevee to the required bond threshold; level it once by
 day for Espeon or by night for Umbreon. **JOHTO TIME** controls day/night.
 Espeon and Umbreon in the party provide extra pillar hints.
 
+The large crystal tablet directly behind the Prism Reader has a separate
+**Johto Move Resonance** option; the six pillars themselves remain puzzle
+controls. Choose an original Kanto Pokémon from the party and the tablet lists
+the compatible Generation-II moves currently implemented by Ascendant.
+Crystal-compatible TM and inherited moves are immediately available. A move
+that was learned only by level remains locked until that Pokémon reaches its
+original Crystal level, and the tablet states the exact required level.
+
+The tablet never replaces a move. With four occupied slots it directs the
+player to the existing Route 5 Move Deleter, which can also remove HMs but
+always leaves the Pokémon with at least one move. Return to the tablet after
+opening a slot. Every move awakened by the tablet is recorded for the existing
+Route 5 Move Reminder. Johto species and Kanto species without a supported
+compatible move are left unchanged.
+
 </details>
 
 <details>

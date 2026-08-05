@@ -28,6 +28,32 @@ werden.
 Folge zurück. Die Belohnung wird genau einmal vergeben. Der Forscher kann
 Rätsel und bereits gelöste Inschriften erneut erklären.
 
+## Test 1b: Johto-Attacken am zentralen Kristall
+
+1. Lade `S25 PRISM GROTTO`.
+2. Sprich zuerst mit dem Forscher. Er muss auf die Kristalltafel hinter sich
+   als Quelle für Johto-Attacken hinweisen.
+3. Sprich die große Kristalltafel hinter dem Forscher an und bestätige die
+   Einstimmung.
+4. Wähle Gengar und lasse es Spukball lernen.
+5. Sprich die Tafel erneut an, wähle das Growlithe auf Level 33 und danach
+   Flammenrad.
+6. Nutze eines der vorbereiteten Sonderbonbons, erhöhe Growlithe auf Level 34
+   und wiederhole den Versuch.
+7. Wähle Parasect, das für diesen Test bereits vier Attacken einschließlich
+   Zerschneider besitzt. Die Tafel muss auf den bestehenden Attacken-Verlerner
+   auf Route 5 verweisen und darf kein eigenes Verlern-Menü öffnen.
+8. Lösche beim Route-5-Verlerner eine beliebige Attacke (optional auch eine
+   VM), kehre zur Tafel zurück und lerne die Kristall-Attacke. Prüfe danach
+   den bestehenden Attacken-Erinnerer.
+
+**PASS:** Gengar kann Spukball sofort lernen. Growlithe wird auf Level 33 als
+zu schwach abgewiesen und ausdrücklich auf Level 34 verwiesen; ab Level 34
+lernt es Flammenrad. Die Tafel verändert bei vier Attacken nichts und verweist
+auf Route 5. Der dortige Verlerner darf auch VMs entfernen, lässt aber immer
+mindestens eine Attacke übrig. Die kristallgelernte Attacke erscheint später
+beim bestehenden Attacken-Erinnerer.
+
 ## Test 2: „JA“ dauerhaft merken
 
 1. Lade `S26 REMEMBER YES`.

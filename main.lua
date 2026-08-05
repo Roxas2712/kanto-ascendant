@@ -659,6 +659,7 @@ return function(mod)
     state = signalsState,
     content = signalsContent,
     i18n = i18n,
+    fieldTech = fieldTech,
   })
   driftglassPrisms.register()
   local makeSignalsHub = loadSibling(mod, "johto_signals_hub.lua")

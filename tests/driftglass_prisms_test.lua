@@ -88,6 +88,7 @@ local content = {
   mapSupported = true,
 }
 local displays, menus = {}, {}
+local partyPickers = {}
 local bagFull = false
 local function showText(_, text, onDone, boxOpts)
   displays[#displays + 1] = {
@@ -110,6 +111,18 @@ local function addItem(game, item)
   inventory[item] = (inventory[item] or 0) + 1
   return true
 end
+local rememberedMoves = {}
+local fieldTech = {
+  recordRememberedMove = function(mon, moveId)
+    rememberedMoves[#rememberedMoves + 1] = moveId
+    mon.rememberedMoves = mon.rememberedMoves or {}
+    mon.rememberedMoves[moveId] = true
+  end,
+}
+local function openParty(_, options)
+  partyPickers[#partyPickers + 1] = options
+  return true
+end
 
 local create = assert(loadfile(root .. "/driftglass_prisms.lua"))()
 local prism = create.create(mod, {
@@ -119,6 +132,8 @@ local prism = create.create(mod, {
   showText = showText,
   openMenu = openMenu,
   addItem = addItem,
+  openParty = openParty,
+  fieldTech = fieldTech,
 })
 local game = {
   save = {
@@ -135,6 +150,27 @@ local game = {
       METAL_COAT = { name = "METAL COAT" },
       DRAGON_SCALE = { name = "DRAGON SCALE" },
       UPGRADE = { name = "UP-GRADE" },
+    },
+    pokemon = {
+      GENGAR = { name = "GENGAR", dex = 94 },
+      GROWLITHE = { name = "GROWLITHE", dex = 58 },
+      CHIKORITA = { name = "CHIKORITA", dex = 152 },
+      MAGIKARP = { name = "MAGIKARP", dex = 129 },
+    },
+    moves = {
+      CRUNCH = { name = "CRUNCH", pp = 15 },
+      METAL_CLAW = { name = "METAL CLAW", pp = 35 },
+      IRON_TAIL = { name = "IRON TAIL", pp = 15 },
+      SHADOW_BALL = { name = "SHADOW BALL", pp = 15 },
+      FLAME_WHEEL = { name = "FLAME WHEEL", pp = 25 },
+      GIGA_DRAIN = { name = "GIGA DRAIN", pp = 10 },
+      SLUDGE_BOMB = { name = "SLUDGE BOMB", pp = 10 },
+      POWDER_SNOW = { name = "POWDER SNOW", pp = 25 },
+      CUT = { name = "CUT", pp = 30 },
+      TACKLE = { name = "TACKLE", pp = 35 },
+      LICK = { name = "LICK", pp = 30 },
+      NIGHT_SHADE = { name = "NIGHT SHADE", pp = 15 },
+      CONFUSE_RAY = { name = "CONFUSE RAY", pp = 10 },
     },
   },
 }
@@ -159,6 +195,12 @@ equal(map.objects[1].sprite, "SPRITE_KA_PRISM_TABLET",
   "the tablet uses its dedicated crystal art")
 equal(map.objects[2].range, "UP",
   "the reader looks toward the crystal tablet")
+local resonanceSpecies = 0
+for _ in pairs(prism.resonanceRules) do
+  resonanceSpecies = resonanceSpecies + 1
+end
+equal(resonanceSpecies, 104,
+  "all Kanto species covered by an implemented Crystal move are indexed")
 local seenSprites = {}
 for _, statue in ipairs(prism.statues) do
   truthy(statue.sprite and statue.sprite:find("SPRITE_KA_PRISM_", 1, true),
@@ -200,9 +242,123 @@ contains(displays[#displays].text, "SUN MOON WAVE",
   "the crystal tablet explains the left-to-right legend")
 contains(displays[#displays].text, "CROWN DRAGON GEAR",
   "the crystal tablet names every visible pillar")
+contains(displays[#displays].text, "Attune a Kanto",
+  "the central tablet offers the separate Kanto move resonance")
+local tabletPrompt = displays[#displays]
+tabletPrompt.options.choice(true)
+truthy(partyPickers[#partyPickers],
+  "accepting move resonance opens a party picker")
+
+local gengar = {
+  species = "GENGAR", level = 40,
+  moves = { { id = "TACKLE", pp = 35 } },
+}
+partyPickers[#partyPickers].onSwitch(gengar)
+equal(menus[#menus].title, "JOHTO MEMORY",
+  "a Kanto partner opens the Johto move list")
+local gengarRows = prism.resonanceMoves(game, gengar)
+local shadowBall
+for _, row in ipairs(gengarRows) do
+  if row.id == "SHADOW_BALL" then shadowBall = row break end
+end
+truthy(shadowBall, "Gengar receives its legal Crystal Shadow Ball access")
+equal(shadowBall.source, "machine",
+  "Gengar's Shadow Ball is identified as immediate TM access")
+equal(shadowBall.locked, false,
+  "TM-based resonance is not incorrectly level-gated")
+truthy(prism.teachResonanceMove(game, gengar, "SHADOW_BALL"),
+  "the crystal teaches an implemented legal Gen-II move")
+equal(gengar.moves[2].id, "SHADOW_BALL",
+  "a free move slot receives the resonant move")
+equal(gengar.rememberedMoves.SHADOW_BALL, true,
+  "a crystal-taught move remains available to the Move Reminder")
+
+local growlithe = {
+  species = "GROWLITHE", level = 33,
+  moves = { { id = "TACKLE", pp = 35 } },
+}
+local growlitheRows = prism.resonanceMoves(game, growlithe)
+local flameWheel
+for _, row in ipairs(growlitheRows) do
+  if row.id == "FLAME_WHEEL" then flameWheel = row break end
+end
+truthy(flameWheel, "Growlithe exposes its original level-up move")
+equal(flameWheel.level, 34,
+  "Growlithe keeps Crystal's Flame Wheel level")
+equal(flameWheel.locked, true,
+  "a genuinely under-levelled partner is visibly locked")
+local learned, reason, required =
+  prism.teachResonanceMove(game, growlithe, "FLAME_WHEEL")
+equal(learned, false, "an under-levelled move cannot be taught early")
+equal(reason, "level", "the refusal identifies the level gate")
+equal(required, 34, "the refusal returns the exact required level")
+prism.openResonanceMoves(game, growlithe)
+local lockedMenu = menus[#menus]
+local lockedFlameWheel
+for _, row in ipairs(lockedMenu.rows) do
+  if row.value.id == "FLAME_WHEEL" then
+    lockedFlameWheel = row
+    break
+  end
+end
+truthy(lockedFlameWheel, "the locked move remains visible in the crystal menu")
+equal(lockedFlameWheel.right, "LV34",
+  "the move list previews the exact return level")
+lockedMenu.options.onChoose(lockedFlameWheel, lockedMenu)
+contains(displays[#displays].text, "Come back at\nLv. 34.",
+  "the in-game refusal tells the player exactly when to return")
+growlithe.level = 34
+truthy(prism.teachResonanceMove(game, growlithe, "FLAME_WHEEL"),
+  "the same move unlocks at the exact original level")
+
+local johtoRows, johtoReason = prism.resonanceMoves(game, {
+  species = "CHIKORITA", level = 20, moves = {},
+})
+equal(#johtoRows, 0, "the Kanto crystal does not rewrite Johto learnsets")
+equal(johtoReason, "not-kanto",
+  "non-Kanto partners receive the dedicated regional refusal")
+local magikarpRows, magikarpReason = prism.resonanceMoves(game, {
+  species = "MAGIKARP", level = 30, moves = {},
+})
+equal(#magikarpRows, 0,
+  "a Kanto species without an implemented resonant move is unchanged")
+equal(magikarpReason, "none",
+  "a legal Kanto non-match is distinct from the regional refusal")
+
+local fullGengar = {
+  species = "GENGAR", level = 50,
+  moves = {
+    { id = "CUT", pp = 30 },
+    { id = "TACKLE", pp = 35 },
+    { id = "LICK", pp = 30 },
+    { id = "NIGHT_SHADE", pp = 15 },
+  },
+}
+local fullLearned, fullReason =
+  prism.teachResonanceMove(game, fullGengar, "SHADOW_BALL")
+equal(fullLearned, false, "the crystal never replaces one of four moves")
+equal(fullReason, "full", "a full moveset receives the dedicated refusal")
+local menuCountBeforeFull = #menus
+prism.openResonanceMoves(game, fullGengar)
+contains(displays[#displays].text, "Route 5\nMOVE DELETER",
+  "a full moveset is directed to the existing Route 5 service")
+equal(#menus, menuCountBeforeFull,
+  "the crystal does not open a duplicate move-deletion menu")
+equal(fullGengar.moves[1].id, "CUT",
+  "the crystal leaves even a removable HM untouched")
+table.remove(fullGengar.moves, 2)
+truthy(prism.teachResonanceMove(game, fullGengar, "SHADOW_BALL"),
+  "the crystal teaches after Route 5 has opened a move slot")
+equal(fullGengar.moves[4].id, "SHADOW_BALL",
+  "the crystal appends its move to the newly free slot")
+equal(rememberedMoves[#rememberedMoves], "SHADOW_BALL",
+  "the crystal-taught move is handed to the existing memory system")
+
 prism.interactReader(game, reader)
 contains(displays[#displays].text, "tablet names",
   "the reader gives a short first-time introduction")
+contains(displays[#displays].text, "awakens Johto",
+  "the reader introduces the tablet's second purpose")
 equal(menus[#menus].title, "PRISM ARCHIVE",
   "the introduction opens the inscription archive")
 equal(#menus[#menus].rows, 6, "all five items and Eevee rite are listed")
@@ -337,6 +493,10 @@ contains(prism.dialogues(game).intro, "sechs Zeichen",
   "the reader introduction is localized")
 contains(prism.dialogues(game).tablet, "KRISTALLTAFEL",
   "the visible tablet is localized")
+contains(prism.dialogues(game).intro, "Johto-\nAttacken",
+  "the reader's move-resonance explanation is localized")
+contains(prism.dialogues(game).tabletResonance, "Kanto-POKéMON",
+  "the tablet's attunement prompt is localized")
 contains(prism.puzzles.twilight.riddle[2], "Nur EVOLI",
   "the German twilight inscription names Eevee")
 contains(prism.modeHint("UNLEASHED"), "frühe Wanderer",

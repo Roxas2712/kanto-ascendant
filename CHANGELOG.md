@@ -16,6 +16,13 @@ All notable changes to this project are documented in this file.
 - Added persistent puzzle progress, non-duplicating rewards, full-Bag
   reservation, mode-aware researcher guidance and safe map fallback when the
   mod is disabled.
+- The central crystal tablet behind the Prism Reader now offers optional
+  **Johto Move Resonance** for 104 original Kanto species. It follows Crystal's
+  legal TM, inherited and level-up access for the Gen-II moves implemented by
+  Ascendant; genuine level-up moves remain locked until their original level.
+  The tablet never replaces moves itself: a full moveset is directed to the
+  existing Route 5 Move Deleter, and every crystal-taught move is recorded for
+  the existing Move Reminder.
 
 ### Fixed
 

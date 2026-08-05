@@ -125,6 +125,7 @@ local function newSystem(language)
       items = registry(),
       maps = registry(),
       map_scripts = registry(),
+      map_songs = registry(),
     },
     save = {
       get = function() return nil end,

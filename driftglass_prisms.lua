@@ -148,6 +148,108 @@ local PUZZLES = {
   },
 }
 
+-- Crystal's legal Generation-II move access for the original 151, narrowed
+-- to moves Kanto Ascendant actually implements.  TM and inherited moves are
+-- available immediately; genuine level-up moves keep their Crystal level.
+-- Species that can carry an inherited move through evolution are included in
+-- the same family so an already-evolved partner is not punished.
+local RESONANCE_MOVE_ORDER = {
+  "CRUNCH", "METAL_CLAW", "IRON_TAIL", "SHADOW_BALL",
+  "FLAME_WHEEL", "GIGA_DRAIN", "SLUDGE_BOMB", "POWDER_SNOW",
+}
+
+local RESONANCE_RULES = {
+  CRUNCH = {
+    inherited = {
+      "EKANS", "ARBOK", "GROWLITHE", "ARCANINE", "RHYHORN", "RHYDON",
+    },
+  },
+  METAL_CLAW = {
+    inherited = { "SANDSHREW", "SANDSLASH" },
+  },
+  IRON_TAIL = {
+    machine = {
+      "AERODACTYL", "ARCANINE", "BLASTOISE", "CHANSEY", "CHARIZARD",
+      "CHARMANDER", "CHARMELEON", "CLEFABLE", "CLEFAIRY", "CUBONE",
+      "DRAGONAIR", "DRAGONITE", "DRATINI", "EEVEE", "ELECTABUZZ",
+      "FARFETCHD", "FLAREON", "GOLDUCK", "GROWLITHE", "JOLTEON",
+      "KANGASKHAN", "LAPRAS", "LICKITUNG", "MAGMAR", "MANKEY",
+      "MAROWAK", "MEOWTH", "MEW", "MEWTWO", "NIDOKING", "NIDOQUEEN",
+      "NIDORAN_F", "NIDORAN_M", "NIDORINA", "NIDORINO", "NINETALES",
+      "ONIX", "PERSIAN", "PIKACHU", "PONYTA", "PORYGON", "PRIMEAPE",
+      "PSYDUCK", "RAICHU", "RAPIDASH", "RATICATE", "RATTATA", "RHYDON",
+      "RHYHORN", "SANDSHREW", "SANDSLASH", "SLOWBRO", "SLOWPOKE",
+      "SQUIRTLE", "TAUROS", "VAPOREON", "VULPIX", "WARTORTLE",
+    },
+  },
+  SHADOW_BALL = {
+    machine = {
+      "ABRA", "ALAKAZAM", "CHANSEY", "CLEFABLE", "CLEFAIRY", "DROWZEE",
+      "EEVEE", "FLAREON", "GASTLY", "GENGAR", "HAUNTER", "HYPNO",
+      "JIGGLYPUFF", "JOLTEON", "JYNX", "KADABRA", "KANGASKHAN",
+      "LICKITUNG", "MEOWTH", "MEW", "MEWTWO", "MR_MIME", "NIDOKING",
+      "NIDOQUEEN", "PERSIAN", "RATICATE", "RATTATA", "SLOWBRO",
+      "SLOWPOKE", "SNORLAX", "VAPOREON", "WIGGLYTUFF",
+    },
+  },
+  FLAME_WHEEL = {
+    inherited = { "RATTATA", "RATICATE", "PONYTA", "RAPIDASH" },
+    level = { ARCANINE = 1, GROWLITHE = 34 },
+  },
+  GIGA_DRAIN = {
+    machine = {
+      "ARBOK", "BEEDRILL", "BELLSPROUT", "BULBASAUR", "BUTTERFREE",
+      "EKANS", "EXEGGCUTE", "EXEGGUTOR", "GASTLY", "GENGAR", "GLOOM",
+      "GOLBAT", "GRIMER", "HAUNTER", "IVYSAUR", "KABUTO", "KABUTOPS",
+      "MEW", "MUK", "ODDISH", "PARAS", "PARASECT", "TANGELA",
+      "TENTACOOL", "TENTACRUEL", "VENOMOTH", "VENONAT", "VENUSAUR",
+      "VICTREEBEL", "VILEPLUME", "WEEPINBELL", "ZUBAT",
+    },
+  },
+  SLUDGE_BOMB = {
+    machine = {
+      "ARBOK", "BEEDRILL", "BELLSPROUT", "DIGLETT", "DUGTRIO", "EKANS",
+      "EXEGGCUTE", "EXEGGUTOR", "GLOOM", "GRIMER", "KOFFING", "MEW",
+      "MUK", "ODDISH", "PARAS", "PARASECT", "TANGELA", "TENTACOOL",
+      "TENTACRUEL", "VENOMOTH", "VENONAT", "VICTREEBEL", "VILEPLUME",
+      "WEEPINBELL", "WEEZING",
+    },
+  },
+  POWDER_SNOW = {
+    level = { ARTICUNO = 1, JYNX = 1 },
+  },
+}
+
+local RESONANCE_BY_SPECIES = {}
+local SOURCE_PRIORITY = { level = 1, inherited = 2, machine = 3 }
+local function addResonanceRule(species, move, source, level)
+  local speciesRules = RESONANCE_BY_SPECIES[species]
+  if not speciesRules then
+    speciesRules = {}
+    RESONANCE_BY_SPECIES[species] = speciesRules
+  end
+  local current = speciesRules[move]
+  if not current
+      or SOURCE_PRIORITY[source] > SOURCE_PRIORITY[current.source] then
+    speciesRules[move] = {
+      move = move,
+      source = source,
+      level = source == "level" and math.max(1, level or 1) or nil,
+    }
+  end
+end
+
+for move, rules in pairs(RESONANCE_RULES) do
+  for _, source in ipairs({ "inherited", "machine" }) do
+    for _, species in ipairs(rules[source] or {}) do
+      addResonanceRule(species, move, source)
+    end
+  end
+  for species, level in pairs(rules.level or {}) do
+    addResonanceRule(species, move, "level", level)
+  end
+end
+
 local function packed(rows)
   local width = #rows[1]
   local blocks = {}
@@ -166,6 +268,7 @@ function Module.create(mod, opts)
   local state = assert(opts.state, "Prism Grotto state missing")
   local content = assert(opts.content, "Driftglass content missing")
   local i18n = opts.i18n
+  local fieldTech = opts.fieldTech
   local tilesets = mod.content.tilesets
   local catalogAware = type(tilesets) == "table"
     and type(tilesets.get) == "function"
@@ -186,6 +289,8 @@ function Module.create(mod, opts)
     puzzles = PUZZLES,
     puzzleOrder = PUZZLE_ORDER,
     statues = STATUES,
+    resonanceMoveOrder = RESONANCE_MOVE_ORDER,
+    resonanceRules = RESONANCE_BY_SPECIES,
   }
 
   local function tr(english, german)
@@ -353,6 +458,86 @@ function Module.create(mod, opts)
     return #hints > 0 and ("\f" .. table.concat(hints, "\f")) or ""
   end
 
+  local function monName(game, mon)
+    local def = game and game.data and game.data.pokemon
+      and mon and game.data.pokemon[mon.species]
+    return mon and (mon.nickname or (def and def.name) or mon.species)
+      or tr("POKéMON", "POKéMON")
+  end
+
+  local function knowsMove(mon, moveId)
+    for _, move in ipairs(mon and mon.moves or {}) do
+      if move.id == moveId then return true end
+    end
+    return false
+  end
+
+  local function moveName(game, moveId)
+    local def = game and game.data and game.data.moves
+      and game.data.moves[moveId]
+    return def and def.name or moveId:gsub("_", " ")
+  end
+
+  function P.resonanceMoves(game, mon)
+    if not mon or mon.isEgg then return {}, "egg" end
+    local def = game and game.data and game.data.pokemon
+      and game.data.pokemon[mon.species]
+    local dex = tonumber(def and def.dex)
+    if not dex or dex < 1 or dex > 151 then return {}, "not-kanto" end
+    local legal = RESONANCE_BY_SPECIES[mon.species]
+    if type(legal) ~= "table" then return {}, "none" end
+
+    local rows, supported, known = {}, 0, 0
+    for _, moveId in ipairs(RESONANCE_MOVE_ORDER) do
+      local rule = legal[moveId]
+      if rule and game.data.moves and game.data.moves[moveId] then
+        supported = supported + 1
+        if knowsMove(mon, moveId) then
+          known = known + 1
+        else
+          rows[#rows + 1] = {
+            id = moveId,
+            source = rule.source,
+            level = rule.level,
+            locked = rule.level ~= nil
+              and (tonumber(mon.level) or 1) < rule.level,
+          }
+        end
+      end
+    end
+    if #rows > 0 then return rows end
+    if supported > 0 and known == supported then return {}, "known" end
+    return {}, "none"
+  end
+
+  local function rememberMove(mon, moveId)
+    if fieldTech and type(fieldTech.recordRememberedMove) == "function" then
+      fieldTech.recordRememberedMove(mon, moveId)
+      return
+    end
+    mon.rememberedMoves = type(mon.rememberedMoves) == "table"
+      and mon.rememberedMoves or {}
+    mon.rememberedMoves[moveId] = true
+  end
+
+  function P.teachResonanceMove(game, mon, moveId)
+    local candidates = P.resonanceMoves(game, mon)
+    local candidate
+    for _, row in ipairs(candidates) do
+      if row.id == moveId then candidate = row break end
+    end
+    if not candidate then return false, "illegal" end
+    if candidate.locked then return false, "level", candidate.level end
+    local move = game.data.moves[moveId]
+    if not move then return false, "missing" end
+
+    mon.moves = type(mon.moves) == "table" and mon.moves or {}
+    if #mon.moves >= 4 then return false, "full" end
+    mon.moves[#mon.moves + 1] = { id = moveId, pp = move.pp or 0 }
+    rememberMove(mon, moveId)
+    return true
+  end
+
   function P.dialogues(game)
     return {
       locked = tr(
@@ -369,12 +554,16 @@ function Module.create(mod, opts)
           .. "In die\nPRISMENGROTTE?"),
       intro = tr(
         "PRISM READER:\nThe tablet names\nthe six signs.\f"
-          .. "Choose an\ninscription.",
+          .. "Choose an\ninscription.\f"
+          .. "Its deeper light\nalso awakens Johto\nmoves in Kanto\nPOKéMON.",
         "PRISMENLESER:\nDie Tafel benennt\ndie sechs Zeichen.\f"
-          .. "Wähle eine\nInschrift."),
+          .. "Wähle eine\nInschrift.\f"
+          .. "Ihr tieferes Licht\nweckt auch Johto-\nAttacken in Kanto-\nPOKéMON."),
       reader = tr(
-        "PRISM READER:\nWhich inscription?",
-        "PRISMENLESER:\nWelche Inschrift?"),
+        "PRISM READER:\nWhich inscription?\f"
+          .. "For moves, touch\nthe tablet\nbehind me.",
+        "PRISMENLESER:\nWelche Inschrift?\f"
+          .. "Für Attacken\nberühre die Tafel\nhinter mir."),
       tablet = tr(
         "CRYSTAL TABLET:\nSix signs guard\nancient gifts.\f"
           .. "From left:\nSUN MOON WAVE\f"
@@ -386,6 +575,11 @@ function Module.create(mod, opts)
           .. "KRONE DRACHE RAD\f"
           .. "Lies eine\nInschrift.\f"
           .. "Berühre danach\ndie Zeichen\nin dieser Folge."),
+      tabletResonance = tr(
+        "\fCrystal seeks a\nKanto memory.\f"
+          .. "Attune a Kanto\nPOKéMON?",
+        "\fDer Kristall sucht\neine Kanto-\nErinnerung.\f"
+          .. "Ein Kanto-POKéMON\neinstimmen?"),
       noActive = tr(
         "The pillar hums.\f"
           .. "At PRISM READER,\nchoose an\ninscription first.",
@@ -403,6 +597,123 @@ function Module.create(mod, opts)
         "PRISM GROTTO\nSIX VOICES\nONE MEMORY",
         "PRISMENGROTTE\nSECHS STIMMEN\nEINE ERINNERUNG"),
     }
+  end
+
+  local function noResonanceText(game, mon, reason)
+    local name = monName(game, mon)
+    if reason == "egg" then
+      return tr(
+        "The crystal cannot\nread an EGG yet.",
+        "Der Kristall kann\nein EI noch nicht\nlesen.")
+    elseif reason == "not-kanto" then
+      return tr(
+        "The crystal stays\nquiet.\f"
+          .. "Only a POKéMON\nfirst recorded in\nKanto will answer.",
+        "Der Kristall bleibt\nstill.\f"
+          .. "Nur ein zuerst in\nKanto erfasstes\nPOKéMON antwortet.")
+    elseif reason == "known" then
+      return tr(
+        name .. " already knows\nevery Johto move\nthis crystal holds.",
+        name .. " kennt bereits\njede Johto-Attacke\ndieses Kristalls.")
+    end
+    return tr(
+      "The crystal finds no\nJohto move for\n" .. name .. ".",
+      "Der Kristall findet\nkeine Johto-Attacke\nfür " .. name .. ".")
+  end
+
+  local function learnedText(game, mon, moveId)
+    return tr(
+      ("%s awakened\n%s!"):format(monName(game, mon),
+        moveName(game, moveId)),
+      ("%s erweckte\n%s!"):format(monName(game, mon),
+        moveName(game, moveId)))
+  end
+
+  local function sourceLabel(candidate)
+    if candidate.source == "machine" then return "TM" end
+    if candidate.source == "inherited" then
+      return tr("EGG", "EI")
+    end
+    return ("LV%d"):format(candidate.level or 1)
+  end
+
+  function P.openResonanceMoves(game, mon, onDone)
+    local candidates, reason = P.resonanceMoves(game, mon)
+    if #candidates == 0 then
+      return show(game, noResonanceText(game, mon, reason), onDone)
+    end
+    if #(mon.moves or {}) >= 4 then
+      return show(game, tr(
+        "Crystal needs an\nopen move slot.\f"
+          .. "Use the Route 5\nMOVE DELETER, then\nreturn here.",
+        "Kristall braucht\neinen freien Platz.\f"
+          .. "Nutze den Attacken-\nVerlerner auf\nRoute 5 und kehre\nzurück."),
+        onDone)
+    end
+    local rows = {}
+    for _, candidate in ipairs(candidates) do
+      rows[#rows + 1] = {
+        label = moveName(game, candidate.id),
+        right = sourceLabel(candidate),
+        value = candidate,
+      }
+    end
+    return openList(game, tr("JOHTO MEMORY", "JOHTO-ERINNERUNG"), rows, {
+      onCancel = onDone,
+      onChoose = function(item, menu)
+        local candidate = item and item.value
+        if not candidate then return end
+        if menu and type(menu.close) == "function" then menu:close() end
+        if candidate.locked then
+          return show(game, tr(
+            ("%s is still too\nweak.\fCome back at\nLv. %d.")
+              :format(monName(game, mon), candidate.level),
+            ("%s ist noch zu\nschwach.\fKomm auf Lv. %d\nzurück.")
+              :format(monName(game, mon), candidate.level)), function()
+            P.openResonanceMoves(game, mon, onDone)
+          end)
+        end
+
+        local function finish()
+          local learned = P.teachResonanceMove(game, mon, candidate.id)
+          if learned then
+            return show(game, learnedText(game, mon, candidate.id), onDone)
+          end
+          return show(game, tr(
+            "The resonance\nfaded. Try again.",
+            "Die Resonanz ist\nverklungen.\nVersuche es erneut."), onDone)
+        end
+
+        return finish()
+      end,
+    })
+  end
+
+  function P.openResonanceParty(game, onDone)
+    local partyOpts = {
+      pickOnly = true,
+      onCancel = onDone,
+      onSwitch = function(mon)
+        P.openResonanceMoves(game, mon, onDone)
+      end,
+    }
+    if type(opts.openParty) == "function" then
+      return opts.openParty(game, partyOpts)
+    end
+    return require("src.ui.Screens").push(game, "PartyMenu", partyOpts)
+  end
+
+  function P.interactTablet(game, onDone)
+    P.game = game or P.game
+    game = game or P.game
+    local dialogue = P.dialogues(game)
+    return show(game, dialogue.tablet .. dialogue.tabletResonance, nil, {
+      defaultNo = true,
+      choice = function(yes)
+        if yes then return P.openResonanceParty(game, onDone) end
+        if onDone then onDone() end
+      end,
+    })
   end
 
   local function puzzleTitle(key)
@@ -795,7 +1106,7 @@ function Module.create(mod, opts)
     mod.content.map_songs:register(Module.MAP_ID, "Music_Dungeon1")
     local talk = {
       [TEXT.TABLET] = function(game, _, _, onDone)
-        return show(game, P.dialogues(game).tablet, onDone)
+        return P.interactTablet(game, onDone)
       end,
       [TEXT.READER] = function(game, _, npc, onDone)
         return P.interactReader(game, npc, onDone)

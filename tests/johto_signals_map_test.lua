@@ -24,13 +24,15 @@ local function registry()
   }
 end
 
-local maps, items, scripts = registry(), registry(), registry()
+local maps, items, scripts, mapSongs =
+  registry(), registry(), registry(), registry()
 local mod = {
   id = "trainer_rematch",
   content = {
     maps = maps,
     items = items,
     map_scripts = scripts,
+    map_songs = mapSongs,
   },
 }
 local state = {

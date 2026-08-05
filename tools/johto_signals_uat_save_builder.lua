@@ -839,7 +839,16 @@ return function(game)
         solved = {},
         pendingRewards = {},
       },
-      action = "Enter the glass seam; test all six Prism inscriptions.",
+      resonanceParty = {
+        { species = "GENGAR", level = 50 },
+        { species = "GROWLITHE", level = 33 },
+      },
+      fullMoveParty = {
+        index = 2,
+        moves = { "CUT", "STUN_SPORE", "LEECH_LIFE", "SPORE" },
+      },
+      inventory = { RARE_CANDY = 5 },
+      action = "Test six inscriptions, level gates and Route 5 move-slot handoff.",
     },
     {
       id = "slot6026",
@@ -885,6 +894,11 @@ return function(game)
   local manifestRows = {}
   for _, spec in ipairs(specs) do
     local save = baseSave(spec)
+    for itemId, count in pairs(spec.inventory or {}) do
+      assert(game.data.items[itemId],
+        "UAT inventory references missing item " .. itemId)
+      save.inventory[itemId] = count
+    end
     if spec.fullBag then fillBag(save) end
     if spec.ownedBoxSpecies then
       addOwnedBoxMon(save, spec.ownedBoxSpecies, 18)
@@ -903,6 +917,29 @@ return function(game)
         save.pokedex.seen[species] = true
         save.pokedex.owned[species] = true
       end
+    end
+    if spec.resonanceParty then
+      for _, row in ipairs(spec.resonanceParty) do
+        assert(#save.party < 6,
+          "Prism resonance UAT party exceeds six Pokémon")
+        local mon = makeMon(save, row.species, row.level)
+        save.party[#save.party + 1] = mon
+        save.pokedex.seen[row.species] = true
+        save.pokedex.owned[row.species] = true
+      end
+    end
+    if spec.fullMoveParty then
+      local row = spec.fullMoveParty
+      local mon = assert(save.party[row.index],
+        "Prism full-moveset UAT party index is missing")
+      mon.moves = {}
+      for _, moveId in ipairs(row.moves) do
+        local move = assert(game.data.moves[moveId],
+          "Prism full-moveset UAT references missing move " .. moveId)
+        mon.moves[#mon.moves + 1] = { id = moveId, pp = move.pp or 0 }
+      end
+      assert(#mon.moves == 4,
+        "Prism full-moveset UAT must seed exactly four moves")
     end
     if spec.lind then
       save.modData[MOD_ID].johto_research = {
