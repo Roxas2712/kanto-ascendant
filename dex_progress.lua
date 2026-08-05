@@ -181,10 +181,35 @@ return function(mod, opts)
           return patch.original(game, menuOpts)
         end
         local originalSize = constants.dexSize
-        constants.dexSize = patch.limit(game)
+        local limit = patch.limit(game)
+        constants.dexSize = limit
         local ok, menu = pcall(patch.original, game, menuOpts)
         constants.dexSize = originalSize
         if not ok then error(menu, 0) end
+        -- The engine's original "SEEN %d  OWNED %d" footer exceeds the
+        -- 18-glyph Game Boy line as soon as either National Dex count reaches
+        -- three digits. ListMenu then wraps it onto row seven. Recompute the
+        -- visible counts and use a deliberately compact localized footer.
+        if type(menu) == "table" then
+          local seen, owned = 0, 0
+          local dex = game and game.save and game.save.pokedex or {}
+          local dexSeen = type(dex.seen) == "table" and dex.seen or {}
+          local dexOwned = type(dex.owned) == "table" and dex.owned or {}
+          for id, def in pairs(game.data.pokemon or {}) do
+            local number = tonumber(def.dex)
+            if number and number >= 1 and number <= limit then
+              if dexOwned[id] then
+                seen, owned = seen + 1, owned + 1
+              elseif dexSeen[id] then
+                seen = seen + 1
+              end
+            end
+          end
+          if seen >= 100 or owned >= 100 then
+            menu.footer = tr(("SEEN %d OWN %d"):format(seen, owned),
+              ("GES.%d GEF.%d"):format(seen, owned))
+          end
+        end
         return menu
       end
     end

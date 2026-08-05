@@ -105,7 +105,7 @@ do
   T.eq(celebiDexKey, "_KantoAscendantJohtoDexCELEBI",
     "Johto Dex entries store a stable Data.text key instead of raw prose")
   T.eq(localizedDexData.text[celebiDexKey],
-    ex.johtoData.species.CELEBI.dexEntry.textEn,
+    ex.johtoAudio.wrapDexText(ex.johtoData.species.CELEBI.dexEntry.textEn),
     "an owned English Celebi entry resolves to its actual description")
   T.eq(ex.johtoAudio.refreshLocalization(localizedDexData, true), 100,
     "all one hundred Johto species refresh after a German save loads")
@@ -114,14 +114,38 @@ do
   T.eq(localizedDexData.pokemon.CELEBI.dexEntry.kind, "ZEITREISE",
     "runtime Johto localization refreshes Celebi's German category")
   T.eq(localizedDexData.text[celebiDexKey],
-    ex.johtoData.species.CELEBI.dexEntry.textDe,
+    ex.johtoAudio.wrapDexText(ex.johtoData.species.CELEBI.dexEntry.textDe),
     "runtime Johto localization exposes Celebi's German Dex prose")
+  for _, id in ipairs(ex.johtoData.order) do
+    local key = localizedDexData.pokemon[id].dexEntry.text
+    local prose = localizedDexData.text[key]
+    local lines = 0
+    for line in (prose .. "\n"):gmatch("(.-)\n") do
+      lines = lines + 1
+      T.eq(ex.johtoAudio.glyphLength(line) <= 18, true,
+        id .. " German Dex prose fits the rendered description column")
+    end
+    T.eq(lines <= 7, true,
+      id .. " German Dex prose fits the rendered page height")
+  end
   T.eq(ex.johtoAudio.refreshLocalization(localizedDexData, false), 100,
     "all one hundred Johto species can switch back to English")
   T.eq(localizedDexData.pokemon.CHIKORITA.name, "CHIKORITA",
     "English Johto species names return without rebuilding content")
   T.eq(localizedDexData.pokemon.CELEBI.dexEntry.kind, "TIME TRAVEL",
     "English Celebi category returns without rebuilding content")
+  for _, id in ipairs(ex.johtoData.order) do
+    local key = localizedDexData.pokemon[id].dexEntry.text
+    local prose = localizedDexData.text[key]
+    local lines = 0
+    for line in (prose .. "\n"):gmatch("(.-)\n") do
+      lines = lines + 1
+      T.eq(ex.johtoAudio.glyphLength(line) <= 18, true,
+        id .. " English Dex prose fits the rendered description column")
+    end
+    T.eq(lines <= 7, true,
+      id .. " English Dex prose fits the rendered page height")
+  end
 
   -- Exercise the same file-backed path Sound.playCry uses. Presence in the
   -- table alone would not catch a missing package asset or stale cache.
@@ -4642,6 +4666,14 @@ T.eq(nationalDex.items[161].value, "NATIONAL_161",
   "a seen Johto species reveals its retained name after the upgrade")
 T.eq(nationalDex.items[161].ball, nil,
   "a seen-only Johto species remains visibly uncaught")
+for number = 1, 102 do
+  seen[("NATIONAL_%03d"):format(number)] = true
+end
+local threeDigitDex = PokedexMenu.new(nationalGame)
+T.eq(threeDigitDex.footer, "SEEN 103 OWN 0",
+  "three-digit National Dex totals stay on one footer line")
+T.eq(threeDigitDex.footer:find("\n", 1, true), nil,
+  "the compact National Dex footer cannot overlap the seventh row")
 owned.NATIONAL_161 = true
 local caughtDex = PokedexMenu.new(nationalGame)
 T.eq(caughtDex.items[161].ball, true,

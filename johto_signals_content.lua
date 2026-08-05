@@ -560,6 +560,10 @@ function Module.create(mod, opts)
     }
     if C.mapSupported then
       mod.content.maps:register(Module.MAP_ID, C.mapRecord)
+      -- A remote research island should not inherit Pallet Town's theme from
+      -- the departure map. Cinnabar supplies the native island atmosphere in
+      -- Red, Blue and Yellow without bundling or replacing anyone's music.
+      mod.content.map_songs:register(Module.MAP_ID, "Music_Cinnabar")
       mod.content.map_scripts:register(Module.MAP_ID, {
         priority = 2600,
         talk = {

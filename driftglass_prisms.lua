@@ -790,6 +790,9 @@ function Module.create(mod, opts)
       },
     }
     mod.content.maps:register(Module.MAP_ID, P.mapRecord)
+    -- The grotto keeps a distinct, ominous cave identity instead of carrying
+    -- the island song through the custom-map transition.
+    mod.content.map_songs:register(Module.MAP_ID, "Music_Dungeon1")
     local talk = {
       [TEXT.TABLET] = function(game, _, _, onDone)
         return show(game, P.dialogues(game).tablet, onDone)

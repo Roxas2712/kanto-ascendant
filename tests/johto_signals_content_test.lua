@@ -47,6 +47,7 @@ local function fakeMod(bucket)
   end
 
   local items, maps, scripts = registry(), registry(), registry()
+  local mapSongs = registry()
   local current = { mapId = "PALLET_TOWN", x = 10, y = 12 }
   local warps = {}
   local liveGame
@@ -68,6 +69,7 @@ local function fakeMod(bucket)
     content = {
       items = items,
       maps = maps,
+      map_songs = mapSongs,
       map_scripts = scripts,
     },
     log = {
@@ -141,6 +143,7 @@ local function fakeMod(bucket)
   return mod, i18n, {
     items = items,
     maps = maps,
+    mapSongs = mapSongs,
     scripts = scripts,
     events = events,
     warps = warps,
@@ -352,6 +355,9 @@ equal(fixture.items.order[2], "RESONANCE_SEAL",
 equal(#fixture.maps.order, 1, "only one map is registered")
 equal(fixture.maps.order[1], "KANTO_ASCENDANT_DRIFTGLASS",
   "the standalone outpost owns its production map id")
+equal(fixture.mapSongs.values.KANTO_ASCENDANT_DRIFTGLASS,
+  "Music_Cinnabar",
+  "the standalone outpost uses the native remote-island theme")
 
 local map = fixture.maps:get(content.MAP_ID)
 equal(map.index, 1900, "the map index is outside the stock map range")

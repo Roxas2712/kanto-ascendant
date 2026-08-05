@@ -54,6 +54,38 @@ return function(mod, legends, johto, i18n)
     dexTextKeys[id] = "_KantoAscendantJohtoDex" .. id
   end
 
+  -- DexEntryMenu draws the supplied line breaks verbatim; unlike an ordinary
+  -- TextBox it does not wrap prose.  Keep every localized line inside the
+  -- 152-pixel description column (18 Game Boy glyphs with a small safety
+  -- margin), otherwise long Johto entries disappear under the right edge.
+  local function glyphLength(text)
+    local count = 0
+    for i = 1, #tostring(text or "") do
+      local byte = tostring(text or ""):byte(i)
+      if byte < 128 or byte >= 192 then count = count + 1 end
+    end
+    return count
+  end
+
+  function audioCompat.wrapDexText(text, width)
+    width = math.max(1, math.floor(tonumber(width) or 18))
+    text = tostring(text or ""):gsub("[\n\v\f]+", " ")
+      :gsub("%s+", " "):match("^%s*(.-)%s*$")
+    local lines, line = {}, ""
+    for word in text:gmatch("%S+") do
+      local candidate = line == "" and word or (line .. " " .. word)
+      if line ~= "" and glyphLength(candidate) > width then
+        lines[#lines + 1], line = line, word
+      else
+        line = candidate
+      end
+    end
+    if line ~= "" then lines[#lines + 1] = line end
+    return table.concat(lines, "\n")
+  end
+
+  audioCompat.glyphLength = glyphLength
+
   -- Johto species are registered before a save slot is loaded. AUTO language
   -- can therefore change afterwards when the matching German translation mod
   -- or a slot-local language choice becomes active. Refresh all visible Dex
@@ -77,8 +109,8 @@ return function(mod, legends, johto, i18n)
         species.dexEntry.kind = german
           and def.dexEntry.kindDe or def.dexEntry.kindEn
         species.dexEntry.text = dexTextKeys[id]
-        data.text[dexTextKeys[id]] = german
-          and def.dexEntry.textDe or def.dexEntry.textEn
+        data.text[dexTextKeys[id]] = audioCompat.wrapDexText(german
+          and def.dexEntry.textDe or def.dexEntry.textEn)
         refreshed = refreshed + 1
       end
     end

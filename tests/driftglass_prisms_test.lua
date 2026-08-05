@@ -53,13 +53,14 @@ local function registry()
   }
 end
 
-local maps, scripts = registry(), registry()
+local maps, scripts, mapSongs = registry(), registry(), registry()
 local events = {}
 local warps = {}
 local mod = {
   id = "trainer_rematch",
   content = {
     maps = maps,
+    map_songs = mapSongs,
     map_scripts = scripts,
   },
   events = {
@@ -145,6 +146,8 @@ equal(#maps.order, 1, "one self-contained grotto map is registered")
 local map = maps:get(prism.MAP_ID)
 equal(map.tileset, "CAVERN", "the grotto uses native cave rendering")
 equal(map.palette, "CAVE", "the grotto requests the shared cave palette")
+equal(mapSongs:get(prism.MAP_ID), "Music_Dungeon1",
+  "the grotto uses its own ominous native cave theme")
 equal(#map.blocks, map.width * map.height,
   "the grotto has a rectangular block layer")
 equal(#map.objects, 8,
