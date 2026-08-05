@@ -2,6 +2,16 @@
 
 All notable changes to this project are documented in this file.
 
+## [6.0.2] - 2026-08-05
+
+### Fixed
+
+- Professor Oak's English and German Johto Signals calls now read the
+  trainer's actual name from the active save instead of displaying the
+  unresolved `[PLAYER]` placeholder.
+- Added regression coverage for the initial call and reminder in Red, Blue
+  and Yellow, including localized dialogue rendering.
+
 ## [6.0.1] - 2026-08-05
 
 ### Changed

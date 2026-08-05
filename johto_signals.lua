@@ -298,6 +298,16 @@ return function(mod, opts)
     return game or J.game
   end
 
+  local function playerName(game)
+    game = activeGame(game)
+    local name = game and game.save and game.save.player
+      and game.save.player.name
+    if type(name) ~= "string" or name == "" then
+      return tr("PLAYER", "SPIELER")
+    end
+    return name
+  end
+
   local function hasStarter(game)
     game = activeGame(game)
     return game and game.save and type(game.save.party) == "table"
@@ -489,24 +499,25 @@ return function(mod, opts)
         .. "Sie bleibt im\nTreibholz liegen.")
   end
 
-  local function oakCallText(reminder)
+  local function oakCallText(game, reminder)
+    local player = playerName(game)
     if reminder then
       return tr(
-        "PROF. OAK:\n[PLAYER]!\f"
+        "PROF. OAK:\n" .. player .. "!\f"
           .. "Have you checked\nPALLET coast yet?\f"
           .. "Look for dark\nglass on shore.",
-        "PROF. EICH:\n[PLAYER]!\f"
+        "PROF. EICH:\n" .. player .. "!\f"
           .. "Hast du schon an\nALABASTIAS Küste\nnachgesehen?\f"
           .. "Suche im Treibholz\nnach dunklem Glas.")
     end
     return tr(
-      "PROF. OAK:\nHello, [PLAYER]!\f"
+      "PROF. OAK:\nHello, " .. player .. "!\f"
         .. "Come back to\nPALLET TOWN when\nyou have time.\f"
         .. "Strange objects\nhave washed ashore\nfor several days.\f"
         .. "One report says it\nshines like dark\nglass.\f"
         .. "Such a find may\nhelp you complete\nthe POKéDEX.\f"
         .. "Take a look along\nthe coast!",
-      "PROF. EICH:\nHallo, [PLAYER]!\f"
+      "PROF. EICH:\nHallo, " .. player .. "!\f"
         .. "Komm bei\nGelegenheit nach\nALABASTIA zurück.\f"
         .. "An der Küste\nwerden seit Tagen\nseltsame Dinge\nangespült.\f"
         .. "Eines davon soll\nwie dunkles Glas\nschimmern.\f"
@@ -519,7 +530,7 @@ return function(mod, opts)
     if s.capsuleTaken or runtime.oakCallPending then return false end
     runtime.oakCallPending = true
     if type(opts.onOakCall) == "function" then
-      opts.onOakCall(activeGame(game), oakCallText(reminder), function()
+      opts.onOakCall(activeGame(game), oakCallText(game, reminder), function()
         runtime.oakCallPending = false
       end)
     else

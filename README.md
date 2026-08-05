@@ -23,6 +23,14 @@ collapsed so players can reveal only the information they want.
 > [GitHub Issues](https://github.com/Roxas2712/kanto-ascendant/issues) and will
 > be considered for future updates.
 
+## What's new in 6.0.2
+
+- Professor Oak and Professor Eich now use the trainer's actual saved name in
+  both Johto Signals calls. The literal `[PLAYER]` placeholder can no longer
+  appear in English or German.
+- The fix is save-compatible with Red, Blue and Yellow and does not reset any
+  Johto Signals, Mythic Signals or existing game progress.
+
 ## What's new in 6.0.1
 
 - Professor Oak now starts the optional Johto Signals field quest after
@@ -303,7 +311,7 @@ and German text. **LANGUAGE** defaults to `AUTO`:
 
 ## Johto Signals
 
-Version 6.0.1 can let Johto begin stirring during the Kanto story without
+Version 6.0.2 can let Johto begin stirring during the Kanto story without
 changing the normal opening by default. After the starter and Pokédex,
 Professor Oak calls within 1–200 eligible steps. That call places a real dark
 capsule on Pallet Town's southern coast. If it remains untouched, Oak gives
@@ -1221,7 +1229,7 @@ missions, Rocket story and one new tournament bracket are completed.
 
 ## Installation
 
-1. Download `kanto-ascendant-6.0.1.modpkg` from the
+1. Download `kanto-ascendant-6.0.2.modpkg` from the
    [latest release](https://github.com/Roxas2712/kanto-ascendant/releases/latest)
    and import it through the launcher. Developers may alternatively install
    the checked-out mod directory.
@@ -1277,7 +1285,7 @@ python3 tools/johto_signals_release_audit.py .
 The map-collision and Mythic battle suites run from the engine checkout with
 `KANTO_SIGNALS_MOD_DIR` and `TRAINER_REMATCH_MOD_DIR` pointed at this mod.
 GitHub CI runs both contracts and repeats the release-boundary audit against
-the exact `kanto-ascendant-6.0.1.modpkg`.
+the exact `kanto-ascendant-6.0.2.modpkg`.
 
 The upgrade matrix includes separate schema-derived Kanto Ascendant 5.3
 fixtures for Red, Blue and Yellow. They pin the public 5.3 package hash and

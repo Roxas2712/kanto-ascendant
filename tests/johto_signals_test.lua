@@ -88,8 +88,9 @@ local HABITATS = {
   },
 }
 
-local function gameFixture(withDex)
+local function gameFixture(withDex, playerName, version)
   return {
+    version = version or "red",
     data = {
       pokemon = {
         CHIKORITA = { name = "CHIKORITA" },
@@ -103,6 +104,7 @@ local function gameFixture(withDex)
       inventory = {},
       party = { { species = "BULBASAUR", level = 5 } },
       pokedex = { seen = {}, owned = {} },
+      player = { name = playerName or "RED" },
     },
     overworld = { map = { id = "PALLET_TOWN" } },
   }
@@ -270,6 +272,10 @@ do
   eq(h.callbacks.oak, 1, "the first Oak call occurs at the target")
   contains(h.callbacks.oakText, "help you complete\nthe POKéDEX",
     "Oak explains how the shore find may help the Pokédex")
+  contains(h.callbacks.oakText, "Hello, RED!",
+    "Oak addresses the trainer by the active save name")
+  notContains(h.callbacks.oakText, "[PLAYER]",
+    "the first Oak call never exposes an unresolved placeholder")
   h.callbacks.finishOakCall()
   eq(h.state.oakCallShown, true, "the first call persists")
   eq(h.state.capsuleAvailable, true, "the shore object is now visible")
@@ -282,10 +288,30 @@ do
   eq(h.callbacks.oak, 2, "exactly one reminder occurs at step 400")
   contains(h.callbacks.oakText, "checked\nPALLET coast",
     "the one reminder points back to Pallet's coast")
+  contains(h.callbacks.oakText, "RED!",
+    "Oak's reminder keeps using the active save name")
+  notContains(h.callbacks.oakText, "[PLAYER]",
+    "the reminder never exposes an unresolved placeholder")
   for _ = 1, 800 do
     h.api.onStep(game, { game = game, mapId = "ROUTE_3" })
   end
   eq(h.callbacks.oak, 2, "no third Oak call is ever scheduled")
+end
+
+do
+  for _, edition in ipairs({ "red", "blue", "yellow" }) do
+    local h = newHarness({
+      language = "de",
+      random = sequence({ 1 }, "min"),
+    })
+    local game = gameFixture(true, "BLAU", edition)
+    h.api.install(game)
+    h.api.onStep(game, { game = game, mapId = "ROUTE_1" })
+    contains(h.callbacks.oakText, "Hallo, BLAU!",
+      edition .. " German Oak call uses the active save name")
+    notContains(h.callbacks.oakText, "[PLAYER]",
+      edition .. " German Oak call has no unresolved placeholder")
+  end
 end
 
 do

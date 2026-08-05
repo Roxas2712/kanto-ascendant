@@ -511,7 +511,7 @@ return function(mod, opts)
     if not marker then
       marker = {
         api = W,
-        version = "6.0.1",
+        version = "6.0.2",
         originalTrySpawn = logic.trySpawn,
         originalStartBattle = logic._startBattle,
         originalDespawn = logic._despawn,
@@ -534,7 +534,7 @@ return function(mod, opts)
         end
       end
       marker.api = W
-      marker.version = "6.0.1"
+      marker.version = "6.0.2"
     end
 
     -- dispatchVersion also upgrades an already-live pre-fix development
