@@ -5,10 +5,11 @@ Yellow and is maintained from the current mod code, release documentation and
 confirmed support reports.
 
 > [!WARNING]
-> **Every FAQ entry may contain gameplay spoilers.** All answers are collapsed
-> by default and every individual dropdown carries its own spoiler warning.
+> **Every gameplay FAQ entry may contain spoilers.** Those answers are collapsed
+> by default and every gameplay dropdown carries its own spoiler warning.
 > Open only the question you want answered. Entries labelled **full spoiler**
-> reveal exact locations, requirements or progression.
+> reveal exact locations, requirements or progression. The support-report status
+> at the end is spoiler-free.
 
 - [Installation and compatibility](#installation-and-compatibility)
 - [Main story, rematches and Kanto 151](#main-story-rematches-and-kanto-151)
@@ -1053,7 +1054,7 @@ proven from a screenshot alone.
 ## Current support-report status
 
 <details>
-<summary><strong>⚠️ SPOILER — Verified reports reviewed on 5 August 2026</strong></summary>
+<summary><strong>Verified reports reviewed on 5 August 2026</strong></summary>
 
 | Report | Status |
 |---|---|
