@@ -216,6 +216,9 @@ name afterwards. Repeat the matrix in Red, Blue and Yellow.
 | 6023 | Celadon, postgame, early-owned Chikorita | Complete Verdant starter trial | Research acknowledges known species and grants compensation, never a duplicate |
 | 6024 | Driftglass, live Signals state and boxed Chikorita | Save on Driftglass; disable mod; load and save; re-enable | Written save resumes at Pallet landing; no unknown-map crash; boxed mon, Dex and counters return |
 | 6025 | Driftglass, repaired receiver and Johto Unleashed | Enter the second glass seam; solve, fail and replay Prism inscriptions | Grotto is reachable; rewards never duplicate; full-Bag rewards wait; Twilight Mirror requires Eevee |
+| 6026 | Pallet, direct-start choice pending | Choose YES; fully quit; continue the same slot | Wanderwaves remains active and the onboarding question does not return |
+| 6027 | Pallet, direct-start choice pending | Choose NO; fully quit; continue the same slot | The field quest remains active and the onboarding question does not return |
+| 6028 | Route 1, complete National Dex test gallery | Browse #152–251 and open representative species pages | Every Johto species uses its authentic Crystal art/data and individual legacy cry |
 | 6090+ | Original source copy with recorded provenance | Load, inspect, save, restart, disable/re-enable | No data loss, false Dex reveal, custom-map trap or reset counter |
 
 For pity rows, first trigger one protected/scripted encounter or activate a

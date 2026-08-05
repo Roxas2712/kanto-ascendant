@@ -841,6 +841,44 @@ return function(game)
       },
       action = "Enter the glass seam; test all six Prism inscriptions.",
     },
+    {
+      id = "slot6026",
+      label = "S26 REMEMBER YES",
+      location = cells.pallet,
+      early = {
+        onboardingComplete = false,
+        startPolicy = "quest",
+      },
+      action = "Accept direct Johto start; quit fully; reload this slot.",
+    },
+    {
+      id = "slot6027",
+      label = "S27 REMEMBER NO",
+      location = cells.pallet,
+      early = {
+        onboardingComplete = false,
+        startPolicy = "quest",
+      },
+      action = "Decline direct Johto start; quit fully; reload this slot.",
+    },
+    {
+      id = "slot6028",
+      label = "S28 JOHTO DEX AUDIO",
+      location = cells.route1,
+      badges = 4,
+      receiver = true,
+      early = repairedState({
+        mode = "UNLEASHED",
+      }),
+      allJohtoDex = true,
+      audioParty = {
+        "CHIKORITA",
+        "TOTODILE",
+        "NATU",
+        "CELEBI",
+      },
+      action = "Browse #152-251; verify authentic sprites, data and distinct cries.",
+    },
   }
 
   local rows = {}
@@ -850,6 +888,21 @@ return function(game)
     if spec.fullBag then fillBag(save) end
     if spec.ownedBoxSpecies then
       addOwnedBoxMon(save, spec.ownedBoxSpecies, 18)
+    end
+    if spec.allJohtoDex then
+      for _, species in ipairs(exports.johtoData.order) do
+        save.pokedex.seen[species] = true
+        save.pokedex.owned[species] = true
+      end
+    end
+    if spec.audioParty then
+      for _, species in ipairs(spec.audioParty) do
+        assert(#save.party < 6, "Johto audio UAT party exceeds six Pokémon")
+        local mon = makeMon(save, species, 30)
+        save.party[#save.party + 1] = mon
+        save.pokedex.seen[species] = true
+        save.pokedex.owned[species] = true
+      end
     end
     if spec.lind then
       save.modData[MOD_ID].johto_research = {
@@ -985,7 +1038,12 @@ return function(game)
   options.modOptions[MOD_ID] = options.modOptions[MOD_ID] or {}
   options.modOptions[MOD_ID].language = "en"
   options.modOptions[MOD_ID].johto_signals_enable = true
-  options.modOptions[MOD_ID].johto_signals_start = "quest"
+  -- The two onboarding persistence checkpoints deliberately need the direct
+  -- start question. Every other generated row is already marked complete and
+  -- therefore remains unaffected by this global option.
+  options.modOptions[MOD_ID].johto_signals_start = "waves"
+  options.modOptions[MOD_ID].dex_sprite_style = "crystal"
+  options.modOptions[MOD_ID].crystal_animation = true
   options.modOptions[MOD_ID].mythic_signals = true
   assert(SaveData.saveOptions(options), "failed saving isolated UAT options")
 
