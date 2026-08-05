@@ -60,21 +60,21 @@ jobs:
           MODKIT_LUAJIT: luajit
         run: |
           python3 tools/modkit.py pack ../kanto-ascendant \
-            -o ../kanto-ascendant-5.4.1.modpkg
-          unzip -t ../kanto-ascendant-5.4.1.modpkg
-          cp ../kanto-ascendant-5.4.1.modpkg \
-            ../kanto-ascendant-5.4.1.zip
+            -o ../kanto-ascendant-5.4.2.modpkg
+          unzip -t ../kanto-ascendant-5.4.2.modpkg
+          cp ../kanto-ascendant-5.4.2.modpkg \
+            ../kanto-ascendant-5.4.2.zip
           (
             cd ..
-            sha256sum kanto-ascendant-5.4.1.modpkg \
-              kanto-ascendant-5.4.1.zip \
-              > SHA256SUMS-5.4.1.txt
+            sha256sum kanto-ascendant-5.4.2.modpkg \
+              kanto-ascendant-5.4.2.zip \
+              > SHA256SUMS-5.4.2.txt
           )
           python3 - <<'PY'
           import json
           import zipfile
 
-          package = "../kanto-ascendant-5.4.1.modpkg"
+          package = "../kanto-ascendant-5.4.2.modpkg"
           forbidden_prefixes = (
               "art_review/",
               "assets/sources/",
@@ -128,9 +128,9 @@ jobs:
                   )
 
               manifest = json.loads(archive.read("manifest.json"))
-              if manifest.get("version") != "5.4.1":
+              if manifest.get("version") != "5.4.2":
                   raise SystemExit(
-                      "Expected manifest version 5.4.1, got "
+                      "Expected manifest version 5.4.2, got "
                       + repr(manifest.get("version"))
                   )
 
@@ -140,9 +140,9 @@ jobs:
       - name: Upload the verified release candidate
         uses: actions/upload-artifact@v4
         with:
-          name: kanto-ascendant-5.4.1-release-candidate
+          name: kanto-ascendant-5.4.2-release-candidate
           if-no-files-found: error
           path: |
-            kanto-ascendant-5.4.1.modpkg
-            kanto-ascendant-5.4.1.zip
-            SHA256SUMS-5.4.1.txt
+            kanto-ascendant-5.4.2.modpkg
+            kanto-ascendant-5.4.2.zip
+            SHA256SUMS-5.4.2.txt

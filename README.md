@@ -23,6 +23,18 @@ collapsed so players can reveal only the information they want.
 > [GitHub Issues](https://github.com/Roxas2712/kanto-ascendant/issues) and will
 > be considered for future updates.
 
+## What's new in 5.4.2
+
+- Missing Master or Crown Leader victories are now committed through a second
+  victory-only path, and affected saves repair their circuit progress safely.
+- Event Archive entries explain that `READY` means unlocked and point to the
+  relevant Cup city or roaming habitat.
+- Lt. Surge/Major Bob repairs a missing permanent Thunderheart before entering
+  his postgame rematch dialogue. Once the item exists, Master and Crown
+  challenges remain reachable even with Gorochu in the party.
+- The public FAQ now consolidates installation, mechanics, locations and
+  current support status behind individually protected spoiler sections.
+
 ## What's new in 5.4.1
 
 - Authored Ascendant boss battles now hand their intended temporary roster to
@@ -1113,7 +1125,7 @@ missions, Rocket story and one new tournament bracket are completed.
 
 ## Installation
 
-1. Download `kanto-ascendant-5.4.1.modpkg` from the
+1. Download `kanto-ascendant-5.4.2.modpkg` from the
    [latest release](https://github.com/Roxas2712/kanto-ascendant/releases/latest)
    and import it through the launcher. Developers may alternatively install
    the checked-out mod directory.

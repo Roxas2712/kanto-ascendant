@@ -2,7 +2,7 @@
 
 All notable changes to this project are documented in this file.
 
-## Unreleased
+## [5.4.2] - 2026-08-05
 
 ### Added
 
@@ -19,9 +19,9 @@ All notable changes to this project are documented in this file.
 - Master and Crown Leader victories are now committed on `battle.ended` as
   well as the battle callback. Existing saves with a missing circuit crest are
   repaired safely from Ascendant's victory-only boss history.
-- Lt. Surge returns to his normal post-game/rematch conversation after the
-  player completes the optional Gorochu evolution instead of repeating the
-  Thunderheart status forever.
+- Lt. Surge/Major Bob now keys his optional hand-off to the permanent
+  Thunderheart itself: a postgame save missing the item receives it first,
+  while an owner immediately reaches the normal Master/Crown rematch chain.
 
 ## [5.4.1] - 2026-08-04
 

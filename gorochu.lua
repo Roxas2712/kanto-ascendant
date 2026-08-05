@@ -558,19 +558,12 @@ return function(mod, opts)
           and game.save.inventory.THUNDERBADGE) then
       return false
     end
-    -- Once the optional Gorochu path is complete, Surge belongs to the
-    -- normal post-game/rematch conversation chain again.  Keeping this
-    -- handler active would permanently replace his battle prompt with the
-    -- Thunderheart status text.
-    local s = state(false)
-    if (s and s.completed) or hasSpecies(game.save, G.id) then
-      return false
-    end
+    -- THUNDERHEART is the durable hand-off marker. If it is missing, always
+    -- offer it first, even on an upgraded postgame save that already records
+    -- Gorochu: this repairs saves whose permanent quest item was lost. Once
+    -- it exists, release Surge to the normal Master/Crown rematch chain.
     if itemOwned(game, HEART) then
-      npc.frozen = true
-      if npc.facePlayer then npc:facePlayer(ow.player) end
-      return showText(game, statusText(game),
-        function() npc.frozen = false end)
+      return false
     end
     return offerHeart(ow, npc, game)
   end

@@ -294,12 +294,32 @@ do
   T.eq(gorochu.state().playerEvolved, true,
     "the player's completed Raichu evolution records trainer permission")
   evolutionGame.save.inventory.THUNDERBADGE = true
+  evolutionGame.save.inventory[gorochu.heartItemId] = nil
+  evolutionGame.save.player = { name = "RED", rival = "BLUE" }
+  local surgeBoxes = {}
+  evolutionGame.stack = {
+    push = function(_, box) surgeBoxes[#surgeBoxes + 1] = box end,
+  }
+  local surgeNpc = {
+    def = { name = "VERMILIONGYM_LT_SURGE" },
+    facePlayer = function() end,
+  }
+  local surgeOw = {
+    map = { id = "VERMILION_GYM" }, player = {},
+  }
+  T.eq(gorochu.handleTalk(surgeOw, surgeNpc, evolutionGame), true,
+    "postgame Gorochu owners with a missing Heart receive the repair offer")
+  T.eq(type(surgeBoxes[#surgeBoxes].choice), "function",
+    "the repaired Surge hand-off still asks before granting THUNDERHEART")
+  surgeBoxes[#surgeBoxes].choice(true)
+  T.eq(evolutionGame.save.inventory[gorochu.heartItemId], 1,
+    "accepting the postgame repair restores exactly one THUNDERHEART")
   T.eq(gorochu.handleTalk({
     map = { id = "VERMILION_GYM" }, player = {},
   }, {
     def = { name = "VERMILIONGYM_LT_SURGE" },
   }, evolutionGame), false,
-    "completed Gorochu owners reach Surge's normal rematch conversation")
+    "THUNDERHEART owners reach Surge's normal Master/Crown conversation")
   for _, edition in ipairs({ "red", "blue", "yellow" }) do
     GameVersion.set(edition)
     local unlockedTeam = ex.postgame.enabledTeam(surgeMaster)
