@@ -238,6 +238,26 @@ return function(mod, opts)
       localized(profile.source),
       tr("STATUS: ", "STATUS: ") .. status,
     }
+    if not s.claimed[profile.id] and profileEnabled(profile)
+        and unlocked(profile, game) and profile.id ~= "distribution_mew" then
+      if eventMode() == "festival" then
+        local cup = data.cups[profile.id]
+        if cup and cup.map then
+          local place = cup.map:gsub("_", " ")
+          pages[#pages + 1] = tr(
+            "READY means unlocked.\nFind the Cup host in\n" .. place .. ".",
+            "BEREIT heißt freigeschaltet.\nFinde den Cup-Gastgeber in\n"
+              .. place .. ".")
+        end
+      elseif eventMode() == "roaming" then
+        local habitat = tostring(profile.habitat or "route"):upper()
+        pages[#pages + 1] = tr(
+          "READY means unlocked.\nSearch suitable " .. habitat
+            .. " habitats.\nThe target can move\nbetween maps.",
+          "BEREIT heißt freigeschaltet.\nSuche passende " .. habitat
+            .. "-Gebiete.\nDas Ziel kann zwischen\nKarten wechseln.")
+      end
+    end
     if origin then pages[#pages + 1] = tr("OBTAINED AT:\n", "ERHALTEN BEI:\n") .. origin end
     return table.concat(pages, "\f")
   end
@@ -776,6 +796,7 @@ return function(mod, opts)
   C.profileEnabled = profileEnabled
   C.unlocked = unlocked
   C.badgeCount = badgeCount
+  C.details = details
   C.give = give
   C.claimPending = claimPending
   C.stampProfile = stampProfile

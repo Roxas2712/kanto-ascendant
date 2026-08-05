@@ -293,6 +293,13 @@ do
     "evolving Gorochu records the guest species as owned")
   T.eq(gorochu.state().playerEvolved, true,
     "the player's completed Raichu evolution records trainer permission")
+  evolutionGame.save.inventory.THUNDERBADGE = true
+  T.eq(gorochu.handleTalk({
+    map = { id = "VERMILION_GYM" }, player = {},
+  }, {
+    def = { name = "VERMILIONGYM_LT_SURGE" },
+  }, evolutionGame), false,
+    "completed Gorochu owners reach Surge's normal rematch conversation")
   for _, edition in ipairs({ "red", "blue", "yellow" }) do
     GameVersion.set(edition)
     local unlockedTeam = ex.postgame.enabledTeam(surgeMaster)
@@ -3292,6 +3299,19 @@ pg.game = game
 local livePostgame = pg.state()
 livePostgame.masterWins.brock = true
 livePostgame.bossRest["master:brock"] = 42
+livePostgame.masterWins.misty = nil
+RealRuntime.emit("battle.ended", {
+  result = "win",
+  battle = { postgameTier = "master", postgameGym = "misty" },
+})
+T.eq(livePostgame.masterWins.misty, true,
+  "battle.ended permanently records a Master clear before onFinish")
+livePostgame.masterWins.surge = nil
+ex.ascendant.state().bossBattles["gym:surge:master"] = 1
+T.eq(pg.repairGymWinsFromHistory(), true,
+  "victory-only boss history repairs a missing Master Circuit clear")
+T.eq(livePostgame.masterWins.surge, true,
+  "the repaired Master Circuit immediately restores the missing crest")
 local masterNpc = {
   def = { trainerClass = "OPP_BROCK" }, frozen = false,
   facePlayer = function() end,
@@ -3936,6 +3956,16 @@ T.eq(eventGame.save.party[1].moves[3].id, "FLY",
   "Flying Pikachu arrives with its event-exclusive move")
 T.eq(heritage.state().claimed.flying_pikachu.origin, "BALLOON CUP",
   "the Event Archive permanently records the prize origin")
+eventGame.save.inventory.BOULDERBADGE = true
+eventGame.save.inventory.CASCADEBADGE = true
+T.eq(heritage.details(eventGame,
+    heritage.profile("university_magikarp"))
+    :find("READY means unlocked", 1, true) ~= nil, true,
+  "an unlocked Event Archive entry explains that READY is not a claim button")
+T.eq(heritage.details(eventGame,
+    heritage.profile("university_magikarp"))
+    :find("CERULEAN CITY", 1, true) ~= nil, true,
+  "festival event details name the city containing the Cup host")
 
 local ascState = asc.state()
 ascState.bossBattles = {}

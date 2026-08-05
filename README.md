@@ -12,6 +12,10 @@ level-100 New Game Plus. The internal
 `trainer_rematch` ID remains unchanged so existing saves and options continue
 to work.
 
+Looking for a specific mechanic, item or location? Open the
+**[complete FAQ and spoiler guide](FAQ.md)**. Every detailed answer is
+collapsed so players can reveal only the information they want.
+
 > [!IMPORTANT]
 > **Development Preview:** Kanto Ascendant is in active development. More
 > features, dialogue and polish will follow. Bug reports, balancing feedback

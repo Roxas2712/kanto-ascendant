@@ -188,6 +188,35 @@ return function(mod, data, opts)
     if s then mod.save:set("postgame", s) end
   end
 
+  local function repairGymWinsFromHistory()
+    local extension = controller.extension
+    if not (extension and type(extension.state) == "function") then
+      return false
+    end
+    local ascendantState = extension.state(false)
+    local history = ascendantState and ascendantState.bossBattles
+    local s = state(false)
+    if type(history) ~= "table" or not s then return false end
+
+    local changed = false
+    for _, gym in ipairs(data.gyms) do
+      local masterKey = "gym:" .. gym.key .. ":master"
+      local crownKey = "gym:" .. gym.key .. ":crown"
+      if not s.masterWins[gym.key]
+          and math.max(0, tonumber(history[masterKey]) or 0) > 0 then
+        s.masterWins[gym.key] = true
+        changed = true
+      end
+      if not s.crownWins[gym.key]
+          and math.max(0, tonumber(history[crownKey]) or 0) > 0 then
+        s.crownWins[gym.key] = true
+        changed = true
+      end
+    end
+    if changed then persist(s) end
+    return changed
+  end
+
   local function allMaster(s)
     return allKeys(s and s.masterWins, data.gyms, "key")
   end
@@ -1348,6 +1377,18 @@ return function(mod, data, opts)
           and controller.game.overworld.map.id)
       removeRoamerObjects(controller.game, battle.postgameRoamer)
     end
+    -- BattleState emits battle.ended before calling a battle's onFinish
+    -- callback.  Record gym clears here as well so another callback wrapper
+    -- cannot lose the permanent Master/Crown result.
+    if ev.result == "win" and battle.postgameGym
+        and (battle.postgameTier == "master"
+          or battle.postgameTier == "crown") then
+      local s = state()
+      local wins = battle.postgameTier == "crown"
+        and s.crownWins or s.masterWins
+      wins[battle.postgameGym] = true
+      persist(s)
+    end
     if ev.result ~= "win" or not battle.postgameTier
         or not ELITE_CLASSES[battle.oppClass] then return end
     local s = state()
@@ -1405,6 +1446,7 @@ return function(mod, data, opts)
 
   mod.events:on("save.loaded", function(ev)
     if ev and ev.save then
+      repairGymWinsFromHistory()
       syncOwned(ev.save)
       if controller.game then
         syncPersistentObjects(controller.game)
@@ -1434,6 +1476,7 @@ return function(mod, data, opts)
 
   mod.events:on("game.ready", function(ev)
     controller.game = ev.game
+    repairGymWinsFromHistory()
     local ow = mod.world:overworld()
     local mapId = ow and ow.map and ow.map.id
     if mapId then applyEliteDialogue(mapId, ev.game) end
@@ -1444,6 +1487,7 @@ return function(mod, data, opts)
   end)
 
   controller.state = state
+  controller.repairGymWinsFromHistory = repairGymWinsFromHistory
   controller.hasHallOfFame = hasHallOfFame
   controller.allMaster = allMaster
   controller.allCrown = allCrown
