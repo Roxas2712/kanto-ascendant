@@ -1,7 +1,7 @@
 # Kanto Ascendant 6.5.0 RC2 – Rücksetzen
 
 Ausgangsstand: `v6.0.5` (`8ed87b962d6d77ee7e07d4d41446a8436e1f56d2`)
-RC-Code: `90d5fc7481b2a44dca351261f28867bad6d97a4c`
+RC-Code: `90d5fc75b15db9680e01e65186541c92daab963d`
 
 ## Mod-Testinstallation
 
