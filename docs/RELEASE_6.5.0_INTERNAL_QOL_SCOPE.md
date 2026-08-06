@@ -100,10 +100,13 @@ Regressionstest. Bei vollem Team wird niemals stillschweigend überschrieben.
 
 ### 7. Eingebaute Komfortverbesserungen
 
-Die für 6.5 priorisierten eigenen QoL-Ergänzungen sind die moderne Tasche-/
-Box-Darstellung und die Fangziel-Abfrage. Weitere Ideen wie Pokédex-/Box-
-Filter und optionale Textgeschwindigkeit bleiben bewusst nachgelagerte
-Arbeitspakete, damit die Hotfix-Schiene nicht durch UI-Großumbauten blockiert.
+Die für 6.5 priorisierten eigenen QoL-Ergänzungen sind jetzt umgesetzt:
+
+- Schutz vor dem Wegwerfen seltener Fortschrittsitems;
+- nicht-destruktive Pokédex- und Box-Filter;
+- optionale Textgeschwindigkeits-Presets mit Vanilla-Engine-Fallback;
+- konfigurierbare Reitsteuerung (SELECT-Fahrrad oder klassischer Beutel);
+- moderne Tasche-/Box-Darstellung und Fangziel-Abfrage.
 
 ## Zusätzliche empfohlene QoL-Ideen
 

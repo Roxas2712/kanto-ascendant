@@ -49,6 +49,14 @@
 local Bag = require("src.inventory.Bag")
 
 local SORT_MODE_LABELS = { "SORT BY NAME", "SORT BY COUNT" }
+local PROTECTED_TOSS_ITEMS = {
+  MASTER_BALL = true, RARE_CANDY = true, PP_UP = true,
+  FIRE_STONE = true, WATER_STONE = true, THUNDER_STONE = true,
+  LEAF_STONE = true, MOON_STONE = true, SUN_STONE = true,
+  SHINY_STONE = true, DUSK_STONE = true, DAWN_STONE = true,
+  OLD_AMBER = true, DOME_FOSSIL = true, HELIX_FOSSIL = true,
+  SECRET_KEY = true, CARD_KEY = true, SILPH_SCOPE = true,
+}
 
 -- ------------------------------------------------ pure layer
 
@@ -686,6 +694,55 @@ return function(mod)
         local list = vanillaNew(game, title, items, opts)
         if PC_LISTS[list.title] then decoratePcList(list, game) end
         return list
+      end
+    end
+
+    -- The native BagMenu owns the USE/TOSS submenu.  Guard rare progression
+    -- items at that boundary so the safety rule also covers the integrated
+    -- bag's pocket projection and PC-originated bag screens.
+    local BagMenu = require("src.ui.BagMenu")
+    if not BagMenu.__ascendantRareTossGuard then
+      BagMenu.__ascendantRareTossGuard = true
+      local vanillaBagNew = BagMenu.new
+      BagMenu.new = function(menuGame, opts)
+        local list = vanillaBagNew(menuGame, opts)
+        local vanillaChoose = list.onChoose
+        list.onChoose = function(item, l)
+          local id = item and item.value
+          menuGame.__ascendantTossItem = id
+          return vanillaChoose(item, l)
+        end
+        return list
+      end
+
+      local Menu = require("src.ui.Menu")
+      if not Menu.__ascendantRareTossGuard then
+        Menu.__ascendantRareTossGuard = true
+        local vanillaMenuNew = Menu.new
+        Menu.new = function(menuGame, items, opts)
+          local Strings = require("src.core.Strings")
+          if type(items) == "table" and items[1] and items[2]
+              and items[1].label == Strings("USE")
+              and items[2].label == Strings("TOSS")
+              and PROTECTED_TOSS_ITEMS[menuGame.__ascendantTossItem] then
+            local patched = {}
+            for i, row in ipairs(items) do
+              patched[i] = row
+              if row.label == Strings("TOSS") then
+                patched[i] = {
+                  label = row.label,
+                  onSelect = function()
+                    menuGame.stack:push(require("src.render.TextBox").new(
+                      menuGame, require("src.core.Strings")(
+                        "That's too impor-\ntant to toss!")))
+                  end,
+                }
+              end
+            end
+            items = patched
+          end
+          return vanillaMenuNew(menuGame, items, opts)
+        end
       end
     end
   end)

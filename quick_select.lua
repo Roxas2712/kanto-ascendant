@@ -318,7 +318,9 @@ return function(mod)
     if not selectDown then
       armed = false
       consumeQueued(input, { "select" })
-      useBagItem(game, "BICYCLE")
+      if mod.options:get("ride_control") ~= "classic" then
+        useBagItem(game, "BICYCLE")
+      end
     end
   end, 500)
 

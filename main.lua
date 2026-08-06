@@ -419,6 +419,38 @@ return function(mod)
         { menuLabel("BOX FIRST", "ZUERST BOX"), "box" },
         { menuLabel("OFF", "AUS"), "off" },
       } },
+    { key = "pokedex_filter",
+      label = menuLabel("POKéDEX FILTER", "POKéDEX-FILTER"),
+      type = "choice", default = "all",
+      choices = {
+        { menuLabel("ALL", "ALLE"), "all" },
+        { menuLabel("SEEN", "GESEHEN"), "seen" },
+        { menuLabel("OWNED", "BESITZT"), "owned" },
+      } },
+    { key = "box_filter",
+      label = menuLabel("BOX FILTER", "BOX-FILTER"),
+      type = "choice", default = "all",
+      choices = {
+        { menuLabel("ALL", "ALLE"), "all" },
+        { menuLabel("KANTO ONLY", "NUR KANTO"), "kanto" },
+        { menuLabel("JOHTO ONLY", "NUR JOHTO"), "johto" },
+      } },
+    { key = "text_speed",
+      label = menuLabel("TEXT SPEED PRESET", "TEXTGESCHWINDIGKEIT"),
+      type = "choice", default = "engine",
+      choices = {
+        { menuLabel("ENGINE OPTION", "ENGINE-EINSTELLUNG"), "engine" },
+        { menuLabel("FAST", "SCHNELL"), "fast" },
+        { menuLabel("NORMAL", "NORMAL"), "normal" },
+        { menuLabel("SLOW", "LANGSAM"), "slow" },
+      } },
+    { key = "ride_control",
+      label = menuLabel("RIDE CONTROL", "REITSTEUERUNG"),
+      type = "choice", default = "select",
+      choices = {
+        { menuLabel("SELECT USES BICYCLE", "SELECT NUTZT FAHRRAD"), "select" },
+        { menuLabel("CLASSIC BAG ONLY", "NUR KLASSISCHER BEUTEL"), "classic" },
+      } },
     { key = "mythic_signals",
       label = menuLabel("MYTHIC SIGNALS", "MYTHOS-SIGNALE"),
       type = "toggle", default = true },
@@ -526,6 +558,10 @@ return function(mod)
     if type(installCatchDestination) == "function" then
       installCatchDestination(mod)
     end
+    local installFilters = loadSibling(mod, "storage_filters.lua")
+    if type(installFilters) == "function" then installFilters(mod) end
+    local installTextSpeed = loadSibling(mod, "text_speed.lua")
+    if type(installTextSpeed) == "function" then installTextSpeed(mod) end
   end)
 
   -- The German translation packs currently ship a misaligned category
