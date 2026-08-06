@@ -5,7 +5,7 @@ The component branch intentionally still lives beside the frozen Starfall
 prototype.  This audit is therefore aimed at either:
 
 * a final Kanto Ascendant 6.0 source/package directory (default), or
-* only the six extracted Signals components (``--component``).
+* only the extracted Signals components (``--component``).
 
 It uses only Python's standard library so the same command can run locally
 and in GitHub CI against a directory, ``.zip`` or ``.modpkg``.
@@ -22,6 +22,7 @@ import zipfile
 
 REQUIRED_COMPONENTS = {
     "driftglass_prisms.lua",
+    "johto_encounter_levels.lua",
     "johto_signals.lua",
     "johto_signals_content.lua",
     "johto_signals_hub.lua",
@@ -199,7 +200,7 @@ def main() -> int:
     parser.add_argument(
         "--component",
         action="store_true",
-        help="audit only the six extracted Signals modules",
+        help="audit only the extracted Signals modules",
     )
     args = parser.parse_args()
 

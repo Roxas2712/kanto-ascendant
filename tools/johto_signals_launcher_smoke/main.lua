@@ -113,6 +113,7 @@ function love.load()
     local prefix = "mods/" .. id .. "/"
     for _, relative in ipairs({
       "manifest.json",
+      "johto_encounter_levels.lua",
       "johto_signals.lua",
       "johto_signals_content.lua",
       "johto_signals_hub.lua",

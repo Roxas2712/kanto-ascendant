@@ -7,6 +7,8 @@
 local modulePath = os.getenv("KANTO_SIGNALS_MOD_DIR") or "."
 local createAdapter =
   assert(loadfile(modulePath .. "/johto_signals_wilds.lua"))()
+local encounterLevels =
+  assert(loadfile(modulePath .. "/johto_encounter_levels.lua"))()
 
 local assertions = 0
 local function check(value, message)
@@ -246,16 +248,21 @@ local function newHarness(config)
     rolls = 0,
   } or nil
   if lind then
-    function lind.rollHabitat(mapId, terrain, rng, fallbackLevel)
+    function lind.rollHabitat(
+        mapId, terrain, rng, fallbackLevel, _, routeAverageLevel)
       lind.rolls = lind.rolls + 1
       lind.last = {
         mapId = mapId,
         terrain = terrain,
         rng = rng,
         fallbackLevel = fallbackLevel,
+        routeAverageLevel = routeAverageLevel,
       }
       if config.lindSpecies then
-        return { species = config.lindSpecies, level = 18 }
+        return {
+          species = config.lindSpecies,
+          level = (routeAverageLevel or fallbackLevel) + 2,
+        }
       end
       return nil
     end
@@ -358,6 +365,7 @@ local function newHarness(config)
     johtoSignals = early,
     mythicSignals = mythic,
     johtoResearch = lind,
+    encounterLevels = encounterLevels,
     random = rng,
   })
 
@@ -546,6 +554,8 @@ do
     "the adapter forwards the live Wilds map")
   eq(h.early.lastCtx.terrain, "grass",
     "the adapter translates Wilds' GRASS surface")
+  eq(h.early.lastCtx.routeAverageLevel, 4,
+    "the adapter forwards the same rounded route average used by 2D")
   eq(h.picker.lastKind, "grass",
     "the native pick uses Wilds' resolved encounter kind")
   eq(h.lind.rolls, 0,
@@ -947,8 +957,10 @@ do
     "Lind receives exactly one chance after an unchanged Early result")
   eq(record.species, "NATU",
     "Lind's researched habitat becomes the visible species")
-  eq(record.level, 18,
-    "Lind's authored habitat level reaches Wilds")
+  eq(h.lind.last.routeAverageLevel, 4,
+    "Lind receives the same rounded Wilds route average")
+  eq(record.level, 6,
+    "Lind's visible Johto level starts at route average plus two")
   eq(record.kaEncounterSource, "johto_research",
     "the Lind result is protected from a second replacement")
   eq(h.logic.lastIncoming.species, "NATU",
@@ -959,7 +971,7 @@ do
     "Mythic can identify and preserve Lind's encounter")
 
   h.logic:_startBattle(record)
-  h.emit("battle.started", { battle = wildBattle("NATU", 18) })
+  h.emit("battle.started", { battle = wildBattle("NATU", 6) })
   eq(h.early.commits, 1,
     "the exact dispatcher calls Early's transactional seam")
   eq(h.early.stateChanges or 0, 0,

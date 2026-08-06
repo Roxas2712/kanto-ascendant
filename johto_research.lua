@@ -10,6 +10,15 @@ return function(mod, opts)
   local daycare = opts.daycare
   local dexProgress = opts.dexProgress
   local enabled = opts.contentEnabled ~= false
+  local encounterLevels = opts.encounterLevels or {
+    routeAverage = function() return nil end,
+    ordinaryLevelFromAverage = function(average, rng, fallback)
+      local base = math.max(1,
+        math.floor(tonumber(average) or tonumber(fallback) or 1))
+      rng = type(rng) == "function" and rng or math.random
+      return math.min(100, base + math.max(2, math.min(5, rng(2, 5))))
+    end,
+  }
   local R = { game = nil, enabled = enabled }
   local activeTrial
   local researchItems = {}
@@ -734,7 +743,8 @@ return function(mod, opts)
 
   -- Shared habitat selector for ordinary random encounters and companion
   -- mods that materialize those encounters directly in the overworld.
-  function R.rollHabitat(mapId, terrain, rng, fallbackLevel, s)
+  function R.rollHabitat(
+      mapId, terrain, rng, fallbackLevel, s, routeAverageLevel)
     if not (enabled and R.game and mapId and terrain
         and postgame.hasHallOfFame(R.game.save)) then return nil end
     rng = type(rng) == "function" and rng or math.random
@@ -746,7 +756,11 @@ return function(mod, opts)
     end
     if rng(1, 100) > chance then return nil end
     local row = candidates[rng(1, #candidates)]
-    return { species = row.species, level = row.level or fallbackLevel }
+    return {
+      species = row.species,
+      level = encounterLevels.ordinaryLevelFromAverage(
+        routeAverageLevel, rng, fallbackLevel),
+    }
   end
 
   -- Once Elm has recorded a base specimen, that family establishes a rare,
@@ -761,8 +775,11 @@ return function(mod, opts)
     -- hook can silently replace a guaranteed trace encounter or consume the
     -- wrong pity transaction.
     if out.kaProtected or out.kaEncounterSource then return out end
+    local routeAverageLevel =
+      encounterLevels.routeAverage(encDef, ctx.terrain)
     return R.rollHabitat(
-      ctx.mapId, ctx.terrain, ctx.rng, out.level, state(false)) or out
+      ctx.mapId, ctx.terrain, ctx.rng, out.level, state(false),
+      routeAverageLevel) or out
   end, -20)
 
   mod.events:on("world.stepped", function()
@@ -810,6 +827,7 @@ return function(mod, opts)
   end
   R.itemUnlocked = itemUnlocked
   R.habitatCandidates = habitatCandidates
+  R.encounterLevels = encounterLevels
   R.habitatFor = function(species)
     return data.habitats and data.habitats[species] or nil
   end

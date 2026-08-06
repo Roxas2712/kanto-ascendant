@@ -20,6 +20,15 @@ return function(mod, opts)
   local johto = opts.johtoData or content.johtoData or content.johto
     or (content.habitats and content) or {}
   local stepRandom = opts.random or math.random
+  local encounterLevels = opts.encounterLevels or {
+    routeAverage = function() return nil end,
+    ordinaryLevelFromAverage = function(average, rng, fallback)
+      local base = math.max(1,
+        math.floor(tonumber(average) or tonumber(fallback) or 1))
+      rng = type(rng) == "function" and rng or math.random
+      return math.min(100, base + math.max(2, math.min(5, rng(2, 5))))
+    end,
+  }
 
   local J = {
     game = nil,
@@ -1045,12 +1054,12 @@ return function(mod, opts)
     return pool
   end
 
-  local function cloneEncounter(native, species)
+  local function cloneEncounter(native, species, level)
     local out = {}
     for key, value in pairs(native) do out[key] = value end
     local habitat = habitatFor(species)
     out.species = species
-    out.level = habitat and habitat.level or native.level
+    out.level = level or (habitat and habitat.level) or native.level
     -- Mythic Signals and any later outer encounter hook must preserve a
     -- committed 256th/512th primal-trace result.
     out.kaProtected = true
@@ -1111,7 +1120,9 @@ return function(mod, opts)
       if #candidates > 0 and chance > 0
           and ctx.rng(1, 100) <= chance then
         local species = candidates[ctx.rng(1, #candidates)]
-        result = cloneEncounter(native, species)
+        local level = encounterLevels.ordinaryLevelFromAverage(
+          ctx.routeAverageLevel, ctx.rng, native.level)
+        result = cloneEncounter(native, species, level)
       end
     end
 
@@ -1335,7 +1346,12 @@ return function(mod, opts)
   if mod.hooks and type(mod.hooks.wrap) == "function" then
     mod.hooks:wrap("encounter.roll", function(nextRoll, encDef, ctx)
       local native = nextRoll(encDef, ctx)
-      return J.rollReplacement(native, ctx)
+      if not native then return native end
+      local context = {}
+      for key, value in pairs(ctx or {}) do context[key] = value end
+      context.routeAverageLevel =
+        encounterLevels.routeAverage(encDef, context.terrain)
+      return J.rollReplacement(native, context)
     end, J.ENCOUNTER_PRIORITY)
   end
 
@@ -1370,6 +1386,7 @@ return function(mod, opts)
   J.special = SPECIAL
   J.excluded = EXCLUDED
   J.ordinaryAllowed = ORDINARY_ALLOWED
+  J.encounterLevels = encounterLevels
   J.ordinaryCandidates = ordinaryCandidates
   J.rareCandidates = rareCandidates
   J.resolveCandidate = resolveCandidate

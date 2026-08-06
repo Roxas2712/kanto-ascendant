@@ -6,6 +6,8 @@
 
 local modulePath = os.getenv("KANTO_SIGNALS_MOD_DIR") or "."
 local createSignals = assert(loadfile(modulePath .. "/johto_signals.lua"))()
+local encounterLevels =
+  assert(loadfile(modulePath .. "/johto_encounter_levels.lua"))()
 
 local assertions = 0
 local function check(value, message)
@@ -166,6 +168,7 @@ local function newHarness(config)
       },
     },
     i18n = i18n,
+    encounterLevels = encounterLevels,
     startPolicy = config.startPolicy,
     random = config.random or sequence({}, "max"),
     onOakCall = function(game, text, done)
@@ -604,11 +607,13 @@ do
   local native = { species = "RATTATA", level = 3, nativeTag = "kept" }
   local hit = h.api.rollReplacement(native, {
     mapId = "ROUTE_1", terrain = "grass",
-    rng = sequence({ 2, 1 }, "max"),
+    routeAverageLevel = 3,
+    rng = sequence({ 2, 1, 2 }, "max"),
   })
   eq(hit.species, "SENTRET",
     "normal Wanderwaves include a roll of exactly 2 in 100")
-  eq(hit.level, 12, "the replacement uses its authored habitat level")
+  eq(hit.level, 5,
+    "an ordinary replacement can be route average plus two")
   eq(hit.nativeTag, "kept",
     "replacement preserves unrelated native encounter metadata")
   eq(hit.kaProtected, true,
@@ -631,7 +636,8 @@ do
   local native = { species = "RATTATA", level = 3 }
   local hit = h.api.rollReplacement(native, {
     mapId = "ROUTE_1", terrain = "grass",
-    rng = sequence({ 4, 1 }, "max"),
+    routeAverageLevel = 3,
+    rng = sequence({ 4, 1, 5 }, "max"),
   })
   eq(hit.species, "SENTRET",
     "a strong Wanderwave includes a roll of exactly 4 in 100")
@@ -659,10 +665,13 @@ do
   local native = { species = "RATTATA", level = 3 }
   local hit = h.api.rollReplacement(native, {
     mapId = "ROUTE_1", terrain = "grass",
-    rng = sequence({ 10, 1 }, "max"),
+    routeAverageLevel = 3,
+    rng = sequence({ 10, 1, 5 }, "max"),
   })
   eq(hit.species, "SENTRET",
     "Unleashed includes a roll of exactly 10 in 100")
+  eq(hit.level, 8,
+    "Unleashed never exceeds route average plus five")
   local miss = h.api.rollReplacement(native, {
     mapId = "ROUTE_1", terrain = "grass",
     rng = sequence({ 11 }, "max"),
@@ -741,6 +750,32 @@ do
   })
   eq(h.state.rarePity.CYNDAQUIL, 0,
     "the real matching wild battle commits the 256 guarantee")
+end
+
+do
+  local h = activeWaveHarness(false)
+  local native = { species = "RATTATA", level = 2 }
+  local routeOne = {
+    grass = {
+      slots = {
+        { level = 3 }, { level = 3 }, { level = 3 }, { level = 2 },
+        { level = 2 }, { level = 3 }, { level = 3 }, { level = 4 },
+        { level = 4 }, { level = 5 },
+      },
+    },
+  }
+  local out = h.hooks["encounter.roll"].fn(
+    function() return native end,
+    routeOne,
+    {
+      mapId = "ROUTE_1",
+      terrain = "grass",
+      rng = sequence({ 2, 1, 5 }, "max"),
+    })
+  eq(out.species, "SENTRET",
+    "the registered encounter hook still performs the ordinary replacement")
+  eq(out.level, 8,
+    "the hook derives Route 1's weighted average and applies its +5 ceiling")
 end
 
 do

@@ -352,6 +352,10 @@ Repair the Migration Receiver at Driftglass, then choose:
 Only suitable base species are introduced. Legendary and Mythical Pokémon are
 never part of the Johto migration pool.
 
+Ordinary Johto encounters use the current route's weighted average level plus
+a random 2-5 levels. Explicitly authored primal-trace encounters keep their
+intended story level.
+
 The current can be changed later under
 **ASCENDANT → WORLD → JOHTO SIGNALS**. Choosing Kanto First does not disable
 the independent Mythic Signals system.
@@ -1298,6 +1302,7 @@ proven from a screenshot alone.
 | Red Gyarados appears with normal colours | **Fixed in 6.0.4.** Guaranteed and bonus-roll shinies now receive their shiny state before Crystal, Voxel or another battle-art wrapper selects the visible sprite. |
 | Crystal is selected but Pokémon → STATS still shows old art | **Fixed in 6.0.4.** The party status portrait now follows the independent DEX SPRITES selector in Red, Blue and Yellow. |
 | Johto Signals start question returns or appears over an existing repaired save | **Fixed in 6.0.4.** YES/NO is saved immediately and the question is deferred until the selected slot has fully loaded. |
+| Early-route Johto Pokémon appear around level 12-15 beside level 2-6 Kanto encounters | **Fix prepared for the next patch.** Ordinary Johto encounters use the rounded, weighted route average plus 2-5 levels in classic 2D and Wilds; authored primal encounters keep their story levels. |
 | Story Sabrina's Alakazam did not Mega Evolve | **Expected.** Enemy Mega defaults to post-game Ascendant bosses. |
 | Mankey/Nidoran location confusion | **Documented above.** Active KANTO 151 adds Mankey to Route 5 in every edition; native Route 22 remains edition-specific. |
 | Stale trainer_rematch install on a handheld PC | **Launcher/filesystem support, not a gameplay defect.** Recovery steps are documented above. |

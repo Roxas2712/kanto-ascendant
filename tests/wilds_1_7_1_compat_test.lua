@@ -6,6 +6,8 @@
 
 local modulePath = os.getenv("KANTO_SIGNALS_MOD_DIR") or "."
 local createCompat = assert(loadfile(modulePath .. "/wilds_compat.lua"))()
+local encounterLevels =
+  assert(loadfile(modulePath .. "/johto_encounter_levels.lua"))()
 
 local assertions = 0
 local function check(value, message)
@@ -62,17 +64,21 @@ function spriteAssets.follower(species, shiny)
 end
 
 local research = { rolls = 0 }
-function research.rollHabitat(mapId, terrain)
+function research.rollHabitat(
+    mapId, terrain, _, _, _, routeAverageLevel)
   research.rolls = research.rolls + 1
   eq(mapId, "ROUTE_1", "the live Wilds map reaches Ascendant")
   eq(terrain, "grass", "the Wilds surface becomes grass terrain")
-  return { species = "SENTRET", level = 12 }
+  eq(routeAverageLevel, 3,
+    "the compatibility bridge forwards the rounded route average")
+  return { species = "SENTRET", level = routeAverageLevel + 5 }
 end
 
 local compat = createCompat(mod, {
   johtoResearch = research,
   data = data,
   spriteAssets = spriteAssets,
+  encounterLevels = encounterLevels,
 })
 eq(compat.registeredSprites, 2,
   "all fixture Johto walker sheets register during load")
@@ -147,7 +153,19 @@ local wilds = {
 }
 
 local game = {
-  data = { sprites = registered },
+  data = {
+    sprites = registered,
+    encounters = {
+      ROUTE_1 = {
+        grass = {
+          slots = {
+            { species = "PIDGEY", level = 2 },
+            { species = "RATTATA", level = 4 },
+          },
+        },
+      },
+    },
+  },
   mods = { exports = { overworld_wild_spawns = wilds } },
 }
 eq(compat.install(game, { random = function(lo) return lo end }), true,
@@ -180,8 +198,8 @@ eq(kantoDef.id, "POKEPC_PIKACHU",
 local record = logic:trySpawn(game, {})
 eq(record.species, "SENTRET",
   "enabled integration turns a Wilds Route 1 spawn into Sentret")
-eq(record.level, 12,
-  "the visible Johto spawn keeps its authored habitat level")
+eq(record.level, 8,
+  "the visible Johto spawn never exceeds route average plus five")
 eq(research.rolls, 1,
   "one visible spawn performs one research roll")
 

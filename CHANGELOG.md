@@ -4,6 +4,14 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+
+- Ordinary Johto wild replacements now scale to the rounded, Gen-I-weighted
+  average level of their current route plus a random 2-5 levels. This applies
+  identically to classic encounters, Wilds of Kanto and permanent researched
+  habitats; explicitly authored primal/story encounters retain their intended
+  levels.
+
 ## [6.0.4] - 2026-08-06
 
 ### Added

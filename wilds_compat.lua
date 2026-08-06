@@ -11,6 +11,10 @@ return function(mod, opts)
     "Wilds compatibility needs Johto research")
   local data = opts.data or {}
   local spriteAssets = opts.spriteAssets
+  local encounterLevels = opts.encounterLevels
+    or johtoResearch.encounterLevels or {
+      routeAverage = function() return nil end,
+    }
   local W = {
     game = nil, logic = nil, installed = false,
     spriteIds = {}, shinySpriteIds = {}, registeredSprites = 0,
@@ -243,8 +247,14 @@ return function(mod, opts)
         local mapId = ow and ow.map and ow.map.id or self.activeMapId
         local surface = self.surfaceInfo and self.surfaceInfo.surface
         local terrain = terrainForSurface(surface)
+        local encounterKind = terrain == "water" and "water" or "grass"
+        local encDef = spawnGame and spawnGame.data
+          and spawnGame.data.encounters
+          and spawnGame.data.encounters[mapId]
+        local routeAverageLevel =
+          encounterLevels.routeAverage(encDef, encounterKind)
         selected = johtoResearch.rollHabitat(
-          mapId, terrain, random, nil, nil)
+          mapId, terrain, random, nil, nil, routeAverageLevel)
       end
 
       if selected then

@@ -603,6 +603,8 @@ return function(mod)
     megaEvolution.setYellowPartner(yellowPartner)
   end
   mod.exports.yellowPartner = yellowPartner
+  local johtoEncounterLevels =
+    loadSibling(mod, "johto_encounter_levels.lua")
   local makeJohtoResearch = loadSibling(mod, "johto_research.lua")
   local johtoResearch = makeJohtoResearch(mod, {
     data = johtoData,
@@ -610,6 +612,7 @@ return function(mod)
     i18n = i18n,
     contentEnabled = contentEnabled,
     daycare = daycare,
+    encounterLevels = johtoEncounterLevels,
   })
   shinySystem.setJohtoResearch(johtoResearch)
   recruitment.configureJohto(johtoData.order, function(species)
@@ -633,6 +636,7 @@ return function(mod)
     content = signalsContent,
     johtoData = johtoData,
     i18n = i18n,
+    encounterLevels = johtoEncounterLevels,
     onOakCall = function(game, text, onDone)
       if signalsHub then
         return signalsHub.showOakCall(game, text, onDone)
@@ -676,6 +680,7 @@ return function(mod)
     johtoSignals = johtoSignals,
     mythicSignals = mythicSignals,
     johtoResearch = johtoResearch,
+    encounterLevels = johtoEncounterLevels,
   })
   mod.exports.johtoSignalsState = signalsState
   mod.exports.johtoSignalsContent = signalsContent
@@ -692,6 +697,7 @@ return function(mod)
     crystalNames = CRYSTAL_ASSETS,
     spriteAssets = spriteAssets,
     contentEnabled = contentEnabled,
+    encounterLevels = johtoEncounterLevels,
   })
   mod.exports.wildsCompat = wildsCompat
   local ascendantData = loadSibling(mod, "ascendant_data.lua")

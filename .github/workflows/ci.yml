@@ -57,6 +57,7 @@ jobs:
       - name: Run the Johto Signals regression suite
         working-directory: kanto-ascendant
         run: |
+          luajit tests/johto_encounter_levels_test.lua
           luajit tests/johto_signals_test.lua
           luajit tests/johto_signals_content_test.lua
           luajit tests/johto_signals_hub_test.lua
@@ -132,6 +133,7 @@ jobs:
               "assets/voxel/gorochu/gorochu_front_shiny.png",
               "gorochu_visuals.lua",
               "driftglass_prisms.lua",
+              "johto_encounter_levels.lua",
               "johto_signals.lua",
               "johto_signals_content.lua",
               "johto_signals_hub.lua",

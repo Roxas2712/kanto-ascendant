@@ -16,6 +16,9 @@ return function(mod, opts)
   local mythic = assert(opts.mythicSignals,
     "Johto Signals Wilds adapter needs Mythic Signals")
   local lind = opts.johtoResearch
+  local encounterLevels = opts.encounterLevels or early.encounterLevels or {
+    routeAverage = function() return nil end,
+  }
 
   local W = {
     game = nil,
@@ -163,6 +166,8 @@ return function(mod, opts)
       mapId = mapId,
       terrain = terrain,
       encounterKind = encounterKind,
+      routeAverageLevel =
+        encounterLevels.routeAverage(encDef, encounterKind),
       rng = rng,
       kaVisibleWild = true,
     }
@@ -174,7 +179,8 @@ return function(mod, opts)
       return out
     end
     local selected = lind.rollHabitat(
-      ctx.mapId, ctx.terrain, rng, out.level, nil)
+      ctx.mapId, ctx.terrain, rng, out.level, nil,
+      ctx.routeAverageLevel)
     if type(selected) ~= "table" or not selected.species then return out end
     return protectedCopy(out, selected, "johto_research")
   end
