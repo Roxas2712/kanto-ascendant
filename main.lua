@@ -361,6 +361,29 @@ return function(mod)
     { key = "crystal_animation",
       label = menuLabel("CRYSTAL ANIMATION", "KRISTALL-ANIMATION"),
       type = "toggle", default = true },
+    { key = "pokemon_sprite_style",
+      label = menuLabel("POKéMON SPRITE STYLE", "POKéMON-SPRITESTIL"),
+      type = "choice", default = "legacy",
+      choices = {
+        { menuLabel("AUTO (COMPATIBLE)", "AUTO (KOMPATIBEL)"), "legacy" },
+        { menuLabel("GAME-ORIGINAL", "SPIEL-ORIGINAL"), "original" },
+        { "CRYSTAL", "crystal" },
+      } },
+    { key = "sprite_style_battle",
+      label = menuLabel("SPRITES IN BATTLE", "SPRITES IM KAMPF"),
+      type = "toggle", default = true },
+    { key = "sprite_style_summary",
+      label = menuLabel("SPRITES IN PARTY/STATUS", "SPRITES IN TEAM/STATUS"),
+      type = "toggle", default = true },
+    { key = "sprite_style_dex",
+      label = menuLabel("SPRITES IN POKéDEX", "SPRITES IM POKéDEX"),
+      type = "toggle", default = true },
+    { key = "sprite_style_box",
+      label = menuLabel("SPRITES IN BOXES", "SPRITES IN BOXEN"),
+      type = "toggle", default = true },
+    { key = "sprite_style_scenes",
+      label = menuLabel("SPRITES IN OTHER SCENES", "SPRITES IN SZENEN"),
+      type = "toggle", default = true },
     { key = "shiny_hunts", label = menuLabel("SHINY HUNTS", "SHINY-JAGD"),
       type = "choice", default = "ascendant",
       choices = {
@@ -886,38 +909,6 @@ return function(mod)
       and ctx.data.pokemon[ctx.species]
     local dex = def and tonumber(def.dex)
 
-    -- Pokédex and summary presentation share the player's static artwork
-    -- choice. The party detail screen is a catalogue-style view, not a live
-    -- battle, and must not fall back to the active ROM's old front after the
-    -- player selected CRYSTAL. Johto has no native R/B/Y art, so #152-251
-    -- always uses its bundled species-authentic Crystal frame instead of the
-    -- old Kanto silhouette fallback.
-    if ctx.kind == "dex" or ctx.kind == "summary" then
-      local externalOverride = type(path) == "string" and path ~= ""
-        and path ~= requestedPath
-      if externalOverride or (crystalAnimation and dex and dex <= 151
-          and crystalAnimation.externalKantoActive(dex)) then
-        return path
-      end
-      if dex and dex >= 152 and dex <= 251 and crystalAnimation then
-        local static = crystalAnimation.staticFrameOne(ctx, "front", "normal")
-        if static then
-          ctx.trueColor = true
-          return static
-        end
-      end
-      if dex and dex >= 1 and dex <= 151
-          and mod.options:get("dex_sprite_style") == "crystal"
-          and crystalAnimation then
-        local static = crystalAnimation.staticFrameOne(ctx, "front", "normal")
-        if static then
-          ctx.trueColor = true
-          return static
-        end
-      end
-      return path or requestedPath
-    end
-
     local name = ctx and CRYSTAL_ASSETS[ctx.species]
     local selectedSide = ctx.side == "back" and "back" or "front"
     -- Dramatic Shape asks the normal back-sprite route, then replaces its
@@ -940,6 +931,96 @@ return function(mod)
       end
       return shinySystem and shinySystem.spritePath(path, ctx) or path
     end
+
+    -- The 6.5 Sprite tree is the single owner for every ordinary #001-251
+    -- presentation surface. The selected style can be enabled independently
+    -- for battle, party/status, Pokédex, boxes and all remaining scenes.
+    -- External visual mods still win above this wrapper.
+    local scopeKey = ({
+      battle = "sprite_style_battle",
+      summary = "sprite_style_summary",
+      dex = "sprite_style_dex",
+      box = "sprite_style_box",
+    })[ctx.kind] or "sprite_style_scenes"
+    local selectedStyle = mod.options:get("pokemon_sprite_style")
+    local selectedForSurface = mod.options:get(scopeKey) ~= false
+    if selectedStyle == "legacy"
+        and (ctx.kind == "dex" or ctx.kind == "summary") then
+      if crystalAnimation and dex and dex <= 151
+          and crystalAnimation.externalKantoActive(dex) then
+        return path
+      end
+      if dex and dex >= 152 and dex <= 251 and crystalAnimation then
+        local static = crystalAnimation.staticFrameOne(
+          ctx, "front", "normal")
+        if static then
+          ctx.trueColor = true
+          return static
+        end
+      end
+      if dex and dex >= 1 and dex <= 151
+          and mod.options:get("dex_sprite_style") == "crystal"
+          and crystalAnimation then
+        local static = crystalAnimation.staticFrameOne(
+          ctx, "front", "normal")
+        if static then
+          ctx.trueColor = true
+          return static
+        end
+      end
+      return path or requestedPath
+    end
+    if selectedStyle ~= "legacy"
+        and dex and dex >= 1 and dex <= 251 then
+      if crystalAnimation and dex <= 151
+          and crystalAnimation.externalKantoActive(dex) then
+        return shinySystem and shinySystem.spritePath(path, ctx) or path
+      end
+      if selectedStyle ~= "crystal" or not selectedForSurface then
+        if crystalAnimation then
+          crystalAnimation.select(ctx, selectedSide, true)
+        end
+        return shinySystem and shinySystem.spritePath(path, ctx) or path
+      end
+
+      local shiny = shinySystem and shinySystem.isShiny(ctx.mon)
+      local variant = shiny and "shiny" or "normal"
+      local animated = crystalAnimation
+        and crystalAnimation.select(ctx, selectedSide, false)
+      if animated then
+        ctx.trueColor = true
+        return animated
+      end
+
+      local static = crystalAnimation
+        and crystalAnimation.staticFrameOne(ctx, selectedSide, variant)
+      if static then
+        ctx.trueColor = true
+        return static
+      end
+
+      local relative
+      if selectedSide == "back" and dex <= 151
+          and kantoCrystalBacks.normal[dex] then
+        relative = ("assets/crystal/kanto/%03d_back%s.png"):format(
+          dex, shiny and kantoCrystalBacks.shiny[dex] and "_shiny" or "")
+      elseif selectedSide == "back" and name
+          and crystalAvailable[ctx.species] then
+        relative = "assets/crystal/" .. name .. "_back"
+          .. (shiny and crystalShinyAvailable[ctx.species]
+            and "_shiny" or "") .. ".png"
+      end
+      if relative then
+        ctx.trueColor = true
+        return spriteAssets.crystal(relative)
+          or (mod.path .. "/" .. relative)
+      end
+
+      -- Coverage validation should make this unreachable for #001-251.
+      -- Keep the edition sprite as a safe fallback for a damaged install.
+      return shinySystem and shinySystem.spritePath(path, ctx) or path
+    end
+
     local bundledKantoBack = selectedSide == "back" and not voxelFront
       and dex and dex >= 1 and dex <= 151
       and kantoCrystalBacks.normal[dex]
@@ -978,6 +1059,34 @@ return function(mod)
     if animated then return animated end
     return spriteAssets.crystal(relative)
       or (mod.path .. "/" .. relative)
+  end, 100)
+
+  -- The party list uses the separate pokemon.icon seam. When the selected
+  -- sprite set is enabled for TEAM / STATUS, derive its icon from the exact
+  -- same Crystal frame as the status screen. The converter produces the
+  -- engine's 16x96 icon sheet shape; external icon mods keep priority.
+  mod.hooks:wrap("pokemon.icon", function(nextIcon, path, ctx)
+    local requestedPath = path
+    path = nextIcon(path, ctx)
+    if type(path) == "string" and path ~= ""
+        and path ~= requestedPath then
+      return path
+    end
+    ctx = ctx or {}
+    if mod.options:get("pokemon_sprite_style") ~= "crystal"
+        or mod.options:get("sprite_style_summary") == false then
+      return path
+    end
+    local def = ctx.data and ctx.data.pokemon
+      and ctx.data.pokemon[ctx.species]
+    local dex = def and tonumber(def.dex)
+    if not (dex and dex >= 1 and dex <= 251) then return path end
+    local shiny = shinySystem and shinySystem.isShiny(ctx.mon)
+    local relative = ("assets/crystal_animated/front/%s/%d/001.png")
+      :format(shiny and "shiny" or "normal", dex)
+    return spriteAssets.iconFollower(relative,
+      ("party_crystal_%03d_%s"):format(
+        dex, shiny and "shiny" or "normal")) or path
   end, 100)
 
   mod.exports.resolveLine = localizedLine

@@ -202,7 +202,12 @@ return function(mod)
   local spriteCache = {}
   local function monSprite(game, mon)
     if not (mon and mon.species and love.graphics.newImage) then return nil end
-    local key = mon.species .. (mon.shiny and ":s" or ":n")
+    local key = table.concat({
+      mon.species,
+      mon.shiny and "s" or "n",
+      tostring(mod.options:get("pokemon_sprite_style")),
+      tostring(mod.options:get("sprite_style_box")),
+    }, ":")
     if spriteCache[key] ~= nil then
       return spriteCache[key] or nil
     end

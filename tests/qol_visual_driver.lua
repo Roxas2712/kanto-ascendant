@@ -79,16 +79,126 @@ return function(game)
   Screens.push(game, "JohtoAscendantFeatures")
   U.wait(5)
   local features = game.stack:top()
-  check("JOHTO ASCENDANT FT. screen opens", features ~= nil)
-  check("feature hub screenshot",
+  check("JOHTO ASCENDANT FT. root opens",
+    features and features.__ascendantFeatureRoot == true)
+  check("feature tree screenshot",
     U.shot(game, DIR .. "/ascendant_features.png"))
-  local oldBagOption = game.mods.modOptions.trainer_rematch
-    and game.mods.modOptions.trainer_rematch.ascendant_useful_bag
+
+  U.tap(game, "down") -- POKéMON SPRITES
+  U.tap(game, "a")
+  U.wait(3)
+  local spriteOptions = game.stack:top()
+  check("sprite submenu opens",
+    spriteOptions
+      and spriteOptions.__ascendantFeatureGroup == "sprites")
+  check("sprite submenu screenshot",
+    U.shot(game, DIR .. "/ascendant_sprite_options.png"))
+
+  local modOptions = game.mods.modOptions.trainer_rematch
+  local oldStyle = modOptions and modOptions.pokemon_sprite_style
   U.tap(game, "right")
-  local newBagOption = game.mods.modOptions.trainer_rematch
-    and game.mods.modOptions.trainer_rematch.ascendant_useful_bag
-  check("feature hub writes the selected option",
-    oldBagOption ~= newBagOption)
+  local newStyle = modOptions and modOptions.pokemon_sprite_style
+  check("sprite submenu writes the global style", oldStyle ~= newStyle)
+  for _ = 1, 3 do
+    if modOptions.pokemon_sprite_style == "crystal" then break end
+    U.tap(game, "right")
+  end
+  check("sprite submenu selects CRYSTAL for all surface tests",
+    modOptions.pokemon_sprite_style == "crystal")
+
+  local exports = game.mods.exports and game.mods.exports.trainer_rematch
+  local animation = exports and exports.crystalAnimation
+  local allFronts = animation ~= nil
+  for dex = 1, 251 do
+    allFronts = allFronts and animation.staticAvailable[dex]
+      and animation.staticShinyAvailable[dex]
+  end
+  check("Crystal front sprites cover all 251 Pokémon", allFronts == true)
+
+  local backs = exports and exports.kantoCrystalBacks
+  local allKantoBacks = backs ~= nil
+  for dex = 1, 151 do
+    allKantoBacks = allKantoBacks and backs.normal[dex] and backs.shiny[dex]
+  end
+  check("Crystal back sprites cover all 151 Kanto Pokémon",
+    allKantoBacks == true)
+  local allJohtoBacks = exports and exports.johtoData ~= nil
+  for _, species in ipairs(exports and exports.johtoData.order or {}) do
+    local stem = loaded.path .. "/assets/crystal/" .. species:lower()
+    allJohtoBacks = allJohtoBacks
+      and love.filesystem.getInfo(stem .. "_back.png", "file") ~= nil
+      and love.filesystem.getInfo(stem .. "_back_shiny.png", "file") ~= nil
+  end
+  check("Crystal back sprites cover all 100 Johto Pokémon",
+    allJohtoBacks == true)
+
+  local Sprites = require("src.pokemon.Sprites")
+  local bulba = Pokemon.new(game.data, "BULBASAUR", 12)
+  for _, surface in ipairs({
+    { "battle", "sprite_style_battle" },
+    { "summary", "sprite_style_summary" },
+    { "dex", "sprite_style_dex" },
+    { "box", "sprite_style_box" },
+    { "evolution", "sprite_style_scenes" },
+  }) do
+    local kind, option = surface[1], surface[2]
+    modOptions[option] = true
+    local crystal = Sprites.path(game.data, "BULBASAUR", "front",
+      { mon = bulba, kind = kind })
+    check(kind .. " surface resolves the selected Crystal sprite",
+      type(crystal) == "string"
+        and crystal:find("crystal_animated", 1, true) ~= nil)
+    modOptions[option] = false
+    local original = Sprites.path(game.data, "BULBASAUR", "front",
+      { mon = bulba, kind = kind })
+    check(kind .. " surface independently restores the game sprite",
+      original == game.data.pokemon.BULBASAUR.spriteFront)
+    modOptions[option] = true
+  end
+
+  local crystalIcon = Sprites.iconPath(
+    game.data, bulba, "fixture_party_icon.png")
+  check("party list derives an icon from the selected Crystal sprite",
+    type(crystalIcon) == "string"
+      and crystalIcon:find("party_crystal_001_normal", 1, true) ~= nil)
+  modOptions.sprite_style_summary = false
+  check("party list independently restores its game icon",
+    Sprites.iconPath(game.data, bulba, "fixture_party_icon.png")
+      == "fixture_party_icon.png")
+  modOptions.sprite_style_summary = true
+
+  local bulbaBack = Sprites.path(game.data, "BULBASAUR", "back",
+    { mon = bulba, kind = "battle" })
+  check("Kanto battle backs use the complete Crystal pack",
+    type(bulbaBack) == "string"
+      and bulbaBack:find("001_back", 1, true) ~= nil
+      and bulbaBack ~= game.data.pokemon.BULBASAUR.spriteBack)
+  local chikorita = Pokemon.new(game.data, "CHIKORITA", 12)
+  local chikoritaBack = Sprites.path(game.data, "CHIKORITA", "back",
+    { mon = chikorita, kind = "battle" })
+  check("Johto battle backs use the complete Crystal pack",
+    type(chikoritaBack) == "string"
+      and chikoritaBack:find("crystal/chikorita_back", 1, true) ~= nil)
+
+  game.save.party = { bulba, chikorita }
+  Screens.push(game, "PartyMenu")
+  U.wait(4)
+  check("Crystal party-list screenshot",
+    U.shot(game, DIR .. "/sprite_party_crystal.png"))
+  U.tap(game, "b")
+  Screens.push(game, "SummaryMenu", bulba)
+  U.wait(4)
+  check("Crystal party/status screenshot",
+    U.shot(game, DIR .. "/sprite_summary_crystal.png"))
+  U.tap(game, "b")
+  U.tap(game, "b")
+  Screens.push(game, "DexEntryMenu", "BULBASAUR")
+  U.wait(4)
+  check("Crystal Pokédex screenshot",
+    U.shot(game, DIR .. "/sprite_dex_crystal.png"))
+  U.tap(game, "b")
+  U.tap(game, "b")
+  U.tap(game, "b")
 
   U.log(("RESULT pass=%d fail=%d"):format(pass, fail))
 end

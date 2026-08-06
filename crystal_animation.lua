@@ -85,6 +85,11 @@ return function(mod, opts)
   local function artEnabled(dex)
     if not dex then return false end
     if guestDexes[dex] then return true end
+    if dex >= 1 and dex <= 251
+        and mod.options:get("pokemon_sprite_style") ~= "legacy" then
+      return mod.options:get("pokemon_sprite_style") == "crystal"
+        and mod.options:get("sprite_style_battle") ~= false
+    end
     if dex <= 151 then
       return mod.options:get("kanto_crystal_art") ~= false
         and not externalKantoActive(dex)

@@ -38,7 +38,8 @@ enthält mindestens:
 - Johto-Levelbonus: `+2–5`, `+2–8` (Default für 6.5: `+2–8`);
 - Useful Bag: `AUS / KANTO ASCENDANT`;
 - Quick Select: `AUS / EIN`;
-- Sprite-Quelle für Dex/Party/Stats: `ORIGINAL / CRYSTAL`;
+- Sprite-Menü: `AUTO / ORIGINAL / CRYSTAL` plus getrennte Bereiche für Kampf,
+  Team/Status, Pokédex, Boxen und weitere Szenen;
 - integrierte QoL-Hauptschalter und deren Unterfunktionen;
 - Fangziel-Abfrage: `AUS / IMMER FRAGEN / TEAM ZUERST / BOX ZUERST`.
 
@@ -74,9 +75,18 @@ Quick Select wird aus dem lokalen Select-Mod in Kanto Ascendant integriert,
 mit bestehender Feld-Item-Logik statt einer zweiten Item-Effect-Implementierung.
 Die Belegung bleibt optional.
 
-Dex-, Party- und Stats-Sprite-Auswahl werden getrennt gespeichert. Der
-Kanto-Fall `ORIGINAL/CRYSTAL` erhält einen eigenen Optionspfad, damit Crystal-
-Sprites im Dex nicht stillschweigend auf Kanto-Originale zurückfallen.
+Die Sprite-Auswahl sitzt vollständig im neuen Menübaum. `AUTO` bewahrt die
+bisherigen 6.5-Regeln und externe Renderer, `ORIGINAL` nutzt die Grafik der
+aktiven Spielversion und `CRYSTAL` schaltet den vollständigen Crystal-Satz für
+#001–251 ein. Kampf, Team/Status, Pokédex, FireRed-Boxen und weitere Szenen
+(Entwicklung, Tausch, Ruhmeshalle, Titel/Oak/Credits) sind getrennt schaltbar.
+
+Für alle 251 Pokémon liegen normale und shiny Crystal-Frontsprites vor.
+Zusätzlich sind die 151 Kanto- und 100 Johto-Backsprites jeweils normal und
+shiny vollständig. Die Auswahl greift live; Crystal-Kampfanimationen bleiben
+separat abschaltbar. Die Teamanzeige erhält aus dem gewählten Crystal-Frame
+ein passendes 16×16-Retro-Icon. Explizite externe Sprite-Renderer behalten
+Vorrang.
 
 ### 5. Integrierte QoL-Funktionen
 

@@ -21,6 +21,8 @@ for _, key in ipairs({
   "johto_level_bonus", "ascendant_useful_bag", "ascendant_quick_select",
   "ascendant_qol", "modern_storage_ui", "catch_destination",
   "pokedex_filter", "box_filter", "text_speed", "ride_control",
+  "pokemon_sprite_style", "sprite_style_battle", "sprite_style_summary",
+  "sprite_style_dex", "sprite_style_box", "sprite_style_scenes",
 }) do
   ok(main:find('key = "' .. key .. '"', 1, true) ~= nil,
     "main options expose " .. key)

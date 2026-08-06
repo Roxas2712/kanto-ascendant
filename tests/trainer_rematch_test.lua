@@ -785,7 +785,11 @@ end
 
 local originalStaticFrameOne = ex.crystalAnimation.staticFrameOne
 ex.crystalAnimation.staticFrameOne = function() return nil end
-run.loader.modOptions.trainer_rematch = { dex_sprite_style = "crystal" }
+run.loader.modOptions.trainer_rematch = {
+  dex_sprite_style = "crystal",
+  pokemon_sprite_style = "crystal",
+  sprite_style_dex = true,
+}
 local missingCtx = {
   species = "BULBASAUR", side = "front", kind = "dex",
   trueColor = false, data = starterDexData,
@@ -807,7 +811,11 @@ local removeExternalDex = run.loader.hooks:wrap(
     end
     return downstream
   end, 0, "dex_external_owner_test")
-run.loader.modOptions.trainer_rematch = { dex_sprite_style = "crystal" }
+run.loader.modOptions.trainer_rematch = {
+  dex_sprite_style = "crystal",
+  pokemon_sprite_style = "crystal",
+  sprite_style_dex = true,
+}
 local externalDexCtx = {
   species = "BULBASAUR", side = "front", kind = "dex",
   trueColor = false, data = starterDexData,
@@ -817,6 +825,23 @@ T.eq(RealRuntime.call("pokemon.sprite",
     externalDexCtx), "external/all_species/bulbasaur_dex.png",
   "an explicitly installed external Dex sprite resolver remains authoritative")
 removeExternalDex()
+
+local removeExternalIcon = run.loader.hooks:wrap(
+  "pokemon.icon", function(nextIcon, path)
+    nextIcon(path)
+    return "external/all_species/bulbasaur_party.png"
+  end, 0, "party_icon_external_owner_test")
+run.loader.modOptions.trainer_rematch = {
+  pokemon_sprite_style = "crystal",
+  sprite_style_summary = true,
+}
+T.eq(RealRuntime.call("pokemon.icon",
+    function(path) return path end, "vanilla/bulbasaur_icon.png", {
+      species = "BULBASAUR", mon = { species = "BULBASAUR" },
+      data = starterDexData, kind = "icon",
+    }), "external/all_species/bulbasaur_party.png",
+  "an explicitly installed external party-icon resolver remains authoritative")
+removeExternalIcon()
 
 local Json = require("src.link.Json")
 run.loader.modOptions = Json.decode(Json.encode({
@@ -986,6 +1011,24 @@ T.eq(optionRows.dex_sprite_style.default, "original",
 T.same(optionRows.dex_sprite_style.choices, {
   { "ORIGINAL", "original" }, { "CRYSTAL", "crystal" },
 }, "the Dex sprite option exposes only the two requested static styles")
+T.eq(optionRows.pokemon_sprite_style.type, "choice",
+  "the 6.5 sprite tree exposes AUTO, ORIGINAL and CRYSTAL styles")
+T.eq(optionRows.pokemon_sprite_style.default, "legacy",
+  "existing saves keep their proven 6.5 sprite behavior until changed")
+T.same(optionRows.pokemon_sprite_style.choices, {
+  { "AUTO (COMPATIBLE)", "legacy" },
+  { "GAME-ORIGINAL", "original" },
+  { "CRYSTAL", "crystal" },
+}, "the global sprite style keeps compatibility and both requested art sets")
+for _, key in ipairs({
+  "sprite_style_battle", "sprite_style_summary", "sprite_style_dex",
+  "sprite_style_box", "sprite_style_scenes",
+}) do
+  T.eq(optionRows[key].type, "toggle",
+    key .. " is independently controllable in the sprite menu")
+  T.eq(optionRows[key].default, true,
+    key .. " defaults on once a global sprite style is selected")
+end
 T.eq(optionRows.shiny_effects.type, "toggle",
   "built-in shiny presentation can be switched off")
 T.eq(optionRows.shiny_protection.type, "toggle",
