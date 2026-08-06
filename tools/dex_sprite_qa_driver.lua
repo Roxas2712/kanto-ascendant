@@ -80,6 +80,22 @@ return function(game)
     end
   end
 
+  local function assertCrystalSummary()
+    for _, species in ipairs(speciesOrder) do
+      local dex = game.data.pokemon[species].dex
+      local expected = ("assets/crystal_animated/front/normal/%d/001.png")
+        :format(dex)
+      local mon = Pokemon.new(game.data, species, 20,
+        function() return 8 end)
+      local path, trueColor = Sprites.path(
+        game.data, species, "front", { kind = "summary", mon = mon })
+      assert(path:find(expected, 1, true),
+        version .. " CRYSTAL Summary did not use frame one for " .. species)
+      assert(trueColor,
+        version .. " CRYSTAL Summary frame was not marked true-color")
+    end
+  end
+
   local function assertJohtoDex()
     for _, species in ipairs(johtoOrder) do
       local dex = game.data.pokemon[species].dex
@@ -118,6 +134,7 @@ return function(game)
 
   setOption("dex_sprite_style", "crystal")
   assertCrystalDex()
+  assertCrystalSummary()
   assertJohtoDex()
   capture("crystal")
   capture("johto_crystal", johtoOrder)

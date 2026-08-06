@@ -763,11 +763,13 @@ return function(mod)
       and ctx.data.pokemon[ctx.species]
     local dex = def and tonumber(def.dex)
 
-    -- Pokédex presentation is an independent, static choice. The original
-    -- result remains the active ROM's Red/Blue/Yellow front art. Johto has no
-    -- native R/B/Y art, so #152-251 always uses its bundled species-authentic
-    -- Crystal frame instead of the old Kanto silhouette fallback.
-    if ctx.kind == "dex" then
+    -- Pokédex and summary presentation share the player's static artwork
+    -- choice. The party detail screen is a catalogue-style view, not a live
+    -- battle, and must not fall back to the active ROM's old front after the
+    -- player selected CRYSTAL. Johto has no native R/B/Y art, so #152-251
+    -- always uses its bundled species-authentic Crystal frame instead of the
+    -- old Kanto silhouette fallback.
+    if ctx.kind == "dex" or ctx.kind == "summary" then
       local externalOverride = type(path) == "string" and path ~= ""
         and path ~= requestedPath
       if externalOverride or (crystalAnimation and dex and dex <= 151
@@ -1553,7 +1555,10 @@ return function(mod)
     if johtoResearch then johtoResearch.install(game, deps) end
     if signalsState then signalsState.install(game) end
     if johtoSignals and johtoSignals.game ~= game then
-      johtoSignals.install(game)
+      -- CONTINUE adopts its selected save only after game.ready. Deferring
+      -- the optional direct-start question avoids presenting a stale prompt
+      -- from the provisional title-screen save.
+      johtoSignals.install(game, false)
     end
     if mythicSignals then mythicSignals.install(game, {
       battleState = BattleState,

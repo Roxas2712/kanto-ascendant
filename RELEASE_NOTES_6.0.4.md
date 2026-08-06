@@ -44,6 +44,11 @@ Blue and Yellow saves in place.
 - Accepted and declined direct-start choices are committed to the selected
   save immediately, so the onboarding question does not return after a
   restart without another manual save.
+- Continue/load no longer lets the provisional title-screen save queue a
+  stale Johto Signals question over an already repaired or completed slot.
+- The party **STATS/status screen** now follows **DEX SPRITES** as the other
+  static catalogue view does. Selecting Crystal therefore shows the bundled
+  Crystal portrait there as well, independently of battle-art settings.
 - Guaranteed and bonus-roll wild Shinies receive their Shiny state before
   Crystal, Voxel or another non-delegating graphics wrapper selects artwork.
   This prevents a technically Shiny event encounter from appearing in normal
@@ -68,8 +73,13 @@ Blue and Yellow saves in place.
 - Targeted Prism Grotto and move-resonance tests.
 - Full ROM-free gameplay and upgrade regression suites.
 - Red, Blue and Yellow map-backed tests.
+- Real Red/Blue/Yellow party-status captures for Kanto and Johto species under
+  the Crystal selector.
 - English/German dialogue layout checks.
 - Crystal/Voxel Shiny-wrapper ordering regression.
+- Real Red Gyarados 2D, Dramatic Shape/Voxel and Master Ball capture flow.
+- Accepted and declined direct-start choices followed by full process restarts
+  in all three editions.
 - Strict Modkit validation, reproducible package build, archive inspection and
   release-boundary audit.
 - Isolated launcher import/update and prepared manual UAT saves for every

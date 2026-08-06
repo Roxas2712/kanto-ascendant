@@ -1293,7 +1293,10 @@ return function(mod, opts)
       runtime.onboardingPending = nil
       return
     end
-    maybeRequestOnboarding(game)
+    -- CONTINUE can emit map.entered while the selected slot's modData is
+    -- still being adopted. Showing onboarding here can therefore race
+    -- save.loaded and leave a stale question over a repaired destination.
+    -- save.loaded and the first real world step are stable prompt boundaries.
   end
 
   local function onBattleStarted(ev)
@@ -1306,7 +1309,7 @@ return function(mod, opts)
     J.commitCandidate(ev or battle)
   end
 
-  function J.install(game)
+  function J.install(game, requestOnboarding)
     J.game = game or J.game
     -- save.loaded may point the same controller at a different slot.
     cachedSection = nil
@@ -1321,7 +1324,11 @@ return function(mod, opts)
       changed = ensureWave(s, J.game)
     end
     if changed then persist() end
-    maybeRequestOnboarding(J.game)
+    -- game.ready fires while CONTINUE still exposes the previous/provisional
+    -- save backing. Queueing the direct-start prompt there can leave a stale
+    -- TextBox on top of a completely repaired slot. The save.loaded pass (or
+    -- the first real map/step of a new game) is the earliest safe boundary.
+    if requestOnboarding ~= false then maybeRequestOnboarding(J.game) end
     return s
   end
 
@@ -1341,10 +1348,10 @@ return function(mod, opts)
     -- Reset the cached save section before presentation/content listeners
     -- inspect travel permission for the newly loaded slot.
     mod.events:on("save.loaded", function(ev)
-      J.install(ev and ev.game)
+      J.install(ev and ev.game, true)
     end, 300)
     mod.events:on("game.ready", function(ev)
-      J.install(ev and ev.game)
+      J.install(ev and ev.game, false)
     end, 300)
     mod.events:on("mod.options_changed", function(ev)
       if ev and (ev.key == "johto_signals_start"

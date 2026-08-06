@@ -234,6 +234,8 @@ return function(game)
     route6 = safeCell("ROUTE_6", "walkable"),
     seafoamB2F = safeCell("SEAFOAM_ISLANDS_B2F", "indoor",
       { x = 19, y = 7, facing = "down" }),
+    seafoamB4F = safeCell("SEAFOAM_ISLANDS_B4F", "indoor",
+      { x = 19, y = 7, facing = "down" }),
     mansionB1F = safeCell("POKEMON_MANSION_B1F", "indoor",
       { x = 23, y = 22, facing = "down" }),
     victoryRoad3F = safeCell("VICTORY_ROAD_3F", "indoor",
@@ -427,6 +429,7 @@ return function(game)
           resonance = resonanceState(spec.resonance),
           prismGrotto = copy(spec.prismGrotto or {}),
         },
+        shiny_system = copy(spec.shinySystem),
       },
     }
     save.meta = SaveData.buildMeta({
@@ -887,6 +890,32 @@ return function(game)
         "CELEBI",
       },
       action = "Browse #152-251; verify authentic sprites, data and distinct cries.",
+    },
+    {
+      id = "slot6029",
+      label = "S29 RED GYARADOS",
+      location = cells.seafoamB4F,
+      badges = 8,
+      receiver = true,
+      early = repairedState({
+        mode = "UNLEASHED",
+      }),
+      shinySystem = {
+        version = 1,
+        seen = {},
+        caught = {},
+        encounters = {},
+        caughtCounts = {},
+        awards = {},
+        rematchStreak = 25,
+        bestStreak = 25,
+        totalRematchWins = 25,
+        outbreakIndex = 0,
+        redGyaradosUnlocked = true,
+        redGyaradosAnnounced = true,
+        redGyaradosCaught = false,
+      },
+      action = "Trigger the next B4F encounter; verify red shiny art, catch and one-time completion.",
     },
   }
 

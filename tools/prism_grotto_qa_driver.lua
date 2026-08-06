@@ -84,11 +84,33 @@ return function(game)
   end
   root.prismGrotto.active = "sunStone"
   root.prismGrotto.progress = 0
-  for index, statue in ipairs({ "MOON", "WAVE", "CROWN", "SUN" }) do
+  -- Deliberately start on the wrong side/symbol. It must explain the
+  -- expected pillar, reset cleanly and award nothing.
+  U.teleport(game, prisms.MAP_ID, 2, 7, "down")
+  prisms.touchStatue(game, "SUN")
+  U.wait(45)
+  assert(root.prismGrotto.progress == 0,
+    "wrong first pillar did not reset the sequence")
+  assert(not game.save.inventory.SUN_STONE,
+    "wrong first pillar granted the Sun Stone")
+  assert(U.shot(game, shotDir .. "/04a_wrong_pillar_reset.png"))
+  while game.stack:top() and game.stack:top() ~= game.overworld do
+    game.stack:pop()
+  end
+
+  local sequence = {
+    { "MOON", 4, 7, "down" },
+    { "WAVE", 6, 9, "up" },
+    { "CROWN", 9, 7, "down" },
+    { "SUN", 2, 9, "up" },
+  }
+  for index, row in ipairs(sequence) do
+    local statue = row[1]
+    U.teleport(game, prisms.MAP_ID, row[2], row[3], row[4])
     prisms.touchStatue(game, statue)
     U.wait(45)
     if index == 4 then
-      assert(U.shot(game, shotDir .. "/04_sun_prism_reward.png"))
+      assert(U.shot(game, shotDir .. "/04b_sun_prism_reward.png"))
     end
     while game.stack:top() and game.stack:top() ~= game.overworld do
       game.stack:pop()
@@ -96,6 +118,29 @@ return function(game)
   end
   assert(game.save.inventory.SUN_STONE == 1,
     "Sun Prism visual run did not grant exactly one Sun Stone")
+
+  -- A solved inscription may be replayed for its remembered note, but never
+  -- farmed. Exercise the opposite approach side on every pillar.
+  root.prismGrotto.active = "sunStone"
+  root.prismGrotto.progress = 0
+  for index, row in ipairs({
+    { "MOON", 4, 9, "up" },
+    { "WAVE", 6, 7, "down" },
+    { "CROWN", 9, 9, "up" },
+    { "SUN", 2, 7, "down" },
+  }) do
+    U.teleport(game, prisms.MAP_ID, row[2], row[3], row[4])
+    prisms.touchStatue(game, row[1])
+    U.wait(35)
+    if index == 4 then
+      assert(U.shot(game, shotDir .. "/04c_reward_not_duplicated.png"))
+    end
+    while game.stack:top() and game.stack:top() ~= game.overworld do
+      game.stack:pop()
+    end
+  end
+  assert(game.save.inventory.SUN_STONE == 1,
+    "replaying a solved inscription duplicated its reward")
 
   local options = game.mods.modOptions.trainer_rematch
   options.language = "de"

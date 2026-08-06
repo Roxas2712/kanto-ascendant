@@ -1229,14 +1229,16 @@ Pikachu and unrelated level-5 encounters are not rewritten.
 
 - **JOHTO ART:** bundled Crystal art or four-shade Kanto fallback for #152-251.
 - **KANTO CRYSTAL ART:** battle art for #001-151.
-- **DEX SPRITES:** independently switches only Kanto Pokédex fronts between
-  active Red/Blue/Yellow original art and static Crystal frame one.
+- **DEX SPRITES:** independently switches Kanto Pokédex and party **STATS**
+  portraits between active Red/Blue/Yellow original art and static Crystal
+  frame one. Johto uses its species-authentic bundled Crystal portrait because
+  Red/Blue/Yellow have no native #152-251 art.
 - **CRYSTAL ANIMATION:** animates normal/shiny #001-251 battle fronts.
 - Dramatic Shape/Voxel uses dedicated renderer assets. Gorochu and all official
   Mega forms have separate sharp 96×96 masters.
 
-DEX SPRITES does not change battles, followers, summaries, evolutions, trades,
-Hall of Fame screens or party icons.
+DEX SPRITES does not change battles, followers, evolutions, trades, Hall of
+Fame screens or the small animated party icons.
 
 </details>
 
@@ -1294,6 +1296,8 @@ proven from a screenshot alone.
 | Event Archive says READY but nothing happens | **Clarified in current GitHub source.** READY means unlocked; the details page now directs Festival players to the Cup city or Roaming players to habitats. |
 | Randomized Master battles | **Confirmed working.** Randomizer species/moves remain authoritative while Ascendant progression is preserved. |
 | Red Gyarados appears with normal colours | **Fixed in 6.0.4.** Guaranteed and bonus-roll shinies now receive their shiny state before Crystal, Voxel or another battle-art wrapper selects the visible sprite. |
+| Crystal is selected but Pokémon → STATS still shows old art | **Fixed in 6.0.4.** The party status portrait now follows the independent DEX SPRITES selector in Red, Blue and Yellow. |
+| Johto Signals start question returns or appears over an existing repaired save | **Fixed in 6.0.4.** YES/NO is saved immediately and the question is deferred until the selected slot has fully loaded. |
 | Story Sabrina's Alakazam did not Mega Evolve | **Expected.** Enemy Mega defaults to post-game Ascendant bosses. |
 | Mankey/Nidoran location confusion | **Documented above.** Active KANTO 151 adds Mankey to Route 5 in every edition; native Route 22 remains edition-specific. |
 | Stale trainer_rematch install on a handheld PC | **Launcher/filesystem support, not a gameplay defect.** Recovery steps are documented above. |

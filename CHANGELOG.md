@@ -31,6 +31,10 @@ All notable changes to this project are documented in this file.
 - Johto Signals now writes accepted or declined onboarding choices to the
   selected game save immediately, so the prompt does not return after a
   restart merely because the player had not reached another manual save.
+- Loading an older or already repaired save can no longer briefly queue the
+  Johto direct-start question from the provisional title-screen save. The
+  question is now created only after the selected slot is fully loaded (or
+  after the first real step of a new game).
 - All #152-251 species now use their bundled species-authentic legacy cries
   instead of type-based Gen-I pitch/length substitutes. External cry providers
   remain authoritative.
@@ -38,6 +42,10 @@ All notable changes to this project are documented in this file.
   instead of a same-type Kanto silhouette. The National Dex also resolves
   every Johto entry to its species-authentic static Crystal frame in either
   Dex style, including UI paths that previously exposed the fallback.
+- **DEX SPRITES → CRYSTAL** now also controls the static portrait on the
+  party's **STATS/status screen**. It previously affected Pokédex pages while
+  that separate team-detail renderer continued to show the active
+  Red/Blue/Yellow front sprite.
 - Guaranteed and bonus-roll wild shinies now receive their shiny state before
   Crystal, Voxel or other battle-graphics wrappers select artwork, preventing
   non-delegating visual wrappers from displaying their normal sprites.

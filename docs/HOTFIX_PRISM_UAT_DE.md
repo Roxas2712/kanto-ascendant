@@ -10,7 +10,7 @@ verändert.
 oder `START_BLUE_UAT.command`. Falls macOS nachfragt, bestätige das Öffnen.
 
 In der Spielstandauswahl stehen die vorbereiteten Tests als
-`S25 PRISM GROTTO` bis `S28 JOHTO DEX AUDIO`. Nach einem veränderten Test
+`S25 PRISM GROTTO` bis `S29 RED GYARADOS`. Nach einem veränderten Test
 kann der ursprüngliche Zustand jederzeit mit dem UAT-Builder neu erzeugt
 werden.
 
@@ -87,6 +87,34 @@ weiterhin aktiv und wurde nicht übersprungen.
 **PASS:** Kein Eintrag zeigt ein Kanto-Ersatzpokémon. Die Daten sind
 vollständig. Die ausgewählten Arten besitzen klar unterschiedliche,
 passende Johto-Rufe.
+
+## Test 5: Rotes Garados
+
+1. Lade `S29 RED GYARADOS`.
+2. Laufe auf Ebene B4F der Seeschauminseln bis zum nächsten Kampf.
+3. Prüfe im Kampf die rote Shiny-Darstellung.
+4. Fange Garados und öffne danach seine Team-Detailansicht.
+5. Laufe weiter und löse weitere Kämpfe aus.
+
+**PASS:** Der erste Kampf ist garantiert das rote Garados auf Level 50.
+Kampf- und Teamansicht erkennen dieselben Shiny-DVs. Nach dem Fang wird das
+Event gespeichert und erscheint nicht erneut.
+
+Automatisch zusätzlich geprüft:
+
+- echte 2D-Crystal-Darstellung mit roter Shiny-Farbe;
+- echte Dramatic-Shape/Voxel-Darstellung;
+- Meisterball-Fang und einmaliger Abschluss des Ereignisses.
+
+## Test 6: Crystal-Sprite im Teamstatus
+
+1. Stelle `DEX SPRITES` auf `CRYSTAL`.
+2. Lass `KANTO CRYSTAL ART` ausgeschaltet.
+3. Öffne `POKÉMON`, wähle Growlithe und danach `STATS`.
+4. Erwartung: Der große statische Status-Sprite ist der Crystal-Sprite, nicht
+   der alte Rot-/Blau-/Gelb-Sprite.
+5. Wiederhole den Test mit Karnimani oder Impergator. Johto darf niemals auf
+   eine Kanto-Silhouette zurückfallen.
 
 ## Meldung
 

@@ -632,7 +632,7 @@ local dexMatrix = {}
 for _, crystalArt in ipairs({ false, true }) do
   for _, dexStyle in ipairs({ "original", "crystal" }) do
     local matrixKey = tostring(crystalArt) .. ":" .. dexStyle
-    dexMatrix[matrixKey] = { dex = {}, battle = {} }
+    dexMatrix[matrixKey] = { dex = {}, summary = {}, battle = {} }
     run.loader.modOptions.trainer_rematch = {
       kanto_crystal_art = crystalArt,
       dex_sprite_style = dexStyle,
@@ -668,6 +668,24 @@ for _, crystalArt in ipairs({ false, true }) do
         end
         T.eq(ex.crystalAnimation.selected[dexMon], nil,
           "Dex resolution never creates Crystal battle-animation state")
+
+        local summaryMon = { species = species }
+        local summaryCtx = {
+          species = species, side = "front", kind = "summary",
+          mon = summaryMon, trueColor = false, data = starterDexData,
+        }
+        local summaryResolved = RealRuntime.call("pokemon.sprite",
+          function(path) return path end, paths[species], summaryCtx)
+        dexMatrix[matrixKey].summary[edition .. ":" .. species] =
+          summaryResolved
+        T.eq(summaryResolved, resolved,
+          edition .. " " .. species
+            .. " party summary follows the selected static sprite style")
+        T.eq(summaryCtx.trueColor, dexCtx.trueColor,
+          edition .. " " .. species
+            .. " party summary preserves the selected palette ownership")
+        T.eq(ex.crystalAnimation.selected[summaryMon], nil,
+          "party summary resolution never creates battle-animation state")
       end
     end
 

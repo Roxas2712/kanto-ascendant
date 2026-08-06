@@ -10,6 +10,12 @@ return function(game)
   local SaveData = require("src.core.SaveData")
   local version = os.getenv("POKEPORT_VERSION") or "yellow"
   local slot = os.getenv("KA_ONBOARDING_SLOT") or "slot6026"
+  local action = os.getenv("KA_ONBOARDING_ACTION")
+  local requested = action == "decline" and "waves" or "unleashed"
+  game.mods.modOptions = game.mods.modOptions or {}
+  game.mods.modOptions.trainer_rematch =
+    game.mods.modOptions.trainer_rematch or {}
+  game.mods.modOptions.trainer_rematch.johto_signals_start = requested
   assert(SaveData.setActiveSlot(version, slot) == slot,
     "could not select onboarding UAT slot")
   local loaded, recovered = SaveData.load(version)
@@ -24,7 +30,19 @@ return function(game)
   local early = assert(exports.johtoSignals,
     "Johto Signals controller is unavailable")
   local state = early.state()
-  local action = os.getenv("KA_ONBOARDING_ACTION")
+  if action == "accept" then
+    assert(state.onboardingComplete ~= true,
+      "accept setup slot was already completed")
+    local ok, reason = early.completeOnboarding(true, "UNLEASHED", game)
+    assert(ok and reason == "configured",
+      "accepting direct start did not commit the direct choice")
+    assert(early.state().onboardingComplete == true
+        and early.state().receiverRepaired == true,
+      "accepting direct start did not persist a repaired receiver")
+    U.log("PASS Johto onboarding accept written; restart for verification")
+    love.event.quit(0)
+    return
+  end
   if action == "decline" then
     assert(state.onboardingComplete ~= true,
       "decline setup slot was already completed")

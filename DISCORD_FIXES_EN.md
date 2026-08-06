@@ -15,14 +15,15 @@ original Kanto species
 
 🎨 **Visual and audio fixes**
 • Johto #152-251 use their species-authentic bundled fronts, backs and cries
+• Pokémon → STATS now respects DEX SPRITES → CRYSTAL
 • Guaranteed and bonus Shinies are prepared before Crystal/Voxel wrappers
 choose artwork
 • Prevents event Shinies from appearing in normal colours
 
 💾 **Save and onboarding fixes**
 • YES/NO for direct Johto Signals start is remembered immediately
-• The startup question no longer returns after restarting without another
-manual save
+• The startup question no longer returns after restarting or appears over an
+already repaired save while it is still loading
 • Existing Johto, Mythic, National Dex, trace and encounter progress remains
 unchanged
 

@@ -34,8 +34,11 @@ collapsed so players can reveal only the information they want.
   works with the existing Route 5 Move Deleter and Move Reminder.
 - Johto #152-251 now consistently use their bundled species-authentic Crystal
   fronts, backs and legacy cries. Johto onboarding choices are saved
-  immediately and no longer reappear after restarting without another manual
-  save.
+  immediately and no longer reappear after restarting or while an existing
+  repaired save is still loading.
+- **DEX SPRITES → CRYSTAL** now applies to both Pokédex entries and the static
+  portrait under **Pokémon → STATS**, while battle artwork remains controlled
+  separately.
 - Guaranteed and bonus-roll shinies are prepared before Crystal, Voxel or
   other battle-art wrappers select a sprite, preventing events such as the Red
   Gyarados from appearing in normal colours.
@@ -1400,7 +1403,10 @@ captures the 2D follower, voxel follower and voxel battle paths.
 Voxel and mixed external-Kanto/Ascendant-Johto paths in a real LÖVE client.
 `tools/dex_sprite_qa_driver.lua` runs the complete ORIGINAL/CRYSTAL and
 KANTO-CRYSTAL-ART independence matrix against Red, Blue or Yellow and captures
-Bulbasaur, Charmander and Squirtle entry pages.
+Kanto/Johto entry pages. `tools/summary_sprite_qa_driver.lua` verifies and
+captures the same independent static selection in the party status screen.
+`tools/red_gyarados_qa_driver.lua` performs the recurring event encounter in
+2D and Dramatic Shape/Voxel, catches it and verifies that it stops recurring.
 `tools/gorochu_qa_driver.lua` performs the real Raichu evolution, validates
 normal/shiny front and back art, and captures Gorochu's follower plus all
 seven normal/shiny partner expressions without covering the emotion bubble.

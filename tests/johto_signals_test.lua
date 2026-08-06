@@ -449,7 +449,13 @@ do
     diskWrites = diskWrites + 1
     return true
   end
-  h.api.install(game)
+  h.api.install(game, false)
+  eq(h.callbacks.onboarding, 0,
+    "game.ready cannot queue onboarding from the provisional save")
+  h.emit("map.entered", { game = game, mapId = "PALLET_TOWN" })
+  eq(h.callbacks.onboarding, 0,
+    "map.entered cannot race onboarding ahead of the loaded save")
+  h.emit("save.loaded", { game = game })
   eq(h.state.receiverRepaired, false,
     "a launcher policy never silently repairs the receiver")
   eq(h.state.capsuleFound, false,
@@ -480,9 +486,27 @@ do
     startPolicy = "unleashed",
     state = h.state,
   })
-  reloaded.api.install(gameFixture(false))
+  reloaded.api.install(gameFixture(false), false)
+  reloaded.emit("save.loaded", { game = gameFixture(false) })
   eq(reloaded.callbacks.onboarding, 0,
     "a rebuilt controller does not ask again after the saved YES choice")
+end
+
+do
+  local h = newHarness({
+    startPolicy = "waves",
+    state = {
+      onboardingComplete = true,
+      receiverRepaired = true,
+      modeChosen = true,
+      mode = "WANDERWAVES",
+    },
+  })
+  local game = gameFixture(false)
+  h.api.install(game, false)
+  h.emit("save.loaded", { game = game })
+  eq(h.callbacks.onboarding, 0,
+    "a repaired loaded slot never inherits a provisional onboarding prompt")
 end
 
 do

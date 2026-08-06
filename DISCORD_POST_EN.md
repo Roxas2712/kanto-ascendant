@@ -17,7 +17,8 @@ items
 ✨ Use **Johto Move Resonance** to awaken compatible Gen-II moves in original
 Kanto Pokémon, with authentic Crystal level requirements
 
-🎨 Improved Johto fronts, backs, cries and Crystal/Voxel Shiny compatibility
+🎨 Improved Johto fronts, backs, cries, party STATS portraits and
+Crystal/Voxel Shiny compatibility
 
 💾 Restart-safe Johto onboarding and full compatibility with existing saves
 
