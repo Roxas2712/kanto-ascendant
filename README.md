@@ -23,6 +23,15 @@ collapsed so players can reveal only the information they want.
 > [GitHub Issues](https://github.com/Roxas2712/kanto-ascendant/issues) and will
 > be considered for future updates.
 
+## What's new in 6.0.5
+
+- Ordinary Johto replacements now use the rounded, Gen-I-weighted average of
+  the active route plus a random 2-5 levels. The same balancing applies to
+  classic 2D encounters, Wilds of Kanto and researched Johto habitats; primal
+  and other authored story encounters retain their designed levels.
+- The FAQ now lists researched habitats without obsolete fixed encounter
+  levels and explains the new route-based scaling.
+
 ## What's new in 6.0.4
 
 - Driftglass now hides an optional **Prism Grotto** with five short reusable
@@ -1316,7 +1325,7 @@ missions, Rocket story and one new tournament bracket are completed.
 
 ## Installation
 
-1. Download `kanto-ascendant-6.0.4.modpkg` from the
+1. Download `kanto-ascendant-6.0.5.modpkg` from the
    [latest release](https://github.com/Roxas2712/kanto-ascendant/releases/latest)
    and import it through the launcher. Developers may alternatively install
    the checked-out mod directory.
@@ -1374,7 +1383,7 @@ python3 tools/johto_signals_release_audit.py .
 The map-collision and Mythic battle suites run from the engine checkout with
 `KANTO_SIGNALS_MOD_DIR` and `TRAINER_REMATCH_MOD_DIR` pointed at this mod.
 GitHub CI runs both contracts and repeats the release-boundary audit against
-the exact `kanto-ascendant-6.0.4.modpkg`.
+the exact `kanto-ascendant-6.0.5.modpkg`.
 
 The upgrade matrix includes separate schema-derived Kanto Ascendant 5.3
 fixtures for Red, Blue and Yellow. They pin the public 5.3 package hash and

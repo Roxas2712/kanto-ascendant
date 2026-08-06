@@ -1,6 +1,6 @@
 # Kanto Ascendant FAQ and Spoiler Guide
 
-This is the public reference for **Kanto Ascendant 6.0.4**. It applies to Red,
+This is the public reference for **Kanto Ascendant 6.0.5**. It applies to Red,
 Blue and Yellow and is maintained from the current mod code, release
 documentation and confirmed support reports.
 
@@ -296,7 +296,7 @@ Mankey in every active KANTO 151 game.
 <details>
 <summary><strong>⚠️ SPOILER — Do I need to start a new game for Johto Signals?</strong></summary>
 
-No. Version 6.0.4 upgrades existing Red, Blue and Yellow saves in place.
+No. Version 6.0.5 upgrades existing Red, Blue and Yellow saves in place.
 
 The signal system does not count steps taken before 6.0 was installed. Once
 the updated save has a starter and the Pokédex, it begins its own hidden
@@ -507,62 +507,65 @@ Signals are recognized rather than incorrectly counted as new discoveries.
 
 Once a family is researched, its base species also establishes a renewable
 2% Kanto habitat. Multiple eligible families sharing a location split the
-same combined 2%; they do not each receive 2%.
+same combined 2%; they do not each receive 2%. Research unlocks the species
+and location, but it does not force the old authored habitat level. Each
+ordinary encounter now uses that route's weighted average plus 2-5 levels.
 
 </details>
 
 <details>
 <summary><strong>⚠️ SPOILER — Full spoiler: all researched Johto habitats</strong></summary>
 
-| Base species | Habitat | Level |
-|---|---|---:|
-| Chikorita | Route 24 grass | 18 |
-| Cyndaquil | Pokémon Mansion B1F | 22 |
-| Totodile | Seafoam Islands B2F | 22 |
-| Sentret | Route 1 grass | 12 |
-| Hoothoot | Route 2 grass | 14 |
-| Ledyba | Viridian Forest | 14 |
-| Spinarak | Viridian Forest | 15 |
-| Chinchou | Route 20 water | 25 |
-| Natu | Route 22 grass | 18 |
-| Mareep | Route 8 grass | 20 |
-| Marill | Route 6 grass | 18 |
-| Sudowoodo | Route 10 grass | 24 |
-| Hoppip | Route 5 grass | 16 |
-| Aipom | Route 16 grass | 24 |
-| Sunkern | Route 24 grass | 17 |
-| Yanma | Safari Zone Center | 25 |
-| Wooper | Route 19 water | 22 |
-| Murkrow | Route 7 grass | 22 |
-| Misdreavus | Pokémon Tower 7F | 28 |
-| Unown | Mt. Moon B2F | 18 |
-| Wobbuffet | Cerulean Cave 1F | 48 |
-| Girafarig | Route 18 grass | 28 |
-| Pineco | Viridian Forest | 16 |
-| Dunsparce | Diglett's Cave | 22 |
-| Gligar | Victory Road 1F | 38 |
-| Snubbull | Route 8 grass | 21 |
-| Qwilfish | Route 21 water | 28 |
-| Shuckle | Mt. Moon B2F | 20 |
-| Heracross | Route 15 grass | 27 |
-| Sneasel | Seafoam Islands B4F | 32 |
-| Teddiursa | Route 10 grass | 24 |
-| Slugma | Pokémon Mansion B1F | 30 |
-| Swinub | Seafoam Islands B2F | 30 |
-| Corsola | Route 19 water | 27 |
-| Remoraid | Route 21 water | 24 |
-| Delibird | Seafoam Islands B4F | 31 |
-| Mantine | Route 20 water | 30 |
-| Skarmory | Victory Road 2F | 40 |
-| Houndour | Route 7 grass | 23 |
-| Phanpy | Route 11 grass | 22 |
-| Stantler | Safari Zone East | 27 |
-| Smeargle | Route 16 grass | 25 |
-| Miltank | Safari Zone Center | 28 |
-| Larvitar | Victory Road 3F | 45 |
+| Base species | Habitat |
+|---|---|
+| Chikorita | Route 24 grass |
+| Cyndaquil | Pokémon Mansion B1F |
+| Totodile | Seafoam Islands B2F |
+| Sentret | Route 1 grass |
+| Hoothoot | Route 2 grass |
+| Ledyba | Viridian Forest |
+| Spinarak | Viridian Forest |
+| Chinchou | Route 20 water |
+| Natu | Route 22 grass |
+| Mareep | Route 8 grass |
+| Marill | Route 6 grass |
+| Sudowoodo | Route 10 grass |
+| Hoppip | Route 5 grass |
+| Aipom | Route 16 grass |
+| Sunkern | Route 24 grass |
+| Yanma | Safari Zone Center |
+| Wooper | Route 19 water |
+| Murkrow | Route 7 grass |
+| Misdreavus | Pokémon Tower 7F |
+| Unown | Mt. Moon B2F |
+| Wobbuffet | Cerulean Cave 1F |
+| Girafarig | Route 18 grass |
+| Pineco | Viridian Forest |
+| Dunsparce | Diglett's Cave |
+| Gligar | Victory Road 1F |
+| Snubbull | Route 8 grass |
+| Qwilfish | Route 21 water |
+| Shuckle | Mt. Moon B2F |
+| Heracross | Route 15 grass |
+| Sneasel | Seafoam Islands B4F |
+| Teddiursa | Route 10 grass |
+| Slugma | Pokémon Mansion B1F |
+| Swinub | Seafoam Islands B2F |
+| Corsola | Route 19 water |
+| Remoraid | Route 21 water |
+| Delibird | Seafoam Islands B4F |
+| Mantine | Route 20 water |
+| Skarmory | Victory Road 2F |
+| Houndour | Route 7 grass |
+| Phanpy | Route 11 grass |
+| Stantler | Safari Zone East |
+| Smeargle | Route 16 grass |
+| Miltank | Safari Zone Center |
+| Larvitar | Victory Road 3F |
 
 The habitat becomes active only after that family, starter trial or Larvitar
-finale is recorded.
+finale is recorded. These are ordinary renewable habitats, so their encounter
+levels follow the active grass/water table rather than a fixed species level.
 
 </details>
 
@@ -1323,7 +1326,7 @@ proven from a screenshot alone.
 | Red Gyarados appears with normal colours | **Fixed in 6.0.4.** Guaranteed and bonus-roll shinies now receive their shiny state before Crystal, Voxel or another battle-art wrapper selects the visible sprite. |
 | Crystal is selected but Pokémon → STATS still shows old art | **Fixed in 6.0.4.** The party status portrait now follows the independent DEX SPRITES selector in Red, Blue and Yellow. |
 | Johto Signals start question returns or appears over an existing repaired save | **Fixed in 6.0.4.** YES/NO is saved immediately and the question is deferred until the selected slot has fully loaded. |
-| Early-route Johto Pokémon appear around level 12-15 beside level 2-6 Kanto encounters | **Fix prepared for the next patch.** Ordinary Johto encounters use the rounded, weighted route average plus 2-5 levels in classic 2D and Wilds; authored primal encounters keep their story levels. |
+| Early-route Johto Pokémon appear around level 12-15 beside level 2-6 Kanto encounters | **Fixed in 6.0.5.** Ordinary Johto encounters, including permanent researched habitats, use the rounded, weighted route average plus 2-5 levels in classic 2D and Wilds; authored primal encounters keep their story levels. |
 | Story Sabrina's Alakazam did not Mega Evolve | **Expected.** Enemy Mega defaults to post-game Ascendant bosses. |
 | Mankey/Nidoran location confusion | **Documented above.** Active KANTO 151 adds Mankey to Route 5 in every edition; native Route 22 remains edition-specific. |
 | Stale trainer_rematch install on a handheld PC | **Launcher/filesystem support, not a gameplay defect.** Recovery steps are documented above. |

@@ -29,7 +29,7 @@ function love.load()
     for _, row in ipairs(LauncherMods.list()) do
       if row.id == "trainer_rematch" then version = row.version break end
     end
-    assert(version == "6.0.4",
+    assert(version == "6.0.5",
       "installed unexpected version " .. tostring(version))
     print("VOXEL UAT PACKAGE INSTALL PASS: " .. version)
   end, debug.traceback)

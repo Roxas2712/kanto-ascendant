@@ -4,6 +4,8 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+## [6.0.5] - 2026-08-06
+
 ### Fixed
 
 - Ordinary Johto wild replacements now scale to the rounded, Gen-I-weighted
@@ -11,6 +13,8 @@ All notable changes to this project are documented in this file.
   identically to classic encounters, Wilds of Kanto and permanent researched
   habitats; explicitly authored primal/story encounters retain their intended
   levels.
+- The public FAQ now describes researched Johto habitats as route-dependent
+  encounter locations instead of displaying obsolete fixed habitat levels.
 
 ## [6.0.4] - 2026-08-06
 
