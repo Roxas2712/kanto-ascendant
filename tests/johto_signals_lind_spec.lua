@@ -152,6 +152,12 @@ return function(T, Data, modPath)
     end
     table.sort(ids)
     local capacity = require("src.inventory.Bag").capacity(game.data)
+    -- Expanded ASC bags can exceed the number of distinct items in this
+    -- deliberately tiny fixture. Clamp the fixture's configured capacity so
+    -- this scenario still represents a genuinely full bag.
+    capacity = math.min(capacity, #ids)
+    game.data.constants = game.data.constants or {}
+    game.data.constants.bagSize = capacity
     for index = 1, capacity do
       local id = assert(ids[index], "fixture needs enough Bag items")
       game.save.inventory[id] = 1

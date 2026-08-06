@@ -13,6 +13,12 @@ return function(mod)
   local function tr(game, en, de)
     local german = mod.find("deutsch") or mod.find("deutsch-blau")
       or mod.find("deutsch-gelb")
+    local bucket = game and game.save and game.save.options
+      and game.save.options.modOptions
+      and game.save.options.modOptions[mod.id]
+    local language = bucket and bucket.language
+    if language == nil then language = mod.options:get("language") end
+    german = german or language == "de"
     return german and de or en
   end
 
@@ -101,6 +107,32 @@ return function(mod)
       or "ask"
   end
 
+  local function option(game, key, fallback)
+    local bucket = game and game.save and game.save.options
+      and game.save.options.modOptions
+      and game.save.options.modOptions[mod.id]
+    local value = bucket and bucket[key]
+    if value == nil then value = mod.options:get(key) end
+    if value == nil then return fallback end
+    return value
+  end
+
+  local function announceBox(game, battle, mon)
+    if option(game, "catch_box_notice", true) == false then return end
+    local boxIndex = locateInBoxes(game.save, mon)
+    if not boxIndex then return end
+    local def = game.data.pokemon[mon.species] or {}
+    local name = mon.nickname or def.name or mon.species
+    local notice = TextBox.new(game, tr(game,
+      ("%s was sent to\nBOX %d."):format(name, boxIndex),
+      ("%s wurde in\nBOX %d übertragen."):format(name, boxIndex)))
+    if battle and type(battle.uiNext) == "function" then
+      battle:uiNext(function() return notice end)
+    else
+      game.stack:push(notice)
+    end
+  end
+
   mod.events:on("pokemon.caught", function(ev)
     local game, mon = ev and ev.game, ev and ev.mon
     if not game or not mon or pending[mon] then return end
@@ -125,6 +157,7 @@ return function(mod)
       or tostring(mon.species)
     if mode == "box" then
       if index then moveToBox(game, mon, index) end
+      announceBox(game, ev.battle, mon)
       return
     end
     local prompt = TextBox.new(game, tr(game,
@@ -134,7 +167,11 @@ return function(mod)
         if keepParty then
           keepInParty(game, mon)
         elseif index then
-          moveToBox(game, mon, index)
+          if moveToBox(game, mon, index) then
+            announceBox(game, ev.battle, mon)
+          end
+        else
+          announceBox(game, ev.battle, mon)
         end
       end, { defaultNo = false }))
     end)

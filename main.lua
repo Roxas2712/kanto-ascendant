@@ -384,6 +384,13 @@ return function(mod)
     { key = "sprite_style_scenes",
       label = menuLabel("SPRITES IN OTHER SCENES", "SPRITES IN SZENEN"),
       type = "toggle", default = true },
+    { key = "party_icon_style",
+      label = menuLabel("PARTY ICONS", "TEAM-ICONS"),
+      type = "choice", default = "species",
+      choices = {
+        { menuLabel("SPECIES PORTRAITS", "ART-PORTRÄTS"), "species" },
+        { menuLabel("CLASSIC GROUP ICONS", "KLASSISCHE GRUPPEN"), "classic" },
+      } },
     { key = "shiny_hunts", label = menuLabel("SHINY HUNTS", "SHINY-JAGD"),
       type = "choice", default = "ascendant",
       choices = {
@@ -435,12 +442,22 @@ return function(mod)
       label = menuLabel("JOHTO LEVEL BONUS", "JOHTO-LEVELBONUS"),
       type = "choice", default = "2_8",
       choices = {
-        { menuLabel("ROUTE AVERAGE +2 TO +8", "ROUTENMITTEL +2 BIS +8"), "2_8" },
-        { menuLabel("ROUTE AVERAGE +2 TO +5", "ROUTENMITTEL +2 BIS +5"), "2_5" },
+        { menuLabel("ROUTE AVG PLUS 2 TO 8", "ROUTENMITTEL PLUS 2 BIS 8"), "2_8" },
+        { menuLabel("ROUTE AVG PLUS 2 TO 5", "ROUTENMITTEL PLUS 2 BIS 5"), "2_5" },
       } },
     { key = "ascendant_useful_bag",
       label = menuLabel("ASCENDANT BAG", "ASCENDANT-BEUTEL"),
       type = "toggle", default = true },
+    { key = "ascendant_bag_mode",
+      label = menuLabel("ASCENDANT BAG MODE", "ASCENDANT-BEUTELMODUS"),
+      type = "choice", default = "pockets",
+      choices = {
+        { menuLabel("OFF / EXTERNAL MOD", "AUS / EXTERNE MOD"), "off" },
+        { menuLabel("GAME STANDARD", "SPIELSTANDARD"), "standard" },
+        { menuLabel("STANDARD SKIN", "STANDARD-SKIN"), "skin" },
+        { menuLabel("999 SLOTS WITH SKIN", "999 PLÄTZE MIT SKIN"), "expanded" },
+        { menuLabel("999 SLOTS WITH POCKETS", "999 PLÄTZE MIT FÄCHERN"), "pockets" },
+      } },
     { key = "ascendant_quick_select",
       label = menuLabel("QUICK SELECT", "SCHNELLWAHL"),
       type = "toggle", default = true },
@@ -491,6 +508,37 @@ return function(mod)
         { menuLabel("SELECT USES BICYCLE", "SELECT NUTZT FAHRRAD"), "select" },
         { menuLabel("CLASSIC BAG ONLY", "NUR KLASSISCHER BEUTEL"), "classic" },
       } },
+    { key = "quick_select_tap",
+      label = menuLabel("SELECT TAP", "SELECT-TIPPEN"),
+      type = "choice", default = "bicycle",
+      choices = {
+        { menuLabel("BICYCLE", "FAHRRAD"), "bicycle" },
+        { menuLabel("FIELD KIT", "FELD-KIT"), "field_kit" },
+        { menuLabel("NOTHING", "NICHTS"), "none" },
+      } },
+    { key = "quick_select_registration",
+      label = menuLabel("BAG REGISTRATION", "BEUTEL-REGISTRIERUNG"),
+      type = "toggle", default = true },
+    { key = "quick_select_empty_notice",
+      label = menuLabel("EMPTY SLOT NOTICE", "LEERER-PLATZ-HINWEIS"),
+      type = "toggle", default = true },
+    { key = "catch_box_notice",
+      label = menuLabel("BOX TRANSFER NOTICE", "BOX-TRANSFER-HINWEIS"),
+      type = "toggle", default = true },
+    { key = "status_values",
+      label = menuLabel("STATUS VALUES", "STATUSWERTE"),
+      type = "choice", default = "off",
+      choices = {
+        { menuLabel("OFF", "AUS"), "off" },
+        { "DV / IV", "dv" },
+        { "DV / IV AND EV", "full" },
+      } },
+    { key = "modern_ball_skins",
+      label = menuLabel("MODERN BALL SKINS", "MODERNE BALL-SKINS"),
+      type = "toggle", default = true },
+    { key = "fast_box_switch",
+      label = menuLabel("FAST BOX SWITCH", "SCHNELLER BOXWECHSEL"),
+      type = "toggle", default = true },
     { key = "mythic_signals",
       label = menuLabel("MYTHIC SIGNALS", "MYTHOS-SIGNALE"),
       type = "toggle", default = true },
@@ -550,7 +598,7 @@ return function(mod)
       label = menuLabel("BATTLE FRONTIER", "KAMPF-FRONTIER"),
       type = "toggle", default = true },
     { key = "ascendant_rules",
-      label = menuLabel("NEW GAME+ RULES", "NEW-GAME+-REGELN"),
+      label = menuLabel("NEW GAME PLUS RULES", "NEW-GAME-PLUS-REGELN"),
       type = "choice", default = "rotating",
       choices = {
         { menuLabel("ROTATING", "ROTIEREND"), "rotating" },
@@ -562,9 +610,27 @@ return function(mod)
   -- Ascendant's bag owns the screen while enabled, even when the standalone
   -- Useful Bag is installed. Turning this option off restores the standalone
   -- mod as requested; its optional dependency loads before Ascendant.
-  if mod.options:get("ascendant_useful_bag") ~= false then
+  local bagMode = mod.options:get("ascendant_bag_mode")
+  if bagMode == nil then
+    bagMode = mod.options:get("ascendant_useful_bag") == false
+      and "off" or "pockets"
+  end
+  if bagMode == "expanded" or bagMode == "pockets" then
+    mod.content.constants:patch("bagSize", 999)
+  end
+  if bagMode == "pockets" then
     local installBag = loadSibling(mod, "useful_bag.lua")
     if type(installBag) == "function" then installBag(mod) end
+    mod.exports.externalUsefulBag = false
+  elseif bagMode ~= "off" then
+    -- Reclaim the Bag screen from an installed standalone Useful Bag while
+    -- any Ascendant mode is selected. "OFF / EXTERNAL" below is the single
+    -- explicit hand-off back to the external mod.
+    mod.content.screens:register("BagMenu", {
+      new = function(game, opts)
+        return require("src.ui.BagMenu").new(game, opts)
+      end,
+    })
     mod.exports.externalUsefulBag = false
   else
     mod.exports.externalUsefulBag = installedMod("useful_bag")
@@ -589,6 +655,12 @@ return function(mod)
     if type(installFilters) == "function" then installFilters(mod) end
     local installTextSpeed = loadSibling(mod, "text_speed.lua")
     if type(installTextSpeed) == "function" then installTextSpeed(mod) end
+    local installSummaryInsights = loadSibling(mod, "summary_insights.lua")
+    if type(installSummaryInsights) == "function" then
+      installSummaryInsights(mod)
+    end
+    local installModernBalls = loadSibling(mod, "modern_ball_skins.lua")
+    if type(installModernBalls) == "function" then installModernBalls(mod) end
   end)
 
   -- The German translation packs currently ship a misaligned category
@@ -601,6 +673,20 @@ return function(mod)
     MEW = { en = "NEW SPECIE", de = "NEUE ART" },
     MEWTWO = { en = "GENETIC", de = "GENMUTANT" },
   }
+  if i18n.isGerman() then
+    local germanKinds = loadSibling(mod, "german_dex_kinds.lua")
+    for species, kind in pairs(germanKinds) do
+      dexKindCompat[species] = { en = kind, de = kind }
+    end
+    -- Keep the original preset spelling. Player names are data, not words
+    -- to translate; in particular ASH must never be rewritten by a locale.
+    mod.content.field:patch("boot", {
+      namePresets = {
+        player = { "RED", "ASH", "JACK" },
+        rival = { "BLUE", "GARY", "JOHN" },
+      },
+    })
+  end
   for species, labels in pairs(dexKindCompat) do
     if mod.content.pokemon:get(species) then
       mod.content.pokemon:patch(species, {
@@ -1073,7 +1159,7 @@ return function(mod)
       return path
     end
     ctx = ctx or {}
-    if mod.options:get("pokemon_sprite_style") ~= "crystal"
+    if mod.options:get("party_icon_style") ~= "species"
         or mod.options:get("sprite_style_summary") == false then
       return path
     end

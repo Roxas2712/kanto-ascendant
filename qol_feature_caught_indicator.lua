@@ -5,7 +5,7 @@ local feature = {
     key = "qol_caught_indicator",
     label = "POKéDEX INDICATOR",
     type = "choice",
-    default = "off",
+    default = "red",
     choices = {
       { "OFF", "off" },
       { "ON (GREY)", "grey" },

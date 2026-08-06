@@ -26,10 +26,24 @@ return function(mod)
     return mod.find("deutsch") ~= nil
       or mod.find("deutsch-blau") ~= nil
       or mod.find("deutsch-gelb") ~= nil
+      or mod.options:get("language") == "de"
   end
 
   local function tr(en, de)
     return isGerman() and de or en
+  end
+
+  local function option(game, key)
+    local bucket = game and game.save and game.save.options
+      and game.save.options.modOptions
+      and game.save.options.modOptions[mod.id]
+    local value = bucket and bucket[key]
+    if value == nil then value = mod.options:get(key) end
+    return value
+  end
+
+  local function enabled(game)
+    return option(game, "ascendant_quick_select") ~= false
   end
 
   local function slots(create)
@@ -187,9 +201,9 @@ return function(mod)
           assign(choice.value, selectedId)
           menu:close()
           message(game, tr(
-            ("Registered %s.\nSELECT + %s"):format(
+            ("Registered %s.\nSELECT/%s"):format(
               itemName(game, selectedId), DIRECTION_LABELS[choice.value].en),
-            ("%s registriert.\nSELECT + %s"):format(
+            ("%s registriert.\nSELECT/%s"):format(
               itemName(game, selectedId), DIRECTION_LABELS[choice.value].de)))
         end,
       })
@@ -208,6 +222,10 @@ return function(mod)
       if opts and opts.battle then return list end
       local originalSelect = list.onSelectKey
       list.onSelectKey = function(item, liveList)
+        if not enabled(game)
+            or option(game, "quick_select_registration") == false then
+          return originalSelect(item, liveList)
+        end
         -- Once MOVE ITEM has armed the vanilla swap, SELECT on the target
         -- must finish it instead of opening the registration picker again.
         if liveList.swapIndex then
@@ -280,6 +298,10 @@ return function(mod)
     if not input then return end
 
     local selectDown = input.state and input.state.select == true
+    if not enabled(game) then
+      armed, chordUsed = false, false
+      return
+    end
     if not freeRoam(game) then
       if not selectDown then armed, chordUsed = false, false end
       return
@@ -305,7 +327,7 @@ return function(mod)
       local id = (slots(false) or {})[direction]
       if id then
         useBagItem(game, id)
-      else
+      elseif option(game, "quick_select_empty_notice") ~= false then
         message(game, tr(
           "That shortcut is\nstill empty.",
           "Dieser Platz ist\nnoch leer."))
@@ -318,8 +340,12 @@ return function(mod)
     if not selectDown then
       armed = false
       consumeQueued(input, { "select" })
-      if mod.options:get("ride_control") ~= "classic" then
+      local tap = option(game, "quick_select_tap") or "bicycle"
+      if option(game, "ride_control") == "classic" then tap = "none" end
+      if tap == "bicycle" then
         useBagItem(game, "BICYCLE")
+      elseif tap == "field_kit" then
+        useBagItem(game, "FIELD_KIT")
       end
     end
   end, 500)
@@ -332,6 +358,7 @@ return function(mod)
     return out
   end
   mod.exports.activate = function(game, shortcut)
+    if not enabled(game) then return false, "disabled" end
     local id = shortcut == "select" and "BICYCLE"
       or (slots(false) or {})[shortcut]
     if not id then return false, "empty" end

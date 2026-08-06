@@ -49,6 +49,24 @@ return function(mod)
     return german() and de or en
   end
 
+  local function option(game, key)
+    local bucket = game and game.save and game.save.options
+      and game.save.options.modOptions
+      and game.save.options.modOptions[mod.id]
+    local value = bucket and bucket[key]
+    if value == nil then value = mod.options:get(key) end
+    return value
+  end
+
+  local function bagMode(game)
+    local value = option(game, "ascendant_bag_mode")
+    if value == nil then
+      return option(game, "ascendant_useful_bag") == false
+        and "off" or "pockets"
+    end
+    return value
+  end
+
   local function truncate(text, budget)
     text = tostring(text or "")
     if Font.width(text) <= budget then return text end
@@ -140,6 +158,8 @@ return function(mod)
   end
 
   local function drawBag(menu, game)
+    local mode = bagMode(game)
+    local hasPockets = mode == "pockets"
     color(C.paper)
     love.graphics.rectangle("fill", 0, 0, 160, 144)
     color(C.orange)
@@ -147,7 +167,15 @@ return function(mod)
     color(C.paper2)
     love.graphics.rectangle("fill", 0, 104, 53, 8)
     drawBagIcon()
-    drawPocketRail(menu.title)
+    if hasPockets then
+      drawPocketRail(menu.title)
+    else
+      color(C.cream)
+      love.graphics.rectangle("fill", 5, 34, 43, 52)
+      color(C.blue3)
+      Font.draw(tr("BAG", "BEUTEL"), 9, 43)
+      Font.draw(mode == "expanded" and "999" or "20", 13, 61)
+    end
 
     color(C.blue3)
     love.graphics.rectangle("fill", 53, 0, 107, 18)
@@ -192,7 +220,9 @@ return function(mod)
     if selected then
       local name = selected.label or selected.value or ""
       Font.draw(truncate(name, 140), 8, 118)
-      Font.draw(tr("A:USE L/R:POCKET", "A:WAHL L/R:FACH"), 8, 130)
+      Font.draw(hasPockets
+        and tr("A:USE L/R:POCKET", "A:WAHL L/R:FACH")
+        or tr("A:USE  B:BACK", "A:WAHL B:ZUR"), 8, 130)
     else
       Font.draw(tr("This pocket is empty.", "Dieses Fach ist leer."), 8, 122)
     end
@@ -345,6 +375,15 @@ return function(mod)
     return truncate(label, 72)
   end
 
+  local function localizedBoxTitle(title)
+    title = tostring(title or "")
+    if not german() then return title end
+    return title:gsub("PARTY", "TEAM")
+      :gsub("DEPOSIT", "ABLEGEN")
+      :gsub("WITHDRAW", "NEHMEN")
+      :gsub("RELEASE", "FREILASSEN")
+  end
+
   local function gridUpdate(self)
     local input, count = self.game.input, #self.items
     if count == 0 then
@@ -381,6 +420,7 @@ return function(mod)
     ListMenu.new = function(game, title, items, opts)
       local list = newList(game, title, items, opts)
       if isBoxList(title) then
+        list.title = localizedBoxTitle(title)
         list.__ascendantBoxGrid = true
         list.sgbPalettes = trueColor
         list.update = gridUpdate
@@ -396,6 +436,21 @@ return function(mod)
     local newBox = BoxMenu.new
     BoxMenu.new = function(game, ...)
       local menu = newBox(game, ...)
+      local vanillaUpdate = menu.update
+      menu.update = function(self, dt)
+        local input = self.game.input
+        if option(self.game, "fast_box_switch") ~= false
+            and (input:wasPressed("left") or input:wasPressed("right")) then
+          local direction = input:wasPressed("right") and 1 or -1
+          local count = Boxes.COUNT or #Boxes.ensure(self.game.save)
+          self.game.save.currentBox =
+            (((self.game.save.currentBox or 1) - 1 + direction) % count) + 1
+          require("src.core.Sound").play(self.game.data, "Swap")
+          if self.game.writeSave then self.game:writeSave() end
+          return
+        end
+        return vanillaUpdate(self, dt)
+      end
       menu.sgbPalettes = trueColor
       menu.draw = function(self)
         color(C.blue3)
@@ -423,7 +478,10 @@ return function(mod)
         color(C.blue)
         love.graphics.rectangle("fill", 103, 27, 49, 17)
         color(C.white)
-        Font.draw(Strings("BOX %02d", game.save.currentBox or 1), 107, 32)
+        -- The Gen-I font has no angle-bracket glyphs. Keep the header inside
+        -- the 49 px panel and let the live left/right controls communicate
+        -- switching without rendering replacement squares.
+        Font.draw(Strings("BOX %02d", game.save.currentBox or 1), 104, 32)
         for i = 1, math.min(count, 20) do
           local col, row = (i - 1) % 4, math.floor((i - 1) / 4)
           drawBall(108 + col * 12, 55 + row * 13, false)
@@ -438,7 +496,9 @@ return function(mod)
 
   -- The integrated Useful Bag still owns item behavior and pockets. This
   -- wrapper replaces only the inherited monochrome ListMenu renderer.
-  if not mod.exports.externalUsefulBag then
+  local mode = bagMode()
+  if not mod.exports.externalUsefulBag
+      and (mode == "skin" or mode == "expanded" or mode == "pockets") then
     local okBag, BagMenu = pcall(require, "src.ui.BagMenu")
     if okBag and BagMenu and not BagMenu.__ascendantModernStorage then
       BagMenu.__ascendantModernStorage = true
@@ -450,6 +510,26 @@ return function(mod)
         menu.sgbPalettes = trueColor
         menu.draw = function(self) drawBag(self, game) end
         return menu
+      end
+    end
+  end
+
+  -- Engine PC submenus pass these labels as raw English strings. Translate
+  -- only the exact storage actions so player, item and Pokémon names remain
+  -- untouched (ASH must stay ASH).
+  if german() then
+    local okMenu, Menu = pcall(require, "src.ui.Menu")
+    if okMenu and Menu and not Menu.__ascendantGermanStorageLabels then
+      Menu.__ascendantGermanStorageLabels = true
+      local newMenu = Menu.new
+      Menu.new = function(game, items, opts)
+        for _, row in ipairs(items or {}) do
+          if row.label == "DEPOSIT" then row.label = "ABLEGEN"
+          elseif row.label == "WITHDRAW" then row.label = "NEHMEN"
+          elseif row.label == "RELEASE" then row.label = "FREILASSEN"
+          end
+        end
+        return newMenu(game, items, opts)
       end
     end
   end

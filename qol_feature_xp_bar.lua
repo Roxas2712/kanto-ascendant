@@ -20,7 +20,7 @@ local feature = {
     key = "qol_exp_bar",
     label = "BATTLE EXP BAR",
     type = "choice",
-    default = "off",
+    default = "blue",
     choices = {
       { "OFF", "off" },
       { "ON (BLACK)", "black" },

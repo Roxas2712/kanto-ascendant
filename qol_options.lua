@@ -29,6 +29,14 @@ function M.install(mod, features)
     local options = game and game.save and game.save.options
     local bucket = options and options.modOptions
                    and options.modOptions[mod.id]
+    local master = bucket and bucket.ascendant_qol
+    if master == nil then master = mod.options:get("ascendant_qol") end
+    -- The master switch is a real runtime gate. Individual preferences stay
+    -- persisted while disabled and immediately resume when the bundle is
+    -- enabled again.
+    if master == false and modes[key] then
+      return modes[key][1].id
+    end
     local value = bucket and bucket[key]
     if value == nil then value = mod.options:get(key) end
     local optionAliases = aliases[key]
@@ -140,7 +148,7 @@ function M.install(mod, features)
       end
       ManagerState.__modOptionScreenRoutes = routes
     end
-    routes[mod.id] = SCREEN_ID
+    routes[mod.id] = mod.exports.ascendantFeaturesScreen or SCREEN_ID
   end)
 
   mod.hooks:wrap("ui.options.rows", function(next, game, rows)

@@ -17,20 +17,49 @@ end
 local main = read("main.lua")
 local manifest = read("manifest.json")
 local featureHub = read("ascendant_features.lua")
-for _, key in ipairs({
+local mainKeys = {
   "johto_level_bonus", "ascendant_useful_bag", "ascendant_quick_select",
   "ascendant_qol", "modern_storage_ui", "catch_destination",
   "pokedex_filter", "box_filter", "text_speed", "ride_control",
   "pokemon_sprite_style", "sprite_style_battle", "sprite_style_summary",
   "sprite_style_dex", "sprite_style_box", "sprite_style_scenes",
-}) do
+  "ascendant_bag_mode", "party_icon_style", "catch_box_notice",
+  "quick_select_tap", "quick_select_registration",
+  "quick_select_empty_notice", "status_values", "modern_ball_skins",
+  "fast_box_switch", "language",
+}
+for _, key in ipairs(mainKeys) do
   ok(main:find('key = "' .. key .. '"', 1, true) ~= nil,
     "main options expose " .. key)
+end
+for _, key in ipairs({
+  "johto_level_bonus", "ascendant_quick_select", "ascendant_qol",
+  "modern_storage_ui", "catch_destination", "pokedex_filter", "box_filter",
+  "text_speed", "ride_control", "pokemon_sprite_style",
+  "sprite_style_battle", "sprite_style_summary", "sprite_style_dex",
+  "sprite_style_box", "sprite_style_scenes", "ascendant_bag_mode",
+  "party_icon_style", "catch_box_notice", "quick_select_tap",
+  "quick_select_registration", "quick_select_empty_notice", "status_values",
+  "modern_ball_skins", "fast_box_switch", "qol_exp_bar",
+  "qol_caught_indicator", "qol_easy_interactions",
+  "qol_location_banners", "language",
+}) do
   ok(featureHub:find('key = "' .. key .. '"', 1, true) ~= nil,
-    "JOHTO ASCENDANT FT. exposes " .. key)
+    "Ascendant Options exposes " .. key)
 end
 ok(manifest:find('"version": "6.5.0"', 1, true) ~= nil,
   "RC manifest reports 6.5.0")
+ok(featureHub:find('drawFrame(Font, tr("ASCENDANT OPTIONS"', 1, true) ~= nil,
+  "nested screen is branded for Kanto Ascendant")
+ok(read("ascendant_menu.lua"):find('tr("OPTIONS", "OPTIONEN")', 1, true)
+    ~= nil, "Ascendant Start-menu tree owns the Options entry")
+
+local kinds = assert(loadfile("german_dex_kinds.lua"))()
+local kindCount = 0
+for _ in pairs(kinds) do kindCount = kindCount + 1 end
+ok(kindCount == 151, "all 151 German Kanto categories are restored")
+ok(kinds.GROWLITHE == "WELPEN",
+  "FUKANO is no longer assigned SEEHUND")
 
 local handlers, speedValue = {}, "fast"
 local mod = {
@@ -124,6 +153,20 @@ do
     "choosing PARTY replaces the selected full-party member")
   ok(boxes[1][1] == oldParty,
     "the replaced party member occupies the caught mon's box slot")
+
+  local caught2 = { species = "RATTATA", level = 5 }
+  table.insert(game2.save.party, caught2)
+  game2.save.options.modOptions.trainer_rematch.catch_destination = "box"
+  game2.save.options.modOptions.trainer_rematch.catch_box_notice = true
+  queued = nil
+  catchHandlers["pokemon.caught"]({
+    game = game2, mon = caught2,
+    battle = { uiNext = function(_, factory) queued = factory end },
+  })
+  ok(type(queued) == "function",
+    "direct BOX mode queues a transfer announcement")
+  ok(queued().text:find("BOX 1", 1, true) ~= nil,
+    "direct BOX announcement identifies the destination box")
 end
 
 print(("6.5 QOL FUNCTIONAL PASS: %d assertions"):format(assertions))

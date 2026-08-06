@@ -6,7 +6,7 @@ local feature = {
     key = "qol_location_banners",
     label = "LOCATION BANNERS",
     type = "choice",
-    default = false,
+    default = 2,
     choices = {
       { "OFF", false },
       { "ON (1 SECOND)", 1 },

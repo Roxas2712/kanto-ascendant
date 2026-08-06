@@ -12,7 +12,7 @@ local feature = {
     key = "qol_easy_interactions",
     label = "EASY INTERACTIONS",
     type = "toggle",
-    default = false,
+    default = true,
   },
   menu = {
     label = "EASY INTERACTIONS",

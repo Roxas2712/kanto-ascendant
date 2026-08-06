@@ -7,6 +7,8 @@ return function(mod)
     storage = "JohtoAscendantStorageOptions",
     sprites = "JohtoAscendantSpriteOptions",
     qol = "JohtoAscendantQolOptions",
+    quick = "JohtoAscendantQuickOptions",
+    display = "JohtoAscendantDisplayOptions",
     johto = "JohtoAscendantJohtoOptions",
   }
 
@@ -26,20 +28,28 @@ return function(mod)
     storage = {
       titleEn = "BAG / STORAGE", titleDe = "BEUTEL / BOXEN",
       rows = {
-        { key = "ascendant_useful_bag", en = "ASC. BAG", de = "ASC. BEUTEL",
-          values = toggle },
-        { key = "modern_storage_ui", en = "FIRERED UI", de = "FIRERED-UI",
-          values = toggle },
+        { key = "ascendant_bag_mode", en = "BAG MODE", de = "BEUTEL",
+          values = {
+            { "off", "OFF / EXTERNAL", "AUS / EXTERN" },
+            { "standard", "GAME STANDARD", "SPIELSTANDARD" },
+            { "skin", "STANDARD SKIN", "STANDARD-SKIN" },
+            { "expanded", "999 SKIN", "999-SKIN" },
+            { "pockets", "999 POCKETS", "999 FÄCHER" },
+          } },
         { key = "catch_destination", en = "CATCH DEST.", de = "FANGZIEL",
           values = {
             { "ask", "ASK", "FRAGEN" }, { "party", "PARTY", "TEAM" },
             { "box", "BOX", "BOX" }, { "off", "OFF", "AUS" },
           } },
+        { key = "catch_box_notice", en = "BOX NOTICE",
+          de = "BOX-HINWEIS", values = toggle },
         { key = "box_filter", en = "BOX FILTER", de = "BOX-FILTER",
           values = {
             { "all", "ALL", "ALLE" }, { "kanto", "KANTO", "KANTO" },
             { "johto", "JOHTO", "JOHTO" },
           } },
+        { key = "fast_box_switch", en = "FAST BOX SWITCH",
+          de = "BOX-SCHNELLWECHSEL", values = toggle },
       },
     },
     sprites = {
@@ -61,6 +71,11 @@ return function(mod)
           values = toggle },
         { key = "sprite_style_scenes", en = "OTHER SCENES",
           de = "ANDERE SZENEN", values = toggle },
+        { key = "party_icon_style", en = "PARTY ICONS",
+          de = "TEAM-ICONS", values = {
+            { "species", "SPECIES", "ART-PORTRÄT" },
+            { "classic", "CLASSIC", "KLASSISCH" },
+          } },
         { key = "crystal_animation", en = "BATTLE ANIM.",
           de = "KAMPF-ANIM.", values = toggle },
       },
@@ -72,6 +87,23 @@ return function(mod)
           de = "SCHNELLWAHL", values = toggle },
         { key = "ascendant_qol", en = "QOL BUNDLE", de = "QOL-PAKET",
           values = toggle },
+        { key = "qol_exp_bar", en = "BATTLE EXP BAR",
+          de = "KAMPF-EP-LEISTE", values = {
+            { "off", "OFF", "AUS" }, { "black", "BLACK", "SCHWARZ" },
+            { "blue", "BLUE", "BLAU" },
+          } },
+        { key = "qol_caught_indicator", en = "CAUGHT ICON",
+          de = "GEFANGEN-ICON", values = {
+            { "off", "OFF", "AUS" }, { "grey", "GREY", "GRAU" },
+            { "red", "RED", "ROT" },
+          } },
+        { key = "qol_easy_interactions", en = "EASY INTERACT.",
+          de = "EINFACHE AKTIONEN", values = toggle },
+        { key = "qol_location_banners", en = "AREA BANNER",
+          de = "GEBIETSANZEIGE", values = {
+            { false, "OFF", "AUS" }, { 1, "1 SEC.", "1 SEK." },
+            { 2, "2 SEC.", "2 SEK." }, { 3, "3 SEC.", "3 SEK." },
+          } },
         { key = "pokedex_filter", en = "DEX FILTER", de = "DEX-FILTER",
           values = {
             { "all", "ALL", "ALLE" }, { "seen", "SEEN", "GESEHEN" },
@@ -82,6 +114,23 @@ return function(mod)
             { "engine", "ENGINE", "ENGINE" }, { "fast", "FAST", "SCHNELL" },
             { "normal", "NORMAL", "NORMAL" }, { "slow", "SLOW", "LANGSAM" },
           } },
+      },
+    },
+    quick = {
+      titleEn = "QUICK SELECT", titleDe = "SCHNELLWAHL",
+      rows = {
+        { key = "ascendant_quick_select", en = "QUICK SELECT",
+          de = "SCHNELLWAHL", values = toggle },
+        { key = "quick_select_tap", en = "SELECT TAP",
+          de = "SELECT-TIPPEN", values = {
+            { "bicycle", "BICYCLE", "FAHRRAD" },
+            { "field_kit", "FIELD KIT", "FELD-KIT" },
+            { "none", "NOTHING", "NICHTS" },
+          } },
+        { key = "quick_select_registration", en = "BAG REGISTER",
+          de = "BEUTEL-REGISTR.", values = toggle },
+        { key = "quick_select_empty_notice", en = "EMPTY NOTICE",
+          de = "LEER-HINWEIS", values = toggle },
         { key = "ride_control", en = "RIDE CTRL", de = "REITEN",
           values = {
             { "select", "SELECT", "SELECT" },
@@ -89,13 +138,33 @@ return function(mod)
           } },
       },
     },
+    display = {
+      titleEn = "DISPLAY / SKINS", titleDe = "ANZEIGE / SKINS",
+      rows = {
+        { key = "language", en = "LANGUAGE", de = "SPRACHE", values = {
+            { "auto", "AUTO", "AUTO" },
+            { "en", "ENGLISH", "ENGLISCH" },
+            { "de", "GERMAN", "DEUTSCH" },
+          } },
+        { key = "modern_storage_ui", en = "MENU SKINS",
+          de = "MENÜ-SKINS", values = toggle },
+        { key = "status_values", en = "STATUS VALUES",
+          de = "STATUSWERTE", values = {
+            { "off", "OFF", "AUS" },
+            { "dv", "DV / IV", "DV / IV" },
+            { "full", "DV/IV AND EV", "DV/IV UND EV" },
+          } },
+        { key = "modern_ball_skins", en = "MODERN BALLS",
+          de = "MODERNE BÄLLE", values = toggle },
+      },
+    },
     johto = {
       titleEn = "JOHTO / SAFETY", titleDe = "JOHTO / SCHUTZ",
       rows = {
         { key = "johto_level_bonus", en = "JOHTO LEVELS",
           de = "JOHTO-LEVEL", values = {
-            { "2_8", "+2..+8", "+2..+8" },
-            { "2_5", "+2..+5", "+2..+5" },
+            { "2_8", "PLUS 2 TO 8", "PLUS 2 BIS 8" },
+            { "2_5", "PLUS 2 TO 5", "PLUS 2 BIS 5" },
           } },
         { key = "shiny_protection", en = "SHINY RELEASE LOCK",
           de = "SHINY-SCHUTZ", values = toggle },
@@ -106,6 +175,8 @@ return function(mod)
     { group = "storage", en = "BAG / STORAGE", de = "BEUTEL / BOXEN" },
     { group = "sprites", en = "POKéMON SPRITES", de = "POKéMON-SPRITES" },
     { group = "qol", en = "QUALITY OF LIFE", de = "KOMFORT" },
+    { group = "quick", en = "QUICK SELECT", de = "SCHNELLWAHL" },
+    { group = "display", en = "DISPLAY / SKINS", de = "ANZEIGE / SKINS" },
     { group = "johto", en = "JOHTO / SAFETY", de = "JOHTO / SCHUTZ" },
   }
   local rows = {}
@@ -114,7 +185,7 @@ return function(mod)
   end
 
   local restartKeys = {
-    ascendant_useful_bag = true,
+    ascendant_bag_mode = true,
     modern_storage_ui = true,
     ascendant_quick_select = true,
     ascendant_qol = true,
@@ -256,7 +327,7 @@ return function(mod)
     local Font = require("src.render.Font")
     local Theme = require("src.ui.Theme")
     local screen = {
-      game = game, index = 1, isOpaque = true,
+      game = game, index = 1, scroll = 0, isOpaque = true,
       __ascendantFeatureRoot = true,
     }
     function screen:sgbPalettes() return trueColor() end
@@ -271,11 +342,19 @@ return function(mod)
       elseif input:wasPressed("b") then
         self.game.stack:pop()
       end
+      if self.index <= self.scroll then
+        self.scroll = self.index - 1
+      elseif self.index > self.scroll + 5 then
+        self.scroll = self.index - 5
+      end
     end
     function screen:draw()
-      drawFrame(Font, "JOHTO ASCENDANT FT.")
-      for index, row in ipairs(rootRows) do
-        local y = 24 + (index - 1) * 22
+      drawFrame(Font, tr("ASCENDANT OPTIONS", "ASCENDANT-OPTIONEN"))
+      for slot = 1, 5 do
+        local index = self.scroll + slot
+        local row = rootRows[index]
+        if not row then break end
+        local y = 20 + (slot - 1) * 21
         love.graphics.setColor(index == self.index
           and .98 or .94, index == self.index and .72 or .91,
           index == self.index and .18 or .76, 1)
@@ -286,6 +365,10 @@ return function(mod)
         if index == self.index then
           Font.drawCode(Theme.cursor, 5, y + 5)
         end
+      end
+      if self.scroll > 0 then Font.drawCode(Theme.moreArrow, 145, 3) end
+      if self.scroll + 5 < #rootRows then
+        Font.drawCode(Theme.moreArrow, 145, 119)
       end
       love.graphics.setColor(.18, .52, .82, 1)
       love.graphics.rectangle("fill", 0, 130, 160, 14)
@@ -304,17 +387,6 @@ return function(mod)
   end
   mod.exports.ascendantFeaturesScreen = ROOT_ID
   mod.exports.ascendantSpriteScreen = SCREEN_IDS.sprites
-
-  mod.hooks:wrap("ui.options.rows", function(next, game, optionRows)
-    local out = next(game, optionRows)
-    if type(out) ~= "table" then return out end
-    return mod.ui.insertBefore(out, "MODS", {
-      id = "johto_ascendant_features",
-      label = "JOHTO ASCENDANT FT.",
-      value = function() return tr("CONFIGURE", "EINSTELLEN") end,
-      activate = function(g) mod.ui.push(g, ROOT_ID) end,
-    })
-  end)
 
   return {
     id = ROOT_ID,

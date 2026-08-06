@@ -49,6 +49,17 @@ return function(mod, opts)
         startItems[#startItems + 1] = item
       end
     end
+    if mod.exports.ascendantFeaturesScreen then
+      ascendantItems[#ascendantItems + 1] = {
+        label = tr("OPTIONS", "OPTIONEN"),
+        onSelect = function()
+          mod.ui.push(mod.world.game, mod.exports.ascendantFeaturesScreen)
+        end,
+        order = 900,
+        sourceIndex = #items + 1,
+        ascendantKey = "options",
+      }
+    end
     table.sort(ascendantItems, function(a, b)
       if a.order == b.order then return a.sourceIndex < b.sourceIndex end
       return a.order < b.order

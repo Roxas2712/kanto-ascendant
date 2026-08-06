@@ -15,6 +15,12 @@ return function(game)
   end
   local loaded = game.mods and game.mods.mods
     and game.mods.mods.trainer_rematch
+  game.mods.modOptions.trainer_rematch =
+    game.mods.modOptions.trainer_rematch or {}
+  local modOptions = game.mods.modOptions.trainer_rematch
+  game.save.options = game.save.options or {}
+  game.save.options.modOptions = game.save.options.modOptions or {}
+  game.save.options.modOptions.trainer_rematch = modOptions
   U.log("MODPATH", loaded and loaded.path or "missing",
     loaded and loaded.manifest and loaded.manifest.version or "missing")
 
@@ -45,6 +51,37 @@ return function(game)
   U.tap(game, "b")
   U.wait(3)
 
+  local exports = game.mods.exports and game.mods.exports.trainer_rematch
+  local balls = exports and exports.modernBallSkins
+  check("modern Ball skin renderer is enabled",
+    balls and balls.enabled() == true and type(balls.draw) == "function")
+  game.stack:push({
+    isOpaque = true,
+    draw = function()
+      love.graphics.setColor(1, .97, .80, 1)
+      love.graphics.rectangle("fill", 0, 0, 160, 144)
+      love.graphics.setColor(.07, .20, .40, 1)
+      local Font = require("src.render.Font")
+      Font.draw("MODERN BALLS", 28, 12)
+      for index, ballId in ipairs({
+        "POKE_BALL", "GREAT_BALL", "ULTRA_BALL",
+        "MASTER_BALL", "SAFARI_BALL",
+      }) do
+        balls.draw(ballId, 14 + (index - 1) * 29, 52,
+          (index - 1) * .45)
+      end
+      love.graphics.setColor(.07, .20, .40, 1)
+      Font.draw("PB  GB  UB  MB  SB", 8, 76)
+      Font.draw("ROLL / TOSS / SHAKE", 4, 104)
+      love.graphics.setColor(1, 1, 1, 1)
+    end,
+  })
+  U.wait(2)
+  check("modern Ball skin screenshot",
+    U.shot(game, DIR .. "/modern_ball_skins.png"))
+  game.stack:pop()
+  U.wait(2)
+
   local boxes = Boxes.ensure(game.save)
   game.save.currentBox = 1
   boxes[1] = {
@@ -61,6 +98,12 @@ return function(game)
   U.wait(8)
   check("storage main screenshot",
     U.shot(game, DIR .. "/box_main.png"))
+  U.tap(game, "right")
+  U.wait(2)
+  check("storage root switches boxes directly with left/right",
+    game.save.currentBox == 2)
+  U.tap(game, "left")
+  U.wait(2)
   U.tap(game, "a") -- WITHDRAW
   U.wait(8)
   local grid = game.stack:top()
@@ -79,7 +122,7 @@ return function(game)
   Screens.push(game, "JohtoAscendantFeatures")
   U.wait(5)
   local features = game.stack:top()
-  check("JOHTO ASCENDANT FT. root opens",
+  check("ASCENDANT OPTIONS root opens",
     features and features.__ascendantFeatureRoot == true)
   check("feature tree screenshot",
     U.shot(game, DIR .. "/ascendant_features.png"))
@@ -94,7 +137,6 @@ return function(game)
   check("sprite submenu screenshot",
     U.shot(game, DIR .. "/ascendant_sprite_options.png"))
 
-  local modOptions = game.mods.modOptions.trainer_rematch
   local oldStyle = modOptions and modOptions.pokemon_sprite_style
   U.tap(game, "right")
   local newStyle = modOptions and modOptions.pokemon_sprite_style
@@ -106,7 +148,48 @@ return function(game)
   check("sprite submenu selects CRYSTAL for all surface tests",
     modOptions.pokemon_sprite_style == "crystal")
 
-  local exports = game.mods.exports and game.mods.exports.trainer_rematch
+  U.tap(game, "b") -- back to the root, still on POKéMON SPRITES
+  U.tap(game, "up")
+  U.tap(game, "a")
+  U.wait(2)
+  check("bag and Box options are grouped under Ascendant",
+    game.stack:top()
+      and game.stack:top().__ascendantFeatureGroup == "storage")
+  check("bag and Box options screenshot",
+    U.shot(game, DIR .. "/ascendant_storage_options.png"))
+  U.tap(game, "b")
+
+  U.tap(game, "down")
+  U.tap(game, "down")
+  U.tap(game, "a")
+  U.wait(2)
+  check("individual QoL submenu opens",
+    game.stack:top()
+      and game.stack:top().__ascendantFeatureGroup == "qol")
+  check("individual QoL screenshot",
+    U.shot(game, DIR .. "/ascendant_qol_options.png"))
+  U.tap(game, "b")
+
+  U.tap(game, "down")
+  U.tap(game, "a")
+  U.wait(2)
+  check("configurable Quick Select submenu opens",
+    game.stack:top()
+      and game.stack:top().__ascendantFeatureGroup == "quick")
+  check("Quick Select options screenshot",
+    U.shot(game, DIR .. "/ascendant_quick_select_options.png"))
+  U.tap(game, "b")
+
+  U.tap(game, "down")
+  U.tap(game, "a")
+  U.wait(2)
+  check("display and Ball skin submenu opens",
+    game.stack:top()
+      and game.stack:top().__ascendantFeatureGroup == "display")
+  check("display and Ball options screenshot",
+    U.shot(game, DIR .. "/ascendant_display_options.png"))
+  U.tap(game, "b")
+
   local animation = exports and exports.crystalAnimation
   local allFronts = animation ~= nil
   for dex = 1, 251 do
@@ -166,6 +249,7 @@ return function(game)
     Sprites.iconPath(game.data, bulba, "fixture_party_icon.png")
       == "fixture_party_icon.png")
   modOptions.sprite_style_summary = true
+  modOptions.party_icon_style = "species"
 
   local bulbaBack = Sprites.path(game.data, "BULBASAUR", "back",
     { mon = bulba, kind = "battle" })
@@ -190,7 +274,16 @@ return function(game)
   U.wait(4)
   check("Crystal party/status screenshot",
     U.shot(game, DIR .. "/sprite_summary_crystal.png"))
-  U.tap(game, "b")
+  modOptions.status_values = "full"
+  U.tap(game, "a")
+  U.wait(2)
+  U.tap(game, "a")
+  U.wait(3)
+  local insight = game.stack:top()
+  check("optional DV/IV and EV page is reachable",
+    insight and insight.page == 3)
+  check("DV/IV and EV status screenshot",
+    U.shot(game, DIR .. "/status_values_full.png"))
   U.tap(game, "b")
   Screens.push(game, "DexEntryMenu", "BULBASAUR")
   U.wait(4)

@@ -1088,12 +1088,14 @@ T.eq(keptRows[1].label, "ITEM",
   "ordinary Start-menu row order remains unchanged")
 T.eq(keptRows[2].label, "SAVE",
   "the vanilla SAVE anchor remains present")
-T.eq(#groupedRows, 2,
-  "only explicitly marked Ascendant rows enter the submenu")
+T.eq(#groupedRows, 3,
+  "marked utilities plus the owned Options entry enter the submenu")
 T.eq(groupedRows[1].label, "JOURNAL",
   "Ascendant utilities use their intentional logical order")
 T.eq(groupedRows[2].label, "MEGA STONES",
   "the submenu can use a clearer label than the compact old Start row")
+T.eq(groupedRows[3].label, "OPTIONS",
+  "Ascendant configuration lives inside its own Start-menu tree")
 local _, expandedRows, anyNew = ascendantMenu.collect({
   {
     label = "JOURNAL", ascendantMenu = true,
@@ -1162,7 +1164,7 @@ T.neq(pushedAscendantMenu, nil,
   "selecting ASCENDANT opens the dedicated utility list")
 T.eq(pushedAscendantMenu.title, "KANTO ASCENDANT",
   "the utility list carries the expansion's full title")
-T.eq(#pushedAscendantMenu.items, 9,
+T.eq(#pushedAscendantMenu.items, 10,
   "the fixture exposes every utility whose content is available")
 T.same((function()
   local labels = {}
@@ -1173,7 +1175,7 @@ T.same((function()
 end)(), {
   "RESEARCH ATLAS", "JOURNAL", "GOROCHU RESEARCH", "WORLD", "SHINY DEX",
   "EVENT ARCHIVE", "MEGA STONES", "FRONTIER EXCHANGE",
-  "TITLES / TROPHIES",
+  "TITLES / TROPHIES", "OPTIONS",
 }, "available Ascendant utilities are clear and consistently ordered")
 end)()
 
@@ -4024,7 +4026,7 @@ pushed[#pushed].onDone()
 T.eq(lootNpc.frozen, false, "closing the loot message releases the trainer")
 
 game.save.inventory, game.save.bagOrder = {}, {}
-for i = 1, 20 do
+for i = 1, require("src.inventory.Bag").capacity(Data) do
   local id = "FILLER_" .. i
   game.save.inventory[id] = 1
   game.save.bagOrder[i] = id
