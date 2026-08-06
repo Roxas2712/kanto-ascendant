@@ -42,8 +42,12 @@ return function(mod)
     ListMenu.new = function(game, title, items, opts)
       local list = baseListNew(game, title, items, opts)
       local mode = setting("box_filter")
-      if mode == "all" or type(title) ~= "string"
-          or not title:find("WITHDRAW", 1, true) then
+      local storageList = type(title) == "string"
+        and (title:find("WITHDRAW", 1, true)
+          or title:find("RELEASE", 1, true)
+          or title:find("ABHEBEN", 1, true)
+          or title:find("FREILASSEN", 1, true))
+      if mode == "all" or not storageList then
         return list
       end
       local box = game.save.boxes and game.save.boxes[game.save.currentBox or 1]

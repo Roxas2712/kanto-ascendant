@@ -32,6 +32,66 @@ return function(mod)
     return true
   end
 
+  local function locateInBoxes(save, mon)
+    for boxIndex, box in ipairs(Boxes.ensure(save)) do
+      for monIndex, candidate in ipairs(box) do
+        if candidate == mon then return boxIndex, monIndex end
+      end
+    end
+    return nil
+  end
+
+  local function moveBoxCatchToParty(game, mon, partyIndex)
+    local boxIndex, monIndex = locateInBoxes(game.save, mon)
+    if not boxIndex then return false end
+    local box = game.save.boxes[boxIndex]
+    if #game.save.party < Party.MAX then
+      table.remove(box, monIndex)
+      table.insert(game.save.party, mon)
+      return true
+    end
+    local leaving = game.save.party[partyIndex]
+    if not leaving then return false end
+    box[monIndex] = leaving
+    game.save.party[partyIndex] = mon
+    return true
+  end
+
+  local function choosePartyReplacement(game, caught)
+    local rows = {}
+    for index, partyMon in ipairs(game.save.party or {}) do
+      local def = game.data.pokemon[partyMon.species] or {}
+      rows[#rows + 1] = {
+        value = index,
+        label = partyMon.nickname or def.name or partyMon.species,
+        right = ("Lv.%d"):format(partyMon.level or 0),
+      }
+    end
+    game.stack:push(mod.ui.ListMenu.new(game,
+      tr(game, "SEND WHICH TO BOX?", "WER SOLL IN DIE BOX?"), rows, {
+        onChoose = function(row, list)
+          if moveBoxCatchToParty(game, caught, row.value) then
+            list:close()
+            local def = game.data.pokemon[caught.species] or {}
+            local name = caught.nickname or def.name or caught.species
+            game.stack:push(TextBox.new(game, tr(game,
+              ("%s joined the\nPARTY!"):format(name),
+              ("%s ist jetzt\nim TEAM!"):format(name))))
+          end
+        end,
+      }))
+  end
+
+  local function keepInParty(game, mon)
+    local partyIndex = isInParty(game.save, mon)
+    if partyIndex then return true end
+    if #game.save.party < Party.MAX then
+      return moveBoxCatchToParty(game, mon, 1)
+    end
+    choosePartyReplacement(game, mon)
+    return true
+  end
+
   local function setting(game)
     local bucket = game and game.save and game.save.options
       and game.save.options.modOptions
@@ -53,25 +113,35 @@ return function(mod)
       return
     end
     local index = isInParty(game.save, mon)
-    if not index then return end
-    if #game.save.party >= Party.MAX and #Boxes.active(game.save) >= Boxes.CAPACITY then
-      return
-    end
+    local boxIndex = locateInBoxes(game.save, mon)
+    if not index and not boxIndex then return end
     pending[mon] = true
     local mode = setting(game)
-    if mode == "party" then return end
+    if mode == "party" then
+      keepInParty(game, mon)
+      return
+    end
     local name = mon.nickname or (game.data.pokemon[mon.species] or {}).name
       or tostring(mon.species)
     if mode == "box" then
-      moveToBox(game, mon, index)
+      if index then moveToBox(game, mon, index) end
       return
     end
-    game.stack:push(TextBox.new(game, tr(game,
+    local prompt = TextBox.new(game, tr(game,
       ("Where should %s go?\fYES: PARTY  NO: BOX"):format(name),
       ("Wohin soll %s?\fJA: TEAM  NEIN: BOX"):format(name)), function()
       game.stack:push(ChoiceBox.new(game, function(keepParty)
-        if not keepParty then moveToBox(game, mon, index) end
+        if keepParty then
+          keepInParty(game, mon)
+        elseif index then
+          moveToBox(game, mon, index)
+        end
       end, { defaultNo = false }))
-    end))
+    end)
+    if ev.battle and type(ev.battle.uiNext) == "function" then
+      ev.battle:uiNext(function() return prompt end)
+    else
+      game.stack:push(prompt)
+    end
   end, 20)
 end

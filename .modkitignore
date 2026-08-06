@@ -13,6 +13,10 @@ RELEASE_NOTES_5.4.1.md
 RELEASE_NOTES_5.4.2.md
 RELEASE_NOTES_6.0.0.md
 RELEASE_NOTES_6.5.0_RC1.md
+RELEASE_NOTES_6.5.0_RC2.md
+ROLLBACK_6.5.0_RC1.md
+ROLLBACK_6.5.0_RC2.md
+docs/RELEASE_6.5.0_INTERNAL_QOL_SCOPE.md
 RELEASE_NOTES_6.0.1.md
 RELEASE_NOTES_6.0.2.md
 RELEASE_NOTES_6.0.3.md
@@ -56,6 +60,10 @@ tests/reachability_test.lua
 tests/recruitment_full_data_test.lua
 tests/trainer_rematch_test.lua
 tests/upgrade_matrix_test.lua
+tests/qol_6_5_test.lua
+tests/qol_external_bag_driver.lua
+tests/qol_import_driver.lua
+tests/qol_visual_driver.lua
 tools/build_ascendant_typhlosion.py
 tools/build_raichu_partner_voice.py
 tools/build_breeding_data.py

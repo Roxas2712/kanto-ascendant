@@ -146,6 +146,7 @@ function M.install(mod, features)
   mod.hooks:wrap("ui.options.rows", function(next, game, rows)
     local out = next(game, rows)
     if type(out) ~= "table" then return out end
+    if mod.exports.ascendantFeaturesScreen then return out end
     return mod.ui.insertBefore(out, "MODS", {
       id = "johto_ascendant_qol",
       label = "JOHTO ASCENDANT",

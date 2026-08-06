@@ -385,6 +385,8 @@ end
 -- count changes) stay correct.  A stale blank from an interrupted draw is
 -- restored first so a later frame never redraws a permanently-empty label.
 local function decorateTickers(list)
+  -- The FireRed-style renderer owns its clipping and row geometry.
+  if list.__ascendantModernBag then return end
   local vanillaUpdate = list.update
   list.update = function(self, dt)
     for _, it in ipairs(self.items) do
@@ -720,8 +722,16 @@ return function(mod)
           local Strings = require("src.core.Strings")
           if type(items) == "table" and items[1] and items[2]
               and items[1].label == Strings("USE")
-              and items[2].label == Strings("TOSS")
-              and PROTECTED_TOSS_ITEMS[menuGame.__ascendantTossItem] then
+              and items[2].label == Strings("TOSS") then
+            local protectedId = menuGame.__ascendantTossItem
+            local protectedDef = menuGame.data and menuGame.data.items
+              and menuGame.data.items[protectedId]
+            local isProtected = PROTECTED_TOSS_ITEMS[protectedId]
+              or (protectedDef and (protectedDef.keyItem
+                or protectedDef.tossable == false))
+            if not isProtected then
+              return vanillaMenuNew(menuGame, items, opts)
+            end
             local patched = {}
             for i, row in ipairs(items) do
               patched[i] = row

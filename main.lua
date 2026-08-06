@@ -264,12 +264,6 @@ return function(mod)
     return ok and handle ~= nil
   end
   -- Register content-backed QoL screens before the loader freezes registries.
-  if not installedMod("useful_bag") then
-    local installBag = loadSibling(mod, "useful_bag.lua")
-    if type(installBag) == "function" then installBag(mod) end
-  else
-    mod.exports.externalUsefulBag = true
-  end
   if not installedMod("jj_quick_select") then
     local installQuickSelect = loadSibling(mod, "quick_select.lua")
     if type(installQuickSelect) == "function" then installQuickSelect(mod) end
@@ -541,6 +535,22 @@ return function(mod)
         { menuLabel("NORMAL", "NORMAL"), "normal" },
       } },
   })
+
+  -- Ascendant's bag owns the screen while enabled, even when the standalone
+  -- Useful Bag is installed. Turning this option off restores the standalone
+  -- mod as requested; its optional dependency loads before Ascendant.
+  if mod.options:get("ascendant_useful_bag") ~= false then
+    local installBag = loadSibling(mod, "useful_bag.lua")
+    if type(installBag) == "function" then installBag(mod) end
+    mod.exports.externalUsefulBag = false
+  else
+    mod.exports.externalUsefulBag = installedMod("useful_bag")
+  end
+  local installAscendantFeatures =
+    loadSibling(mod, "ascendant_features.lua")
+  if type(installAscendantFeatures) == "function" then
+    mod.exports.ascendantFeatures = installAscendantFeatures(mod)
+  end
 
   -- 6.5 QoL is bundled, but an installed standalone mod owns the same UI
   -- surface.  Defer detection until the loader has resolved all manifests,
