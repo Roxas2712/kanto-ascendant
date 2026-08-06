@@ -1,24 +1,23 @@
 # 🛠️ KANTO ASCENDANT 6.0.4 — FIXES
 
-**💎 Prism Grotto**
+**💎 New content**
 
-• Five short riddles grant guaranteed Johto evolution items
-• Includes a repeatable Eevee day/night rite
-• Rewards cannot duplicate and remain reserved if the Bag is full
+• Hidden Prism Grotto with five Johto evolution-item riddles
+• Repeatable Eevee day/night rite
+• Johto Move Resonance for compatible original Kanto Pokémon
 
-**✨ Move Resonance**
+**🎨 Visual and audio**
 
-• Teaches compatible Gen-II moves to original Kanto Pokémon
-• Uses Crystal's real level requirements and the Move Reminder
-
-**🎨 Fixes**
-
-• Correct Johto fronts, backs and authentic cries
-• Pokémon → STATS now respects `DEX SPRITES → CRYSTAL`
+• Correct Johto fronts, backs, Dex art and authentic cries
+• `POKÉMON → STATS` now respects `DEX SPRITES → CRYSTAL`
 • Event Shinies display correctly in Crystal and Voxel
-• Johto onboarding choices survive restarts
-• Existing Johto, Mythical and Dex progress is preserved
 
-Tested in Red, Blue and Yellow, English/German, 2D, Crystal and Voxel. ✅
+**💾 Saves**
+
+• Johto onboarding choices survive restarts
+• No repeated prompt over an already repaired save
+• Existing Johto, Mythical and National Dex progress is preserved
+
+Tested in Red, Blue and Yellow; English/German; 2D, Crystal and Voxel. ✅
 
 📥 https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.0.4
