@@ -259,6 +259,29 @@ return function(mod)
   local i18n = makeLocalization(mod)
   local recruitment = loadSibling(mod, "trainer_recruits.lua")
   local loot = loadSibling(mod, "rematch_loot.lua")
+  local function installedMod(id)
+    local ok, handle = pcall(mod.find, id)
+    return ok and handle ~= nil
+  end
+  -- Register content-backed QoL screens before the loader freezes registries.
+  if not installedMod("useful_bag") then
+    local installBag = loadSibling(mod, "useful_bag.lua")
+    if type(installBag) == "function" then installBag(mod) end
+  else
+    mod.exports.externalUsefulBag = true
+  end
+  if not installedMod("jj_quick_select") then
+    local installQuickSelect = loadSibling(mod, "quick_select.lua")
+    if type(installQuickSelect) == "function" then installQuickSelect(mod) end
+  else
+    mod.exports.externalQuickSelect = true
+  end
+  if not installedMod("quality_of_life") then
+    local installQuality = loadSibling(mod, "quality_of_life.lua")
+    if type(installQuality) == "function" then installQuality(mod) end
+  else
+    mod.exports.externalQualityOfLife = true
+  end
   local function menuLabel(english, german)
     return i18n.isGerman() and german or english
   end
@@ -523,35 +546,6 @@ return function(mod)
   -- surface.  Defer detection until the loader has resolved all manifests,
   -- then install only the features that do not have an external owner.
   mod.events:once("mods.loaded", function()
-    local function installed(id)
-      local ok, handle = pcall(mod.find, id)
-      return ok and handle ~= nil
-    end
-
-    if mod.options:get("ascendant_useful_bag") ~= false
-        and not installed("useful_bag") then
-      local installBag = loadSibling(mod, "useful_bag.lua")
-      if type(installBag) == "function" then installBag(mod) end
-    else
-      mod.exports.externalUsefulBag = installed("useful_bag")
-    end
-
-    if mod.options:get("ascendant_quick_select") ~= false
-        and not installed("jj_quick_select") then
-      local installQuickSelect = loadSibling(mod, "quick_select.lua")
-      if type(installQuickSelect) == "function" then installQuickSelect(mod) end
-    else
-      mod.exports.externalQuickSelect = installed("jj_quick_select")
-    end
-
-    if mod.options:get("ascendant_qol") ~= false
-        and not installed("quality_of_life") then
-      local installQuality = loadSibling(mod, "quality_of_life.lua")
-      if type(installQuality) == "function" then installQuality(mod) end
-    else
-      mod.exports.externalQualityOfLife = installed("quality_of_life")
-    end
-
     local installStorage = loadSibling(mod, "modern_storage_ui.lua")
     if type(installStorage) == "function" then installStorage(mod) end
     local installCatchDestination = loadSibling(mod, "catch_destination.lua")

@@ -3443,8 +3443,8 @@ T.eq(#ex.johtoResearch.habitatCandidates(
 do
   local scaled = ex.johtoResearch.encounterLevels
     .ordinaryLevelFromAverage(10, function(_, hi) return hi end, 3)
-  T.eq(scaled, 15,
-    "the research controller shares the route average plus-five ceiling")
+  T.eq(scaled, 18,
+    "the research controller shares the route average plus-eight ceiling")
 end
 calls.explicitWild = calls.fakeWildsLogic:trySpawn(game, {
   species = "FIXMON_B", level = 31, testSpawn = true,

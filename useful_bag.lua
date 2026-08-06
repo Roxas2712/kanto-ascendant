@@ -22,8 +22,8 @@
 -- matches the MEDICINE pocket because both read the same save.inventory.
 --
 -- The capacity half is two one-line registry patches: the bag limit
--- (Data.constants.bagSize; Bag.capacity consults it) and the PC storage
--- cap (Data.field.pcItemCap; PlayerPC.pcFull consults it).
+-- The bundled layer keeps vanilla inventory/PC capacity so it remains
+-- compatible with existing saves and external storage mods.
 --
 -- The pocket half rides the ui.screens registry: a registered "BagMenu"
 -- wins over the builtin require fallback (src/ui/Screens.lua), so both
@@ -639,9 +639,6 @@ end
 -- ------------------------------------------------ entry chunk
 
 return function(mod)
-  mod.content.constants:patch("bagSize", 999)
-  mod.content.field:patch("pcItemCap", 999)
-
   -- one bag at a time; the game.ready Input wraps write TAB/R3 here
   local session = { active = nil, wantSort = false, sortOpen = false }
 

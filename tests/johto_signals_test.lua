@@ -671,7 +671,7 @@ do
   eq(hit.species, "SENTRET",
     "Unleashed includes a roll of exactly 10 in 100")
   eq(hit.level, 8,
-    "Unleashed never exceeds route average plus five")
+    "Unleashed applies the configured minimum route bonus")
   local miss = h.api.rollReplacement(native, {
     mapId = "ROUTE_1", terrain = "grass",
     rng = sequence({ 11 }, "max"),
@@ -775,7 +775,7 @@ do
   eq(out.species, "SENTRET",
     "the registered encounter hook still performs the ordinary replacement")
   eq(out.level, 8,
-    "the hook derives Route 1's weighted average and applies its +5 ceiling")
+    "the hook derives Route 1's weighted average and applies its +2 floor")
 end
 
 do

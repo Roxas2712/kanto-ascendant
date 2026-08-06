@@ -199,7 +199,7 @@ local record = logic:trySpawn(game, {})
 eq(record.species, "SENTRET",
   "enabled integration turns a Wilds Route 1 spawn into Sentret")
 eq(record.level, 8,
-  "the visible Johto spawn never exceeds route average plus five")
+  "the visible Johto spawn applies the configured minimum route bonus")
 eq(research.rolls, 1,
   "one visible spawn performs one research roll")
 
