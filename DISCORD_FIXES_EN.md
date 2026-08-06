@@ -1,35 +1,24 @@
-# 🛠️ KANTO ASCENDANT 6.0.4 — UPDATE NOTES
+# 🛠️ KANTO ASCENDANT 6.0.4 — FIXES
 
-💎 **Prism Grotto**
-• New optional Driftglass cave with five short sequence riddles
-• Guaranteed Sun Stone, King's Rock, Metal Coat, Dragon Scale and Up-Grade
-• Separate repeatable Eevee day/night rite
-• Solved rewards cannot duplicate; full Bags keep rewards safely reserved
+**💎 Prism Grotto**
 
-✨ **Johto Move Resonance**
-• The central crystal teaches compatible implemented Gen-II moves to 104
-original Kanto species
-• Crystal's genuine level requirements are preserved
-• Full movesets use the existing Route 5 Move Deleter
-• Crystal-taught moves remain available through the Move Reminder
+• Five short riddles grant guaranteed Johto evolution items
+• Includes a repeatable Eevee day/night rite
+• Rewards cannot duplicate and remain reserved if the Bag is full
 
-🎨 **Visual and audio fixes**
-• Johto #152-251 use their species-authentic bundled fronts, backs and cries
-• Pokémon → STATS now respects DEX SPRITES → CRYSTAL
-• Guaranteed and bonus Shinies are prepared before Crystal/Voxel wrappers
-choose artwork
-• Prevents event Shinies from appearing in normal colours
+**✨ Move Resonance**
 
-💾 **Save and onboarding fixes**
-• YES/NO for direct Johto Signals start is remembered immediately
-• The startup question no longer returns after restarting or appears over an
-already repaired save while it is still loading
-• Existing Johto, Mythic, National Dex, trace and encounter progress remains
-unchanged
+• Teaches compatible Gen-II moves to original Kanto Pokémon
+• Uses Crystal's real level requirements and the Move Reminder
 
-✅ Tested across Red, Blue and Yellow, English/German, 2D, Crystal and Voxel
-integration.
+**🎨 Fixes**
+
+• Correct Johto fronts, backs and authentic cries
+• Pokémon → STATS now respects `DEX SPRITES → CRYSTAL`
+• Event Shinies display correctly in Crystal and Voxel
+• Johto onboarding choices survive restarts
+• Existing Johto, Mythical and Dex progress is preserved
+
+Tested in Red, Blue and Yellow, English/German, 2D, Crystal and Voxel. ✅
 
 📥 https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.0.4
-
-Thanks for all reports and testing! 💚
