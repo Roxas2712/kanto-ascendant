@@ -391,6 +391,34 @@ return function(mod)
         { menuLabel("WANDERWAVES NOW", "WANDERWELLEN SOFORT"), "waves" },
         { menuLabel("UNLEASHED NOW", "ENTFESSELT SOFORT"), "unleashed" },
       } },
+    { key = "johto_level_bonus",
+      label = menuLabel("JOHTO LEVEL BONUS", "JOHTO-LEVELBONUS"),
+      type = "choice", default = "2_8",
+      choices = {
+        { menuLabel("ROUTE AVERAGE +2 TO +8", "ROUTENMITTEL +2 BIS +8"), "2_8" },
+        { menuLabel("ROUTE AVERAGE +2 TO +5", "ROUTENMITTEL +2 BIS +5"), "2_5" },
+      } },
+    { key = "ascendant_useful_bag",
+      label = menuLabel("ASCENDANT BAG", "ASCENDANT-BEUTEL"),
+      type = "toggle", default = true },
+    { key = "ascendant_quick_select",
+      label = menuLabel("QUICK SELECT", "SCHNELLWAHL"),
+      type = "toggle", default = true },
+    { key = "ascendant_qol",
+      label = menuLabel("ASCENDANT QOL", "ASCENDANT-QOL"),
+      type = "toggle", default = true },
+    { key = "modern_storage_ui",
+      label = menuLabel("MODERN BAG/BOX UI", "MODERNE BEUTEL/BOX-OPTIK"),
+      type = "toggle", default = true },
+    { key = "catch_destination",
+      label = menuLabel("CATCH DESTINATION", "FANGZIEL"),
+      type = "choice", default = "ask",
+      choices = {
+        { menuLabel("ASK PARTY / BOX", "TEAM / BOX FRAGEN"), "ask" },
+        { menuLabel("PARTY FIRST", "ZUERST TEAM"), "party" },
+        { menuLabel("BOX FIRST", "ZUERST BOX"), "box" },
+        { menuLabel("OFF", "AUS"), "off" },
+      } },
     { key = "mythic_signals",
       label = menuLabel("MYTHIC SIGNALS", "MYTHOS-SIGNALE"),
       type = "toggle", default = true },
@@ -458,6 +486,47 @@ return function(mod)
         { menuLabel("NORMAL", "NORMAL"), "normal" },
       } },
   })
+
+  -- 6.5 QoL is bundled, but an installed standalone mod owns the same UI
+  -- surface.  Defer detection until the loader has resolved all manifests,
+  -- then install only the features that do not have an external owner.
+  mod.events:once("mods.loaded", function()
+    local function installed(id)
+      local ok, handle = pcall(mod.find, id)
+      return ok and handle ~= nil
+    end
+
+    if mod.options:get("ascendant_useful_bag") ~= false
+        and not installed("useful_bag") then
+      local installBag = loadSibling(mod, "useful_bag.lua")
+      if type(installBag) == "function" then installBag(mod) end
+    else
+      mod.exports.externalUsefulBag = installed("useful_bag")
+    end
+
+    if mod.options:get("ascendant_quick_select") ~= false
+        and not installed("jj_quick_select") then
+      local installQuickSelect = loadSibling(mod, "quick_select.lua")
+      if type(installQuickSelect) == "function" then installQuickSelect(mod) end
+    else
+      mod.exports.externalQuickSelect = installed("jj_quick_select")
+    end
+
+    if mod.options:get("ascendant_qol") ~= false
+        and not installed("quality_of_life") then
+      local installQuality = loadSibling(mod, "quality_of_life.lua")
+      if type(installQuality) == "function" then installQuality(mod) end
+    else
+      mod.exports.externalQualityOfLife = installed("quality_of_life")
+    end
+
+    local installStorage = loadSibling(mod, "modern_storage_ui.lua")
+    if type(installStorage) == "function" then installStorage(mod) end
+    local installCatchDestination = loadSibling(mod, "catch_destination.lua")
+    if type(installCatchDestination) == "function" then
+      installCatchDestination(mod)
+    end
+  end)
 
   -- The German translation packs currently ship a misaligned category
   -- table: Mew and Mewtwo both end up labelled "VOGEL".  Ascendant uses
@@ -605,6 +674,14 @@ return function(mod)
   mod.exports.yellowPartner = yellowPartner
   local johtoEncounterLevels =
     loadSibling(mod, "johto_encounter_levels.lua")
+  do
+    local band = mod.options:get("johto_level_bonus")
+    if band == "2_5" then
+      johtoEncounterLevels.setBonusRange(2, 5)
+    else
+      johtoEncounterLevels.setBonusRange(2, 8)
+    end
+  end
   local makeJohtoResearch = loadSibling(mod, "johto_research.lua")
   local johtoResearch = makeJohtoResearch(mod, {
     data = johtoData,

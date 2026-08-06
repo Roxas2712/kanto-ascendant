@@ -25,12 +25,18 @@ local routeOne = {
 
 eq(levels.routeAverage(routeOne, "grass"), 3,
   "Route 1's Gen-I-weighted average rounds to level 3")
+levels.setBonusRange(2, 5)
 eq(levels.ordinaryLevel(routeOne, "grass",
     function(lo) return lo end, 99), 5,
   "an ordinary Johto replacement can be exactly average plus two")
 eq(levels.ordinaryLevel(routeOne, "grass",
     function(_, hi) return hi end, 99), 8,
-  "an ordinary Johto replacement never exceeds average plus five")
+  "the legacy 2..5 compatibility band can still be selected")
+
+levels.setBonusRange(2, 8)
+eq(levels.ordinaryLevel(routeOne, "grass",
+    function(_, hi) return hi end, 99), 11,
+  "the 6.5 ordinary Johto replacement reaches average plus eight")
 
 local customBuckets = {
   water = {

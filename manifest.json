@@ -21,7 +21,10 @@
     "overworld_wild_spawns",
     "PokePCFollowers_VoxelMerge",
     "crystal_animated_sprites_with_shiny_visuals",
-    "DRAMATIC_SHAPE"
+    "DRAMATIC_SHAPE",
+    "useful_bag",
+    "quality_of_life",
+    "jj_quick_select"
   ],
   "conflicts": [],
   "incompatible": [],
