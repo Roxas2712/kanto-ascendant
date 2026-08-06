@@ -356,9 +356,30 @@ Ordinary Johto encounters use the current route's weighted average level plus
 a random 2-5 levels. Explicitly authored primal-trace encounters keep their
 intended story level.
 
+The average is calculated from the route's actual encounter slots and their
+Gen-I encounter weights, then rounded to a whole level. For example, a route
+with an effective average of level 3 can produce an ordinary Johto Pokémon at
+level 5, 6, 7 or 8 — never level 12 or 15 just because that species has a
+later research habitat. Grass and surfing tables are balanced independently.
+
 The current can be changed later under
 **ASCENDANT → WORLD → JOHTO SIGNALS**. Choosing Kanto First does not disable
 the independent Mythic Signals system.
+
+</details>
+
+<details>
+<summary><strong>⚠️ SPOILER — Are high-level Johto Pokémon on the first routes intended?</strong></summary>
+
+No. A previous 6.0.x path accidentally reused fixed research-habitat levels,
+which could place level 12-15 Johto Pokémon beside level 2-6 Kanto encounters.
+That behavior is being corrected for the next patch.
+
+After the fix, ordinary Johto replacements stay only 2-5 levels above the
+weighted average of the route's active encounter table. The same rule is used
+by classic 2D encounters, Wilds of Kanto and permanent researched habitats.
+Primal traces, guaranteed story encounters and other explicitly authored
+special battles are excluded and keep their designed levels.
 
 </details>
 
