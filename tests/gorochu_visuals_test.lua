@@ -80,11 +80,11 @@ local overworldBattle = {
 local game = {
   mods = {
     exports = {
-      DRAMATIC_SHAPE = {
+      BATTLE_ART_VOXEL_FORK = {
         lib = {
           require = function(name)
             eq(name, "OverworldBattle",
-              "Gorochu installs through Dramatic Shape's public module")
+              "Gorochu installs through Battle Art Voxel's public module")
             return overworldBattle
           end,
         },

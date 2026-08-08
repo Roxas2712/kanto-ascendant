@@ -28,7 +28,10 @@ return function(mod, opts)
 
   local function dramaticBattle(game)
     local exports = game and game.mods and game.mods.exports
-    local dramatic = exports and exports.DRAMATIC_SHAPE
+    -- Battle Art Voxel 1.7.2+ renamed its public mod id while preserving the
+    -- OverworldBattle companion API used by both Voxel variants.
+    local dramatic = exports and (exports.BATTLE_ART_VOXEL_FORK
+      or exports.DRAMATIC_SHAPE)
     if not (dramatic and dramatic.lib and dramatic.lib.require) then
       return nil
     end

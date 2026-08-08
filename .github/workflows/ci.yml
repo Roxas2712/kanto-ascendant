@@ -48,6 +48,7 @@ jobs:
         run: |
           luajit ../kanto-ascendant/tests/trainer_rematch_test.lua
           luajit ../kanto-ascendant/tests/gorochu_visuals_test.lua
+          luajit ../kanto-ascendant/tests/battle_art_voxel_compat_test.lua
           luajit ../kanto-ascendant/tests/gorochu_audio_matrix_test.lua
           luajit ../kanto-ascendant/tests/field_economy_test.lua
           luajit ../kanto-ascendant/tests/atlas_legacy_test.lua
@@ -89,23 +90,23 @@ jobs:
           MODKIT_LUAJIT: luajit
         run: |
           python3 tools/modkit.py pack ../kanto-ascendant \
-            -o ../kanto-ascendant-6.0.7.modpkg
-          unzip -tq ../kanto-ascendant-6.0.7.modpkg
-          cp ../kanto-ascendant-6.0.7.modpkg \
-            ../kanto-ascendant-6.0.7.zip
+            -o ../kanto-ascendant-6.0.8.modpkg
+          unzip -tq ../kanto-ascendant-6.0.8.modpkg
+          cp ../kanto-ascendant-6.0.8.modpkg \
+            ../kanto-ascendant-6.0.8.zip
           (
             cd ..
-            sha256sum kanto-ascendant-6.0.7.modpkg \
-              kanto-ascendant-6.0.7.zip \
-              > SHA256SUMS-6.0.7.txt
+            sha256sum kanto-ascendant-6.0.8.modpkg \
+              kanto-ascendant-6.0.8.zip \
+              > SHA256SUMS-6.0.8.txt
           )
           python3 ../kanto-ascendant/tools/johto_signals_release_audit.py \
-            ../kanto-ascendant-6.0.7.modpkg
+            ../kanto-ascendant-6.0.8.modpkg
           python3 - <<'PY'
           import json
           import zipfile
 
-          package = "../kanto-ascendant-6.0.7.modpkg"
+          package = "../kanto-ascendant-6.0.8.modpkg"
           forbidden_prefixes = (
               "art_review/",
               "assets/sources/",
@@ -167,9 +168,9 @@ jobs:
                   )
 
               manifest = json.loads(archive.read("manifest.json"))
-              if manifest.get("version") != "6.0.7":
+              if manifest.get("version") != "6.0.8":
                 raise SystemExit(
-                      "Expected manifest version 6.0.7, got "
+                      "Expected manifest version 6.0.8, got "
                       + repr(manifest.get("version"))
                   )
 
@@ -179,9 +180,9 @@ jobs:
       - name: Upload the verified release candidate
         uses: actions/upload-artifact@v4
         with:
-          name: kanto-ascendant-6.0.7-release-candidate
+          name: kanto-ascendant-6.0.8-release-candidate
           if-no-files-found: error
           path: |
-            kanto-ascendant-6.0.7.modpkg
-            kanto-ascendant-6.0.7.zip
-            SHA256SUMS-6.0.7.txt
+            kanto-ascendant-6.0.8.modpkg
+            kanto-ascendant-6.0.8.zip
+            SHA256SUMS-6.0.8.txt

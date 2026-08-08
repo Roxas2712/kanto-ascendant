@@ -708,7 +708,11 @@ return function(mod, opts)
 
   local function installVoxelCompatibility(game)
     local exports = game and game.mods and game.mods.exports
-    local dramatic = exports and exports.DRAMATIC_SHAPE
+    -- Battle Art Voxel 1.7.2+ changed its public mod id from
+    -- DRAMATIC_SHAPE to BATTLE_ART_VOXEL_FORK but retained this API.  Resolve
+    -- the current id first while keeping older Dramatic Shape installs valid.
+    local dramatic = exports and (exports.BATTLE_ART_VOXEL_FORK
+      or exports.DRAMATIC_SHAPE)
     if not (dramatic and dramatic.lib and dramatic.lib.require) then return end
     local okBattle, overworldBattle = pcall(
       dramatic.lib.require, "OverworldBattle")

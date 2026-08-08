@@ -4,6 +4,15 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+## [6.0.8] - 2026-08-08
+
+### Fixed
+
+- Battle Art Voxel 1.7.6 renamed its public API export to
+  `BATTLE_ART_VOXEL_FORK`. Mega Evolution and Gorochu now use that API as
+  well as the legacy Dramatic Shape ID, so front-facing Voxel fights do not
+  receive the obsolete classic Mega rear overlay.
+
 ## [6.0.7] - 2026-08-08
 
 ### Fixed
