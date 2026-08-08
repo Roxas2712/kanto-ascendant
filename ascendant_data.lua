@@ -448,11 +448,13 @@ A.mew = {
 }
 
 A.newGamePlus = {
-  map = "HALL_OF_FAME",
+  -- The Hall of Fame is a one-way Champion cutscene map.  The post-game
+  -- lobby is the reachable League hub, so the ready Steward must appear here.
+  map = "INDIGO_PLATEAU_LOBBY",
   name = "KANTO_ASCENDANT_STEWARD",
   textId = "MOD_KANTO_ASCENDANT_NEW_GAME_PLUS",
   sprite = "SPRITE_OAK",
-  preferred = { { 2, 4 }, { 7, 4 }, { 2, 5 } },
+  preferred = { { 4, 5 }, { 5, 5 }, { 4, 6 } },
 }
 
 A.worldMoments = {

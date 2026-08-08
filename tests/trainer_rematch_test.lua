@@ -4042,6 +4042,8 @@ T.neq(asc, nil, "the Ascendant systems controller is exported")
 T.neq(asd, nil, "the Ascendant progression data is exported")
 T.neq(heritage, nil, "the permanent Event Archive controller is exported")
 T.neq(heritageData, nil, "the historical event profiles are exported")
+T.eq(asd.newGamePlus.map, "INDIGO_PLATEAU_LOBBY",
+  "the ready New Game Plus Steward appears in the reachable League lobby")
 local longestEventLabelEn, longestEventLabelDe = 0, 0
 for _, profile in ipairs(heritageData.profiles) do
   longestEventLabelEn = math.max(longestEventLabelEn, #profile.short.en)
