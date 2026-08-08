@@ -49,6 +49,7 @@ jobs:
           luajit ../kanto-ascendant/tests/trainer_rematch_test.lua
           luajit ../kanto-ascendant/tests/gorochu_visuals_test.lua
           luajit ../kanto-ascendant/tests/battle_art_voxel_compat_test.lua
+          luajit ../kanto-ascendant/tests/dramaless_camera_compat_test.lua
           luajit ../kanto-ascendant/tests/gorochu_audio_matrix_test.lua
           luajit ../kanto-ascendant/tests/field_economy_test.lua
           luajit ../kanto-ascendant/tests/atlas_legacy_test.lua

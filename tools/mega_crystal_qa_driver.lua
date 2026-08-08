@@ -18,6 +18,8 @@ return function(game)
   local forcedShiny = os.getenv("MEGA_QA_SHINY") == "1"
   local captureBaseline = os.getenv("MEGA_QA_BASELINE") == "1"
   local crystalArt = os.getenv("MEGA_QA_CRYSTAL") ~= "0"
+  local classicDramalessCamera =
+    os.getenv("MEGA_QA_DRAMALESS_CAMERA") == "classic"
   local version = (os.getenv("MEGA_QA_VERSION") or "red"):lower()
   local GameVersion = require("src.core.GameVersion")
   local PaletteFX = require("src.render.PaletteFX")
@@ -33,6 +35,8 @@ return function(game)
   PaletteFX.setMode("ogred")
   game.mods.modOptions.trainer_rematch =
     game.mods.modOptions.trainer_rematch or {}
+  game.mods.modOptions.trainer_rematch.dramaless_battle_camera =
+    classicDramalessCamera and "classic" or "fork"
   game.mods.modOptions.trainer_rematch.kanto_crystal_art = crystalArt
   game.mods.modOptions.trainer_rematch.legend_art =
     crystalArt and "crystal" or "original"
@@ -76,6 +80,19 @@ return function(game)
     overworldBattle = dramatic.lib.require("OverworldBattle")
     overworldBattle.setting:setIndex(layout == "voxel" and 1 or 2, game)
     overworldBattle.backSetting:setIndex(backSprites and 2 or 1, game)
+  end
+  local ascendant = game.mods.exports.trainer_rematch
+  if dramatic == game.mods.exports.DRAMALESS_SHAPE
+      and ascendant and ascendant.dramalessCameraCompat then
+    assert(ascendant.dramalessCameraCompat.apply(game),
+      "Dramaless camera compatibility bridge did not resolve the renderer")
+    local camera = dramatic and dramatic.lib.require("BattleCam")
+    if classicDramalessCamera then
+      assert(camera and camera.RIGS and camera.RIGS.tele
+          and math.abs(camera.RIGS.tele.back - 144.96) < 0.001
+          and math.abs(camera.RIGS.tele.height - 37.88) < 0.001,
+        "Classic Voxel camera did not restore the original tele rig")
+    end
   end
 
   game.save.flags = game.save.flags or {}

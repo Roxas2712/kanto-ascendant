@@ -344,6 +344,13 @@ return function(mod)
     { key = "crystal_animation",
       label = menuLabel("CRYSTAL ANIMATION", "KRISTALL-ANIMATION"),
       type = "toggle", default = true },
+    { key = "dramaless_battle_camera",
+      label = menuLabel("DRAMALESS BATTLE CAMERA", "DRAMALESS-KAMPFKAMERA"),
+      type = "choice", default = "fork",
+      choices = {
+        { menuLabel("FORK DEFAULT", "FORK-STANDARD"), "fork" },
+        { menuLabel("CLASSIC VOXEL", "KLASSISCHES VOXEL"), "classic" },
+      } },
     { key = "shiny_hunts", label = menuLabel("SHINY HUNTS", "SHINY-JAGD"),
       type = "choice", default = "ascendant",
       choices = {
@@ -568,6 +575,10 @@ return function(mod)
     shinySystem = shinySystem,
   })
   mod.exports.gorochuVisuals = gorochuVisuals
+  local makeDramalessCameraCompat =
+    loadSibling(mod, "dramaless_camera_compat.lua")
+  local dramalessCameraCompat = makeDramalessCameraCompat(mod)
+  mod.exports.dramalessCameraCompat = dramalessCameraCompat
   local crystalAnimationData = loadSibling(mod, "crystal_animation_data.lua")
   crystalAnimationData.normal[tostring(gorochu.dex)] =
     gorochu.animationDurations
@@ -1550,6 +1561,7 @@ return function(mod)
     if gorochu then gorochu.install(game, deps) end
     if megaEvolution then megaEvolution.install(game, deps) end
     if gorochuVisuals then gorochuVisuals.install(game) end
+    if dramalessCameraCompat then dramalessCameraCompat.install(game) end
     if kantoCompletion then kantoCompletion.install(game, deps) end
     if fieldTech then fieldTech.install(game, deps) end
     if frontierExchange then frontierExchange.install(game, deps) end
