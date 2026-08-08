@@ -23,31 +23,32 @@ collapsed so players can reveal only the information they want.
 > [GitHub Issues](https://github.com/Roxas2712/kanto-ascendant/issues) and will
 > be considered for future updates.
 
-## What's new in 6.0.10
+## What's new in 6.0.11
 
-- **Classic Voxel framing now visibly works with Dramaless Shape.** The
-  `CLASSIC VOXEL` camera choice updates the rendered battle frame, while
-  `FORK DEFAULT` restores Dramaless Shape's original wider composition. Find
-  the choice beside the Voxel controls in the regular **OPTIONS** menu.
+- **Voxel battle framing is selectable without renderer-specific labels.**
+  `CLASSIC VOXEL` restores the historical composition, `WIDE VOXEL` keeps
+  large Mega models fully in view, and `VOXEL DEFAULT` retains the renderer's
+  standard composition. Find the choice beside the Voxel controls in the
+  regular **OPTIONS** menu.
 
 ## What's new in 6.0.9
 
-- **Dramaless Shape** (`DRAMALESS_SHAPE`) now owns the complete staged-battle
-  composition. Kanto Ascendant supplies its Mega and Gorochu art with matching
+- The compatible Voxel renderer owns the complete staged-battle composition.
+  Kanto Ascendant supplies its Mega and Gorochu art with matching
   Voxel-card anchors in the renderer's **2D-3D** views, respects **FRONT
   SPRITES** and world-space **BACK SPRITES**, and never applies its classic 2D
   Mega overlay to a live staged shot.
-- Dramaless Shape's **STADIUM** views use their own 3D models. A renderer
+- **STADIUM** views use their own 3D models. A renderer
   fallback that cannot stage a 3D arena retains the normal Kanto Ascendant 2D
   Mega presentation.
-- **DRAMALESS BATTLE CAMERA** is an optional presentation choice: select
+- **VOXEL BATTLE CAMERA** is an optional presentation choice: select
   **CLASSIC VOXEL** to restore the original Voxel battle framing, or leave
-  **FORK DEFAULT** selected for Dramaless Shape's wider camera.
+  **VOXEL DEFAULT** selected for the renderer's wider camera.
 
 ## What's new in 6.0.8
 
-- Mega Evolution and Gorochu's high-resolution Voxel cards now recognize
-  **Dramaless Shape 1.6.2.ST** (`DRAMALESS_SHAPE`). Its 2D-3D battles no
+- Mega Evolution and Gorochu's high-resolution Voxel cards now recognize the
+  compatible renderer. Its 2D-3D battles no
   longer receive Kanto Ascendant's classic rear-sprite overlay.
 
 ## What's new in 6.0.7
@@ -1367,7 +1368,7 @@ missions, Rocket story and one new tournament bracket are completed.
 
 ## Installation
 
-1. Download `kanto-ascendant-6.0.10.modpkg` from the
+1. Download `kanto-ascendant-6.0.11.modpkg` from the
    [latest release](https://github.com/Roxas2712/kanto-ascendant/releases/latest)
    and import it through the launcher. Developers may alternatively install
    the checked-out mod directory.
@@ -1425,7 +1426,7 @@ python3 tools/johto_signals_release_audit.py .
 The map-collision and Mythic battle suites run from the engine checkout with
 `KANTO_SIGNALS_MOD_DIR` and `TRAINER_REMATCH_MOD_DIR` pointed at this mod.
 GitHub CI runs both contracts and repeats the release-boundary audit against
-the exact `kanto-ascendant-6.0.10.modpkg`.
+the exact `kanto-ascendant-6.0.11.modpkg`.
 
 The upgrade matrix includes separate schema-derived Kanto Ascendant 5.3
 fixtures for Red, Blue and Yellow. They pin the public 5.3 package hash and

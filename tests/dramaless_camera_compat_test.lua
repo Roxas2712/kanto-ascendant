@@ -1,9 +1,9 @@
--- The optional Classic Voxel camera must restore exactly the pre-Dramaless
+-- The optional Classic Voxel camera must restore exactly the renderer-default
 -- telephoto rig while leaving the renderer's default untouched otherwise.
 
 package.path = "./?.lua;./?/init.lua;" .. package.path
 
-local S = require("tests.harness").suite("dramaless camera compatibility")
+local S = require("tests.harness").suite("voxel camera compatibility")
 local eq = S.eq
 local modDir = assert(os.getenv("TRAINER_REMATCH_MOD_DIR"),
   "TRAINER_REMATCH_MOD_DIR is required")
@@ -27,7 +27,7 @@ local mod = {
 }
 local game = {
   mods = { exports = { DRAMALESS_SHAPE = { lib = { require = function(name)
-    eq(name, "BattleCam", "camera resolves the Dramaless public camera seam")
+    eq(name, "BattleCam", "camera resolves the renderer public camera seam")
     return camera
   end } } } },
 }
@@ -37,9 +37,9 @@ eq(compat.install(game), true, "compatibility controller installs")
 eq(compat.CLASSIC_TELE.frameH, 34.11 * 2,
   "Classic Voxel uses the live-reviewed original-scale frame")
 eq(camera.RIGS.tele.back, 217.44,
-  "the Dramaless default remains untouched until Classic Voxel is selected")
+  "the renderer default remains untouched until Classic Voxel is selected")
 eq(camera.RIGS.tele.height, 56.82,
-  "the Dramaless default height remains untouched until selected")
+  "the renderer default height remains untouched until selected")
 
 selected = "classic"
 handlers["mod.options_changed"]({
@@ -74,11 +74,11 @@ handlers["mod.options_changed"]({
   mod = "trainer_rematch", key = "dramaless_battle_camera",
 })
 eq(camera.RIGS.tele.back, 217.44,
-  "switching back restores Dramaless's exact original distance")
+  "switching back restores the renderer's exact original distance")
 eq(camera.RIGS.tele.height, 56.82,
-  "switching back restores Dramaless's exact original height")
+  "switching back restores the renderer's exact original height")
 eq(camera.RIGS.tele.frameH, 34.11,
-  "switching back restores Dramaless's exact original framing")
+  "switching back restores the renderer's exact original framing")
 
 local noRenderer = dofile(modDir .. "/dramaless_camera_compat.lua")({
   id = "trainer_rematch",
@@ -86,6 +86,6 @@ local noRenderer = dofile(modDir .. "/dramaless_camera_compat.lua")({
   events = { on = function() end },
 })
 eq(noRenderer.install({ mods = { exports = {} } }), true,
-  "the optional bridge remains inert when Dramaless is absent")
+  "the optional bridge remains inert when the renderer is absent")
 
 S.finish()

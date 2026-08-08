@@ -84,7 +84,7 @@ local game = {
         lib = {
           require = function(name)
             eq(name, "OverworldBattle",
-              "Gorochu installs through Dramaless Shape's public module")
+              "Gorochu installs through the renderer's public module")
             return overworldBattle
           end,
         },
@@ -138,13 +138,13 @@ eq(player.kantoAscendantGorochuSource,
   "assets/voxel/gorochu/gorochu_front.png",
   "camera-facing player uses the approved normal front")
 eq(player.canvas.width, 160,
-  "Gorochu card retains Dramaless Shape's native canvas width")
+  "Gorochu card retains the renderer's native canvas width")
 eq(player.canvas.height, 144,
-  "Gorochu card retains Dramaless Shape's native canvas height")
+  "Gorochu card retains the renderer's native canvas height")
 eq(player.ax, 80,
-  "Gorochu card retains Dramaless Shape's horizontal anchor")
+  "Gorochu card retains the renderer's horizontal anchor")
 eq(player.ay, 96,
-  "Gorochu card retains Dramaless Shape's vertical anchor")
+  "Gorochu card retains the renderer's vertical anchor")
 eq(player.kantoAscendantGorochuAnimationFrame, 4,
   "Voxel master follows the live Crystal animation clock")
 

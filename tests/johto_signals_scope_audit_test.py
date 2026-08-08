@@ -22,15 +22,15 @@ SPEC.loader.exec_module(AUDIT)
 def write_clean_package(root: Path) -> None:
     (root / ".luarc.json").write_text("{}\n", encoding="utf-8")
     (root / "README.md").write_text("# Kanto Ascendant\n", encoding="utf-8")
-    (root / "RELEASE_NOTES_6.0.10.md").write_text(
-        "# Kanto Ascendant 6.0.10\n", encoding="utf-8"
+    (root / "RELEASE_NOTES_6.0.11.md").write_text(
+        "# Kanto Ascendant 6.0.11\n", encoding="utf-8"
     )
     (root / "mod.card").write_text("return {}\n", encoding="utf-8")
     (root / "manifest.json").write_text(
         json.dumps(
             {
                 "id": "trainer_rematch",
-                "version": "6.0.10",
+                "version": "6.0.11",
                 "experimental": False,
             }
         ),
@@ -64,16 +64,16 @@ with tempfile.TemporaryDirectory(prefix="signals-audit-") as raw:
     assert any("JIRACHI" in error for error in leaked)
     mythic.write_text("return {}\n", encoding="utf-8")
 
-    notes = clean / "RELEASE_NOTES_6.0.10.md"
+    notes = clean / "RELEASE_NOTES_6.0.11.md"
     notes.write_text("JIRACHI is included.\n", encoding="utf-8")
     leaked = AUDIT.audit(clean, False)
     assert any("JIRACHI" in error for error in leaked)
-    notes.write_text("# Kanto Ascendant 6.0.10\n", encoding="utf-8")
+    notes.write_text("# Kanto Ascendant 6.0.11\n", encoding="utf-8")
 
     archive = temp / "clean.modpkg"
     with zipfile.ZipFile(archive, "w") as zf:
         for path in clean.iterdir():
-            if path.name == "RELEASE_NOTES_6.0.10.md":
+            if path.name == "RELEASE_NOTES_6.0.11.md":
                 continue
             zf.write(path, "kanto-ascendant/" + path.name)
     assert AUDIT.audit(archive, False) == []
@@ -82,6 +82,6 @@ with tempfile.TemporaryDirectory(prefix="signals-audit-") as raw:
     manifest["version"] = "5.3.0"
     (clean / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
     wrong_version = AUDIT.audit(clean, False)
-    assert any("exactly 6.0.10" in error for error in wrong_version)
+    assert any("exactly 6.0.11" in error for error in wrong_version)
 
 print("JOHTO SIGNALS SCOPE AUDIT TEST PASS")

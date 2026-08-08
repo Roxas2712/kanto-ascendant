@@ -1,7 +1,7 @@
 {
   "id": "trainer_rematch",
   "name": "Kanto Ascendant",
-  "version": "6.0.10",
+  "version": "6.0.11",
   "api": 2,
   "entry": "main.lua",
   "profile": "content",

@@ -38,12 +38,12 @@ REQUIRED_PACKAGE_FILES = {
 }
 
 REQUIRED_SOURCE_FILES = REQUIRED_PACKAGE_FILES | {
-    "RELEASE_NOTES_6.0.10.md",
+    "RELEASE_NOTES_6.0.11.md",
 }
 
 PUBLIC_RELEASE_TEXTS = {
     "README.md",
-    "RELEASE_NOTES_6.0.10.md",
+    "RELEASE_NOTES_6.0.11.md",
     "mod.card",
 }
 
@@ -169,8 +169,8 @@ def audit(source: Path, component_only: bool) -> list[str]:
                         errors.append(
                             "manifest id must remain trainer_rematch for upgrades"
                         )
-                    if str(manifest.get("version", "")) != "6.0.10":
-                        errors.append("manifest version must be exactly 6.0.10")
+                    if str(manifest.get("version", "")) != "6.0.11":
+                        errors.append("manifest version must be exactly 6.0.11")
                     if manifest.get("experimental") is True:
                         errors.append("release manifest must not be experimental")
 

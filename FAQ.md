@@ -78,7 +78,7 @@ defect.
 <summary><strong>⚠️ SPOILER — Which other mods are compatible?</strong></summary>
 
 Kanto Ascendant is designed to coexist with the Gen-I Randomizer, PokéPC
-Followers, Followers EX, Wilds of Kanto, Dramaless Shape/Dramatic Shape,
+Followers, Followers EX, Wilds of Kanto and compatible Voxel renderers,
 Crystal
 Animated Sprites and dedicated shiny-indicator mods.
 
@@ -1266,15 +1266,15 @@ Pikachu and unrelated level-5 encounters are not rewritten.
   frame one. Johto uses its species-authentic bundled Crystal portrait because
   Red/Blue/Yellow have no native #152-251 art.
 - **CRYSTAL ANIMATION:** animates normal/shiny #001-251 battle fronts.
-- Dramatic Shape/Voxel uses dedicated renderer assets. Gorochu and all official
+- Compatible Voxel renderers use dedicated renderer assets. Gorochu and all official
   Mega forms have separate sharp 96×96 masters.
-- **Dramaless Shape 1.6.2.ST:** supported through its `DRAMALESS_SHAPE` API.
-  It owns the staged 3D battle camera and layout; Ascendant supplies its Mega
+- The compatible Voxel renderer owns the staged 3D battle camera and layout;
+  Ascendant supplies its Mega
   and Gorochu cards in the selected 2D-3D FRONT SPRITES or world-space BACK
-  SPRITES view. STADIUM views retain Dramaless Shape's own models. A non-staged
+  SPRITES view. STADIUM views retain the renderer's own models. A non-staged
   fallback stays on Ascendant's normal 2D Mega presentation. If you prefer the
-  historical Voxel camera framing, choose **DRAMALESS BATTLE CAMERA → CLASSIC
-  VOXEL** in Kanto Ascendant's options; **FORK DEFAULT** leaves Dramaless's
+  historical Voxel camera framing, choose **VOXEL BATTLE CAMERA → CLASSIC
+  VOXEL** in Kanto Ascendant's options; **VOXEL DEFAULT** leaves the standard
   wider camera unchanged.
   on Ascendant's normal 2D Mega presentation.
 
@@ -1340,7 +1340,7 @@ proven from a screenshot alone.
 | Crystal is selected but Pokémon → STATS still shows old art | **Fixed in 6.0.4.** The party status portrait now follows the independent DEX SPRITES selector in Red, Blue and Yellow. |
 | Johto Signals start question returns or appears over an existing repaired save | **Fixed in 6.0.4.** YES/NO is saved immediately and the question is deferred until the selected slot has fully loaded. |
 | Early-route Johto Pokémon appear around level 12-15 beside level 2-6 Kanto encounters | **Fixed in 6.0.5.** Ordinary Johto encounters, including permanent researched habitats, use the rounded, weighted route average plus 2-5 levels in classic 2D and Wilds; authored primal encounters keep their story levels. |
-| Mega Evolution or Gorochu is offset in Dramaless Shape 1.6.2.ST | **Fixed in 6.0.9.** Install the current release; Kanto redraws its masters into Dramaless Shape's native card geometry and respects the selected front/back world view. |
+| Mega Evolution or Gorochu is offset in a compatible Voxel renderer | **Fixed in 6.0.9.** Install the current release; Kanto redraws its masters into the renderer's native card geometry and respects the selected front/back world view. |
 | Story Sabrina's Alakazam did not Mega Evolve | **Expected.** Enemy Mega defaults to post-game Ascendant bosses. |
 | Mankey/Nidoran location confusion | **Documented above.** Active KANTO 151 adds Mankey to Route 5 in every edition; native Route 22 remains edition-specific. |
 | Stale trainer_rematch install on a handheld PC | **Launcher/filesystem support, not a gameplay defect.** Recovery steps are documented above. |

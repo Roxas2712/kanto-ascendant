@@ -72,8 +72,8 @@ return function(game)
 
   Pipelines.setLevel("voxel", layout == "voxel" and 1 or 0)
   Pipelines.syncOptions(game.save.options)
-  -- Dramaless Shape is the maintained Voxel fork. Keep legacy Dramatic Shape
-  -- usable for the historical QA matrix as well.
+  -- Prefer the maintained compatible Voxel renderer, while retaining the
+  -- historical renderer in the QA matrix.
   local dramatic = game.mods.exports.DRAMALESS_SHAPE
     or game.mods.exports.DRAMATIC_SHAPE
   local overworldBattle
@@ -125,7 +125,7 @@ return function(game)
     function() return forcedShiny and 10 or 8 end)
   game.save.party = { lead }
   U.teleport(game, "ROUTE_1", 5, 5, "down")
-  -- Dramaless Shape's FULL preset applies lazily on the first live overworld
+  -- The renderer's FULL preset applies lazily on the first live overworld
   -- frame and intentionally defaults BACK SPRITES to OFF. Re-apply the test
   -- case after that preset has settled, otherwise a stored FULL profile can
   -- silently turn an ON test into OFF between setup and battler creation.
@@ -134,7 +134,7 @@ return function(game)
     overworldBattle.backSetting:setIndex(backSprites and 2 or 1, game)
     assert(overworldBattle.backPinned()
         == (layout == "voxel" and backSprites),
-      "Dramaless Shape did not retain the requested BACK SPRITES state")
+      "Voxel renderer did not retain the requested BACK SPRITES state")
   end
   local battle = BattleState.newWild(game, foeSpecies,
     targetSide == "enemy" and (secret and 100 or 50) or 35)
@@ -273,7 +273,7 @@ return function(game)
       "Voxel renderer used a rear Mega drawing instead of the camera-facing front")
     local textureWidth, textureHeight = texture.canvas:getDimensions()
     assert(textureWidth == 160 and textureHeight == 144,
-      ("Dramaless Mega texture did not retain its native 160:144 card: %sx%s")
+      ("Voxel Mega texture did not retain its native 160:144 card: %sx%s")
         :format(tostring(textureWidth), tostring(textureHeight)))
     local voxelScale, voxelValues
     for _, call in ipairs(observed) do

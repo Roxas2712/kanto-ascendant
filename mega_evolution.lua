@@ -707,7 +707,7 @@ return function(mod, opts)
 
   local function installVoxelCompatibility(game)
     local exports = game and game.mods and game.mods.exports
-    -- Dramaless Shape retains Dramatic Shape's public OverworldBattle companion
+    -- The compatible Voxel renderer retains the public OverworldBattle companion
     -- API under its own mod id. Resolve the maintained fork first while keeping
     -- older Dramatic Shape installs valid.
     local dramatic = exports and (exports.DRAMALESS_SHAPE
@@ -720,7 +720,7 @@ return function(mod, opts)
       local ok, value = pcall(overworldBattle.wantsFront)
       return ok and value == true
     end
-    -- Dramaless Shape captures its cards into a renderer-owned canvas. Reusing
+    -- The renderer captures its cards into a renderer-owned canvas. Reusing
     -- that capture here would enlarge art already reduced from the approved
     -- 96px master, so Mega cards redraw the master directly while retaining
     -- the renderer's own canvas size and anchor.
@@ -827,7 +827,7 @@ return function(mod, opts)
       local function supersampledTexture(texture, battler, profile, side)
         if not (love and love.graphics and texture and battler and profile)
             then return texture end
-        -- Dramaless Shape's player-view setting is authoritative. FRONT SPRITES
+        -- The renderer's player-view setting is authoritative. FRONT SPRITES
         -- receives the camera-facing master; WORLD BACK SPRITES receives the
         -- matching Kanto rear master and is mirrored by the renderer itself.
         local artSide = side == "player" and not voxelWantsFront()
@@ -894,7 +894,7 @@ return function(mod, opts)
   end
 
   function M.rearOverlayAllowed(battle)
-    -- A real Dramaless Shape shot owns both monster cards, whether it is using
+    -- A real staged Voxel shot owns both monster cards, whether it is using
     -- front sprites, a world-space rear sprite, or its pinned OG UI rear.
     -- When no shot exists, retain Kanto Ascendant's normal 2D Mega overlay.
     return not (battle and battle.dramaticShapeShot ~= nil)

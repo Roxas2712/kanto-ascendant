@@ -4,32 +4,39 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+## [6.0.11] - 2026-08-08
+
+### Changed
+
+- Player-facing Voxel camera wording is now renderer-neutral: `VOXEL DEFAULT`,
+  `CLASSIC VOXEL` and `WIDE VOXEL` replace fork-specific terminology.
+
 ## [6.0.10] - 2026-08-08
 
 ### Fixed
 
-- `CLASSIC VOXEL` now changes Dramaless Shape's actual battle frame size as
+- `CLASSIC VOXEL` now changes the compatible Voxel renderer's actual battle frame size as
   well as its camera position. The calibrated wider frame compensates for
-  Dramaless's larger models and matches the original Voxel battle scale;
-  switching back restores the fork default exactly.
+  its larger models and matches the original Voxel battle scale; switching
+  back restores the standard renderer frame exactly.
 - `WIDE VOXEL` provides a further-out 3× framing for large Mega models whose
   head or wings would otherwise remain outside the battle view.
-- The Dramaless camera choice now appears next to Voxel controls in the
+- The Voxel camera choice now appears next to Voxel controls in the
   regular OPTIONS menu and no longer clutters Kanto Ascendant's mod page.
 
 ## [6.0.9] - 2026-08-08
 
 ### Fixed
 
-- Mega Evolution and Gorochu now use Dramaless Shape's native 160×144 staged
+- Mega Evolution and Gorochu now use the compatible renderer's native 160×144 staged
   battle cards and 80×96 anchor, keeping their dedicated masters aligned in
   2D-3D FRONT SPRITES and world-space BACK SPRITES views.
 
 ### Added
 
-- `DRAMALESS BATTLE CAMERA`: an optional `CLASSIC VOXEL` framing mode that
+- `VOXEL BATTLE CAMERA`: an optional `CLASSIC VOXEL` framing mode that
   restores the historical Dramatic Shape telephoto battle camera. The default
-  remains Dramaless Shape's wider framing for its larger models.
+  remains the renderer's wider framing for its larger models.
 
 ## [6.0.8] - 2026-08-08
 

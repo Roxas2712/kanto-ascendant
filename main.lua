@@ -575,8 +575,8 @@ return function(mod)
   local makeDramalessCameraOption =
     loadSibling(mod, "dramaless_camera_option.lua")
   local dramalessCameraOption = makeDramalessCameraOption(mod, {
-    camera = menuLabel("DRAMALESS BATTLE CAMERA", "DRAMALESS-KAMPFKAMERA"),
-    fork = menuLabel("FORK DEFAULT", "FORK-STANDARD"),
+    camera = menuLabel("VOXEL BATTLE CAMERA", "VOXEL-KAMPFKAMERA"),
+    fork = menuLabel("VOXEL DEFAULT", "VOXEL-STANDARD"),
     classic = menuLabel("CLASSIC VOXEL", "KLASSISCHES VOXEL"),
     wide = menuLabel("WIDE VOXEL", "WEITES VOXEL"),
   })

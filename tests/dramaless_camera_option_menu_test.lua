@@ -1,10 +1,10 @@
--- The Dramaless camera switch belongs in the regular OPTIONS rows, not in
+-- The Voxel camera switch belongs in the regular OPTIONS rows, not in
 -- Kanto Ascendant's per-mod manager page.  Its writer still needs to drive
 -- the normal mod option event so the live camera changes immediately.
 
 package.path = "./?.lua;./?/init.lua;" .. package.path
 
-local S = require("tests.harness").suite("dramaless camera option menu")
+local S = require("tests.harness").suite("voxel camera option menu")
 local eq = S.eq
 local modDir = assert(os.getenv("TRAINER_REMATCH_MOD_DIR"),
   "TRAINER_REMATCH_MOD_DIR is required")
@@ -25,8 +25,8 @@ local mod = {
 }
 
 local cameraOption = dofile(modDir .. "/dramaless_camera_option.lua")(mod, {
-  camera = "DRAMALESS BATTLE CAMERA",
-  fork = "FORK DEFAULT",
+  camera = "VOXEL BATTLE CAMERA",
+  fork = "VOXEL DEFAULT",
   classic = "CLASSIC VOXEL",
   wide = "WIDE VOXEL",
 })
@@ -51,10 +51,10 @@ local rows = hook(function() return {
   { id = "sound" },
 } end, game, {})
 eq(rows[3].id, "trainer_rematch:dramaless_battle_camera",
-  "camera appears immediately after the Dramaless Voxel controls")
-eq(rows[3].label, "DRAMALESS BATTLE CAMERA",
+  "camera appears immediately after the compatible Voxel controls")
+eq(rows[3].label, "VOXEL BATTLE CAMERA",
   "camera keeps its localized main-options label")
-eq(rows[3].value(), "FORK DEFAULT", "camera defaults to the fork view")
+eq(rows[3].value(), "VOXEL DEFAULT", "camera defaults to the standard view")
 
 rows[3].step(game)
 eq(game.save.options.modOptions.trainer_rematch.dramaless_battle_camera,
@@ -77,6 +77,6 @@ eq(game.save.options.modOptions.trainer_rematch.dramaless_battle_camera,
 
 local noRenderer = hook(function() return { { id = "pipeline:voxel" } } end,
   { mods = { exports = {} } }, {})
-eq(#noRenderer, 1, "camera row stays hidden when Dramaless is unavailable")
+eq(#noRenderer, 1, "camera row stays hidden when the renderer is unavailable")
 
 S.finish()

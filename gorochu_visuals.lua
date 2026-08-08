@@ -28,7 +28,7 @@ return function(mod, opts)
 
   local function dramaticBattle(game)
     local exports = game and game.mods and game.mods.exports
-    -- Dramaless Shape preserves Dramatic Shape's public OverworldBattle
+    -- The compatible renderer preserves the public OverworldBattle
     -- companion API under its own maintained mod id.
     local dramatic = exports and (exports.DRAMALESS_SHAPE
       or exports.DRAMATIC_SHAPE)
@@ -107,7 +107,7 @@ return function(mod, opts)
       if not (texture and battler and battler.mon
           and battler.mon.species == species) then return texture end
 
-      -- Dramaless Shape owns player view and card placement. Its world-space BACK
+      -- The renderer owns player view and card placement. Its world-space BACK
       -- SPRITES option needs the dedicated rear master just as its pinned
       -- OG-UI path does; FRONT SPRITES keeps the camera-facing master.
       local artSide = side == "player" and not wantsFront(overworldBattle)

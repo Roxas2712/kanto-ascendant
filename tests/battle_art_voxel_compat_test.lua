@@ -1,10 +1,10 @@
--- Dramaless Shape retains the public OverworldBattle API under its own export.
+-- The compatible Voxel renderer retains the public OverworldBattle API.
 -- Mega presentation must therefore retain the Voxel front-card path and
 -- suppress the classic rear overlay.
 
 package.path = "./?.lua;./?/init.lua;" .. package.path
 
-local S = require("tests.harness").suite("dramaless shape compatibility")
+local S = require("tests.harness").suite("voxel renderer compatibility")
 local check, eq = S.check, S.eq
 local modDir = assert(os.getenv("TRAINER_REMATCH_MOD_DIR"),
   "TRAINER_REMATCH_MOD_DIR is required")
@@ -57,7 +57,7 @@ local game = {
         lib = {
           require = function(name)
             eq(name, "OverworldBattle",
-              "Dramaless Shape exposes the documented companion API")
+              "Voxel renderer exposes the documented companion API")
             apiCalls = apiCalls + 1
             return overworldBattle
           end,
@@ -101,11 +101,11 @@ _G.love = {
 mega.install(game, { battleState = battleState })
 
 eq(apiCalls, 1,
-  "Mega compatibility resolves Dramaless Shape's maintained export")
+  "Mega compatibility resolves the renderer's maintained export")
 eq(overworldBattle.kantoAscendantMegaAnchorHook, true,
-  "Mega Voxel side-texture hook installs through Dramaless Shape")
+  "Mega Voxel side-texture hook installs through the renderer")
 eq(mega.rearOverlayAllowed({ dramaticShapeShot = true }), false,
-  "a staged Dramaless Shape fight never draws the obsolete Mega rear overlay")
+  "a staged Voxel fight never draws the obsolete Mega rear overlay")
 eq(mega.rearOverlayAllowed({}), true,
   "a non-staged renderer fallback keeps Kanto's normal 2D Mega overlay")
 check(wrapped["pokemon.sprite"] ~= nil,
@@ -120,13 +120,13 @@ eq(player.kantoAscendantMegaSource,
   "assets/mega_gen1_runtime/mega_raichu_x_front.png",
   "front-view player Mega uses Kanto's dedicated front master")
 eq(player.canvas.width, 160,
-  "Mega card retains Dramaless Shape's native canvas width")
+  "Mega card retains the renderer's native canvas width")
 eq(player.canvas.height, 144,
-  "Mega card retains Dramaless Shape's native canvas height")
+  "Mega card retains the renderer's native canvas height")
 eq(player.ax, 80,
-  "Mega card retains Dramaless Shape's horizontal anchor")
+  "Mega card retains the renderer's horizontal anchor")
 eq(player.ay, 96,
-  "Mega card retains Dramaless Shape's vertical anchor")
+  "Mega card retains the renderer's vertical anchor")
 
 front = false
 local back = overworldBattle.sideTexture(battle, "player")

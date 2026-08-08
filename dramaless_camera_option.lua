@@ -1,6 +1,6 @@
--- Put the Dramaless-only camera choice beside the renderer controls in the
+-- Put the optional Voxel camera choice beside the renderer controls in the
 -- regular OPTIONS screen.  It intentionally stays out of Kanto Ascendant's
--- per-mod manager page: it has no effect without Dramaless Shape.
+-- per-mod manager page: it has no effect without a compatible renderer.
 
 return function(mod, labels)
   local C = {}
