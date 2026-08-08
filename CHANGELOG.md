@@ -9,9 +9,9 @@ All notable changes to this project are documented in this file.
 ### Fixed
 
 - `CLASSIC VOXEL` now changes Dramaless Shape's actual battle frame size as
-  well as its camera position. Switching the setting therefore produces the
-  visibly closer historical Voxel composition and restores the fork default
-  exactly when switched back.
+  well as its camera position. The calibrated wider frame compensates for
+  Dramaless's larger models and matches the original Voxel battle scale;
+  switching back restores the fork default exactly.
 - The Dramaless camera choice now appears next to Voxel controls in the
   regular OPTIONS menu and no longer clutters Kanto Ascendant's mod page.
 

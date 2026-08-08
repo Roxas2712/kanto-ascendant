@@ -6,8 +6,9 @@ Version 6.0.10 corrects the `CLASSIC VOXEL` compatibility setting for
 ## Fixed
 
 - `CLASSIC VOXEL` now updates Dramaless Shape's `frameH` battle composition
-  setting, not only the virtual camera position. The classic selection is
-  therefore visibly closer during a live Voxel battle.
+  setting, not only the virtual camera position. Its calibrated wider frame
+  compensates for Dramaless Shape's larger models to match the original Voxel
+  battle scale.
 - Switching back to `FORK DEFAULT` restores Dramaless Shape's original
   distance, height and frame size exactly.
 - The setting is now in the regular **OPTIONS** menu beside the Voxel

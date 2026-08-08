@@ -93,8 +93,8 @@ return function(game)
       assert(camera and camera.RIGS and camera.RIGS.tele
           and math.abs(camera.RIGS.tele.back - 144.96) < 0.001
           and math.abs(camera.RIGS.tele.height - 37.88) < 0.001
-          and math.abs(camera.RIGS.tele.frameH - (34.11 / 1.5)) < 0.001,
-        "Classic Voxel camera did not restore the visible classic framing")
+          and math.abs(camera.RIGS.tele.frameH - (34.11 * 2)) < 0.001,
+        "Classic Voxel camera did not restore the calibrated classic framing")
     end
   end
 

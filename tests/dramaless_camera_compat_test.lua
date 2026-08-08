@@ -34,6 +34,8 @@ local game = {
 
 local compat = dofile(modDir .. "/dramaless_camera_compat.lua")(mod)
 eq(compat.install(game), true, "compatibility controller installs")
+eq(compat.CLASSIC_TELE.frameH, 34.11 * 2,
+  "Classic Voxel uses the live-reviewed original-scale frame")
 eq(camera.RIGS.tele.back, 217.44,
   "the Dramaless default remains untouched until Classic Voxel is selected")
 eq(camera.RIGS.tele.height, 56.82,
@@ -48,13 +50,13 @@ eq(camera.RIGS.tele.back, compat.CLASSIC_TELE.back,
 eq(camera.RIGS.tele.height, compat.CLASSIC_TELE.height,
   "Classic Voxel restores the original battle height")
 eq(camera.RIGS.tele.frameH, compat.CLASSIC_TELE.frameH,
-  "Classic Voxel restores the original visible battle framing")
+  "Classic Voxel restores the calibrated original-scale battle framing")
 
 handlers["battle.started"]({ battle = { game = game } })
 eq(camera.RIGS.tele.back, compat.CLASSIC_TELE.back,
   "the selected classic rig survives the next battle boundary")
 eq(camera.RIGS.tele.frameH, compat.CLASSIC_TELE.frameH,
-  "the selected classic framing survives the next battle boundary")
+  "the selected calibrated framing survives the next battle boundary")
 
 selected = "fork"
 handlers["mod.options_changed"]({
