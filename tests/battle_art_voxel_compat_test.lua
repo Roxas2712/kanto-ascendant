@@ -119,10 +119,14 @@ local player = overworldBattle.sideTexture(battle, "player")
 eq(player.kantoAscendantMegaSource,
   "assets/mega_gen1_runtime/mega_raichu_x_front.png",
   "front-view player Mega uses Kanto's dedicated front master")
-eq(player.ax, 115,
-  "supersampled Mega canvas reports its own horizontal Voxel anchor")
-eq(player.ay, 138,
-  "supersampled Mega canvas reports its own vertical Voxel anchor")
+eq(player.canvas.width, 160,
+  "Mega card retains Dramaless Shape's native canvas width")
+eq(player.canvas.height, 144,
+  "Mega card retains Dramaless Shape's native canvas height")
+eq(player.ax, 80,
+  "Mega card retains Dramaless Shape's horizontal anchor")
+eq(player.ay, 96,
+  "Mega card retains Dramaless Shape's vertical anchor")
 
 front = false
 local back = overworldBattle.sideTexture(battle, "player")

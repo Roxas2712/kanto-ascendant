@@ -245,8 +245,8 @@ return function(game)
         or texture.kantoAscendantMegaSource:find("_front", 1, true),
       "Voxel renderer used a rear Mega drawing instead of the camera-facing front")
     local textureWidth, textureHeight = texture.canvas:getDimensions()
-    assert(textureWidth == 230 and textureHeight == 207,
-      ("Voxel Mega texture is not high-resolution 160:144: %sx%s")
+    assert(textureWidth == 160 and textureHeight == 144,
+      ("Dramaless Mega texture did not retain its native 160:144 card: %sx%s")
         :format(tostring(textureWidth), tostring(textureHeight)))
     local voxelScale, voxelValues
     for _, call in ipairs(observed) do

@@ -5,9 +5,9 @@ Version 6.0.9 is a save-compatible compatibility fix for
 
 ## Fixed
 
-- Mega Evolution and Gorochu's 230×207 Voxel cards now report anchors that
-  match their own canvas. This keeps their feet and centre aligned with the
-  staged battle camera instead of inheriting the 160×144 Game Boy card anchor.
+- Mega Evolution and Gorochu now redraw their 96px masters into Dramaless
+  Shape's renderer-native 160×144 cards while retaining its 80×96 anchor.
+  This keeps their feet and centre aligned with the staged battle camera.
 - Dramaless Shape's **FRONT SPRITES** and world-space **BACK SPRITES**
   selections now choose the matching Kanto Mega/Gorochu master art in the
   renderer's 2D-3D views.

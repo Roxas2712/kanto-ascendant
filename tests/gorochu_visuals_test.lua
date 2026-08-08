@@ -137,12 +137,14 @@ eq(player.kantoAscendantGorochuSupersampled, true,
 eq(player.kantoAscendantGorochuSource,
   "assets/voxel/gorochu/gorochu_front.png",
   "camera-facing player uses the approved normal front")
-eq(player.canvas.width, 230, "Voxel side texture is 230 px wide")
-eq(player.canvas.height, 207, "Voxel side texture is 207 px high")
-eq(player.ax, 115,
-  "Voxel Gorochu canvas reports its own horizontal Voxel anchor")
-eq(player.ay, 138,
-  "Voxel Gorochu canvas reports its own vertical Voxel anchor")
+eq(player.canvas.width, 160,
+  "Gorochu card retains Dramaless Shape's native canvas width")
+eq(player.canvas.height, 144,
+  "Gorochu card retains Dramaless Shape's native canvas height")
+eq(player.ax, 80,
+  "Gorochu card retains Dramaless Shape's horizontal anchor")
+eq(player.ay, 96,
+  "Gorochu card retains Dramaless Shape's vertical anchor")
 eq(player.kantoAscendantGorochuAnimationFrame, 4,
   "Voxel master follows the live Crystal animation clock")
 

@@ -720,23 +720,30 @@ return function(mod, opts)
       local ok, value = pcall(overworldBattle.wantsFront)
       return ok and value == true
     end
-    -- Dramatic Shape normally captures a 60px battle card into a 160x144
-    -- canvas. Reusing that capture here would make the Voxel renderer enlarge
-    -- an image that has already been reduced from the approved 96px master.
-    -- Mega cards receive a supersampled side texture. The Voxel renderer derives a
-    -- card's world-space placement from both canvas size and its anchor, so a
-    -- larger source canvas must provide its own matching anchor rather than
-    -- inheriting the 160x144 Game Boy card's 80x96 coordinates.
+    -- Dramaless Shape captures its cards into a renderer-owned canvas. Reusing
+    -- that capture here would enlarge art already reduced from the approved
+    -- 96px master, so Mega cards redraw the master directly while retaining
+    -- the renderer's own canvas size and anchor.
     if not overworldBattle.kantoAscendantMegaAnchorHook then
       local innerSideTexture = overworldBattle.sideTexture
       local voxelCanvases, voxelImages = {}, {}
-      -- 230:207 is exactly the GB frame's 160:144 aspect ratio. With the
-      -- untouched 96px master inside it, the form occupies 66.8 logical
-      -- pixels: a small but visible step above a normal 56px battle pic.
-      local VOXEL_SCALE = 1.4375
-      local VOXEL_W, VOXEL_H = 230, 207
       local MASTER_CARD = 96
-      local VOXEL_AX, VOXEL_AY = VOXEL_W / 2, 96 * VOXEL_SCALE
+
+      local function nativeCard(texture)
+        local canvas = texture and texture.canvas
+        local width, height
+        if canvas and canvas.getDimensions then
+          width, height = canvas:getDimensions()
+        elseif canvas then
+          width, height = canvas.width, canvas.height
+        end
+        width, height = tonumber(width) or 160, tonumber(height) or 144
+        return width, height,
+          tonumber(texture and texture.ax) or tonumber(overworldBattle.TEX_AX)
+            or width / 2,
+          tonumber(texture and texture.ay) or tonumber(overworldBattle.TEX_AY)
+            or 96
+      end
 
       local function masterPath(profile, mon, side)
         if crystalMegaArtEnabled(profile) then
@@ -805,14 +812,15 @@ return function(mod, opts)
         return loaded
       end
 
-      local function canvasFor(side)
-        local canvas = voxelCanvases[side]
+      local function canvasFor(side, width, height)
+        local key = side .. ":" .. width .. "x" .. height
+        local canvas = voxelCanvases[key]
         if canvas then return canvas end
         local ok, made = pcall(love.graphics.newCanvas,
-          VOXEL_W, VOXEL_H, { dpiscale = 1 })
+          width, height, { dpiscale = 1 })
         if not (ok and made) then return nil end
         if made.setFilter then made:setFilter("nearest", "nearest") end
-        voxelCanvases[side] = made
+        voxelCanvases[key] = made
         return made
       end
 
@@ -835,7 +843,8 @@ return function(mod, opts)
           end
         end
         local image = relative and imageFor(relative, palette)
-        local canvas = image and canvasFor(side)
+        local width, height, anchorX, anchorY = nativeCard(texture)
+        local canvas = image and canvasFor(side, width, height)
         if not canvas then return texture end
 
         local g = love.graphics
@@ -851,8 +860,7 @@ return function(mod, opts)
           local drawScale = MASTER_CARD / math.max(width, height)
           local drawWidth, drawHeight =
             width * drawScale, height * drawScale
-          local centerX = VOXEL_W / 2
-          local baselineY = 96 * VOXEL_SCALE
+          local centerX, baselineY = anchorX, anchorY
           g.draw(image, centerX - drawWidth / 2,
             baselineY - drawHeight, 0, drawScale, drawScale)
         end)
@@ -863,8 +871,8 @@ return function(mod, opts)
         if not ok then return texture end
 
         texture.canvas = canvas
-        texture.ax = VOXEL_AX
-        texture.ay = VOXEL_AY
+        texture.ax = anchorX
+        texture.ay = anchorY
         texture.kantoAscendantMegaSupersampled = true
         texture.kantoAscendantMegaSource = relative
         return texture

@@ -11,7 +11,7 @@ return function(mod, opts)
   local shinySystem = opts.shinySystem
   local V = {
     species = species,
-    voxelSize = { width = 230, height = 207 },
+    voxelSize = { width = 160, height = 144 },
     masterSize = 96,
   }
   local frameOffsets = {
@@ -62,11 +62,22 @@ return function(mod, opts)
 
     local innerSideTexture = overworldBattle.sideTexture
     local canvases, images = {}, {}
-    local VOXEL_W, VOXEL_H = V.voxelSize.width, V.voxelSize.height
     local MASTER_CARD = V.masterSize
-    -- 230:207 is the same aspect ratio as the native 160:144 battle frame.
-    local VOXEL_SCALE = VOXEL_W / 160
-    local VOXEL_AX, VOXEL_AY = VOXEL_W / 2, 96 * VOXEL_SCALE
+
+    local function nativeCard(texture)
+      local canvas = texture and texture.canvas
+      local width, height
+      if canvas and canvas.getDimensions then
+        width, height = canvas:getDimensions()
+      elseif canvas then
+        width, height = canvas.width, canvas.height
+      end
+      width, height = tonumber(width) or V.voxelSize.width,
+        tonumber(height) or V.voxelSize.height
+      return width, height,
+        tonumber(texture and texture.ax) or width / 2,
+        tonumber(texture and texture.ay) or 96
+    end
 
     local function imageFor(relative)
       if images[relative] then return images[relative] end
@@ -79,15 +90,16 @@ return function(mod, opts)
       return image
     end
 
-    local function canvasFor(side)
-      local canvas = canvases[side]
+    local function canvasFor(side, width, height)
+      local key = side .. ":" .. width .. "x" .. height
+      local canvas = canvases[key]
       if canvas then return canvas end
       if not (love and love.graphics and love.graphics.newCanvas) then return nil end
       local ok, made = pcall(
-        love.graphics.newCanvas, VOXEL_W, VOXEL_H, { dpiscale = 1 })
+        love.graphics.newCanvas, width, height, { dpiscale = 1 })
       if not (ok and made) then return nil end
       if made.setFilter then made:setFilter("nearest", "nearest") end
-      canvases[side] = made
+      canvases[key] = made
       return made
     end
 
@@ -102,7 +114,8 @@ return function(mod, opts)
         and "back" or "front"
       local relative = relativePath(battler.mon, artSide)
       local image = relative and imageFor(relative)
-      local canvas = image and canvasFor(side)
+      local width, height, anchorX, anchorY = nativeCard(texture)
+      local canvas = image and canvasFor(side, width, height)
       if not canvas then return texture end
       local animation = battler.__ascendantCrystalAnimation
       local animationFrame = math.max(1,
@@ -126,8 +139,7 @@ return function(mod, opts)
         local width, height = image:getDimensions()
         local drawScale = MASTER_CARD / math.max(width, height)
         local drawWidth, drawHeight = width * drawScale, height * drawScale
-        local centerX = VOXEL_W / 2
-        local baselineY = 96 * VOXEL_SCALE
+        local centerX, baselineY = anchorX, anchorY
         g.draw(
           image,
           centerX - drawWidth / 2 + offset[1],
@@ -142,8 +154,8 @@ return function(mod, opts)
       if not ok then return texture end
 
       texture.canvas = canvas
-      texture.ax = VOXEL_AX
-      texture.ay = VOXEL_AY
+      texture.ax = anchorX
+      texture.ay = anchorY
       texture.kantoAscendantGorochuSupersampled = true
       texture.kantoAscendantGorochuSource = relative
       texture.kantoAscendantGorochuSide = artSide
