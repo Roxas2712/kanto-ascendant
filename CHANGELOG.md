@@ -4,6 +4,15 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+## [6.0.10] - 2026-08-08
+
+### Fixed
+
+- `CLASSIC VOXEL` now changes Dramaless Shape's actual battle frame size as
+  well as its camera position. Switching the setting therefore produces the
+  visibly closer historical Voxel composition and restores the fork default
+  exactly when switched back.
+
 ## [6.0.9] - 2026-08-08
 
 ### Fixed

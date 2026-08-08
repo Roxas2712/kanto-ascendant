@@ -4,6 +4,11 @@
 -- back to make the larger Stadium models read comfortably.  Kanto Ascendant
 -- used the original Dramatic Shape framing, so players who prefer that
 -- composition can select CLASSIC VOXEL without editing either renderer.
+--
+-- Camera position alone does not control the rendered composition in
+-- Dramaless.  frameH is the renderer's actual vertical frame size, so the
+-- compatibility setting must restore it as well for a visibly closer
+-- Classic Voxel view.
 
 return function(mod)
   local C = {}
@@ -14,6 +19,7 @@ return function(mod)
   local CLASSIC_TELE = {
     back = 144.96,
     height = 37.88,
+    frameH = 34.11 / 1.5,
   }
 
   local function classicEnabled()
@@ -40,15 +46,21 @@ return function(mod)
 
     local original = originals[tele]
     if not original then
-      original = { back = tele.back, height = tele.height }
+      original = {
+        back = tele.back,
+        height = tele.height,
+        frameH = tele.frameH,
+      }
       originals[tele] = original
     end
     if classicEnabled() then
       tele.back = CLASSIC_TELE.back
       tele.height = CLASSIC_TELE.height
+      tele.frameH = CLASSIC_TELE.frameH
     else
       tele.back = original.back
       tele.height = original.height
+      tele.frameH = original.frameH
     end
     return true
   end

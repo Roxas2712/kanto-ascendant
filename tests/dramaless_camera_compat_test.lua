@@ -47,10 +47,14 @@ eq(camera.RIGS.tele.back, compat.CLASSIC_TELE.back,
   "Classic Voxel restores the original battle distance")
 eq(camera.RIGS.tele.height, compat.CLASSIC_TELE.height,
   "Classic Voxel restores the original battle height")
+eq(camera.RIGS.tele.frameH, compat.CLASSIC_TELE.frameH,
+  "Classic Voxel restores the original visible battle framing")
 
 handlers["battle.started"]({ battle = { game = game } })
 eq(camera.RIGS.tele.back, compat.CLASSIC_TELE.back,
   "the selected classic rig survives the next battle boundary")
+eq(camera.RIGS.tele.frameH, compat.CLASSIC_TELE.frameH,
+  "the selected classic framing survives the next battle boundary")
 
 selected = "fork"
 handlers["mod.options_changed"]({
@@ -60,6 +64,8 @@ eq(camera.RIGS.tele.back, 217.44,
   "switching back restores Dramaless's exact original distance")
 eq(camera.RIGS.tele.height, 56.82,
   "switching back restores Dramaless's exact original height")
+eq(camera.RIGS.tele.frameH, 34.11,
+  "switching back restores Dramaless's exact original framing")
 
 local noRenderer = dofile(modDir .. "/dramaless_camera_compat.lua")({
   id = "trainer_rematch",

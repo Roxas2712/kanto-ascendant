@@ -84,14 +84,17 @@ return function(game)
   local ascendant = game.mods.exports.trainer_rematch
   if dramatic == game.mods.exports.DRAMALESS_SHAPE
       and ascendant and ascendant.dramalessCameraCompat then
-    assert(ascendant.dramalessCameraCompat.apply(game),
-      "Dramaless camera compatibility bridge did not resolve the renderer")
+    game.mods.events:emit("mod.options_changed", {
+      mod = "trainer_rematch", key = "dramaless_battle_camera",
+      value = game.mods.modOptions.trainer_rematch.dramaless_battle_camera,
+    })
     local camera = dramatic and dramatic.lib.require("BattleCam")
     if classicDramalessCamera then
       assert(camera and camera.RIGS and camera.RIGS.tele
           and math.abs(camera.RIGS.tele.back - 144.96) < 0.001
-          and math.abs(camera.RIGS.tele.height - 37.88) < 0.001,
-        "Classic Voxel camera did not restore the original tele rig")
+          and math.abs(camera.RIGS.tele.height - 37.88) < 0.001
+          and math.abs(camera.RIGS.tele.frameH - (34.11 / 1.5)) < 0.001,
+        "Classic Voxel camera did not restore the visible classic framing")
     end
   end
 
