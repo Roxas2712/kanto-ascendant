@@ -67,7 +67,10 @@ return function(game)
 
   Pipelines.setLevel("voxel", layout == "voxel" and 1 or 0)
   Pipelines.syncOptions(game.save.options)
-  local dramatic = game.mods.exports.DRAMATIC_SHAPE
+  -- Dramaless Shape is the maintained Voxel fork. Keep legacy Dramatic Shape
+  -- usable for the historical QA matrix as well.
+  local dramatic = game.mods.exports.DRAMALESS_SHAPE
+    or game.mods.exports.DRAMATIC_SHAPE
   local overworldBattle
   if dramatic and dramatic.lib then
     overworldBattle = dramatic.lib.require("OverworldBattle")
@@ -95,7 +98,7 @@ return function(game)
     function() return forcedShiny and 10 or 8 end)
   game.save.party = { lead }
   U.teleport(game, "ROUTE_1", 5, 5, "down")
-  -- Dramatic Shape's FULL preset applies lazily on the first live overworld
+  -- Dramaless Shape's FULL preset applies lazily on the first live overworld
   -- frame and intentionally defaults BACK SPRITES to OFF. Re-apply the test
   -- case after that preset has settled, otherwise a stored FULL profile can
   -- silently turn an ON test into OFF between setup and battler creation.
@@ -104,7 +107,7 @@ return function(game)
     overworldBattle.backSetting:setIndex(backSprites and 2 or 1, game)
     assert(overworldBattle.backPinned()
         == (layout == "voxel" and backSprites),
-      "Dramatic Shape did not retain the requested BACK SPRITES state")
+      "Dramaless Shape did not retain the requested BACK SPRITES state")
   end
   local battle = BattleState.newWild(game, foeSpecies,
     targetSide == "enemy" and (secret and 100 or 50) or 35)
