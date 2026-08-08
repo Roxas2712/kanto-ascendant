@@ -15,6 +15,10 @@ RELEASE_NOTES_6.0.0.md
 RELEASE_NOTES_6.0.1.md
 RELEASE_NOTES_6.0.2.md
 RELEASE_NOTES_6.0.3.md
+RELEASE_NOTES_6.0.4.md
+RELEASE_NOTES_6.0.5.md
+RELEASE_NOTES_6.0.6.md
+RELEASE_NOTES_6.0.7.md
 docs/FUTURE_FORM_BACKLOG.md
 docs/MEGA_FORM_PIPELINE.md
 docs/NEXT_MAJOR_UPDATE_STARFALL_TIDES.md
@@ -51,6 +55,7 @@ tests/johto_signals_ui_integration_test.lua
 tests/johto_signals_wilds_test.lua
 tests/wilds_1_7_1_compat_test.lua
 tests/mythic_signals_test.lua
+tests/johto_encounter_levels_test.lua
 tests/reachability_test.lua
 tests/recruitment_full_data_test.lua
 tests/trainer_rematch_test.lua
@@ -88,6 +93,9 @@ tools/johto_signals_launcher_smoke/conf.lua
 tools/johto_signals_launcher_smoke/main.lua
 tools/johto_signals_release_audit.py
 tools/johto_signals_uat_save_builder.lua
+tools/johto_onboarding_restart_qa_driver.lua
+tools/red_gyarados_qa_driver.lua
+tools/summary_sprite_qa_driver.lua
 tools/johto_catch_adversarial_qa_driver.lua
 tools/johto_signals_adversarial_qa_driver.lua
 tools/manifest_probe_qa_driver.lua
@@ -108,3 +116,5 @@ tools/raichu_reactions_qa_driver.lua
 tools/reachability_audit.lua
 tools/shiny_qa_driver.lua
 tools/yellow_partner_qa_driver.lua
+tools/voxel_uat_package_installer/conf.lua
+tools/voxel_uat_package_installer/main.lua

@@ -1,6 +1,6 @@
 # Kanto Ascendant FAQ and Spoiler Guide
 
-This is the public reference for **Kanto Ascendant 6.0.6**. It applies to Red,
+This is the public reference for **Kanto Ascendant 6.0.7**. It applies to Red,
 Blue and Yellow and is maintained from the current mod code, release
 documentation and confirmed support reports.
 
@@ -296,7 +296,7 @@ Mankey in every active KANTO 151 game.
 <details>
 <summary><strong>⚠️ SPOILER — Do I need to start a new game for Johto Signals?</strong></summary>
 
-No. Version 6.0.6 upgrades existing Red, Blue and Yellow saves in place.
+No. Version 6.0.7 upgrades existing Red, Blue and Yellow saves in place.
 
 The signal system does not count steps taken before 6.0 was installed. Once
 the updated save has a starter and the Pokédex, it begins its own hidden

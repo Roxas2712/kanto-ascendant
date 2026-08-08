@@ -4,6 +4,14 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+## [6.0.7] - 2026-08-08
+
+### Fixed
+
+- The ROM-free Atlas/Legacy regression now expects the current release
+  manifest and the CI package/audit paths are versioned for 6.0.7. This
+  restores the release gate without changing gameplay or save data.
+
 ## [6.0.6] - 2026-08-08
 
 ### Fixed
