@@ -21,10 +21,22 @@ return function(mod)
     height = 37.88,
     frameH = 34.11 * 2,
   }
+  local WIDE_TELE = {
+    back = 144.96,
+    height = 37.88,
+    -- 2x matches original Dramatic Shape.  This intentionally goes another
+    -- half-step out so tall Mega models, including Charizard, stay in frame
+    -- without making the arena impractically distant.
+    frameH = 34.11 * 3,
+  }
 
-  local function classicEnabled()
-    return mod.options and type(mod.options.get) == "function"
-      and mod.options:get("dramaless_battle_camera") == "classic"
+  local function cameraMode()
+    if not (mod.options and type(mod.options.get) == "function") then
+      return "fork"
+    end
+    local value = mod.options:get("dramaless_battle_camera")
+    if value == "classic" or value == "wide" then return value end
+    return "fork"
   end
 
   local function battleCam(currentGame)
@@ -53,10 +65,12 @@ return function(mod)
       }
       originals[tele] = original
     end
-    if classicEnabled() then
-      tele.back = CLASSIC_TELE.back
-      tele.height = CLASSIC_TELE.height
-      tele.frameH = CLASSIC_TELE.frameH
+    local preset = cameraMode() == "classic" and CLASSIC_TELE
+      or cameraMode() == "wide" and WIDE_TELE
+    if preset then
+      tele.back = preset.back
+      tele.height = preset.height
+      tele.frameH = preset.frameH
     else
       tele.back = original.back
       tele.height = original.height
@@ -85,5 +99,6 @@ return function(mod)
   end
 
   C.CLASSIC_TELE = CLASSIC_TELE
+  C.WIDE_TELE = WIDE_TELE
   return C
 end

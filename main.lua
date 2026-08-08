@@ -578,6 +578,7 @@ return function(mod)
     camera = menuLabel("DRAMALESS BATTLE CAMERA", "DRAMALESS-KAMPFKAMERA"),
     fork = menuLabel("FORK DEFAULT", "FORK-STANDARD"),
     classic = menuLabel("CLASSIC VOXEL", "KLASSISCHES VOXEL"),
+    wide = menuLabel("WIDE VOXEL", "WEITES VOXEL"),
   })
   dramalessCameraOption.install()
   mod.exports.dramalessCameraOption = dramalessCameraOption

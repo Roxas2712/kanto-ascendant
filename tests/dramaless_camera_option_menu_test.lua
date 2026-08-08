@@ -28,6 +28,7 @@ local cameraOption = dofile(modDir .. "/dramaless_camera_option.lua")(mod, {
   camera = "DRAMALESS BATTLE CAMERA",
   fork = "FORK DEFAULT",
   classic = "CLASSIC VOXEL",
+  wide = "WIDE VOXEL",
 })
 cameraOption.install()
 
@@ -65,6 +66,14 @@ eq(emitted[#emitted].name, "mod.options_changed",
   "main-options step notifies the camera compatibility bridge")
 eq(emitted[#emitted].payload.mod, "trainer_rematch",
   "camera notification remains namespaced to Kanto Ascendant storage")
+
+rows[3].step(game)
+eq(game.save.options.modOptions.trainer_rematch.dramaless_battle_camera,
+  "wide", "second main-options step selects the extra-wide view")
+eq(rows[3].value(), "WIDE VOXEL", "row labels the extra-wide selection")
+rows[3].step(game)
+eq(game.save.options.modOptions.trainer_rematch.dramaless_battle_camera,
+  "fork", "third main-options step returns to the fork view")
 
 local noRenderer = hook(function() return { { id = "pipeline:voxel" } } end,
   { mods = { exports = {} } }, {})

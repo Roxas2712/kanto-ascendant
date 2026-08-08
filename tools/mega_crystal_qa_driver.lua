@@ -18,8 +18,7 @@ return function(game)
   local forcedShiny = os.getenv("MEGA_QA_SHINY") == "1"
   local captureBaseline = os.getenv("MEGA_QA_BASELINE") == "1"
   local crystalArt = os.getenv("MEGA_QA_CRYSTAL") ~= "0"
-  local classicDramalessCamera =
-    os.getenv("MEGA_QA_DRAMALESS_CAMERA") == "classic"
+  local dramalessCamera = (os.getenv("MEGA_QA_DRAMALESS_CAMERA") or "fork"):lower()
   local version = (os.getenv("MEGA_QA_VERSION") or "red"):lower()
   local GameVersion = require("src.core.GameVersion")
   local PaletteFX = require("src.render.PaletteFX")
@@ -35,8 +34,10 @@ return function(game)
   PaletteFX.setMode("ogred")
   game.mods.modOptions.trainer_rematch =
     game.mods.modOptions.trainer_rematch or {}
-  game.mods.modOptions.trainer_rematch.dramaless_battle_camera =
-    classicDramalessCamera and "classic" or "fork"
+  assert(dramalessCamera == "fork" or dramalessCamera == "classic"
+      or dramalessCamera == "wide",
+    "MEGA_QA_DRAMALESS_CAMERA must be fork, classic or wide")
+  game.mods.modOptions.trainer_rematch.dramaless_battle_camera = dramalessCamera
   game.mods.modOptions.trainer_rematch.kanto_crystal_art = crystalArt
   game.mods.modOptions.trainer_rematch.legend_art =
     crystalArt and "crystal" or "original"
@@ -89,12 +90,18 @@ return function(game)
       value = game.mods.modOptions.trainer_rematch.dramaless_battle_camera,
     })
     local camera = dramatic and dramatic.lib.require("BattleCam")
-    if classicDramalessCamera then
+    if dramalessCamera == "classic" then
       assert(camera and camera.RIGS and camera.RIGS.tele
           and math.abs(camera.RIGS.tele.back - 144.96) < 0.001
           and math.abs(camera.RIGS.tele.height - 37.88) < 0.001
           and math.abs(camera.RIGS.tele.frameH - (34.11 * 2)) < 0.001,
         "Classic Voxel camera did not restore the calibrated classic framing")
+    elseif dramalessCamera == "wide" then
+      assert(camera and camera.RIGS and camera.RIGS.tele
+          and math.abs(camera.RIGS.tele.back - 144.96) < 0.001
+          and math.abs(camera.RIGS.tele.height - 37.88) < 0.001
+          and math.abs(camera.RIGS.tele.frameH - (34.11 * 3)) < 0.001,
+        "Wide Voxel camera did not apply the extra-wide framing")
     end
   end
 

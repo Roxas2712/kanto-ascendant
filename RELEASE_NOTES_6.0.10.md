@@ -9,6 +9,8 @@ Version 6.0.10 corrects the `CLASSIC VOXEL` compatibility setting for
   setting, not only the virtual camera position. Its calibrated wider frame
   compensates for Dramaless Shape's larger models to match the original Voxel
   battle scale.
+- `WIDE VOXEL` offers a further-out 3× frame for players who want the whole
+  large Mega model in view.
 - Switching back to `FORK DEFAULT` restores Dramaless Shape's original
   distance, height and frame size exactly.
 - The setting is now in the regular **OPTIONS** menu beside the Voxel

@@ -7,12 +7,15 @@ return function(mod, labels)
   local key = "dramaless_battle_camera"
   local fork = "fork"
   local classic = "classic"
+  local wide = "wide"
 
   local function selected()
     if not (mod.options and type(mod.options.get) == "function") then
       return fork
     end
-    return mod.options:get(key) == classic and classic or fork
+    local value = mod.options:get(key)
+    if value == classic or value == wide then return value end
+    return fork
   end
 
   local function hasDramaless(game)
@@ -48,10 +51,13 @@ return function(mod, labels)
       id = mod.id .. ":" .. key,
       label = labels.camera,
       value = function()
-        return selected() == classic and labels.classic or labels.fork
+        local value = selected()
+        return value == classic and labels.classic
+          or value == wide and labels.wide or labels.fork
       end,
       step = function(game)
-        set(selected() == classic and fork or classic, game)
+        local value = selected()
+        set(value == fork and classic or value == classic and wide or fork, game)
         return true
       end,
     }

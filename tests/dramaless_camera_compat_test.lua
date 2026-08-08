@@ -58,6 +58,17 @@ eq(camera.RIGS.tele.back, compat.CLASSIC_TELE.back,
 eq(camera.RIGS.tele.frameH, compat.CLASSIC_TELE.frameH,
   "the selected calibrated framing survives the next battle boundary")
 
+selected = "wide"
+handlers["mod.options_changed"]({
+  mod = "trainer_rematch", key = "dramaless_battle_camera",
+})
+eq(camera.RIGS.tele.back, compat.WIDE_TELE.back,
+  "Wide Voxel keeps the original battle distance")
+eq(camera.RIGS.tele.height, compat.WIDE_TELE.height,
+  "Wide Voxel keeps the original battle height")
+eq(camera.RIGS.tele.frameH, compat.WIDE_TELE.frameH,
+  "Wide Voxel provides the extra-wide live-reviewed frame")
+
 selected = "fork"
 handlers["mod.options_changed"]({
   mod = "trainer_rematch", key = "dramaless_battle_camera",

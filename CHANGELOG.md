@@ -12,6 +12,8 @@ All notable changes to this project are documented in this file.
   well as its camera position. The calibrated wider frame compensates for
   Dramaless's larger models and matches the original Voxel battle scale;
   switching back restores the fork default exactly.
+- `WIDE VOXEL` provides a further-out 3× framing for large Mega models whose
+  head or wings would otherwise remain outside the battle view.
 - The Dramaless camera choice now appears next to Voxel controls in the
   regular OPTIONS menu and no longer clutters Kanto Ascendant's mod page.
 
