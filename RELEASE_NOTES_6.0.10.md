@@ -10,6 +10,9 @@ Version 6.0.10 corrects the `CLASSIC VOXEL` compatibility setting for
   therefore visibly closer during a live Voxel battle.
 - Switching back to `FORK DEFAULT` restores Dramaless Shape's original
   distance, height and frame size exactly.
+- The setting is now in the regular **OPTIONS** menu beside the Voxel
+  controls. It is shown only while Dramaless Shape is enabled, rather than
+  under Kanto Ascendant's per-mod options.
 
 ## Compatibility
 

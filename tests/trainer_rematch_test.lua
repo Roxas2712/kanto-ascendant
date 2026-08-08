@@ -961,6 +961,8 @@ T.eq(optionRows.team_growth.type, "toggle",
   "class-appropriate party recruitment can be switched off")
 T.eq(optionRows.loot_mode.type, "choice",
   "rare rematch loot has OFF, BALANCED and GENEROUS modes")
+T.eq(optionRows.dramaless_battle_camera, nil,
+  "the Dramaless camera choice is not duplicated in Kanto Ascendant's mod page")
 T.eq(optionRows.rest_min.min, 151,
   "the configurable rematch range starts at Kanto's full Pokédex count")
 T.eq(optionRows.rest_max.max, 2510,

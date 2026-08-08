@@ -12,6 +12,8 @@ All notable changes to this project are documented in this file.
   well as its camera position. Switching the setting therefore produces the
   visibly closer historical Voxel composition and restores the fork default
   exactly when switched back.
+- The Dramaless camera choice now appears next to Voxel controls in the
+  regular OPTIONS menu and no longer clutters Kanto Ascendant's mod page.
 
 ## [6.0.9] - 2026-08-08
 

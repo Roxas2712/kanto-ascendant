@@ -27,7 +27,8 @@ collapsed so players can reveal only the information they want.
 
 - **Classic Voxel framing now visibly works with Dramaless Shape.** The
   `CLASSIC VOXEL` camera choice updates the rendered battle frame, while
-  `FORK DEFAULT` restores Dramaless Shape's original wider composition.
+  `FORK DEFAULT` restores Dramaless Shape's original wider composition. Find
+  the choice beside the Voxel controls in the regular **OPTIONS** menu.
 
 ## What's new in 6.0.9
 

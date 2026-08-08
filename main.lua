@@ -344,13 +344,6 @@ return function(mod)
     { key = "crystal_animation",
       label = menuLabel("CRYSTAL ANIMATION", "KRISTALL-ANIMATION"),
       type = "toggle", default = true },
-    { key = "dramaless_battle_camera",
-      label = menuLabel("DRAMALESS BATTLE CAMERA", "DRAMALESS-KAMPFKAMERA"),
-      type = "choice", default = "fork",
-      choices = {
-        { menuLabel("FORK DEFAULT", "FORK-STANDARD"), "fork" },
-        { menuLabel("CLASSIC VOXEL", "KLASSISCHES VOXEL"), "classic" },
-      } },
     { key = "shiny_hunts", label = menuLabel("SHINY HUNTS", "SHINY-JAGD"),
       type = "choice", default = "ascendant",
       choices = {
@@ -579,6 +572,15 @@ return function(mod)
     loadSibling(mod, "dramaless_camera_compat.lua")
   local dramalessCameraCompat = makeDramalessCameraCompat(mod)
   mod.exports.dramalessCameraCompat = dramalessCameraCompat
+  local makeDramalessCameraOption =
+    loadSibling(mod, "dramaless_camera_option.lua")
+  local dramalessCameraOption = makeDramalessCameraOption(mod, {
+    camera = menuLabel("DRAMALESS BATTLE CAMERA", "DRAMALESS-KAMPFKAMERA"),
+    fork = menuLabel("FORK DEFAULT", "FORK-STANDARD"),
+    classic = menuLabel("CLASSIC VOXEL", "KLASSISCHES VOXEL"),
+  })
+  dramalessCameraOption.install()
+  mod.exports.dramalessCameraOption = dramalessCameraOption
   local crystalAnimationData = loadSibling(mod, "crystal_animation_data.lua")
   crystalAnimationData.normal[tostring(gorochu.dex)] =
     gorochu.animationDurations
