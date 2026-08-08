@@ -4,6 +4,14 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+## [6.0.6] - 2026-08-08
+
+### Fixed
+
+- The Ascendant New Game+ Steward now spawns in the reachable Indigo Plateau
+  Lobby instead of the one-way Hall of Fame cutscene map. The Research Atlas,
+  README and spoiler FAQ now direct ready players to the lobby.
+
 ## [6.0.5] - 2026-08-06
 
 ### Fixed
