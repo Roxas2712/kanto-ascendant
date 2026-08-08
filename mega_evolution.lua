@@ -147,7 +147,6 @@ return function(mod, opts)
   }
   local refreshSprite
   local voxelWantsFront = function() return false end
-  local voxelBackPinned = function() return false end
 
   local function isShiny(mon)
     if type(mon) ~= "table" then return false end
@@ -721,24 +720,13 @@ return function(mod, opts)
       local ok, value = pcall(overworldBattle.wantsFront)
       return ok and value == true
     end
-    voxelBackPinned = function(battle)
-      -- BACK SPRITES leaves the player's transparent rear card in the
-      -- engine's own GB slot instead of turning it into world geometry.
-      -- Only suppress our classic white-paper relocation pass when Dramatic
-      -- Shape has actually staged this battle; unsupported maps still use
-      -- the normal 2D correction even if the preference itself is enabled.
-      if not (battle and battle.dramaticShapeShot) then return false end
-      local ok, value = pcall(overworldBattle.backPinned)
-      return ok and value == true
-    end
-
     -- Dramatic Shape normally captures a 60px battle card into a 160x144
     -- canvas. Reusing that capture here would make the Voxel renderer enlarge
     -- an image that has already been reduced from the approved 96px master.
-    -- Mega cards instead get a supersampled side texture: the 96px master is
-    -- drawn at 1:1 onto a 230x207 canvas while occupying a 66.8px physical
-    -- battle footprint. The world-size math remains unchanged, but the
-    -- camera receives all authored pixels instead of a twice-resampled card.
+    -- Mega cards receive a supersampled side texture. BATTLE_ART derives a
+    -- card's world-space placement from both canvas size and its anchor, so a
+    -- larger source canvas must provide its own matching anchor rather than
+    -- inheriting the 160x144 Game Boy card's 80x96 coordinates.
     if not overworldBattle.kantoAscendantMegaAnchorHook then
       local innerSideTexture = overworldBattle.sideTexture
       local voxelCanvases, voxelImages = {}, {}
@@ -748,6 +736,7 @@ return function(mod, opts)
       local VOXEL_SCALE = 1.4375
       local VOXEL_W, VOXEL_H = 230, 207
       local MASTER_CARD = 96
+      local VOXEL_AX, VOXEL_AY = VOXEL_W / 2, 96 * VOXEL_SCALE
 
       local function masterPath(profile, mon, side)
         if crystalMegaArtEnabled(profile) then
@@ -830,10 +819,11 @@ return function(mod, opts)
       local function supersampledTexture(texture, battler, profile, side)
         if not (love and love.graphics and texture and battler and profile)
             then return texture end
-        -- A staged Voxel fight presents both monsters to the camera. The
-        -- player's near-side card is mirrored in world space, not replaced
-        -- by its classic rear drawing.
-        local artSide = "front"
+        -- BATTLE_ART's player-view setting is authoritative. FRONT SPRITES
+        -- receives the camera-facing master; WORLD BACK SPRITES receives the
+        -- matching Kanto rear master and is mirrored by BATTLE_ART itself.
+        local artSide = side == "player" and not voxelWantsFront()
+          and "back" or "front"
         local relative, gen1 = masterPath(profile, battler.mon, artSide)
         local palette
         if gen1 then
@@ -873,6 +863,8 @@ return function(mod, opts)
         if not ok then return texture end
 
         texture.canvas = canvas
+        texture.ax = VOXEL_AX
+        texture.ay = VOXEL_AY
         texture.kantoAscendantMegaSupersampled = true
         texture.kantoAscendantMegaSource = relative
         return texture
@@ -886,10 +878,6 @@ return function(mod, opts)
           and FORMS_BY_ID[battler.mon._ascMegaForm]
         if texture and profile then
           texture = supersampledTexture(texture, battler, profile, side)
-          if side == "enemy" then
-            texture.ax = (texture.ax or 80) + 8
-            texture.ay = (texture.ay or 96) - 8
-          end
         end
         return texture
       end
@@ -898,7 +886,10 @@ return function(mod, opts)
   end
 
   function M.rearOverlayAllowed(battle)
-    return not voxelWantsFront() and not voxelBackPinned(battle)
+    -- A real BATTLE_ART shot owns both monster cards, whether it is using
+    -- front sprites, a world-space rear sprite, or its pinned OG UI rear.
+    -- When no shot exists, retain Kanto Ascendant's normal 2D Mega overlay.
+    return not (battle and battle.dramaticShapeShot ~= nil)
   end
 
   function M.install(game, deps)

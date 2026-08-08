@@ -70,12 +70,12 @@ check(not visuals.relativePath(
   { species = "GOROCHU" }, "front"):find("crystal", 1, true),
   "Voxel never resolves through the 56px Crystal card")
 
-local pinned = false
+local front = true
 local overworldBattle = {
   sideTexture = function(_, side)
     return { side = side, ax = 80, ay = 96 }
   end,
-  backPinned = function() return pinned end,
+  wantsFront = function() return front end,
 }
 local game = {
   mods = {
@@ -139,6 +139,10 @@ eq(player.kantoAscendantGorochuSource,
   "camera-facing player uses the approved normal front")
 eq(player.canvas.width, 230, "Voxel side texture is 230 px wide")
 eq(player.canvas.height, 207, "Voxel side texture is 207 px high")
+eq(player.ax, 115,
+  "Voxel Gorochu canvas reports its own horizontal BATTLE_ART anchor")
+eq(player.ay, 138,
+  "Voxel Gorochu canvas reports its own vertical BATTLE_ART anchor")
 eq(player.kantoAscendantGorochuAnimationFrame, 4,
   "Voxel master follows the live Crystal animation clock")
 
@@ -147,7 +151,7 @@ eq(enemy.kantoAscendantGorochuSource,
   "assets/voxel/gorochu/gorochu_front_shiny.png",
   "camera-facing enemy selects the shiny front master")
 
-pinned = true
+front = false
 local back = overworldBattle.sideTexture(battle, "player")
 eq(back.kantoAscendantGorochuSource,
   "assets/voxel/gorochu/gorochu_back.png",

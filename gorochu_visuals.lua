@@ -39,9 +39,9 @@ return function(mod, opts)
     return ok and battle or nil
   end
 
-  local function backPinned(overworldBattle)
-    if not (overworldBattle and overworldBattle.backPinned) then return false end
-    local ok, value = pcall(overworldBattle.backPinned)
+  local function wantsFront(overworldBattle)
+    if not (overworldBattle and overworldBattle.wantsFront) then return false end
+    local ok, value = pcall(overworldBattle.wantsFront)
     return ok and value == true
   end
 
@@ -66,6 +66,7 @@ return function(mod, opts)
     local MASTER_CARD = V.masterSize
     -- 230:207 is the same aspect ratio as the native 160:144 battle frame.
     local VOXEL_SCALE = VOXEL_W / 160
+    local VOXEL_AX, VOXEL_AY = VOXEL_W / 2, 96 * VOXEL_SCALE
 
     local function imageFor(relative)
       if images[relative] then return images[relative] end
@@ -94,10 +95,10 @@ return function(mod, opts)
       if not (texture and battler and battler.mon
           and battler.mon.species == species) then return texture end
 
-      -- Dramatic Shape normally presents both battlers toward the camera.
-      -- Its optional BACK SPRITES mode deliberately keeps the player's rear
-      -- view, so use the equally high-quality approved back master there.
-      local artSide = side == "player" and backPinned(overworldBattle)
+      -- BATTLE_ART owns player view and card placement. Its world-space BACK
+      -- SPRITES option needs the dedicated rear master just as its pinned
+      -- OG-UI path does; FRONT SPRITES keeps the camera-facing master.
+      local artSide = side == "player" and not wantsFront(overworldBattle)
         and "back" or "front"
       local relative = relativePath(battler.mon, artSide)
       local image = relative and imageFor(relative)
@@ -141,14 +142,12 @@ return function(mod, opts)
       if not ok then return texture end
 
       texture.canvas = canvas
+      texture.ax = VOXEL_AX
+      texture.ay = VOXEL_AY
       texture.kantoAscendantGorochuSupersampled = true
       texture.kantoAscendantGorochuSource = relative
       texture.kantoAscendantGorochuSide = artSide
       texture.kantoAscendantGorochuAnimationFrame = animationFrame
-      if side == "enemy" then
-        texture.ax = (texture.ax or 80) + 8
-        texture.ay = (texture.ay or 96) - 8
-      end
       return texture
     end
 

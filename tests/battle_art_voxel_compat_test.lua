@@ -19,7 +19,7 @@ local fakeMod = {
   options = {
     get = function(_, key)
       if key == "mega_evolution" then return true end
-      if key == "kanto_crystal_art" then return true end
+      if key == "kanto_crystal_art" then return false end
       return nil
     end,
   },
@@ -32,15 +32,22 @@ local fakeMod = {
   },
   events = { on = function() end },
   ui = { insertBefore = function(_, rows) return rows end },
-  read = function() return nil end,
+  read = function() return true end,
 }
 
 local mega = assert(dofile(modDir .. "/mega_evolution.lua")(fakeMod))
 local apiCalls = 0
+local front = true
+local nativeCanvas = {
+  getWidth = function() return 160 end,
+  getHeight = function() return 144 end,
+}
 local overworldBattle = {
-  wantsFront = function() return true end,
+  wantsFront = function() return front end,
   backPinned = function() return false end,
-  sideTexture = function(_, side) return { side = side } end,
+  sideTexture = function(_, side)
+    return { side = side, canvas = nativeCanvas, ax = 80, ay = 96 }
+  end,
 }
 local game = {
   data = { pokemon = {} },
@@ -61,6 +68,36 @@ local game = {
 }
 local battleState = { update = function() end, finish = function() end }
 
+local oldLove = _G.love
+local currentCanvas
+_G.love = {
+  graphics = {
+    newImage = function(path)
+      return {
+        path = path,
+        setFilter = function() end,
+        getDimensions = function() return 96, 96 end,
+      }
+    end,
+    newCanvas = function(width, height)
+      return {
+        width = width, height = height,
+        setFilter = function() end,
+        getWidth = function(self) return self.width end,
+        getHeight = function(self) return self.height end,
+      }
+    end,
+    getCanvas = function() return currentCanvas end,
+    setCanvas = function(value) currentCanvas = value end,
+    getBlendMode = function() return "alpha", "alphamultiply" end,
+    setBlendMode = function() end,
+    getColor = function() return 1, 1, 1, 1 end,
+    setColor = function() end,
+    clear = function() end,
+    draw = function() end,
+  },
+}
+
 mega.install(game, { battleState = battleState })
 
 eq(apiCalls, 1,
@@ -68,8 +105,31 @@ eq(apiCalls, 1,
 eq(overworldBattle.kantoAscendantMegaAnchorHook, true,
   "Mega Voxel side-texture hook installs through Battle Art Voxel 1.7.6")
 eq(mega.rearOverlayAllowed({ dramaticShapeShot = true }), false,
-  "a front-facing Voxel battle never draws the obsolete Mega rear overlay")
+  "a staged Battle Art fight never draws the obsolete Mega rear overlay")
+eq(mega.rearOverlayAllowed({}), true,
+  "a non-staged Battle Art fallback keeps Kanto's normal 2D Mega overlay")
 check(wrapped["pokemon.sprite"] ~= nil,
   "Mega sprite routing remains registered alongside the Voxel compatibility")
+
+local battle = {
+  player = { mon = { species = "RAICHU", _ascMegaForm = "RAICHU_X" } },
+  enemy = { mon = { species = "RAICHU", _ascMegaForm = "RAICHU_X" } },
+}
+local player = overworldBattle.sideTexture(battle, "player")
+eq(player.kantoAscendantMegaSource,
+  "assets/mega_gen1_runtime/mega_raichu_x_front.png",
+  "front-view player Mega uses Kanto's dedicated front master")
+eq(player.ax, 115,
+  "supersampled Mega canvas reports its own horizontal BATTLE_ART anchor")
+eq(player.ay, 138,
+  "supersampled Mega canvas reports its own vertical BATTLE_ART anchor")
+
+front = false
+local back = overworldBattle.sideTexture(battle, "player")
+eq(back.kantoAscendantMegaSource,
+  "assets/mega_gen1_runtime/mega_raichu_x_back.png",
+  "world-space BACK SPRITES uses Kanto's dedicated rear Mega master")
+
+_G.love = oldLove
 
 S.finish()

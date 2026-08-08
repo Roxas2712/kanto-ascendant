@@ -1,6 +1,6 @@
 # Kanto Ascendant FAQ and Spoiler Guide
 
-This is the public reference for **Kanto Ascendant 6.0.8**. It applies to Red,
+This is the public reference for **Kanto Ascendant 6.0.9**. It applies to Red,
 Blue and Yellow and is maintained from the current mod code, release
 documentation and confirmed support reports.
 
@@ -297,7 +297,7 @@ Mankey in every active KANTO 151 game.
 <details>
 <summary><strong>⚠️ SPOILER — Do I need to start a new game for Johto Signals?</strong></summary>
 
-No. Version 6.0.8 upgrades existing Red, Blue and Yellow saves in place.
+No. Version 6.0.9 upgrades existing Red, Blue and Yellow saves in place.
 
 The signal system does not count steps taken before 6.0 was installed. Once
 the updated save has a starter and the Pokédex, it begins its own hidden
@@ -1269,8 +1269,10 @@ Pikachu and unrelated level-5 encounters are not rewritten.
 - Dramatic Shape/Voxel uses dedicated renderer assets. Gorochu and all official
   Mega forms have separate sharp 96×96 masters.
 - **Battle Art Voxel 1.7.6:** supported through its renamed
-  `BATTLE_ART_VOXEL_FORK` API. Its front-facing battle mode must not use a
-  classic Mega rear overlay.
+  `BATTLE_ART_VOXEL_FORK` API. It owns the staged 3D battle camera and
+  layout; Ascendant supplies its Mega and Gorochu cards in the selected
+  FRONT SPRITES or world-space BACK SPRITES view. A non-staged fallback stays
+  on Ascendant's normal 2D Mega presentation.
 
 DEX SPRITES does not change battles, followers, evolutions, trades, Hall of
 Fame screens or the small animated party icons.
@@ -1334,7 +1336,7 @@ proven from a screenshot alone.
 | Crystal is selected but Pokémon → STATS still shows old art | **Fixed in 6.0.4.** The party status portrait now follows the independent DEX SPRITES selector in Red, Blue and Yellow. |
 | Johto Signals start question returns or appears over an existing repaired save | **Fixed in 6.0.4.** YES/NO is saved immediately and the question is deferred until the selected slot has fully loaded. |
 | Early-route Johto Pokémon appear around level 12-15 beside level 2-6 Kanto encounters | **Fixed in 6.0.5.** Ordinary Johto encounters, including permanent researched habitats, use the rounded, weighted route average plus 2-5 levels in classic 2D and Wilds; authored primal encounters keep their story levels. |
-| Mega Evolution leaves a white rear-sprite card in Battle Art Voxel 1.7.6 | **Fixed in 6.0.8.** Install the current release; its renamed Voxel API now keeps Mega cards on the correct front-facing renderer path. |
+| Mega Evolution or Gorochu is offset in Battle Art Voxel 1.7.6 | **Fixed in 6.0.9.** Install the current release; Kanto's supersampled cards now use their own BATTLE_ART anchors and respect the selected front/back world view. |
 | Story Sabrina's Alakazam did not Mega Evolve | **Expected.** Enemy Mega defaults to post-game Ascendant bosses. |
 | Mankey/Nidoran location confusion | **Documented above.** Active KANTO 151 adds Mankey to Route 5 in every edition; native Route 22 remains edition-specific. |
 | Stale trainer_rematch install on a handheld PC | **Launcher/filesystem support, not a gameplay defect.** Recovery steps are documented above. |
