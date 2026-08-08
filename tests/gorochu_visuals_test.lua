@@ -80,11 +80,11 @@ local overworldBattle = {
 local game = {
   mods = {
     exports = {
-      BATTLE_ART_VOXEL_FORK = {
+      DRAMALESS_SHAPE = {
         lib = {
           require = function(name)
             eq(name, "OverworldBattle",
-              "Gorochu installs through Battle Art Voxel's public module")
+              "Gorochu installs through Dramaless Shape's public module")
             return overworldBattle
           end,
         },
@@ -140,9 +140,9 @@ eq(player.kantoAscendantGorochuSource,
 eq(player.canvas.width, 230, "Voxel side texture is 230 px wide")
 eq(player.canvas.height, 207, "Voxel side texture is 207 px high")
 eq(player.ax, 115,
-  "Voxel Gorochu canvas reports its own horizontal BATTLE_ART anchor")
+  "Voxel Gorochu canvas reports its own horizontal Voxel anchor")
 eq(player.ay, 138,
-  "Voxel Gorochu canvas reports its own vertical BATTLE_ART anchor")
+  "Voxel Gorochu canvas reports its own vertical Voxel anchor")
 eq(player.kantoAscendantGorochuAnimationFrame, 4,
   "Voxel master follows the live Crystal animation clock")
 

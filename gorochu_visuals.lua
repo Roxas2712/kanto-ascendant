@@ -28,9 +28,9 @@ return function(mod, opts)
 
   local function dramaticBattle(game)
     local exports = game and game.mods and game.mods.exports
-    -- Battle Art Voxel 1.7.2+ renamed its public mod id while preserving the
-    -- OverworldBattle companion API used by both Voxel variants.
-    local dramatic = exports and (exports.BATTLE_ART_VOXEL_FORK
+    -- Dramaless Shape preserves Dramatic Shape's public OverworldBattle
+    -- companion API under its own maintained mod id.
+    local dramatic = exports and (exports.DRAMALESS_SHAPE
       or exports.DRAMATIC_SHAPE)
     if not (dramatic and dramatic.lib and dramatic.lib.require) then
       return nil
@@ -95,7 +95,7 @@ return function(mod, opts)
       if not (texture and battler and battler.mon
           and battler.mon.species == species) then return texture end
 
-      -- BATTLE_ART owns player view and card placement. Its world-space BACK
+      -- Dramaless Shape owns player view and card placement. Its world-space BACK
       -- SPRITES option needs the dedicated rear master just as its pinned
       -- OG-UI path does; FRONT SPRITES keeps the camera-facing master.
       local artSide = side == "player" and not wantsFront(overworldBattle)

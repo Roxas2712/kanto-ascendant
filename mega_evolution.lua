@@ -707,10 +707,10 @@ return function(mod, opts)
 
   local function installVoxelCompatibility(game)
     local exports = game and game.mods and game.mods.exports
-    -- Battle Art Voxel 1.7.2+ changed its public mod id from
-    -- DRAMATIC_SHAPE to BATTLE_ART_VOXEL_FORK but retained this API.  Resolve
-    -- the current id first while keeping older Dramatic Shape installs valid.
-    local dramatic = exports and (exports.BATTLE_ART_VOXEL_FORK
+    -- Dramaless Shape retains Dramatic Shape's public OverworldBattle companion
+    -- API under its own mod id. Resolve the maintained fork first while keeping
+    -- older Dramatic Shape installs valid.
+    local dramatic = exports and (exports.DRAMALESS_SHAPE
       or exports.DRAMATIC_SHAPE)
     if not (dramatic and dramatic.lib and dramatic.lib.require) then return end
     local okBattle, overworldBattle = pcall(
@@ -723,7 +723,7 @@ return function(mod, opts)
     -- Dramatic Shape normally captures a 60px battle card into a 160x144
     -- canvas. Reusing that capture here would make the Voxel renderer enlarge
     -- an image that has already been reduced from the approved 96px master.
-    -- Mega cards receive a supersampled side texture. BATTLE_ART derives a
+    -- Mega cards receive a supersampled side texture. The Voxel renderer derives a
     -- card's world-space placement from both canvas size and its anchor, so a
     -- larger source canvas must provide its own matching anchor rather than
     -- inheriting the 160x144 Game Boy card's 80x96 coordinates.
@@ -819,9 +819,9 @@ return function(mod, opts)
       local function supersampledTexture(texture, battler, profile, side)
         if not (love and love.graphics and texture and battler and profile)
             then return texture end
-        -- BATTLE_ART's player-view setting is authoritative. FRONT SPRITES
+        -- Dramaless Shape's player-view setting is authoritative. FRONT SPRITES
         -- receives the camera-facing master; WORLD BACK SPRITES receives the
-        -- matching Kanto rear master and is mirrored by BATTLE_ART itself.
+        -- matching Kanto rear master and is mirrored by the renderer itself.
         local artSide = side == "player" and not voxelWantsFront()
           and "back" or "front"
         local relative, gen1 = masterPath(profile, battler.mon, artSide)
@@ -886,7 +886,7 @@ return function(mod, opts)
   end
 
   function M.rearOverlayAllowed(battle)
-    -- A real BATTLE_ART shot owns both monster cards, whether it is using
+    -- A real Dramaless Shape shot owns both monster cards, whether it is using
     -- front sprites, a world-space rear sprite, or its pinned OG UI rear.
     -- When no shot exists, retain Kanto Ascendant's normal 2D Mega overlay.
     return not (battle and battle.dramaticShapeShot ~= nil)

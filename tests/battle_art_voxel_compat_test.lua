@@ -1,10 +1,10 @@
--- Battle Art Voxel 1.7.6 kept the public OverworldBattle API but renamed its
--- export to BATTLE_ART_VOXEL_FORK. Mega presentation must therefore retain
--- the Voxel front-card path and suppress the classic rear overlay.
+-- Dramaless Shape retains the public OverworldBattle API under its own export.
+-- Mega presentation must therefore retain the Voxel front-card path and
+-- suppress the classic rear overlay.
 
 package.path = "./?.lua;./?/init.lua;" .. package.path
 
-local S = require("tests.harness").suite("battle art voxel compatibility")
+local S = require("tests.harness").suite("dramaless shape compatibility")
 local check, eq = S.check, S.eq
 local modDir = assert(os.getenv("TRAINER_REMATCH_MOD_DIR"),
   "TRAINER_REMATCH_MOD_DIR is required")
@@ -53,11 +53,11 @@ local game = {
   data = { pokemon = {} },
   mods = {
     exports = {
-      BATTLE_ART_VOXEL_FORK = {
+      DRAMALESS_SHAPE = {
         lib = {
           require = function(name)
             eq(name, "OverworldBattle",
-              "Battle Art Voxel exposes the documented companion API")
+              "Dramaless Shape exposes the documented companion API")
             apiCalls = apiCalls + 1
             return overworldBattle
           end,
@@ -101,13 +101,13 @@ _G.love = {
 mega.install(game, { battleState = battleState })
 
 eq(apiCalls, 1,
-  "Mega compatibility resolves Battle Art Voxel's renamed export")
+  "Mega compatibility resolves Dramaless Shape's maintained export")
 eq(overworldBattle.kantoAscendantMegaAnchorHook, true,
-  "Mega Voxel side-texture hook installs through Battle Art Voxel 1.7.6")
+  "Mega Voxel side-texture hook installs through Dramaless Shape")
 eq(mega.rearOverlayAllowed({ dramaticShapeShot = true }), false,
-  "a staged Battle Art fight never draws the obsolete Mega rear overlay")
+  "a staged Dramaless Shape fight never draws the obsolete Mega rear overlay")
 eq(mega.rearOverlayAllowed({}), true,
-  "a non-staged Battle Art fallback keeps Kanto's normal 2D Mega overlay")
+  "a non-staged renderer fallback keeps Kanto's normal 2D Mega overlay")
 check(wrapped["pokemon.sprite"] ~= nil,
   "Mega sprite routing remains registered alongside the Voxel compatibility")
 
@@ -120,9 +120,9 @@ eq(player.kantoAscendantMegaSource,
   "assets/mega_gen1_runtime/mega_raichu_x_front.png",
   "front-view player Mega uses Kanto's dedicated front master")
 eq(player.ax, 115,
-  "supersampled Mega canvas reports its own horizontal BATTLE_ART anchor")
+  "supersampled Mega canvas reports its own horizontal Voxel anchor")
 eq(player.ay, 138,
-  "supersampled Mega canvas reports its own vertical BATTLE_ART anchor")
+  "supersampled Mega canvas reports its own vertical Voxel anchor")
 
 front = false
 local back = overworldBattle.sideTexture(battle, "player")

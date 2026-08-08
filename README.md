@@ -25,19 +25,20 @@ collapsed so players can reveal only the information they want.
 
 ## What's new in 6.0.9
 
-- **BATTLE_ART_VOXEL_FORK** now owns the complete staged-battle composition:
-  Kanto Ascendant supplies its Mega and Gorochu art with matching Voxel-card
-  anchors, respects **FRONT SPRITES** and world-space **BACK SPRITES**, and
-  never applies its classic 2D Mega overlay to a live BATTLE_ART shot.
-- A Battle Art fallback that cannot stage a 3D arena retains the normal Kanto
-  Ascendant 2D Mega presentation.
+- **Dramaless Shape** (`DRAMALESS_SHAPE`) now owns the complete staged-battle
+  composition. Kanto Ascendant supplies its Mega and Gorochu art with matching
+  Voxel-card anchors in the renderer's **2D-3D** views, respects **FRONT
+  SPRITES** and world-space **BACK SPRITES**, and never applies its classic 2D
+  Mega overlay to a live staged shot.
+- Dramaless Shape's **STADIUM** views use their own 3D models. A renderer
+  fallback that cannot stage a 3D arena retains the normal Kanto Ascendant 2D
+  Mega presentation.
 
 ## What's new in 6.0.8
 
 - Mega Evolution and Gorochu's high-resolution Voxel cards now recognize
-  **Battle Art Voxel 1.7.6** (`BATTLE_ART_VOXEL_FORK`). Its front-facing
-  Voxel battles no longer receive Kanto Ascendant's classic rear-sprite
-  overlay.
+  **Dramaless Shape 1.6.2.ST** (`DRAMALESS_SHAPE`). Its 2D-3D battles no
+  longer receive Kanto Ascendant's classic rear-sprite overlay.
 
 ## What's new in 6.0.7
 
