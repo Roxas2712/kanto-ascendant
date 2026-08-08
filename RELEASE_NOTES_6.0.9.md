@@ -17,6 +17,14 @@ Version 6.0.9 is a save-compatible compatibility fix for
 - Dramaless Shape's **STADIUM** views keep their own 3D models; Kanto
   Ascendant does not overlay 2D cards onto those models.
 
+## Camera choice
+
+- `DRAMALESS BATTLE CAMERA` is a default-off presentation choice. Select
+  **CLASSIC VOXEL** in Kanto Ascendant's options to restore the original
+  Dramatic Shape telephoto battle framing; **FORK DEFAULT** keeps Dramaless
+  Shape's wider framing for its larger models. This affects only the current
+  renderer session and does not change save progress.
+
 ## Compatibility
 
 - Pokémon Red, Blue and Yellow.

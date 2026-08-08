@@ -1272,7 +1272,10 @@ Pikachu and unrelated level-5 encounters are not rewritten.
   It owns the staged 3D battle camera and layout; Ascendant supplies its Mega
   and Gorochu cards in the selected 2D-3D FRONT SPRITES or world-space BACK
   SPRITES view. STADIUM views retain Dramaless Shape's own models. A non-staged
-  fallback stays
+  fallback stays on Ascendant's normal 2D Mega presentation. If you prefer the
+  historical Voxel camera framing, choose **DRAMALESS BATTLE CAMERA → CLASSIC
+  VOXEL** in Kanto Ascendant's options; **FORK DEFAULT** leaves Dramaless's
+  wider camera unchanged.
   on Ascendant's normal 2D Mega presentation.
 
 DEX SPRITES does not change battles, followers, evolutions, trades, Hall of

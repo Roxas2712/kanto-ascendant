@@ -33,6 +33,9 @@ collapsed so players can reveal only the information they want.
 - Dramaless Shape's **STADIUM** views use their own 3D models. A renderer
   fallback that cannot stage a 3D arena retains the normal Kanto Ascendant 2D
   Mega presentation.
+- **DRAMALESS BATTLE CAMERA** is an optional presentation choice: select
+  **CLASSIC VOXEL** to restore the original Voxel battle framing, or leave
+  **FORK DEFAULT** selected for Dramaless Shape's wider camera.
 
 ## What's new in 6.0.8
 

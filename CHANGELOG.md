@@ -4,6 +4,20 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+## [6.0.9] - 2026-08-08
+
+### Fixed
+
+- Mega Evolution and Gorochu now use Dramaless Shape's native 160×144 staged
+  battle cards and 80×96 anchor, keeping their dedicated masters aligned in
+  2D-3D FRONT SPRITES and world-space BACK SPRITES views.
+
+### Added
+
+- `DRAMALESS BATTLE CAMERA`: an optional `CLASSIC VOXEL` framing mode that
+  restores the historical Dramatic Shape telephoto battle camera. The default
+  remains Dramaless Shape's wider framing for its larger models.
+
 ## [6.0.8] - 2026-08-08
 
 ### Fixed
