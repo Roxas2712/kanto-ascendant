@@ -1302,7 +1302,7 @@ can be selected for the Trainer Card in the Legacy Gallery.
 
 Completing the Crown, all eight Leader missions, the Johto specimen tracks,
 one Ascendant Frontier victory, Rocket Resurgence and the enabled Mew finale unlocks an
-Ascendant Steward in the Hall of Fame. The Steward starts a double-confirmed
+Ascendant Steward in the Indigo Plateau Lobby. The Steward starts a double-confirmed
 **Ascendant Cycle**:
 
 - Master, Apex, Crown, circuit-research, Leader-mission and Rocket progress

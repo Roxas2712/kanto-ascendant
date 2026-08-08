@@ -1201,6 +1201,9 @@ The current event appears in **ASCENDANT → JOURNAL**.
 <details>
 <summary><strong>⚠️ SPOILER — What survives an Ascendant Cycle / New Game Plus?</strong></summary>
 
+When the Cycle is ready, speak to the Ascendant Steward in the **Indigo
+Plateau Lobby**. The prompt is double-confirmed before anything resets.
+
 Starting a double-confirmed Cycle resets Master/Apex/Crown circuits, circuit
 research, Leader missions and Rocket progress. It preserves the base story,
 party, inventory, captured legends, Johto specimens and eggs, permanent
