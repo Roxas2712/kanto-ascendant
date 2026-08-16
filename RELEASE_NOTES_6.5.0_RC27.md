@@ -1,5 +1,12 @@
 # Kanto Ascendant 6.5.0 RC27 Test
 
+> [!WARNING]
+> **⚠️ FULL SPOILERS:** This historical test note names hidden entrances,
+> trial structure and postgame rewards.
+
+<details>
+<summary><strong>Open the historical spoiler document</strong></summary>
+
 RC27 replaces the withdrawn RC26 archive after the first manual dungeon and
 Elite Four test. It removes no requested gameplay system.
 
@@ -49,3 +56,5 @@ and is not represented as a new end-to-end runtime pass.
 
 Do not continue testing with `kanto-ascendant-6.5.0-rc26-test.zip` after
 installing RC27.
+
+</details>

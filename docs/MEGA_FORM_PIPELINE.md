@@ -58,7 +58,10 @@ runtime card to produce a master; always reduce from the best approved source.
 - Record every frame duration in `mega_animation_data.lua`.
 - A static fallback must remain available whenever Crystal animation is off.
 
-### Hoenn locally authored derivative exception
+<details>
+<summary><strong>⚠️ FULL SPOILERS — three authored Legacy Mega forms</strong></summary>
+
+### Locally authored derivative exception
 
 Mega Blaziken, Mega Swampert and Mega Sceptile retain the four supplied,
 independent static masters as their Voxel source and their Crystal-off/Gen-I
@@ -75,6 +78,8 @@ remain attributed to the locally supplied pinned `PokeAPI/sprites` package.
 Do not replace this provenance statement with a free-license claim. The
 runtime uses the derivatives only when Crystal animation is enabled; Voxel
 continues to read the approved static master directly.
+
+</details>
 
 ## 4. 2D layout rules
 

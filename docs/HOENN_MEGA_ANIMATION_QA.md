@@ -1,4 +1,11 @@
-# Hoenn-Mega-Animations-QA
+# Drei verfasste Megaformen – Animations-QA
+
+> [!WARNING]
+> **⚠️ FULL SPOILERS:** Diese technische Referenz nennt die drei geheimen
+> Megaformen und ihre Präsentationsassets.
+
+<details>
+<summary><strong>Vollständige technische Spoiler öffnen</strong></summary>
 
 Dieses Paket ergänzt ausschließlich Mega Lohgock, Mega Sumpex und Mega
 Gewaldro. Es ersetzt weder die vier statischen Masters noch die Voxel-Quelle.
@@ -62,3 +69,5 @@ Geprüft wurden folgende Kontaktbögen:
 Die LÖVE-Captures liefen mit dem lokalen 11.5-Binary. Der Voxel-Lauf verwendet
 die vorhandene isolierte Identity `ka-hoenn-mega-qa`, welche DRAMALESS ohne den
 konfligierenden DRAMATIC-Shape lädt.
+
+</details>

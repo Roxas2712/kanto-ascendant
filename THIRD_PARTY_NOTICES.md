@@ -140,24 +140,24 @@ The repository mirrors the recognizable Gen-V-style Pokémon Showdown/Smogon
 sprite set. Kanto Ascendant preserves each master without interpolation and
 builds side-aware idle loops using integer-pixel movement only.
 
-Mega Blaziken, Mega Swampert and Mega Sceptile use the supplied four-view
-normal/shiny PokeAPI masters from the fixed `PokeAPI/sprites` source commit
+Three authored Mega forms use the supplied four-view normal/shiny PokeAPI
+masters from the fixed `PokeAPI/sprites` source commit
 `c10459b...` (front/back, normal/shiny). They are retained as static approved
 poses: no unlicensed or fabricated animation frames were added. Pokémon and
 Pokémon character artwork are © Nintendo / Creatures Inc. / GAME FREAK inc.;
 PokeAPI is credited solely as the source mirror.
 
 The twelve copied masters were checked byte-for-byte against the supplied
-source bundle.  Their SHA-256 values are: Blaziken front
+source bundle. Their SHA-256 values are: form A front
 `f920703c485165c83bd5d52c637554789ab0e46967719d76170794e1d4ab9ea0`, back
 `16b2e0875a6816c4d684bd574c1eb9fa7d1f9368a7fec87c4d2ee30d3e29e5f7`, shiny
 front `7aff84f61953aaff1040f0492244875b585d301f88ad87091c4abd9dd391f2dc`
 and shiny back `749a748794a6dee6b4972685953438879bf86823e18ef6729f4506b1794acf31`;
-Swampert front `256aa57db96b64309c046aafd8444908e1c3fcf13a9e50e8d36512a37327e255`,
+form B front `256aa57db96b64309c046aafd8444908e1c3fcf13a9e50e8d36512a37327e255`,
 back `27af96a91224f07ef30577797aebf0e85de87747647a90250deb9d0662b9fd7a`,
 shiny front `74131a04d43ad1a9629b9ebb183e0316be3058a2c2a4a512ed0e4c6cde30cbab`
 and shiny back `9fcce75883ee180f6ec54a8f64039ada8ee224c20aa4f8e00e60b11ac4c0afea`;
-Sceptile front `3d89edb7a293dc97ea1ce6e9b6f79d08d6a3751fe30a6ab2ac868bd3a9bdeb5c`,
+form C front `3d89edb7a293dc97ea1ce6e9b6f79d08d6a3751fe30a6ab2ac868bd3a9bdeb5c`,
 back `057ca4fd7472b0206ce87c8a600b1017b759873ff29a6e4cf4031217abfee2f2`,
 shiny front `8952862af30f83bf949e159c4586b6fef18d912b8dcb99f1442e20b1a91a15fe`
 and shiny back `a8288eb726c12a836d10040f4bd267f25f94acac9d8facc2ea19b86c8c3b4062`.

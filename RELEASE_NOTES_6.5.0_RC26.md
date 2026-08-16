@@ -1,5 +1,12 @@
 # Kanto Ascendant 6.5.0 RC26 Test
 
+> [!WARNING]
+> **⚠️ FULL SPOILERS:** This historical test note discusses hidden trial
+> structure and postgame progression.
+
+<details>
+<summary><strong>Open the historical spoiler document</strong></summary>
+
 RC26 replaces the withdrawn RC25 test archive after the first full-save field
 test. No requested gameplay system was removed.
 
@@ -24,3 +31,5 @@ test. No requested gameplay system was removed.
   the Champion retains his authored Johto legendary roster.
 
 Do not use `kanto-ascendant-6.5.0-rc25-test.zip` after installing RC26.
+
+</details>

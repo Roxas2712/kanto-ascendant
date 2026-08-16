@@ -1,5 +1,12 @@
 # Hidden Evolution 6.5 – Runtime- und Renderer-Vertrag
 
+> [!WARNING]
+> **⚠️ FULL SPOILERS:** Diese technische Referenz nennt Eingänge,
+> Traversalregeln und Prüfungsaufbau aller drei Pfade.
+
+<details>
+<summary><strong>Vollständige technische Spoiler öffnen</strong></summary>
+
 Dieses Dokument beschreibt den öffentlichen technischen Vertrag der drei
 Hidden-Evolution-Pfade. Es enthält bewusst keine vollständige Lösung. Exakte
 Routen, Karten und Voraussetzungen stehen im klar als Vollspoiler markierten
@@ -72,3 +79,5 @@ Kartenübersichten und Einzelkarten. Die vollständigen Entwicklungs-Captures,
 Runnerprotokolle und maschinenspezifischen Arbeitsverzeichnisse bleiben im
 privaten Abnahmearchiv und sind nicht Bestandteil des öffentlichen Quellbaums
 oder Modpakets.
+
+</details>
