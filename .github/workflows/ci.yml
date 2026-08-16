@@ -120,6 +120,7 @@ jobs:
           python3 tests/core_phase10_audit_test.py
           python3 tests/starter_signature_tech_package_driver_contract_test.py
           python3 tests/verify_rc_runtime_contract_test.py
+          python3 tests/potato_voxel_172_visual_contract_test.py
           python3 tests/ascendant_ui_audit_test.py
           python3 tests/gorochu_follower_quality_test.py
           python3 tests/gorochu_crystal_animation_test.py

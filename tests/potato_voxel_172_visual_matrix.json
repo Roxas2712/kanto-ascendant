@@ -1,0 +1,143 @@
+{
+  "schema": "ka-potato-voxel-1.7.2-visual-matrix/v1",
+  "love_runtime": "11.5",
+  "package": {
+    "filename": "potato_voxel-1.7.2.zip",
+    "id": "potato_voxel",
+    "repository": "ShaneMcGovernIE/potato_voxel",
+    "version": "1.7.2",
+    "sha256": "200153d7623db14e08925d1b51f99f8ccbfa5e32db134922f51c8179bd64fd33"
+  },
+  "engines": {
+    "0.1.96": {
+      "tag": "0196",
+      "filename": "gen1recomp-0.1.96.love",
+      "commit": "73fbaaa25093338585923b8b9809f2fea7fc59dc",
+      "sha256": "eea83b7f73300994429d70fa4b1003dd9a1c1e524d70842380ef595bcc1a8249"
+    },
+    "0.1.98": {
+      "tag": "0198",
+      "filename": "gen1recomp-0.1.98.love",
+      "commit": "0e40a7a1f4cd956b37fd74ad50193c259161aac5",
+      "sha256": "a28b914f5265a52132cb743ba632e1c7bb81f5eb989829816c571adde798db55"
+    }
+  },
+  "editions": [
+    "red",
+    "blue",
+    "yellow"
+  ],
+  "languages": [
+    "en",
+    "de"
+  ],
+  "language_packages": {
+    "red": {
+      "id": "deutsch",
+      "version": "2.1.6"
+    },
+    "blue": {
+      "id": "deutsch-blau",
+      "version": "1.0.2"
+    },
+    "yellow": {
+      "id": "deutsch-gelb",
+      "version": "1.0.5"
+    }
+  },
+  "labels": {
+    "red": {
+      "en": {
+        "command": "FIGHT",
+        "move": "GROWL"
+      },
+      "de": {
+        "command": "KMPF",
+        "move": "HEULER"
+      }
+    },
+    "blue": {
+      "en": {
+        "command": "FIGHT",
+        "move": "GROWL"
+      },
+      "de": {
+        "command": "KMPF",
+        "move": "HEULER"
+      }
+    },
+    "yellow": {
+      "en": {
+        "command": "FIGHT",
+        "move": "QUICK ATTACK"
+      },
+      "de": {
+        "command": "KMPF",
+        "move": "RUCKZUCKHIEB"
+      }
+    }
+  },
+  "captures": [
+    {
+      "id": "3d_on_landscape_textbox",
+      "battle_3d": true,
+      "viewport": "landscape",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "id": "3d_on_landscape_command",
+      "battle_3d": true,
+      "viewport": "landscape",
+      "width": 960,
+      "height": 540
+    },
+    {
+      "id": "3d_on_portrait_move",
+      "battle_3d": true,
+      "viewport": "portrait",
+      "width": 540,
+      "height": 900
+    },
+    {
+      "id": "3d_off_landscape_command",
+      "battle_3d": false,
+      "viewport": "landscape",
+      "width": 960,
+      "height": 540
+    }
+  ],
+  "required_receipt": {
+    "battle_3d_off": "true",
+    "battle_3d_on": "true",
+    "cache_backend": "storage",
+    "cache_geometry_version": "18",
+    "camera_frameH": "34.11",
+    "camera_kasc_apply": "false",
+    "camera_owner": "@mods/potato_voxel/lib/BattleCam.lua",
+    "camera_row_count": "0",
+    "camera_zoom": "1",
+    "gender_enemy": "1",
+    "gender_player": "1",
+    "hud_fallback_count": "0",
+    "hud_native_snap_count": "0",
+    "hud_owner": "@mods/potato_voxel/lib/OverworldBattle.lua",
+    "hud_profile": "RENDERER_NATIVE",
+    "hud_snap_count": "0",
+    "landscape": "960x540",
+    "logs_to_dev": "false",
+    "manifest_version": "1.7.2",
+    "off_landscape": "960x540",
+    "owner_settings_rows": "1",
+    "portrait": "540x900",
+    "raw_export_version": "1.6.1",
+    "renderer_count": "1",
+    "resolver_export": "kasc-local-allowlist/v1",
+    "resolver_provenance": "potato-voxel-1.7.2-reviewed-api-contract",
+    "resolver_renderer": "potato_voxel",
+    "screenshot_count": "4",
+    "status": "PASS",
+    "status_par": "1",
+    "touch_visible": "true"
+  }
+}
