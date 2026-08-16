@@ -38,6 +38,26 @@ local POSTGAME_EEVEE = {
   chance = 2,
 }
 
+-- An active Legacy Journey lets the three Kanto starters establish a rare
+-- early habitat without removing their guaranteed late-game sources.  These
+-- are ordinary wild encounters: Randomizer and Nuzlocke process them through
+-- their normal public hooks.  A per-habitat pity ceiling prevents a player
+-- from being trapped behind an arbitrarily long unlucky streak.
+local LEGACY_EARLY_STARTERS = {
+  VIRIDIAN_FOREST = {
+    terrain = "grass", species = "BULBASAUR", level = 5,
+    chance = 2, pity = 50,
+  },
+  ROUTE_3 = {
+    terrain = "grass", species = "CHARMANDER", level = 7,
+    chance = 2, pity = 50,
+  },
+  ROUTE_24 = {
+    terrain = "grass", species = "SQUIRTLE", level = 9,
+    chance = 2, pity = 50,
+  },
+}
+
 -- Only the slots needed to remove edition/one-time choice locks are changed.
 -- Keeping the remaining native slots makes the routes still feel like Kanto.
 local SHARED_ENCOUNTERS = {
@@ -177,6 +197,7 @@ end
 return function(mod, opts)
   opts = opts or {}
   local i18n = opts.i18n
+  local legacyJourney = opts.legacyJourney or opts.journey
   local enabled = opts.contentEnabled ~= false
   local K = { game = nil, enabled = enabled }
 
@@ -224,6 +245,7 @@ return function(mod, opts)
   K.wildEncounters = WILD_ENCOUNTERS
   K.rewardGuardEncounters = REWARD_GUARD_ENCOUNTERS
   K.postgameEevee = POSTGAME_EEVEE
+  K.legacyEarlyStarters = LEGACY_EARLY_STARTERS
 
   local function patchEncounter(mapId, replacements)
     local current = mod.content.encounters:get(mapId)
@@ -283,6 +305,57 @@ return function(mod, opts)
     return save and ((save.hallOfFame and #save.hallOfFame > 0)
       or (save.flags and save.flags.EVENT_BEAT_CHAMPION_RIVAL)) or false
   end
+
+  local function earlyStarterState(create)
+    local s = mod.save:get("legacy_early_starters")
+    if type(s) ~= "table" and create ~= false then
+      s = { version = 1, pity = {} }
+      mod.save:set("legacy_early_starters", s)
+    end
+    if type(s) == "table" then
+      s.version = 1
+      s.pity = type(s.pity) == "table" and s.pity or {}
+    end
+    return s
+  end
+
+  local function activeLegacy(save)
+    return legacyJourney and type(legacyJourney.isActive) == "function"
+      and legacyJourney.isActive(save) == true
+  end
+
+  function K.rollLegacyEarlyStarter(out, ctx, game)
+    game = game or K.game
+    if not (out and ctx and game and enabled and activeLegacy(game.save)) then
+      return out
+    end
+    if out.kaProtected or out.kaEncounterSource
+        or ctx.kaProtected or ctx.kaEncounterSource then
+      return out
+    end
+    local row = LEGACY_EARLY_STARTERS[ctx.mapId]
+    if not row or ctx.terrain ~= row.terrain
+        or type(ctx.rng) ~= "function" then return out end
+
+    local s = earlyStarterState(true)
+    local count = math.max(0,
+      math.floor(tonumber(s.pity[ctx.mapId]) or 0)) + 1
+    local rolled = ctx.rng(1, 100) <= row.chance
+    if rolled or count >= row.pity then
+      s.pity[ctx.mapId] = 0
+      return { species = row.species, level = row.level }
+    end
+    s.pity[ctx.mapId] = count
+    return out
+  end
+
+  -- Run after the transactional Johto habitat proposal but before the
+  -- existing Route-7 Eevee wrapper. Higher-priority roamers and authored
+  -- events remain free to replace the ordinary result afterwards.
+  mod.hooks:wrap("encounter.roll", function(nextRoll, encDef, ctx)
+    local out = nextRoll(encDef, ctx)
+    return K.rollLegacyEarlyStarter(out, ctx, K.game)
+  end, -15)
 
   -- Route 7 is close to Eevee's original Celadon gift and provides the
   -- renewable copies required for all five Kanto/Johto branches. This is

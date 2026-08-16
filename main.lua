@@ -1161,6 +1161,7 @@ return function(mod)
   local kantoCompletion = makeKantoCompletion(mod, {
     i18n = i18n,
     contentEnabled = contentEnabled,
+    legacyJourney = legacyJourney,
   })
   mod.exports.kantoCompletion = kantoCompletion
   local makeFieldTech = loadSibling(mod, "field_tech.lua")
