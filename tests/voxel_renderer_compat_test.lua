@@ -19,12 +19,17 @@ local function eq(actual, expected, message)
 end
 
 local modules = {
+  AntiAlias = { id = "aa" },
   OverworldBattle = { id = "battle", sideTexture = function() end },
   BattleCam = { id = "camera" },
+  FirstPerson = { id = "first-person" },
   VoxelScene = { id = "scene" },
   Voxel3D = { id = "voxel" },
+  VoxelState = { id = "state" },
   Mat4 = { id = "matrix" },
+  ShadowMap = { id = "shadow" },
   SpriteBillboards = { id = "billboards" },
+  TerrainAtlas = { id = "terrain-atlas" },
 }
 local function export(version)
   return {
@@ -88,6 +93,28 @@ local function battleArtExport(version)
       apiVersion = 1, sourceModId = "BATTLE_ART_VOXEL_FORK",
       suppressHook = "battle.presentation.suppress_native.v1",
     },
+  }, rawCalls, rawLib
+end
+
+local function potatoExport()
+  local rawCalls = {}
+  local rawLib = {
+    mod = { id = "potato_voxel", assets = {} },
+    path = "/separately-installed/potato-voxel",
+    data = function() return { private = true } end,
+  }
+  rawLib.require = function(name)
+    rawCalls[#rawCalls + 1] = name
+    if name == "BattleCam" then return nil end
+    if modules[name] then return modules[name] end
+    return { privateModule = name }
+  end
+  return {
+    -- PotatoVoxel 1.7.2's public release currently retains this stale
+    -- compatibility string; the authoritative version is its manifest.
+    version = "1.6.1",
+    lib = rawLib,
+    brick = {}, debug = {},
   }, rawCalls, rawLib
 end
 
@@ -488,6 +515,74 @@ eq(module, modules.OverworldBattle,
 eq(moduleId, "BATTLE_ART_VOXEL_FORK",
   "Battle Art module receipt retains its identity")
 eq(moduleError, nil, "Battle Art side-texture seam is valid")
+
+-- PotatoVoxel 1.7.2 keeps its historical owner loader, just like Battle Art.
+-- KASC binds the exact manifest/repository pair and exposes only the reviewed
+-- rendering modules needed by KASC and bundled Wilds. The stale exported
+-- version must neither block 1.7.2 nor admit a generic 1.6.1 package.
+local rawPotato, rawPotatoCalls, rawPotatoLib = potatoExport()
+gameFor("potato_voxel", "1.7.2", nil, rawPotato,
+  "ShaneMcGovernIE/potato_voxel")
+package, id, reason, safeHandle, receipt = resolver.resolve()
+ok(package ~= nil, "exact PotatoVoxel 1.7.2 resolves")
+eq(id, "potato_voxel", "PotatoVoxel retains its real manifest identity")
+eq(reason, nil, "reviewed PotatoVoxel has no resolver error")
+ok(package ~= rawPotato,
+  "KASC never forwards PotatoVoxel's owner export table")
+ok(package.lib ~= rawPotatoLib,
+  "KASC never forwards PotatoVoxel's generic owner loader")
+eq(package.lib.mod, nil, "Potato facade contains no owner mod authority")
+eq(package.lib.path, nil, "Potato facade contains no owner asset path")
+eq(package.lib.require("__KA_PRIVATE_PROBE__"), nil,
+  "unknown Potato modules fail closed without reaching the owner loader")
+eq(#rawPotatoCalls, 10,
+  "Potato preflights the complete reviewed compatibility surface")
+local potatoCallsAfterPreflight = #rawPotatoCalls
+eq(package.lib.require("VoxelState"), modules.VoxelState,
+  "bundled Wilds receives PotatoVoxel's reviewed state module")
+eq(#rawPotatoCalls, potatoCallsAfterPreflight,
+  "Potato allowlisted modules are served from the preflight cache")
+eq(receipt.rendererVersion, "1.7.2",
+  "Potato receipt trusts the manifest rather than its stale export string")
+eq(receipt.provenance, "potato-voxel-1.7.2-reviewed-api-contract",
+  "Potato receipt names the reviewed runtime contract")
+eq(receipt.export, "kasc-local-allowlist/v1",
+  "Potato receipt names the local authority-safe facade")
+eq(safeHandle.exports, package,
+  "Potato aliases receive only the safe local export")
+eq(rawPotatoLib.mod.id, "potato_voxel",
+  "PotatoVoxel retains its own settings/assets owner")
+module, moduleId, moduleError, receipt = resolver.module(nil, "OverworldBattle")
+eq(module, modules.OverworldBattle,
+  "PotatoVoxel exposes the side-texture compatibility seam")
+eq(moduleId, "potato_voxel",
+  "Potato module receipt retains its identity")
+eq(moduleError, nil, "Potato side-texture seam is valid")
+local potatoAlias = resolver.findAlias(fakeMod, "DRAMATIC_SHAPE")
+eq(potatoAlias and potatoAlias.id, "potato_voxel",
+  "bundled Wilds alias retains PotatoVoxel identity")
+eq(potatoAlias and potatoAlias.exports, package,
+  "bundled Wilds receives only the safe PotatoVoxel facade")
+
+local potatoWrongRepo = potatoExport()
+gameFor("potato_voxel", "1.7.2", nil, potatoWrongRepo,
+  "someone-else/potato_voxel")
+package, id, reason = resolver.resolve()
+eq(package, nil, "repository-spoofed PotatoVoxel fails closed")
+eq(reason, "unsupported-repository:potato_voxel",
+  "Potato repository mismatch is diagnosed precisely")
+
+for _, version in ipairs({
+    "1.6.1", "1.6.9", "1.7.0", "1.7.1", "1.7.3", "2.0.0",
+}) do
+  local candidate = potatoExport()
+  gameFor("potato_voxel", version, nil, candidate,
+    "ShaneMcGovernIE/potato_voxel")
+  package, id, reason = resolver.resolve()
+  eq(package, nil, "unreviewed PotatoVoxel " .. version .. " fails closed")
+  eq(reason, "unsupported-version:potato_voxel:" .. version,
+    "unsupported PotatoVoxel version is named precisely")
+end
 
 -- A future loader may expose repository metadata.  An explicit mismatch then
 -- fails closed, but absence remains the real 0.1.90 handle shape above.

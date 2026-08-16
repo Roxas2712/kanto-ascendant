@@ -25,7 +25,6 @@
       "deutsch-gelb",
       "all_pokemon_catchable_151_mod",
       "DRAMATIC_SHAPE",
-      "potato_voxel",
       "TERRARIUM",
       "ds_fp_ceiling"
     ],
@@ -50,6 +49,10 @@
       {
         "repositories": ["absol89/DramaticShapeVoxelMod"],
         "version": "=1.9.0"
+      },
+      {
+        "repositories": ["ShaneMcGovernIE/potato_voxel"],
+        "version": "=1.7.2"
       }
     ],
     "reason_en": "This runtime mod has not been explicitly approved for the Kanto Ascendant 6.5 stack.",
@@ -81,7 +84,7 @@
     "Kanto-Reforged",
     "BATTLE_ART_VOXEL_FORK@<1.9.0 || >1.9.0",
     "DRAMATIC_SHAPE",
-    "potato_voxel",
+    "potato_voxel@<1.7.2 || >1.7.2",
     "TERRARIUM",
     "ds_fp_ceiling",
     "DRAMALESS_SHAPE@<1.6.2-ST.190.1 || >1.6.2-ST.190.1 <2.0.2 || >2.0.2"
@@ -203,11 +206,11 @@
     },
     {
       "policy": "block",
-      "ids": ["DRAMATIC_SHAPE", "potato_voxel", "TERRARIUM", "ds_fp_ceiling"],
+      "ids": ["DRAMATIC_SHAPE", "TERRARIUM", "ds_fp_ceiling"],
       "reason_en": "This renderer currently does not work with Gen1 Recomp 0.1.90.",
       "reason_de": "Dieser Renderer funktioniert derzeit nicht mit Gen1 Recomp 0.1.90.",
-      "resolution_en": "Use Voxel Ascendant, Battle Art 1.9.0, the hardened DRAMALESS 1.6.2-ST.190.1 build, or native 2D.",
-      "resolution_de": "Verwende Voxel Ascendant, Battle Art 1.9.0, den gehärteten DRAMALESS-Build 1.6.2-ST.190.1 oder die native 2D-Darstellung.",
+      "resolution_en": "Use Voxel Ascendant, PotatoVoxel 1.7.2, Battle Art 1.9.0, a reviewed DRAMALESS build, or native 2D.",
+      "resolution_de": "Verwende Voxel Ascendant, PotatoVoxel 1.7.2, Battle Art 1.9.0, einen geprüften DRAMALESS-Build oder die native 2D-Darstellung.",
       "areas": ["render pipeline", "sandbox APIs", "battle presentation"]
     }
   ],

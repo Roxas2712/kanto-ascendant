@@ -1,8 +1,9 @@
 -- Single authority for optional Voxel-renderer discovery.
 --
 -- Engine 0.1.90 sandboxes every mod.  Voxel Ascendant is the standalone,
--- sandbox-native renderer; the dedicated DRAMALESS 1.6.2-ST.190.1 build and
--- upstream Battle Art 1.9.0 are exact reviewed packages.  DRAMALESS 2.0.2 is
+-- sandbox-native renderer; the dedicated DRAMALESS 1.6.2-ST.190.1 build,
+-- upstream Battle Art 1.9.0 and PotatoVoxel 1.7.2 are exact reviewed packages.
+-- DRAMALESS 2.0.2 is
 -- separately admitted as a renderer-native stack: it owns its modern world,
 -- native-card battle path and HUD. Its exact 2.0.2 release has one deliberately
 -- narrow exception: this resolver may inspect the literal reviewed BattleCam
@@ -19,11 +20,13 @@ return function(ownerMod)
     "VOXEL_ASCENDANT",
     "DRAMALESS_SHAPE",
     "BATTLE_ART_VOXEL_FORK",
+    "potato_voxel",
   }
   R.pinnedVersions = {
     VOXEL_ASCENDANT = "0.1.1",
     DRAMALESS_SHAPE = "1.6.2-ST.190.1",
     BATTLE_ART_VOXEL_FORK = "1.9.0",
+    potato_voxel = "1.7.2",
   }
   R.approvedVersions = {
     VOXEL_ASCENDANT = {
@@ -35,6 +38,9 @@ return function(ownerMod)
     },
     BATTLE_ART_VOXEL_FORK = {
       ["1.9.0"] = "battle-art-1.9.0-reviewed-api-contract",
+    },
+    potato_voxel = {
+      ["1.7.2"] = "potato-voxel-1.7.2-reviewed-api-contract",
     },
   }
   -- This is deliberately distinct from `approvedVersions`. A native-only
@@ -50,6 +56,7 @@ return function(ownerMod)
   }
   R.approvedRepositories = {
     BATTLE_ART_VOXEL_FORK = "absol89/dramaticshapevoxelmod",
+    potato_voxel = "shanemcgovernie/potato_voxel",
   }
   -- Battle Art 1.9.0 still publishes its historical `lib = V` owner loader.
   -- KASC never forwards that table. After exact id/version/capability review,
@@ -79,6 +86,26 @@ return function(ownerMod)
   -- V-closing functions never leave this resolver.
   local nativeCameraCache = setmetatable({}, { __mode = "k" })
   local lastChoice
+
+  -- PotatoVoxel still exports its historical owner namespace (`lib = V`).
+  -- Its exact 1.7.2 release is compatible, but forwarding that namespace
+  -- would also forward the renderer's mod/path/data authority. Expose only
+  -- the modules KASC and bundled Wilds actually consume. BattleCam is
+  -- intentionally absent: Potato owns its own camera and KASC must not apply
+  -- the historical Dramaless camera preset to it.
+  local POTATO_MODULES = {
+    AntiAlias = true,
+    FirstPerson = true,
+    Mat4 = true,
+    OverworldBattle = true,
+    ShadowMap = true,
+    SpriteBillboards = true,
+    TerrainAtlas = true,
+    Voxel3D = true,
+    VoxelScene = true,
+    VoxelState = true,
+  }
+  local potatoFacadeCache = setmetatable({}, { __mode = "k" })
   -- Bundled Wilds 1.12.2 predates the DRAMALESS manifest id and asks for
   -- DRAMATIC_SHAPE.  Treat that name only as a capability request for the
   -- one reviewed renderer that is actually installed; it must never make an
@@ -329,6 +356,43 @@ return function(ownerMod)
     return safeExport, nil, safeHandle
   end
 
+  local function potatoFacade(id, version, exported, handle)
+    local expectedRepository = R.approvedRepositories[id]
+    local runtimeRepository = repositoryOf(handle, exported)
+    if runtimeRepository ~= nil and runtimeRepository ~= expectedRepository then
+      return nil, "unsupported-repository:" .. tostring(id)
+    end
+
+    local rawLib = exported.lib
+    local cached = potatoFacadeCache[exported]
+    if cached and cached.version == version then
+      return cached.exported, nil, readonly({
+        id = id, version = version, exports = cached.exported,
+      })
+    end
+
+    local cache = {}
+    for name in pairs(POTATO_MODULES) do
+      local ok, value = pcall(rawLib.require, name)
+      if not ok or type(value) ~= "table" then
+        return nil, ("missing-module:%s:%s"):format(tostring(id), name)
+      end
+      cache[name] = value
+    end
+    local function safeRequire(name)
+      if not POTATO_MODULES[name] then return nil end
+      return cache[name]
+    end
+    local safeLib = readonly({ require = safeRequire })
+    local safeExport = readonly({ version = version, lib = safeLib })
+    potatoFacadeCache[exported] = {
+      version = version, exported = safeExport,
+    }
+    return safeExport, nil, readonly({
+      id = id, version = version, exports = safeExport,
+    })
+  end
+
   local function validate(id, exported, handle)
     if type(exported) ~= "table" or type(exported.lib) ~= "table"
         or type(exported.lib.require) ~= "function" then
@@ -349,6 +413,12 @@ return function(ownerMod)
       local facade, facadeReason
       facade, facadeReason, safeHandle =
         battleArtFacade(id, version, exported, handle)
+      if not facade then return false, facadeReason end
+      exported = facade
+    elseif id == "potato_voxel" then
+      local facade, facadeReason
+      facade, facadeReason, safeHandle =
+        potatoFacade(id, version, exported, handle)
       if not facade then return false, facadeReason end
       exported = facade
     end
@@ -399,7 +469,7 @@ return function(ownerMod)
       rendererId = id,
       rendererVersion = version,
       provenance = approved and approved[version] or "unversioned",
-      export = id == "BATTLE_ART_VOXEL_FORK"
+      export = (id == "BATTLE_ART_VOXEL_FORK" or id == "potato_voxel")
         and "kasc-local-allowlist/v1" or "lib.require",
       -- Usually nil on 0.1.90: mod.find() does not expose manifest metadata.
       -- Never turn the package-policy repository pin into a fake live receipt.
