@@ -154,6 +154,7 @@ jobs:
           luajit ../kanto-ascendant/tests/dramaless_wall_decals_compat_test.lua
           GEN1RECOMP_DIR=. luajit ../kanto-ascendant/tests/legacy_archive_test.lua
           GEN1RECOMP_DIR=. luajit ../kanto-ascendant/tests/legacy_journey_test.lua
+          GEN1RECOMP_DIR=. luajit ../kanto-ascendant/tests/legacy_locker_quantity_test.lua
 
       - name: Audit the 6.0 release boundary
         working-directory: kanto-ascendant

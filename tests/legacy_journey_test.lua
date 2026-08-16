@@ -683,12 +683,12 @@ styledHub.opts.onChoose(styledHub.items[3])
 local styledBank = styledStates[#styledStates]
 eq(styledBank.opts.ascendantStyle, "firered-storage",
   "Legacy Pokémon Bank uses the shared KASC storage presentation")
+local normalLocker = archive.locker
+archive.locker = function() return { items = { POTION = 2 }, money = 0 } end
 styledBank.opts.onChoose(styledBank.items[3])
 local styledLocker = styledStates[#styledStates]
 eq(styledLocker.opts.ascendantStyle, "firered-storage",
   "Legacy locker hub uses the shared KASC storage presentation")
-local normalLocker = archive.locker
-archive.locker = function() return { items = { POTION = 2 }, money = 0 } end
 styledLocker.opts.onChoose(styledLocker.items[1])
 local styledItems = styledStates[#styledStates]
 eq(styledItems.opts.ascendantStyle, "firered-legacy-storage",
@@ -704,9 +704,32 @@ eq(#styledStates, beforeItemHelp + 1,
 local ordinaryItemHelp = textBoxText(styledStates[#styledStates])
 local ordinaryItemFlat = flatText(ordinaryItemHelp)
 ok(ordinaryItemFlat:find("Counted Legacy item", 1, true)
-    and ordinaryItemFlat:find("transactionally", 1, true),
-  "counted-item SELECT help explains the safe withdrawal semantics")
+    and ordinaryItemFlat:find("Choose 1-2", 1, true)
+    and ordinaryItemFlat:find("Bag", 1, true)
+    and ordinaryItemFlat:find("Player PC", 1, true)
+    and ordinaryItemFlat:find("B cancels unchanged", 1, true),
+  "counted-item SELECT help explains quantity, capacity and safe cancel")
 twoLinePageContract(ordinaryItemHelp, "English counted-item SELECT help")
+
+-- Counted Locker rows must open the production quantity selector before any
+-- checkout is staged.  Cancelling that selector is a pure UI operation.
+do
+  styledGame.stack:pop()
+  styledGame.save.inventory = {}
+  styledGame.save.pcItems = {}
+  local quantityOpened, quantityOpenErr = pcall(
+    styledItems.opts.onChoose, styledItems.items[1])
+  local quantityBox = styledStates[#styledStates]
+  ok(quantityOpened and quantityBox ~= styledItems
+      and quantityBox.qty == 1 and quantityBox.max == 2,
+    "counted Legacy row opens an explicit 1..available quantity selector: "
+      .. tostring(quantityOpenErr))
+  if quantityOpened and quantityBox ~= styledItems
+      and type(quantityBox.onDone) == "function" then
+    styledGame.stack:pop()
+    quantityBox.onDone(nil)
+  end
+end
 
 -- Even a stale preview/custom archive that exposes an old story receipt must
 -- show an exact reason and current-run prerequisite, never a payout action.

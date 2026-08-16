@@ -649,6 +649,67 @@ eq(archive.locker().items.ANTIDOTE, 2,
   "unsaved checkout returns to the locker without loss")
 ok(interruptedItem.id ~= itemCheckout.id, "checkout journal ids never collide")
 
+-- A counted withdrawal can span Bag + Player PC, but remains one durable
+-- checkout.  Simulate a crash after the game save contains both grants and
+-- before archive finalization; a cold factory must consume the receipt once.
+do
+  local splitFs = memfs()
+  local function splitFactory()
+    return createArchive({
+      fs = splitFs, serializer = Serializer, edition = "red",
+      modId = "kanto_ascendant", directory = "test/split-checkout",
+      now = function() return 654001 end,
+    })
+  end
+  local splitArchive = splitFactory()
+  assert(splitArchive.write({
+    version = 7,
+    current = { runId = "SPLIT-RUN", bankUnlocked = true },
+    locker = { items = { POTION = 150 }, money = 0 },
+  }))
+  local splitSave = {
+    inventory = { POTION = 2 }, pcItems = { POTION = 3 },
+    modData = { kanto_ascendant = { legacy_journey = {
+      runId = "SPLIT-RUN", bankUnlocked = true,
+    } } },
+  }
+  local malformed, malformedErr = splitArchive.beginItemCheckout(
+    splitSave, "POTION", 5, { bag = 3, pc = 1 })
+  eq(malformed, nil, "mismatched Bag/PC grant plan is rejected")
+  ok(tostring(malformedErr):find("grant plan", 1, true),
+    "mismatched Bag/PC plan reports its exact validation boundary")
+  eq(splitArchive.locker().items.POTION, 150,
+    "rejected grant plan leaves every Locker receipt intact")
+
+  local split = assert(splitArchive.beginItemCheckout(
+    splitSave, "POTION", 120, { bag = 97, pc = 23 }))
+  eq(split.count, 120, "journal binds the selected aggregate quantity")
+  eq(split.beforeBag, 2, "journal binds the exact Bag before-count")
+  eq(split.beforePc, 3, "journal binds the exact Player-PC before-count")
+  eq(split.grant.bag, 97, "journal binds the exact Bag destination count")
+  eq(split.grant.pc, 23, "journal binds the exact PC destination count")
+  eq(splitArchive.locker().items.POTION, 150,
+    "staging alone never consumes the Locker receipt")
+
+  splitSave.inventory.POTION = 99
+  splitSave.pcItems.POTION = 26
+  local coldArchive = splitFactory()
+  ok(coldArchive.reconcileCheckout(splitSave),
+    "cold reload finalizes the interrupted split checkout")
+  eq(coldArchive.locker().items.POTION, 30,
+    "cold reload consumes the saved aggregate quantity exactly once")
+  ok(coldArchive.reconcileCheckout(splitSave),
+    "second reload sees no pending checkout")
+  eq(coldArchive.locker().items.POTION, 30,
+    "second reload cannot duplicate the interrupted finalization")
+
+  local cancelled = assert(coldArchive.beginItemCheckout(
+    splitSave, "POTION", 7, { bag = 0, pc = 7 }))
+  assert(coldArchive.cancelCheckout(cancelled.id))
+  eq(coldArchive.locker().items.POTION, 30,
+    "cancelled split checkout is a non-consuming archive operation")
+end
+
 local moneyCheckout = assert(archive.beginMoneyCheckout(fresh, 1000))
 fresh.money = 1000
 ok(archive.completeCheckout(fresh, moneyCheckout.id),

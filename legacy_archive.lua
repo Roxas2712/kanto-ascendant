@@ -2463,6 +2463,26 @@ return function(opts)
     if pending.kind == "item" then
       if pending.claimMode == "unique_after_mega_access" then
         received = megaStoneOwned(save, pending.item)
+      elseif type(pending.grant) == "table" then
+        -- Counted Locker withdrawals may span the Bag and Player PC.  The
+        -- prepared journal binds both exact destinations and both pre-grant
+        -- counts, so a save that contains only half of the planned grant can
+        -- never consume the archive receipt.
+        local bagCount = math.max(0, math.floor(
+          tonumber(pending.grant.bag) or 0))
+        local pcCount = math.max(0, math.floor(
+          tonumber(pending.grant.pc) or 0))
+        local beforeBag = math.max(0, math.floor(
+          tonumber(pending.beforeBag) or 0))
+        local beforePc = math.max(0, math.floor(
+          tonumber(pending.beforePc) or 0))
+        local bagNow = tonumber(save.inventory
+          and save.inventory[pending.item]) or 0
+        local pcNow = tonumber(save.pcItems
+          and save.pcItems[pending.item]) or 0
+        received = bagCount + pcCount == pending.count
+          and bagNow >= beforeBag + bagCount
+          and pcNow >= beforePc + pcCount
       else
         received = (tonumber(save.inventory and save.inventory[pending.item]) or 0)
           >= pending.before + pending.count
@@ -2486,7 +2506,7 @@ return function(opts)
     return A.write(archive)
   end
 
-  function A.beginItemCheckout(save, item, count)
+  function A.beginItemCheckout(save, item, count, grant)
     if not registryReady() then
       return nil, "Legacy registry validation is unavailable"
     end
@@ -2496,7 +2516,8 @@ return function(opts)
     if type(state) ~= "table" or not state.runId then
       return nil, "no active legacy run"
     end
-    A.reconcileCheckout(save)
+    local reconciled, reconcileErr = A.reconcileCheckout(save)
+    if not reconciled then return nil, reconcileErr end
     local archive, loadErr = mutableArchive()
     if not archive then return nil, loadErr end
     if reconcileRegistry(archive) then
@@ -2512,13 +2533,35 @@ return function(opts)
         return nil, "Mega Stone Case is not active in this journey"
       end
       count = 1
+      -- Unique Stone receipts never become Bag/PC stacks.
+      grant = nil
+    elseif grant ~= nil then
+      if type(grant) ~= "table" then
+        return nil, "invalid item checkout grant plan"
+      end
+      local bagCount = tonumber(grant.bag)
+      local pcCount = tonumber(grant.pc)
+      if not bagCount or not pcCount or bagCount < 0 or pcCount < 0
+          or bagCount ~= math.floor(bagCount)
+          or pcCount ~= math.floor(pcCount)
+          or bagCount + pcCount ~= count then
+        return nil, "invalid item checkout grant plan"
+      end
+      grant = { bag = bagCount, pc = pcCount }
     end
     local have = tonumber(archive.locker.items[item]) or 0
     if have < count then return nil, "not enough items in locker" end
     local id = state.runId .. ":CHECKOUT:" .. checkoutSerial(archive)
+    local beforeBag = tonumber(save.inventory and save.inventory[item]) or 0
+    local beforePc = tonumber(save.pcItems and save.pcItems[item]) or 0
     archive.pendingCheckout = {
       id = id, kind = "item", item = item, count = count,
-      before = tonumber(save.inventory and save.inventory[item]) or 0,
+      -- `before` keeps old in-flight/count-only readers compatible.  New
+      -- counted transactions additionally bind the split destination.
+      before = beforeBag,
+      beforeBag = grant and beforeBag or nil,
+      beforePc = grant and beforePc or nil,
+      grant = grant and copy(grant) or nil,
       claimMode = policy.claimMode,
       runId = state.runId,
     }

@@ -918,6 +918,81 @@ return function(mod, opts)
     return true, "ready", policy
   end
 
+  -- Both Gen-I stores use one-byte stack counts.  A counted Legacy receipt
+  -- may fill the Bag first and then overflow into the Player PC, but neither
+  -- destination may exceed 99 or allocate a new stack past its own slot cap.
+  -- Probe Bag.add only on a detached inventory copy so capacity checks remain
+  -- non-mutating across official, clientfix and current engine variants,
+  -- including the pocket-aware Bag implementations.
+  local ITEM_STACK_LIMIT = 99
+  local DEFAULT_PC_ITEM_CAPACITY = 50
+
+  local function shallowCopy(value)
+    if type(value) ~= "table" then return value end
+    local result = {}
+    for key, child in pairs(value) do result[key] = child end
+    return result
+  end
+
+  local function bagItemRoom(game, id)
+    local save = game and game.save or nil
+    local inventory = type(save and save.inventory) == "table"
+      and save.inventory or nil
+    if not inventory then return 0 end
+    local held = math.max(0, math.floor(tonumber(inventory[id]) or 0))
+    if inventory[id] ~= nil then
+      return math.max(0, ITEM_STACK_LIMIT - held)
+    end
+    local probe = {
+      inventory = shallowCopy(inventory),
+      bagOrder = type(save.bagOrder) == "table"
+        and shallowCopy(save.bagOrder) or nil,
+    }
+    local called, added = pcall(Bag.add, probe, id, 1,
+      game and game.data)
+    return called and added == true and ITEM_STACK_LIMIT or 0
+  end
+
+  local function pcItemRoom(game, id)
+    local save = game and game.save or nil
+    if not save or save.pcItems ~= nil
+        and type(save.pcItems) ~= "table" then return 0 end
+    local pc = save.pcItems or {}
+    local held = math.max(0, math.floor(tonumber(pc[id]) or 0))
+    if pc[id] ~= nil then
+      return math.max(0, ITEM_STACK_LIMIT - held)
+    end
+    local stacks = 0
+    for _ in pairs(pc) do stacks = stacks + 1 end
+    local configured = game and game.data and game.data.field
+      and tonumber(game.data.field.pcItemCap)
+    local capacity = configured and math.max(1, math.floor(configured))
+      or DEFAULT_PC_ITEM_CAPACITY
+    return stacks < capacity and ITEM_STACK_LIMIT or 0
+  end
+
+  local function itemWithdrawalCapacity(game, id, available)
+    available = math.max(0, math.floor(tonumber(available) or 0))
+    local bagRoom = bagItemRoom(game, id)
+    local pcRoom = pcItemRoom(game, id)
+    return math.min(available, bagRoom + pcRoom), bagRoom, pcRoom
+  end
+
+  local function itemGrantPlan(game, id, requested, available)
+    requested = math.max(0, math.floor(tonumber(requested) or 0))
+    local maximum, bagRoom, pcRoom = itemWithdrawalCapacity(
+      game, id, available)
+    if requested < 1 or requested > maximum then
+      return nil, "item quantity exceeds current Bag/PC capacity"
+    end
+    local bagCount = math.min(requested, bagRoom)
+    local pcCount = requested - bagCount
+    if pcCount > pcRoom then
+      return nil, "item quantity exceeds current Player PC capacity"
+    end
+    return { bag = bagCount, pc = pcCount }
+  end
+
   local HM_UNLOCKS = {
     HM_CUT = {
       "Receive CUT from the\nS.S. ANNE captain.",
@@ -1116,8 +1191,8 @@ return function(mod, opts)
     local detail = help and type(help.describe) == "function"
       and help.describe(game, id) or tr("Counted Legacy item.",
         "Gezähltes Vermächtnis-Item.")
-    return detail .. "\n" .. tr("A: WITHDRAW  SELECT: HELP",
-      "A: NEHMEN  SELECT: HILFE")
+    return detail .. "\n" .. tr("A: QUANTITY  SELECT: HELP",
+      "A: MENGE  SELECT: HILFE")
   end
 
   local function monHelpText(game, row)
@@ -1151,7 +1226,7 @@ return function(mod, opts)
     if text then pushMessage(game, text) end
   end
 
-  local function showItemHelp(game, item)
+  local function showItemHelp(game, item, locker)
     local id = item and item.value
     if not id then return end
     local ready, _, policy = itemClaimStatus(game, id)
@@ -1163,9 +1238,21 @@ return function(mod, opts)
     local detail = help and type(help.describe) == "function"
       and help.describe(game, id) or tr("Counted Legacy item.",
         "Gezähltes Vermächtnis-Item.")
-    pushMessage(game, detail .. "\f" .. tr(
-      "This counted item may be\nwithdrawn transactionally.",
-      "Dieses gezählte Item kann\nsicher entnommen werden."))
+    local available = type(locker) == "table"
+      and type(locker.items) == "table" and locker.items[id] or 0
+    local maximum = itemWithdrawalCapacity(game, id, available)
+    local capacityText = maximum > 0 and tr(
+        ("Choose 1-%d now. Bag\nfirst, then Player PC."):format(maximum),
+        ("Wähle jetzt 1-%d. Erst\nBeutel, dann Spieler-PC."):format(maximum))
+      or tr("No free Bag or Player\nPC item capacity remains.",
+        "Kein freier Item-Platz in\nBeutel oder Spieler-PC.")
+    pushMessage(game, detail .. "\f" .. capacityText
+      .. "\f" .. tr(
+        "Free Bag/PC space sets\nthe safe maximum.",
+        "Freier Beutel-/PC-Platz\nsetzt die sichere Grenze.")
+      .. "\f" .. tr(
+        "B cancels unchanged. One\nsave-safe transaction follows.",
+        "B bricht ohne Änderung ab.\nDanach folgt eine Transaktion."))
   end
 
   J.itemPolicy = itemPolicy
@@ -1598,61 +1685,185 @@ return function(mod, opts)
     return itemClaimStatus(game, id) ~= true
   end
 
-  local function withdrawItem(game, id, list)
+  local function logLockerFailure(stage, err)
+    if mod.log and type(mod.log.error) == "function" then
+      mod.log:error("legacy item checkout " .. tostring(stage) .. " failed: "
+        .. tostring(err))
+    end
+  end
+
+  local function cancelItemCheckout(id)
+    local called, cancelled, err = pcall(archive.cancelCheckout, id)
+    if not called or cancelled ~= true then
+      logLockerFailure("rollback", called and err or cancelled)
+      return false
+    end
+    return true
+  end
+
+  local function itemStoreSnapshot(save, id)
+    local inventory = type(save and save.inventory) == "table"
+      and save.inventory or nil
+    local pc = type(save and save.pcItems) == "table" and save.pcItems or nil
+    return {
+      inventory = inventory,
+      bagHad = inventory and inventory[id] ~= nil or false,
+      bagValue = inventory and inventory[id] or nil,
+      pcOriginal = save and save.pcItems or nil,
+      pc = pc,
+      pcHad = pc and pc[id] ~= nil or false,
+      pcValue = pc and pc[id] or nil,
+      bagOrderOriginal = save and save.bagOrder or nil,
+      bagOrder = type(save and save.bagOrder) == "table"
+        and shallowCopy(save.bagOrder) or nil,
+    }
+  end
+
+  local function restoreItemStores(save, id, snapshot)
+    if snapshot.inventory then
+      snapshot.inventory[id] = snapshot.bagHad and snapshot.bagValue or nil
+      save.inventory = snapshot.inventory
+    end
+    if snapshot.pc then
+      snapshot.pc[id] = snapshot.pcHad and snapshot.pcValue or nil
+      save.pcItems = snapshot.pc
+    else
+      save.pcItems = snapshot.pcOriginal
+    end
+    if snapshot.bagOrder then
+      local order = snapshot.bagOrderOriginal
+      for key in pairs(order) do order[key] = nil end
+      for key, value in pairs(snapshot.bagOrder) do order[key] = value end
+      save.bagOrder = order
+    else
+      save.bagOrder = snapshot.bagOrderOriginal
+    end
+  end
+
+  local function grantCountedItem(game, id, plan)
+    local save = game and game.save
+    local snapshot = itemStoreSnapshot(save, id)
+    if plan.bag > 0 then
+      local called, added = pcall(Bag.add, save, id, plan.bag, game.data)
+      if not called or added ~= true then
+        restoreItemStores(save, id, snapshot)
+        return nil, called and "Bag capacity changed" or added
+      end
+    end
+    if plan.pc > 0 then
+      if save.pcItems == nil then save.pcItems = {} end
+      if type(save.pcItems) ~= "table" then
+        restoreItemStores(save, id, snapshot)
+        return nil, "Player PC item storage is unavailable"
+      end
+      local held = math.max(0, math.floor(
+        tonumber(save.pcItems[id]) or 0))
+      if held + plan.pc > ITEM_STACK_LIMIT then
+        restoreItemStores(save, id, snapshot)
+        return nil, "Player PC item stack is full"
+      end
+      save.pcItems[id] = held + plan.pc
+    end
+    return snapshot
+  end
+
+  local function withdrawItem(game, id, count, plan, list, locker)
     local ready, _, policy = itemClaimStatus(game, id)
     if not ready then
       list.footer = tr("STORY ITEM: LOCKED", "STORY-ITEM: GESPERRT")
       return
     end
-    local checkout, err = archive.beginItemCheckout(game.save, id, 1)
-    if not checkout then list.footer = tostring(err) return end
-    local megaReceipt
+    count = math.max(1, math.floor(tonumber(count) or 1))
+    local began, checkout, err = pcall(archive.beginItemCheckout,
+      game.save, id, count, plan)
+    if not began or not checkout then
+      if not began then logLockerFailure("staging", checkout) end
+      list.footer = began and tostring(err) or tr(
+        "LOCKER STORAGE FAILED", "LAGER-SPEICHER FEHLER")
+      return
+    end
+    local megaReceipt, storeSnapshot
     if policy.category == "mega_stone" then
       local mega = mod.exports and mod.exports.megaEvolution
       if not (mega and type(mega.importLegacyStone) == "function") then
-        archive.cancelCheckout(checkout.id)
+        cancelItemCheckout(checkout.id)
         list.footer = tr("STONE CASE UNAVAILABLE", "STEIN-KOFFER NICHT BEREIT")
         return
       end
-      megaReceipt, err = mega.importLegacyStone(id)
-      if not megaReceipt then
-        archive.cancelCheckout(checkout.id)
-        list.footer = tostring(err)
+      local imported
+      imported, megaReceipt, err = pcall(mega.importLegacyStone, id)
+      if not imported or not megaReceipt then
+        if not imported then logLockerFailure("Stone Case grant", megaReceipt) end
+        cancelItemCheckout(checkout.id)
+        list.footer = imported and tostring(err) or tr(
+          "STONE CASE UNAVAILABLE", "STEIN-KOFFER NICHT BEREIT")
         return
       end
-    elseif not Bag.add(game.save, id, 1, game.data) then
-        archive.cancelCheckout(checkout.id)
-        list.footer = tr("BAG IS FULL", "BEUTEL IST VOLL")
+    else
+      storeSnapshot, err = grantCountedItem(game, id, plan)
+      if not storeSnapshot then
+        cancelItemCheckout(checkout.id)
+        list.footer = tr("BAG + PC CAPACITY CHANGED",
+          "BEUTEL-/PC-PLATZ GEÄNDERT")
         return
+      end
     end
-    if not game:writeSave() then
+    local writeCalled, wrote = pcall(game.writeSave, game)
+    if not writeCalled or wrote ~= true then
       if megaReceipt then
-        mod.exports.megaEvolution.rollbackLegacyStone(megaReceipt)
+        local rolled, rollbackErr = pcall(
+          mod.exports.megaEvolution.rollbackLegacyStone, megaReceipt)
+        if not rolled then logLockerFailure("Stone Case rollback", rollbackErr) end
       else
-        Bag.remove(game.save, id, 1)
+        restoreItemStores(game.save, id, storeSnapshot)
       end
-      archive.cancelCheckout(checkout.id)
+      cancelItemCheckout(checkout.id)
+      if not writeCalled then logLockerFailure("game write", wrote) end
       list.footer = tr("SAVE FAILED", "SPEICHERN FEHLGESCHLAGEN")
       return
     end
-    local completed, completeErr = archive.completeCheckout(
-      game.save, checkout.id)
-    if not completed then
-      mod.log:error("legacy item checkout finalization failed: "
-        .. tostring(completeErr))
+    local finalized, completed, completeErr = pcall(
+      archive.completeCheckout, game.save, checkout.id)
+    if not finalized or not completed then
+      logLockerFailure("finalization", finalized and completeErr or completed)
       list.footer = tr("LOCKER WILL RECOVER ON LOAD", "LAGER WIRD BEIM LADEN REPARIERT")
       return
     end
-    local locker = archive.locker()
-    local left = locker.items[id] or 0
+    local left = math.max(0, math.floor(
+      tonumber(locker.items[id]) or 0) - count)
+    locker.items[id] = left > 0 and left or nil
     if left <= 0 then list:removeCurrent()
     else list.items[list.index].right = "x" .. tostring(left) end
-    list.footer = tr("WITHDRAWN: ", "GENOMMEN: ") .. itemName(game, id)
+    list.footer = tr("WITHDRAWN x", "GENOMMEN x") .. tostring(count)
+      .. ": " .. itemName(game, id)
   end
 
-  local function openLockerItems(game)
+  local function wideQuantityBox(game, maximum, onDone)
+    local QuantityBox = require("src.ui.QuantityBox")
+    local box = QuantityBox.new(game, { max = maximum, onDone = onDone })
+    if maximum > ITEM_STACK_LIMIT then
+      -- The engine selector is laid out for two digits.  Bag + Player-PC
+      -- capacity can legitimately reach 198, so widen only this instance;
+      -- update/cancel/confirm behavior remains the engine's own implementation.
+      local Font = require("src.render.Font")
+      local digits = #tostring(maximum)
+      function box:draw()
+        local tw = digits + 3
+        local tx, ty = 20 - tw, 9
+        Font.drawBox(tx, ty, tw, 3)
+        love.graphics.setColor(0, 0, 0, 1)
+        local format = "×%0" .. tostring(digits) .. "d"
+        Font.draw(format:format(self.qty), (tx + 1) * 8, (ty + 1) * 8)
+        love.graphics.setColor(1, 1, 1, 1)
+      end
+    end
+    return box
+  end
+
+  local function openLockerItems(game, locker)
     local rows = {}
-    local locker = archive.locker()
+    locker = type(locker) == "table" and locker or { items = {}, money = 0 }
+    locker.items = type(locker.items) == "table" and locker.items or {}
     local ids = {}
     for id, count in pairs(locker.items or {}) do
       if count > 0 then ids[#ids + 1] = id end
@@ -1682,16 +1893,45 @@ return function(mod, opts)
         ascendantStorageDescription = function(item)
           return itemStorageDescription(game, item)
         end,
-        footer = tr("A:TAKE SEL:HELP", "A:NEHM SEL:HILFE"),
+        footer = tr("A:QTY SEL:HELP", "A:MENGE SEL:HILFE"),
         pageJump = true,
-        onSelectKey = function(item) showItemHelp(game, item) end,
+        onSelectKey = function(item) showItemHelp(game, item, locker) end,
         onChoose = function(item)
           if not item then return end
           if itemLocked(game, item.value) then
-            showItemHelp(game, item)
+            showItemHelp(game, item, locker)
             return
           end
-          withdrawItem(game, item.value, list)
+          local _, _, policy = itemClaimStatus(game, item.value)
+          if policy.category == "mega_stone" then
+            withdrawItem(game, item.value, 1, nil, list, locker)
+            return
+          end
+          local available = tonumber(locker.items[item.value]) or 0
+          local maximum = itemWithdrawalCapacity(game, item.value, available)
+          if maximum < 1 then
+            list.footer = tr("BAG + PLAYER PC FULL",
+              "BEUTEL + SPIELER-PC VOLL")
+            return
+          end
+          list.footer = tr(
+            ("CHOOSE 1-%d  B:CANCEL"):format(maximum),
+            ("WÄHLE 1-%d  B:ZURÜCK"):format(maximum))
+          game.stack:push(wideQuantityBox(game, maximum, function(quantity)
+            if not quantity then
+              list.footer = tr("A:QTY SEL:HELP", "A:MENGE SEL:HILFE")
+              return
+            end
+            local grant, grantErr = itemGrantPlan(game, item.value,
+              quantity, locker.items[item.value])
+            if not grant then
+              logLockerFailure("capacity validation", grantErr)
+              list.footer = tr("BAG + PLAYER PC FULL",
+                "BEUTEL + SPIELER-PC VOLL")
+              return
+            end
+            withdrawItem(game, item.value, quantity, grant, list, locker)
+          end))
         end,
       })
     game.stack:push(list)
@@ -1796,11 +2036,25 @@ return function(mod, opts)
       return false
     end
     bindArchiveData(game and game.data)
-    local locker = archive.locker()
+    local read, locker, lockerErr = pcall(archive.locker)
+    if not read or type(locker) ~= "table" or lockerErr then
+      logLockerFailure("screen load", read and lockerErr or locker)
+      pushMessage(game, tr(
+        "Legacy Locker could not\nbe read. Nothing changed.",
+        "Vermächtnis-Lager nicht\nlesbar. Nichts geändert."))
+      return false
+    end
+    locker.items = type(locker.items) == "table" and locker.items or {}
+    locker.money = math.max(0, math.floor(tonumber(locker.money) or 0))
     local rows = {
       {
         label = tr("WITHDRAW ITEMS", "ITEMS NEHMEN"),
-        onSelect = function() openLockerItems(game) end,
+        -- Reuse this compact snapshot when entering the item list.  The old
+        -- path decoded and normalized the complete Pokémon archive twice on
+        -- adjacent input frames, which explains a short pre-screen stall on
+        -- very large lineages. Successful withdrawals update the snapshot
+        -- locally after the durable archive finalization.
+        onSelect = function() openLockerItems(game, locker) end,
       },
       {
         label = tr("WITHDRAW MONEY", "GELD NEHMEN"),
