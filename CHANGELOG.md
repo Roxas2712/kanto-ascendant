@@ -32,9 +32,11 @@ All notable changes to this project are documented in this file.
 - Rematch combatants and their displayed evolved forms stay synchronized.
   Expert rematch AI no longer loops recovery moves when they have no useful
   effect.
-- Yellow's party-menu follower action is visible again. The genuine partner's
-  evolved forms retain their dedicated face and bond presentation without
-  granting that presentation to unrelated Pokémon of the same species.
+- The native follower cap now covers the complete six-Pokémon party. Yellow's
+  party-menu follower action is visible again, its genuine partner remains
+  follower one, and the partner's evolved forms retain their dedicated face
+  and bond presentation without granting it to unrelated Pokémon of the same
+  species.
 - Fresh Trainer Cards no longer claim the player is Champion before earning a
   title, and normal 2D battles use the selected Red, Blue or Green back sprite.
   Scripted catching tutorials retain their own trainer art.

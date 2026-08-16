@@ -1576,7 +1576,7 @@ title.
 <summary><strong>⚠️ SPOILER — How do followers work?</strong></summary>
 
 Open **Start → Pokémon**, select a party member and choose **Follower**.
-Ascendant's integrated system supports up to four party followers. Do not
+Ascendant's integrated system supports up to six party followers. Do not
 enable PokéPC Followers, Followers EX or their Voxel merge beside Ascendant;
 the reviewed 0.1.90 loader blocks that combination before both can initialize.
 

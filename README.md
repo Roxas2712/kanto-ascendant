@@ -1324,7 +1324,7 @@ If an individual sheet is damaged or missing, the related Kanto silhouette
 remains as a crash-safe fallback until the package is repaired.
 
 Ascendant now owns the active follower system in Red, Blue and Yellow. Choose
-up to four party followers from the Pokémon menu; Yellow's native partner
+up to six party followers from the Pokémon menu; Yellow's native partner
 Pikachu keeps its original mood and dialogue, while additional followers use
 Ascendant's interaction path. Standalone PokéPC Followers/Followers EX
 packages must be disabled before Ascendant is enabled because both would own

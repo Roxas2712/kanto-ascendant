@@ -37,8 +37,9 @@ offline Hidden Evolution guide.
   no longer loops recovery moves when recovery is useless.
 - Pokédex `AREA`, the Fighting Dojo prize choice and a blocked optional cave
   exit received bounded crash/progression fixes.
-- Yellow's follower selection and the genuine partner's evolved portraits work
-  again without affecting unrelated Pokémon of the same species.
+- Up to six party Pokémon can now follow at once. Yellow's genuine partner
+  remains follower one, while its evolved portraits work again without
+  affecting unrelated Pokémon of the same species.
 - Normal 2D battles consistently use the chosen Red, Blue or Green back sprite.
   Original Red/Blue/Green and Crystal HD identity presets, scripted
   catching-tutorial art and

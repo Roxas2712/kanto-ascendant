@@ -89,13 +89,16 @@ assert(legacyConfig.count() == 1 and legacyConfig.mode() == "party"
     and legacyConfig.presentation() == "ascendant_box",
   "legacy save inherited another slot's global follower options")
 
-local a, b, c, d = mon("CHARIZARD"), mon("LAPRAS"), mon("ESPEON"), mon("SCIZOR")
-game.save.party = { a, b, c, d }
+local a, b, c, d, e, f =
+  mon("CHARIZARD"), mon("LAPRAS"), mon("ESPEON"), mon("SCIZOR"),
+  mon("TYRANITAR"), mon("BLASTOISE")
+game.save.party = { a, b, c, d, e, f }
 config.setMode("custom")
-assert(config.add(c) and config.add(a) and config.add(d) and config.add(b),
+assert(config.add(c) and config.add(a) and config.add(d) and config.add(b)
+    and config.add(f) and config.add(e),
   "CUSTOM selection could not be built")
 local ids = config.customIds()
-assert(#ids == 4 and ids[1] == c[config.monKey] and ids[4] == b[config.monKey],
+assert(#ids == 6 and ids[1] == c[config.monKey] and ids[6] == e[config.monKey],
   ("CUSTOM order did not persist stable ids: %s / %s / %s"):format(
     table.concat(ids, ","), tostring(c[config.monKey]), tostring(b[config.monKey])))
 assert(not config.add(c), "CUSTOM accepted a duplicate Pokemon")
@@ -104,35 +107,37 @@ local selection = factory("follower_selection.lua")({
   gameVersion = gameVersion, config = config,
   yellowPartner = { partner = function() return nil end },
 })
-local rows = selection.activeMany(game, 4)
+local rows = selection.activeMany(game, 6)
 assert(rows[1].mon == c and rows[2].mon == a
-  and rows[3].mon == d and rows[4].mon == b,
+  and rows[3].mon == d and rows[4].mon == b
+  and rows[5].mon == f and rows[6].mon == e,
   "CUSTOM mode followed battle-party order")
 
 -- Party reorder must not affect CUSTOM, and evolution must keep the same id.
-game.save.party = { b, d, a, c }
+game.save.party = { b, e, d, f, a, c }
 c.species = "UMBREON"
-rows = selection.activeMany(game, 4)
+rows = selection.activeMany(game, 6)
 assert(rows[1].mon == c and rows[1].mon.species == "UMBREON",
   "evolution or party reorder broke CUSTOM identity")
 
 -- Deposit skips the unavailable member and withdraw restores its old place.
 table.remove(game.save.party, 4)
-game.save.boxes = { { c } }
-rows = selection.activeMany(game, 4)
-assert(#rows == 3 and rows[1].mon == a and rows[2].mon == d and rows[3].mon == b,
+game.save.boxes = { { f } }
+rows = selection.activeMany(game, 6)
+assert(#rows == 5 and rows[1].mon == c and rows[2].mon == a
+    and rows[3].mon == d and rows[4].mon == b and rows[5].mon == e,
   "boxed CUSTOM member was not skipped cleanly")
 game.save.party[#game.save.party + 1] = table.remove(game.save.boxes[1], 1)
-rows = selection.activeMany(game, 4)
-assert(#rows == 4 and rows[1].mon == c,
+rows = selection.activeMany(game, 6)
+assert(#rows == 6 and rows[1].mon == c and rows[5].mon == f,
   "withdraw did not restore CUSTOM priority")
 
 -- Count changes affect visibility only, never stored CUSTOM priority.
 config.setCount(1)
-assert(#selection.activeMany(game, config.count()) == 1 and #config.customIds() == 4,
+assert(#selection.activeMany(game, config.count()) == 1 and #config.customIds() == 6,
   "reducing follower count destroyed CUSTOM priority")
-config.setCount(4)
-assert(#selection.activeMany(game, config.count()) == 4 and #config.customIds() == 4,
+config.setCount(6)
+assert(#selection.activeMany(game, config.count()) == 6 and #config.customIds() == 6,
   "increasing follower count did not reconstruct CUSTOM order")
 
 -- Party-menu hook exposes one compact native action and its editor mutates
@@ -148,20 +153,20 @@ local editor = game.stack.pushed[#game.stack.pushed]
 assert(editor and #editor.items == 3,
   "CUSTOM party editor does not expose priority/remove actions")
 editor.opts.onChoose(editor.items[3], editor)
-assert(editor.closed and #config.customIds() == 3,
+assert(editor.closed and #config.customIds() == 5,
   "party editor did not remove the selected follower")
 config.add(c)
 menuRows[#menuRows].onSelect(c, game)
 editor = game.stack.pushed[#game.stack.pushed]
 editor.opts.onChoose(editor.items[1], editor)
-assert(config.customIds()[3] == c[config.monKey],
+assert(config.customIds()[5] == c[config.monKey],
   "party editor MOVE UP did not change priority")
 menuRows[#menuRows].onSelect(c, game)
 editor = game.stack.pushed[#game.stack.pushed]
 editor.opts.onChoose(editor.items[2], editor)
-assert(config.customIds()[4] == c[config.monKey],
+assert(config.customIds()[6] == c[config.monKey],
   "party editor MOVE DOWN did not change priority")
-config.move(c, -3)
+config.move(c, -5)
 
 -- The persisted state reconstructs through a fresh module instance and fresh
 -- Pokemon tables, exactly as a save/restart/load does.
@@ -180,7 +185,7 @@ local game2 = {
   mods = { modOptions = {} }, stack = { push = function() end },
 }
 config2.install(game2, { applyConfig = function() end })
-assert(config2.count() == 4 and config2.mode() == "custom",
+assert(config2.count() == 6 and config2.mode() == "custom",
   "non-default count/mode did not survive reload")
 local afterReload = config2.customIds()
 assert(#afterReload == #savedIds and afterReload[1] == savedIds[1],
@@ -195,7 +200,7 @@ local yellowPartner = { partner = function() return yellow end }
 local yellowSelection = factory("follower_selection.lua")({
   gameVersion = gameVersion, config = config2, yellowPartner = yellowPartner,
 })
-local yellowRows = yellowSelection.activeMany(game2, 4)
+local yellowRows = yellowSelection.activeMany(game2, 6)
 assert(yellowRows[1].mon == yellow and yellowRows[1].mon.species == "GOROCHU",
   "evolved Yellow partner did not lead")
 local partnerCount = 0

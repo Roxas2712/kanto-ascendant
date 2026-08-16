@@ -23,7 +23,7 @@ rewritten.
 
 ## 3. Follower architecture and status
 
-One native controller owns a predecessor trail for 1–4 followers. Runtime
+One native controller owns a predecessor trail for 1–6 followers. Runtime
 ownership is weak-keyed per overworld, trails are capped at 64 cells, and NPC
 objects are never serialized. PARTY and stable per-Pokémon CUSTOM identities
 reconstruct after save/load, evolution, reorder and box transfer. The official
@@ -34,7 +34,7 @@ can reach the runtime.
 
 The registries passed at 151/151 Kanto, 100/100 Johto plus shiny variants,
 Raichu, Gorochu and custom registration. A real Red registry sweep instantiated
-17 representative Kanto/Johto/custom walkers. Mixed-generation four-member
+17 representative Kanto/Johto/custom walkers. Mixed-generation six-member
 chains passed in Red, Blue and Yellow. Gorochu has its native follower asset;
 the documented party-icon fallback remains allowed.
 
@@ -177,7 +177,7 @@ it optional).
 - Real LÖVE: Rematch Phase 6, 7 and 8 write+fresh reload per edition.
 - Real LÖVE: final Core/input/item/dual-vision driver per edition with an
   exact candidate-path assertion and Nuzlocke loaded.
-- Visual evidence: four-follower chains, party editor, reload reconstruction,
+- Visual evidence: six-follower chains, party editor, reload reconstruction,
   Raichu Ascendant box and Yellow-centered box, all 1024×768.
 - Headless: 6,569 integration; 6,603 upgrade; 130,093 Phase-8; 1,917 imported
   recruitment; 251/251 reachability; 40 Gorochu visual; 55 audio; 148 Mythic;

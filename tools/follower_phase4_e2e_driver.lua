@@ -1,4 +1,4 @@
--- Guarded real-LÖVE acceptance for Phase 4's native 1-4 follower chain.
+-- Guarded real-LÖVE acceptance for Phase 4's native 1-6 follower chain.
 -- Run independently with POKEPORT_VERSION=red, blue and yellow in a
 -- dedicated follower-phase4 identity. It writes only reserved slot 6404.
 
@@ -39,10 +39,14 @@ return function(game)
   local espeon = Pokemon.new(game.data, "ESPEON", 30)
   local scizor = Pokemon.new(game.data, "SCIZOR", 30)
   local tyranitar = Pokemon.new(game.data, "TYRANITAR", 30)
+  local lapras = Pokemon.new(game.data, "LAPRAS", 30)
+  local charizard = Pokemon.new(game.data, "CHARIZARD", 30)
   if version == "yellow" then raichu[yellowPartner.marker] = true end
-  game.save.party = { raichu, espeon, scizor, tyranitar }
+  game.save.party = { raichu, espeon, scizor, tyranitar, lapras, charizard }
 
-  local expected = { "RAICHU", "ESPEON", "SCIZOR", "TYRANITAR" }
+  local expected = {
+    "RAICHU", "ESPEON", "SCIZOR", "TYRANITAR", "LAPRAS", "CHARIZARD",
+  }
 
   local function inList(list, wanted)
     for _, value in ipairs(list or {}) do if value == wanted then return true end end
@@ -94,12 +98,12 @@ return function(game)
   local transitions = {
     { 1, { "RAICHU" } },
     { 2, { "RAICHU", "ESPEON" } },
-    { 4, expected },
+    { 6, expected },
     { 1, { "RAICHU" } },
     { 3, { "RAICHU", "ESPEON", "SCIZOR" } },
-    { 2, { "RAICHU", "ESPEON" } },
+    { 5, { "RAICHU", "ESPEON", "SCIZOR", "TYRANITAR", "LAPRAS" } },
     { 1, { "RAICHU" } },
-    { 4, expected },
+    { 6, expected },
   }
   for _, transition in ipairs(transitions) do
     assert(native.setCount(transition[1], game) == transition[1],
@@ -123,7 +127,7 @@ return function(game)
       if map:isWalkableCell(x, y) and not game.overworld:npcAtCell(x, y) then
         for _, a in ipairs(dirs) do
           local clearBehind = true
-          for distance = 1, 4 do
+          for distance = 1, 6 do
             if not map:isWalkableCell(x - a[2] * distance, y - a[3] * distance)
                 or game.overworld:npcAtCell(
                   x - a[2] * distance, y - a[3] * distance) then
@@ -147,7 +151,7 @@ return function(game)
     end
     if first then break end
   end
-  assert(first and second, "no four-follower L-corner test position found")
+  assert(first and second, "no six-follower L-corner test position found")
   local shotDir = os.getenv("SHOT_DIR") or "/tmp/follower-phase4"
 
   local function prefix(count, source)
@@ -336,14 +340,14 @@ return function(game)
 
   -- Complete the required movement/transition matrix independently for every
   -- supported count rather than only proving that each count can spawn.
-  for count = 1, 4 do
+  for count = 1, 6 do
     local species = prefix(count, expected)
     native.setCount(count, game)
     U.teleport(game, "PALLET_TOWN", sx, sy, first)
     U.wait(20)
     local instances = { unpack(assertChain(count, species,
       "corner reset count " .. count)) }
-    if count == 4 then
+    if count == 6 then
       assert(U.shot(game, shotDir .. "/" .. version .. "-mixed-chain.png"),
         "mixed-chain screenshot failed")
     end
@@ -364,23 +368,27 @@ return function(game)
   game.save.onBike = false
   native.refresh(game)
   U.wait(6)
-  assertChain(4, expected, "after dismount")
+  assertChain(6, expected, "after dismount")
 
   -- Evolution refreshes the same party identity and real sprite. Removing a
   -- party member or configuring more followers than available makes no dummy.
   Evolution.apply(game, espeon, "UMBREON", "FOLLOWER_PHASE4_E2E")
   U.wait(6)
-  local evolved = { "RAICHU", "UMBREON", "SCIZOR", "TYRANITAR" }
-  assertChain(4, evolved, "after evolution")
+  local evolved = {
+    "RAICHU", "UMBREON", "SCIZOR", "TYRANITAR", "LAPRAS", "CHARIZARD",
+  }
+  assertChain(6, evolved, "after evolution")
   table.remove(game.save.party, 3)
   U.wait(4)
-  assertChain(3, { "RAICHU", "UMBREON", "TYRANITAR" }, "after removal")
+  assertChain(5, {
+    "RAICHU", "UMBREON", "TYRANITAR", "LAPRAS", "CHARIZARD",
+  }, "after removal")
   game.save.party = { raichu, espeon }
   U.wait(4)
   assertChain(2, { "RAICHU", "UMBREON" }, "party smaller than count")
-  game.save.party = { raichu, espeon, scizor, tyranitar }
+  game.save.party = { raichu, espeon, scizor, tyranitar, lapras, charizard }
   U.wait(4)
-  assertChain(4, evolved, "party restored")
+  assertChain(6, evolved, "party restored")
 
   if version == "yellow" then
     assert(native.activeMon(game) == raichu,
@@ -391,7 +399,7 @@ return function(game)
         "Yellow scripted hide left a chain member visible")
     end
     Follower.setVisible(game.overworld, true)
-    assertChain(4, evolved, "Yellow scripted show")
+    assertChain(6, evolved, "Yellow scripted show")
 
     game.save.flags.EVENT_MET_BILL_2 = nil
     U.teleport(game, "BILLS_HOUSE", 3, 8, "up")
@@ -410,12 +418,15 @@ return function(game)
       "Bill's House scene did not hide the non-story chain members")
     U.teleport(game, "PALLET_TOWN", 10, 8, "down")
     U.wait(6)
-    assertChain(4, evolved, "after Bill scene")
+    assertChain(6, evolved, "after Bill scene")
   end
 
   game.save._followerPhase4Probe = {
     version = version, count = native.getCount(),
-    species = { raichu.species, espeon.species, scizor.species, tyranitar.species },
+    species = {
+      raichu.species, espeon.species, scizor.species,
+      tyranitar.species, lapras.species, charizard.species,
+    },
   }
   assert(game:writeSave(), "Phase-4 save write failed")
   assert(U.shot(game, shotDir .. "/" .. version .. "-final-chain.png"),

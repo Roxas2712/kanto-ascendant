@@ -934,7 +934,10 @@ return function(mod)
     { key = "follower_count",
       label = menuLabel("FOLLOWER COUNT", "BEGLEITER-ANZAHL"),
       type = "choice", default = 1,
-      choices = { { "1", 1 }, { "2", 2 }, { "3", 3 }, { "4", 4 } } },
+      choices = {
+        { "1", 1 }, { "2", 2 }, { "3", 3 },
+        { "4", 4 }, { "5", 5 }, { "6", 6 },
+      } },
     { key = "follower_order",
       label = menuLabel("FOLLOWER ORDER", "BEGLEITER-FOLGE"),
       type = "choice", default = "party",

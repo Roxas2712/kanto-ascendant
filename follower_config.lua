@@ -16,13 +16,15 @@ return function(mod, opts)
   local STATE_KEY = "follower_config"
   local MON_KEY = "_ascendantFollowerId"
   local VERSION = 1
+  local MAX_FOLLOWERS = 6
 
   local function tr(en, de)
     return i18n and i18n.text(en, de) or en
   end
 
   local function clampCount(value)
-    return math.max(1, math.min(4, math.floor(tonumber(value) or 1)))
+    return math.max(1, math.min(MAX_FOLLOWERS,
+      math.floor(tonumber(value) or 1)))
   end
 
   local function normalizeMode(value)
@@ -250,7 +252,7 @@ return function(mod, opts)
     -- save-local visible count just enough to expose the new entry. Yellow's
     -- authored partner owns slot 1, so its first extra needs Count=2.
     local position = customPosition(mon, s)
-    if position and position <= 4 and s.count < position then
+    if position and position <= MAX_FOLLOWERS and s.count < position then
       s.count = position
       syncOneOption("follower_count", s.count)
     end
@@ -262,7 +264,7 @@ return function(mod, opts)
   function C.show(mon)
     local s = state()
     local position = customPosition(mon, s)
-    if not position or position > 4 or s.count >= position then
+    if not position or position > MAX_FOLLOWERS or s.count >= position then
       return false, position
     end
     s.count = position
@@ -342,9 +344,9 @@ return function(mod, opts)
       return tr(name .. " was added.\fIt must be healthy\nto follow you.",
         name .. " wurde gewählt.\fEs muss fit sein,\num dir zu folgen.")
     end
-    if not position or position > 4 then
-      return tr(name .. " was saved.\fOnly first 4\nfollowers appear.",
-        name .. " wurde gespeichert.\fNur die ersten 4\nBegleiter erscheinen.")
+    if not position or position > MAX_FOLLOWERS then
+      return tr(name .. " was saved.\fOnly first 6\nfollowers appear.",
+        name .. " wurde gespeichert.\fNur die ersten 6\nBegleiter erscheinen.")
     end
     if C.isYellow() and position > 1 then
       return following .. tr(
@@ -381,7 +383,7 @@ return function(mod, opts)
       }
     else
       local position = customPosition(mon, s)
-      if position and position <= 4 and s.count < position then
+      if position and position <= MAX_FOLLOWERS and s.count < position then
         rows[#rows + 1] = {
           label = tr("SHOW FOLLOWER", "BEGLEITER ZEIGEN"), value = "show",
         }

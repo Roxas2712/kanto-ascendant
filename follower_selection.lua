@@ -11,6 +11,7 @@ return function(opts)
   local legacyStarters = opts.legacyStarters
   local config = opts.config
   local S = {}
+  local MAX_FOLLOWERS = 6
   local ids = setmetatable({}, { __mode = "k" })
   local nextId = 0
 
@@ -66,7 +67,8 @@ return function(opts)
   end
 
   local function clampedCount(count)
-    return math.max(1, math.min(4, math.floor(tonumber(count) or 1)))
+    return math.max(1, math.min(MAX_FOLLOWERS,
+      math.floor(tonumber(count) or 1)))
   end
 
   function S.activeMany(game, count)

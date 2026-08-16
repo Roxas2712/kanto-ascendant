@@ -1,4 +1,4 @@
--- Phase-4 headless contract for the native 1-4 predecessor trail.
+-- Phase-4 headless contract for the native 1-6 predecessor trail.
 
 local root = os.getenv("TRAINER_REMATCH_MOD_DIR") or "."
 local function factory(name) return assert(loadfile(root .. "/" .. name))() end
@@ -19,10 +19,14 @@ local function mon(species, hp)
   return { species = species, hp = hp or 30, dvs = {} }
 end
 
-local raichu, espeon, scizor, tyranitar =
-  mon("RAICHU"), mon("ESPEON"), mon("SCIZOR"), mon("TYRANITAR")
+local raichu, espeon, scizor, tyranitar, lapras, charizard =
+  mon("RAICHU"), mon("ESPEON"), mon("SCIZOR"), mon("TYRANITAR"),
+  mon("LAPRAS"), mon("CHARIZARD")
 local game = {
-  save = { party = { raichu, espeon, scizor, tyranitar }, flags = {} },
+  save = {
+    party = { raichu, espeon, scizor, tyranitar, lapras, charizard },
+    flags = {},
+  },
   data = { pokemon = {}, sprites = { SPRITE_PIKACHU = {
     id = "SPRITE_PIKACHU", image = "sheet", frames = 6,
     walker = true, trueColor = true,
@@ -33,31 +37,31 @@ for _, candidate in ipairs(game.save.party) do
   game.data.pokemon[candidate.species] = { name = candidate.species }
 end
 
-local selected = selection.activeMany(game, 4)
-assert(#selected == 4 and selected[1].mon == raichu
-  and selected[4].mon == tyranitar, "Red PARTY order is not stable")
+local selected = selection.activeMany(game, 6)
+assert(#selected == 6 and selected[1].mon == raichu
+  and selected[6].mon == charizard, "Red PARTY order is not stable")
 raichu.hp = 0
-selected = selection.activeMany(game, 4)
-assert(#selected == 3 and selected[1].mon == espeon,
+selected = selection.activeMany(game, 6)
+assert(#selected == 5 and selected[1].mon == espeon,
   "unhealthy party members must be skipped without duplication")
 raichu.hp = 30
 
 edition = "yellow"
 partner = scizor
-selected = selection.activeMany(game, 4)
-assert(#selected == 4 and selected[1].mon == scizor,
+selected = selection.activeMany(game, 6)
+assert(#selected == 6 and selected[1].mon == scizor,
   "Yellow partner must lead the chain")
 local partnerCount = 0
 for _, row in ipairs(selected) do if row.mon == partner then partnerCount = partnerCount + 1 end end
 assert(partnerCount == 1, "Yellow partner was duplicated")
 partner = nil
-assert(#selection.activeMany(game, 4) == 0,
+assert(#selection.activeMany(game, 6) == 0,
   "Yellow must not promote an unrelated party member over a missing partner")
 edition, partner = "red", nil
 
 -- Minimal engine-shaped transport. The controller patches this exact
 -- `shouldSpawn` upvalue, keeps the first follower in ow.npcs and manages
--- followers 2-4 as passable draw-only entities.
+-- followers 2-6 as passable draw-only entities.
 local function npcNew(_, mapId, def)
   local npc = {
     id = mapId .. "_obj_" .. def.index, def = def,
@@ -337,12 +341,12 @@ end
 local transitions = {
   { 1, { "RAICHU" } },
   { 2, { "RAICHU", "ESPEON" } },
-  { 4, { "RAICHU", "ESPEON", "SCIZOR", "TYRANITAR" } },
+  { 6, { "RAICHU", "ESPEON", "SCIZOR", "TYRANITAR", "LAPRAS", "CHARIZARD" } },
   { 1, { "RAICHU" } },
   { 3, { "RAICHU", "ESPEON", "SCIZOR" } },
-  { 2, { "RAICHU", "ESPEON" } },
+  { 5, { "RAICHU", "ESPEON", "SCIZOR", "TYRANITAR", "LAPRAS" } },
   { 1, { "RAICHU" } },
-  { 4, { "RAICHU", "ESPEON", "SCIZOR", "TYRANITAR" } },
+  { 6, { "RAICHU", "ESPEON", "SCIZOR", "TYRANITAR", "LAPRAS", "CHARIZARD" } },
 }
 for _, row in ipairs(transitions) do
   controller.setCount(row[1], game)
@@ -409,7 +413,7 @@ extra.targetX, extra.targetY = oldExtra.targetX, oldExtra.targetY
 
 -- Every chain index resolves through the real installed Overworld/Follower
 -- wrappers to its own party object. #1 deliberately delegates to native;
--- #2-4 deliberately do not.
+-- #2-6 deliberately do not.
 local mapped = {
   { mon = raichu, species = "GOLBAT", nickname = "A-ONE", bond = 0,
     phrase = "seems wary", target = "CROBAT", method = "FRIENDSHIP" },
@@ -419,6 +423,10 @@ local mapped = {
     phrase = "looks very", target = "BLISSEY", method = "FRIENDSHIP" },
   { mon = tyranitar, species = "EEVEE", nickname = "A-FOUR", bond = 200,
     phrase = "completely", target = "ESPEON", method = "FRIENDSHIP_DAY" },
+  { mon = lapras, species = "PICHU", nickname = "A-FIVE", bond = 50,
+    phrase = "is starting", target = "PIKACHU", method = "FRIENDSHIP" },
+  { mon = charizard, species = "IGGLYBUFF", nickname = "A-SIX", bond = 200,
+    phrase = "completely", target = "JIGGLYPUFF", method = "FRIENDSHIP" },
 }
 local mappedOld = {}
 for index, row in ipairs(mapped) do
@@ -497,7 +505,10 @@ for repeatIndex = 1, 12 do
     for _ = 1, 20 do frame() end
   end
 end
-local chain = assertChain({ "RAICHU", "ESPEON", "SCIZOR", "TYRANITAR" },
+local fullParty = {
+  "RAICHU", "ESPEON", "SCIZOR", "TYRANITAR", "LAPRAS", "CHARIZARD",
+}
+local chain = assertChain(fullParty,
   "mixed movement")
 local movement = assert(controller.movement(game), "movement state missing")
 assert(#movement.history <= 64 and #movement.chainHistory <= 64,
@@ -517,20 +528,26 @@ local oldSecond = chain[2]
 espeon.species = "UMBREON"
 game.data.pokemon.UMBREON = { name = "UMBREON" }
 controller.refresh(game)
-chain = assertChain({ "RAICHU", "UMBREON", "SCIZOR", "TYRANITAR" }, "evolution")
+chain = assertChain({
+  "RAICHU", "UMBREON", "SCIZOR", "TYRANITAR", "LAPRAS", "CHARIZARD",
+}, "evolution")
 assert(chain[2] == oldSecond and chain[2].followerSprite == "sheet_UMBREON",
   "evolution replaced identity or retained stale art")
 table.remove(game.save.party, 3) -- Scizor
 controller.refresh(game)
-chain = assertChain({ "RAICHU", "UMBREON", "TYRANITAR" }, "party removal")
+chain = assertChain({
+  "RAICHU", "UMBREON", "TYRANITAR", "LAPRAS", "CHARIZARD",
+}, "party removal")
 
 -- Configured count may exceed valid party size without dummies/duplicates.
 game.save.party = { raichu, espeon }
-controller.setCount(4, game)
+controller.setCount(6, game)
 assertChain({ "RAICHU", "UMBREON" }, "short party")
-game.save.party = { raichu, espeon, scizor, tyranitar }
+game.save.party = { raichu, espeon, scizor, tyranitar, lapras, charizard }
 controller.refresh(game)
-chain = assertChain({ "RAICHU", "UMBREON", "SCIZOR", "TYRANITAR" }, "party restore")
+chain = assertChain({
+  "RAICHU", "UMBREON", "SCIZOR", "TYRANITAR", "LAPRAS", "CHARIZARD",
+}, "party restore")
 
 -- Seam keeps the same instances and rebases every queued coordinate. A warp
 -- reconstructs clean entities in the same species order.
@@ -541,16 +558,20 @@ chain[3].cellY = chain[3].cellY + 2
 chain[3].py = chain[3].cellY * 16
 Follower.onMapEntered(game, game.overworld, { keepPikachu = chain[1] })
 Follower.rebase(game.overworld, 20, 7)
-chain = assertChain({ "RAICHU", "UMBREON", "SCIZOR", "TYRANITAR" }, "seam")
-for i = 1, 4 do assert(chain[i] == beforeSeam[i], "seam replaced follower " .. i) end
-for i = 2, 4 do
+chain = assertChain({
+  "RAICHU", "UMBREON", "SCIZOR", "TYRANITAR", "LAPRAS", "CHARIZARD",
+}, "seam")
+for i = 1, 6 do assert(chain[i] == beforeSeam[i], "seam replaced follower " .. i) end
+for i = 2, 6 do
   local gap = math.abs(chain[i].cellX - chain[i - 1].cellX)
     + math.abs(chain[i].cellY - chain[i - 1].cellY)
   assert(gap <= 1, "seam reconstruction retained a stretched link " .. i)
 end
 local old = { unpack(chain) }
 Follower.onMapEntered(game, game.overworld, {})
-chain = assertChain({ "RAICHU", "UMBREON", "SCIZOR", "TYRANITAR" }, "warp")
+chain = assertChain({
+  "RAICHU", "UMBREON", "SCIZOR", "TYRANITAR", "LAPRAS", "CHARIZARD",
+}, "warp")
 assert(chain[1] ~= old[1] and chain[2] ~= old[2], "warp retained stale entities")
 for _, stale in ipairs(old) do
   assert(not (function()
@@ -565,7 +586,9 @@ for _, follower in ipairs(chain) do
   end)(), "hidden chain member remained visible")
 end
 Follower.setVisible(game.overworld, true)
-assertChain({ "RAICHU", "UMBREON", "SCIZOR", "TYRANITAR" }, "show restore")
+assertChain({
+  "RAICHU", "UMBREON", "SCIZOR", "TYRANITAR", "LAPRAS", "CHARIZARD",
+}, "show restore")
 
 -- A mod hot reload installs a fresh controller before the old instance is
 -- explicitly restored. The versioned state must remove the first wrapper
@@ -579,7 +602,7 @@ assert(replacementController.install(game),
   "direct install-over-install replacement failed")
 assert(not controller.active and Overworld.interact ~= firstInteractWrapper,
   "hot reload retained the old controller or interaction wrapper")
-replacementController.setCount(4, game)
+replacementController.setCount(6, game)
 local replacementChain = replacementController.entities(game)
 for index, npc in ipairs(replacementChain) do
   npc.cellX, npc.cellY = game.overworld.player.cellX + 5 + index,
@@ -614,17 +637,17 @@ assert(Overworld.interact == baseOverworldInteract
 -- exact partner slot owns Yellow's authored mood/portrait conversation.
 edition, partner = "yellow", scizor
 scizor.hp = 30
-game.save.party = { raichu, espeon, scizor, tyranitar }
+game.save.party = { raichu, espeon, scizor, tyranitar, lapras, charizard }
 game.overworld.npcs, game.overworld.entities = {}, { game.overworld.player }
 current = nil
 local yellowController = factory("single_follower.lua")(controllerMod, {
   selection = selection, sprites = sprites, yellowPartner = yellowPartner,
 })
 assert(yellowController.install(game), "Yellow chain controller did not install")
-yellowController.setCount(4, game)
+yellowController.setCount(6, game)
 chain = yellowController.entities(game)
-assert(#chain == 4 and chain[1].followerMon == scizor,
-  "Yellow partner did not lead four-follower chain")
+assert(#chain == 6 and chain[1].followerMon == scizor,
+  "Yellow partner did not lead six-follower chain")
 partnerCount = 0
 for _, npc in ipairs(chain) do if npc.followerMon == scizor then partnerCount = partnerCount + 1 end end
 assert(partnerCount == 1, "Yellow partner duplicated in live chain")
@@ -643,7 +666,7 @@ assert(genericTalkCry == "SCIZOR"
     and genericTalkText and genericTalkText:find("SCIZOR", 1, true),
   "Yellow non-Pikachu partner lost species-aware generic talk")
 partner = raichu
-game.save.party = { raichu, espeon, scizor, tyranitar }
+game.save.party = { raichu, espeon, scizor, tyranitar, lapras, charizard }
 raichu.johtoBond = 137
 for _, evolved in ipairs({ "RAICHU", "GOROCHU" }) do
   raichu.species = evolved
@@ -663,14 +686,15 @@ for _, evolved in ipairs({ "RAICHU", "GOROCHU" }) do
     evolved .. " portrait talk reset friendship data")
 end
 raichu.hp = 0
-assert(#selection.activeMany(game, 4) == 0,
+assert(#selection.activeMany(game, 6) == 0,
   "fainted evolved Yellow partner was replaced by a generic follower")
 raichu.hp = 30
-game.save.party = { espeon, scizor, tyranitar }
-assert(#selection.activeMany(game, 4) == 0,
+game.save.party = { espeon, scizor, tyranitar, lapras, charizard }
+assert(#selection.activeMany(game, 6) == 0,
   "boxed evolved Yellow partner was replaced by a generic follower")
-game.save.party = { raichu, espeon, scizor, tyranitar }
-assert(selection.activeMany(game, 4)[1].mon == raichu
+game.save.party = { raichu, espeon, scizor, tyranitar, lapras, charizard }
+assert(#selection.activeMany(game, 6) == 6
+    and selection.activeMany(game, 6)[1].mon == raichu
     and raichu.johtoBond == 137,
   "withdrawing evolved Yellow partner lost identity/friendship")
 raichu.species = "RAICHU"
@@ -805,5 +829,5 @@ assert(Overworld.interact == baseOverworldInteract
 
 _G.debug = savedDebug
 
-print("PASS follower Phase-4: counts 1-4 predecessor chain mixed species transitions Yellow talk dedupe"
+print("PASS follower Phase-4: counts 1-6 predecessor chain mixed species transitions Yellow talk dedupe"
   .. (os.getenv("KA_TEST_SANDBOX_0186") == "1" and " sandbox-0.1.86" or ""))

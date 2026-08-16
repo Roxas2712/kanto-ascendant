@@ -141,6 +141,7 @@ jobs:
           luajit ../kanto-ascendant/tests/follower_phase3_registry_test.lua
           luajit ../kanto-ascendant/tests/follower_phase4_chain_test.lua
           luajit ../kanto-ascendant/tests/follower_phase5_config_test.lua
+          luajit ../kanto-ascendant/tests/follower_cap6_regression_test.lua
           luajit ../kanto-ascendant/tests/rematch_phase6_test.lua
           luajit ../kanto-ascendant/tests/rematch_phase7_test.lua
           luajit ../kanto-ascendant/tests/rematch_phase8_test.lua

@@ -68,7 +68,7 @@ require("os.execute" not in runtime and "io.popen" not in runtime,
 followers = (ROOT / "single_follower.lua").read_text(encoding="utf-8")
 require('setmetatable({}, { __mode = "k" })' in followers,
         "follower runtime ownership is not weak-keyed")
-require("MAX_FOLLOWERS, MAX_TRAIL = 4, 64" in followers,
+require("MAX_FOLLOWERS, MAX_TRAIL = 6, 64" in followers,
         "follower count/trail bounds changed")
 require("never serialized" in followers,
         "runtime-only follower object boundary is undocumented")
@@ -76,7 +76,8 @@ require("never serialized" in followers,
 config = (ROOT / "follower_config.lua").read_text(encoding="utf-8")
 require("local VERSION = 1" in config and "s.version = VERSION" in config,
         "follower save state is not versioned/normalized")
-require("math.min(4" in config, "follower save count is not capped at four")
+require("math.min(MAX_FOLLOWERS" in config,
+        "follower save count is not capped through the shared limit")
 
 difficulty = (ROOT / "difficulty.lua").read_text(encoding="utf-8")
 require("if #pending >= 8 then table.remove(pending, 1) end" in difficulty,

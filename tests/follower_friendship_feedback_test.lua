@@ -206,4 +206,4 @@ pokemon.FUTURE = {
 assert(controller.friendshipProfile(game, mon("FUTURE", 255)) == nil,
   "future/malformed evolution rows did not fail closed")
 
-print("PASS follower friendship: dynamic methods bands DE/EN chain 1-4 immutable")
+print("PASS follower friendship: dynamic methods bands DE/EN chain 1-6 immutable")

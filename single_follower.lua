@@ -1,4 +1,4 @@
--- Native generic 1-4 follower chain for Red, Blue and Yellow.
+-- Native generic 1-6 follower chain for Red, Blue and Yellow.
 --
 -- Gen1Recomp's proven Yellow trail remains follower #1 and the sole owner of
 -- Yellow story interaction. Additional followers are passable render-only
@@ -11,7 +11,7 @@ return function(mod, opts)
   local sprites = assert(opts.sprites, "follower sprite registry is required")
   local config = opts.config
   local i18n = opts.i18n
-  local MAX_FOLLOWERS, MAX_TRAIL = 4, 64
+  local MAX_FOLLOWERS, MAX_TRAIL = 6, 64
   local N = {
     active = false, count = 1,
     runtime = setmetatable({}, { __mode = "k" }),

@@ -45,12 +45,12 @@ return function(game)
 
   local probe = game.save._followerPhase5Probe
   if probe and probe.stage == 1 then
-    assert(config.count() == 4 and config.mode() == "custom",
+    assert(config.count() == 6 and config.mode() == "custom",
       "saved count/mode did not reconstruct")
     assert(config.presentation() == probe.presentation,
       "saved Yellow presentation did not reconstruct")
     local rows = native.activeMons(game)
-    assert(#rows == 4, "saved CUSTOM chain did not reconstruct")
+    assert(#rows == 6, "saved CUSTOM chain did not reconstruct")
     for index, species in ipairs(probe.expected) do
       assert(rows[index].mon.species == species,
         ("reload follower %d expected %s, got %s"):format(
@@ -64,14 +64,14 @@ return function(game)
     U.teleport(game, "PALLET_TOWN", 10, 8, "down")
     U.wait(16)
     local entities = native.entities(game)
-    assert(#entities == 4, "reload did not rebuild four visible followers")
+    assert(#entities == 6, "reload did not rebuild six visible followers")
     local shotDir = os.getenv("SHOT_DIR") or "/tmp/follower-phase5"
     assert(U.shot(game, shotDir .. "/" .. version .. "-reloaded-custom.png"),
       "reload screenshot failed")
     game.save._followerPhase5Probe.stage = 2
     assert(game:writeSave(), "Phase-5 reload save write failed")
     U.log("FOLLOWER PHASE 5 RELOAD PASS", version,
-      "count=4 custom stable ids no duplicate")
+      "count=6 custom stable ids no duplicate")
     love.event.quit(0)
     return
   end
@@ -90,14 +90,16 @@ return function(game)
   local espeon = Pokemon.new(game.data, "ESPEON", 30)
   local scizor = Pokemon.new(game.data, "SCIZOR", 30)
   local tyranitar = Pokemon.new(game.data, "TYRANITAR", 30)
+  local lapras = Pokemon.new(game.data, "LAPRAS", 30)
+  local charizard = Pokemon.new(game.data, "CHARIZARD", 30)
   if version == "yellow" then partner[yellowPartner.marker] = true end
-  game.save.party = { partner, espeon, scizor, tyranitar }
+  game.save.party = { partner, espeon, scizor, tyranitar, lapras, charizard }
   Boxes.ensure(game.save)
 
   U.teleport(game, "PALLET_TOWN", 10, 8, "down")
   U.wait(12)
   config.setMode("party")
-  for count = 1, 4 do
+  for count = 1, 6 do
     config.setCount(count)
     U.wait(3)
     assert(#native.entities(game) == count,
@@ -137,13 +139,14 @@ return function(game)
   end
 
   -- Deliberately differ from battle-party order.
-  assert(config.add(tyranitar) and config.add(partner) and config.add(scizor),
+  assert(config.add(tyranitar) and config.add(partner) and config.add(scizor)
+      and config.add(lapras) and config.add(charizard),
     "could not complete custom priority")
-  config.setCount(4)
+  config.setCount(6)
   U.wait(6)
   local expected = version == "yellow"
-    and { "GOROCHU", "ESPEON", "TYRANITAR", "SCIZOR" }
-    or { "ESPEON", "TYRANITAR", firstSpecies, "SCIZOR" }
+    and { "GOROCHU", "ESPEON", "TYRANITAR", "SCIZOR", "LAPRAS", "CHARIZARD" }
+    or { "ESPEON", "TYRANITAR", firstSpecies, "SCIZOR", "LAPRAS", "CHARIZARD" }
 
   local function assertOrder(wanted, label)
     local rows = native.activeMons(game)
@@ -176,7 +179,7 @@ return function(game)
   assert(Boxes.deposit(game.save, tyranitar), "box deposit failed")
   native.refresh(game)
   U.wait(3)
-  assert(#native.activeMons(game) == 3, "boxed custom member was not skipped")
+  assert(#native.activeMons(game) == 5, "boxed custom member was not skipped")
   local box = game.save.boxes[game.save.currentBox]
   local withdrawn = table.remove(box, #box)
   assert(withdrawn == tyranitar, "wrong Pokemon withdrawn")
@@ -186,12 +189,12 @@ return function(game)
   assertOrder(expected, "after withdraw")
 
   -- PARTY follows battle order; CUSTOM restores the independent priority.
-  game.save.party = { scizor, tyranitar, espeon, partner }
+  game.save.party = { scizor, tyranitar, espeon, partner, charizard, lapras }
   config.setMode("party")
   U.wait(3)
   local partyExpected = version == "yellow"
-    and { "GOROCHU", "SCIZOR", "TYRANITAR", "UMBREON" }
-    or { "SCIZOR", "TYRANITAR", "UMBREON", firstSpecies }
+    and { "GOROCHU", "SCIZOR", "TYRANITAR", "UMBREON", "CHARIZARD", "LAPRAS" }
+    or { "SCIZOR", "TYRANITAR", "UMBREON", firstSpecies, "CHARIZARD", "LAPRAS" }
   assertOrder(partyExpected, "PARTY after reorder")
   config.setMode("custom")
   U.wait(3)
