@@ -53,7 +53,7 @@ collapsed so players can reveal only the information they want.
 > [GitHub Issues](https://github.com/Roxas2712/kanto-ascendant/issues) and will
 > be considered for future updates.
 
-## What's new in 6.5.3 RC1
+## What's new in 6.5.3
 
 - Three character-specific Hidden Evolution trials expand the postgame while
   keeping their final discoveries out of this overview.
@@ -68,7 +68,7 @@ collapsed so players can reveal only the information they want.
   spoiler sections in the [FAQ](FAQ.md) and the optional
   [offline map guide](docs/guides/hidden-evolution/README.md).
 
-See the full spoiler-light [6.5.3 RC1 release notes](RELEASE_NOTES_6.5.3_RC1.md).
+See the full spoiler-light [6.5.3 release notes](RELEASE_NOTES_6.5.3.md).
 
 ## What's new in 6.0.5
 
@@ -1490,8 +1490,8 @@ renderers.
 > launcher-compatible `.zip`. A matching `.modpkg` may be retained only as an
 > internal build or verification artifact.
 
-1. Download `kanto-ascendant-6.5.3-rc.1.zip` from the
-   [6.5.3 RC1 release](https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.5.3-rc.1)
+1. Download `kanto_ascendant-6.5.3.zip` from the
+   [6.5.3 release](https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.5.3)
    and import it through the launcher. Developers may alternatively install
    the checked-out mod directory.
    If you downloaded a complete bundle, extract it first and import the inner

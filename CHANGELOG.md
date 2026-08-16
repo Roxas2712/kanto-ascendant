@@ -4,7 +4,7 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
-## [6.5.3-rc.1] - 2026-08-16
+## [6.5.3] - 2026-08-16
 
 ### Added
 

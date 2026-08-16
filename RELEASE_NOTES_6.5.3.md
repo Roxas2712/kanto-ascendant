@@ -1,8 +1,8 @@
-# Kanto Ascendant 6.5.3 RC1 — Hidden Evolution
+# Kanto Ascendant 6.5.3 — Hidden Evolution
 
-Kanto Ascendant 6.5.3 RC1 is a save-compatible pre-release for Pokémon Red,
-Blue and Yellow. It expands the postgame, improves long-run continuity and
-repairs a large set of presentation, input and save/retry edge cases.
+Kanto Ascendant 6.5.3 is a save-compatible release for Pokémon Red, Blue and
+Yellow. It expands the postgame, improves long-run continuity and repairs a
+large set of presentation, input and save/retry edge cases.
 
 This document is intentionally spoiler-light. Players who want exact routes,
 requirements or puzzle solutions can use the clearly marked spoiler sections
@@ -72,7 +72,7 @@ launching the game.
    choices.
 3. Remove or disable older Kanto Ascendant test packages if the launcher keeps
    multiple local builds.
-4. Import the `kanto-ascendant-6.5.3-rc.1.zip` release asset.
+4. Import the `kanto_ascendant-6.5.3.zip` release asset.
 5. Resolve every launcher conflict and restart the launcher/game completely.
 
 If upgrading from an older test build that used the `trainer_rematch` package
@@ -87,5 +87,5 @@ directory. Renaming it inside the mods directory is not sufficient.
 - The optional offline HTML guide contains annotated maps for all three Hidden
   Evolution paths.
 
-Please report reproducible RC issues with edition, engine version, renderer,
+Please report reproducible issues with edition, engine version, renderer,
 enabled mods, exact steps and—when progression is involved—a save file.

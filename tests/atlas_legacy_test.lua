@@ -13,8 +13,8 @@ local modPath = os.getenv("TRAINER_REMATCH_MOD_DIR")
   or "mods/kanto_ascendant"
 local run = T.sdk.loadMod(modPath, { data = Data })
 T.eq(#run.errors, 0, "Kanto Ascendant loads for Atlas/Legacy tests")
-T.eq(run.mod.manifest.version, "6.5.3-rc.1",
-  "the release manifest identifies the internal 6.5 QoL release candidate")
+T.eq(run.mod.manifest.version, "6.5.3",
+  "the release manifest identifies the internal 6.5 QoL release")
 
 local ex = assert(run.loader.exports.kanto_ascendant)
 local atlas = assert(ex.researchAtlas)

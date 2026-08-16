@@ -164,20 +164,20 @@ jobs:
           MODKIT_LUAJIT: luajit
         run: |
           python3 tools/modkit.py pack ../kanto-ascendant \
-            -o ../kanto-ascendant-6.5.3-rc.1.zip
-          unzip -tq ../kanto-ascendant-6.5.3-rc.1.zip
+            -o ../kanto_ascendant-6.5.3.zip
+          unzip -tq ../kanto_ascendant-6.5.3.zip
           (
             cd ..
-            sha256sum kanto-ascendant-6.5.3-rc.1.zip \
-              > SHA256SUMS-6.5.3-rc.1.txt
+            sha256sum kanto_ascendant-6.5.3.zip \
+              > SHA256SUMS-6.5.3.txt
           )
           python3 ../kanto-ascendant/tools/johto_signals_release_audit.py \
-            ../kanto-ascendant-6.5.3-rc.1.zip
+            ../kanto_ascendant-6.5.3.zip
           python3 - <<'PY'
           import json
           import zipfile
 
-          package = "../kanto-ascendant-6.5.3-rc.1.zip"
+          package = "../kanto_ascendant-6.5.3.zip"
           forbidden_prefixes = (
               "art_review/",
               "artifacts/",
@@ -270,20 +270,20 @@ jobs:
                   )
 
               manifest = json.loads(archive.read("manifest.json"))
-              if manifest.get("version") != "6.5.3-rc.1":
+              if manifest.get("version") != "6.5.3":
                   raise SystemExit(
-                      "Expected manifest version 6.5.3-rc.1, got "
+                      "Expected manifest version 6.5.3, got "
                       + repr(manifest.get("version"))
                   )
 
           print("Package contents and manifest version are release-clean.")
           PY
 
-      - name: Upload the verified release candidate
+      - name: Upload the verified release
         uses: actions/upload-artifact@v4
         with:
-          name: kanto-ascendant-6.5.3-rc.1-release-candidate
+          name: kanto-ascendant-6.5.3-release
           if-no-files-found: error
           path: |
-            kanto-ascendant-6.5.3-rc.1.zip
-            SHA256SUMS-6.5.3-rc.1.txt
+            kanto_ascendant-6.5.3.zip
+            SHA256SUMS-6.5.3.txt

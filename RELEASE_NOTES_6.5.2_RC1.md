@@ -91,5 +91,5 @@ Gen2-3D-Sprites code, artwork, ROM data or binaries.
    active renderer.
 
 This section records the earlier 6.5.2 test procedure. For current public
-installation instructions, use `RELEASE_NOTES_6.5.3_RC1.md`. Existing Red,
+installation instructions, use `RELEASE_NOTES_6.5.3.md`. Existing Red,
 Blue and Yellow saves remain supported.
