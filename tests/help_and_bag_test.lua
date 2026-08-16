@@ -7,8 +7,9 @@ local optionHelp = factory("option_help.lua")(de)
 local team = optionHelp.text("party_icon_style", "ANIMIERTE ARTEN")
 assert(team:find("#001%-251") and team:find("Neustart"),
   "team icon help must state coverage and restart")
-assert(optionHelp.text("difficulty", "EXTREM"):find("Items"),
-  "difficulty help must explain the Extreme item rule")
+assert(optionHelp.text("difficulty", "EXTREM"):find("Items")
+    and optionHelp.text("difficulty", "EXTREM"):find("Orden"),
+  "difficulty help must explain badge phase-in and the Extreme item rule")
 assert(optionHelp.text("legend_lugia", "AN"):find("Lugia"),
   "dynamic legendary help missing")
 assert(optionHelp.text("event_flying_pikachu", "AN"):find("Flying Pikachu"),

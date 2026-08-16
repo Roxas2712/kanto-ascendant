@@ -12,8 +12,8 @@ return function(i18n)
       "Selects Ascendant's text language. AUTO follows the game language.",
       "Wählt die Ascendant-Textsprache. AUTO folgt der Spielsprache.", true },
     difficulty = {
-      "Raises trainer and wild levels. EXTREME also blocks items in trainer battles.",
-      "Erhöht Trainer- und Wildlevel. EXTREM sperrt zusätzlich Items in Trainerkämpfen." },
+      "Raises trainer and wild levels. Bonuses begin smaller and reach full strength as you earn badges. EXTREME also blocks items in trainer battles.",
+      "Erhöht Trainer- und Wildlevel. Die Boni starten kleiner und erreichen mit Deinen Orden ihre volle Stärke. EXTREM sperrt zusätzlich Items in Trainerkämpfen." },
     rare_item_lock = {
       "Prevents rare, unique and progression items from being discarded accidentally.",
       "Verhindert, dass seltene, einzigartige und wichtige Items versehentlich weggeworfen werden." },

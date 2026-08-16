@@ -4,12 +4,19 @@
 return function(mod, opts)
   opts = opts or {}
   local D = {}
+  local Badges = require("src.inventory.Badges")
+  local currentGame = mod.game
   D.PRESETS = {
-    standard  = { trainer = 0,  wild = 0, items = true },
-    high      = { trainer = 3,  wild = 2, items = true },
-    hard      = { trainer = 5,  wild = 3, items = true },
-    very_hard = { trainer = 8,  wild = 5, items = true },
-    extreme   = { trainer = 10, wild = 7, items = false },
+    standard  = { trainer = 0,  wild = 0, items = true,
+      trainerEarly = 0, trainerFullAt = 0, wildEarly = 0, wildFullAt = 0 },
+    high      = { trainer = 3,  wild = 2, items = true,
+      trainerEarly = 1, trainerFullAt = 6, wildEarly = 1, wildFullAt = 4 },
+    hard      = { trainer = 5,  wild = 3, items = true,
+      trainerEarly = 2, trainerFullAt = 6, wildEarly = 2, wildFullAt = 4 },
+    very_hard = { trainer = 8,  wild = 5, items = true,
+      trainerEarly = 3, trainerFullAt = 5, wildEarly = 3, wildFullAt = 4 },
+    extreme   = { trainer = 10, wild = 7, items = false,
+      trainerEarly = 4, trainerFullAt = 6, wildEarly = 4, wildFullAt = 6 },
   }
 
   local function preset()
@@ -23,25 +30,61 @@ return function(mod, opts)
     return out
   end
 
-  function D.adjustLevel(level, kind)
+  -- Difficulty used to add its complete late-game offset to every authored
+  -- level. That turns the official level-5 Oak-lab opponent into level 13 on
+  -- VERY HARD before the player can train. Phase only the numerical bonus in
+  -- through ordinary badge progress: no trainer-class, edition, player-name
+  -- or save-slot exception is involved, and six badges restore every original
+  -- trainer offset (wild offsets finish no later than that).
+  local function phased(full, early, fullAt, badges)
+    full = math.max(0, math.floor(tonumber(full) or 0))
+    early = math.max(0, math.min(full,
+      math.floor(tonumber(early) or full)))
+    fullAt = math.max(0, math.floor(tonumber(fullAt) or 0))
+    if badges == nil or fullAt == 0 or early >= full then return full end
+    badges = math.max(0, math.floor(tonumber(badges) or 0))
+    if badges >= fullAt then return full end
+    return early + math.floor((full - early) * badges / fullAt)
+  end
+
+  function D.progressionBonus(kind, badges, name)
+    local row = D.PRESETS[name] or preset()
+    local full = row[kind] or 0
+    return phased(full, row[kind .. "Early"], row[kind .. "FullAt"], badges)
+  end
+
+  function D.progressBadges(game)
+    game = game or currentGame
+    if not (game and game.save) then return nil end
+    return math.max(0, math.min(8, Badges.count(game.data, game.save)))
+  end
+
+  function D.adjustLevel(level, kind, badges)
     local base = math.max(1, math.floor(tonumber(level) or 1))
-    local extra = preset()[kind] or 0
+    local extra = D.progressionBonus(kind, badges)
     local raised = base + extra
     return math.min(100, raised), math.max(0, raised - 100)
   end
 
-  function D.adjustParty(party)
+  function D.adjustParty(party, badges)
     local out, overflow = clone(party or {}), {}
     for index, row in ipairs(out) do
-      row.level, overflow[index] = D.adjustLevel(row.level, "trainer")
+      row.level, overflow[index] = D.adjustLevel(
+        row.level, "trainer", badges)
     end
     return out, overflow
   end
 
+  local function rememberGame(ev)
+    currentGame = ev and ev.game or currentGame
+  end
+  mod.events:on("game.ready", rememberGame, 160)
+  mod.events:on("save.loaded", rememberGame, 160)
+
   local pending = {}
   mod.hooks:wrap("trainer.party", function(nextParty, oppClass, partyIndex, party)
     local resolved = nextParty(oppClass, partyIndex, party)
-    local adjusted, overflow = D.adjustParty(resolved)
+    local adjusted, overflow = D.adjustParty(resolved, D.progressBadges())
     if #pending >= 8 then table.remove(pending, 1) end
     pending[#pending + 1] = { class = oppClass, party = partyIndex,
       overflow = overflow }
@@ -52,7 +95,7 @@ return function(mod, opts)
     local out = nextEncounter(enc, ctx)
     if type(out) ~= "table" then return out end
     out = clone(out)
-    out.level = D.adjustLevel(out.level, "wild")
+    out.level = D.adjustLevel(out.level, "wild", D.progressBadges())
     return out
   end, 150)
 
