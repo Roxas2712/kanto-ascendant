@@ -1033,6 +1033,12 @@ return function(mod)
     end
     local installFilters = loadSibling(mod, "storage_filters.lua")
     if type(installFilters) == "function" then installFilters(mod) end
+    local installPokedexAreaCompat = loadSibling(mod,
+      "pokedex_area_compat.lua")
+    if type(installPokedexAreaCompat) == "function" then
+      local ok, why = installPokedexAreaCompat()
+      assert(ok, why)
+    end
     local installTextSpeed = loadSibling(mod, "text_speed.lua")
     if type(installTextSpeed) == "function" then installTextSpeed(mod) end
     -- Party icons are installed below after the follower registries exist;
