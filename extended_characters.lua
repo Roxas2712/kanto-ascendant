@@ -1012,6 +1012,30 @@ return function(mod, opts)
     local ok, Pipelines = pcall(require, "src.render.Pipelines")
     return ok and Pipelines and Pipelines.level("voxel") > 0
   end
+
+  -- The Voxel world and a staged Voxel battle are two independent choices.
+  -- Using the world pipeline alone here made a normal Gen-I battle request a
+  -- standing trainer card whenever the player kept the 3D overworld enabled.
+  -- Ask the reviewed renderer's own battle boundary instead: OFF, BACK
+  -- SPRITES, an unavailable arena, or a failed capability probe must all keep
+  -- the edition-appropriate Red/Blue/Green back picture.
+  local function voxelBattleUsesStandingTrainer()
+    if not voxelActive() or not voxelRenderer then return false end
+    local resolved, battleModule, rendererId, reason = pcall(
+      voxelRenderer.module, activeGame, "OverworldBattle")
+    if not resolved then return false end
+    if type(battleModule) == "table" then
+      local predicate = battleModule.wantsFront or battleModule.enabled
+      if type(predicate) ~= "function" then return false end
+      local ok, enabled = pcall(predicate)
+      return ok and enabled == true
+    end
+    -- The exact reviewed DRAMALESS 2.0.2 package deliberately keeps its
+    -- owner-scoped battle modules private. Its native card host is the battle
+    -- presentation, so this one explicit resolver receipt remains standing.
+    return rendererId == "DRAMALESS_SHAPE"
+      and reason == "renderer-native-owned:DRAMALESS_SHAPE"
+  end
   for _, id in ipairs({ "RED", "GREEN" }) do
     for key in pairs(dialogue.rival[id] or {}) do
       CHARACTER_STORY_KEYS[key] = true
@@ -1203,7 +1227,7 @@ return function(mod, opts)
       -- Casey and Blue therefore use their agreed full 56x56 standing art in
       -- the battle-back slot. Their overworld walkers are never touched.
       local player = M.getPlayerCharacter()
-      if ctx.kind == "battle" and voxelActive() then
+      if ctx.kind == "battle" and voxelBattleUsesStandingTrainer() then
         return "voxelFront"
       end
       return "battleBack"

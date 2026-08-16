@@ -290,6 +290,56 @@ T.eq(characters.playerVisualState({ side = "back", kind = "battle" }),
 T.eq(characters.getPlayerSprite("battleBack").path,
   "assets/characters/crystal_chars/green_back.png",
   "ordinary 2D battle back stays independent from her field style")
+
+-- A Voxel overworld does not imply a staged 3D battle.  Bind the character
+-- resolver to the reviewed renderer's public battle predicate so BACK
+-- SPRITES / 3D-BTL OFF automatically restores the correct edition avatar.
+local Pipelines = require("src.render.Pipelines")
+local voxelCompat = assert(
+  run.loader.exports.kanto_ascendant.voxelRendererCompat)
+local originalPipelineLevel = Pipelines.level
+local originalRendererModule = voxelCompat.module
+Pipelines.level = function(id)
+  if id == "voxel" then return 1 end
+  return originalPipelineLevel(id)
+end
+for _, identity in ipairs({ "RED", "GREEN", "BLUE" }) do
+  characters.select(identity)
+  voxelCompat.module = function(_, name)
+    T.eq(name, "OverworldBattle",
+      "mixed-mode character resolver asks only for the battle boundary")
+    return { wantsFront = function() return false end }, "VOXEL_ASCENDANT"
+  end
+  T.eq(characters.playerVisualState({ side = "back", kind = "battle" }),
+    "battleBack", identity .. " uses a back sprite when 3D-BTL is off")
+  T.check(characters.getPlayerSprite("battleBack").path:match(
+      "/" .. identity:lower() .. "_back%.png$") ~= nil,
+    identity .. " resolves its own authored battle back in mixed mode")
+
+  voxelCompat.module = function()
+    return { wantsFront = function() return true end }, "VOXEL_ASCENDANT"
+  end
+  T.eq(characters.playerVisualState({ side = "back", kind = "battle" }),
+    "voxelFront", identity .. " stays standing in an active 3D battle")
+end
+voxelCompat.module = function()
+  return nil, "DRAMALESS_SHAPE",
+    "renderer-native-owned:DRAMALESS_SHAPE"
+end
+T.eq(characters.playerVisualState({ side = "back", kind = "battle" }),
+  "voxelFront", "reviewed Dramaless native battle keeps its standing card")
+voxelCompat.module = function() error("capability probe failed") end
+T.eq(characters.playerVisualState({ side = "back", kind = "battle" }),
+  "battleBack", "renderer resolution failure safely falls back to 2D back art")
+voxelCompat.module = function()
+  return { wantsFront = function() error("battle probe failed") end },
+    "VOXEL_ASCENDANT"
+end
+T.eq(characters.playerVisualState({ side = "back", kind = "battle" }),
+  "battleBack", "battle capability failure safely falls back to 2D back art")
+voxelCompat.module = originalRendererModule
+Pipelines.level = originalPipelineLevel
+characters.select("GREEN")
 T.eq(characters.getRivalSprite("overworld").sprite, "SPRITE_RED",
   "Green-versus-Red maps use Red's established sheet")
 T.eq(characters.getRivalSprite("rivalPortrait").path,
