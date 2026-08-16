@@ -48,6 +48,14 @@ return function(mod, opts)
       or johtoBoundary.isActive(game or J.game)
   end
 
+  local function boundaryDecision(game)
+    if not (johtoBoundary and type(johtoBoundary.status) == "function") then
+      return nil
+    end
+    local ok, value = pcall(johtoBoundary.status, game or J.game)
+    return ok and type(value) == "table" and value.decision or nil
+  end
+
   local function legacyWildsRepairAuthority(game)
     return johtoBoundary
       and type(johtoBoundary.hasLegacyJohtoAuthority) == "function"
@@ -499,7 +507,11 @@ return function(mod, opts)
   -- resolveCandidate() below continues to use signalsEnabled() and therefore
   -- cannot inject a single Johto species.
   local function questInfrastructureEnabled()
-    if not boundaryActive(J.game) then return false end
+    -- The capsule/boat/receiver story is the player's route *to* the
+    -- irreversible generation decision.  It must therefore remain available
+    -- while a fresh R/B/Y save is still sealed.  Only encounter injection is
+    -- guarded by signalsEnabled()/boundaryActive().
+    if johtoBoundary and not boundaryActive(J.game) then return true end
     if signalsEnabled() then return true end
     local enabled
     if mod.options and type(mod.options.get) == "function" then
@@ -859,7 +871,7 @@ return function(mod, opts)
         "Empfänger lehnt\ndiese Frequenz ab.")
     end
     if johtoBoundary and boundaryActive(game)
-        and normalized ~= MODES.UNLEASHED then
+        and normalized == MODES.KANTO_FIRST then
       return false, "irreversible", tr(
         "BEYOND KANTO is\npermanent in this save.",
         "JENSEITS VON KANTO\nist in diesem Spielstand\ndauerhaft.")
@@ -869,11 +881,40 @@ return function(mod, opts)
         "Repair the damaged\nreceiver first.",
         "Repariere zuerst\nden Empfänger.")
     end
-    s.mode = normalized
-    s.modeChosen = true
-    if normalized == MODES.WANDERWAVES then ensureWave(s, game) end
-    persist()
-    notifyMigrationChanged("receiver-mode")
+    if johtoBoundary and not boundaryActive(game)
+        and normalized ~= MODES.KANTO_FIRST then
+      if type(johtoBoundary.activate) ~= "function" then
+        return false, "boundary-controller", tr(
+          "The save remains sealed.\nThe generation boundary\nis unavailable.",
+          "Der Spielstand bleibt\nversiegelt. Die Generations-\ngrenze fehlt.")
+      end
+      local called, activated, activationReason, activationText = pcall(
+        johtoBoundary.activate, game, {
+          decision = "driftglass_receiver",
+          signalMode = normalized,
+          requireDurable = true,
+        })
+      if not called then
+        return false, "activation-error", tr(
+          "The save remains sealed.\nNothing changed.",
+          "Der Spielstand bleibt\nversiegelt. Nichts\nänderte sich.")
+      end
+      if not activated and activationReason ~= "already-active" then
+        return false, activationReason or "activation-failed",
+          activationText or tr(
+            "The save remains sealed.\nNothing changed.",
+            "Der Spielstand bleibt\nversiegelt. Nichts\nänderte sich.")
+      end
+      -- activate() owns the single durable write and asks forceUnleashed()
+      -- below to stage this exact receiver current inside that transaction.
+      s = state()
+    else
+      s.mode = normalized
+      s.modeChosen = true
+      if normalized == MODES.WANDERWAVES then ensureWave(s, game) end
+      persist()
+      notifyMigrationChanged("receiver-mode")
+    end
     local detail
     if normalized == MODES.WANDERWAVES then
       detail = tr(
@@ -957,7 +998,7 @@ return function(mod, opts)
   function J.objective(game)
     game = activeGame(game)
     local s = state()
-    if not signalsEnabled() then
+    if not questInfrastructureEnabled() then
       return tr(
         "Johto Signals: OFF\nKanto stays normal",
         "JOHTO: AUS\nKanto unverändert")
@@ -1036,7 +1077,7 @@ return function(mod, opts)
     game = activeGame(game)
     local s = state()
     local stage
-    if not signalsEnabled() then
+    if not questInfrastructureEnabled() then
       stage = tr("DISABLED", "AUSGESCHALTET")
     elseif not s.oakCallShown then
       stage = tr("AWAITING OAK", "WARTE AUF EICH")
@@ -1512,7 +1553,14 @@ return function(mod, opts)
     runtime.onboardingPending = nil
     local s = state()
     local changed = false
-    if boundaryActive(J.game) and s.mode ~= MODES.UNLEASHED then
+    local active = boundaryActive(J.game)
+    local validReceiverCurrent = s.receiverRepaired == true
+      and s.modeChosen == true
+      and (s.mode == MODES.WANDERWAVES or s.mode == MODES.UNLEASHED)
+    local forceFullMigration = boundaryDecision(J.game)
+      == "legacy_partner_catalog"
+    if active and (forceFullMigration or not validReceiverCurrent)
+        and s.mode ~= MODES.UNLEASHED then
       s.mode = MODES.UNLEASHED
       s.modeChosen = true
       changed = true
@@ -1533,19 +1581,61 @@ return function(mod, opts)
   -- Called by the save-local generation boundary after Signals has adopted
   -- the current slot.  Deactivation never rewrites old progress; it merely
   -- cancels runtime candidates while the new/fresh save remains Gen I.
-  function J.forceUnleashed(game, active)
+  function J.forceUnleashed(game, active, context)
     J.game = game or J.game
     J.cancelCandidate(active and "unleashed-sync" or "generation-sealed")
     if active ~= true then return true, "sealed" end
     local s = state()
-    local changed = s.mode ~= MODES.UNLEASHED or s.modeChosen ~= true
-    s.mode = MODES.UNLEASHED
+    context = type(context) == "table" and context or {}
+    local requested = MODE_ALIASES[context.signalMode]
+    if requested == MODES.KANTO_FIRST then requested = nil end
+    local preserveReceiverCurrent = context.decision ~= "legacy_partner_catalog"
+      and s.receiverRepaired == true and s.modeChosen == true
+      and (s.mode == MODES.WANDERWAVES or s.mode == MODES.UNLEASHED)
+    local target = requested
+      or (preserveReceiverCurrent and s.mode)
+      or MODES.UNLEASHED
+    local changed = s.mode ~= target or s.modeChosen ~= true
+    s.mode = target
     s.modeChosen = true
+    if target == MODES.WANDERWAVES and ensureWave(s, J.game) then
+      changed = true
+    end
     if changed then
       persist()
       notifyMigrationChanged("johto-unleashed")
     end
     return true, changed and "unleashed" or "already-unleashed"
+  end
+
+  -- 6.5.3 could persist a fully completed Driftglass choice while the new
+  -- save-local boundary remained sealed.  Only that complete, internally
+  -- reachable story shape is accepted as authority; copied mode strings,
+  -- partial capsule progress and malformed tables fail closed.  activate()
+  -- supplies the same rollback and one-write guarantee as a fresh choice.
+  function J.repairBoundaryChoice(game)
+    J.game = game or J.game
+    if not johtoBoundary or boundaryActive(J.game) then
+      return false, "already-active"
+    end
+    local s = state()
+    local validMode = s.mode == MODES.WANDERWAVES
+      or s.mode == MODES.UNLEASHED
+    local authoritative = validMode and s.modeChosen == true
+      and s.receiverRepaired == true and s.questStarted == true
+      and s.capsuleTaken == true and s.capsuleOpened == true
+      and s.boatmanBriefed == true
+    if not authoritative then return false, "not-authoritative" end
+    if type(johtoBoundary.activate) ~= "function" then
+      return false, "boundary-controller"
+    end
+    local called, changed, reason = pcall(johtoBoundary.activate, J.game, {
+      decision = "driftglass_receiver",
+      signalMode = s.mode,
+      requireDurable = true,
+    })
+    if not called then return false, "activation-error" end
+    return changed == true, reason
   end
 
   -- Stage only the missing ordinary-wild authority. The boundary owns the
@@ -1641,7 +1731,14 @@ return function(mod, opts)
     -- Reset the cached save section before presentation/content listeners
     -- inspect travel permission for the newly loaded slot.
     mod.events:on("save.loaded", function(ev)
-      J.install(ev and ev.game, true)
+      local game = ev and ev.game
+      J.install(game, true)
+      local _, reason = J.repairBoundaryChoice(game)
+      if (reason == "save_failed" or reason == "activation-error")
+          and mod.log and mod.log.error then
+        mod.log:error("Driftglass boundary repair deferred: "
+          .. tostring(reason))
+      end
     end, 300)
     mod.events:on("game.ready", function(ev)
       J.install(ev and ev.game, false)

@@ -176,16 +176,13 @@ return function(mod, opts)
   end
 
   local function signalsWitness(owner)
-    local root = owner and owner.johto_signals
-    local state = type(root) == "table" and root.earlyJohto or nil
-    if type(state) ~= "table" then return nil end
-    for _, key in ipairs({
-      "capsuleTaken", "capsuleOpened", "boatmanBriefed", "receiverRepaired",
-      "onboardingComplete",
-    }) do
-      if state[key] == true then return "signals_" .. key end
-    end
-    if anyTrue(state.traces) then return "signals_traces" end
+    -- Since 6.5.3 the physical capsule, boat and repaired receiver are all
+    -- allowed to exist while this save is still deliberately Gen-I sealed.
+    -- Even a complete old current is not inferred here: after sync creates a
+    -- sealed receipt, johto_signals.repairBoundaryChoice validates the whole
+    -- reachable quest shape and performs the required durable transaction.
+    -- This keeps all Signals-only migrations rollback-safe and fail-closed.
+    return nil
   end
 
   local function expectedCadenceOwner(save, owner)
@@ -438,7 +435,7 @@ return function(mod, opts)
     end
   end
 
-  local function notify(active, game, reason)
+  local function notify(active, game, reason, activation)
     for _, listener in ipairs(listeners) do
       local ok, err = pcall(listener, active == true, game, reason)
       if not ok and mod.log and mod.log.error then
@@ -447,7 +444,13 @@ return function(mod, opts)
     end
     local signals = controllers.signals
     if signals and type(signals.forceUnleashed) == "function" then
-      signals.forceUnleashed(game, active == true)
+      local state = rawState(saveOf(game))
+      signals.forceUnleashed(game, active == true, {
+        reason = reason,
+        decision = state and state.decision,
+        signalMode = type(activation) == "table"
+          and activation.signalMode or nil,
+      })
     end
     local dex = controllers.dex
     if active and dex and type(dex.unlockNationalDex) == "function" then
@@ -629,7 +632,7 @@ return function(mod, opts)
       activatedAt = os.time(),
     }
     B.sync(game, save, "activated")
-    notify(true, game, "activated")
+    notify(true, game, "activated", activation)
 
     local legacyWildsStage
     if B.hasLegacyJohtoAuthority(save) then
@@ -654,7 +657,8 @@ return function(mod, opts)
     -- The canonical Legacy YES is allowed to become visible only together
     -- with a durable ordinary-wild receipt. Other historical activation
     -- callers retain the pre-existing no-writer behavior.
-    local wrote = legacyWildsStage == nil
+    local wrote = activation.requireDurable ~= true
+      and legacyWildsStage == nil
     if type(game.writeSave) == "function" then
       local called, result = pcall(game.writeSave, game)
       wrote = called and result ~= false

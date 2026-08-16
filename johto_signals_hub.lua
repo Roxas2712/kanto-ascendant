@@ -457,19 +457,11 @@ return function(mod, opts)
   end
 
   function H.openModeChoice(game, onDone)
-    if johtoBoundary and boundaryActive(game) then
-      return show(game, tr(
-        "BEYOND KANTO is\npermanent in this save.\f"
-          .. "The current cannot be\nreturned to Kanto First.",
-        "JENSEITS VON KANTO\nist in diesem Spielstand\ndauerhaft.\f"
-          .. "Der Strom kann nicht\nzu Kanto Zuerst\nzurückkehren."), function()
-            if onDone then onDone(false) end
-          end)
-    end
     local rows = {}
-    for _, mode in ipairs({
-      MODES.KANTO_FIRST, MODES.WANDERWAVES, MODES.UNLEASHED,
-    }) do
+    local modes = johtoBoundary and boundaryActive(game)
+        and { MODES.WANDERWAVES, MODES.UNLEASHED }
+      or { MODES.KANTO_FIRST, MODES.WANDERWAVES, MODES.UNLEASHED }
+    for _, mode in ipairs(modes) do
       rows[#rows + 1] = {
         label = modeLabel(mode),
         value = mode,
@@ -503,7 +495,10 @@ return function(mod, opts)
   end
 
   local function earlyEnabled()
-    if johtoBoundary then return boundaryActive(H.game) end
+    -- With the save-local boundary, this means the Signals feature/quest is
+    -- available, not that Johto encounters have already been authorized.
+    -- The receiver choice itself performs that irreversible activation.
+    if johtoBoundary then return true end
     if type(early.enabled) == "function" then return early.enabled() ~= false end
     if mod.options and type(mod.options.get) == "function" then
       local value = mod.options:get("johto_signals_enable")
@@ -726,6 +721,7 @@ return function(mod, opts)
     local s = earlyState()
     local repaired = s.receiverRepaired == true
     local enabled = earlyEnabled()
+    local boundaryOpen = boundaryActive(game)
     local rowState = not enabled and tr("OFF", "AUS")
       or (not repaired and tr("LOCKED", "GESPERRT"))
       or nil
@@ -748,13 +744,18 @@ return function(mod, opts)
         label = johtoBoundary and tr("BEYOND KANTO", "JENSEITS KANTO")
           or tr("EARLY JOHTO", "FRÜHES JOHTO"),
         right = not repaired and tr("LOCK", "ZU")
+          or (johtoBoundary and (boundaryOpen
+            and tr("OPEN", "OFFEN") or tr("SEALED", "VERSIEGELT")))
           or (enabled and tr("ON", "AN") or tr("OFF", "AUS")),
         value = "enabled",
         onSelect = function()
           if johtoBoundary then
-            return show(game, tr(
-              "BEYOND KANTO is\npermanent in this save.",
-              "JENSEITS VON KANTO\nist in diesem Spielstand\ndauerhaft."))
+            return show(game, boundaryOpen and tr(
+                "BEYOND KANTO is\npermanent in this save.",
+                "JENSEITS VON KANTO\nist in diesem Spielstand\ndauerhaft.")
+              or tr(
+                "BEYOND KANTO is\nstill sealed.\fRepair the receiver\nand choose a Johto\ncurrent to open it.",
+                "JENSEITS VON KANTO\nist noch versiegelt.\fRepariere den Empfänger\nund wähle einen Johto-\nStrom zum Öffnen."))
           end
           if not earlyState().receiverRepaired then
             return show(game, lockedText())
@@ -862,11 +863,6 @@ return function(mod, opts)
   end
 
   function H.openJohto(game)
-    if not boundaryActive(game) then
-      return show(game, tr(
-        "BEYOND KANTO is sealed.\fAfter entering the Hall\nof Fame, speak with\nELM'S AIDE in OAK'S LAB.",
-        "JENSEITS VON KANTO ist\nversiegelt.\fSprich nach der\nRuhmeshalle mit LINDs\nAssistent in EICHs Labor."))
-    end
     local rows = H.johtoRows(game)
     return openList(game, tr("JOHTO SIGNALS", "JOHTO-SIGNALE"), rows, {
       onChoose = function(item)
@@ -924,9 +920,7 @@ return function(mod, opts)
     end
     rows[#rows + 1] =
       {
-        label = boundaryActive(game)
-          and tr("JOHTO SIGNALS", "JOHTO-SIGNALE")
-          or tr("JOHTO SEALED", "JOHTO VERSIEGELT"),
+        label = tr("JOHTO SIGNALS", "JOHTO-SIGNALE"),
         value = "johto",
         onSelect = function() H.openJohto(game) end,
       }
@@ -949,7 +943,6 @@ return function(mod, opts)
   end
 
   function H.objective(game)
-    if not boundaryActive(game) then return nil end
     local johtoOn = earlyEnabled()
     local mythicOn = mythicEnabled()
     if not johtoOn and not mythicOn then return nil end

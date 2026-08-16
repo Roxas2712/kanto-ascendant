@@ -449,6 +449,16 @@ local function newHarness(config)
       "Dein POKéDEX wurde\nzum NATIONALDEX\nerweitert!")
   end
 
+  local boundaryIsActive = config.boundaryActive == true
+  local johtoBoundary
+  if config.withBoundary then
+    johtoBoundary = {
+      isActive = function()
+        return boundaryIsActive
+      end,
+    }
+  end
+
   local hub = createHub(mod, {
     state = state,
     content = content,
@@ -459,6 +469,7 @@ local function newHarness(config)
     openMenu = openMenu,
     addItem = addItem,
     dexProgress = dexProgress,
+    johtoBoundary = johtoBoundary,
   })
 
   fixture.hub = hub
@@ -471,6 +482,9 @@ local function newHarness(config)
   fixture.content = content
   fixture.language = function(value) language = value end
   fixture.badges = function(value) badges = value end
+  fixture.setBoundaryActive = function(value)
+    boundaryIsActive = value == true
+  end
   fixture.choose = function(value)
     fixture.choices[#fixture.choices + 1] = value
   end
@@ -697,6 +711,74 @@ equal(#postRepairToggle.optionEvents, 1,
 equal(postRepairToggle.optionEvents[1].payload.key,
   "johto_signals_enable",
   "the post-repair event targets only the Early-Johto switch")
+
+-- The save-local generation boundary seals encounters, not the authored
+-- receiver quest.  Fresh normal campaigns must still see Oak's objective,
+-- reach the Johto submenu and make the explicit current choice that opens it.
+local sealedQuest = newHarness({
+  withBoundary = true,
+  boundaryActive = false,
+  johtoEnabled = false,
+  mythicEnabled = false,
+  early = {
+    questStarted = false,
+    capsuleAvailable = true,
+    capsuleFound = false,
+    capsuleTaken = false,
+    capsuleOpened = false,
+    boatmanBriefed = false,
+    receiverRepaired = false,
+    modeChosen = false,
+    mode = "KANTO_FIRST",
+    traces = {},
+  },
+})
+equal(sealedQuest.hub.worldRows(sealedQuest.game)[1].label,
+  "JOHTO SIGNALS",
+  "a sealed normal save keeps the Johto Signals world entry visible")
+equal(sealedQuest.hub.objective(sealedQuest.game).key, "johto_capsule",
+  "a sealed normal save can track the pre-boundary capsule quest")
+sealedQuest.hub.openJohto(sealedQuest.game)
+equal(sealedQuest.lastMenu.title, "JOHTO SIGNALS",
+  "the sealed world entry opens the authored quest submenu")
+equal(assert(rowByValue(sealedQuest.lastMenu.rows, "enabled")).right,
+  "LOCK",
+  "the boundary row remains locked until the receiver is repaired")
+
+local sealedChoice = newHarness({
+  withBoundary = true,
+  boundaryActive = false,
+  johtoEnabled = false,
+  mythicEnabled = false,
+  early = {
+    questStarted = true,
+    capsuleFound = true,
+    capsuleTaken = true,
+    capsuleOpened = true,
+    boatmanBriefed = true,
+    receiverRepaired = true,
+    modeChosen = false,
+    mode = "KANTO_FIRST",
+    traces = {},
+  },
+})
+local sealedChoiceRows = sealedChoice.hub.johtoRows(sealedChoice.game)
+equal(assert(rowByValue(sealedChoiceRows, "enabled")).right, "SEALED",
+  "a repaired receiver reports the still-sealed generation boundary")
+assert(rowByValue(sealedChoiceRows, "set")).onSelect()
+equal(sealedChoice.lastMenu.title, "CHOOSE CURRENT",
+  "a repaired sealed save can open the explicit current selector")
+equal(#sealedChoice.lastMenu.rows, 3,
+  "the sealed selector includes the reversible Kanto-first choice")
+sealedChoice.setBoundaryActive(true)
+sealedChoice.hub.openModeChoice(sealedChoice.game)
+equal(#sealedChoice.lastMenu.rows, 2,
+  "an active irreversible boundary no longer offers Kanto-first")
+equal(sealedChoice.lastMenu.rows[1].value, "WANDERWAVES",
+  "the active selector keeps Wanderwaves available")
+equal(sealedChoice.lastMenu.rows[2].value, "UNLEASHED",
+  "the active selector keeps Unleashed available")
+
 locked.hub.openWorld(locked.game)
 locked.hub.openJohto(locked.game)
 locked.hub.openMythic(locked.game)
