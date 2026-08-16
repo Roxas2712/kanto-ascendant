@@ -1253,17 +1253,27 @@ module inside its resolver and expose a narrow camera-preset control; the raw
 camera table, private loader, renderer modules and HUD authority never escape
 that boundary. The reviewed official `2.0.2` release ZIP has SHA-256
 `85e2f866bd7badce4c5d97ccbf1f8b88b2a9fd30ec0659454c187d7398b808a7`.
+The exact upstream `potato_voxel 1.7.2` release from
+[`ShaneMcGovernIE/potato_voxel`](https://github.com/ShaneMcGovernIE/potato_voxel/releases/tag/v1.7.2)
+is a reviewed performance-first alternative for constrained devices. PotatoVoxel
+keeps its native camera, HUD, quality controls and cache; Ascendant exposes only
+an allowlisted renderer facade and never applies the Dramaless camera preset.
+Its official release ZIP has SHA-256
+`200153d7623db14e08925d1b51f99f8ccbfa5e32db134922f51c8179bd64fd33`.
+PotatoVoxel 1.7.2 requests network access and its upstream `LOGS TO DEV` option
+is ON by default; switch it OFF in Voxel Settings or the mod manager if you do
+not want diagnostic logs sent to its developer.
 The separately installed upstream
 `BATTLE_ART_VOXEL_FORK 1.9.0` is the third reviewed choice. It retains complete
 ownership of its sprites, trainers, animations, camera, menus and options; Kanto
 Ascendant only builds a local closed module facade and adapts HUD overlays plus
 map-authored wall decals. No Battle Art file or asset is copied, rewritten or
 included in the Kanto Ascendant ZIP. Battle Art 1.8.3 and every other Battle Art
-version remain blocked by an exact version rule. Dramatic Shape, Potato Voxel,
-Terrarium and First Person remain blocked; every other Dramaless version is
+version remain blocked by an exact version rule. Dramatic Shape, unreviewed
+PotatoVoxel versions, Terrarium and First Person remain blocked; every other Dramaless version is
 blocked while only `.190.1` and the exact upstream `2.0.2` release remain
-supported. Install only one Voxel renderer; Battle Art and Dramaless are
-alternative renderers and must not be enabled together.
+supported. Install only one Voxel renderer; Voxel Ascendant, PotatoVoxel,
+Battle Art and Dramaless are alternatives and must not be enabled together.
 
 The reviewed Battle Art package is the upstream 1.9.0 release asset from
 [`absol89/DramaticShapeVoxelMod`](https://github.com/absol89/DramaticShapeVoxelMod/releases/tag/1.9.0),

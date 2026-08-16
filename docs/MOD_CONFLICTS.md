@@ -23,7 +23,8 @@ Current conflicts:
 | Nuzlocke | `nuzlocke` | `bryanthaboi/nuzlocke` |
 | Kanto Reforged (unreviewed combination) | `Kanto-Reforged` | repository `1Jamie/Kanto-Reforged` is documentation only on stock 0.1.90 |
 | Other Battle Art builds | `BATTLE_ART_VOXEL_FORK@<1.9.0 \|\| >1.9.0` | only separate upstream `1.9.0` from `absol89/DramaticShapeVoxelMod` is admitted |
-| Renderer archives currently broken on 0.1.90 | `DRAMATIC_SHAPE` | `potato_voxel`, `TERRARIUM`, `ds_fp_ceiling` |
+| Exact PotatoVoxel release | `potato_voxel@<1.7.2 \|\| >1.7.2` | only `ShaneMcGovernIE/potato_voxel` 1.7.2 is admitted; upstream `LOGS TO DEV` is ON by default |
+| Renderer archives currently broken on 0.1.90 | `DRAMATIC_SHAPE` | `TERRARIUM`, `ds_fp_ceiling` |
 | Other Dramaless builds | `DRAMALESS_SHAPE@<1.6.2-ST.190.1 \|\| >1.6.2-ST.190.1 <2.0.2 \|\| >2.0.2` | only the hardened `1.6.2-ST.190.1` transition build and exact official `2.0.2` release are admitted |
 
 These packages overlap Ascendant's native follower, party, renderer and QoL
@@ -57,13 +58,17 @@ Its official release ZIP SHA-256 is
 Exact upstream `BATTLE_ART_VOXEL_FORK 1.9.0` is also a
 supported, separately installed renderer; Kanto Ascendant neither bundles nor
 mutates its assets, camera or options and consumes only a local allowlisted facade.
-Renderer packages conflict with each other, so install only one. In particular,
-Battle Art and Dramaless are alternatives and must never be enabled together.
+Exact upstream `potato_voxel 1.7.2` is supported through the same closed-facade
+rule while retaining its own camera, HUD, quality settings and cache. It requests
+network access and sends diagnostic logs when its upstream `LOGS TO DEV` option
+is ON (the default); users can turn that option OFF. Renderer packages conflict
+with each other, so install only one. Voxel Ascendant, PotatoVoxel, Battle Art
+and Dramaless are alternatives and must never be enabled together.
 The current
 standalone shiny-indicator release
 is a hard conflict: it overlaps built-in presentation hooks and still uses
 APIs denied by the reviewed sandbox. Battle Art 1.8.3, unreviewed future Battle
-Art releases, Dramatic Shape, Potato Voxel, Terrarium and First Person do not
+Art releases, Dramatic Shape, unreviewed PotatoVoxel versions, Terrarium and First Person do not
 work in this exact compatibility set. Stock 0.1.90 blocks them through classic
 ID/version rules; exact Battle Art 1.9.0 is exempt. Other Dramaless versions are
 rejected while `1.6.2-ST.190.1` and exact official `2.0.2` remain explicitly

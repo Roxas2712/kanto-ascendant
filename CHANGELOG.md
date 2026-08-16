@@ -7,6 +7,12 @@ All notable changes to this project are documented in this file.
 ### Fixed
 
 - The manager now admits only the exact upstream
+  `ShaneMcGovernIE/potato_voxel 1.7.2` release. Ascendant exposes a closed,
+  allowlisted renderer facade while PotatoVoxel retains its native camera, HUD,
+  quality controls and cache. Other repositories, adjacent versions and
+  multi-renderer combinations remain blocked. Documentation also calls out the
+  upstream `LOGS TO DEV` option, which is ON by default and can be disabled.
+- The manager now admits only the exact upstream
   `artyrambles/DRAMALESS_SHAPE 2.0.2` package on the 0.1.96 stack instead of
   displaying a false conflict. This modern Dramaless line is deliberately
   renderer-native: it owns its own voxel world, battle cards and battle HUD.

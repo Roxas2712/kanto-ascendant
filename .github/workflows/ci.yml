@@ -149,6 +149,7 @@ jobs:
           luajit ../kanto-ascendant/tests/help_and_bag_test.lua
           luajit ../kanto-ascendant/tests/options_full_contract_test.lua
           luajit ../kanto-ascendant/tests/voxel_renderer_compat_test.lua
+          luajit ../kanto-ascendant/tests/potato_voxel_172_manager_test.lua
           luajit ../kanto-ascendant/tests/battle_art_voxel_compat_test.lua
           luajit ../kanto-ascendant/tests/dramaless_camera_compat_test.lua
           luajit ../kanto-ascendant/tests/dramaless_camera_option_menu_test.lua
