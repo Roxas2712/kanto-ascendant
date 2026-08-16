@@ -1,5 +1,13 @@
 # Kanto Ascendant 6.5 — Vermächtnis-Reisen
 
+> [!WARNING]
+> **⚠️ FULL SPOILERS:** This design reference names Legacy Journey rewards,
+> partner choices and progression gates. Use the public FAQ for spoiler-light
+> help.
+
+<details>
+<summary><strong>Open the full design spoiler document</strong></summary>
+
 ## Grundregel
 
 Eine Vermächtnis-Reise ist ein echtes neues Spiel, das ohne Umweg über den
@@ -84,3 +92,5 @@ auch in weiteren echten Vermächtnis-Reisen erhalten.
 - Ein abgebrochener Partnerkatalog oder ein fehlgeschlagener Schreibvorgang
   darf weder einen Pokédex-Eintrag noch eine halbfertige Rivalenwahl
   hinterlassen.
+
+</details>

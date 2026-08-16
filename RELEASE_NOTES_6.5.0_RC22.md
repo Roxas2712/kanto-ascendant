@@ -1,5 +1,12 @@
 # Kanto Ascendant 6.5.0 RC22
 
+> [!WARNING]
+> **⚠️ FULL SPOILERS:** This historical technical preview discusses Legacy
+> Journey progression. Use the current FAQ for spoiler-light help.
+
+<details>
+<summary><strong>Open the historical spoiler document</strong></summary>
+
 ## Sichtbare Pokémon ohne Zusatzmod
 
 - Der Spawn-, Stadt-, Darstellungs- und KI-Kern von Wilds of Kanto 1.12.2 ist
@@ -38,3 +45,5 @@
   Trainer sowie Rot-/Blau-/Grün-Pfade und Siegel.
 - Die geplante Hoenn-Starterbelohnung nach einem abgeschlossenen Siegel ist
   noch nicht Teil dieses Testkandidaten.
+
+</details>

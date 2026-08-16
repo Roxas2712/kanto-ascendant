@@ -1417,6 +1417,13 @@ missions, Rocket story and one new tournament bracket are completed.
 
 ### True Legacy Journeys
 
+Legacy Journeys can begin a genuinely fresh adventure while preserving only
+the deliberately archived legacy. Their character-specific discoveries and
+rewards are intentionally left unspoiled here.
+
+<details>
+<summary><strong>⚠️ FULL SPOILERS — Legacy Journey mechanics and rewards</strong></summary>
+
 The 6.5 Legacy Journey starts a genuinely fresh game directly after the
 previous journey's finale while keeping only the deliberately archived
 legacy. The chosen RED, BLUE or GREEN avatar binds that journey to a distinct
@@ -1473,6 +1480,8 @@ These normal/shiny fronts animate in enemy battles, Title, Pokédex, Summary
 and stay static; no artificial jitter is used. Followers, visible Wilds and
 Voxel keep the actual walking/pose animation owned by their respective
 renderers.
+
+</details>
 
 ## Installation
 

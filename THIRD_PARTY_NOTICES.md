@@ -44,17 +44,17 @@ audio content is Copyright The Pokémon Company. Kanto Ascendant uses the
 files only in this unofficial, non-commercial fan mod.
 
 The same PokeAPI legacy-cry source supplies the nine narrowly registered
-Hoenn starter-family cries #252-260 used as earned Legacy Journey rewards.
+species cries #252-260 bundled for Kanto Ascendant's authored content.
 
-## Earned Hoenn starter sprites
+## Bundled species sprites #252-260
 
-The normal/shiny front and back battle sprites for Treecko through Swampert
-(#252-260) come from the PokeAPI sprites repository's Ruby/Sapphire set:
+The normal/shiny front and back battle sprites for species #252-260 come from
+the PokeAPI sprites repository's Ruby/Sapphire set:
 
 https://github.com/PokeAPI/sprites
 
-Only these three starter families are registered. No Hoenn region, encounter
-table or intermediate National-Dex catalogue is bundled or implied.
+Only these nine species are registered. No Hoenn region, encounter table or
+intermediate National-Dex catalogue is bundled or implied.
 
 ## Targeted later-evolution compatibility set
 

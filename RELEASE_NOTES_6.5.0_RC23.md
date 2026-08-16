@@ -1,5 +1,12 @@
 # Kanto Ascendant 6.5.0 RC23
 
+> [!WARNING]
+> **⚠️ FULL SPOILERS:** This historical technical preview names Legacy Journey
+> rewards and progression gates. Use the current FAQ for spoiler-light help.
+
+<details>
+<summary><strong>Open the historical spoiler document</strong></summary>
+
 ## New Game+ abgeschlossen
 
 - Die Vermächtnis-Reise startet nach dem Champ weiterhin direkt vom
@@ -126,3 +133,5 @@
 
 RC23 ersetzt keine RC22-Datei außerhalb des neuen Pakets. Das getrennte
 Rollback-ZIP enthält den unveränderten, bereits abgenommenen RC22-Stand.
+
+</details>

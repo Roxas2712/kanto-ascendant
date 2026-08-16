@@ -1,5 +1,12 @@
 # Dungeon-Legacy-Adapter
 
+> [!WARNING]
+> **⚠️ FULL SPOILERS:** Diese technische Referenz nennt Belohnungen,
+> Partner-Pokémon und Fortschrittsbedingungen der Vermächtnisreise.
+
+<details>
+<summary><strong>Vollständige technische Spoiler öffnen</strong></summary>
+
 `legacy_dungeon_adapter.lua` ist die absichtlich kleine Integrationsnaht zwischen den charaktergebundenen Dungeons und `legacy_archive`. Werden sie bei der späteren Installation übergeben, verwendet sie die öffentlichen Oberflächen von `legacy_journey` (aktive Figur, Pfadabschluss, Tür) und `legacy_starters` (passender Hoenn-Partner); andernfalls fällt sie nur auf die gleichwertigen Archive-APIs zurück.
 
 | Reise | dauerhafte Belohnung | NG+-Starter | Archiv-Siegel |
@@ -23,3 +30,5 @@ Beim nächsten `beginJourney` übernimmt die vorhandene Archive-API die erlaubte
 Die echten Mega-Profile für die drei Hoenn-Steine existieren derzeit nicht in `mega_evolution.lua` (die vorhandene `mega.grantStone`-API würde sie deshalb ablehnen). Der Adapter hält daher nur die dauerhaften, deduplizierten Entitlements in `permanentItems`. Die spätere Mega-Integration muss nach Eintragen der Profile diese Entitlements über `mega.grantStone` materialisieren. Karten-, Tür- und Dungeon-Eventbindung bleibt bewusst ein offener Integrationseam.
 
 Recovery: Vor jeder Mutation wird ein Tiefensnapshot von `hevo_run`, `hevo_persistent` und Flags gebildet. Scheitert der eigentliche Game-Save, wird der Snapshot wiederhergestellt; erst danach darf `advancePath` ins Archive schreiben. Scheitert dieses Schreiben, wird derselbe Snapshot wiederhergestellt und erneut gespeichert. Scheitert auch dieser Wiederherstellungs-Save, liefert der Adapter ausdrücklich `rollback-save`; der Aufrufer darf keinen Erfolgstext zeigen und muss beim nächsten Save/Load die Archive-Recovery prüfen. Die getesteten offenen Integrationseams sind die spätere Dungeon-Eventregistrierung und das Materialisieren der drei Entitlements in reale Mega-Profile.
+
+</details>
