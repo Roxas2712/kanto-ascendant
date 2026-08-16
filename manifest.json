@@ -183,8 +183,8 @@
       "repositories": ["bryanthaboi/nuzlocke"],
       "reason_en": "Both mods enforce fainting, encounter and blackout rules.",
       "reason_de": "Beide Mods steuern K.O.-, Begegnungs- und Blackout-Regeln.",
-      "resolution_en": "Disable standalone Nuzlocke before enabling Ascendant; configure the integrated run at the bedroom PC.",
-      "resolution_de": "Deaktiviere die eigenständige Nuzlocke-Mod, bevor du Ascendant aktivierst; der integrierte Lauf wird am Zimmer-PC eingestellt.",
+      "resolution_en": "Disable standalone Nuzlocke before enabling Ascendant; configure the integrated run through ASC RUN at Oak's Lab KASC Terminal.",
+      "resolution_de": "Deaktiviere die eigenständige Nuzlocke-Mod, bevor du Ascendant aktivierst; der integrierte Lauf wird über ASC-LAUF am KASC-Terminal in Eichs Labor eingestellt.",
       "areas": ["nuzlocke", "fainting", "encounter limits", "blackout handling", "save rules"]
     },
     {

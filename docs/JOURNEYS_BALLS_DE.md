@@ -5,7 +5,7 @@
 Die Masters stammen ausschließlich aus dem vom Nutzer bereitgestellten,
 lokalen Pokemon-Essentials-Projekt:
 
-`/Users/maarten/Downloads/Pokemon Journeys V18/Graphics/Battle animations/`
+`Pokemon Journeys V18/Graphics/Battle animations/`
 
 Die vollständige Zuordnung, Originalpfade, Runtime-Pfade, SHA-256-Werte und
 Dimensionen stehen maschinenlesbar in
@@ -45,7 +45,7 @@ Engine-Visual-API-Erweiterung erforderlich.
 ```sh
 python3 tests/journeys_ball_assets_test.py
 
-cd /Users/maarten/Documents/Recompile/gen1recomp
+cd /path/to/gen1recomp
 TRAINER_REMATCH_MOD_DIR=mods/ka_rc11_integration \
   ./.tools/luajit-src/src/luajit \
   mods/ka_rc11_integration/tests/journeys_ball_skins_test.lua
@@ -54,9 +54,8 @@ TRAINER_REMATCH_MOD_DIR=mods/ka_rc11_integration \
 Beide Prüfungen laufen grün. Zusätzlich wurden sechs echte LÖVE-Läufe für
 Rot/Blau/Gelb × Modern/Original erzeugt. `tools/build_journeys_ball_qa.py`
 archiviert die 504 vollständigen LÖVE-Fenster-Captures unverändert unter
-`qa/journeys_ball_matrix/frames/{run}/raw/` und extrahiert deren zentrierten
-GB-Viewport per Nearest-Neighbour nach
-`qa/journeys_ball_matrix/frames/{run}/` (je 160×144). Daraus entstehen
+dem privaten Abnahmearchiv und extrahiert deren zentrierten GB-Viewport per
+Nearest-Neighbour (je 160×144). Daraus entstehen
 Kontaktbögen mit Außenabstand sowie zwei unbeschnittenen Beschriftungszeilen.
 Die archivierten Raw-Captures und die nachvollziehbar abgeleiteten Viewports,
 nicht die flüchtigen Capture-Verzeichnisse, sind der dauerhafte Abnahmebeleg.
@@ -73,9 +72,9 @@ vollbelegte-PC- und Trainerblockpfade und schreibt pro Zustand ein PNG. Er ist
 für jede Palette getrennt auszuführen, zum Beispiel:
 
 ```sh
-cd /Users/maarten/Documents/Recompile/gen1recomp
+cd /path/to/gen1recomp
 TRAINER_REMATCH_MOD_DIR=mods/ka_rc11_integration \
-POKEPORT_DRIVER=/Users/maarten/Documents/Recompile/.worktrees/ka-6.5-rc11-integration/tests/journeys_ball_skins_visual_driver.lua \
+POKEPORT_DRIVER=/path/to/kanto-ascendant/tests/journeys_ball_skins_visual_driver.lua \
 POKEPORT_VERSION=red SHOT_DIR=/tmp/journeys-balls-red love .
 ```
 
@@ -98,10 +97,8 @@ Die sechs neu erzeugten Authority-LÖVE-Läufe enthalten jeweils 84 erwartete
 Zustände: zwölf Bälle × Toss, Roll/Shake, Breakout, Success-Shake,
 Success-voller-PC, No-Catch und Trainerblock. Damit liegen dauerhaft vor:
 
-- 504 unveränderte LÖVE-Fensteraufnahmen unter
-  `qa/journeys_ball_matrix/frames/{run}/raw/`;
-- 504 exakt daraus extrahierte native 160×144-Viewports unter
-  `qa/journeys_ball_matrix/frames/{run}/`;
+- 504 unveränderte LÖVE-Fensteraufnahmen;
+- 504 exakt daraus extrahierte native 160×144-Viewports;
 - 72 exakte, einballige Zustandsstreifen plus 72 lesbare JPEG-
   Reviewderivate;
 - sechs exakte 12-Ball-Identitätsbögen plus sechs Reviewderivate.
@@ -111,9 +108,9 @@ vollständige Raw-/Native-Matrix, unveränderte Kontaktzellen und sichtbar
 verschiedene Zustände. Die manuelle Sichtprüfung vom 11.08.2026 deckt alle
 zwölf Ballidentitäten sowie repräsentativ beide Randbälle und jeden Zustand
 in Rot, Blau und Gelb auf Modern-/Originalroute ab. Der signierte Report
-`qa/journeys_ball_matrix/matrix_report.json` steht auf
-`fileMatrixPass=true`, `contactGridPass=true`, `visualStatus=pass` und
-`pass=true`; 156 Reviewartefakte sind dort per SHA-256 gebunden.
+Der private Matrixreport steht auf `fileMatrixPass=true`,
+`contactGridPass=true`, `visualStatus=pass` und `pass=true`; 156
+Reviewartefakte sind dort per SHA-256 gebunden.
 
 Ehrliche Grenze: Die zwölf gelieferten `_open`-Master bleiben inventarisiert,
 aber absichtlich unverdrahtet. Die Gen-I-Kette besitzt zwischen Poof/Hide/Show

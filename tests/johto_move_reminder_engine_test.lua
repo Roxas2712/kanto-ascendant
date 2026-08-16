@@ -2,9 +2,9 @@
 -- Move Resonance and the shared Route 5 Move Reminder.
 --
 -- Run from the Gen1 Recomp checkout:
---   TRAINER_REMATCH_MOD_DIR=../.worktrees/ka-6.5-rc11-integration \
+--   TRAINER_REMATCH_MOD_DIR=/path/to/kanto-ascendant \
 --     ./.tools/luajit-src/src/luajit \
---     ../.worktrees/ka-6.5-rc11-integration/tests/johto_move_reminder_engine_test.lua
+--     /path/to/kanto-ascendant/tests/johto_move_reminder_engine_test.lua
 
 package.path = "./?.lua;./?/init.lua;" .. package.path
 local T = require("tests.modkit")

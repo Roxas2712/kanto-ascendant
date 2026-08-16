@@ -1,15 +1,14 @@
 # Ascendant run rules
 
-Randomizer and Nuzlocke rules are configured only through **ASCENDANT RUN**
-at any Player PC. The bedroom PC in `REDS_HOUSE_2F` makes them available before
-the journey starts; later Player PCs keep the locked record visible. The rules
-are deliberately absent from the global options menu. A fresh game or Legacy
+Randomizer and Nuzlocke rules are configured only through **ASC RUN** at the
+**KASC Terminal in Professor Oak's Lab**. They are deliberately absent from
+the global options menu and ordinary Player PCs. A fresh game or Legacy
 Journey starts with the safe standard preset: both systems are off.
 
-The selected seed and complete rule set remain editable until **START RUN** or
-the first real battle. After that they become read-only for the journey. A New
-Game+ transition creates a fresh save namespace and therefore offers a fresh
-setup at the bedroom PC without changing the archived Legacy Bank.
+The selected seed and complete rule set remain editable until the explicit
+default-No **START RUN** confirmation. After that they become read-only for the
+journey. A Legacy Journey creates a fresh save namespace and therefore offers
+a fresh setup through Oak's Lab without changing the archived Legacy Bank.
 
 The integrated randomizer can independently cover wild encounters, trainers,
 starters, gifts, static encounters and non-story field items. Balanced mode

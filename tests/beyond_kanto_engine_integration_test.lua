@@ -19,8 +19,7 @@ local function eq(actual, expected, label)
     .. ", expected " .. tostring(expected) .. ")")
 end
 
-local modPath = os.getenv("TRAINER_REMATCH_MOD_DIR")
-  or "../.worktrees/ka-rc28-manual-fixes-20260813T230425Z"
+local modPath = os.getenv("TRAINER_REMATCH_MOD_DIR") or "."
 local run = T.sdk.loadMod(modPath, { data = Data })
 ok(run.mod ~= nil, "Kanto Ascendant loads through the exact-.90 SDK")
 eq(#(run.errors or {}), 0, "exact-.90 mod merge is clean")

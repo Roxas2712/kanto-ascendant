@@ -1,8 +1,8 @@
 -- Real SDK/full-main registry contract for the Legacy Oak team builder.
 -- Run from Gen1 Recomp:
---   TRAINER_REMATCH_MOD_DIR=../.worktrees/ka-6.5-rc11-integration \
+--   TRAINER_REMATCH_MOD_DIR=/path/to/kanto-ascendant \
 --     ./.tools/luajit-src/src/luajit \
---     ../.worktrees/ka-6.5-rc11-integration/tests/legacy_oak_finale_engine_test.lua
+--     /path/to/kanto-ascendant/tests/legacy_oak_finale_engine_test.lua
 
 package.path = "./?.lua;./?/init.lua;" .. package.path
 local T = require("tests.modkit")

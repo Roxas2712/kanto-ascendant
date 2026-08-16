@@ -53,6 +53,23 @@ collapsed so players can reveal only the information they want.
 > [GitHub Issues](https://github.com/Roxas2712/kanto-ascendant/issues) and will
 > be considered for future updates.
 
+## What's new in 6.5.3 RC1
+
+- Three character-specific Hidden Evolution trials expand the postgame while
+  keeping their final discoveries out of this overview.
+- Quiz statues are visually distinct from optional floor lights, draw from a
+  much larger knowledge catalogue and use a readable timed exam screen.
+- Oak's Lab now has one direct KASC Terminal for long-run continuity and
+  configurable ASC RUN rules.
+- Dialogue pagination, save/retry recovery, surprise-trainer losses, the
+  Lt. Surge/Major Bob reward path and Oak's hosted presentation received
+  extensive fixes.
+- Exact routes and solutions are available only through clearly marked
+  spoiler sections in the [FAQ](FAQ.md) and the optional
+  [offline map guide](docs/guides/hidden-evolution/README.md).
+
+See the full spoiler-light [6.5.3 RC1 release notes](RELEASE_NOTES_6.5.3_RC1.md).
+
 ## What's new in 6.0.5
 
 - Ordinary Johto replacements now use the rounded, Gen-I-weighted average of

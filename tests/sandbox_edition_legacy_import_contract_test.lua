@@ -1,6 +1,6 @@
 local root = os.getenv("TRAINER_REMATCH_MOD_DIR") or "."
-local engine = os.getenv("GEN1RECOMP_EDITION_DIR")
-  or "/Users/maarten/Documents/Recompile/.worktrees/gen1recomp-v0.1.86-ngplus-edition-storage-20260814"
+local engine = assert(os.getenv("GEN1RECOMP_EDITION_DIR"),
+  "GEN1RECOMP_EDITION_DIR must point to the reviewed 0.1.86 engine tree")
 package.path = engine .. "/?.lua;" .. engine .. "/?/init.lua;" .. package.path
 
 love = require("tests.love_stub")

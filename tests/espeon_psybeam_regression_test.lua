@@ -3,7 +3,7 @@
 --
 -- Run from the Gen1 Recomp checkout:
 --   ./.tools/luajit-src/src/luajit \
---     ../.worktrees/ka-6.5-rc11-integration/tests/espeon_psybeam_regression_test.lua
+--     /path/to/kanto-ascendant/tests/espeon_psybeam_regression_test.lua
 
 local source = debug.getinfo(1, "S").source
 local testDir = source:sub(1, 1) == "@"

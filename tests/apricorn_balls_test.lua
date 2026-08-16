@@ -1,7 +1,8 @@
 -- Focused headless contract tests for the isolated Apricorn Ball P1 package.
 
-package.path = "/Users/maarten/Documents/Recompile/gen1recomp/?.lua;"
-  .. "/Users/maarten/Documents/Recompile/gen1recomp/?/init.lua;" .. package.path
+local engineRoot = os.getenv("GEN1RECOMP_DIR") or "."
+package.path = engineRoot .. "/?.lua;" .. engineRoot .. "/?/init.lua;"
+  .. package.path
 
 local make = assert(loadfile("apricorn_balls.lua"))()
 

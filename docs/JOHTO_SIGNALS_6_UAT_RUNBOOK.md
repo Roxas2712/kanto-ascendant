@@ -74,7 +74,7 @@ original Red or Blue player save is currently claimed by this repository.
 Run the package boundary audit before creating saves:
 
 ```sh
-cd /Users/maarten/Documents/Recompile/kanto-ascendant-6.0-current
+cd /path/to/kanto-ascendant
 python3 tools/johto_signals_release_audit.py \
   /absolute/path/to/kanto-ascendant-6.0.5.modpkg
 ```
@@ -94,22 +94,22 @@ implementations.
 Run it once per version:
 
 ```sh
-cd /Users/maarten/Documents/Recompile/gen1recomp
-LOVE_BIN=/Users/maarten/Documents/Recompile/gen1recomp/.tools/love-11.5-macos/love.app/Contents/MacOS/love
+cd /path/to/gen1recomp
+LOVE_BIN="$PWD/.tools/love-11.5-macos/love.app/Contents/MacOS/love"
 
 POKEPORT_IDENTITY=kanto-ascendant-signals-uat \
 POKEPORT_VERSION=red \
-POKEPORT_DRIVER=/Users/maarten/Documents/Recompile/kanto-ascendant-6.0-current/tools/johto_signals_uat_save_builder.lua \
+POKEPORT_DRIVER=/path/to/kanto-ascendant/tools/johto_signals_uat_save_builder.lua \
 "$LOVE_BIN" .
 
 POKEPORT_IDENTITY=kanto-ascendant-signals-uat \
 POKEPORT_VERSION=blue \
-POKEPORT_DRIVER=/Users/maarten/Documents/Recompile/kanto-ascendant-6.0-current/tools/johto_signals_uat_save_builder.lua \
+POKEPORT_DRIVER=/path/to/kanto-ascendant/tools/johto_signals_uat_save_builder.lua \
 "$LOVE_BIN" .
 
 POKEPORT_IDENTITY=kanto-ascendant-signals-uat \
 POKEPORT_VERSION=yellow \
-POKEPORT_DRIVER=/Users/maarten/Documents/Recompile/kanto-ascendant-6.0-current/tools/johto_signals_uat_save_builder.lua \
+POKEPORT_DRIVER=/path/to/kanto-ascendant/tools/johto_signals_uat_save_builder.lua \
 "$LOVE_BIN" .
 ```
 
@@ -134,11 +134,11 @@ the expected action and whether real upgrade copies were seeded.
 One source:
 
 ```sh
-LOVE_BIN=/Users/maarten/Documents/Recompile/gen1recomp/.tools/love-11.5-macos/love.app/Contents/MacOS/love
+LOVE_BIN=/path/to/gen1recomp/.tools/love-11.5-macos/love.app/Contents/MacOS/love
 KA_SIGNALS_UPGRADE_RED_SAVE=/absolute/path/to/original-5.3-red-save.lua \
 POKEPORT_IDENTITY=kanto-ascendant-signals-uat \
 POKEPORT_VERSION=red \
-POKEPORT_DRIVER=/Users/maarten/Documents/Recompile/kanto-ascendant-6.0-current/tools/johto_signals_uat_save_builder.lua \
+POKEPORT_DRIVER=/path/to/kanto-ascendant/tools/johto_signals_uat_save_builder.lua \
 "$LOVE_BIN" .
 ```
 
@@ -146,11 +146,11 @@ Several releases can be supplied in chronological order, separated by
 semicolons:
 
 ```sh
-LOVE_BIN=/Users/maarten/Documents/Recompile/gen1recomp/.tools/love-11.5-macos/love.app/Contents/MacOS/love
+LOVE_BIN=/path/to/gen1recomp/.tools/love-11.5-macos/love.app/Contents/MacOS/love
 KA_SIGNALS_UPGRADE_RED_SAVES='/abs/original-1.x.lua;/abs/original-5.3.lua' \
 POKEPORT_IDENTITY=kanto-ascendant-signals-uat \
 POKEPORT_VERSION=red \
-POKEPORT_DRIVER=/Users/maarten/Documents/Recompile/kanto-ascendant-6.0-current/tools/johto_signals_uat_save_builder.lua \
+POKEPORT_DRIVER=/path/to/kanto-ascendant/tools/johto_signals_uat_save_builder.lua \
 "$LOVE_BIN" .
 ```
 

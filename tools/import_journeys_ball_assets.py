@@ -10,12 +10,13 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import shutil
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SOURCE = Path("/Users/maarten/Downloads/Pokemon Journeys V18")
+SOURCE = Path(os.environ.get("KASC_JOURNEYS_SOURCE", "Pokemon Journeys V18"))
 SOURCE_DIR = SOURCE / "Graphics" / "Battle animations"
 DEST = ROOT / "assets" / "journeys_balls"
 INVENTORY = ROOT / "docs" / "JOURNEYS_BALL_ASSET_INVENTORY.json"
@@ -71,7 +72,7 @@ def main() -> None:
                 raise SystemExit(f"copy hash mismatch: {source} -> {target}")
             files.append({
                 "role": role,
-                "source": str(source),
+                "source": str(source.relative_to(SOURCE)),
                 "runtime": str(target.relative_to(ROOT)),
                 "sha256": digest(source),
                 "width": dimensions[0],
@@ -81,7 +82,7 @@ def main() -> None:
     INVENTORY.write_text(json.dumps({
         "format": 1,
         "provenance": "user-local Pokemon Journeys V18 / Pokemon Essentials graphics",
-        "source_root": str(SOURCE),
+        "source_root": SOURCE.name,
         "notes": [
             "closed sheets have eight authored, distinct 32x64 animation phases",
             "runtime uses only copied assets under assets/journeys_balls and never reads Downloads",

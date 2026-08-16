@@ -153,4 +153,4 @@ because its broad head is the important readability feature.
 
 The final 2D rear-view audit for all 30 official forms plus Ascendant
 Typhlosion is stored outside the package at
-`../qa/mega-all-2d-backs-final/gallery/mega_gallery_2d.png`.
+einem vollständigen privaten 2D-Galerielauf geprüft.

@@ -9,6 +9,7 @@ only deterministic background removal, framing, downsampling and quantizing.
 from __future__ import annotations
 
 import csv
+import os
 from pathlib import Path
 
 from PIL import Image, ImageEnhance, ImageFilter
@@ -18,23 +19,24 @@ ROOT = Path(__file__).resolve().parents[1]
 QA = ROOT / "qa" / "trainer_authentic_rework_20260812"
 SOURCE = QA / "source"
 OUT = QA / "candidates"
+GENERATED_ROOT = Path(os.environ.get("KASC_TRAINER_IMAGE_ROOT", "generated_input"))
 
 ROWS = (
     ("leader_misty", "leader_misty_front_pic.png", "#00ff00",
      "exec-e37a1d09-d60d-4f34-b685-0c285467e76b.png",
-     Path("/Users/maarten/.codex/generated_images/019ff7b3-42f3-70d3-9895-a3dfc7d27e8f/exec-e37a1d09-d60d-4f34-b685-0c285467e76b.png"),
+     GENERATED_ROOT / "exec-e37a1d09-d60d-4f34-b685-0c285467e76b.png",
      "FRLG age/proportions/outfit/pose; less adult"),
     ("leader_brock", "leader_brock_front_pic.png", "#00ff00",
      "exec-ac90ce35-dabc-4f29-bb7f-a87afbe561e8.png",
-     Path("/Users/maarten/.codex/generated_images/019ff7b3-42f3-70d3-9895-a3dfc7d27e8f/exec-ac90ce35-dabc-4f29-bb7f-a87afbe561e8.png"),
+     GENERATED_ROOT / "exec-ac90ce35-dabc-4f29-bb7f-a87afbe561e8.png",
      "FRLG lean proportions/outfit/pose; no bodybuilder anatomy"),
     ("lass", "lass_front_pic.png", "#00ff00",
      "exec-2b9974ab-3774-4798-ab1f-4e949e4e458e.png",
-     Path("/Users/maarten/.codex/generated_images/019ff7b3-42f3-70d3-9895-a3dfc7d27e8f/exec-2b9974ab-3774-4798-ab1f-4e949e4e458e.png"),
+     GENERATED_ROOT / "exec-2b9974ab-3774-4798-ab1f-4e949e4e458e.png",
      "FRLG youthful proportions/outfit/pose; no adult reinterpretation"),
     ("youngster", "youngster_front_pic.png", "#00ff00",
      "exec-324f931d-be90-4220-8da5-46b7cbefd56d.png",
-     Path("/Users/maarten/.codex/generated_images/019ff7b3-42f3-70d3-9895-a3dfc7d27e8f/exec-324f931d-be90-4220-8da5-46b7cbefd56d.png"),
+     GENERATED_ROOT / "exec-324f931d-be90-4220-8da5-46b7cbefd56d.png",
      "FRLG bald head/youthful proportions/outfit/pose; no cap"),
 )
 

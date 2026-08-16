@@ -513,7 +513,7 @@ for pattern in (
 # harness may load its frozen helper modules, but never a source checkout's
 # main/run_rules/Wilds implementation or a developer worktree path.
 for forbidden in (
-    "/Users/maarten/",
+    "/Users/",  # Synthetic sentinel: reject every absolute macOS home path.
     ".worktrees/ka-",
     "TRAINER_REMATCH_MOD_DIR",
     "KANTO_SIGNALS_MOD_DIR",

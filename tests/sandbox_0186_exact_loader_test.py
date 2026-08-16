@@ -21,16 +21,8 @@ import zipfile
 
 
 ROOT = Path(os.environ.get("TRAINER_REMATCH_MOD_DIR", Path(__file__).parents[1]))
-ARCHIVE = Path(os.environ.get(
-    "GEN1RECOMP_0186_LOVE",
-    "/Users/maarten/Library/Application Support/pokemon-love2d/updates/"
-    "gen1recomp-0.1.86.love",
-))
-LUAJIT = Path(os.environ.get(
-    "KA_LUAJIT",
-    "/Users/maarten/Documents/Recompile/gen1recomp/.tools/"
-    "luajit-src/src/luajit",
-))
+ARCHIVE = Path(os.environ.get("GEN1RECOMP_0186_LOVE", "gen1recomp-0.1.86.love"))
+LUAJIT = Path(os.environ.get("KA_LUAJIT", "luajit"))
 
 EXPECTED_ARCHIVE = "51a446fc20b5d5b92143436aa5ed108353250909b89fe1ad9b19969144dbeaec"
 EXPECTED_SANDBOX = "4fdecc9726022e78bd8b6e0de9fffbf8ed60a14b28128c3df3f5c7cf3e37efce"

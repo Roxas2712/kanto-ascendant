@@ -64,6 +64,6 @@ Ascendant bundles the living-world core. Useful Bag and Quick Select are hard co
 replacement systems are configurable inside Ascendant.
 The standalone Nuzlocke is likewise a hard conflict because Ascendant now
 owns encounter limits, fainting and blackout handling. Its rules are kept out
-of the global options tree and are configured through **ASCENDANT RUN** at any
-Player PC. The bedroom PC exposes them before a run begins; later PCs keep a
-locked run record visible.
+of the global options tree and ordinary Player PCs. Configure them through
+**ASC RUN** at the **KASC Terminal in Professor Oak's Lab**; after the explicit
+start confirmation, the selected run contract remains read-only.

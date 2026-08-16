@@ -8,6 +8,7 @@ deterministic nearest-neighbour reduction of the visually reviewed 128px file.
 from __future__ import annotations
 
 import csv
+import os
 from pathlib import Path
 
 from PIL import Image, ImageEnhance, ImageFilter
@@ -17,7 +18,7 @@ ROOT = Path(__file__).resolve().parents[1]
 QA = ROOT / "qa" / "trainer_authentic_authority_20260812"
 SOURCE = QA / "source"
 OUT = QA / "candidates"
-GEN = Path("/Users/maarten/.codex/generated_images/019ff7b3-42f3-70d3-9895-a3dfc7d27e8f")
+GEN = Path(os.environ.get("KASC_AUTHORITY_IMAGE_ROOT", "generated_input"))
 
 # stem, live generation suffix, chroma, selected raw, authority note
 ROWS = (

@@ -37,7 +37,7 @@ python3 tools/build_mega_runtime_assets.py --animations-only \
   --asset mega_blaziken --asset mega_swampert --asset mega_sceptile
 python3 tools/build_mega_runtime_assets.py --check \
   --asset mega_blaziken --asset mega_swampert --asset mega_sceptile
-/Users/maarten/Documents/Recompile/gen1recomp/.tools/luajit-src/src/luajit \
+"$GEN1RECOMP_DIR/.tools/luajit-src/src/luajit" \
   tests/hoenn_mega_runtime_test.lua
 ```
 
@@ -47,16 +47,16 @@ Resolver, beide Seiten, Shiny und Voxel-Master-Provenienz.
 
 ## Echte LÖVE-Belege
 
-`qa/hoenn_mega_animation/live_capture_report.json` enthält SHA-256-Werte
-aller 24 echten LÖVE-Captures. Kontaktbögen:
+Das private Abnahmearchiv bindet alle 24 echten LÖVE-Captures per SHA-256.
+Geprüft wurden folgende Kontaktbögen:
 
-- `qa/hoenn_mega_animation/live_2d_crystal_contact.png` — 12 Bilder:
+- 2D Crystal — 12 Bilder:
   drei Formen × Spieler/Gegner × Normal/Shiny, Crystal an.
-- `qa/hoenn_mega_animation/live_2d_gen1_contact.png` — Red/Blue/Yellow,
+- 2D Gen I — Red/Blue/Yellow,
   Crystal aus, inklusive normaler Spieler- und shiny Gegnerfälle.
-- `qa/hoenn_mega_animation/live_voxel_contact.png` — echter DRAMALESS-Loader,
+- Voxel — echter DRAMALESS-Loader,
   alle drei Forms als Spieler/Gegner sowie Normal/Shiny.
-- `qa/hoenn_mega_animation/authored_keys_contact.png` — 60 autorierte
+- Authored Keys — 60 autorisierte
   Keyframes vor der Runtime-Reduktion.
 
 Die LÖVE-Captures liefen mit dem lokalen 11.5-Binary. Der Voxel-Lauf verwendet

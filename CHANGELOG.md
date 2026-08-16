@@ -4,6 +4,8 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+## [6.5.3-rc.1] - 2026-08-16
+
 ### Added
 
 - Added the save-local, irreversible **BEYOND KANTO / JENSEITS VON KANTO**
@@ -48,9 +50,10 @@ All notable changes to this project are documented in this file.
   repaired the engine boundary; 6.5.2 adds the independently packaged Voxel
   Ascendant choice while retaining native 2D and the hardened DRAMALESS
   transition build.
-- Extended the guarded Player-PC and Apricorn-Bag compatibility bridges to
-  the unchanged 0.1.90 menu surfaces; ASC RUN and the pre-throw Apricorn Ball
-  explanation remain reachable on the current engine.
+- Extended the guarded Apricorn-Bag compatibility bridge to the unchanged
+  0.1.90 menu surfaces. ASC RUN is available directly at Oak's Lab KASC
+  Terminal, while the pre-throw Apricorn Ball explanation remains reachable
+  on the current engine.
 - The matching 0.1.90 clientfix now renders discovered HEVO fissures through
   the proper flat wall-decal pass instead of leaving only an invisible
   interaction anchor in 2D.

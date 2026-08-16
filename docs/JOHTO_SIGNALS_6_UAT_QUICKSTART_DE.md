@@ -9,7 +9,7 @@ werden ausschließlich die reservierten Slots `6001` bis `6024`.
 Im Terminal:
 
 ```sh
-cd /Users/maarten/Documents/Recompile/gen1recomp
+cd /path/to/gen1recomp
 LOVE_BIN=.tools/love-11.5-macos/love.app/Contents/MacOS/love
 
 POKEPORT_IDENTITY=kanto-ascendant-signals-uat \

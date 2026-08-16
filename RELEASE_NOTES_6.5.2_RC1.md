@@ -80,7 +80,7 @@ Gen2-3D-Sprites code, artwork, ROM data or binaries.
 - The clientfix supplies the reviewed scoped-storage, sandbox and native 2D
   wall-decal contracts used by this RC.
 
-## Installation for the private test
+## Historical 6.5.2 test installation
 
 1. Close the game.
 2. Start the supplied Gen1Recomp 0.1.90 clientfix in the isolated test setup.
@@ -90,5 +90,6 @@ Gen2-3D-Sprites code, artwork, ROM data or binaries.
 5. Do not enable two renderer packages at once; restart after changing the
    active renderer.
 
-This is a user-test RC, not a public upload. Existing Red, Blue and Yellow
-saves remain supported and must not be deleted for the test.
+This section records the earlier 6.5.2 test procedure. For current public
+installation instructions, use `RELEASE_NOTES_6.5.3_RC1.md`. Existing Red,
+Blue and Yellow saves remain supported.

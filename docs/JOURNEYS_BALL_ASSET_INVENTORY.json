@@ -1,7 +1,7 @@
 {
   "format": 1,
   "provenance": "user-local Pokemon Journeys V18 / Pokemon Essentials graphics",
-  "source_root": "/Users/maarten/Downloads/Pokemon Journeys V18",
+  "source_root": "Pokemon Journeys V18",
   "notes": [
     "closed sheets have eight authored, distinct 32x64 animation phases",
     "runtime uses only copied assets under assets/journeys_balls and never reads Downloads"
@@ -13,7 +13,7 @@
       "files": [
         {
           "role": "closed_sheet",
-          "source": "/Users/maarten/Downloads/Pokemon Journeys V18/Graphics/Battle animations/ball_00.png",
+          "source": "Graphics/Battle animations/ball_00.png",
           "runtime": "assets/journeys_balls/poke_ball.png",
           "sha256": "3afecbe539fa0342ea39d1d4cbb0988424cd77b45ca86ad1e081feb615552d5b",
           "width": 256,
@@ -21,7 +21,7 @@
         },
         {
           "role": "open_master",
-          "source": "/Users/maarten/Downloads/Pokemon Journeys V18/Graphics/Battle animations/ball_00_open.png",
+          "source": "Graphics/Battle animations/ball_00_open.png",
           "runtime": "assets/journeys_balls/poke_ball_open.png",
           "sha256": "5edb16a2d77732705bb122346f2ea4b95382003d9db2d67d5fea8477fd5e8f0e",
           "width": 32,
@@ -35,7 +35,7 @@
       "files": [
         {
           "role": "closed_sheet",
-          "source": "/Users/maarten/Downloads/Pokemon Journeys V18/Graphics/Battle animations/ball_01.png",
+          "source": "Graphics/Battle animations/ball_01.png",
           "runtime": "assets/journeys_balls/great_ball.png",
           "sha256": "4963ad110c41d1f02c29e26491ada34044797b365a3d2d58a93002e08acbce5b",
           "width": 256,
@@ -43,7 +43,7 @@
         },
         {
           "role": "open_master",
-          "source": "/Users/maarten/Downloads/Pokemon Journeys V18/Graphics/Battle animations/ball_01_open.png",
+          "source": "Graphics/Battle animations/ball_01_open.png",
           "runtime": "assets/journeys_balls/great_ball_open.png",
           "sha256": "aef6c1b9cc105945884b60efa09ae9a5129294eb00d0baf3a7662345e97f3562",
           "width": 32,
@@ -57,7 +57,7 @@
       "files": [
         {
           "role": "closed_sheet",
-          "source": "/Users/maarten/Downloads/Pokemon Journeys V18/Graphics/Battle animations/ball_02.png",
+          "source": "Graphics/Battle animations/ball_02.png",
           "runtime": "assets/journeys_balls/ultra_ball.png",
           "sha256": "725dc7ac157ce9b5636f5b2713f7b50cc0161cddb2350b2a8e8bb8d6425291cf",
           "width": 256,
@@ -65,7 +65,7 @@
         },
         {
           "role": "open_master",
-          "source": "/Users/maarten/Downloads/Pokemon Journeys V18/Graphics/Battle animations/ball_02_open.png",
+          "source": "Graphics/Battle animations/ball_02_open.png",
           "runtime": "assets/journeys_balls/ultra_ball_open.png",
           "sha256": "3ee0a1a273f68b97d0db25e27b22672bf97c9921e3da8d5fa943c5c6ae6debaf",
           "width": 32,
@@ -79,7 +79,7 @@
       "files": [
         {
           "role": "closed_sheet",
-          "source": "/Users/maarten/Downloads/Pokemon Journeys V18/Graphics/Battle animations/ball_03.png",
+          "source": "Graphics/Battle animations/ball_03.png",
           "runtime": "assets/journeys_balls/master_ball.png",
           "sha256": "d8943b47cdc6ef23566872abb61e09dc887171df77a2d36b5e4beb25219f185f",
           "width": 256,
@@ -87,7 +87,7 @@
         },
         {
           "role": "open_master",
-          "source": "/Users/maarten/Downloads/Pokemon Journeys V18/Graphics/Battle animations/ball_03_open.png",
+          "source": "Graphics/Battle animations/ball_03_open.png",
           "runtime": "assets/journeys_balls/master_ball_open.png",
           "sha256": "958f4927ff66449be32087de0eba2c9389b6ea699d511e429d7f649ca377110c",
           "width": 32,
@@ -101,7 +101,7 @@
       "files": [
         {
           "role": "closed_sheet",
-          "source": "/Users/maarten/Downloads/Pokemon Journeys V18/Graphics/Battle animations/ball_04.png",
+          "source": "Graphics/Battle animations/ball_04.png",
           "runtime": "assets/journeys_balls/safari_ball.png",
           "sha256": "f959265ed5ee468524e52ae4faf696c4d66c8b40b731783eada2d14456b05d24",
           "width": 256,
@@ -109,7 +109,7 @@
         },
         {
           "role": "open_master",
-          "source": "/Users/maarten/Downloads/Pokemon Journeys V18/Graphics/Battle animations/ball_04_open.png",
+          "source": "Graphics/Battle animations/ball_04_open.png",
           "runtime": "assets/journeys_balls/safari_ball_open.png",
           "sha256": "d80110661cfbe2f5093fd2c0c0e4f5472a60b07749c3618dfed936db85994774",
           "width": 32,
@@ -123,7 +123,7 @@
       "files": [
         {
           "role": "closed_sheet",
-          "source": "/Users/maarten/Downloads/Pokemon Journeys V18/Graphics/Battle animations/ball_17.png",
+          "source": "Graphics/Battle animations/ball_17.png",
           "runtime": "assets/journeys_balls/fast_ball.png",
           "sha256": "ede151cf0ca557b3a8d0af4920b6badd49f21d5226c47810f978010c8d55c6b8",
           "width": 256,
@@ -131,7 +131,7 @@
         },
         {
           "role": "open_master",
-          "source": "/Users/maarten/Downloads/Pokemon Journeys V18/Graphics/Battle animations/ball_17_open.png",
+          "source": "Graphics/Battle animations/ball_17_open.png",
           "runtime": "assets/journeys_balls/fast_ball_open.png",
           "sha256": "54604f7ff3fa3bfbbc1831ae251f068a0eeeb6fb4f241f1544e72bbb8462f8ad",
           "width": 32,
@@ -145,7 +145,7 @@
       "files": [
         {
           "role": "closed_sheet",
-          "source": "/Users/maarten/Downloads/Pokemon Journeys V18/Graphics/Battle animations/ball_18.png",
+          "source": "Graphics/Battle animations/ball_18.png",
           "runtime": "assets/journeys_balls/level_ball.png",
           "sha256": "eb9c4832ea87c314c180136d6b5b639cce20ba4e0186708f809998180a5def3c",
           "width": 256,
@@ -153,7 +153,7 @@
         },
         {
           "role": "open_master",
-          "source": "/Users/maarten/Downloads/Pokemon Journeys V18/Graphics/Battle animations/ball_18_open.png",
+          "source": "Graphics/Battle animations/ball_18_open.png",
           "runtime": "assets/journeys_balls/level_ball_open.png",
           "sha256": "680de865e363fe40dbc6e20c1c3f39c829aed7872070d52fe005670963cef251",
           "width": 32,
@@ -167,7 +167,7 @@
       "files": [
         {
           "role": "closed_sheet",
-          "source": "/Users/maarten/Downloads/Pokemon Journeys V18/Graphics/Battle animations/ball_19.png",
+          "source": "Graphics/Battle animations/ball_19.png",
           "runtime": "assets/journeys_balls/lure_ball.png",
           "sha256": "f86c7b7aa074e778bf48bc57140c50e355c676f2861c0fe657cc4bf61b9e5359",
           "width": 256,
@@ -175,7 +175,7 @@
         },
         {
           "role": "open_master",
-          "source": "/Users/maarten/Downloads/Pokemon Journeys V18/Graphics/Battle animations/ball_19_open.png",
+          "source": "Graphics/Battle animations/ball_19_open.png",
           "runtime": "assets/journeys_balls/lure_ball_open.png",
           "sha256": "a719d6fd10c181d8218dfb3af8106209d1e235b547374ce46e8aac5cb34baf02",
           "width": 32,
@@ -189,7 +189,7 @@
       "files": [
         {
           "role": "closed_sheet",
-          "source": "/Users/maarten/Downloads/Pokemon Journeys V18/Graphics/Battle animations/ball_20.png",
+          "source": "Graphics/Battle animations/ball_20.png",
           "runtime": "assets/journeys_balls/heavy_ball.png",
           "sha256": "4668ead9212065b62cfc836f1a73727a6bedd2fcd709b92257152ac35251c0ff",
           "width": 256,
@@ -197,7 +197,7 @@
         },
         {
           "role": "open_master",
-          "source": "/Users/maarten/Downloads/Pokemon Journeys V18/Graphics/Battle animations/ball_20_open.png",
+          "source": "Graphics/Battle animations/ball_20_open.png",
           "runtime": "assets/journeys_balls/heavy_ball_open.png",
           "sha256": "5b93397119c1137c375f68ca692ff30d09fb17666283853f85e0bea7bfc19dfa",
           "width": 32,
@@ -211,7 +211,7 @@
       "files": [
         {
           "role": "closed_sheet",
-          "source": "/Users/maarten/Downloads/Pokemon Journeys V18/Graphics/Battle animations/ball_21.png",
+          "source": "Graphics/Battle animations/ball_21.png",
           "runtime": "assets/journeys_balls/love_ball.png",
           "sha256": "1292df3f47c8e302e7739c1a5838ea41b47cc02acb618e96ec73af653aa308cd",
           "width": 256,
@@ -219,7 +219,7 @@
         },
         {
           "role": "open_master",
-          "source": "/Users/maarten/Downloads/Pokemon Journeys V18/Graphics/Battle animations/ball_21_open.png",
+          "source": "Graphics/Battle animations/ball_21_open.png",
           "runtime": "assets/journeys_balls/love_ball_open.png",
           "sha256": "a0b2c094a20f98c5a839f82a8c58eab282e32565671139cc6924cea074318cf4",
           "width": 32,
@@ -233,7 +233,7 @@
       "files": [
         {
           "role": "closed_sheet",
-          "source": "/Users/maarten/Downloads/Pokemon Journeys V18/Graphics/Battle animations/ball_22.png",
+          "source": "Graphics/Battle animations/ball_22.png",
           "runtime": "assets/journeys_balls/friend_ball.png",
           "sha256": "36f4ae685625dcda78b61bf7e3ac1c866bb7d49009e0037feb6219f269a55de4",
           "width": 256,
@@ -241,7 +241,7 @@
         },
         {
           "role": "open_master",
-          "source": "/Users/maarten/Downloads/Pokemon Journeys V18/Graphics/Battle animations/ball_22_open.png",
+          "source": "Graphics/Battle animations/ball_22_open.png",
           "runtime": "assets/journeys_balls/friend_ball_open.png",
           "sha256": "058ab6105cbf9b9750e8fc0b9b1285933fa5b8d6d16c0369ee527ba2ad50a95a",
           "width": 32,
@@ -255,7 +255,7 @@
       "files": [
         {
           "role": "closed_sheet",
-          "source": "/Users/maarten/Downloads/Pokemon Journeys V18/Graphics/Battle animations/ball_23.png",
+          "source": "Graphics/Battle animations/ball_23.png",
           "runtime": "assets/journeys_balls/moon_ball.png",
           "sha256": "90d7bddc48c7c65d4914bf58d85c1cf95711ee37f3978975bf99a83098506957",
           "width": 256,
@@ -263,7 +263,7 @@
         },
         {
           "role": "open_master",
-          "source": "/Users/maarten/Downloads/Pokemon Journeys V18/Graphics/Battle animations/ball_23_open.png",
+          "source": "Graphics/Battle animations/ball_23_open.png",
           "runtime": "assets/journeys_balls/moon_ball_open.png",
           "sha256": "5edb16a2d77732705bb122346f2ea4b95382003d9db2d67d5fea8477fd5e8f0e",
           "width": 32,

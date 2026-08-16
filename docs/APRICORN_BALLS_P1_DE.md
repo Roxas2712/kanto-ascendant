@@ -80,10 +80,10 @@ dieses Pakets ändern sich dadurch nicht.
 ## Fokustest
 
 ```sh
-/Users/maarten/Documents/Recompile/gen1recomp/.tools/luajit-src/src/luajit \
+"$GEN1RECOMP_DIR/.tools/luajit-src/src/luajit" \
   tests/apricorn_balls_test.lua
 
-cd /Users/maarten/Documents/Recompile/gen1recomp
+cd "$GEN1RECOMP_DIR"
 TRAINER_REMATCH_MOD_DIR=mods/ka_rc11_integration \
   ./.tools/luajit-src/src/luajit \
   mods/ka_rc11_integration/tests/apricorn_balls_engine_test.lua
@@ -96,5 +96,5 @@ Party-/PC-Friend-Ball-Erfolg, Idempotenz, Save-Migration und eine vollständige
 251-Arten-Datenabdeckung ab. Der Engine-Test prüft zusätzlich die reale
 `BagMenu -> TextBox -> consume -> throwBall`-Reihenfolge. Vier echte
 LÖVE-Kampfbilder (positiver/negativer Fast-Ball-Fall, Deutsch und Englisch)
-liegen unter `qa/apricorn_ball_battle_quotes_20260811_final/`; Bonus und Grund
-sind dort vollständig sichtbar, bevor der Ball verbraucht wird.
+wurden im privaten Abnahmearchiv geprüft; Bonus und Grund sind dort
+vollständig sichtbar, bevor der Ball verbraucht wird.

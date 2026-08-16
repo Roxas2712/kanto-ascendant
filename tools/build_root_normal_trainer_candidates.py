@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import csv
+import os
 import shutil
 from pathlib import Path
 
@@ -25,7 +26,7 @@ ROWS = (
     ("channeler", "exec-c51642bf-eb9f-427f-a87a-de583721f2c7.png", "FRLG ritual pose, white robe and paper talisman"),
 )
 
-GENERATED = Path("/Users/maarten/.codex/generated_images/019fee1d-ec0a-76f0-97fd-b081274777f6")
+GENERATED = Path(os.environ.get("KASC_ROOT_TRAINER_IMAGE_ROOT", "generated_input"))
 
 
 def remove_key(image: Image.Image) -> Image.Image:

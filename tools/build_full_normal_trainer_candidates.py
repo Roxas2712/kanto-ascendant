@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import csv
+import os
 from pathlib import Path
 
 from PIL import Image, ImageEnhance, ImageFilter
@@ -14,7 +15,7 @@ QA = ROOT / "qa" / "trainer_full_normal_rework_20260812"
 SOURCE = QA / "source"
 OUT = QA / "candidates"
 
-GENERATED_ROOT = Path("/Users/maarten/.codex/generated_images/019ff7bd-b1c6-79e3-a7fa-2d3db10789a8")
+GENERATED_ROOT = Path(os.environ.get("KASC_NORMAL_TRAINER_IMAGE_ROOT", "generated_input"))
 ROWS = (
     ("fisherman", "exec-218777b4-a102-4ec9-93ea-3e6f0c0df553.png",
      "FRLG seated fisherman, cap/vest/tackle box/rod/line/float"),

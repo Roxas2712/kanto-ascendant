@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 from pathlib import Path
 
 from PIL import Image
@@ -33,6 +34,7 @@ def png_dimensions(path: Path) -> tuple[int, int]:
 inventory = json.loads(INV.read_text())
 assert inventory["format"] == 1
 assert "Pokemon Journeys V18" in inventory["source_root"]
+source_root = os.environ.get("KASC_JOURNEYS_SOURCE")
 rows = {row["item"]: row for row in inventory["balls"]}
 assert set(rows) == set(EXPECTED)
 
@@ -44,11 +46,14 @@ for item, index in EXPECTED.items():
     for role, expected_size in (("closed_sheet", (256, 64)), ("open_master", (32, 64))):
         file = files[role]
         runtime = ROOT / file["runtime"]
-        source = Path(file["source"])
         assert runtime.is_file(), f"missing runtime asset {runtime}"
-        assert source.is_file(), f"missing recorded source {source}"
         assert png_dimensions(runtime) == expected_size
-        assert sha(runtime) == file["sha256"] == sha(source), f"hash drift for {item} {role}"
+        assert sha(runtime) == file["sha256"], f"hash drift for {item} {role}"
+        assert not Path(file["source"]).is_absolute(), "provenance path must be portable"
+        if source_root:
+            source = Path(source_root) / file["source"]
+            assert source.is_file(), f"missing recorded source {source}"
+            assert sha(source) == file["sha256"], f"source hash drift for {item} {role}"
 
         # Runtime paths are checked-in copies; the source location belongs in
         # provenance only, never in runtime Lua.

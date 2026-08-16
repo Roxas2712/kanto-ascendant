@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import csv
 import hashlib
+import os
 import shutil
 from pathlib import Path
 
@@ -54,12 +55,8 @@ Composition: exactly one full-body character, centered, uncropped, generous padd
 Backdrop: perfectly uniform solid #00ff00 chroma-key green.
 Constraints: preserve Image 1 identity, outfit, palette, silhouette, pose and the single small ball; crisp pixel clusters; no redesign, chibi exaggeration, adult reinterpretation, bulky anatomy, photorealism or 3D; no text, logo, UI, creature, extra person, cast/contact shadow, floor, reflection, or any prop besides the one ball from Image 1; do not use #00ff00 on the character."""
 
-GENERATED_ROOT = Path(
-    "/Users/maarten/.codex/generated_images/019ff7bd-b1c6-79e3-a7fa-2d3db10789a8"
-)
-COOL_ROOT = Path(
-    "/Users/maarten/.codex/generated_images/019ff7d4-f085-7721-be4a-5d2feb8fb47c"
-)
+GENERATED_ROOT = Path(os.environ.get("KASC_NORMAL_TRAINER_IMAGE_ROOT", "generated_input"))
+COOL_ROOT = Path(os.environ.get("KASC_COOL_TRAINER_IMAGE_ROOT", "generated_input_cool"))
 
 ROWS = (
     ("rocket_grunt_m", GENERATED_ROOT / "exec-23a197bf-c8d2-492d-9be2-f209736117d9.png", REUSED_PROMPT,
