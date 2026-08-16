@@ -646,7 +646,8 @@ return function(mod, opts)
     legend_art = "visuals", kanto_crystal_art = "visuals",
     dex_sprite_style = "visuals", party_icon_style = "visuals",
     crystal_animation = "visuals", pokemon_sprite_style = "visuals",
-    character_sprite_style = "visuals", sprite_style_battle = "visuals",
+    character_sprite_style = "visuals", trainer_portrait_style = "visuals",
+    sprite_style_battle = "visuals",
     sprite_style_summary = "visuals", sprite_style_dex = "visuals",
     sprite_style_box = "visuals", sprite_style_scenes = "visuals",
     shiny_effects = "visuals", event_rosette = "visuals",
@@ -670,15 +671,19 @@ return function(mod, opts)
     return mod.options:get(key)
   end
   local function setOption(game, key, value)
+    game.mods = game.mods or {}
+    game.mods.modOptions = game.mods.modOptions or {}
     game.mods.modOptions[mod.id] = game.mods.modOptions[mod.id] or {}
     game.mods.modOptions[mod.id][key] = value
+    game.save = game.save or {}
+    game.save.options = game.save.options or {}
     game.save.options.modOptions = game.save.options.modOptions or {}
     game.save.options.modOptions[mod.id] = game.save.options.modOptions[mod.id] or {}
     game.save.options.modOptions[mod.id][key] = value
     if game.writeOptions then game:writeOptions() end
     if game.mods and game.mods.events then
       game.mods.events:emit("mod.options_changed",
-        { mod = mod.id, key = key, value = value })
+        { game = game, mod = mod.id, key = key, value = value })
     end
   end
   local function schemaValueLabel(row, value)
@@ -688,21 +693,36 @@ return function(mod, opts)
     end
     return tostring(value)
   end
-  local function stepSchema(game, row)
+  local function stepValue(values, current, direction)
+    if #values == 0 then return current end
+    for index, candidate in ipairs(values) do
+      if candidate == current then
+        return values[((index - 1 + direction) % #values) + 1]
+      end
+    end
+    return direction < 0 and values[#values] or values[1]
+  end
+
+  local function stepSchema(game, row, direction)
+    direction = direction < 0 and -1 or 1
     local current = optionValue(game, row.key)
     local value
     if row.type == "toggle" then value = current == false
     elseif row.type == "number" then
       if row.presets and #row.presets > 0 then
-        value = cycle(row.presets, tonumber(current) or row.default)
+        value = stepValue(row.presets, tonumber(current) or row.default,
+          direction)
       else
-        value = (tonumber(current) or row.default) + (row.step or 1)
+        value = (tonumber(current) or row.default)
+          + direction * (row.step or 1)
         if value > row.max then value = row.min end
+        if value < row.min then value = row.max end
       end
     else
       local values = {}
       for _, choice in ipairs(row.choices or {}) do values[#values + 1] = choice[2] end
-      value = cycle(values, current)
+      value = stepValue(values, current == nil and row.default or current,
+        direction)
     end
     setOption(game, row.key, value)
     return schemaValueLabel(row, value)
@@ -729,46 +749,86 @@ return function(mod, opts)
     return rows
   end
 
-  local function chooseRow(game, item, category)
-    if item and item.schema then
-      item.right = stepSchema(game, item.schema)
-      item.help = optionHelp
-        and optionHelp.text(item.schema.key, item.right) or item.help
-      return
-    end
+  local function chooseRow(game, item)
     if item and item.screen then
       mod.ui.push(game, item.screen)
-      return
     end
-    if category ~= "training" or not item or item.value == "locked" then
-      return
-    end
+  end
+
+  local function stepTraining(game, item, direction)
+    if not item or item.value == "locked" then return false end
     local s = state(game)
     if item.value == "exp_share" then
-      local value = cycle({ "off", "classic", "team" }, s.expShareSetting)
+      local value = stepValue({ "off", "classic", "team" },
+        s.expShareSetting, direction)
       R.setExpShare(game, value); item.right = shareLabel(value)
+      return true
     elseif item.value == "exp_multiplier" then
       local values = { 0, 2 }
       if s.expMultiplierUnlocked >= 3 then values[#values + 1] = 3 end
       if s.expMultiplierUnlocked >= 5 then values[#values + 1] = 5 end
-      local value = cycle(values, s.expMultiplierSetting)
+      local value = stepValue(values, s.expMultiplierSetting, direction)
       R.setMultiplier(game, value); item.right = multiplierLabel(value)
+      return true
     end
+    return false
+  end
+
+  local function stepRow(game, item, category, direction)
+    if item and item.schema then
+      item.right = stepSchema(game, item.schema, direction)
+      item.help = optionHelp
+        and optionHelp.text(item.schema.key, item.right) or item.help
+      return true
+    end
+    if category == "training" then
+      return stepTraining(game, item, direction)
+    end
+    return false
   end
 
   local function newOptionsList(game, title, rows, category, args)
+    local function rowFooter(item)
+      if item and item.screen then
+        return tr("A:OPEN SEL:HELP", "A:AUF SEL:HILFE")
+      end
+      return tr("L/R:CHG SEL:HELP", "L/R:AEND SEL:HILFE")
+    end
     local list = (mod.ui.KantoListMenu or mod.ui.ListMenu).new(game,
       title, rows, {
-        pageJump = true,
-        footer = tr("A:USE SEL:HELP B:BACK",
-          "A:WAHL SEL:HILFE B:ZUR."),
+        pageJump = false,
+        footer = rowFooter(rows[1]),
         onSelectKey = function(item)
           if item and item.help and ascendantUi then
             ascendantUi.showHelp(game, item.label, item.help)
           end
         end,
-        onChoose = function(item) chooseRow(game, item, category) end,
+        onChoose = function(item) chooseRow(game, item) end,
       })
+    -- ListMenu reserves L/R for page jumps.  Ascendant option pages instead
+    -- use those keys to change only the highlighted value.  Keep this wrapper
+    -- instance-local so Bag, Pokédex and third-party lists retain stock input.
+    list.pageJump = false
+    local baseUpdate = list.update
+    function list:ascendantStep(direction)
+      return stepRow(game, self.items[self.index], category, direction)
+    end
+    function list:update(dt)
+      local input = self.game and self.game.input
+      if input and input:wasPressed("left") then
+        self:ascendantStep(-1)
+        self.footer = rowFooter(self.items[self.index])
+        return
+      elseif input and input:wasPressed("right") then
+        self:ascendantStep(1)
+        self.footer = rowFooter(self.items[self.index])
+        return
+      end
+      local result
+      if baseUpdate then result = baseUpdate(self, dt) end
+      self.footer = rowFooter(self.items[self.index])
+      return result
+    end
     local focus = args and args.focus
     if focus then
       for index, row in ipairs(rows) do
@@ -827,8 +887,6 @@ return function(mod, opts)
     tr("QUALITY OF LIFE", "KOMFORT"))
   registerCategory("AscendantMenuOptions", "menus",
     tr("BAG / MENUS", "BEUTEL / MENÜS"))
-  registerCategory("AscendantSystemOptions", "system", tr("SYSTEM", "SYSTEM"))
-
   registerGroupedCategory("AscendantGameplayOptions", "gameplay_hub",
     tr("GAMEPLAY", "GAMEPLAY"), {
       submenu("core", tr("CORE RULES", "GRUNDREGELN"),
@@ -921,11 +979,8 @@ return function(mod, opts)
           { value = "comfort", label = tr("QOL / MENUS", "KOMFORT / MENÜS"), screen = "AscendantComfortOptions",
             help = tr("Quality-of-life helpers, Bag layout and menu behavior.",
               "Komforthilfen, Beutelaufteilung und Menüverhalten.") },
-          { value = "system", label = tr("SYSTEM", "SYSTEM"), screen = "AscendantSystemOptions",
-            help = tr("Language and settings that affect Ascendant as a whole.",
-              "Sprache und Einstellungen für Kanto Ascendant als Ganzes.") },
         }, {
-          footer = tr("A:OPEN SEL:HELP B:BACK", "A:ÖFFN. SEL:HILFE B:ZUR."),
+          footer = tr("A:OPEN SEL:HELP", "A:AUF SEL:HILFE"),
           onSelectKey = function(item)
             if item and item.help and ascendantUi then
               ascendantUi.showHelp(game, item.label, item.help)

@@ -151,7 +151,7 @@ return function(i18n)
       "Bestimmt, wie weit gewöhnliche Johto-Begegnungslevel über dem gewichteten Routenmittel liegen dürfen." },
     ascendant_useful_bag = {
       "Master switch for Ascendant's enhanced Bag support. The detailed layout is selected with BAG MODE.",
-      "Hauptschalter für Ascendants erweiterten Beutel. Die genaue Aufteilung wird mit BEUTELMODUS gewählt." },
+      "Hauptschalter für Ascendants erweiterten Beutel. Die genaue Aufteilung wird mit BEUTELMODUS gewählt.", true },
     ascendant_bag_mode = {
       "Chooses vanilla capacity, FireRed skin, expanded capacity or categorized pockets. OFF hands the Bag back to an external compatible owner.",
       "Wählt Standardgröße, Feuerrot-Skin, mehr Platz oder sortierte Fächer. AUS übergibt den Beutel an einen kompatiblen externen Besitzer.", true },
@@ -175,7 +175,7 @@ return function(i18n)
       "Zeigt nach Betreten einer Karte den Ortsnamen und bestimmt, wie viele Sekunden er sichtbar bleibt." },
     modern_storage_ui = {
       "Uses Ascendant's FireRed-inspired Bag, Box and Pokémon information layout instead of the plain Gen-I menus.",
-      "Verwendet Ascendants von Feuerrot inspirierte Beutel-, Box- und Pokémon-Ansicht statt der schlichten Gen-I-Menüs." },
+      "Verwendet Ascendants von Feuerrot inspirierte Beutel-, Box- und Pokémon-Ansicht statt der schlichten Gen-I-Menüs.", true },
     catch_destination = {
       "ASK lets you choose party or Box after every catch. PARTY FIRST and BOX FIRST automate the preferred destination when space exists.",
       "FRAGEN lässt nach jedem Fang Team oder Box wählen. ZUERST TEAM und ZUERST BOX automatisieren das bevorzugte Ziel, wenn Platz vorhanden ist." },

@@ -35,7 +35,8 @@ for _, key in ipairs(mainKeys) do
     "main options expose " .. key)
 end
 for _, key in ipairs({
-  "johto_level_bonus", "ascendant_quick_select", "ascendant_qol",
+  "johto_level_bonus", "ascendant_useful_bag",
+  "ascendant_quick_select", "ascendant_qol",
   "modern_storage_ui", "catch_destination", "pokedex_filter", "box_filter",
   "text_speed", "ride_control", "pokemon_sprite_style",
   "sprite_style_battle", "sprite_style_summary", "sprite_style_dex",

@@ -114,6 +114,7 @@ eq(hits, 1, "post-HOF rematch Master Ball roll is exactly one in 50")
 local bucket, hooks, screens, events = {}, {}, {}, {}
 local mode = "balanced"
 local mod = {
+  id = "kanto_ascendant",
   save = {
     get = function(_, key, default)
       local value = bucket[key]
@@ -121,7 +122,9 @@ local mod = {
     end,
     set = function(_, key, value) bucket[key] = value end,
   },
-  options = { get = function(_, key) return key == "loot_mode" and mode end },
+  options = { get = function(_, key)
+    if key == "loot_mode" then return mode end
+  end },
   content = {
     items = { register = function(_, id, def) Data.items[id] = def end },
     screens = { register = function(_, id, def) screens[id] = def end },
@@ -130,8 +133,21 @@ local mod = {
   events = { on = function(_, name, fn) events[name] = fn end },
   ui = {
     ListMenu = { new = function(_, title, rows, opts)
-      return { title = title, items = rows, index = 1,
-        onChoose = opts and opts.onChoose, close = function() end }
+      local list = { game = _, title = title, items = rows, index = 1,
+        onChoose = opts and opts.onChoose,
+        onSelectKey = opts and opts.onSelectKey,
+        pageJump = opts and opts.pageJump,
+        footer = opts and opts.footer,
+        close = function() end }
+      function list:update()
+        local input = self.game and self.game.input
+        if input and self.onSelectKey and input:wasPressed("select") then
+          self.onSelectKey(self.items[self.index], self)
+        elseif input and self.onChoose and input:wasPressed("a") then
+          self.onChoose(self.items[self.index], self)
+        end
+      end
+      return list
     end },
     push = function(game, id, args)
       game.lastScreen = { id = id, args = args }
@@ -145,13 +161,20 @@ local rewards = assert(loadfile(modPath .. "/rematch_rewards.lua"))()(mod, {
   i18n = { text = function(en) return en end },
   optionSchema = {
     { key = "difficulty", label = "DIFFICULTY", type = "choice",
-      default = "standard", choices = { { "STANDARD", "standard" } } },
+      default = "standard", choices = {
+        { "STANDARD", "standard" }, { "HARD", "hard" },
+        { "VERY HARD", "very_hard" },
+      } },
     { key = "rare_item_lock", label = "RARE ITEM LOCK", type = "toggle",
       default = true },
     { key = "kanto_151", label = "KANTO 151", type = "choice",
       default = "ascendant", choices = { { "REWARDS", "ascendant" } } },
     { key = "ascendant_rules", label = "RULES", type = "choice",
       default = "rotating", choices = { { "ROTATING", "rotating" } } },
+    { key = "trainer_portrait_style", label = "TRAINER PORTRAITS",
+      type = "choice", default = "crystal_hd", choices = {
+        { "CRYSTAL HD", "crystal_hd" }, { "ORIGINAL", "original" },
+      } },
     { key = "rest_min", label = "MIN REST", type = "number", default = 151,
       min = 151, max = 2510, presets = { 151, 302, 604, 1255, 2510 } },
     { key = "rest_max", label = "MAX REST", type = "number", default = 2510,
@@ -173,6 +196,14 @@ local rewards = assert(loadfile(modPath .. "/rematch_rewards.lua"))()(mod, {
   legacyWanderers = {
     legacyRunEnabled = function() return legacyRunActive end,
   },
+  optionHelp = {
+    text = function(key, value) return key .. "=" .. tostring(value) end,
+  },
+  ascendantUi = {
+    showHelp = function(game_, label, help)
+      game_.lastHelp = { label = label, help = help }
+    end,
+  },
 })
 local stack = { rows = {} }
 function stack:push(value) self.rows[#self.rows + 1] = value end
@@ -186,6 +217,21 @@ local game = {
   },
   stack = stack,
 }
+local pressed, emitted, optionWrites
+game.input = {
+  wasPressed = function(_, key)
+    local hit = key == pressed
+    if hit then pressed = nil end
+    return hit
+  end,
+}
+game.mods = {
+  modOptions = {},
+  events = { emit = function(_, name, payload)
+    emitted = { name = name, payload = payload }
+  end },
+}
+game.writeOptions = function() optionWrites = (optionWrites or 0) + 1 end
 Data.balls.MASTER_BALL = { id = "MASTER_BALL" }
 
 local s = rewards.state(game)
@@ -283,6 +329,10 @@ ok(multiplierRow ~= nil, "GAMEPLAY contains one EXP Multiplier row")
 local gameplayRoot = screens.AscendantGameplayOptions.new(game, {})
 eq(#gameplayRoot.items, 5,
   "GAMEPLAY is a compact five-submenu hub")
+eq(gameplayRoot.pageJump, false,
+  "Ascendant option lists reserve L/R for the highlighted value")
+eq(gameplayRoot.footer, "A:OPEN SEL:HELP",
+  "submenu hubs advertise A and SELECT without overflowing the footer")
 eq(gameplayRoot.items[1].screen, "AscendantCoreOptions",
   "core rules moved into their focused submenu")
 eq(gameplayRoot.items[2].screen, "AscendantRematchOptions",
@@ -293,12 +343,49 @@ eq(gameplayRoot.items[4].screen, "AscendantCaptureOptions",
   "capture and storage settings have a focused submenu")
 eq(gameplayRoot.items[5].screen, "AscendantControlOptions",
   "controls have a focused submenu")
+gameplayRoot.onChoose(gameplayRoot.items[1])
+eq(game.lastScreen.id, "AscendantCoreOptions",
+  "A opens a selected submenu")
+
+local optionsRoot = screens.AscendantOptionsRoot.new(game)
+eq(#optionsRoot.items, 5,
+  "root contains no empty SYSTEM submenu")
+for _, row in ipairs(optionsRoot.items) do
+  ok(row.value ~= "system", "root never exposes a dead SYSTEM row")
+end
 
 local core = screens.AscendantCoreOptions.new(game, {})
+eq(core.footer, "L/R:CHG SEL:HELP",
+  "setting pages visibly reserve Left/Right for values and SELECT for help")
 eq(#core.items, 3, "core rules retain difficulty, Kanto 151 and challenge rules")
 eq(core.items[1].value, "difficulty", "difficulty is first in CORE RULES")
 eq(core.items[2].value, "kanto_151", "Kanto 151 remains in CORE RULES")
 eq(core.items[3].value, "ascendant_rules", "challenge rules remain in CORE RULES")
+eq(game.mods.modOptions.kanto_ascendant, nil,
+  "opening an option page never mutates values")
+core.onChoose(core.items[1])
+eq(game.mods.modOptions.kanto_ascendant, nil,
+  "A does not silently cycle a setting")
+pressed = "right"
+core:update()
+eq(game.mods.modOptions.kanto_ascendant.difficulty, "hard",
+  "Right advances only the highlighted setting")
+eq(game.save.options.modOptions.kanto_ascendant.difficulty, "hard",
+  "Right persists the selected value")
+eq(emitted.name, "mod.options_changed",
+  "value change emits the standard option event")
+eq(emitted.payload.game, game,
+  "option event carries the affected game")
+pressed = "left"
+core:update()
+eq(game.mods.modOptions.kanto_ascendant.difficulty, "standard",
+  "Left walks the selected setting backward")
+pressed = "select"
+core:update()
+eq(game.lastHelp.label, "DIFFICULTY",
+  "SELECT opens help for the highlighted option")
+eq(optionWrites, 2,
+  "only the two L/R changes write options")
 
 local rematch = screens.AscendantRematchOptions.new(game, {})
 eq(#rematch.items, 6,
@@ -336,6 +423,14 @@ eq(contentRoot.items[4].screen, "AscendantLegendOptions",
 eq(contentRoot.items[5].screen, "AscendantHeritageOptions",
   "heritage event switches are one level deeper")
 
+local visuals = screens.AscendantVisualOptions.new(game, {})
+local portraitRow
+for _, row in ipairs(visuals.items) do
+  if row.value == "trainer_portrait_style" then portraitRow = row end
+end
+ok(portraitRow ~= nil,
+  "trainer portrait style is reachable from the unified VISUALS menu")
+
 local living = screens.AscendantLivingWorldOptions.new(game, {})
 eq(#living.items, 3, "Living Regions is split into three focused pages")
 eq(living.items[1].screen, "AscendantLivingEncounterOptions",
@@ -355,8 +450,14 @@ local gameplay = screens.AscendantTrainingOptions.new(game, {
 })
 eq(gameplay.index, 2, "item shortcut focus lands on the multiplier row")
 gameplay.onChoose(gameplay.items[2])
+eq(rewards.state(game).expMultiplierSetting, 3,
+  "A preserves the selected training helper value")
+gameplay:ascendantStep(1)
 eq(rewards.state(game).expMultiplierSetting, 5,
-  "one row cycles only through the unlocked OFF/×2/×3/×5 choices")
+  "Right cycles only through unlocked OFF/×2/×3/×5 choices")
+gameplay:ascendantStep(-1)
+eq(rewards.state(game).expMultiplierSetting, 3,
+  "Left cycles training helper choices backward")
 
 local startRows = hooks["ui.start_menu.items"](function(_, rows_) return rows_ end,
   game, {})

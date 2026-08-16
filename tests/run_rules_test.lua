@@ -104,17 +104,29 @@ local rules = makeRules(mod, {
 
 do
   local registered = {}
+  local featureValues = {
+    language = "en",
+    ascendant_useful_bag = false,
+    ascendant_bag_mode = "pockets",
+    ascendant_qol = false,
+    qol_exp_bar = "blue",
+  }
   local featureMod = {
     id = "kanto_ascendant",
     find = function() return nil end,
-    options = { get = function() return nil end },
+    options = { get = function(_, key) return featureValues[key] end },
     content = { screens = { register = function(_, id, spec)
       registered[id] = spec
     end } },
     ui = { push = function() end },
     exports = {},
   }
-  local features = assert(loadfile("ascendant_features.lua"))()(featureMod)
+  local optionHelp = assert(loadfile("option_help.lua"))()({
+    text = function(en) return en end,
+  })
+  local features = assert(loadfile("ascendant_features.lua"))()(featureMod, {
+    optionHelp = optionHelp,
+  })
   local info = features.runRulesInfo({ save = { player = { name = "LEAF" } } })
   ok(info:find("Oak's Lab", 1, true) ~= nil,
     "options info points to Oak's Lab KASC terminal")
@@ -126,6 +138,98 @@ do
   ok(featureSource:find('key = "randomizer"', 1, true) == nil
       and featureSource:find('key = "nuzlocke"', 1, true) == nil,
     "global options contain information only, never challenge controls")
+
+  local pressed
+  local featureGame = {
+    save = { options = { modOptions = { kanto_ascendant = featureValues } } },
+    input = { wasPressed = function(_, key)
+      local hit = key == pressed
+      if hit then pressed = nil end
+      return hit
+    end },
+    stack = { states = {}, push = function(self, value)
+      self.states[#self.states + 1] = value
+    end, pop = function(self) return table.remove(self.states) end },
+  }
+  local root = registered.JohtoAscendantFeatures.new(featureGame)
+  pressed = "select"
+  root:update()
+  local rootSelectHelp = #featureGame.stack.states == 1
+  featureGame.stack:pop()
+
+  local qol = registered.JohtoAscendantQolOptions.new(featureGame)
+  qol.index = 3 -- BATTLE EXP BAR
+  pressed = "select"
+  qol:update()
+  local submenuSelectHelp = #featureGame.stack.states == 1
+  featureGame.stack:pop()
+
+  featureValues.qol_exp_bar = "blue"
+  pressed = "a"
+  qol:update()
+  local aLeavesValueAlone = featureValues.qol_exp_bar == "blue"
+  featureValues.qol_exp_bar = "blue"
+  pressed = "left"
+  qol:update()
+  local leftChangesValue = featureValues.qol_exp_bar == "black"
+  featureValues.qol_exp_bar = "blue"
+
+  local Font = require("src.render.Font")
+  local originalDraw, drawn = Font.draw, {}
+  Font.draw = function(value, ...)
+    drawn[#drawn + 1] = tostring(value)
+    return originalDraw(value, ...)
+  end
+  qol:draw()
+  Font.draw = originalDraw
+  local flat = table.concat(drawn, "|")
+  local qolMaskedEn = flat:find("PAUSED", 1, true) ~= nil
+    and flat:find("BLUE", 1, true) == nil
+
+  local storage = registered.JohtoAscendantStorageOptions.new(featureGame)
+  storage.index = 2 -- BAG MODE, controlled by ASCENDANT BAG above it
+  drawn = {}
+  Font.draw = function(value, ...)
+    drawn[#drawn + 1] = tostring(value)
+    return originalDraw(value, ...)
+  end
+  storage:draw()
+  Font.draw = originalDraw
+  local bagMaskedEn = table.concat(drawn, "|"):find("PAUSED", 1, true)
+    ~= nil
+
+  featureValues.language = "de"
+  drawn = {}
+  Font.draw = function(value, ...)
+    drawn[#drawn + 1] = tostring(value)
+    return originalDraw(value, ...)
+  end
+  qol:draw()
+  Font.draw = originalDraw
+  flat = table.concat(drawn, "|")
+  local qolMaskedDe = flat:find("PAUSIERT", 1, true) ~= nil
+
+  storage.index = 2
+  drawn = {}
+  Font.draw = function(value, ...)
+    drawn[#drawn + 1] = tostring(value)
+    return originalDraw(value, ...)
+  end
+  storage:draw()
+  Font.draw = originalDraw
+  local bagMaskedDe = table.concat(drawn, "|"):find("PAUSIERT", 1, true)
+    ~= nil
+
+  ok(rootSelectHelp and submenuSelectHelp and aLeavesValueAlone
+      and leftChangesValue and qolMaskedEn and qolMaskedDe
+      and bagMaskedEn and bagMaskedDe,
+    ("ASCENDANT options contract: root SELECT help=%s, submenu SELECT "
+      .. "help=%s, A preserves value=%s, L changes value=%s, QOL mask "
+      .. "EN=%s, QOL mask DE=%s, Bag mask EN=%s, Bag mask DE=%s")
+      :format(tostring(rootSelectHelp),
+      tostring(submenuSelectHelp), tostring(aLeavesValueAlone),
+      tostring(leftChangesValue), tostring(qolMaskedEn),
+      tostring(qolMaskedDe), tostring(bagMaskedEn), tostring(bagMaskedDe)))
 end
 
 local game = fresh()

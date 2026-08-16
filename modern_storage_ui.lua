@@ -59,12 +59,8 @@ return function(mod)
   end
 
   local function bagMode(game)
-    local value = option(game, "ascendant_bag_mode")
-    if value == nil then
-      return option(game, "ascendant_useful_bag") == false
-        and "off" or "pockets"
-    end
-    return value
+    if option(game, "ascendant_useful_bag") == false then return "off" end
+    return option(game, "ascendant_bag_mode") or "pockets"
   end
 
   local function truncate(text, budget)

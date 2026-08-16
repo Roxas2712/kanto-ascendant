@@ -23,7 +23,8 @@ local detailed = {
   "living_world_caves", "living_world_grass", "living_world_silhouettes",
   "living_world_idle", "living_world_wander", "living_world_chase",
   "living_world_hidden", "living_world_towns", "johto_level_bonus",
-  "ascendant_bag_mode", "ascendant_quick_select", "ascendant_qol",
+  "ascendant_useful_bag", "ascendant_bag_mode",
+  "ascendant_quick_select", "ascendant_qol",
   "qol_exp_bar", "qol_caught_indicator", "qol_easy_interactions",
   "qol_location_banners", "modern_storage_ui", "catch_destination",
   "pokedex_filter", "box_filter", "text_speed", "ride_control",
@@ -37,6 +38,13 @@ for _, key in ipairs(detailed) do
     key .. " still uses the generic SELECT help")
   assert(#help > 55, key .. " SELECT help is not an explanation")
 end
+assert(optionHelp.restartRequired("ascendant_useful_bag")
+    and optionHelp.restartRequired("ascendant_bag_mode")
+    and optionHelp.restartRequired("modern_storage_ui"),
+  "load-time Bag and storage owners must disclose their restart requirement")
+assert(not optionHelp.restartRequired("ascendant_quick_select")
+    and not optionHelp.restartRequired("ascendant_qol"),
+  "live Quick Select and QoL masters must not claim a restart is required")
 assert(optionHelp.text("living_world_enabled", "AN"):find("Berührung"),
   "Living Regions help does not explain visible contact battles")
 assert(optionHelp.text("living_world_enabled", "AUS"):find("klassische Schrittkämpfe")

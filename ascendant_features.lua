@@ -1,7 +1,9 @@
 -- Unified, nested in-game configuration for Kanto Ascendant 6.5.
 -- Every setting edits the same persisted mod-options bucket as the launcher.
 
-return function(mod)
+return function(mod, opts)
+  opts = opts or {}
+  local optionHelp = opts.optionHelp
   local ROOT_ID = "JohtoAscendantFeatures"
   local SCREEN_IDS = {
     storage = "JohtoAscendantStorageOptions",
@@ -28,6 +30,8 @@ return function(mod)
     storage = {
       titleEn = "BAG / STORAGE", titleDe = "BEUTEL / BOXEN",
       rows = {
+        { key = "ascendant_useful_bag", en = "ASCENDANT BAG",
+          de = "ASCENDANT-BEUTEL", values = toggle },
         { key = "ascendant_bag_mode", en = "BAG MODE", de = "BEUTEL",
           values = {
             { "off", "OFF / EXTERNAL", "AUS / EXTERN" },
@@ -141,11 +145,6 @@ return function(mod)
     display = {
       titleEn = "DISPLAY / SKINS", titleDe = "ANZEIGE / SKINS",
       rows = {
-        { key = "language", en = "LANGUAGE", de = "SPRACHE", values = {
-            { "auto", "AUTO", "AUTO" },
-            { "en", "ENGLISH", "ENGLISCH" },
-            { "de", "GERMAN", "DEUTSCH" },
-          } },
         { key = "modern_storage_ui", en = "MENU SKINS",
           de = "MENÜ-SKINS", values = toggle },
         { key = "character_sprite_style", en = "FIELD CHARACTERS",
@@ -198,10 +197,16 @@ return function(mod)
   end
 
   local restartKeys = {
+    ascendant_useful_bag = true,
     ascendant_bag_mode = true,
     modern_storage_ui = true,
-    ascendant_quick_select = true,
-    ascendant_qol = true,
+  }
+  local bagBundleRows = { ascendant_bag_mode = true }
+  local qolBundleRows = {
+    qol_exp_bar = true,
+    qol_caught_indicator = true,
+    qol_easy_interactions = true,
+    qol_location_banners = true,
   }
 
   local function current(game, key)
@@ -251,6 +256,39 @@ return function(mod)
     write(game, row.key, row.values[index][1])
   end
 
+  local function valueLabel(game, row)
+    local entry = row.values[valueIndex(game, row)]
+    return entry[german() and 3 or 2]
+  end
+
+  local function isPaused(game, row)
+    if qolBundleRows[row.key] == true
+        and current(game, "ascendant_qol") == false then return true end
+    return bagBundleRows[row.key] == true
+      and current(game, "ascendant_useful_bag") == false
+  end
+
+  local function displayedValue(game, row)
+    if isPaused(game, row) then
+      return tr("PAUSED", "PAUSIERT")
+    end
+    return valueLabel(game, row)
+  end
+
+  local function openOptionHelp(game, row)
+    local value = valueLabel(game, row)
+    if isPaused(game, row) then
+      value = tr("PAUSED; SAVED: ", "PAUSIERT; GESPEICHERT: ") .. value
+    end
+    local text
+    if optionHelp and type(optionHelp.text) == "function" then
+      text = optionHelp.text(row.key, value)
+    else
+      text = tr("CURRENT: ", "AKTUELL: ") .. value
+    end
+    game.stack:push(require("src.render.TextBox").new(game, text))
+  end
+
   local function drawFrame(Font, title)
     love.graphics.setColor(.06, .18, .36, 1)
     love.graphics.rectangle("fill", 0, 0, 160, 144)
@@ -280,6 +318,44 @@ return function(mod)
       "Randomizer und Nuzlocke\nstellst du über ASC-LAUF\nam KASC-Terminal in\nEichs Labor ein.")
   end
 
+  local rootHelp = {
+    storage = {
+      "Configure the Bag, catch destination and Pokemon storage.",
+      "Beutel, Fangziel und Pokemon-Lagerung einstellen.",
+    },
+    sprites = {
+      "Choose Pokemon artwork and where it is used.",
+      "Pokemon-Grafik und ihre Einsatzorte waehlen.",
+    },
+    qol = {
+      "Configure convenience helpers, filters and text speed.",
+      "Komforthilfen, Filter und Texttempo einstellen.",
+    },
+    quick = {
+      "Configure SELECT shortcuts and bicycle controls.",
+      "SELECT-Kuerzel und Fahrradsteuerung einstellen.",
+    },
+    display = {
+      "Choose menu skins and character presentation.",
+      "Menue-Skins und Figurenanzeige waehlen.",
+    },
+    johto = {
+      "Configure Johto encounter levels and Shiny protection.",
+      "Johto-Level und Shiny-Schutz einstellen.",
+    },
+  }
+
+  local function openRootHelp(game, row)
+    local text
+    if row.info == "run_rules" then
+      text = runRulesInfo(game)
+    else
+      local help = rootHelp[row.group]
+      text = tr(help[1], help[2])
+    end
+    game.stack:push(require("src.render.TextBox").new(game, text))
+  end
+
   local function makeSettingsScreen(game, groupKey)
     local Font = require("src.render.Font")
     local Theme = require("src.ui.Theme")
@@ -297,8 +373,10 @@ return function(mod)
         self.index = self.index % #group.rows + 1
       elseif input:wasPressed("left") then
         step(self.game, group.rows[self.index], -1)
-      elseif input:wasPressed("right") or input:wasPressed("a") then
+      elseif input:wasPressed("right") then
         step(self.game, group.rows[self.index], 1)
+      elseif input:wasPressed("select") then
+        openOptionHelp(self.game, group.rows[self.index])
       elseif input:wasPressed("b") then
         self.game.stack:pop()
       end
@@ -320,8 +398,7 @@ return function(mod)
           index == self.index and .18 or .76, 1)
         love.graphics.rectangle("fill", 3, y, 154, 16)
         love.graphics.setColor(.06, .12, .20, 1)
-        local entry = row.values[valueIndex(self.game, row)]
-        local value = entry[german() and 3 or 2]
+        local value = displayedValue(self.game, row)
         local valueX = 153 - Font.width(value)
         Font.draw(truncate(Font, german() and row.de or row.en,
           math.max(24, valueX - 18)), 14, y + 4)
@@ -337,7 +414,8 @@ return function(mod)
       love.graphics.setColor(.18, .52, .82, 1)
       love.graphics.rectangle("fill", 0, 130, 160, 14)
       love.graphics.setColor(1, 1, 1, 1)
-      Font.draw(tr("A/L/R:CHANGE B:BACK", "L/R:AEND. B:ZUR."), 5, 133)
+      Font.draw(tr("L/R:CHG SEL:HELP",
+        "L/R:AEND SEL:HILFE"), 5, 133)
     end
     return screen
   end
@@ -356,14 +434,15 @@ return function(mod)
         self.index = (self.index - 2) % #rootRows + 1
       elseif input:wasPressed("down") then
         self.index = self.index % #rootRows + 1
-      elseif input:wasPressed("right") or input:wasPressed("a") then
+      elseif input:wasPressed("a") then
         local row = rootRows[self.index]
         if row.info == "run_rules" then
-          self.game.stack:push(require("src.render.TextBox").new(
-            self.game, runRulesInfo(self.game)))
+          openRootHelp(self.game, row)
         else
           mod.ui.push(self.game, SCREEN_IDS[row.group])
         end
+      elseif input:wasPressed("select") then
+        openRootHelp(self.game, rootRows[self.index])
       elseif input:wasPressed("b") then
         self.game.stack:pop()
       end
@@ -398,7 +477,8 @@ return function(mod)
       love.graphics.setColor(.18, .52, .82, 1)
       love.graphics.rectangle("fill", 0, 130, 160, 14)
       love.graphics.setColor(1, 1, 1, 1)
-      Font.draw(tr("A:OPEN  B:BACK", "A:OEFFNEN B:ZUR."), 5, 133)
+      Font.draw(tr("A:OPEN SEL:HELP",
+        "A:AUF SEL:HILFE"), 5, 133)
     end
     return screen
   end

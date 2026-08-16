@@ -985,10 +985,11 @@ return function(mod)
   -- Ascendant's bag owns the screen while enabled, even when the standalone
   -- Useful Bag is installed. Turning this option off restores the standalone
   -- mod; its optional dependency loads before Ascendant.
-  local bagMode = mod.options:get("ascendant_bag_mode")
-  if bagMode == nil then
-    bagMode = mod.options:get("ascendant_useful_bag") == false
-      and "off" or "pockets"
+  local bagMode
+  if mod.options:get("ascendant_useful_bag") == false then
+    bagMode = "off"
+  else
+    bagMode = mod.options:get("ascendant_bag_mode") or "pockets"
   end
   if bagMode == "expanded" or bagMode == "pockets" then
     mod.content.constants:patch("bagSize", 999)
@@ -1018,7 +1019,9 @@ return function(mod)
   local installAscendantFeatures =
     loadSibling(mod, "ascendant_features.lua")
   if type(installAscendantFeatures) == "function" then
-    mod.exports.ascendantFeatures = installAscendantFeatures(mod)
+    mod.exports.ascendantFeatures = installAscendantFeatures(mod, {
+      optionHelp = optionHelp,
+    })
   end
 
   -- 6.5 QoL is bundled, but an installed standalone mod owns the same UI
