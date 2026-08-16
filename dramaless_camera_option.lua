@@ -48,8 +48,10 @@ return function(mod, labels)
       return false
     end
     local _, rendererId = voxelRenderer.resolve(game)
-    return rendererId == "VOXEL_ASCENDANT"
-      or rendererId == "DRAMALESS_SHAPE"
+    -- The row controls the reviewed Dramaless lens only.  Voxel Ascendant's
+    -- native cards are solved against its own camera and must never be
+    -- rescaled by this compatibility option.
+    return rendererId == "DRAMALESS_SHAPE"
   end
 
   local function set(value, game)

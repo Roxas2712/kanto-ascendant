@@ -92,6 +92,34 @@ eq(game.save.options.modOptions.kanto_ascendant.dramaless_battle_camera,
   "wide", "third main-options step returns to the wide default")
 
 handles.DRAMALESS_SHAPE = nil
+handles.VOXEL_ASCENDANT = {
+  id = "VOXEL_ASCENDANT", version = "0.1.1",
+  exports = {
+    version = "0.1.1", apiVersion = 1,
+    renderer = {
+      id = "VOXEL_ASCENDANT", version = "0.1.1",
+      pipeline = "voxel", cameraProfile = "orbit-only",
+    },
+    capabilities = {
+      voxelWorld = true, battleCards = { "MAP", "DISCS" },
+      wallDecals = 1, diskCache = false, stadium = false, vr = false,
+    },
+    lib = { require = function(name)
+      if name == "BattleCam" then return {} end
+      return nil
+    end },
+  },
+}
+local voxelRows = hook(function() return {
+  { id = "pipeline:voxel" },
+  { id = "VOXEL_ASCENDANT:battles" },
+} end, game, {})
+eq(#voxelRows, 2,
+  "KASC hides its Dramaless camera row from Voxel Ascendant")
+eq(voxelRows[2].id, "VOXEL_ASCENDANT:battles",
+  "Voxel Ascendant keeps ownership of its own battle controls")
+
+handles.VOXEL_ASCENDANT = nil
 local noRenderer = hook(function() return { { id = "pipeline:voxel" } } end,
   { mods = {} }, {})
 eq(#noRenderer, 1, "camera row stays hidden when the renderer is unavailable")

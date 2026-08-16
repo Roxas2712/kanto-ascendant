@@ -79,11 +79,14 @@ return function(mod, opts)
       return nil
     end
     local _, rendererId = voxelRenderer.resolve(currentGame)
-    -- Battle Art owns its authored camera rigs and its own camera/options
-    -- menu. This legacy KASC choice applies only to Voxel Ascendant and the
-    -- reviewed Dramaless transition build.
-    if rendererId ~= "VOXEL_ASCENDANT"
-        and rendererId ~= "DRAMALESS_SHAPE" then return nil end
+    -- Every renderer's battle cards are pinned against its own lens.  This
+    -- compatibility row was authored for the reviewed Dramaless camera only.
+    -- Applying its x3 frame height to Voxel Ascendant pulls both projected
+    -- cards toward the centre, which puts the enemy card over the player HUD
+    -- and makes portrait windows look dramatically zoomed out.  Voxel
+    -- Ascendant and Battle Art therefore retain complete ownership of their
+    -- authored rigs and options.
+    if rendererId ~= "DRAMALESS_SHAPE" then return nil end
     return rendererId
   end
 

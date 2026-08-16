@@ -13,16 +13,20 @@ local modDir = assert(os.getenv("TRAINER_REMATCH_MOD_DIR"),
   "TRAINER_REMATCH_MOD_DIR is required")
 
 local selected
+local cameraOptionReads = 0
 local handlers = {}
 local externalMods = {}
 local camera = {
   RIGS = {
-    tele = { back = 217.44, height = 56.82, frameH = 34.11 },
+    tele = { back = 144.96, height = 37.88, frameH = 34.11 },
   },
 }
+camera.rigFor = function() return camera.RIGS.tele end
+local voxelRigFor = camera.rigFor
 local mod = {
   id = "trainer_rematch",
   options = { get = function(_, key)
+    cameraOptionReads = cameraOptionReads + 1
     eq(key, "dramaless_battle_camera", "camera reads only its own option")
     return selected
   end },
@@ -60,24 +64,55 @@ local compat = dofile(modDir .. "/dramaless_camera_compat.lua")(mod, {
 })
 eq(compat.install(game), true, "compatibility controller installs")
 eq(compat.CLASSIC_TELE.frameH, 34.11 * 3,
-  "Classic Voxel keeps full-height Crystal trainers inside the frame")
+  "the reviewed Dramaless profile keeps full-height Crystal trainers framed")
+eq(camera.RIGS.tele.back, 144.96,
+  "Voxel Ascendant keeps its renderer-authored battle distance")
+eq(camera.RIGS.tele.height, 37.88,
+  "Voxel Ascendant keeps its renderer-authored battle height")
+eq(camera.RIGS.tele.frameH, 34.11,
+  "Voxel Ascendant keeps the native lens its billboard anchors were solved for")
+eq(camera.rigFor, voxelRigFor,
+  "Voxel Ascendant rig selection remains renderer-owned")
+eq(camera.__kantoAscendantOakLabLens, nil,
+  "KASC does not wrap Voxel Ascendant's map-specific lens")
+eq(cameraOptionReads, 0,
+  "KASC never applies the Dramaless camera option to Voxel Ascendant")
+
+-- The same adapter remains active for the exact reviewed Dramaless renderer.
+-- Switch the fixture at a battle boundary to prove that excluding Voxel
+-- Ascendant does not weaken the Dramaless-only x3 contract.
+externalMods.VOXEL_ASCENDANT = nil
+externalMods.DRAMALESS_SHAPE = {
+  id = "DRAMALESS_SHAPE", version = "1.6.2-ST.190.1",
+  exports = {
+    version = "1.6.2-ST.190.1",
+    lib = { require = function(name)
+      if name == "BattleCam" then return camera end
+      return nil
+    end },
+  },
+}
+camera.RIGS.tele.back = 217.44
+camera.RIGS.tele.height = 56.82
+camera.RIGS.tele.frameH = 34.11
+handlers["battle.started"]({ battle = { game = game } })
 eq(camera.RIGS.tele.back, compat.WIDE_TELE.back,
-  "a missing saved choice defaults to the Wide Voxel distance")
+  "a missing saved choice defaults to the reviewed Dramaless distance")
 eq(camera.RIGS.tele.height, compat.WIDE_TELE.height,
-  "a missing saved choice defaults to the Wide Voxel height")
+  "a missing saved choice defaults to the reviewed Dramaless height")
 eq(camera.RIGS.tele.frameH, compat.WIDE_TELE.frameH,
-  "a missing saved choice defaults to Wide Voxel framing")
+  "a missing saved choice defaults to reviewed Dramaless framing")
 
 selected = "classic"
 handlers["mod.options_changed"]({
   mod = "trainer_rematch", key = "dramaless_battle_camera",
 })
 eq(camera.RIGS.tele.back, compat.CLASSIC_TELE.back,
-  "Classic Voxel restores the original battle distance")
+  "Classic Dramaless restores the original battle distance")
 eq(camera.RIGS.tele.height, compat.CLASSIC_TELE.height,
-  "Classic Voxel restores the original battle height")
+  "Classic Dramaless restores the original battle height")
 eq(camera.RIGS.tele.frameH, compat.CLASSIC_TELE.frameH,
-  "Classic Voxel restores the calibrated original-scale battle framing")
+  "Classic Dramaless restores the calibrated full-card battle framing")
 
 handlers["battle.started"]({ battle = { game = game } })
 eq(camera.RIGS.tele.back, compat.CLASSIC_TELE.back,
@@ -90,11 +125,11 @@ handlers["mod.options_changed"]({
   mod = "trainer_rematch", key = "dramaless_battle_camera",
 })
 eq(camera.RIGS.tele.back, compat.WIDE_TELE.back,
-  "Wide Voxel keeps the original battle distance")
+  "Wide Dramaless keeps the reviewed battle distance")
 eq(camera.RIGS.tele.height, compat.WIDE_TELE.height,
-  "Wide Voxel keeps the original battle height")
+  "Wide Dramaless keeps the reviewed battle height")
 eq(camera.RIGS.tele.frameH, compat.WIDE_TELE.frameH,
-  "Wide Voxel provides the extra-wide live-reviewed frame")
+  "Wide Dramaless provides the extra-wide live-reviewed frame")
 
 selected = "fork"
 handlers["mod.options_changed"]({
