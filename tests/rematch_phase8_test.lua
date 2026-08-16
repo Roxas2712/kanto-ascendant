@@ -424,12 +424,24 @@ eq(contentRoot.items[5].screen, "AscendantHeritageOptions",
   "heritage event switches are one level deeper")
 
 local visuals = screens.AscendantVisualOptions.new(game, {})
-local portraitRow
+local pokemonLink, characterLink
 for _, row in ipairs(visuals.items) do
+  if row.screen == "AscendantPokemonSpriteOptions" then pokemonLink = row end
+  if row.screen == "AscendantCharacterTrainerOptions" then
+    characterLink = row
+  end
+end
+ok(pokemonLink ~= nil,
+  "Pokémon sprite controls are discoverable from the unified VISUALS menu")
+ok(characterLink ~= nil,
+  "character/trainer controls are discoverable from the unified VISUALS menu")
+local characterVisuals = screens.AscendantCharacterTrainerOptions.new(game, {})
+local portraitRow
+for _, row in ipairs(characterVisuals.items) do
   if row.value == "trainer_portrait_style" then portraitRow = row end
 end
 ok(portraitRow ~= nil,
-  "trainer portrait style is reachable from the unified VISUALS menu")
+  "trainer portrait style is reachable through the character/trainer page")
 
 local living = screens.AscendantLivingWorldOptions.new(game, {})
 eq(#living.items, 3, "Living Regions is split into three focused pages")

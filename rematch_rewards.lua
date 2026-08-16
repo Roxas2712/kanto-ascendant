@@ -645,11 +645,15 @@ return function(mod, opts)
     follower_order = "followers", yellow_partner_presentation = "followers",
     legend_art = "visuals", kanto_crystal_art = "visuals",
     dex_sprite_style = "visuals", party_icon_style = "visuals",
-    crystal_animation = "visuals", pokemon_sprite_style = "visuals",
-    character_sprite_style = "visuals", trainer_portrait_style = "visuals",
-    sprite_style_battle = "visuals",
-    sprite_style_summary = "visuals", sprite_style_dex = "visuals",
-    sprite_style_box = "visuals", sprite_style_scenes = "visuals",
+    crystal_animation = "visuals",
+    pokemon_sprite_style = "visual_pokemon",
+    sprite_style_battle = "visual_pokemon",
+    sprite_style_summary = "visual_pokemon",
+    sprite_style_dex = "visual_pokemon",
+    sprite_style_box = "visual_pokemon",
+    sprite_style_scenes = "visual_pokemon",
+    character_sprite_style = "visual_characters",
+    trainer_portrait_style = "visual_characters",
     shiny_effects = "visuals", event_rosette = "visuals",
     modern_ball_skins = "visuals",
     ascendant_useful_bag = "menus", ascendant_bag_mode = "menus",
@@ -851,8 +855,11 @@ return function(mod, opts)
 
   local function registerGroupedCategory(name, category, title, children)
     mod.content.screens:register(name, { new = function(game, args)
-      local rows = optionRows(game, category)
+      local rows = {}
       for _, row in ipairs(children) do rows[#rows + 1] = row end
+      for _, row in ipairs(optionRows(game, category)) do
+        rows[#rows + 1] = row
+      end
       return newOptionsList(game, title, rows, category, args)
     end })
   end
@@ -864,7 +871,22 @@ return function(mod, opts)
   registerCategory("AscendantTrainingOptions", "training",
     tr("EXP / TRAINING", "EP / TRAINING"))
   registerCategory("AscendantFollowerOptions", "followers", tr("FOLLOWERS", "BEGLEITER"))
-  registerCategory("AscendantVisualOptions", "visuals", tr("VISUALS", "GRAFIK"))
+  registerCategory("AscendantPokemonSpriteOptions", "visual_pokemon",
+    tr("POKéMON SPRITES", "POKéMON-SPRITES"))
+  registerCategory("AscendantCharacterTrainerOptions", "visual_characters",
+    tr("CHARACTERS / TRAINERS", "FIGUREN / TRAINER"))
+  registerGroupedCategory("AscendantVisualOptions", "visuals",
+    tr("VISUALS", "GRAFIK"), {
+      submenu("pokemon_sprites", tr("POKéMON SPRITES", "POKéMON-SPRITES"),
+        "AscendantPokemonSpriteOptions", tr(
+          "Global Pokémon artwork and its individual screen surfaces.",
+          "Globale Pokémon-Grafik und ihre einzelnen Bildschirmbereiche.")),
+      submenu("characters_trainers",
+        tr("CHARACTERS / TRAINERS", "FIGUREN / TRAINER"),
+        "AscendantCharacterTrainerOptions", tr(
+          "Field character sheets and trainer portrait presentation.",
+          "Feldfiguren und die Darstellung von Trainer-Porträts.")),
+    })
   registerCategory("AscendantAdventureOptions", "adventure",
     tr("ADVENTURE", "ABENTEUER"))
   registerCategory("AscendantLivingEncounterOptions", "living_encounters",

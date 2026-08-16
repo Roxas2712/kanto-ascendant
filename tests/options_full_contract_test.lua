@@ -134,6 +134,7 @@ end
 local leafScreens = {
   "AscendantCoreOptions", "AscendantRematchOptions",
   "AscendantFollowerOptions", "AscendantVisualOptions",
+  "AscendantPokemonSpriteOptions", "AscendantCharacterTrainerOptions",
   "AscendantAdventureOptions", "AscendantLivingEncounterOptions",
   "AscendantLivingBehaviorOptions", "AscendantLivingTownOptions",
   "AscendantJohtoOptions", "AscendantLegendOptions",
@@ -196,8 +197,46 @@ for _, row in ipairs(schema) do
       "schema option is reachable in the Start-menu tree: " .. row.key)
   end
 end
-T.check(reachable.trainer_portrait_style == "AscendantVisualOptions",
-  "trainer portrait style is reachable under Visuals")
+T.check(reachable.pokemon_sprite_style == "AscendantPokemonSpriteOptions",
+  "Pokémon sprite style is reachable in the focused Pokémon page")
+for _, key in ipairs({ "sprite_style_battle", "sprite_style_summary",
+    "sprite_style_dex", "sprite_style_box", "sprite_style_scenes" }) do
+  T.check(reachable[key] == "AscendantPokemonSpriteOptions",
+    key .. " is reachable in the focused Pokémon page")
+end
+T.check(reachable.character_sprite_style == "AscendantCharacterTrainerOptions",
+  "field character style is reachable in the character/trainer page")
+T.check(reachable.trainer_portrait_style == "AscendantCharacterTrainerOptions",
+  "trainer portrait style is reachable in the character/trainer page")
+
+local visualRoot = assert(Data.screens.AscendantVisualOptions.new(game, {}),
+  "Visuals root did not open")
+T.eq(visualRoot.items[1].label, "POKéMON SPRITES",
+  "Visuals exposes Pokémon sprites as its first visible subgroup")
+T.eq(visualRoot.items[1].screen, "AscendantPokemonSpriteOptions",
+  "Pokémon subgroup opens its focused screen")
+T.eq(visualRoot.items[2].label, "CHARACTERS / TRAINERS",
+  "Visuals exposes characters and trainers as its second subgroup")
+T.eq(visualRoot.items[2].screen, "AscendantCharacterTrainerOptions",
+  "character/trainer subgroup opens its focused screen")
+
+visualRoot.index = 1
+local writesBeforeGroupInput = writes
+pressed = "right"
+visualRoot:update(0)
+T.eq(writes, writesBeforeGroupInput,
+  "L/R does not mutate options while a Visuals subgroup is highlighted")
+pressed = "select"
+visualRoot:update(0)
+T.eq(#stack.states, 1,
+  "SELECT opens help for a Visuals subgroup")
+stack:pop()
+pressed = "a"
+visualRoot:update(0)
+T.eq(stack:top().title, "POKéMON SPRITES",
+  "A opens the highlighted Visuals subgroup")
+stack:pop()
+
 T.check(reachable.language == nil and byKey.language == nil,
   "translation language is not exposed as a dead private option")
 T.check(writes >= 2 * (#schema - 1),
