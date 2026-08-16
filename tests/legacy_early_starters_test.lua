@@ -53,7 +53,7 @@ end
 
 local habitats = {
   { map = "VIRIDIAN_FOREST", species = "BULBASAUR", level = 5 },
-  { map = "ROUTE_3", species = "CHARMANDER", level = 7 },
+  { map = "ROUTE_4", species = "CHARMANDER", level = 7 },
   { map = "ROUTE_24", species = "SQUIRTLE", level = 9 },
 }
 
@@ -85,6 +85,11 @@ for _, edition in ipairs({ "red", "blue", "yellow" }) do
     edition .. " ordinary saves never receive Legacy starter habitats")
   eq(h.saved.legacy_early_starters, nil,
     edition .. " inactive rolls do not create migration state")
+  local inactiveCharmander = call("ROUTE_4", 1)
+  eq(inactiveCharmander.species, "PIDGEY",
+    edition .. " standard Route 4 stays native outside Legacy")
+  eq(h.saved.legacy_early_starters, nil,
+    edition .. " inactive Route 4 creates no Legacy state")
 
   h.setActive(true)
   for _, row in ipairs(habitats) do
@@ -103,8 +108,11 @@ for _, edition in ipairs({ "red", "blue", "yellow" }) do
   local wrongMap = call("ROUTE_1", 1)
   eq(wrongMap.species, "PIDGEY",
     edition .. " unrelated early routes remain native")
+  local oldCharmanderMap = call("ROUTE_3", 1)
+  eq(oldCharmanderMap.species, "PIDGEY",
+    edition .. " Route 3 no longer exposes early Charmander")
 
-  local protected = call("ROUTE_3", 1, {
+  local protected = call("ROUTE_4", 1, {
     species = "MEW", level = 5, kaProtected = true,
   })
   eq(protected.species, "MEW",
@@ -121,6 +129,34 @@ for _, edition in ipairs({ "red", "blue", "yellow" }) do
     edition .. " encounter fifty ends an unlucky Bulbasaur streak")
   eq(h.saved.legacy_early_starters.pity.VIRIDIAN_FOREST, 0,
     edition .. " successful habitat roll resets only its pity")
+
+  h.saved.legacy_early_starters.pity.ROUTE_4 = 48
+  h.saved.legacy_early_starters.pity.ROUTE_24 = 17
+  local charmFortyNine = call("ROUTE_4", 100)
+  eq(charmFortyNine.species, "PIDGEY",
+    edition .. " Charmander pity cannot trigger before encounter fifty")
+  eq(h.saved.legacy_early_starters.pity.ROUTE_4, 49,
+    edition .. " Route 4 retains its own Charmander pity")
+  eq(h.saved.legacy_early_starters.pity.ROUTE_24, 17,
+    edition .. " Charmander rolls do not change Squirtle pity")
+  local charmFifty = call("ROUTE_4", 100)
+  eq(charmFifty.species, "CHARMANDER",
+    edition .. " Route 4 encounter fifty ends an unlucky Charmander streak")
+  eq(h.saved.legacy_early_starters.pity.ROUTE_4, 0,
+    edition .. " successful Charmander roll resets only Route 4 pity")
+  eq(h.saved.legacy_early_starters.pity.ROUTE_24, 17,
+    edition .. " successful Charmander roll preserves Squirtle pity")
+
+  -- The result remains an ordinary encounter record. Integrated Randomizer
+  -- and Nuzlocke processors therefore see it through their normal downstream
+  -- hooks instead of treating it as an authored/protected encounter.
+  local passthrough = call("ROUTE_4", 1)
+  eq(passthrough.species, "CHARMANDER",
+    edition .. " produces the ordinary Charmander proposal")
+  eq(passthrough.kaProtected, nil,
+    edition .. " Charmander stays visible to Randomizer")
+  eq(passthrough.kaEncounterSource, nil,
+    edition .. " Charmander stays visible to Nuzlocke encounter rules")
 
   eq(h.completion.wildEncounters.SAFARI_ZONE_EAST[10].species,
     "BULBASAUR", edition .. " keeps guaranteed late Bulbasaur")

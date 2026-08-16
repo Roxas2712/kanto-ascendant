@@ -48,7 +48,7 @@ local LEGACY_EARLY_STARTERS = {
     terrain = "grass", species = "BULBASAUR", level = 5,
     chance = 2, pity = 50,
   },
-  ROUTE_3 = {
+  ROUTE_4 = {
     terrain = "grass", species = "CHARMANDER", level = 7,
     chance = 2, pity = 50,
   },
