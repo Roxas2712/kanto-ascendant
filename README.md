@@ -1477,12 +1477,12 @@ renderers.
 ## Installation
 
 > [!NOTE]
-> **Demo package convention:** every playable demo is published as a
+> **Release package convention:** every playable release is published as a
 > launcher-compatible `.zip`. A matching `.modpkg` may be retained only as an
 > internal build or verification artifact.
 
-1. Download the current `Kanto-Ascendant-6.5.3-*.zip` from the
-   [latest release](https://github.com/Roxas2712/kanto-ascendant/releases/latest)
+1. Download `kanto-ascendant-6.5.3-rc.1.zip` from the
+   [6.5.3 RC1 release](https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.5.3-rc.1)
    and import it through the launcher. Developers may alternatively install
    the checked-out mod directory.
    If you downloaded a complete bundle, extract it first and import the inner
