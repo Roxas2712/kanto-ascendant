@@ -20,6 +20,9 @@ import sys
 import zipfile
 
 
+RELEASE_VERSION = "6.5.3-rc.1"
+CURRENT_RELEASE_NOTES = "RELEASE_NOTES_6.5.3_RC1.md"
+
 REQUIRED_COMPONENTS = {
     "driftglass_prisms.lua",
     "johto_encounter_levels.lua",
@@ -38,13 +41,12 @@ REQUIRED_PACKAGE_FILES = {
 }
 
 REQUIRED_SOURCE_FILES = REQUIRED_PACKAGE_FILES | {
-    "RELEASE_NOTES_6.5.0_RC11.md",
+    CURRENT_RELEASE_NOTES,
 }
 
 PUBLIC_RELEASE_TEXTS = {
     "README.md",
-    "RELEASE_NOTES_6.5.0_RC10.md",
-    "RELEASE_NOTES_6.5.0_RC11.md",
+    CURRENT_RELEASE_NOTES,
     "mod.card",
 }
 
@@ -181,8 +183,10 @@ def audit(source: Path, component_only: bool) -> list[str]:
                         errors.append(
                             "manifest id must be kanto_ascendant"
                         )
-                    if str(manifest.get("version", "")) != "6.5.0":
-                        errors.append("manifest version must be exactly 6.5.0")
+                    if str(manifest.get("version", "")) != RELEASE_VERSION:
+                        errors.append(
+                            "manifest version must be exactly " + RELEASE_VERSION
+                        )
                     if manifest.get("experimental") is True:
                         errors.append("release manifest must not be experimental")
 
