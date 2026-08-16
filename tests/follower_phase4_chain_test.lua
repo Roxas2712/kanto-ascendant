@@ -610,7 +610,8 @@ assert(Overworld.interact == baseOverworldInteract
   "hot reload restore retained an interaction/follower state wrapper")
 
 -- Yellow uses exactly one marked partner as follower #1; extras never enter
--- the legacy interactive follower slot.
+-- the legacy interactive follower slot. Only Pikachu/Raichu/Gorochu in that
+-- exact partner slot owns Yellow's authored mood/portrait conversation.
 edition, partner = "yellow", scizor
 scizor.hp = 30
 game.save.party = { raichu, espeon, scizor, tyranitar }
@@ -641,20 +642,39 @@ assert(originalTalkCalls == 0,
 assert(genericTalkCry == "SCIZOR"
     and genericTalkText and genericTalkText:find("SCIZOR", 1, true),
   "Yellow non-Pikachu partner lost species-aware generic talk")
+partner = raichu
+game.save.party = { raichu, espeon, scizor, tyranitar }
+raichu.johtoBond = 137
 for _, evolved in ipairs({ "RAICHU", "GOROCHU" }) do
-  scizor.species = evolved
+  raichu.species = evolved
   game.data.pokemon[evolved] = { name = evolved }
   yellowController.refresh(game)
   local evolvedFollower = yellowController.entities(game)[1]
+  local specialBefore = originalTalkCalls
   genericTalkCry, genericTalkText = nil, nil
   Follower.talk(game, game.overworld, evolvedFollower, function() end)
   assert(evolvedFollower.followerSpecies == evolved
       and evolvedFollower.followerSprite == "sheet_" .. evolved,
     evolved .. " evolution retained stale Yellow follower art")
-  assert(originalTalkCalls == 0 and genericTalkCry == evolved
-      and genericTalkText and genericTalkText:find(evolved, 1, true),
-    evolved .. " evolution inherited Pikachu's special talk")
+  assert(originalTalkCalls == specialBefore + 1
+      and genericTalkCry == nil and genericTalkText == nil,
+    evolved .. " exact Yellow partner lost its special portrait talk")
+  assert(raichu.johtoBond == 137,
+    evolved .. " portrait talk reset friendship data")
 end
+raichu.hp = 0
+assert(#selection.activeMany(game, 4) == 0,
+  "fainted evolved Yellow partner was replaced by a generic follower")
+raichu.hp = 30
+game.save.party = { espeon, scizor, tyranitar }
+assert(#selection.activeMany(game, 4) == 0,
+  "boxed evolved Yellow partner was replaced by a generic follower")
+game.save.party = { raichu, espeon, scizor, tyranitar }
+assert(selection.activeMany(game, 4)[1].mon == raichu
+    and raichu.johtoBond == 137,
+  "withdrawing evolved Yellow partner lost identity/friendship")
+raichu.species = "RAICHU"
+partner = scizor
 scizor.species, scizor.johtoBond = "TOGEPI", 100
 game.data.pokemon.TOGEPI = {
   name = "TOGEPI",
@@ -662,9 +682,10 @@ game.data.pokemon.TOGEPI = {
 }
 yellowController.refresh(game)
 local yellowFriendshipFollower = yellowController.entities(game)[1]
+local friendshipBefore = originalTalkCalls
 genericTalkCry, genericTalkText = nil, nil
 Follower.talk(game, game.overworld, yellowFriendshipFollower, function() end)
-assert(originalTalkCalls == 0 and genericTalkCry == "TOGEPI"
+assert(originalTalkCalls == friendshipBefore and genericTalkCry == "TOGEPI"
     and genericTalkText and genericTalkText:find("looks very", 1, true),
   "Yellow non-Pikachu friendship follower lost qualitative feedback")
 yellowController.restore()
@@ -700,6 +721,31 @@ end
 assert(isolatedLegacyCount == 1,
   "Raichu plus Blastoise created two legacy follower entities")
 raichuIsolation.restore()
+
+-- Species alone never grants Yellow's authored face/mood path. A temporary
+-- unmarked Pikachu fallback remains an ordinary generic follower until the
+-- partner identity controller has stamped the actual Oak partner.
+local strayPikachu = mon("PIKACHU")
+game.save.party, partner = { strayPikachu }, nil
+game.save.flags.EVENT_GOT_STARTER = true
+game.overworld.npcs, game.overworld.entities = {}, { game.overworld.player }
+current = nil
+local strayController = factory("single_follower.lua")(controllerMod, {
+  selection = selection, sprites = sprites, yellowPartner = yellowPartner,
+})
+assert(strayController.install(game),
+  "Yellow stray-Pikachu controller did not install")
+local stray = assert(strayController.entities(game)[1],
+  "Yellow stray Pikachu did not enter the generic fallback")
+local straySpecialBefore = originalTalkCalls
+genericTalkCry, genericTalkText = nil, nil
+Follower.talk(game, game.overworld, stray, function() end)
+assert(originalTalkCalls == straySpecialBefore
+    and genericTalkCry == "PIKACHU" and genericTalkText
+    and genericTalkText:find("is now\nfollowing you!", 1, true),
+  "unmarked Pikachu gained the authored Yellow partner conversation")
+strayController.restore()
+game.save.flags.EVENT_GOT_STARTER = nil
 
 -- Exact Yellow Pikachu keeps the authored Yellow personality poses.
 local pikachu = mon("PIKACHU")

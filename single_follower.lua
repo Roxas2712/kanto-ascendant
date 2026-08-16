@@ -602,7 +602,9 @@ return function(mod, opts)
     local Strings = require("src.core.Strings")
     local TextBox = require("src.render.TextBox")
     local text = friendshipText(game, mon, name, Strings)
-      or Strings("%s is following\nyou!", name)
+      or Strings(tr(
+        "%s is now\nfollowing you!",
+        "%s folgt dir\njetzt!"), name)
     game.stack:push(TextBox.new(game, text, done))
   end
 
@@ -791,13 +793,20 @@ return function(mod, opts)
         return genericTalk(activeGame, ow, npc, done)
       end
       -- The first transport entity is historically named PikachuFollower,
-      -- but in Ascendant it may carry any selected party species.  Yellow's
-      -- mood/portrait conversation belongs only to an actual Pikachu; after
-      -- an evolution (Raichu/Gorochu) or a non-Pikachu Legacy choice the
-      -- follower must use the ordinary species-aware interaction instead.
-      if selection.edition() == "yellow"
-          and npc and npc.followerSpecies == "PIKACHU" then
-        return originalTalk(activeGame, ow, npc, done)
+      -- but in Ascendant it may carry any selected party species. Yellow's
+      -- authored bridge owns the exact original partner across its complete
+      -- Pikachu -> Raichu -> Gorochu identity chain. Do not infer that right
+      -- from species: an unrelated Raichu/Gorochu (or a Legacy partner) keeps
+      -- the ordinary species-aware interaction.
+      if selection.edition() == "yellow" and npc then
+        local authored = opts.yellowPartner and opts.yellowPartner.partner
+          and opts.yellowPartner.partner(activeGame) or nil
+        if npc.followerMon == authored
+            and (npc.followerSpecies == "PIKACHU"
+              or npc.followerSpecies == "RAICHU"
+              or npc.followerSpecies == "GOROCHU") then
+          return originalTalk(activeGame, ow, npc, done)
+        end
       end
       return genericTalk(activeGame, ow, npc, done)
     end

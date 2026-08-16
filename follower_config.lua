@@ -328,6 +328,9 @@ return function(mod, opts)
 
   local function resultText(game, mon, position)
     local name = monName(game, mon)
+    local following = tr(
+      name .. " is now\nfollowing you!",
+      name .. " folgt dir\njetzt!")
     if C.isYellow() then
       local lead = yellowLead(game)
       if not (lead and inParty(game, lead) and (tonumber(lead.hp) or 0) > 0) then
@@ -344,13 +347,13 @@ return function(mod, opts)
         name .. " wurde gespeichert.\fNur die ersten 4\nBegleiter erscheinen.")
     end
     if C.isYellow() and position > 1 then
-      return tr(("%s added as\nFOLLOWER #%d.\fYour partner stays\nFOLLOWER #1.")
-          :format(name, position),
-        ("%s ist jetzt\nBEGLEITER #%d.\fDein Partner bleibt\nBEGLEITER #1.")
-          :format(name, position))
+      return following .. tr(
+        ("\fIt is FOLLOWER #%d.\fYour partner stays\nFOLLOWER #1.")
+          :format(position),
+        ("\fEs ist BEGLEITER #%d.\fDein Partner bleibt\nBEGLEITER #1.")
+          :format(position))
     end
-    return tr(("%s added as\nFOLLOWER #%d."):format(name, position),
-      ("%s ist jetzt\nBEGLEITER #%d."):format(name, position))
+    return following
   end
 
   local function showResult(game, text)

@@ -181,8 +181,21 @@ for _, bad in ipairs({ "100", -1, 256, 1.5, false }) do
     followerMon = candidate, cellX = 1, cellY = 1,
     facing = "down", moving = false,
   }, function() end)
-  has(lastText, "is following", "malformed bond generic fallback")
+  has(lastText, "is now\nfollowing you!",
+    "malformed bond generic fallback")
 end
+
+german = true
+local ordinary = mon("BULBASAUR", nil, "BISA")
+lastText = nil
+controller._genericTalk(game, ow, {
+  followerMon = ordinary, cellX = 1, cellY = 1,
+  facing = "down", moving = false,
+}, function() end)
+has(lastText, "BISA folgt dir\njetzt!", "German generic follower grammar")
+assert(not lastText:find("\f", 1, true),
+  "generic follower confirmation gained an unnecessary A-gated page")
+german = false
 pokemon.FUTURE = {
   name = "FUTURE", evolutions = {
     { method = "FRIENDSHIP_FUTURE", species = "UNKNOWN" },

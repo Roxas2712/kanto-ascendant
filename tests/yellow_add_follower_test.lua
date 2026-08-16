@@ -131,9 +131,10 @@ local function scenario(partnerHp, boxed, language)
 end
 
 local healthy = scenario(20, false)
-assert(healthy.message:find("FOLLOWER #2", 1, true)
+assert(healthy.message:find("TOGEPI is now\nfollowing you!", 1, true)
+    and healthy.message:find("FOLLOWER #2", 1, true)
     and healthy.message:find("FOLLOWER #1", 1, true),
-  "healthy Yellow result did not explain the reserved partner slot")
+  "healthy Yellow result lacks natural confirmation/reserved partner slot")
 local rows = healthy.selection.activeMany(healthy.game, healthy.config.count())
 assert(#rows == 2 and rows[1].mon == healthy.pikachu
     and rows[2].mon == healthy.togepi,
@@ -174,8 +175,9 @@ assert(healthy.config.count() == 2,
   "SHOW FOLLOWER did not repair the affected save's hidden slot")
 
 local german = scenario(20, false, "de")
-assert(german.message:find("BEGLEITER #2", 1, true)
+assert(german.message:find("TOGEPI folgt dir\njetzt!", 1, true)
+    and german.message:find("BEGLEITER #2", 1, true)
     and german.message:find("BEGLEITER #1", 1, true),
-  "German Yellow result did not explain both follower slots")
+  "German Yellow result lacks natural confirmation/both follower slots")
 
 print("PASS Yellow ADD FOLLOWER: visible #2, EN/DE partner gate, saved recovery")
