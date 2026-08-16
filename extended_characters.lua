@@ -1350,6 +1350,12 @@ return function(mod, opts)
 
   mod.hooks:wrap("player.sprite", function(nextSprite, path, ctx)
     path = nextSprite(path, ctx)
+    -- The engine has already resolved these two battle backs to the scripted
+    -- tutorial actor: Viridian's old man (`demo`) or Yellow's Professor Oak
+    -- (`oakDemo`). They are not player-identity surfaces, even though the
+    -- shared renderer exposes them through player.sprite. Preserve both the
+    -- selected path and its native palette contract verbatim.
+    if ctx and (ctx.demo or ctx.oakDemo) then return path end
     local state = M.getState()
     -- Red/Blue saves created before the three-character record existed still
     -- represent the canonical Red protagonist.  Resolve his approved battle
