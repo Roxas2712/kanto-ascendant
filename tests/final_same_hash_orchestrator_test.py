@@ -2,7 +2,7 @@
 """Historical pre-0.1.90 static/dry-run same-hash receipt.
 
 Its Battle Art cells preserve earlier evidence only; they are not part of the
-current 6.5.3 renderer-admission or engine-0.1.90 release gate.
+current 6.5.4 renderer-admission or engine-0.1.90 release gate.
 """
 
 from __future__ import annotations

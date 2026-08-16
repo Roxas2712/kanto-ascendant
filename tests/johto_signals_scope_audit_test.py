@@ -23,7 +23,7 @@ def write_clean_package(root: Path) -> None:
     (root / ".luarc.json").write_text("{}\n", encoding="utf-8")
     (root / "README.md").write_text("# Kanto Ascendant\n", encoding="utf-8")
     (root / AUDIT.CURRENT_RELEASE_NOTES).write_text(
-        "# Kanto Ascendant 6.5.3\n", encoding="utf-8"
+        f"# Kanto Ascendant {AUDIT.RELEASE_VERSION}\n", encoding="utf-8"
     )
     (root / "mod.card").write_text("return {}\n", encoding="utf-8")
     (root / "manifest.json").write_text(
@@ -68,7 +68,9 @@ with tempfile.TemporaryDirectory(prefix="signals-audit-") as raw:
     notes.write_text("JIRACHI is included.\n", encoding="utf-8")
     leaked = AUDIT.audit(clean, False)
     assert any("JIRACHI" in error for error in leaked)
-    notes.write_text("# Kanto Ascendant 6.5.3\n", encoding="utf-8")
+    notes.write_text(
+        f"# Kanto Ascendant {AUDIT.RELEASE_VERSION}\n", encoding="utf-8"
+    )
 
     archive = temp / "clean.modpkg"
     with zipfile.ZipFile(archive, "w") as zf:

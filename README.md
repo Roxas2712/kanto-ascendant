@@ -53,6 +53,21 @@ collapsed so players can reveal only the information they want.
 > [GitHub Issues](https://github.com/Roxas2712/kanto-ascendant/issues) and will
 > be considered for future updates.
 
+## What's new in 6.5.4
+
+- Repairs Johto Signals and Legacy/New Game+ wild distribution without asking
+  affected 6.5.3 saves to restart.
+- Makes Legacy storage safer and reachable from every eligible player PC,
+  including atomic quantity withdrawals.
+- Fixes Pokédex `AREA`, Fighting Dojo prize selection, an optional cave exit,
+  rematch evolution/AI edge cases and overly steep early difficulty scaling.
+- Restores Yellow follower/partner presentation and keeps Red, Blue and Green
+  trainer identity consistent in normal battles, tutorials and Trainer Cards.
+- Reviews exact Battle Art 1.9.2, Dramaless 2.0.2 and PotatoVoxel 1.7.2 package
+  contracts. Adjacent versions and unreviewed combinations remain unsupported.
+
+See the full spoiler-light [6.5.4 release notes](RELEASE_NOTES_6.5.4.md).
+
 ## What's new in 6.5.3
 
 - Three character-specific Hidden Evolution trials expand the postgame while
@@ -68,7 +83,7 @@ collapsed so players can reveal only the information they want.
   spoiler sections in the [FAQ](FAQ.md) and the optional
   [offline map guide](docs/guides/hidden-evolution/README.md).
 
-See the full spoiler-light [6.5.3 release notes](RELEASE_NOTES_6.5.3.md).
+See the historical spoiler-light [6.5.3 release notes](RELEASE_NOTES_6.5.3.md).
 
 ## What's new in 6.0.5
 
@@ -1520,8 +1535,8 @@ renderers.
 > launcher-compatible `.zip`. A matching `.modpkg` may be retained only as an
 > internal build or verification artifact.
 
-1. Download `kanto_ascendant-6.5.3.zip` from the
-   [6.5.3 release](https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.5.3)
+1. Download `kanto_ascendant-6.5.4.zip` from the
+   [6.5.4 release](https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.5.4)
    and import it through the launcher. Developers may alternatively install
    the checked-out mod directory.
    If you downloaded a complete bundle, extract it first and import the inner

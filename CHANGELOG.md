@@ -4,8 +4,42 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+## [6.5.4] - 2026-08-17
+
 ### Fixed
 
+- Fresh Red, Blue and Yellow campaigns now start the save-local Johto Signals
+  cadence after receiving a starter and the Pokédex. Unlocking Johto also
+  expands an active normal Randomizer to the deterministic #001-251 pool.
+- Legacy/New Game+ saves that confirmed Johto now activate the intended wild
+  distribution. Existing affected 6.5.3 saves receive the same idempotent
+  repair after updating, without resetting their run choices.
+- Legacy storage can be opened from every player PC during an eligible run.
+  Item withdrawals accept a quantity and commit atomically, so a failed or
+  cancelled transfer cannot duplicate or lose part of a stack.
+- The three original Kanto starters can appear through their rare authored
+  early Legacy habitats, while protected story encounters remain unchanged.
+- Names remain `???` until Oak's naming confirmation instead of leaking the
+  selected default name one screen too early.
+- Surprise trainers use fairer loss-aware scaling, and the early difficulty
+  curve phases level bonuses by badge progress instead of applying the full
+  endgame modifier to a new party.
+- Pokédex `AREA` no longer crashes on incomplete or incompatible encounter
+  metadata.
+- The Fighting Dojo prize choice is selectable again and rolls back safely if
+  delivery fails. A previously blocked optional cave exit now triggers from a
+  reachable movement tile while keeping its interaction fallback.
+- Rematch combatants and their displayed evolved forms stay synchronized.
+  Expert rematch AI no longer loops recovery moves when they have no useful
+  effect.
+- Yellow's party-menu follower action is visible again. The genuine partner's
+  evolved forms retain their dedicated face and bond presentation without
+  granting that presentation to unrelated Pokémon of the same species.
+- Fresh Trainer Cards no longer claim the player is Champion before earning a
+  title, and normal 2D battles use the selected Red, Blue or Green back sprite.
+  Scripted catching tutorials retain their own trainer art.
+- Every Ascendant visual option is inspectable again and is grouped into clear
+  Pokémon-sprite and character/trainer sections.
 - Trainer Cards now show the approved KASC Brock-through-Giovanni portraits
   in unearned badge slots while preserving the original badge artwork once a
   badge is owned. Red, Blue and Green profile art is kept wholly inside the
