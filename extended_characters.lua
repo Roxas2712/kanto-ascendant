@@ -155,6 +155,21 @@ return function(mod, opts)
   local activeGame
   local refreshVisuals = function() end
 
+  local function trainerPortraitStyle(game)
+    local saved = game and game.save and game.save.options
+      and game.save.options.modOptions
+      and game.save.options.modOptions[mod.id]
+      and game.save.options.modOptions[mod.id].trainer_portrait_style
+    local style = saved
+    if style == nil and mod.options and type(mod.options.get) == "function" then
+      style = mod.options:get("trainer_portrait_style")
+    end
+    if style == "ascendant" then return "crystal_hd" end
+    if style == "frlg" then return "original" end
+    if style == "original" or style == "crystal_hd" then return style end
+    return "crystal_hd"
+  end
+
   local function whiteUiPalette(game, name)
     local P = require("src.render.PaletteFX")
     local palette = P.pal(game.data, name or "MEWMON")
@@ -294,6 +309,14 @@ return function(mod, opts)
     -- no 128 -> 64 reduction can throw away faces, clothing or hard outlines.
     -- The 2D battle fronts remain separate FRLG/Casey art.
     local id = normalizedId(character, "RED")
+    -- ORIGINAL is an explicit portrait-family choice, unlike the old field
+    -- style.  Only Green has a separately approved compact identity pair;
+    -- keep Red/Blue and the default Crystal-HD family byte-for-byte intact.
+    if id == "GREEN" and trainerPortraitStyle(activeGame) == "original" then
+      local visual = copy(CHARACTERS.GREEN.visuals.front)
+      visual.character, visual.state, visual.style = id, "selectorHd", "original"
+      return visual
+    end
     return copy(CRYSTAL_VISUALS[id].selectorHd)
   end
 
@@ -319,12 +342,18 @@ return function(mod, opts)
     trainerCard = true, hallOfFame = true, credits = true,
     intro = true, special = true, rivalPortrait = true,
   }
+  local ORIGINAL_GREEN_FRONT_STATES = {
+    front = true, selectorHd = true, trainerCard = true,
+    hallOfFame = true, credits = true, intro = true,
+    special = true, rivalPortrait = true,
+  }
 
   -- Central visual resolver.  A walking sheet carries its own direction and
   -- frame grid, but callers may still pass both for an inspectable contract.
   function M.resolveVisual(character, state, direction, frame)
     local characterId = normalizedId(character, "RED")
     local style = M.characterStyle()
+    local portraitStyle = trainerPortraitStyle(activeGame)
     -- Battle/portrait art is the permanent Kanto Ascendant set. Red's compact
     -- front surfaces are the explicit native-ROM fallback above.
     -- character_sprite_style now only changes small field-state sheets.  This
@@ -334,11 +363,20 @@ return function(mod, opts)
     -- surface.  It always uses KASC's base Red/Blue/Green profile even when
     -- Crystal field/battle art is active; Voxel/Crystal/FRLG portraits must
     -- never leak into this one screen.
-    local baseIdentityOnly = state == "trainerCard"
+    local originalGreen = characterId == "GREEN"
+      and portraitStyle == "original"
+      and (state == "battleBack" or ORIGINAL_GREEN_FRONT_STATES[state])
+    local baseIdentityOnly = state == "trainerCard" or originalGreen
     local useFrlg = not baseIdentityOnly
       and (BATTLE_VISUAL_STATES[state] or style == "crystal")
-    local visual = useFrlg and CRYSTAL_VISUALS[characterId][state]
-      or M.definition(characterId).visuals[state]
+    local visual
+    if originalGreen then
+      visual = state == "battleBack" and CHARACTERS.GREEN.visuals.battleBack
+        or CHARACTERS.GREEN.visuals.front
+    else
+      visual = useFrlg and CRYSTAL_VISUALS[characterId][state]
+        or M.definition(characterId).visuals[state]
+    end
     -- Surf remains the shared creature sheet in both modes.
     visual = visual or M.definition(characterId).visuals[state]
     -- Casey's authored package art stays primary. If an incomplete/manual
@@ -360,8 +398,13 @@ return function(mod, opts)
     resolved.character = characterId
     resolved.fallbackCharacter = fellBackToRed and "RED" or nil
     resolved.style = style
+    resolved.portraitStyle = portraitStyle
     resolved.state, resolved.direction, resolved.frame = state, direction, frame
     return resolved
+  end
+
+  function M.trainerPortraitStyle(game)
+    return trainerPortraitStyle(game or activeGame)
   end
 
   function M.getCharacterSprite(character, state, direction, frame)
@@ -1455,22 +1498,6 @@ return function(mod, opts)
       fallback = "assets/characters/frlg_trainers/elite_four_lance_voxel_front_v3.png",
     },
   }
-
-  local function trainerPortraitStyle(game)
-    local saved = game and game.save and game.save.options
-      and game.save.options.modOptions
-      and game.save.options.modOptions[mod.id]
-      and game.save.options.modOptions[mod.id].trainer_portrait_style
-    local style = saved
-    if style == nil and mod.options and type(mod.options.get) == "function" then
-      style = mod.options:get("trainer_portrait_style")
-    end
-    if style == "ascendant" then return "crystal_hd" end
-    if style == "original" or style == "frlg" or style == "crystal_hd" then
-      return style
-    end
-    return "crystal_hd"
-  end
 
   local function ordinaryVoxelSpec(battle)
     if not (trainerVoxelPortraits
