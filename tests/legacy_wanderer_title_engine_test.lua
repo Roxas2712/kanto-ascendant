@@ -74,10 +74,10 @@ local ace = {
 
 local titleId, titleName = hall.currentTitle()
 eq(titleId, nil, "a fresh real save has no selected title")
-eq(titleName, "CHAMPION", "the hall exposes its neutral English fallback")
+eq(titleName, nil, "a fresh real save does not manufacture a Champion title")
 eq(wanderers.reactionContext(scientist).kind, "fallback",
   "the late-bound real Hall provider preserves no-title fallback")
-contains(wanderers.challengeText(scientist), "not titles",
+contains(wanderers.challengeText(scientist), "journey taught you",
   "the real no-title field dialogue stays neutral")
 
 check(ascendant.unlockAchievement("factory_architect"),
@@ -91,7 +91,7 @@ eq(wanderers.reactionContext(scientist).kind, "title_factory",
   "the real Scientist recognizes the active title")
 eq(wanderers.reactionContext(ace).kind, "fallback",
   "the real unrelated ace keeps the neutral fallback")
-contains(wanderers.challengeText(scientist), "No rental team",
+contains(wanderers.challengeText(scientist), "BATTLE FACTORY ACE!",
   "the selected title reaches the authored real field dialogue")
 eq(save.modData.kanto_ascendant.legacy_hall.selectedTitle,
   "factory_architect", "Hall selection is stored in mod save data")
@@ -115,7 +115,7 @@ eq(titleName, "FACTORY ARCHITECT",
   "the persisted title keeps its localized display name")
 eq(wanderers.reactionContext(scientist).kind, "title_factory",
   "the matching reaction survives reload with the selected title")
-contains(wanderers.challengeText(scientist), "FACTORY\nARCHITECT?",
+contains(wanderers.challengeText(scientist), "BATTLE FACTORY ACE!",
   "the reloaded real dialogue still names the achievement")
 
 -- Partner recognition reads only the committed active-run fields. Merely
@@ -139,7 +139,7 @@ eq(wanderers.reactionContext(partnerActive).kind, "fallback",
 reloadedSave.modData.kanto_ascendant.legacy_journey.partnerChosen = true
 eq(wanderers.reactionContext(partnerActive).kind, "partner_match",
   "the same roster recognizes the partner only after commitment")
-contains(wanderers.challengeText(partnerActive), "PIKACHU knows",
+contains(wanderers.challengeText(partnerActive), "I know that bond.",
   "the real committed-partner dialogue names the species")
 
 -- A separate New Game save must not inherit the previous save's active title.
@@ -151,7 +151,7 @@ run.loader.events:emit("save.loaded", { save = freshSave, game = freshGame })
 scientist.game = freshGame
 titleId, titleName = hall.currentTitle()
 eq(titleId, nil, "a fresh save cannot inherit another save's title")
-eq(titleName, "CHAMPION", "fresh-save fallback remains available")
+eq(titleName, nil, "fresh-save Trainer Card keeps the stock BADGES row")
 eq(wanderers.reactionContext(scientist).kind, "fallback",
   "fresh-save real dialogue returns to the no-title fallback")
 

@@ -146,7 +146,11 @@ return function(mod, opts)
     if a and a.latestAchievement and unlocked(a.latestAchievement) then
       return a.latestAchievement, titleName(a.latestAchievement)
     end
-    return nil, tr("CHAMPION", "CHAMP")
+    -- No earned/selected title means exactly that.  The stock Trainer Card
+    -- already owns this row and labels it BADGES/ORDEN; manufacturing a
+    -- CHAMPION fallback here made every brand-new save look like a League
+    -- winner before the first badge.
+    return nil, nil
   end
 
   local function selectTitle(id)

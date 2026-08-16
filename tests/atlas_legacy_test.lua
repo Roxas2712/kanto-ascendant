@@ -231,8 +231,8 @@ hallState.selectedTitle = "PHANTOM_FROM_OLD_MOD"
 local phantomId, phantomName = legacy.currentTitle()
 T.eq(phantomId, nil,
   "an unknown selected/latest id never becomes a phantom Trainer Card title")
-T.eq(phantomName, "CHAMPION",
-  "unknown title ids fall back to the ordinary Champion label")
+T.eq(phantomName, nil,
+  "unknown title ids do not manufacture a Champion label")
 T.eq(legacy.state().selectedTitle, nil,
   "the Legacy Gallery self-heals an unknown selected-title id")
 T.eq(ascendant.state().selectedTitle, nil,
