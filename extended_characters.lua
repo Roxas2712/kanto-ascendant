@@ -21,6 +21,7 @@ return function(mod, opts)
   local DERIVED = "save/mod-derived/" .. tostring(mod.id or "kanto_ascendant")
     .. "/characters/"
   local SELECTION_ORDER = { "GREEN", "BLUE", "RED" }
+  local PRE_NAME_PLACEHOLDER = "???"
 
   local CHARACTERS = {
     RED = {
@@ -262,9 +263,17 @@ return function(mod, opts)
 
   function M.selectionLabel(character)
     -- Identity and the editable player name are separate.  Oak may show the
-    -- canonical hero identity here without pre-empting the naming screen that
-    -- follows the choice.
+    -- canonical hero identity to non-name consumers without pre-empting the
+    -- naming screen that follows the choice.
     return displayName(character)
+  end
+
+  function M.preNamingName()
+    -- The selector already knows portrait, pronouns and family relationship,
+    -- but its three text rows are player-name slots.  They must stay unknown
+    -- through back/re-entry/reload and every failed selection/name write; the
+    -- real naming screens are the sole authority that reveal a chosen name.
+    return PRE_NAME_PLACEHOLDER
   end
 
   function M.selectionVisual(character)
@@ -719,9 +728,10 @@ return function(mod, opts)
     for row, id in ipairs(SELECTION_ORDER) do
       local y = 24 + (row - 1) * 16
       if row == self.index then Font.drawCode(Theme.cursor, 8, y) end
-      -- This is the immutable hero identity, not the editable player name
-      -- entered on the following screen.
-      Font.draw(M.selectionLabel(id), 24, y)
+      -- Portrait and relationship establish immutable identity here.  This
+      -- row is still an editable player-name slot, so it remains unknown until
+      -- the following naming screen completes successfully.
+      Font.draw(M.preNamingName("player", id), 24, y)
     end
 
     local id = SELECTION_ORDER[self.index]
