@@ -261,12 +261,28 @@ local blueBackPath = run.loader.hooks:call("player.sprite",
 T.check(blueBackPath:match(
     "/assets/characters/crystal_chars/blue_back%.png$") ~= nil,
   "battle-back hook follows selected identity without field-style leakage")
+local cardProfiles = {
+  RED = "save/mod-derived/kanto_ascendant/characters/red_front.png",
+  BLUE = "save/mod-derived/kanto_ascendant/characters/blue_rival.png",
+  GREEN = "assets/characters/green_front.png",
+}
 local blueCardPath = run.loader.hooks:call("player.sprite",
   function(path) return path end, "vanilla-front.png",
   { side = "front", kind = "trainer_card" })
-T.check(blueCardPath:match(
-    "/assets/characters/crystal_chars/blue_front%.png$") ~= nil,
-  "front hook keeps cards and Hall of Fame on the FRLG-scale family")
+T.check(blueCardPath:sub(-#cardProfiles.BLUE) == cardProfiles.BLUE,
+  "Trainer Card keeps Blue's KASC Kanto profile instead of Crystal art")
+for _, style in ipairs({ "ascendant", "crystal" }) do
+  run.loader.modOptions.kanto_ascendant.character_sprite_style = style
+  for _, identity in ipairs({ "RED", "BLUE", "GREEN" }) do
+    characters.select(identity)
+    T.eq(characters.getPlayerSprite("trainerCard").path,
+      cardProfiles[identity],
+      identity .. " Trainer Card stays on its KASC profile in "
+        .. style .. " skin mode")
+  end
+end
+run.loader.modOptions.kanto_ascendant.character_sprite_style = "ascendant"
+characters.select("BLUE")
 T.eq(characters.playerVisualState({ kind = "trainer_card" }), "trainerCard",
   "Trainer Card requests use their declared resolver state")
 T.eq(characters.playerVisualState({ kind = "hall_of_fame" }), "hallOfFame",
@@ -326,8 +342,41 @@ voxelCompat.module = function()
   return nil, "DRAMALESS_SHAPE",
     "renderer-native-owned:DRAMALESS_SHAPE"
 end
+local dramalessModeGame = {
+  mods = { modOptions = {} },
+  save = { options = { modOptions = {} } },
+  data = { trainers = {
+    OPP_RIVAL1 = { pic = "native-rival-1" },
+    OPP_RIVAL2 = { pic = "native-rival-2" },
+    OPP_RIVAL3 = { pic = "native-rival-3" },
+  } },
+}
+characters.select("BLUE")
+characters.refreshVisuals(dramalessModeGame)
 T.eq(characters.playerVisualState({ side = "back", kind = "battle" }),
-  "voxelFront", "reviewed Dramaless native battle keeps its standing card")
+  "voxelFront", "reviewed Dramaless default enables its native standing card")
+T.check(dramalessModeGame.data.trainers.OPP_RIVAL1.pic:match(
+    "/assets/characters/crystal_chars/green_voxel_front%.png$") ~= nil,
+  "Dramaless cards ON installs Green's standing rival identity")
+dramalessModeGame.mods.modOptions.DRAMALESS_SHAPE = {
+  voxel_2d_battles = false,
+}
+characters.refreshVisuals(dramalessModeGame)
+T.eq(characters.playerVisualState({ side = "back", kind = "battle" }),
+  "battleBack", "Dramaless cards OFF restores the authored 2D back")
+T.check(dramalessModeGame.data.trainers.OPP_RIVAL1.pic:match(
+    "/assets/characters/crystal_chars/green_front%.png$") ~= nil,
+  "Dramaless cards OFF restores Green's normal rival front")
+dramalessModeGame.mods.modOptions.DRAMALESS_SHAPE.voxel_2d_battles = true
+characters.refreshVisuals(dramalessModeGame)
+T.eq(characters.playerVisualState({ side = "back", kind = "battle" }),
+  "voxelFront", "Dramaless cards ON keeps the native standing card")
+dramalessModeGame.mods.modOptions.DRAMALESS_SHAPE = nil
+dramalessModeGame.save.options.modOptions.DRAMALESS_SHAPE = {
+  voxel_2d_battles = false,
+}
+T.eq(characters.playerVisualState({ side = "back", kind = "battle" }),
+  "battleBack", "saved Dramaless OFF state is honored before loader hydration")
 voxelCompat.module = function() error("capability probe failed") end
 T.eq(characters.playerVisualState({ side = "back", kind = "battle" }),
   "battleBack", "renderer resolution failure safely falls back to 2D back art")

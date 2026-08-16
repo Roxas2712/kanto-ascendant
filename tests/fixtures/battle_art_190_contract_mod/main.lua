@@ -1,6 +1,7 @@
 -- Minimal no-asset fixture for KASC's Battle Art ownership contract. It is
--- not a redistributed renderer; tests use it only to model the public 1.9.0
--- export and prove that KASC leaves owner-selected trainer paths untouched.
+-- not a redistributed renderer; tests use it only to model the public 1.9.2
+-- export and prove that KASC changes only explicit selected character
+-- identities while Battle Art retains its stage, HUD and ordinary art.
 
 return function(mod)
   local function sideTexture(battle, side)
@@ -8,12 +9,14 @@ return function(mod)
       return {
         sourceOwner = "BATTLE_ART_PLAYER_ART",
         sourceAsset = "/separate-battle-art/player-option.png",
+        sourceIdentity = "RED",
       }
     end
     if side == "enemy" and battle and battle.showEnemyTrainer then
       return {
         sourceOwner = "BATTLE_ART_TRAINER_ART",
         sourceAsset = "/separate-battle-art/trainer-option.png",
+        sourceIdentity = "BLUE",
       }
     end
     return {
@@ -27,11 +30,17 @@ return function(mod)
     OverworldBattle = { sideTexture = sideTexture },
     ShadowMap = {}, SpriteBillboards = {}, TerrainAtlas = {},
     Voxel3D = {}, VoxelScene = {}, VoxelState = {},
+    VoxelMeshDisk = {
+      available = function() return false end,
+      staticEligible = function() return false end,
+      saveTerrain = function() return false end,
+      saveAux = function() return false end,
+    },
   }
   local lib = { mod = mod, path = mod.path }
   function lib.require(name) return modules[name] end
 
-  mod.exports.version = "1.9.0"
+  mod.exports.version = "1.9.2"
   mod.exports.originalSideTexture = sideTexture
   mod.exports.overworldBattle = modules.OverworldBattle
   mod.exports.lib = lib

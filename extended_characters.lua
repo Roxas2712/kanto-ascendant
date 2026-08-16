@@ -321,7 +321,13 @@ return function(mod, opts)
     -- character_sprite_style now only changes small field-state sheets.  This
     -- prevents a legacy option from silently restoring low-resolution Oak,
     -- rival, card or battle art.
-    local useFrlg = BATTLE_VISUAL_STATES[state] or style == "crystal"
+    -- The Trainer Card is a Kanto identity document, not a selected skin
+    -- surface.  It always uses KASC's base Red/Blue/Green profile even when
+    -- Crystal field/battle art is active; Voxel/Crystal/FRLG portraits must
+    -- never leak into this one screen.
+    local baseIdentityOnly = state == "trainerCard"
+    local useFrlg = not baseIdentityOnly
+      and (BATTLE_VISUAL_STATES[state] or style == "crystal")
     local visual = useFrlg and CRYSTAL_VISUALS[characterId][state]
       or M.definition(characterId).visuals[state]
     -- Surf remains the shared creature sheet in both modes.
@@ -1013,6 +1019,27 @@ return function(mod, opts)
     return ok and Pipelines and Pipelines.level("voxel") > 0
   end
 
+  -- DRAMALESS 2.0.2 keeps its card implementation private, but its public
+  -- option is still the authoritative pre-battle boundary.  The player back
+  -- picture is resolved while BattleState is being constructed, before the
+  -- native card host has a session to inspect, so consulting the loader/save
+  -- option is both earlier and more exact than treating renderer presence as
+  -- proof that a standing card will be shown.
+  local function dramalessNativeCardsEnabled(game)
+    local loaderValue = game and game.mods and game.mods.modOptions
+      and game.mods.modOptions.DRAMALESS_SHAPE
+      and game.mods.modOptions.DRAMALESS_SHAPE.voxel_2d_battles
+    if type(loaderValue) == "boolean" then return loaderValue end
+    local savedValue = game and game.save and game.save.options
+      and game.save.options.modOptions
+      and game.save.options.modOptions.DRAMALESS_SHAPE
+      and game.save.options.modOptions.DRAMALESS_SHAPE.voxel_2d_battles
+    if type(savedValue) == "boolean" then return savedValue end
+    -- Exact reviewed 2.0.2 default.  Older/unreviewed packages never reach
+    -- this branch because voxelRenderer rejects their receipt first.
+    return true
+  end
+
   -- The Voxel world and a staged Voxel battle are two independent choices.
   -- Using the world pipeline alone here made a normal Gen-I battle request a
   -- standing trainer card whenever the player kept the 3D overworld enabled.
@@ -1031,10 +1058,12 @@ return function(mod, opts)
       return ok and enabled == true
     end
     -- The exact reviewed DRAMALESS 2.0.2 package deliberately keeps its
-    -- owner-scoped battle modules private. Its native card host is the battle
-    -- presentation, so this one explicit resolver receipt remains standing.
+    -- owner-scoped battle modules private.  Its option (default ON), rather
+    -- than package presence, decides whether the native standing cards own
+    -- this battle.
     return rendererId == "DRAMALESS_SHAPE"
       and reason == "renderer-native-owned:DRAMALESS_SHAPE"
+      and dramalessNativeCardsEnabled(activeGame)
   end
   for _, id in ipairs({ "RED", "GREEN" }) do
     for key in pairs(dialogue.rival[id] or {}) do
@@ -1074,7 +1103,8 @@ return function(mod, opts)
 
   local function installRivalPresentation(game, rival)
     local data = game and game.data
-    local portraitState = voxelActive() and "voxelFront" or "rivalPortrait"
+    local portraitState = voxelBattleUsesStandingTrainer()
+      and "voxelFront" or "rivalPortrait"
     local portrait = M.getCharacterSprite(rival, portraitState)
     if not (data and data.trainers and portrait) then return end
     for _, classId in ipairs(RIVAL_CLASSES) do
@@ -1448,31 +1478,19 @@ return function(mod, opts)
       }
       return false
     end
-    if rendererId == "BATTLE_ART_VOXEL_FORK" then
-      -- Battle Art owns PLAYER ART, PLAYER ANIM and TRAINER ART. Its
-      -- sideTexture result must reach the renderer unchanged even when KASC's
-      -- trainer_portrait_style is CRYSTAL HD or the battle uses a KASC rival,
-      -- Johto or Indigo identity. KASC-specific Pokémon forms are handled by
-      -- their separate Mega/Gorochu adapters and are unaffected by this gate.
-      M.voxelResolverStatus = {
-        schema = "ka-approved-trainer-resolver/v1",
-        installed = false,
-        delegated = true,
-        rendererId = rendererId,
-        rendererVersion = rendererReceipt and rendererReceipt.rendererVersion,
-        rendererProvenance = rendererReceipt and rendererReceipt.provenance,
-        reason = "renderer-owns-trainer-art",
-      }
-      return true
-    end
+    local battleArtIdentityOnly = rendererId == "BATTLE_ART_VOXEL_FORK"
     local resolverSentinel = {
       schema = "ka-approved-trainer-resolver/v1",
       installed = true,
+      delegated = battleArtIdentityOnly or nil,
+      identityOverride = battleArtIdentityOnly or nil,
       rendererId = rendererId,
       rendererVersion = rendererReceipt and rendererReceipt.rendererVersion,
       rendererProvenance = rendererReceipt and rendererReceipt.provenance,
       module = "OverworldBattle",
       capability = "sideTexture",
+      reason = battleArtIdentityOnly
+        and "renderer-owns-stage-kasc-owns-selected-identity" or nil,
     }
     M.voxelResolverStatus = resolverSentinel
     if overworldBattle.__ascendantStandingTrainerMirror then
@@ -1485,7 +1503,12 @@ return function(mod, opts)
     if type(originalSideTexture) ~= "function" then return false end
     overworldBattle.sideTexture = function(battle, side)
       local player = M.getPlayerCharacter()
-      local crystalVoxel = battle and voxelActive()
+      -- Battle Art calls this source boundary only for its staged renderer.
+      -- It may not register the engine's `voxel` world pipeline, so its exact
+      -- reviewed receipt is sufficient here.  Other renderers retain their
+      -- normal world + battle capability gate.
+      local crystalVoxel = battle
+        and (voxelActive() or battleArtIdentityOnly)
       local trainerVisible = side == "player" and battle
         and battle.showPlayerBack or side == "enemy" and battle
         and battle.showEnemyTrainer
@@ -1503,7 +1526,8 @@ return function(mod, opts)
         if highRes then
           highRes.ascendantApprovedTrainerResolver = {
             schema = "ka-approved-trainer-texture/v1",
-            role = "player", identity = character,
+            role = side == "enemy" and "enemy" or "player",
+            identity = character,
             approvedVersion = "CURRENT",
             source = highRes.ascendantHighResSource,
             rendererId = rendererId,
@@ -1521,6 +1545,17 @@ return function(mod, opts)
             .. character:lower() .. "_voxel_front_hd.png",
           reason = problem,
         })
+      end
+      -- Battle Art continues to own PLAYER ART/TRAINER ART for every source
+      -- except the two explicit KASC-selected role identities above.  Do not
+      -- run ordinary, Johto or Indigo replacement rules through this mixed
+      -- ownership seam and never add a second standee/HUD layer.
+      if battleArtIdentityOnly then
+        local texture = originalSideTexture(battle, side)
+        if texture and fallbackReceipt then
+          texture.ascendantTrainerResolverFallback = fallbackReceipt
+        end
+        return texture
       end
       local authored = M.voxelStandingTrainerSpec(battle, side)
       -- Red/Blue/Green and Silver/Kris/Gold are identity assets, not a skin;
@@ -1588,6 +1623,7 @@ return function(mod, opts)
       return texture
     end
     overworldBattle.__ascendantStandingTrainerMirror = true
+    overworldBattle.__ascendantStandingTrainerOriginal = originalSideTexture
     overworldBattle.__kantoAscendantApprovedTrainerResolver = resolverSentinel
     return true
   end
@@ -1606,6 +1642,10 @@ return function(mod, opts)
   mod.events:on("mod.options_changed", function(ev)
     if ev and ev.mod == mod.id and (ev.key == "character_sprite_style"
         or ev.key == "trainer_portrait_style") then
+      refreshVisuals(ev.game or activeGame)
+    elseif ev and voxelRenderer and voxelRenderer.isRendererId(ev.mod) then
+      -- Renderer battle-mode rows can change whether the rival needs a flat
+      -- front or a staged standing card without changing the world pipeline.
       refreshVisuals(ev.game or activeGame)
     end
   end)

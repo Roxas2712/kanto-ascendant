@@ -1,7 +1,7 @@
 {
   "id": "BATTLE_ART_VOXEL_FORK",
-  "name": "Battle Art 1.9.0 contract fixture",
-  "version": "1.9.0",
+  "name": "Battle Art 1.9.2 contract fixture",
+  "version": "1.9.2",
   "api": 2,
   "entry": "main.lua",
   "profile": "content",
