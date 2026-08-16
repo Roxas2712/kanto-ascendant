@@ -6,6 +6,10 @@ All notable changes to this project are documented in this file.
 
 ### Fixed
 
+- Trainer Cards now show the approved KASC Brock-through-Giovanni portraits
+  in unearned badge slots while preserving the original badge artwork once a
+  badge is owned. Red, Blue and Green profile art is kept wholly inside the
+  card frame, including in the restricted runtime sandbox.
 - Character-specific battle art now follows the renderer's actual battle
   mode instead of the mere presence of a voxel world. Native/normal battles
   always use the selected Red, Blue or Green back sprite; only a genuinely

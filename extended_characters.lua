@@ -29,6 +29,8 @@ return function(mod, opts)
   -- Rows/columns 0 and 7 are the frame itself; this is the exact 6x6-tile
   -- white interior reserved for the player picture.
   local TRAINER_CARD_PROFILE_SAFE_RECT = { x = 104, y = 8, w = 48, h = 48 }
+  local TRAINER_CARD_LEADER_FACES =
+    "assets/trainer_card/kasc_leader_faces.png"
 
   local CHARACTERS = {
     RED = {
@@ -1327,6 +1329,26 @@ return function(mod, opts)
     if not ok or type(TrainerCard) ~= "table"
         or type(TrainerCard.draw) ~= "function" then return false end
     TrainerCard._kantoAscendantProfileFitController = M
+    TrainerCard._kantoAscendantLeaderFaceController = M
+
+    -- Keep the stock badge half of the card, but replace the eight unearned
+    -- placeholders with the already-approved KASC leader portraits.  The
+    -- atlas contains eight exact 16x16 cells in canonical badge order, so no
+    -- title, ownership or save logic is changed here.
+    if not TrainerCard._kantoAscendantLeaderFacesWrapped
+        and type(TrainerCard.new) == "function" then
+      TrainerCard._kantoAscendantLeaderFacesWrapped = true
+      local originalNew = TrainerCard.new
+      TrainerCard.new = function(...)
+        local card = originalNew(...)
+        local faceController = TrainerCard._kantoAscendantLeaderFaceController
+        local faces = faceController and faceController.trainerCardLeaderFaces
+          and faceController.trainerCardLeaderFaces() or nil
+        if card and faces then card.faces = faces end
+        return card
+      end
+    end
+
     if TrainerCard._kantoAscendantProfileFitWrapped then return true end
     TrainerCard._kantoAscendantProfileFitWrapped = true
     local originalDraw = TrainerCard.draw
@@ -1355,14 +1377,38 @@ return function(mod, opts)
         end
         return nativeDraw(drawable, ...)
       end
-      local drawn, problem = xpcall(function() originalDraw(card) end,
-        debug.traceback)
+      -- Mod sandboxes intentionally do not expose the debug library.  A
+      -- plain protected call is sufficient here: its only job is to restore
+      -- the engine draw function before forwarding a native card error.
+      local drawn, problem = pcall(originalDraw, card)
       graphics.draw = nativeDraw
       if not drawn then error(problem, 0) end
     end
     return true
   end
   M.installTrainerCardProfileFit = installTrainerCardProfileFit
+
+  function M.trainerCardLeaderFaces()
+    local image = loadTrueColorImage(runtimePath(TRAINER_CARD_LEADER_FACES))
+    if not image or type(image.getDimensions) ~= "function"
+        or not (love and love.graphics
+          and type(love.graphics.newQuad) == "function") then return nil end
+    local width, height = image:getDimensions()
+    if width ~= 16 or height ~= 128 then return nil end
+    local quads = {}
+    for index = 0, 7 do
+      quads[index] = love.graphics.newQuad(0, index * 16, 16, 16,
+        width, height)
+    end
+    return {
+      img = image,
+      quads = quads,
+      path = runtimePath(TRAINER_CARD_LEADER_FACES),
+      order = { "BROCK", "MISTY", "LT_SURGE", "ERIKA",
+        "KOGA", "SABRINA", "BLAINE", "GIOVANNI" },
+    }
+  end
+
   installTrainerCardProfileFit()
 
   local JOHTO_VOXEL_BY_CLASS = {

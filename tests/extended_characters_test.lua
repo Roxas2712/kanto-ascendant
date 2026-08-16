@@ -290,6 +290,45 @@ end
 local TrainerCard = require("src.ui.TrainerCard")
 T.eq(TrainerCard._kantoAscendantProfileFitWrapped, true,
   "Trainer Card installs the KASC-only profile placement seam")
+T.eq(TrainerCard._kantoAscendantLeaderFacesWrapped, true,
+  "Trainer Card installs the KASC leader-face seam")
+local leaderFaces = assert(characters.trainerCardLeaderFaces())
+local leaderWidth, leaderHeight = leaderFaces.img:getDimensions()
+T.eq(leaderWidth, 16,
+  "leader face atlas is exactly one Trainer Card cell wide")
+T.eq(leaderHeight, 128,
+  "leader face atlas contains exactly eight stacked cells")
+T.eq(table.concat(leaderFaces.order, ","),
+  "BROCK,MISTY,LT_SURGE,ERIKA,KOGA,SABRINA,BLAINE,GIOVANNI",
+  "leader face atlas follows canonical Kanto badge order")
+T.check(leaderFaces.path:match(
+    "/assets/trainer_card/kasc_leader_faces%.png$") ~= nil,
+  "leader faces resolve from the packaged KASC card atlas")
+for index = 0, 7 do
+  local quad = assert(leaderFaces.quads[index])
+  local x, y, width, height
+  if type(quad.getViewport) == "function" then
+    x, y, width, height = quad:getViewport()
+  else
+    x, y, width, height = quad.x, quad.y, quad.w, quad.h
+  end
+  T.eq(x, 0, "leader face " .. index .. " starts in the only atlas column")
+  T.eq(y, index * 16,
+    "leader face " .. index .. " occupies its canonical atlas row")
+  T.eq(width, 16, "leader face " .. index .. " preserves card width")
+  T.eq(height, 16, "leader face " .. index .. " preserves card height")
+end
+local constructedCard = TrainerCard.new({
+  data = Data,
+  save = { player = { name = "GREEN" }, inventory = {} },
+})
+T.check(constructedCard.faces
+    and constructedCard.faces.path == leaderFaces.path,
+  "new Trainer Cards replace only unearned faces with KASC leaders")
+T.check(constructedCard.badges and constructedCard.badges.img,
+  "earned badge artwork remains the stock engine badge sheet")
+T.check(constructedCard.badges.img ~= constructedCard.faces.img,
+  "leader portraits never replace earned badge artwork")
 local graphicsDraw = love.graphics.draw
 for _, identity in ipairs({ "RED", "BLUE", "GREEN" }) do
   characters.select(identity)
