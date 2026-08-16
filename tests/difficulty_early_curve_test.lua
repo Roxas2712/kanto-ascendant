@@ -97,4 +97,3 @@ assert(difficulty.itemsAllowed({ kind = "wild" }) == true,
   "Extreme wild item policy changed")
 
 print("difficulty_early_curve_test: PASS")
-

@@ -67,6 +67,11 @@ All notable changes to this project are documented in this file.
   private. All
   unreviewed Dramaless versions, repositories and multi-renderer combinations
   remain blocked.
+- The manager now admits the exact upstream Battle Art 1.9.2 package alongside
+  reviewed 1.9.0. Its optional mesh cache no longer discards a completed live
+  mesh merely because persistent cache storage is unavailable or the current
+  map is ineligible; genuine eligible read, encoding and write failures remain
+  fatal, and adjacent versions or repositories still fail closed.
 
 ## [6.5.3] - 2026-08-16
 

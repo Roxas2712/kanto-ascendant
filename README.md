@@ -8,7 +8,7 @@ Mew, a full Route 5 breeding Day-Care, Generation-II shinies, official Mega
 Evolutions, Yellow's optional partner evolution, the Silver/Kris/Gold Johto
 Masters trial, optional early Johto migration and Mew/Celebi Signals, a
 Battle Factory, repeatable S.S. Anne voyages, a spoiler-safe Research Atlas
-and a replayable level-100 New Game Plus. From 6.5.0 RC10 onward the internal
+and a replayable level-100 legacy cycle. From 6.5.0 RC10 onward the internal
 ID is `kanto_ascendant`. The first boot copies legacy Kanto Ascendant options
 and save data from the former `trainer_rematch` namespace and keeps a rollback
 shadow for RC9.
@@ -40,7 +40,7 @@ shadow for RC9.
 > Masters, extended rewards/evolutions and non-Kanto Legacy Bank withdrawals
 > stay sealed. The Hoenn/HEVO caves themselves remain playable with the same
 > maps and puzzles and deterministic #001-151 encounter substitutes. Other
-> slots and every New Game/NG+ begin sealed independently.
+> Every other slot and newly created save begins sealed independently.
 
 Looking for a specific mechanic, item or location? Open the
 **[complete FAQ and spoiler guide](FAQ.md)**. Every detailed answer is
@@ -55,7 +55,7 @@ collapsed so players can reveal only the information they want.
 
 ## What's new in 6.5.4
 
-- Repairs Johto Signals and Legacy/New Game+ wild distribution without asking
+- Repairs Johto Signals and eligible replay-run wild distribution without asking
   affected 6.5.3 saves to restart.
 - Makes Legacy storage safer and reachable from every eligible player PC,
   including atomic quantity withdrawals.
@@ -63,6 +63,7 @@ collapsed so players can reveal only the information they want.
   rematch evolution/AI edge cases and overly steep early difficulty scaling.
 - Restores Yellow follower/partner presentation and keeps Red, Blue and Green
   trainer identity consistent in normal battles, tutorials and Trainer Cards.
+  The complete party can now be shown as up to six followers.
 - Reviews exact Battle Art 1.9.2, Dramaless 2.0.2 and PotatoVoxel 1.7.2 package
   contracts. Adjacent versions and unreviewed combinations remain unsupported.
 
@@ -1357,6 +1358,13 @@ ordinary Johto replacement.
 
 Open **MODS → KANTO ASCENDANT → OPTIONS** for the mod's own configuration
 submenu. It contains:
+
+Character art is grouped under **ASCENDANT OPTIONS → VISUALS → CHARACTERS /
+TRAINERS**. **FIELD CHARACTERS** changes only overworld sheets.
+**TRAINER PORTRAITS** switches Red, Blue and Green between `CRYSTAL HD` and
+`ORIGINAL` across the selector, Trainer Card, normal 2D front/back, rival,
+tutorial and other 2D identity surfaces. Staged 3D and throw art remains owned
+by the active reviewed renderer.
 
 - **MIN REST STEPS** — lower end of the training period (default and minimum
   151).

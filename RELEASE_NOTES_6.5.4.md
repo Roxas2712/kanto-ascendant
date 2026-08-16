@@ -17,15 +17,16 @@ offline Hidden Evolution guide.
 - Fresh campaigns correctly begin the optional Johto Signals cadence after
   the starter and Pokédex milestones.
 - A confirmed Johto choice now activates its intended wild distribution in
-  Legacy/New Game+ runs, including a repair path for already affected 6.5.3
+  eligible replay runs, including a repair path for already affected 6.5.3
   saves.
 - When Johto becomes available during a normal randomized run, its saved
   deterministic pool expands from #001-151 to #001-251 without rerolling the
   existing seed.
-- Legacy storage is available from every player PC in an eligible run.
+- Archive storage is available from every player PC in an eligible run.
   Multi-item withdrawals are quantity-aware and atomic.
-- The original Kanto starter families have their intended rare early Legacy
-  availability. Protected story encounters are not randomized by this change.
+- The original Kanto starter families have their intended rare early
+  availability in eligible replays. Protected story encounters are not
+  randomized by this change.
 - Pre-name character selection keeps the name hidden as `???` until Oak's
   naming confirmation.
 
@@ -42,8 +43,8 @@ offline Hidden Evolution guide.
   affecting unrelated Pokémon of the same species.
 - Normal 2D battles consistently use the chosen Red, Blue or Green back sprite.
   Original Red/Blue/Green and Crystal HD identity presets, scripted
-  catching-tutorial art and
-  selected trainer identity are preserved across renderer paths.
+  catching-tutorial art and selected trainer identity are preserved across
+  renderer paths.
 - Trainer Cards keep profile art inside the frame, use the approved KASC Gym
   Leader faces and no longer label a fresh zero-badge save as Champion.
 - Visual settings are inspectable again and grouped into Pokémon-sprite and

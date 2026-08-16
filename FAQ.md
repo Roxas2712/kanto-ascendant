@@ -1549,6 +1549,23 @@ title.
 
 </details>
 
+<details>
+<summary><strong>⚠️ SPOILER — Where can the original Kanto starters appear early in an eligible replay?</strong></summary>
+
+These are rare, additional early habitats in an eligible Legacy replay only;
+ordinary new games remain unchanged:
+
+- **Bulbasaur:** Viridian Forest grass, Lv. 5, 2%.
+- **Charmander:** Route 4 grass east of Mt. Moon, Lv. 7, 2%.
+- **Squirtle:** Route 24 grass north of Nugget Bridge, Lv. 9, 2%.
+
+Each species has its own guaranteed pity result after 50 eligible encounters.
+The later authored sources remain available as well: Safari Zone East for
+Bulbasaur, Seafoam Islands B2F for Squirtle and Victory Road 3F for
+Charmander.
+
+</details>
+
 ## Menus, art, followers and troubleshooting
 
 <details>
@@ -1594,6 +1611,12 @@ the lab gift remains Pikachu.
 <details>
 <summary><strong>⚠️ SPOILER — What do the art options change?</strong></summary>
 
+- Exact path: **ASCENDANT OPTIONS → VISUALS → CHARACTERS / TRAINERS**.
+- **FIELD CHARACTERS:** changes only the overworld walking sheets.
+- **TRAINER PORTRAITS:** switches Red, Blue and Green between `CRYSTAL HD`
+  and `ORIGINAL` across the selector, Trainer Card, normal 2D front/back,
+  rival, tutorial and other 2D identity surfaces. Staged 3D and throw art
+  remains owned by the active reviewed renderer.
 - **JOHTO ART:** bundled Crystal art or four-shade Kanto fallback for #152-251.
 - **KANTO CRYSTAL ART:** battle art for #001-151.
 - **DEX SPRITES:** independently switches Kanto Pokédex and party **STATS**
@@ -1601,8 +1624,8 @@ the lab gift remains Pikachu.
   frame one. Johto uses its species-authentic bundled Crystal portrait because
   Red/Blue/Yellow have no native #152-251 art.
 - **CRYSTAL ANIMATION:** animates normal/shiny #001-251 battle fronts.
-- Dramatic Shape/Voxel uses dedicated renderer assets. Gorochu and all official
-  Mega forms have separate sharp 96×96 masters.
+- Reviewed voxel renderers use their dedicated staged-3D assets. Gorochu and
+  all official Mega forms have separate sharp 96×96 masters.
 
 DEX SPRITES does not change battles, followers, evolutions, trades, Hall of
 Fame screens or the small animated party icons.
