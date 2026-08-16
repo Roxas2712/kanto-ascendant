@@ -1468,6 +1468,8 @@ return function(mod)
   local followerConfig = makeFollowerConfig(mod, {
     i18n = i18n,
     gameVersion = GameVersion,
+    yellowPartner = yellowPartner,
+    legacyStarters = legacyStarters,
   })
   if yellowPartner and yellowPartner.setFollowerConfig then
     yellowPartner.setFollowerConfig(followerConfig)

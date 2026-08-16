@@ -9,6 +9,9 @@ return function(mod, opts)
   opts = opts or {}
   local i18n = opts.i18n
   local gameVersion = opts.gameVersion
+  local yellowPartner = opts.yellowPartner
+  local legacyStarters = opts.legacyStarters
+  local textBox = opts.textBox
   local C = { game = nil, controller = nil }
   local STATE_KEY = "follower_config"
   local MON_KEY = "_ascendantFollowerId"
@@ -132,6 +135,28 @@ return function(mod, opts)
     return nil
   end
 
+  local function yellowLead(game)
+    if not C.isYellow() then return nil end
+    local lead = yellowPartner and yellowPartner.partner
+      and yellowPartner.partner(game) or nil
+    if lead then return lead end
+    return legacyStarters and legacyStarters.partner
+      and legacyStarters.partner(game) or nil
+  end
+
+  local function customPosition(mon, s)
+    local id = C.identity(mon, false)
+    if not id then return nil end
+    local lead = yellowLead(C.game)
+    local leadId = lead and C.identity(lead, false) or nil
+    local position = C.isYellow() and 1 or 0
+    for _, value in ipairs((s or state()).custom) do
+      if not leadId or value ~= leadId then position = position + 1 end
+      if value == id then return math.max(1, position) end
+    end
+    return nil
+  end
+
   local function syncOneOption(key, value)
     local game = C.game
     local loader = game and game.mods
@@ -221,9 +246,30 @@ return function(mod, opts)
     -- a pre-normalization table reference.
     s = state()
     s.custom[#s.custom + 1] = id
+    -- ADD FOLLOWER is an action, not merely an order-list editor. Grow the
+    -- save-local visible count just enough to expose the new entry. Yellow's
+    -- authored partner owns slot 1, so its first extra needs Count=2.
+    local position = customPosition(mon, s)
+    if position and position <= 4 and s.count < position then
+      s.count = position
+      syncOneOption("follower_count", s.count)
+    end
     persist(s)
     refresh()
-    return true
+    return true, position
+  end
+
+  function C.show(mon)
+    local s = state()
+    local position = customPosition(mon, s)
+    if not position or position > 4 or s.count >= position then
+      return false, position
+    end
+    s.count = position
+    persist(s)
+    syncOneOption("follower_count", s.count)
+    refresh()
+    return true, position
   end
 
   function C.remove(mon)
@@ -266,6 +312,59 @@ return function(mod, opts)
     if list and list.close then list:close() end
   end
 
+  local function inParty(game, wanted)
+    for _, mon in ipairs(game and game.save and game.save.party or {}) do
+      if mon == wanted then return true end
+    end
+    return false
+  end
+
+  local function monName(game, mon)
+    local def = game and game.data and game.data.pokemon
+      and game.data.pokemon[mon and mon.species]
+    return tostring(mon and (mon.nickname or (def and def.name) or mon.species)
+      or tr("POKEMON", "POKEMON"))
+  end
+
+  local function resultText(game, mon, position)
+    local name = monName(game, mon)
+    if C.isYellow() then
+      local lead = yellowLead(game)
+      if not (lead and inParty(game, lead) and (tonumber(lead.hp) or 0) > 0) then
+        return tr(name .. " was added.\fPartner must be fit\nand in your party.",
+          name .. " wurde gewählt.\fPartner muss fit\nund im Team sein.")
+      end
+    end
+    if (tonumber(mon and mon.hp) or 0) <= 0 then
+      return tr(name .. " was added.\fIt must be healthy\nto follow you.",
+        name .. " wurde gewählt.\fEs muss fit sein,\num dir zu folgen.")
+    end
+    if not position or position > 4 then
+      return tr(name .. " was saved.\fOnly first 4\nfollowers appear.",
+        name .. " wurde gespeichert.\fNur die ersten 4\nBegleiter erscheinen.")
+    end
+    if C.isYellow() and position > 1 then
+      return tr(("%s added as\nFOLLOWER #%d.\fYour partner stays\nFOLLOWER #1.")
+          :format(name, position),
+        ("%s ist jetzt\nBEGLEITER #%d.\fDein Partner bleibt\nBEGLEITER #1.")
+          :format(name, position))
+    end
+    return tr(("%s added as\nFOLLOWER #%d."):format(name, position),
+      ("%s ist jetzt\nBEGLEITER #%d."):format(name, position))
+  end
+
+  local function showResult(game, text)
+    local TextBox = textBox
+    if not TextBox then
+      local ok
+      ok, TextBox = pcall(require, "src.render.TextBox")
+      if not ok then return false end
+    end
+    if not (game and game.stack and TextBox and TextBox.new) then return false end
+    game.stack:push(TextBox.new(game, text))
+    return true
+  end
+
   local function openEditor(game, mon)
     local s, index = state(), customIndex(mon)
     local rows = {}
@@ -278,6 +377,12 @@ return function(mod, opts)
         label = tr("ADD FOLLOWER", "BEGLEITER HINZU"), value = "add",
       }
     else
+      local position = customPosition(mon, s)
+      if position and position <= 4 and s.count < position then
+        rows[#rows + 1] = {
+          label = tr("SHOW FOLLOWER", "BEGLEITER ZEIGEN"), value = "show",
+        }
+      end
       rows[#rows + 1] = {
         label = tr("MOVE UP", "NACH OBEN"), value = "up",
       }
@@ -291,12 +396,19 @@ return function(mod, opts)
     game.stack:push((mod.ui.KantoListMenu or mod.ui.ListMenu).new(game,
       tr("FOLLOWER ORDER", "BEGLEITER-FOLGE"), rows, {
         onChoose = function(item, list)
-          if item.value == "custom_add" then C.setMode("custom"); C.add(mon)
-          elseif item.value == "add" then C.add(mon)
+          local changed, position
+          if item.value == "custom_add" then
+            C.setMode("custom")
+            changed, position = C.add(mon)
+          elseif item.value == "add" then
+            changed, position = C.add(mon)
+          elseif item.value == "show" then
+            changed, position = C.show(mon)
           elseif item.value == "up" then C.move(mon, -1)
           elseif item.value == "down" then C.move(mon, 1)
           elseif item.value == "remove" then C.remove(mon) end
           closeList(list)
+          if changed then showResult(game, resultText(game, mon, position)) end
         end,
       }))
   end
