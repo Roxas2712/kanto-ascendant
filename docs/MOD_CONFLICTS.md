@@ -22,7 +22,7 @@ Current conflicts:
 | Quick Select | `jj_quick_select` | `Roxas2712/pokemon-quick-select` |
 | Nuzlocke | `nuzlocke` | `bryanthaboi/nuzlocke` |
 | Kanto Reforged (unreviewed combination) | `Kanto-Reforged` | repository `1Jamie/Kanto-Reforged` is documentation only on stock 0.1.90 |
-| Other Battle Art builds | `BATTLE_ART_VOXEL_FORK@<1.9.0 \|\| >1.9.0` | only separate upstream `1.9.0` from `absol89/DramaticShapeVoxelMod` is admitted |
+| Other Battle Art builds | `BATTLE_ART_VOXEL_FORK@<1.9.0 \|\| >1.9.0 <1.9.2 \|\| >1.9.2` | only separate upstream `1.9.0` and exact reviewed `1.9.2` from `absol89/DramaticShapeVoxelMod` are admitted |
 | Exact PotatoVoxel release | `potato_voxel@<1.7.2 \|\| >1.7.2` | only `ShaneMcGovernIE/potato_voxel` 1.7.2 is admitted; upstream `LOGS TO DEV` is ON by default |
 | Renderer archives currently broken on 0.1.90 | `DRAMATIC_SHAPE` | `TERRARIUM`, `ds_fp_ceiling` |
 | Other Dramaless builds | `DRAMALESS_SHAPE@<1.6.2-ST.190.1 \|\| >1.6.2-ST.190.1 <2.0.2 \|\| >2.0.2` | only the hardened `1.6.2-ST.190.1` transition build and exact official `2.0.2` release are admitted |
@@ -55,9 +55,13 @@ in renderer-native mode: its world, battle cards and HUD remain native-owned,
 while an exact-shape resolver exposes only the reviewed camera-preset control.
 Its official release ZIP SHA-256 is
 `85e2f866bd7badce4c5d97ccbf1f8b88b2a9fd30ec0659454c187d7398b808a7`.
-Exact upstream `BATTLE_ART_VOXEL_FORK 1.9.0` is also a
-supported, separately installed renderer; Kanto Ascendant neither bundles nor
-mutates its assets, camera or options and consumes only a local allowlisted facade.
+Exact upstream `BATTLE_ART_VOXEL_FORK 1.9.0` and `1.9.2` are also supported,
+separately installed renderers. Exact `1.9.2` adds only a bounded lifecycle
+repair: an unavailable or ineligible optional raw-mesh cache may not discard a
+live GPU mesh that was already built. Eligible cache-write failures remain
+errors and are never reported as successful writes. Kanto Ascendant neither
+bundles nor mutates Battle Art assets, camera or options and consumes only a
+local allowlisted facade.
 Exact upstream `potato_voxel 1.7.2` is supported through the same closed-facade
 rule while retaining its own camera, HUD, quality settings and cache. It requests
 network access and sends diagnostic logs when its upstream `LOGS TO DEV` option
@@ -70,7 +74,7 @@ is a hard conflict: it overlaps built-in presentation hooks and still uses
 APIs denied by the reviewed sandbox. Battle Art 1.8.3, unreviewed future Battle
 Art releases, Dramatic Shape, unreviewed PotatoVoxel versions, Terrarium and First Person do not
 work in this exact compatibility set. Stock 0.1.90 blocks them through classic
-ID/version rules; exact Battle Art 1.9.0 is exempt. Other Dramaless versions are
+ID/version rules; exact Battle Art 1.9.0 and 1.9.2 are exempt. Other Dramaless versions are
 rejected while `1.6.2-ST.190.1` and exact official `2.0.2` remain explicitly
 safe. Standalone Wilds is a hard conflict because
 Ascendant bundles the living-world core. Useful Bag and Quick Select are hard conflicts now that their complete

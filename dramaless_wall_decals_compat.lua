@@ -1,6 +1,6 @@
 -- Keep map-authored wall decals visible in the officially supported renderer
 -- pipelines that do not yet provide their own WallDecals module.  This covers
--- DRAMALESS_SHAPE 1.6.2-ST.190.1 and upstream Battle Art 1.9.0.
+-- DRAMALESS_SHAPE 1.6.2-ST.190.1 and upstream Battle Art 1.9.0/1.9.2.
 --
 -- The engine owns the flat `src.world.WallDecals` pass, but a drawWorld
 -- pipeline replaces that whole pass.  Install this small adapter only when the

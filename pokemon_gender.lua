@@ -216,7 +216,7 @@ return function(mod, opts)
     if type(originalHudTexture) ~= "function" then return false end
     overworldBattle.hudTexture = function(
         battle, slide, dark, inverted, colorShadow, ...)
-      -- Battle Art 1.9.0 uses all five named arguments for COLOR/INVERTED and
+      -- Battle Art 1.9.0/1.9.2 use all five named arguments for COLOR/INVERTED and
       -- shadow presentation. Forward them byte-for-byte, plus any future tail.
       local layer = originalHudTexture(
         battle, slide, dark, inverted, colorShadow, ...)

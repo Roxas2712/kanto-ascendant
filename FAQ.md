@@ -93,19 +93,24 @@ reviewed hardened `DRAMALESS_SHAPE 1.6.2-ST.190.1` compatibility build, the
 exact upstream `DRAMALESS_SHAPE 2.0.2` release from
 `artyrambles/DRAMALESS_SHAPE`, the exact upstream `potato_voxel 1.7.2`
 release from `ShaneMcGovernIE/potato_voxel`, or the separately installed
-upstream `BATTLE_ART_VOXEL_FORK 1.9.0`. Choose at most one
+upstream `BATTLE_ART_VOXEL_FORK 1.9.0` or exact official `1.9.2`. Choose at
+most one
 Voxel renderer. Dramaless 2.0.2 is renderer-native: it keeps ownership of its
 own voxel world, native battle cards and battle HUD. Ascendant recognizes only
 the exact reviewed package and may ask its literal `BattleCam` owner for a
 narrow, fixed camera-preset control; the private loader, renderer modules, raw
-camera table and HUD authority never escape that boundary. Battle Art 1.9.0 keeps ownership of its own sprite, trainer,
-animation, camera, menu and option choices; Kanto Ascendant supplies only a closed
-compatibility adapter for its renderer/HUD/rift seams and neither copies nor
-repackages its assets. PotatoVoxel keeps its own camera, HUD, quality settings
-and cache; Ascendant never applies the Dramaless camera preset to it. Its 1.7.2
-`LOGS TO DEV` setting is upstream-owned, ON by default and can be switched OFF
-in Voxel Settings or the mod manager. Battle Art 1.8.3 and every unreviewed Battle Art version
-remain blocked. Dramatic Shape, unreviewed PotatoVoxel versions, Terrarium and First Person also
+camera table and HUD authority never escape that boundary. Battle Art
+1.9.0/1.9.2 keep ownership of their own sprites, trainers, animations, camera,
+menus and options; Kanto Ascendant supplies only a closed compatibility adapter
+for its renderer/HUD/rift seams and neither copies nor repackages its assets.
+On exact 1.9.2 the adapter additionally prevents an
+unavailable optional raw-mesh cache from discarding an already built live 3D
+mesh; real eligible storage failures remain errors. PotatoVoxel keeps its own
+camera, HUD, quality settings and cache; Ascendant never applies the Dramaless
+camera preset to it. Its 1.7.2 `LOGS TO DEV` setting is upstream-owned, ON by
+default and can be switched OFF in Voxel Settings or the mod manager. Battle
+Art 1.8.3 and every unreviewed Battle Art version remain blocked. Dramatic
+Shape, unreviewed PotatoVoxel versions, Terrarium and First Person also
 currently do not work with Gen1 Recomp 0.1.96. Other `DRAMALESS_SHAPE` versions
 are blocked; only the exact hardened `.190.1` build and the exact upstream
 2.0.2 release remain supported.

@@ -1,9 +1,9 @@
 -- Single authority for optional Voxel-renderer discovery.
 --
--- Engine 0.1.90 sandboxes every mod.  Voxel Ascendant is the standalone,
+-- Engine 0.1.90 sandboxes every mod. Voxel Ascendant is the standalone,
 -- sandbox-native renderer; the dedicated DRAMALESS 1.6.2-ST.190.1 build,
--- upstream Battle Art 1.9.0 and PotatoVoxel 1.7.2 are exact reviewed packages.
--- DRAMALESS 2.0.2 is
+-- upstream Battle Art 1.9.0/1.9.2 and PotatoVoxel 1.7.2 are exact reviewed
+-- packages. DRAMALESS 2.0.2 is
 -- separately admitted as a renderer-native stack: it owns its modern world,
 -- native-card battle path and HUD. Its exact 2.0.2 release has one deliberately
 -- narrow exception: this resolver may inspect the literal reviewed BattleCam
@@ -25,7 +25,7 @@ return function(ownerMod)
   R.pinnedVersions = {
     VOXEL_ASCENDANT = "0.1.1",
     DRAMALESS_SHAPE = "1.6.2-ST.190.1",
-    BATTLE_ART_VOXEL_FORK = "1.9.0",
+    BATTLE_ART_VOXEL_FORK = "1.9.2",
     potato_voxel = "1.7.2",
   }
   R.approvedVersions = {
@@ -38,6 +38,7 @@ return function(ownerMod)
     },
     BATTLE_ART_VOXEL_FORK = {
       ["1.9.0"] = "battle-art-1.9.0-reviewed-api-contract",
+      ["1.9.2"] = "battle-art-1.9.2-reviewed-api-cache-adapter",
     },
     potato_voxel = {
       ["1.7.2"] = "potato-voxel-1.7.2-reviewed-api-contract",
@@ -79,6 +80,7 @@ return function(ownerMod)
     VoxelState = true,
   }
   local battleArtFacadeCache = setmetatable({}, { __mode = "k" })
+  local battleArtCacheRepairs = setmetatable({}, { __mode = "k" })
   -- DRAMALESS 2.0.2 still exports its owner-scoped V loader. It is not safe
   -- to turn that into a general facade, but the exact upstream package needs
   -- KASC's long-standing camera calibration. Cache only a read-only control
@@ -251,6 +253,87 @@ return function(ownerMod)
     return facade
   end
 
+  -- Battle Art 1.9.2 builds the live GPU terrain before it asks its optional
+  -- persistent-cache layer to save the corresponding raw streams. On current
+  -- desktop engines that layer is intentionally unavailable, and modified
+  -- maps are intentionally ineligible, but ChunkMesher still treats the
+  -- cache API's bare `false` as a fatal mesh-build error. That discards the
+  -- valid live mesh and leaves the user on the flat fallback.
+  --
+  -- Keep this repair private to the exact reviewed version. A missing or
+  -- ineligible *optional* cache is a successful no-op; once persistence is
+  -- both available and eligible, the original function owns every result and
+  -- exception. Consequently storage denial, encoder failure and short writes
+  -- remain visible and can never be disguised as renderer success.
+  local function installBattleArt192CacheRepair(rawLib)
+    local okDisk, disk = pcall(rawLib.require, "VoxelMeshDisk")
+    if not okDisk or type(disk) ~= "table"
+        or type(disk.available) ~= "function"
+        or type(disk.staticEligible) ~= "function"
+        or type(disk.saveTerrain) ~= "function"
+        or type(disk.saveAux) ~= "function" then
+      return nil, "missing-cache-contract:BATTLE_ART_VOXEL_FORK"
+    end
+
+    local prior = battleArtCacheRepairs[disk]
+    if prior then
+      if disk.saveTerrain ~= prior.saveTerrain
+          or disk.saveAux ~= prior.saveAux then
+        return nil, "cache-repair-overridden:BATTLE_ART_VOXEL_FORK"
+      end
+      return prior.receipt
+    end
+
+    local originalTerrain, originalAux = disk.saveTerrain, disk.saveAux
+    local function optionalPersistence(map)
+      local availableOk, available = pcall(disk.available)
+      if not availableOk then return false end
+      if available ~= true then return true end
+      local eligibleOk, eligible = pcall(disk.staticEligible, map)
+      return eligibleOk and eligible ~= true
+    end
+    local function saveTerrain(map, ...)
+      if optionalPersistence(map) then return true end
+      return originalTerrain(map, ...)
+    end
+    local function saveAux(map, ...)
+      if optionalPersistence(map) then return true end
+      return originalAux(map, ...)
+    end
+    local assigned, assignError = pcall(function()
+      disk.saveTerrain = saveTerrain
+      disk.saveAux = saveAux
+    end)
+    if not assigned then
+      pcall(function()
+        disk.saveTerrain = originalTerrain
+        disk.saveAux = originalAux
+      end)
+      return nil, "cache-repair-install-failed:BATTLE_ART_VOXEL_FORK:"
+        .. tostring(assignError)
+    end
+    if disk.saveTerrain ~= saveTerrain or disk.saveAux ~= saveAux then
+      pcall(function()
+        disk.saveTerrain = originalTerrain
+        disk.saveAux = originalAux
+      end)
+      return nil, "cache-repair-install-failed:BATTLE_ART_VOXEL_FORK"
+    end
+
+    local receipt = {
+      schema = "ka-battle-art-cache-repair/v1",
+      rendererVersion = "1.9.2",
+      optionalCache = "unavailable-or-ineligible-noop",
+      eligibleWriteErrors = "original-result-and-exception",
+    }
+    battleArtCacheRepairs[disk] = {
+      saveTerrain = saveTerrain,
+      saveAux = saveAux,
+      receipt = receipt,
+    }
+    return receipt
+  end
+
   local function battleArtFacade(id, version, exported, handle)
     local expectedRepository = R.approvedRepositories[id]
     -- Stock 0.1.90 and the reviewed clientfix deliberately expose only
@@ -282,12 +365,17 @@ return function(ownerMod)
     local rawLib = exported.lib
     local cached = battleArtFacadeCache[exported]
     if cached and cached.version == version then
+      if version == "1.9.2" then
+        local repair, repairReason = installBattleArt192CacheRepair(rawLib)
+        if not repair then return nil, repairReason end
+        cached.cacheRepair = repair
+      end
       local safeHandle = readonly({
         id = id,
         version = version,
         exports = cached.exported,
       })
-      return cached.exported, nil, safeHandle
+      return cached.exported, nil, safeHandle, cached.cacheRepair
     end
 
     local cache = {}
@@ -301,6 +389,12 @@ return function(ownerMod)
         return nil, ("missing-module:%s:%s"):format(tostring(id), name)
       end
       cache[name] = value
+    end
+    local cacheRepair
+    if version == "1.9.2" then
+      local repairReason
+      cacheRepair, repairReason = installBattleArt192CacheRepair(rawLib)
+      if not cacheRepair then return nil, repairReason end
     end
     local function safeRequire(name)
       if not BATTLE_ART_MODULES[name] then return nil end
@@ -347,13 +441,14 @@ return function(ownerMod)
     battleArtFacadeCache[exported] = {
       version = version,
       exported = safeExport,
+      cacheRepair = cacheRepair,
     }
     local safeHandle = readonly({
       id = id,
       version = version,
       exports = safeExport,
     })
-    return safeExport, nil, safeHandle
+    return safeExport, nil, safeHandle, cacheRepair
   end
 
   local function potatoFacade(id, version, exported, handle)
@@ -408,10 +503,10 @@ return function(ownerMod)
       return false, ("unsupported-version:%s:%s"):format(
         tostring(id), tostring(version))
     end
-    local safeHandle
+    local safeHandle, cacheRepair
     if id == "BATTLE_ART_VOXEL_FORK" then
       local facade, facadeReason
-      facade, facadeReason, safeHandle =
+      facade, facadeReason, safeHandle, cacheRepair =
         battleArtFacade(id, version, exported, handle)
       if not facade then return false, facadeReason end
       exported = facade
@@ -464,7 +559,7 @@ return function(ownerMod)
     if not probeOk or probeValue ~= nil then
       return false, "unsafe-export:" .. tostring(id)
     end
-    return true, nil, {
+    local receipt = {
       schema = "ka-voxel-renderer-capability/v1",
       rendererId = id,
       rendererVersion = version,
@@ -475,7 +570,13 @@ return function(ownerMod)
       -- Never turn the package-policy repository pin into a fake live receipt.
       repository = repositoryOf(handle, exported),
       safeHandle = safeHandle,
-    }, exported
+    }
+    if id == "BATTLE_ART_VOXEL_FORK" and version == "1.9.2" then
+      -- Policy metadata only: never expose the foreign cache module, original
+      -- functions or owner-scoped loader through the public receipt.
+      receipt.cacheRepair = cacheRepair
+    end
+    return true, nil, receipt, exported
   end
 
   local function choose(candidates)
@@ -542,6 +643,19 @@ return function(ownerMod)
     R.lastError = reason
     R.lastReceipt = receipt
     return exported, id, reason, handle, receipt
+  end
+
+  -- Install exact renderer-side compatibility before a save can start mesh
+  -- work. Renderer absence and renderer-native ownership are valid modes;
+  -- an installed bridged renderer with a broken contract is not.
+  function R.prepare()
+    local exported, id, reason = R.resolve()
+    if id == nil and reason == "renderer-absent" then return true, reason end
+    if reason and reason:find("^renderer%-native%-owned:") then
+      return true, reason
+    end
+    if not exported then return false, reason end
+    return true, nil
   end
 
   function R.find(mod)

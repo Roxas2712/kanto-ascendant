@@ -283,11 +283,20 @@ return function(mod)
   dialoguePagination.wrapLocalization(i18n)
   mod.exports.dialoguePagination = dialoguePagination
   -- One fail-closed renderer authority for native Voxel Ascendant, the
-  -- reviewed DRAMALESS transition build and exact upstream Battle Art 1.9.0.
+  -- reviewed DRAMALESS transition build and exact upstream Battle Art
+  -- 1.9.0/1.9.2.
   -- Gameplay remains renderer-optional. Bridges consume KASC's local closed
   -- facade instead of forwarding a renderer owner's private loader.
   mod.exports.voxelRendererCompat = loadSibling(
     mod, "voxel_renderer_compat.lua")(mod)
+  -- Battle Art 1.9.2's optional desktop cache can reject a completed RAM/GPU
+  -- mesh before it is swapped into the scene. Install the exact-version seam
+  -- after every package has exported, but before a save can enter gameplay.
+  mod.events:once("mods.loaded", function()
+    local prepared, why = mod.exports.voxelRendererCompat.prepare()
+    assert(prepared, "renderer compatibility preparation failed: "
+      .. tostring(why))
+  end)
   mod.exports.rendererBattleHud = loadSibling(
     mod, "renderer_battle_hud.lua")(mod, {
       voxelRenderer = mod.exports.voxelRendererCompat,
@@ -1277,9 +1286,10 @@ return function(mod)
     voxelRenderer = mod.exports.voxelRendererCompat,
   })
   mod.exports.dramalessCameraCompat = dramalessCameraCompat
-  -- Reviewed DRAMALESS 1.6.2-ST.190.1 and Battle Art 1.9.0 predate a native
-  -- wall-decal module. Keep HEVO's fissures bound to real wall planes without
-  -- modifying either separately installed renderer; future/native support wins.
+  -- Reviewed DRAMALESS 1.6.2-ST.190.1 and Battle Art 1.9.0/1.9.2 predate a
+  -- native wall-decal module. Keep HEVO's fissures bound to real wall planes
+  -- without modifying either separately installed renderer; future/native
+  -- support wins.
   mod.exports.rendererWallDecalsCompat = loadSibling(
     mod, "dramaless_wall_decals_compat.lua")(mod, {
       voxelRenderer = mod.exports.voxelRendererCompat,

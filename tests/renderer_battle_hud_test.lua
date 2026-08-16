@@ -301,7 +301,7 @@ local wrapper = BattleState.drawHUDs
 events["game.ready"]({ game = {} })
 eq(BattleState.drawHUDs, wrapper, "hot refresh does not stack HUD wrappers")
 
--- Exact upstream Battle Art 1.9.0 owns its snap pass and publishes placement
+-- Exact upstream Battle Art 1.9.2 owns its snap pass and publishes placement
 -- objects because HUD SCALE:SCALED uses max(1, shot.scale - 1). The resolver
 -- pins repository/version; this layer consumes only that approved module.
 local legacySnapRects = renderer.snapRects
@@ -324,7 +324,7 @@ local battleArtSnapRects = function(liveShot)
   }
 end
 renderer.snapRects = battleArtSnapRects
-current.id, current.version = "BATTLE_ART_VOXEL_FORK", "1.9.0"
+current.id, current.version = "BATTLE_ART_VOXEL_FORK", "1.9.2"
 events["game.ready"]({ game = {} })
 eq(hud.inspect().profile, "BATTLE_ART_RENDERER_NATIVE",
   "reviewed Battle Art selects its renderer-owned profile")
@@ -359,6 +359,30 @@ local snapCountBeforeBattleArtDraw = hud.inspect().snapCount
 BattleState.drawHUDs(battleArtBattle, 14)
 eq(hud.inspect().snapCount, snapCountBeforeBattleArtDraw,
   "KASC never acquires Battle Art snap ownership")
+
+-- A doubles-capable companion may add secondary battler slots to the same
+-- BattleState. They do not create a second screen-space HUD anchor: Battle
+-- Art remains the only snap owner and KASC must not decorate that anchor on
+-- either draw pass.
+local battleArtDoubleShot = makeShot("battle-art-double", 800, 80)
+local battleArtDouble = {
+  dramaticShapeShot = battleArtDoubleShot, phase = "moveSelect",
+  doubleBattle = true,
+  enemy = { mon = { species = "PRIMARY_ENEMY" } },
+  enemyPartner = { mon = { species = "SECONDARY_ENEMY" } },
+  player = { mon = { species = "PRIMARY_PLAYER" } },
+  playerPartner = { mon = { species = "SECONDARY_PLAYER" } },
+}
+local doubleOwnerSnaps = snapCalls
+ok(renderer.snapHUDs(battleArtDouble, battleArtDoubleShot),
+  "Battle Art owns the shared doubles HUD anchor")
+local doubleKascSnaps = hud.inspect().snapCount
+BattleState.drawHUDs(battleArtDouble, 14)
+BattleState.drawHUDs(battleArtDouble, 14)
+eq(snapCalls, doubleOwnerSnaps + 1,
+  "two doubles draw passes do not snap the shared anchor twice")
+eq(hud.inspect().snapCount, doubleKascSnaps,
+  "KASC never acquires the Battle Art doubles HUD anchor")
 renderer.snapRects = legacySnapRects
 
 -- Overlay service consumes the normalized profile, not renderer-specific raw
@@ -558,7 +582,7 @@ eq(marked, 0, "renderer-canvas overlays do not mark the 2D palette mask")
 -- The same KASC overlays follow Battle Art's separate 3x HUD rung while its
 -- 4x text/world projection remains untouched.
 renderer.snapRects = battleArtSnapRects
-current.id, current.version = "BATTLE_ART_VOXEL_FORK", "1.9.0"
+current.id, current.version = "BATTLE_ART_VOXEL_FORK", "1.9.2"
 events["game.ready"]({ game = {} })
 local battleFeatureShot = makeShot("battle-art-feature", 800, 80)
 local battleFeature = {

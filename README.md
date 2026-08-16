@@ -28,7 +28,7 @@ shadow for RC9.
 > blocks Ascendant while one of those conflicts remains enabled; it does not
 > silently modify or disable the other package. Reforged remains usable on its
 > own. It also blocks renderer archives that currently do not work with 0.1.90
-> and points to Voxel Ascendant, exact upstream Battle Art 1.9.0, hardened
+> and points to Voxel Ascendant, exact upstream Battle Art 1.9.0/1.9.2, hardened
 > Dramaless or native 2D instead. No
 > compatibility or defect claim about Reforged is implied.
 
@@ -1264,22 +1264,30 @@ PotatoVoxel 1.7.2 requests network access and its upstream `LOGS TO DEV` option
 is ON by default; switch it OFF in Voxel Settings or the mod manager if you do
 not want diagnostic logs sent to its developer.
 The separately installed upstream
-`BATTLE_ART_VOXEL_FORK 1.9.0` is the third reviewed choice. It retains complete
-ownership of its sprites, trainers, animations, camera, menus and options; Kanto
-Ascendant only builds a local closed module facade and adapts HUD overlays plus
-map-authored wall decals. No Battle Art file or asset is copied, rewritten or
-included in the Kanto Ascendant ZIP. Battle Art 1.8.3 and every other Battle Art
-version remain blocked by an exact version rule. Dramatic Shape, unreviewed
-PotatoVoxel versions, Terrarium and First Person remain blocked; every other Dramaless version is
+`BATTLE_ART_VOXEL_FORK 1.9.0` and exact official `1.9.2` are the third reviewed
+choice. They retain complete ownership of their sprites, trainers, animations,
+camera, menus and options; Kanto Ascendant only builds a local closed module
+facade and adapts HUD overlays plus map-authored wall decals. For exact `1.9.2`,
+Ascendant also repairs an upstream lifecycle edge where an unavailable or
+ineligible optional raw-mesh cache could discard an already completed live 3D
+mesh; genuine eligible storage errors stay fatal. No Battle Art file or asset
+is copied, rewritten or included in the Kanto Ascendant ZIP. Battle Art 1.8.3
+and every unreviewed Battle Art version remain blocked by an exact version
+rule. Dramatic Shape, unreviewed PotatoVoxel versions, Terrarium and First
+Person remain blocked; every other Dramaless version is
 blocked while only `.190.1` and the exact upstream `2.0.2` release remain
 supported. Install only one Voxel renderer; Voxel Ascendant, PotatoVoxel,
 Battle Art and Dramaless are alternatives and must not be enabled together.
 
-The reviewed Battle Art package is the upstream 1.9.0 release asset from
-[`absol89/DramaticShapeVoxelMod`](https://github.com/absol89/DramaticShapeVoxelMod/releases/tag/1.9.0),
-SHA-256 `3ba60ad7dc8443f2a337c147ca8be31ce3661fd549cf9b4e4e000206c3d780c8`.
-It must be installed separately. Kanto Ascendant does not mirror that archive;
-the artwork inside it is not covered by Kanto Ascendant's distribution terms.
+The reviewed Battle Art packages are the upstream 1.9.0 and 1.9.2 release assets
+from [`absol89/DramaticShapeVoxelMod`](https://github.com/absol89/DramaticShapeVoxelMod/releases).
+Their SHA-256 values are
+`3ba60ad7dc8443f2a337c147ca8be31ce3661fd549cf9b4e4e000206c3d780c8`
+(1.9.0) and
+`144e53200a06b6652433804bd89f18d1d378a15a63fefedaa4da22401c313f24`
+(1.9.2). They must be installed separately. Kanto Ascendant does not mirror
+either archive; the artwork inside is not covered by Kanto Ascendant's
+distribution terms.
 
 Species-accurate normal and shiny 16x16 Gen-2-style walking sprites are also
 bundled for every Johto Pokémon. The repair utility can refresh them:

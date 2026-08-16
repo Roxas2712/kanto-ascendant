@@ -51,6 +51,10 @@
         "version": "=1.9.0"
       },
       {
+        "repositories": ["absol89/DramaticShapeVoxelMod"],
+        "version": "=1.9.2"
+      },
+      {
         "repositories": ["ShaneMcGovernIE/potato_voxel"],
         "version": "=1.7.2"
       }
@@ -82,7 +86,7 @@
     "jj_quick_select",
     "nuzlocke",
     "Kanto-Reforged",
-    "BATTLE_ART_VOXEL_FORK@<1.9.0 || >1.9.0",
+    "BATTLE_ART_VOXEL_FORK@<1.9.0 || >1.9.0 <1.9.2 || >1.9.2",
     "DRAMATIC_SHAPE",
     "potato_voxel@<1.7.2 || >1.7.2",
     "TERRARIUM",
@@ -209,8 +213,8 @@
       "ids": ["DRAMATIC_SHAPE", "TERRARIUM", "ds_fp_ceiling"],
       "reason_en": "This renderer currently does not work with Gen1 Recomp 0.1.90.",
       "reason_de": "Dieser Renderer funktioniert derzeit nicht mit Gen1 Recomp 0.1.90.",
-      "resolution_en": "Use Voxel Ascendant, PotatoVoxel 1.7.2, Battle Art 1.9.0, a reviewed DRAMALESS build, or native 2D.",
-      "resolution_de": "Verwende Voxel Ascendant, PotatoVoxel 1.7.2, Battle Art 1.9.0, einen geprüften DRAMALESS-Build oder die native 2D-Darstellung.",
+      "resolution_en": "Use Voxel Ascendant, PotatoVoxel 1.7.2, Battle Art 1.9.0/1.9.2, a reviewed DRAMALESS build, or native 2D.",
+      "resolution_de": "Verwende Voxel Ascendant, PotatoVoxel 1.7.2, Battle Art 1.9.0/1.9.2, einen geprüften DRAMALESS-Build oder die native 2D-Darstellung.",
       "areas": ["render pipeline", "sandbox APIs", "battle presentation"]
     }
   ],

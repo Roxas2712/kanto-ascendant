@@ -50,9 +50,13 @@ local unsafePotatoVersions = {
 }
 local potatoConflictSpec = "potato_voxel@<1.7.2 || >1.7.2"
 local safeBattleArtVersion = "1.9.0"
-local unsafeBattleArtVersions = { "1.8.3", "1.9.1" }
+local safeBattleArt192Version = "1.9.2"
+local safeBattleArtVersions = {
+  safeBattleArtVersion, safeBattleArt192Version,
+}
+local unsafeBattleArtVersions = { "1.8.3", "1.9.1", "1.9.3" }
 local battleArtConflictSpec =
-  "BATTLE_ART_VOXEL_FORK@<1.9.0 || >1.9.0"
+  "BATTLE_ART_VOXEL_FORK@<1.9.0 || >1.9.0 <1.9.2 || >1.9.2"
 local safeDramalessVersion = "1.6.2-ST.190.1"
 local nativeDramalessVersion = "2.0.2"
 local unsafeDramalessVersions = {
@@ -75,6 +79,8 @@ local approved = {
   { id = "DRAMALESS_SHAPE", version = nativeDramalessVersion,
     github = "artyrambles/DRAMALESS_SHAPE" },
   { id = "BATTLE_ART_VOXEL_FORK", version = safeBattleArtVersion,
+    github = "absol89/DramaticShapeVoxelMod" },
+  { id = "BATTLE_ART_VOXEL_FORK", version = safeBattleArt192Version,
     github = "absol89/DramaticShapeVoxelMod" },
   { id = "potato_voxel", version = safePotatoVersion,
     github = "ShaneMcGovernIE/potato_voxel" },
@@ -157,18 +163,21 @@ do
     "reverse conflict blocked PotatoVoxel 1.7.2")
 end
 
--- Battle Art follows the same exact-package rule: only upstream 1.9.0 is
--- admitted; 1.8.3 still assigns forbidden callbacks/filesystem APIs and any
--- future release requires a fresh review.
+-- Battle Art follows the same exact-package rule: upstream 1.9.0 and the
+-- separately audited 1.9.2 cache-adapter build are admitted; versions between
+-- or beyond them require a fresh review.
 local safeBattleArt = external("BATTLE_ART_VOXEL_FORK",
   safeBattleArtVersion, "absol89/DramaticShapeVoxelMod")
+local safeBattleArt192 = external("BATTLE_ART_VOXEL_FORK",
+  safeBattleArt192Version, "absol89/DramaticShapeVoxelMod")
 local parsedBattleArtConflict
 for _, spec in ipairs(ascendant.conflictSpecs or {}) do
   if spec.id == "BATTLE_ART_VOXEL_FORK" then parsedBattleArtConflict = spec end
 end
 assert(parsedBattleArtConflict
-    and parsedBattleArtConflict.range == "<1.9.0 || >1.9.0",
-  "classic Battle Art 1.9.0 exception did not parse exactly")
+    and parsedBattleArtConflict.range ==
+      "<1.9.0 || >1.9.0 <1.9.2 || >1.9.2",
+  "classic Battle Art 1.9.0/1.9.2 exceptions did not parse exactly")
 for _, version in ipairs(unsafeBattleArtVersions) do
   assert(Semver.satisfies(version, parsedBattleArtConflict.range),
     "classic Battle Art conflict range missed " .. version)
@@ -187,21 +196,22 @@ for _, version in ipairs(unsafeBattleArtVersions) do
   assert(contains(result.conflicts, "kanto_ascendant"),
     "reverse conflict allowed Battle Art " .. version)
 end
-do
-  assert(not Semver.satisfies(safeBattleArtVersion,
-      parsedBattleArtConflict.range),
-    "classic Battle Art conflict range included 1.9.0")
+for _, safeVersion in ipairs(safeBattleArtVersions) do
+  assert(not Semver.satisfies(safeVersion, parsedBattleArtConflict.range),
+    "classic Battle Art conflict range included " .. safeVersion)
+  local safePackage = safeVersion == safeBattleArtVersion
+    and safeBattleArt or safeBattleArt192
   local mods = {
-    kanto_ascendant = ascendant, BATTLE_ART_VOXEL_FORK = safeBattleArt,
+    kanto_ascendant = ascendant, BATTLE_ART_VOXEL_FORK = safePackage,
   }
   local result = ManagerState.resolveToggle(mods, "kanto_ascendant", true,
     { BATTLE_ART_VOXEL_FORK = true })
   assert(#result.conflicts == 0,
-    "versioned conflict blocked Battle Art 1.9.0")
+    "versioned conflict blocked Battle Art " .. safeVersion)
   result = ManagerState.resolveToggle(mods, "BATTLE_ART_VOXEL_FORK", true,
     { kanto_ascendant = true })
   assert(#result.conflicts == 0,
-    "reverse conflict blocked Battle Art 1.9.0")
+    "reverse conflict blocked Battle Art " .. safeVersion)
 end
 
 -- The classic conflict grammar is version-aware on stock 0.1.90 as well as
@@ -314,9 +324,9 @@ for _, id in ipairs(incompatibleRenderers) do
       "Dieser Renderer funktioniert derzeit nicht mit Gen1 Recomp 0.1.90.",
     "broken renderer reason drifted: " .. id)
   assert(detail.resolution_en ==
-      "Use Voxel Ascendant, PotatoVoxel 1.7.2, Battle Art 1.9.0, a reviewed DRAMALESS build, or native 2D."
+      "Use Voxel Ascendant, PotatoVoxel 1.7.2, Battle Art 1.9.0/1.9.2, a reviewed DRAMALESS build, or native 2D."
       and detail.resolution_de ==
-      "Verwende Voxel Ascendant, PotatoVoxel 1.7.2, Battle Art 1.9.0, einen geprüften DRAMALESS-Build oder die native 2D-Darstellung.",
+      "Verwende Voxel Ascendant, PotatoVoxel 1.7.2, Battle Art 1.9.0/1.9.2, einen geprüften DRAMALESS-Build oder die native 2D-Darstellung.",
     "broken renderer resolution drifted: " .. id)
 end
 assert(Manifest.compatibilityConflict(ascendant, safeDramaless) == nil,
@@ -325,6 +335,8 @@ assert(Manifest.compatibilityConflict(ascendant, nativeDramaless) == nil,
   "native DRAMALESS 2.0.2 must not inherit the rich broken-renderer block")
 assert(Manifest.compatibilityConflict(ascendant, safeBattleArt) == nil,
   "Battle Art 1.9.0 must not inherit the rich broken-renderer block")
+assert(Manifest.compatibilityConflict(ascendant, safeBattleArt192) == nil,
+  "Battle Art 1.9.2 must not inherit the rich broken-renderer block")
 assert(Manifest.compatibilityConflict(ascendant, safePotato) == nil,
   "PotatoVoxel 1.7.2 must not inherit the broken-renderer block")
 for _, item in ipairs(approved) do
@@ -368,6 +380,10 @@ assert(not Manifest.exclusiveAllows(ascendant,
       "someone-else/DramaticShapeVoxelMod")),
   "a package spoofing Battle Art id/version bypassed repository provenance")
 assert(not Manifest.exclusiveAllows(ascendant,
+    external("BATTLE_ART_VOXEL_FORK", "1.9.2",
+      "someone-else/DramaticShapeVoxelMod")),
+  "a package spoofing Battle Art 1.9.2 bypassed repository provenance")
+assert(not Manifest.exclusiveAllows(ascendant,
     external("BATTLE_ART_VOXEL_FORK", "1.8.3",
       "absol89/DramaticShapeVoxelMod")),
   "Battle Art 1.8.3 bypassed the exact version pin")
@@ -402,6 +418,7 @@ local unknown = external("unknown_runtime_mod")
 local battleArt = external("BATTLE_ART_VOXEL_FORK", "1.8.3",
   "absol89/DramaticShapeVoxelMod")
 local battleArt190 = safeBattleArt
+local battleArt192 = safeBattleArt192
 local potato172 = safePotato
 local voxel = external("VOXEL_ASCENDANT", "0.1.1",
   "Roxas2712/voxel-ascendant")
@@ -450,6 +467,11 @@ result = ManagerState.resolveToggle(mods, "BATTLE_ART_VOXEL_FORK", true,
   { kanto_ascendant = true })
 assert(#result.conflicts == 0 and result.apply.BATTLE_ART_VOXEL_FORK == true,
   "reviewed Battle Art 1.9.0 support was blocked in manager")
+mods.BATTLE_ART_VOXEL_FORK = battleArt192
+result = ManagerState.resolveToggle(mods, "BATTLE_ART_VOXEL_FORK", true,
+  { kanto_ascendant = true })
+assert(#result.conflicts == 0 and result.apply.BATTLE_ART_VOXEL_FORK == true,
+  "reviewed Battle Art 1.9.2 support was blocked in manager")
 result = ManagerState.resolveToggle(mods, "potato_voxel", true,
   { kanto_ascendant = true })
 assert(#result.conflicts == 0 and result.apply.potato_voxel == true,

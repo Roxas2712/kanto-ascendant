@@ -50,7 +50,10 @@ dramaless = [entry for entry in allowed
 assert dramaless == [{
     "repositories": ["artyrambles/DRAMALESS_SHAPE"],
     "version": "=1.6.2-ST.190.1",
-}], "hardened DRAMALESS ST.190.1 pin drifted"
+}, {
+    "repositories": ["artyrambles/DRAMALESS_SHAPE"],
+    "version": "=2.0.2",
+}], "reviewed DRAMALESS 1.6.2-ST.190.1/2.0.2 pins drifted"
 
 battle_art = [entry for entry in allowed
               if "absol89/DramaticShapeVoxelMod"
@@ -58,11 +61,34 @@ battle_art = [entry for entry in allowed
 assert battle_art == [{
     "repositories": ["absol89/DramaticShapeVoxelMod"],
     "version": "=1.9.0",
-}], "separately installed Battle Art 1.9.0 pin drifted"
-assert "BATTLE_ART_VOXEL_FORK@<1.9.0 || >1.9.0" in manifest["conflicts"], (
+}, {
+    "repositories": ["absol89/DramaticShapeVoxelMod"],
+    "version": "=1.9.2",
+}], "separately installed Battle Art 1.9.0/1.9.2 pins drifted"
+assert (
+    "BATTLE_ART_VOXEL_FORK@<1.9.0 || >1.9.0 <1.9.2 || >1.9.2"
+    in manifest["conflicts"]
+), (
     "Battle Art exact-version conflict fence drifted"
 )
-assert len(allowed) == 4, "unreviewed Voxel packages remain allowlisted"
+
+potato = [entry for entry in allowed
+          if "ShaneMcGovernIE/potato_voxel"
+          in entry.get("repositories", [])]
+assert potato == [{
+    "repositories": ["ShaneMcGovernIE/potato_voxel"],
+    "version": "=1.7.2",
+}], "reviewed PotatoVoxel 1.7.2 pin drifted"
+assert "potato_voxel@<1.7.2 || >1.7.2" in manifest["conflicts"], (
+    "PotatoVoxel exact-version conflict fence drifted"
+)
+
+assert len(allowed) == (
+    len(voxel) + len(dramaless) + len(battle_art) + len(potato)
+), (
+    "unreviewed Voxel packages remain allowlisted"
+)
 
 print("RC optional dependency lock: Voxel Ascendant 0.1.0-rc.1/0.1.1 + "
-      "hardened DRAMALESS ST.190.1 + separate Battle Art 1.9.0 PASS")
+      "DRAMALESS 1.6.2-ST.190.1/2.0.2 + Battle Art 1.9.0/1.9.2 + "
+      "PotatoVoxel 1.7.2 PASS")

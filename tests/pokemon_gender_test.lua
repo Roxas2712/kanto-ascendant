@@ -126,7 +126,7 @@ T.eq(draws[1].text, "♀",
 T.eq(draws[2].text, "♂",
   "male-only Nidoran keeps Crystal's dedicated battle gender cell")
 
--- Exact Battle Art 1.9.0 HUD contract: preserve every renderer option
+-- Exact Battle Art 1.9.2 HUD contract: preserve every renderer option
 -- argument and suppress the native glyph only for a validated successful snap
 -- of this exact shot. iOS and snap failures retain dramaticShapeShot but must
 -- still receive the in-frame fallback glyphs.
@@ -196,6 +196,30 @@ T.eq(forwarded[3], true, "HUD wrapper forwards DARK option")
 T.eq(forwarded[4], false, "HUD wrapper forwards INVERTED option")
 T.eq(forwarded[5], colorShadow, "HUD wrapper forwards COLOR shadow table")
 T.eq(forwarded[6], "future-tail", "HUD wrapper forwards future arguments")
+
+-- Battle Art exposes one classic enemy/player HUD texture. A doubles-capable
+-- companion can carry secondary battlers, but those must not be drawn into
+-- the same two Crystal cells a second time.
+local doubleTextureDraws = {}
+Font.draw = function(text, x, y)
+  doubleTextureDraws[#doubleTextureDraws + 1] = {
+    text = text, x = x, y = y,
+  }
+end
+rendererBattle.doubleBattle = true
+rendererBattle.enemyPartner = {
+  mon = { species = "PIKACHU", dvs = { attack = 7 } },
+}
+rendererBattle.playerPartner = {
+  mon = { species = "PIKACHU", dvs = { attack = 8 } },
+}
+rendererHud.hudTexture(rendererBattle, 0, false, false, colorShadow)
+T.eq(#doubleTextureDraws, 2,
+  "Battle Art doubles metadata cannot duplicate the two shared gender cells")
+T.eq(doubleTextureDraws[1].x, 72,
+  "Battle Art doubles retain one enemy gender anchor")
+T.eq(doubleTextureDraws[2].x, 104,
+  "Battle Art doubles retain one player gender anchor")
 
 local overlayDraws = {}
 Font.draw = function(text, x, y)

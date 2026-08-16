@@ -4,10 +4,10 @@
 -- renderer module.  It never guesses from a renderer version: Voxel
 -- Ascendant's public wide-HUD seam is cooperative (the renderer may already
 -- have snapped the current shot, otherwise KASC may do it); the exact reviewed
--- DRAMALESS and Battle Art packages remain renderer-owned.  Battle Art 1.9.0
--- supplies per-band placement objects because its HUD can be one integer rung
--- smaller than its text/world scale, while the other renderers use legacy band
--- origins.  This module normalizes both public forms.
+-- DRAMALESS and Battle Art packages remain renderer-owned.  Battle Art
+-- 1.9.0/1.9.2 supply per-band placement objects because their HUD can be one
+-- integer rung smaller than its text/world scale, while the other renderers
+-- use legacy band origins.  This module normalizes both public forms.
 
 return function(mod, opts)
   opts = opts or {}
