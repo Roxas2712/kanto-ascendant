@@ -144,6 +144,7 @@ jobs:
           luajit ../kanto-ascendant/tests/rematch_phase6_test.lua
           luajit ../kanto-ascendant/tests/rematch_phase7_test.lua
           luajit ../kanto-ascendant/tests/rematch_phase8_test.lua
+          luajit ../kanto-ascendant/tests/rematch_ai_test.lua
           luajit ../kanto-ascendant/tests/core_phase9_test.lua
           luajit ../kanto-ascendant/tests/mythic_safety_test.lua
           luajit ../kanto-ascendant/tests/ascendant_ui_test.lua

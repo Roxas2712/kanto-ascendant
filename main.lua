@@ -1645,6 +1645,8 @@ return function(mod)
     end,
   })
   mod.exports.rematchMastery = rematchMastery
+  local rematchAI = loadSibling(mod, "rematch_ai.lua")(mod)
+  mod.exports.rematchAI = rematchAI
   legacyWanderers.setMasteryProvider(rematchMastery)
   local difficulty = loadSibling(mod, "difficulty.lua")(mod, {
     i18n = i18n,
@@ -2759,6 +2761,7 @@ return function(mod)
         b.rematchTrainerClass = d.trainerClass
         b.rematchRank = rank and rank.key
         if ascendant then ascendant.applyRematchRank(b, rank) end
+        rematchAI.attach(b)
         b.rematchNumber = (state.rematches or 0) + 1
         b.rematchTrainingCycles = state.trainingCycles
         b.rematchOriginalEvolutions = applyOriginalProgression(
