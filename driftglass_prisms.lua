@@ -12,6 +12,8 @@ local Module = {
   OUTPOST_MAP_ID = "KANTO_ASCENDANT_DRIFTGLASS",
   PALLET_MAP_ID = "PALLET_TOWN",
   ARRIVAL = { x = 7, y = 12, facing = "up" },
+  EXIT_STEP = { x = 7, y = 13 },
+  EXIT_ARCH = { x = 7, y = 14 },
   RETURN = { x = 12, y = 10, facing = "down" },
 }
 
@@ -454,6 +456,8 @@ function Module.create(mod, opts)
     MAP_INDEX = Module.MAP_INDEX,
     OUTPOST_MAP_ID = Module.OUTPOST_MAP_ID,
     ARRIVAL = Module.ARRIVAL,
+    EXIT_STEP = Module.EXIT_STEP,
+    EXIT_ARCH = Module.EXIT_ARCH,
     RETURN = Module.RETURN,
     TEXT = TEXT,
     puzzles = PUZZLES,
@@ -1171,15 +1175,28 @@ function Module.create(mod, opts)
     })
   end
 
+  function P.returnToOutpost(game, onDone)
+    P.game = game or P.game
+    game = game or P.game
+    local ok, reason = warp(game, Module.OUTPOST_MAP_ID, Module.RETURN)
+    if onDone then onDone(ok, reason) end
+    return ok, reason
+  end
+
+  function P.onStep(game, _, x, y)
+    if x ~= Module.EXIT_STEP.x or y ~= Module.EXIT_STEP.y then
+      return false
+    end
+    return P.returnToOutpost(game) == true
+  end
+
   function P.leave(game, onDone)
     P.game = game or P.game
     game = game or P.game
     return show(game, P.dialogues(game).exit, nil, {
       defaultNo = true,
       choice = function(yes)
-        if yes then
-          warp(game, Module.OUTPOST_MAP_ID, Module.RETURN)
-        end
+        if yes then P.returnToOutpost(game) end
         if onDone then onDone() end
       end,
     })
@@ -1273,8 +1290,8 @@ function Module.create(mod, opts)
     objects[#objects + 1] = {
       index = 9, name = "PRISM_EXIT_ARCH",
       movement = "STAY", range = "NONE",
-      sprite = "SPRITE_KA_PRISM_TABLET",
-      text = TEXT.EXIT, x = 7, y = 13,
+      sprite = "SPRITE_KA_PRISM_SEAM",
+      text = TEXT.EXIT, x = Module.EXIT_ARCH.x, y = Module.EXIT_ARCH.y,
     }
     P.mapRecord = {
       id = Module.MAP_ID,
@@ -1327,6 +1344,7 @@ function Module.create(mod, opts)
     mod.content.map_scripts:register(Module.MAP_ID, {
       priority = 2610,
       talk = talk,
+      onStep = P.onStep,
     })
 
     if mod.events and type(mod.events.on) == "function" then

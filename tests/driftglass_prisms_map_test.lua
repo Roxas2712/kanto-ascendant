@@ -76,6 +76,10 @@ local function inBounds(x, y)
 end
 assert(inBounds(prism.ARRIVAL.x, prism.ARRIVAL.y),
   "Prism Grotto arrival is outside the authored map")
+assert(inBounds(prism.EXIT_STEP.x, prism.EXIT_STEP.y),
+  "Prism Grotto exit step is outside the authored map")
+assert(inBounds(prism.EXIT_ARCH.x, prism.EXIT_ARCH.y),
+  "Prism Grotto exit arch is outside the authored map")
 
 local occupied = {}
 local function key(x, y) return tostring(x) .. ":" .. tostring(y) end
@@ -88,6 +92,17 @@ for _, object in ipairs(def.objects or {}) do
 end
 assert(not occupied[key(prism.ARRIVAL.x, prism.ARRIVAL.y)],
   "Prism Grotto arrival overlaps an object")
+assert(not occupied[key(prism.EXIT_STEP.x, prism.EXIT_STEP.y)],
+  "Prism Grotto movement exit is blocked by a static map object")
+local exitArch
+for _, object in ipairs(def.objects or {}) do
+  if object.name == "PRISM_EXIT_ARCH" then exitArch = object break end
+end
+assert(exitArch and exitArch.x == prism.EXIT_ARCH.x
+    and exitArch.y == prism.EXIT_ARCH.y,
+  "the visible exit arch is not on its documented south approach cell")
+assert(type(scripts.values[prism.MAP_ID].onStep) == "function",
+  "Prism Grotto does not register its movement exit hook")
 for _, sign in ipairs(def.signs or {}) do
   assert(inBounds(sign.x, sign.y),
     "a Prism Grotto sign is outside the map")
@@ -119,10 +134,32 @@ GameVersion.set(previousVersion)
 PaletteFX.mode = previousMode
 
 local map = Map.new(def, tileset)
+local Collision = require("src.world.Collision")
+Collision.load(Data)
 assert(map:inBounds(prism.ARRIVAL.x, prism.ARRIVAL.y),
   "arrival is outside Prism Grotto")
 assert(map:isWalkableCell(prism.ARRIVAL.x, prism.ARRIVAL.y),
   "arrival is not on walkable cave ground")
+assert(map:isWalkableCell(prism.EXIT_STEP.x, prism.EXIT_STEP.y),
+  "exit trigger is not on walkable cave ground")
+assert(map:isWalkableCell(prism.EXIT_ARCH.x, prism.EXIT_ARCH.y),
+  "the native cave collision tile under the visible exit changed")
+
+-- CAVERN's 32<->5 elevation pair blocks the apparently-walkable y=14 tile
+-- in the real 0.1.96/0.1.98 movement path.  The trigger therefore belongs
+-- on the last actually reachable floor cell, one step before that seam.
+local mover = {
+  cellX = prism.ARRIVAL.x, cellY = prism.ARRIVAL.y, surfing = false,
+}
+local canReachExit, reachReason =
+  Collision.canMove(map, {}, mover, "down")
+assert(canReachExit, "arrival cannot enter the exit trigger: "
+  .. tostring(reachReason))
+mover.cellX, mover.cellY = prism.EXIT_STEP.x, prism.EXIT_STEP.y
+local canCrossSeam, seamReason =
+  Collision.canMove(map, {}, mover, "down")
+assert(not canCrossSeam and seamReason == "tile",
+  "test fixture no longer exercises the directed CAVERN seam collision")
 
 local seen = { [key(prism.ARRIVAL.x, prism.ARRIVAL.y)] = true }
 local queue = { { prism.ARRIVAL.x, prism.ARRIVAL.y } }
@@ -142,6 +179,8 @@ while head <= #queue do
     end
   end
 end
+assert(seen[key(prism.EXIT_STEP.x, prism.EXIT_STEP.y)],
+  "the movement exit cannot be reached from the arrival cell")
 
 local function reachableInteraction(x, y, label)
   for _, delta in ipairs({

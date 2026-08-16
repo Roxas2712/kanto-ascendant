@@ -204,6 +204,18 @@ equal(#map.objects, 9,
 equal(#map.signs, 1, "only the wall inscription remains a hidden sign")
 equal(map.objects[9].name, "PRISM_EXIT_ARCH",
   "the return interaction has an explicit visible map object")
+equal(map.objects[9].x, prism.EXIT_ARCH.x,
+  "the visible return arch uses the documented south approach cell")
+equal(map.objects[9].y, prism.EXIT_ARCH.y,
+  "the return arch no longer blocks the arrival lane")
+equal(map.objects[9].sprite, "SPRITE_KA_PRISM_SEAM",
+  "the return arch uses the entrance seam instead of duplicating the tablet")
+truthy(map.objects[9].sprite ~= map.objects[1].sprite,
+  "the south exit is visually distinct from the north crystal tablet")
+truthy(prism.EXIT_STEP.y > prism.ARRIVAL.y,
+  "the return trigger is south of the north-facing arrival")
+truthy(prism.EXIT_STEP.y < prism.EXIT_ARCH.y,
+  "the return trigger is the floor cell directly before the arch")
 equal(map.objects[1].name, "PRISM_TABLET",
   "a visible crystal tablet owns the pillar legend")
 equal(map.objects[1].sprite, "SPRITE_KA_PRISM_TABLET",
@@ -238,11 +250,16 @@ for _, statue in ipairs(prism.statues) do
     statue.key .. " does not reuse another pillar's art")
   seenSprites[statue.sprite] = true
 end
-local talk = scripts:get(prism.MAP_ID).talk
+local mapScript = scripts:get(prism.MAP_ID)
+local talk = mapScript.talk
+truthy(type(mapScript.onStep) == "function",
+  "the grotto owns a movement-triggered return hook")
 truthy(talk[prism.TEXT.TABLET], "the crystal tablet is readable")
 truthy(talk[prism.TEXT.READER], "the Prism Reader is interactive")
 for _, statue in ipairs(prism.statues) do
   truthy(talk[statue.text], statue.key .. " pillar is interactive")
+  truthy(statue.text ~= prism.TEXT.EXIT,
+    statue.key .. " remains a puzzle control rather than a hidden exit")
 end
 
 prism.enter(game)
@@ -259,6 +276,85 @@ prism.enter(game)
 displays[#displays].options.choice(true)
 equal(warps[#warps].mapId, prism.MAP_ID,
   "accepting enters only the production grotto")
+
+-- The exit is a positional map hook, not a renderer- or A-target-dependent
+-- NPC interaction.  This compact contract matrix covers the public 0.1.96
+-- engine and the 0.1.98 integration profiles, every Gen-I ROM, the three
+-- selectable protagonists, portrait/mobile input, Yellow follower presence,
+-- and native/Voxel rendering without coupling the handler to any of them.
+local exitMatrix = {
+  {
+    engine = "0.1.96", version = "red", avatar = "RED",
+    orientation = "landscape", input = "keyboard",
+    renderer = "native", follower = false, solved = false,
+  },
+  {
+    engine = "0.1.98", version = "blue", avatar = "BLUE",
+    orientation = "portrait", input = "touch",
+    renderer = "native", follower = false, solved = true,
+  },
+  {
+    engine = "0.1.96", version = "yellow", avatar = "GREEN",
+    orientation = "portrait", input = "touch",
+    renderer = "voxel", follower = true, solved = false,
+  },
+  {
+    engine = "0.1.98", version = "yellow", avatar = "RED",
+    orientation = "landscape", input = "controller",
+    renderer = "voxel", follower = true, solved = true,
+  },
+}
+local savedSolved = rootState.prismGrotto.solved
+local persistsBeforeExit = persists
+for _, profile in ipairs(exitMatrix) do
+  local label = table.concat({
+    profile.engine, profile.version, profile.avatar, profile.orientation,
+    profile.input, profile.renderer,
+    profile.follower and "follower-on" or "follower-off",
+    profile.solved and "post-trial" or "pre-trial",
+  }, "/")
+  rootState.prismGrotto.solved = profile.solved and { sunStone = true } or {}
+  local overworld = {
+    player = {
+      cellX = prism.ARRIVAL.x, cellY = prism.ARRIVAL.y,
+      facing = prism.ARRIVAL.facing,
+    },
+    npcs = profile.follower and {
+      { id = "PIKACHU_FOLLOWER", cellX = 7, cellY = 13 },
+    } or {},
+    profile = profile,
+  }
+  equal(mapScript.onStep(game, overworld,
+      prism.EXIT_STEP.x, prism.EXIT_STEP.y - 1), false,
+    label .. " does not exit one cell early")
+  local before = #warps
+  equal(mapScript.onStep(game, overworld,
+      prism.EXIT_STEP.x, prism.EXIT_STEP.y), true,
+    label .. " exits on the south floor trigger")
+  equal(#warps, before + 1,
+    label .. " starts exactly one return transition")
+  equal(warps[#warps].mapId, prism.OUTPOST_MAP_ID,
+    label .. " returns to Driftglass Post")
+  equal(warps[#warps].x, prism.RETURN.x,
+    label .. " preserves the established return x")
+  equal(warps[#warps].y, prism.RETURN.y,
+    label .. " preserves the established return y")
+end
+rootState.prismGrotto.solved = savedSolved
+equal(persists, persistsBeforeExit,
+  "leaving is independent of save writes and puzzle persistence")
+
+local beforeFallback = #warps
+talk[prism.TEXT.EXIT](game, nil, map.objects[9])
+displays[#displays].options.choice(false)
+equal(#warps, beforeFallback,
+  "declining the arch's A-button fallback stays in the grotto")
+talk[prism.TEXT.EXIT](game, nil, map.objects[9])
+displays[#displays].options.choice(true)
+equal(#warps, beforeFallback + 1,
+  "the south arch retains an A-button fallback")
+equal(warps[#warps].mapId, prism.OUTPOST_MAP_ID,
+  "the fallback uses the same Driftglass return destination")
 
 local reader = { frozen = false }
 prism.touchStatue(game, "SUN")
