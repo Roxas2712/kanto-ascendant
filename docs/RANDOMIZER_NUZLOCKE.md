@@ -22,10 +22,11 @@ Nuzlocke modes:
   duplicate-family clause.
 - **Shiny Clause:** Standard rules, but shiny encounters may be caught even
   after the map encounter was consumed.
-- **Shinylocke:** only shiny encounters are catchable; the PC also controls the
-  deterministic shiny roll target.
+- **Shinylocke:** only shiny encounters are catchable; the KASC Terminal also
+  controls the deterministic shiny roll target through the same ASC RUN setup.
 
-A blackout either ends the challenge record or consumes a continuation,
-depending on the locked rule. The save itself is never deleted. Ho-Oh, Celebi
-and Mew encounters protected by Ascendant's mythic safety layer neither mark
-deaths nor end the Nuzlocke; Lugia remains an ordinary encounter.
+An ordinary blackout permanently fails the locked challenge; there is no
+continuation switch. The save itself is never deleted. Only explicitly tagged
+authored Ho-Oh/Mew/Celebi story encounters covered by Ascendant's mythic safety
+layer are exempt from death and blackout accounting. Ordinary encounters of
+those species and Lugia remain ordinary Nuzlocke encounters.
