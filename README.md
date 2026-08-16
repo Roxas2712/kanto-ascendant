@@ -1387,7 +1387,7 @@ without the key automatically use `ORIGINAL` and need no migration or restart.
 The Crown Archive and Legacy Gallery now record **twenty-one** permanent titles,
 including Rematch Legend, Crestbearer, Beast Tracker, Grand Champion, Rocket
 Breaker, Myth Seeker, Johto Master, Factory Architect, Sea Champion and Kanto
-Ascendant. The three path seals and the completed Legacy Pass add four more.
+Ascendant. Additional hidden journey milestones add their own titles.
 Special titles also recognize a Crown victory without legendary party members
 and major fights completed without a faint. Every unlocked title can be
 selected for the Trainer Card in the Legacy Gallery.
