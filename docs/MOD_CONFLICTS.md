@@ -24,7 +24,7 @@ Current conflicts:
 | Kanto Reforged (unreviewed combination) | `Kanto-Reforged` | repository `1Jamie/Kanto-Reforged` is documentation only on stock 0.1.90 |
 | Other Battle Art builds | `BATTLE_ART_VOXEL_FORK@<1.9.0 \|\| >1.9.0` | only separate upstream `1.9.0` from `absol89/DramaticShapeVoxelMod` is admitted |
 | Renderer archives currently broken on 0.1.90 | `DRAMATIC_SHAPE` | `potato_voxel`, `TERRARIUM`, `ds_fp_ceiling` |
-| Other Dramaless builds | `DRAMALESS_SHAPE@<1.6.2-ST.190.1 \|\| >1.6.2-ST.190.1` | only the hardened `1.6.2-ST.190.1` transition build is admitted |
+| Other Dramaless builds | `DRAMALESS_SHAPE@<1.6.2-ST.190.1 \|\| >1.6.2-ST.190.1 <2.0.2 \|\| >2.0.2` | only the hardened `1.6.2-ST.190.1` transition build and exact official `2.0.2` release are admitted |
 
 These packages overlap Ascendant's native follower, party, renderer and QoL
 hooks. Crystal/shiny presentation and Attack-DV gender/breeding are also fully
@@ -49,17 +49,25 @@ Use stable manifest IDs and canonical `owner/repository` slugs. Language packs,
 the recommended `VOXEL_ASCENDANT 0.1.1` package, its already reviewed
 `0.1.0-rc.1` predecessor for existing installations, the exact reviewed
 `DRAMALESS_SHAPE 1.6.2-ST.190.1` transition build, and catchable-151 remain
-supported partners. Exact upstream `BATTLE_ART_VOXEL_FORK 1.9.0` is also a
+supported partners. Exact upstream `DRAMALESS_SHAPE 2.0.2` is also supported
+in renderer-native mode: its world, battle cards and HUD remain native-owned,
+while an exact-shape resolver exposes only the reviewed camera-preset control.
+Its official release ZIP SHA-256 is
+`85e2f866bd7badce4c5d97ccbf1f8b88b2a9fd30ec0659454c187d7398b808a7`.
+Exact upstream `BATTLE_ART_VOXEL_FORK 1.9.0` is also a
 supported, separately installed renderer; Kanto Ascendant neither bundles nor
 mutates its assets, camera or options and consumes only a local allowlisted facade.
-Renderer packages conflict with each other, so install only one. The current
+Renderer packages conflict with each other, so install only one. In particular,
+Battle Art and Dramaless are alternatives and must never be enabled together.
+The current
 standalone shiny-indicator release
 is a hard conflict: it overlaps built-in presentation hooks and still uses
 APIs denied by the reviewed sandbox. Battle Art 1.8.3, unreviewed future Battle
 Art releases, Dramatic Shape, Potato Voxel, Terrarium and First Person do not
 work in this exact compatibility set. Stock 0.1.90 blocks them through classic
 ID/version rules; exact Battle Art 1.9.0 is exempt. Other Dramaless versions are
-rejected while `1.6.2-ST.190.1` remains explicitly safe. Standalone Wilds is a hard conflict because
+rejected while `1.6.2-ST.190.1` and exact official `2.0.2` remain explicitly
+safe. Standalone Wilds is a hard conflict because
 Ascendant bundles the living-world core. Useful Bag and Quick Select are hard conflicts now that their complete
 replacement systems are configurable inside Ascendant.
 The standalone Nuzlocke is likewise a hard conflict because Ascendant now

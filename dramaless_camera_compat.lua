@@ -1,15 +1,15 @@
 -- Opt-in compatibility camera for the compatible Voxel renderer's enlarged
 -- battle rig. The technical export ID remains part of its public API.
 --
--- The renderer intentionally moves its telephoto battle camera 1.5x further
--- back to make the larger Stadium models read comfortably.  Kanto Ascendant
--- used the original Dramatic Shape framing, so players who prefer that
--- composition can select CLASSIC VOXEL without editing either renderer.
+-- Kanto Ascendant historically writes a three-times-taller tele rig so
+-- complete Crystal trainer cards remain visible. DRAMALESS 2.0.2 keeps full
+-- ownership of its later 1.3 resting zoom, steering, frameH() and rig(); KASC
+-- preserves the reviewed raw `34.11 * 3` rig contract without replacing any
+-- of those renderer semantics.
 --
 -- Camera position alone does not control the rendered composition in
--- that renderer. frameH is the actual vertical frame size. Its
--- uses larger battle models than the original renderer, so the live-reviewed
--- Classic Voxel framing doubles that size to match the original scale.
+-- that renderer. frameH is the actual vertical frame size. The reviewed
+-- compatibility contract therefore pins the raw tele height explicitly.
 
 return function(mod, opts)
   opts = opts or {}
@@ -54,9 +54,9 @@ return function(mod, opts)
   local WIDE_TELE = {
     back = 144.96,
     height = 37.88,
-    -- 2x matches the historical Voxel composition. This intentionally goes another
-    -- half-step out so tall Mega models, including Charizard, stay in frame
-    -- without making the arena impractically distant.
+    -- Keep the same proven three-times-taller raw tele frame for the wide
+    -- legacy choice; renderer-owned zoom and steering still determine the
+    -- final effective framing.
     frameH = 34.11 * 3,
   }
   -- Oak's Lab uses the renderer's short indoor rig. Open only its lens so two
@@ -89,14 +89,22 @@ return function(mod, opts)
 
   local function battleCam(currentGame)
     if not cameraRenderer(currentGame) then return nil end
-    local camera = voxelRenderer.module(currentGame, "BattleCam")
-    return type(camera) == "table" and camera or nil
+    local camera, rendererId, cameraReason, receipt
+    if type(voxelRenderer.cameraModule) == "function" then
+      camera, rendererId, cameraReason, receipt =
+        voxelRenderer.cameraModule(currentGame)
+      if type(camera) == "table" then return camera, receipt end
+    end
+    camera, rendererId, cameraReason, receipt =
+      voxelRenderer.module(currentGame, "BattleCam")
+    return type(camera) == "table" and camera or nil, receipt
   end
 
   local function installOakLabLens(camera)
     if not camera or camera.__kantoAscendantOakLabLens then return end
     local originalRigFor = camera.rigFor
     if type(originalRigFor) ~= "function" then return end
+    local oakFrameH = OAKS_LAB_WIDE_FRAME_H
     camera.rigFor = function(arena)
       local rig = originalRigFor(arena)
       local map = arena and arena.map
@@ -104,8 +112,7 @@ return function(mod, opts)
         return {
           side = rig.side, back = rig.back, height = rig.height,
           lookX = rig.lookX, lookY = rig.lookY,
-          frameH = math.max(tonumber(rig.frameH) or 0,
-                            OAKS_LAB_WIDE_FRAME_H),
+          frameH = math.max(tonumber(rig.frameH) or 0, oakFrameH),
         }
       end
       return rig
@@ -114,7 +121,12 @@ return function(mod, opts)
   end
 
   function C.apply(currentGame)
-    local camera = battleCam(currentGame or game)
+    local camera, receipt = battleCam(currentGame or game)
+    if receipt
+        and receipt.capability == "dramaless-2.0.2-battle-camera/v1" then
+      return type(camera.apply) == "function"
+        and camera.apply(cameraMode()) == true
+    end
     installOakLabLens(camera)
     local tele = camera and camera.RIGS and camera.RIGS.tele
     if type(tele) ~= "table" then return false end

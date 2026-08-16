@@ -94,8 +94,10 @@ exact upstream `DRAMALESS_SHAPE 2.0.2` release from
 `artyrambles/DRAMALESS_SHAPE`, or the
 separately installed upstream `BATTLE_ART_VOXEL_FORK 1.9.0`. Choose at most one
 Voxel renderer. Dramaless 2.0.2 is renderer-native: it keeps ownership of its
-own voxel world and native battle cards, while Ascendant deliberately does not
-reach into its private loader or renderer APIs. Battle Art 1.9.0 keeps ownership of its own sprite, trainer,
+own voxel world, native battle cards and battle HUD. Ascendant recognizes only
+the exact reviewed package and may ask its literal `BattleCam` owner for a
+narrow, fixed camera-preset control; the private loader, renderer modules, raw
+camera table and HUD authority never escape that boundary. Battle Art 1.9.0 keeps ownership of its own sprite, trainer,
 animation, camera, menu and option choices; Kanto Ascendant supplies only a closed
 compatibility adapter for its renderer/HUD/rift seams and neither copies nor
 repackages its assets. Battle Art 1.8.3 and every unreviewed Battle Art version

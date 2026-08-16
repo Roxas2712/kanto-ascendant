@@ -123,6 +123,14 @@ eq(receipt.rendererVersion, "0.1.1",
   "standalone receipt pins the reviewed stable build")
 eq(receipt.provenance, "roxas2712-voxel-ascendant-mit-v161",
   "standalone MIT provenance is explicit")
+local genericCamera, genericCameraId, genericCameraError =
+  resolver.cameraModule(standalone)
+eq(genericCamera, nil,
+  "the native-camera API never returns a closed-facade renderer module")
+eq(genericCameraId, "VOXEL_ASCENDANT",
+  "native-camera rejection keeps the installed renderer identity")
+eq(genericCameraError, "not-native-camera",
+  "native-camera rejection has a stable non-owner diagnostic")
 
 local legacyRc = voxelGame("0.1.0-rc.1")
 package, id, reason = resolver.resolve(legacyRc)
@@ -196,17 +204,37 @@ eq(receipt.capability, "sideTexture",
 
 -- Upstream DRAMALESS 2.0.2 is an explicitly approved *native-only* renderer.
 -- Its legacy V table deliberately retains the renderer owner's mod/path/data
--- authority, so KASC must never probe or forward it. The package owns its
--- standalone voxel arena + 2D card host; KASC keeps optional overlays on the
--- safe native path and must not make the historical Wilds alias claim it.
+-- authority, so KASC's generic module paths must never probe or forward it.
+-- The exact camera path may request only literal BattleCam and return the
+-- fixed control capability tested below. The package owns its standalone voxel
+-- arena, card host and HUD; KASC must not make the historical Wilds alias claim it.
 local nativeCalls = 0
+local nativeNames = {}
+local nativeCamera = {
+  RIGS = {
+    tele = {
+      side = 78.79, back = 144.96, height = 37.88,
+      lookX = -0.26, lookY = 0.34, frameH = 34.11,
+    },
+    wide = {
+      side = 41.98, back = 41.16, height = 28.48,
+      lookX = -3.24, lookY = -1.35, frameH = 55.62,
+    },
+  },
+  DEFAULT_RIG = "tele", DEFAULT_ZOOM = 1.3,
+  ZOOM_MIN = 0.45, ZOOM_MAX = 2.0,
+  zoom = 1.3, zoomGoal = 1.3,
+  rigFor = function() end, frameH = function() end, rig = function() end,
+}
 local nativeOnly = {
-  version = "2.0.0", -- upstream's exported runtime string
+  version = "2.0.2",
   lib = {
     mod = { id = "DRAMALESS_SHAPE" },
     path = "/separately-installed/dramaless-2.0.2",
     require = function(name)
       nativeCalls = nativeCalls + 1
+      nativeNames[#nativeNames + 1] = name
+      if name == "BattleCam" then return nativeCamera end
       return { private = name }
     end,
   },
@@ -234,6 +262,161 @@ eq(nativeCalls, 0, "module lookup still never touches the private loader")
 eq(resolver.findAlias(fakeMod, "DRAMATIC_SHAPE"), nil,
   "Wilds' historical alias never reaches DRAMALESS 2.0.2")
 eq(nativeCalls, 0, "alias rejection does not touch the private loader")
+
+local fixedCamera, fixedCameraId, fixedCameraError, fixedCameraReceipt =
+  resolver.cameraModule()
+ok(type(fixedCamera) == "table" and fixedCamera ~= nativeCamera,
+  "exact DRAMALESS 2.0.2 returns a narrow camera control, not raw BattleCam")
+eq(fixedCamera.schema, "ka-dramaless-2.0.2-camera-control/v1",
+  "fixed camera control has a versioned closed schema")
+eq(fixedCamera.ownsNativeHud, true,
+  "fixed camera control records that Dramaless retains native HUD ownership")
+eq(fixedCamera.rawTargetFrameH, 34.11 * 3,
+  "fixed camera control names its reviewed target as a raw rig value")
+eq(fixedCameraId, "DRAMALESS_SHAPE",
+  "fixed camera receipt keeps the renderer identity")
+eq(fixedCameraError, nil, "reviewed fixed camera has no resolver error")
+eq(nativeCalls, 1,
+  "the fixed camera seam makes exactly one owner-loader request")
+eq(nativeNames[1], "BattleCam",
+  "the fixed camera seam can request only the literal BattleCam module")
+eq(fixedCameraReceipt.capability,
+  "dramaless-2.0.2-battle-camera/v1",
+  "camera receipt names the exact reviewed capability")
+eq(fixedCameraReceipt.export, "fixed-battle-camera/v1",
+  "camera receipt distinguishes the narrow exception from a module facade")
+local cachedCamera = resolver.cameraModule()
+eq(cachedCamera, fixedCamera, "reviewed camera capability is cached")
+eq(nativeCalls, 1, "cached camera lookup never re-enters the owner loader")
+local rawLeak = false
+for _, field in ipairs({
+  "RIGS", "rigFor", "frameH", "rig", "installOakLabLens", "lib", "mod",
+}) do
+  if fixedCamera[field] ~= nil then rawLeak = true end
+end
+eq(rawLeak, false,
+  "fixed camera control exposes no raw table, V closure or owner authority")
+local writeOk = pcall(function() fixedCamera.RIGS = nativeCamera.RIGS end)
+eq(writeOk, false, "fixed camera control is read-only")
+eq(fixedCamera.apply("classic"), true,
+  "fixed control applies only its reviewed classic preset")
+eq(nativeCamera.RIGS.tele.frameH, 34.11 * 3,
+  "fixed control applies the literal historical factor-3 tele rig")
+eq(fixedCamera.state().neutralFrameH, 34.11 * 3 * 1.3,
+  "control telemetry reports the renderer-owned 1.3 neutral zoom separately")
+eq(fixedCamera.apply("anything-else"), false,
+  "fixed control rejects arbitrary camera mutations")
+
+-- A fresh KASC resolver may be constructed after the first one already
+-- applied its camera setting. That reviewed normalized state must validate
+-- without widening the accepted API or losing the canonical fork restore.
+local reloadedResolver = assert(loadfile(root .. "/voxel_renderer_compat.lua"))()(fakeMod)
+local reloadedCamera, _, reloadedError = reloadedResolver.cameraModule()
+eq(reloadedError, nil,
+  "camera capability validates after a prior KASC mutation/reload")
+ok(reloadedCamera ~= nativeCamera,
+  "reloaded camera capability still hides the raw renderer table")
+eq(nativeCalls, 2,
+  "fresh resolver makes exactly one new literal BattleCam request")
+eq(reloadedCamera.apply("fork"), true,
+  "reloaded control can restore the exact upstream fork framing")
+eq(nativeCamera.RIGS.tele.frameH, 34.11,
+  "fork restore remains canonical after resolver reload")
+
+-- The generic seam stays closed even after the fixed camera was admitted.
+module, moduleId, moduleError = resolver.module(nil, "VoxelScene")
+eq(module, nil, "native-only DRAMALESS still exposes no generic module")
+eq(moduleError, "renderer-native-owned:DRAMALESS_SHAPE",
+  "fixed camera admission cannot open a second private module")
+eq(nativeCalls, 2,
+  "generic lookup after camera admission does not touch the owner loader")
+
+local badCameraCalls = 0
+local badCameraMod = {
+  find = function(id)
+    if id ~= "DRAMALESS_SHAPE" then return nil end
+    return {
+      id = id, version = "2.0.2",
+      exports = {
+        version = "2.0.2",
+        voxelArenaProvider = {}, voxelCardProvider = {},
+        voxel2DBattleHost = {},
+        lib = { require = function(name)
+          badCameraCalls = badCameraCalls + 1
+          eq(name, "BattleCam",
+            "invalid package can only be probed for the fixed camera literal")
+          return { RIGS = { tele = {}, wide = {} } }
+        end },
+      },
+    }
+  end,
+}
+local badCameraResolver = assert(loadfile(
+  root .. "/voxel_renderer_compat.lua"))()(badCameraMod)
+local badCamera, badCameraId, badCameraError =
+  badCameraResolver.cameraModule()
+eq(badCamera, nil, "invalid exact-version camera shape fails closed")
+eq(badCameraId, "DRAMALESS_SHAPE",
+  "invalid exact-version camera error keeps package identity")
+eq(badCameraError, "invalid-native-camera-api:DRAMALESS_SHAPE",
+  "invalid exact-version camera API has a precise diagnostic")
+eq(badCameraCalls, 1,
+  "invalid shape receives no second owner-loader request")
+
+local staleExportCalls = 0
+local staleExportMod = {
+  find = function(id)
+    if id ~= "DRAMALESS_SHAPE" then return nil end
+    return {
+      id = id, version = "2.0.2",
+      exports = {
+        version = "2.0.0",
+        voxelArenaProvider = {}, voxelCardProvider = {},
+        voxel2DBattleHost = {},
+        lib = { require = function()
+          staleExportCalls = staleExportCalls + 1
+          return nativeCamera
+        end },
+      },
+    }
+  end,
+}
+local staleExportResolver = assert(loadfile(
+  root .. "/voxel_renderer_compat.lua"))()(staleExportMod)
+local staleCamera, _, staleCameraError = staleExportResolver.cameraModule()
+eq(staleCamera, nil,
+  "manifest 2.0.2 with stale runtime export 2.0.0 fails closed")
+eq(staleCameraError, "invalid-native-camera-export:DRAMALESS_SHAPE",
+  "runtime-version mismatch has a precise camera diagnostic")
+eq(staleExportCalls, 0,
+  "runtime-version mismatch is rejected before owner-loader access")
+
+local wrongRepoCalls = 0
+local wrongRepoMod = {
+  find = function(id)
+    if id ~= "DRAMALESS_SHAPE" then return nil end
+    return {
+      id = id, version = "2.0.2", github = "attacker/dramaless_shape",
+      exports = {
+        version = "2.0.2",
+        voxelArenaProvider = {}, voxelCardProvider = {},
+        voxel2DBattleHost = {},
+        lib = { require = function()
+          wrongRepoCalls = wrongRepoCalls + 1
+          return nativeCamera
+        end },
+      },
+    }
+  end,
+}
+local wrongRepoResolver = assert(loadfile(
+  root .. "/voxel_renderer_compat.lua"))()(wrongRepoMod)
+local wrongCamera, _, wrongCameraError = wrongRepoResolver.cameraModule()
+eq(wrongCamera, nil, "explicit wrong-repository 2.0.2 camera fails closed")
+eq(wrongCameraError, "unsupported-repository:DRAMALESS_SHAPE",
+  "wrong-repository camera diagnostic is precise")
+eq(wrongRepoCalls, 0,
+  "wrong repository is rejected before its owner loader can run")
 
 local nativeAndVoxel = voxelExport("0.1.1")
 gameFor("DRAMALESS_SHAPE", "2.0.2", {
@@ -354,7 +537,7 @@ eq(reason, "unsafe-export:DRAMALESS_SHAPE",
 
 -- Unreviewed upstream builds fail closed even if their public export shape
 -- looks compatible.
-for _, version in ipairs({ "1.6.2.ST", "1.6.4", "1.6.5" }) do
+for _, version in ipairs({ "1.6.2.ST", "1.6.4", "1.6.5", "2.0.0" }) do
   game(version)
   package, id, reason = resolver.resolve()
   eq(package, nil, "unreviewed DRAMALESS " .. version .. " is rejected")

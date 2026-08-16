@@ -5,6 +5,10 @@ package.path = "./?.lua;./?/init.lua;" .. package.path
 
 local S = require("tests.harness").suite("voxel camera compatibility")
 local eq = S.eq
+local function close(actual, expected, message)
+  return S.check(math.abs(actual - expected) < 0.000000001,
+    ("%s (got %.14g, want %.14g)"):format(message, actual, expected))
+end
 local modDir = assert(os.getenv("TRAINER_REMATCH_MOD_DIR"),
   "TRAINER_REMATCH_MOD_DIR is required")
 
@@ -102,6 +106,114 @@ eq(camera.RIGS.tele.height, 56.82,
   "switching back restores the renderer's exact original height")
 eq(camera.RIGS.tele.frameH, 34.11,
   "switching back restores the renderer's exact original framing")
+
+-- Exact upstream DRAMALESS 2.0.2 keeps its world/cards/HUD native-owned but
+-- exposes one reviewed fixed BattleCam capability. KASC writes the literal
+-- historical raw 3x tele rig; the renderer retains its 1.3 resting zoom,
+-- steering and canonical/fixed behavior without any KASC wrapper.
+local selected202 = "classic"
+local handlers202 = {}
+local moduleNames202 = {}
+local camera202 = {
+  RIGS = {
+    tele = {
+      side = 78.79, back = 144.96, height = 37.88,
+      lookX = -0.26, lookY = 0.34, frameH = 34.11,
+    },
+    wide = {
+      side = 41.98, back = 41.16, height = 28.48,
+      lookX = -3.24, lookY = -1.35, frameH = 55.62,
+    },
+  },
+  DEFAULT_RIG = "tele", DEFAULT_ZOOM = 1.3,
+  ZOOM_MIN = 0.45, ZOOM_MAX = 2.0,
+  zoom = 1.3, zoomGoal = 1.3,
+  still = false, steerable = true,
+}
+camera202.rigFor = function(arena)
+  return camera202.RIGS[arena and arena.cam] or camera202.RIGS.tele
+end
+camera202.frameH = function(arena)
+  local base = camera202.rigFor(arena).frameH
+  if camera202.still or not camera202.steerable then return base end
+  return base * camera202.zoom
+end
+camera202.rig = function(arena, _, canonical)
+  local rig = camera202.rigFor(arena)
+  return { frameH = canonical and rig.frameH or camera202.frameH(arena) }
+end
+local exported202 = {
+  version = "2.0.2",
+  voxelArenaProvider = {}, voxelCardProvider = {}, voxel2DBattleHost = {},
+  lib = {
+    mod = { id = "DRAMALESS_SHAPE" },
+    path = "/separately-installed/dramaless-2.0.2",
+    require = function(name)
+      moduleNames202[#moduleNames202 + 1] = name
+      if name == "BattleCam" then return camera202 end
+      error("unexpected DRAMALESS owner-loader request: " .. tostring(name))
+    end,
+  },
+}
+local mod202 = {
+  id = "kanto_ascendant",
+  options = { get = function(_, key)
+    eq(key, "dramaless_battle_camera",
+      "2.0.2 camera reads only its own KASC option")
+    return selected202
+  end },
+  events = { on = function(_, name, callback)
+    handlers202[name] = callback
+  end },
+  find = function(id)
+    if id ~= "DRAMALESS_SHAPE" then return nil end
+    return {
+      id = id, version = "2.0.2", exports = exported202,
+    }
+  end,
+}
+local resolver202 = dofile(modDir .. "/voxel_renderer_compat.lua")(mod202)
+local compat202 = dofile(modDir .. "/dramaless_camera_compat.lua")(mod202, {
+  voxelRenderer = resolver202,
+})
+eq(compat202.install({}), true,
+  "exact DRAMALESS 2.0.2 installs the fixed camera adapter")
+eq(#moduleNames202, 1,
+  "2.0.2 adapter makes one exact owner-loader request")
+eq(moduleNames202[1], "BattleCam",
+  "2.0.2 adapter requests only the literal reviewed BattleCam module")
+close(camera202.RIGS.tele.frameH, compat202.CLASSIC_TELE.frameH,
+  "2.0.2 stores the literal historical factor-3 raw tele rig")
+close(camera202.frameH({}), 34.11 * 3 * 1.3,
+  "2.0.2 applies its renderer-owned resting zoom above the raw 3x rig")
+
+camera202.zoom = 1.6
+close(camera202.frameH({}), (34.11 * 3) * 1.6,
+  "2.0.2 preserves the player's zoom semantics above the raw 3x rig")
+camera202.zoom = 1.3
+camera202.still = true
+close(camera202.frameH({}), 34.11 * 3,
+  "2.0.2 fixed-seat path reads the same literal factor-3 raw rig")
+close(camera202.rig({}, 0, true).frameH, 34.11 * 3,
+  "2.0.2 canonical path remains renderer-owned and reads raw factor 3")
+camera202.still = false
+selected202 = "fork"
+handlers202["mod.options_changed"]({
+  mod = "kanto_ascendant", key = "dramaless_battle_camera",
+})
+eq(camera202.RIGS.tele.frameH, 34.11,
+  "2.0.2 fork mode restores the exact upstream rig base")
+close(camera202.frameH({}), 34.11 * 1.3,
+  "2.0.2 fork mode restores the upstream neutral rendered frame")
+
+selected202 = "wide"
+handlers202["mod.options_changed"]({
+  mod = "kanto_ascendant", key = "dramaless_battle_camera",
+})
+close(camera202.frameH({}), 34.11 * 3 * 1.3,
+  "2.0.2 Wide mode keeps the literal raw 3x plus renderer resting zoom")
+eq(#moduleNames202, 1,
+  "camera changes use the cached capability without further owner access")
 
 local noRendererMod = {
   id = "trainer_rematch",

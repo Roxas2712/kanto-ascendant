@@ -3,9 +3,12 @@
 -- Engine 0.1.90 sandboxes every mod.  Voxel Ascendant is the standalone,
 -- sandbox-native renderer; the dedicated DRAMALESS 1.6.2-ST.190.1 build and
 -- upstream Battle Art 1.9.0 are exact reviewed packages.  DRAMALESS 2.0.2 is
--- separately admitted as a renderer-native stack: it owns its modern world
--- and native-card battle path, but does not publish the closed module/HUD
--- contract KASC needs for its optional renderer bridges. Older upstream
+-- separately admitted as a renderer-native stack: it owns its modern world,
+-- native-card battle path and HUD. Its exact 2.0.2 release has one deliberately
+-- narrow exception: this resolver may inspect the literal reviewed BattleCam
+-- module and expose only fixed camera-preset control in order to preserve the
+-- user-facing Classic/Wide option. The raw table, generic modules, HUD and
+-- owner authority never escape that exception. Older upstream
 -- DRAMALESS, DRAMATIC_SHAPE, Battle Art and First Person builds touch APIs that
 -- the reviewed sandbox removes, so this authority must reject them instead of
 -- advertising a partial bridge.
@@ -35,10 +38,11 @@ return function(ownerMod)
     },
   }
   -- This is deliberately distinct from `approvedVersions`. A native-only
-  -- package is allowed by the manifest but never receives an alias, module
-  -- facade, HUD wrapper, camera mutation or Wilds renderer hook from KASC.
-  -- That keeps DRAMALESS 2.0.2's own providers authoritative and ensures a
-  -- spoofed runtime handle cannot gain cross-mod authority through KASC.
+  -- package never receives an alias, general module facade, HUD wrapper or
+  -- Wilds renderer hook from KASC. The exact 2.0.2 camera path below exposes
+  -- only a fixed, read-only capability; raw renderer authority stays private.
+  -- That keeps DRAMALESS 2.0.2's providers authoritative and ensures a spoofed
+  -- runtime handle cannot gain cross-mod authority through KASC.
   R.nativeRendererVersions = {
     DRAMALESS_SHAPE = {
       ["2.0.2"] = "artyrambles-dramaless-2.0.2-native-card-provider",
@@ -68,6 +72,13 @@ return function(ownerMod)
     VoxelState = true,
   }
   local battleArtFacadeCache = setmetatable({}, { __mode = "k" })
+  -- DRAMALESS 2.0.2 still exports its owner-scoped V loader. It is not safe
+  -- to turn that into a general facade, but the exact upstream package needs
+  -- KASC's long-standing camera calibration. Cache only a read-only control
+  -- facade after a strict shape/value check; the raw BattleCam table and its
+  -- V-closing functions never leave this resolver.
+  local nativeCameraCache = setmetatable({}, { __mode = "k" })
+  local lastChoice
   -- Bundled Wilds 1.12.2 predates the DRAMALESS manifest id and asks for
   -- DRAMATIC_SHAPE.  Treat that name only as a capability request for the
   -- one reviewed renderer that is actually installed; it must never make an
@@ -106,6 +117,111 @@ return function(ownerMod)
       end,
       __metatable = false,
     })
+  end
+
+  local function finite(value)
+    return type(value) == "number" and value == value
+      and value ~= math.huge and value ~= -math.huge
+  end
+
+  local function near(actual, expected)
+    return finite(actual) and math.abs(actual - expected) < 0.000001
+  end
+
+  local function validateDramaless202Camera(row)
+    if not row or row.id ~= "DRAMALESS_SHAPE"
+        or tostring(versionOf(row.handle, row.exported)) ~= "2.0.2" then
+      return nil, "unsupported-native-camera"
+    end
+    local expectedRepository = "artyrambles/dramaless_shape"
+    local runtimeRepository = repositoryOf(row.handle, row.exported)
+    if runtimeRepository ~= nil and runtimeRepository ~= expectedRepository then
+      return nil, "unsupported-repository:DRAMALESS_SHAPE"
+    end
+    local exported = row.exported
+    if type(exported) ~= "table"
+        or tostring(exported.version) ~= "2.0.2"
+        or type(exported.voxelArenaProvider) ~= "table"
+        or type(exported.voxelCardProvider) ~= "table"
+        or type(exported.voxel2DBattleHost) ~= "table"
+        or type(exported.lib) ~= "table"
+        or type(exported.lib.require) ~= "function" then
+      return nil, "invalid-native-camera-export:DRAMALESS_SHAPE"
+    end
+    local cached = nativeCameraCache[exported]
+    if cached then return cached end
+
+    -- This literal is intentional. Never accept a caller-provided name here:
+    -- the surrounding V table owns mod/path/data authority in upstream 2.0.2.
+    local ok, camera = pcall(exported.lib.require, "BattleCam")
+    local rigs = type(camera) == "table" and camera.RIGS or nil
+    local tele = type(rigs) == "table" and rigs.tele or nil
+    local wide = type(rigs) == "table" and rigs.wide or nil
+    local teleFrameReviewed = type(tele) == "table"
+      and (near(tele.frameH, 34.11) or near(tele.frameH, 34.11 * 3))
+    if not ok or type(camera) ~= "table"
+        or type(camera.rigFor) ~= "function"
+        or type(camera.frameH) ~= "function"
+        or type(camera.rig) ~= "function"
+        or camera.DEFAULT_RIG ~= "tele"
+        or not near(camera.DEFAULT_ZOOM, 1.3)
+        or not near(camera.ZOOM_MIN, 0.45)
+        or not near(camera.ZOOM_MAX, 2.0)
+        or not finite(camera.zoom) or not finite(camera.zoomGoal)
+        or camera.zoom < camera.ZOOM_MIN or camera.zoom > camera.ZOOM_MAX
+        or camera.zoomGoal < camera.ZOOM_MIN
+        or camera.zoomGoal > camera.ZOOM_MAX
+        or type(tele) ~= "table" or type(wide) ~= "table"
+        or not near(tele.side, 78.79)
+        or not near(tele.back, 144.96)
+        or not near(tele.height, 37.88)
+        or not near(tele.lookX, -0.26)
+        or not near(tele.lookY, 0.34)
+        or not teleFrameReviewed
+        or not near(wide.side, 41.98)
+        or not near(wide.back, 41.16)
+        or not near(wide.height, 28.48)
+        or not near(wide.lookX, -3.24)
+        or not near(wide.lookY, -1.35)
+        or not near(wide.frameH, 55.62) then
+      return nil, "invalid-native-camera-api:DRAMALESS_SHAPE"
+    end
+
+    local function state()
+      return readonly({
+        back = tele.back,
+        height = tele.height,
+        baseFrameH = tele.frameH,
+        neutralFrameH = tele.frameH * camera.DEFAULT_ZOOM,
+        currentZoom = camera.zoom,
+        currentZoomGoal = camera.zoomGoal,
+      })
+    end
+    local function apply(mode)
+      if mode == "fork" then
+        tele.back, tele.height, tele.frameH = 144.96, 37.88, 34.11
+        return true
+      end
+      if mode ~= "classic" and mode ~= "wide" then return false end
+      tele.back, tele.height = 144.96, 37.88
+      -- Preserve the historical KASC contract literally. DRAMALESS keeps
+      -- complete ownership of frameH(), zoom, steering and canonical rigs;
+      -- this capability edits only the reviewed tele rig fields.
+      tele.frameH = 34.11 * 3
+      return true
+    end
+    local facade = readonly({
+      schema = "ka-dramaless-2.0.2-camera-control/v1",
+      rendererId = "DRAMALESS_SHAPE",
+      rendererVersion = "2.0.2",
+      ownsNativeHud = true,
+      defaultZoom = 1.3,
+      rawTargetFrameH = 34.11 * 3,
+      state = state,
+      apply = apply,
+    })
+    nativeCameraCache[exported] = facade
+    return facade
   end
 
   local function battleArtFacade(id, version, exported, handle)
@@ -293,6 +409,7 @@ return function(ownerMod)
   end
 
   local function choose(candidates)
+    lastChoice = nil
     if #candidates == 0 then return nil, nil, "renderer-absent" end
     if #candidates > 1 then
       local ids = {}
@@ -301,14 +418,15 @@ return function(ownerMod)
       return nil, nil, "ambiguous-renderers:" .. table.concat(ids, ",")
     end
     local row = candidates[1]
+    lastChoice = row
     local nativeVersions = R.nativeRendererVersions[row.id]
     local nativeProvenance = nativeVersions
       and nativeVersions[tostring(versionOf(row.handle, row.exported))]
     if nativeProvenance then
-      -- Do not read, probe or forward `exports.lib`: DRAMALESS 2.0.2's
-      -- legacy V table retains its renderer owner's mod/path/data authority.
-      -- Its built-in arena/card host remains fully renderer-owned, while
-      -- KASC keeps every optional overlay in its ordinary native-2D path.
+      -- Do not probe or forward `exports.lib`: DRAMALESS 2.0.2's legacy V
+      -- table retains its renderer owner's mod/path/data authority. The one
+      -- fixed BattleCam request lives in cameraModule() below; its built-in
+      -- arena/card host and native HUD remain fully renderer-owned.
       return nil, row.id, "renderer-native-owned:" .. row.id,
         nil, {
           schema = "ka-voxel-renderer-capability/v1",
@@ -401,6 +519,39 @@ return function(ownerMod)
     R.lastError = nil
     R.lastReceipt = receipt
     return value, id, nil, receipt
+  end
+
+  -- Fixed capability adapter for the exact official DRAMALESS 2.0.2 camera.
+  -- Unlike module(), this API accepts no module name and can therefore never
+  -- be used as a generic path into the renderer owner's V loader. Reviewed
+  -- closed-facade renderers keep using the ordinary module() path.
+  function R.cameraModule(gameOrExports)
+    local exported, id, reason, _, receipt = R.resolve(gameOrExports)
+    if exported then return nil, id, "not-native-camera" end
+    if id ~= "DRAMALESS_SHAPE"
+        or reason ~= "renderer-native-owned:DRAMALESS_SHAPE" then
+      return nil, id, reason
+    end
+    local control, cameraReason = validateDramaless202Camera(lastChoice)
+    if not control then
+      R.lastError = cameraReason
+      R.lastReceipt = nil
+      return nil, id, cameraReason
+    end
+    local cameraReceipt = {
+      schema = "ka-voxel-renderer-capability/v1",
+      rendererId = "DRAMALESS_SHAPE",
+      rendererVersion = "2.0.2",
+      provenance = R.nativeRendererVersions.DRAMALESS_SHAPE["2.0.2"],
+      export = "fixed-battle-camera/v1",
+      nativeOnly = true,
+      module = "BattleCam",
+      capability = "dramaless-2.0.2-battle-camera/v1",
+      repository = repositoryOf(lastChoice.handle, lastChoice.exported),
+    }
+    R.lastError = nil
+    R.lastReceipt = cameraReceipt
+    return control, id, nil, cameraReceipt
   end
 
   function R.isRendererId(id)

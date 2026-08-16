@@ -1247,8 +1247,13 @@ hardened alternative. The exact upstream
 `DRAMALESS_SHAPE 2.0.2` release from
 [`artyrambles/DRAMALESS_SHAPE`](https://github.com/artyrambles/DRAMALESS_SHAPE/releases/tag/v2.0.2)
 is also reviewed in renderer-native mode: it owns its own voxel world and
-native battle cards, and Ascendant does not call or adapt its private loader
-or renderer APIs. The separately installed upstream
+native battle cards and HUD. After exact version, repository, export and
+camera-shape validation, Ascendant may request only the literal `BattleCam`
+module inside its resolver and expose a narrow camera-preset control; the raw
+camera table, private loader, renderer modules and HUD authority never escape
+that boundary. The reviewed official `2.0.2` release ZIP has SHA-256
+`85e2f866bd7badce4c5d97ccbf1f8b88b2a9fd30ec0659454c187d7398b808a7`.
+The separately installed upstream
 `BATTLE_ART_VOXEL_FORK 1.9.0` is the third reviewed choice. It retains complete
 ownership of its sprites, trainers, animations, camera, menus and options; Kanto
 Ascendant only builds a local closed module facade and adapts HUD overlays plus
@@ -1257,7 +1262,8 @@ included in the Kanto Ascendant ZIP. Battle Art 1.8.3 and every other Battle Art
 version remain blocked by an exact version rule. Dramatic Shape, Potato Voxel,
 Terrarium and First Person remain blocked; every other Dramaless version is
 blocked while only `.190.1` and the exact upstream `2.0.2` release remain
-supported. Install only one Voxel renderer.
+supported. Install only one Voxel renderer; Battle Art and Dramaless are
+alternative renderers and must not be enabled together.
 
 The reviewed Battle Art package is the upstream 1.9.0 release asset from
 [`absol89/DramaticShapeVoxelMod`](https://github.com/absol89/DramaticShapeVoxelMod/releases/tag/1.9.0),

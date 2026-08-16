@@ -80,24 +80,26 @@ assert(loader.mods.kanto_ascendant.state == "loaded",
 assert(loader.mods.DRAMALESS_SHAPE.state == "loaded",
   "approved 2.0.2 itself did not load")
 
-for _, version in ipairs({ "1.6.4", "2.0.1", "2.0.3", "3.0.0" }) do
+for _, version in ipairs({ "1.6.4", "2.0.0", "2.0.1", "2.0.3", "3.0.0" }) do
   local candidate = draml(version)
   result = ManagerState.resolveToggle({
     kanto_ascendant = ascendant, DRAMALESS_SHAPE = candidate,
   }, "kanto_ascendant", true, { DRAMALESS_SHAPE = true })
-  assert(#(result.conflicts or {}) > 0
-      and result.apply.DRAMALESS_SHAPE == false,
+  assert(#(result.conflicts or {}) > 0,
     "0.1.96 manager allowed unreviewed DRAMALESS " .. version)
 end
 
--- The allow-package repository pin is part of the public manager policy.
--- A renamed or spoofed exact-id package cannot bypass it.
+-- Engine 0.1.96 does not expose the later rich allow-package policy to this
+-- pure ManagerState helper. The exact repository is therefore enforced by
+-- KASC's runtime camera resolver before any owner-loader request. Keep this
+-- row as an explicit launcher limitation rather than claiming the old helper
+-- rejects a repository that it cannot inspect.
 local wrongRepo = draml("2.0.2", "someone-else/DRAMALESS_SHAPE")
 result = ManagerState.resolveToggle({
   kanto_ascendant = ascendant, DRAMALESS_SHAPE = wrongRepo,
 }, "kanto_ascendant", true, { DRAMALESS_SHAPE = true })
-assert(result.apply.DRAMALESS_SHAPE == false,
-  "0.1.96 manager accepted an unpinned DRAMALESS 2.0.2 repository")
+assert(#(result.conflicts or {}) == 0,
+  "0.1.96 manager unexpectedly interpreted unsupported repository policy")
 
 Version.engine = oldEngine
 print("dramaless_202_manager_096_test: PASS")

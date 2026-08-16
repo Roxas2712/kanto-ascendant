@@ -49,11 +49,13 @@ local unsafeBattleArtVersions = { "1.8.3", "1.9.1" }
 local battleArtConflictSpec =
   "BATTLE_ART_VOXEL_FORK@<1.9.0 || >1.9.0"
 local safeDramalessVersion = "1.6.2-ST.190.1"
+local nativeDramalessVersion = "2.0.2"
 local unsafeDramalessVersions = {
   "1.6.2-ST.190", "1.6.2-ST.190.2", "1.6.4",
+  "2.0.0", "2.0.1", "2.0.3",
 }
 local dramalessConflictSpec =
-  "DRAMALESS_SHAPE@<1.6.2-ST.190.1 || >1.6.2-ST.190.1"
+  "DRAMALESS_SHAPE@<1.6.2-ST.190.1 || >1.6.2-ST.190.1 <2.0.2 || >2.0.2"
 local approved = {
   { id = "deutsch", version = "1.0.0" },
   { id = "deutsch-blau", version = "1.0.0" },
@@ -64,6 +66,8 @@ local approved = {
   { id = "VOXEL_ASCENDANT", version = "0.1.1",
     github = "Roxas2712/voxel-ascendant" },
   { id = "DRAMALESS_SHAPE", version = safeDramalessVersion,
+    github = "artyrambles/DRAMALESS_SHAPE" },
+  { id = "DRAMALESS_SHAPE", version = nativeDramalessVersion,
     github = "artyrambles/DRAMALESS_SHAPE" },
   { id = "BATTLE_ART_VOXEL_FORK", version = safeBattleArtVersion,
     github = "absol89/DramaticShapeVoxelMod" },
@@ -150,10 +154,12 @@ do
 end
 
 -- The classic conflict grammar is version-aware on stock 0.1.90 as well as
--- on newer launchers. Only the hardened transition build is admitted; the
--- same real manifest ID at an older, newer or upstream version is blocked in
--- both toggle directions.
+-- on newer launchers. Only the hardened transition build and exact native
+-- 2.0.2 release are admitted; every adjacent version is blocked in both
+-- toggle directions.
 local safeDramaless = external("DRAMALESS_SHAPE", safeDramalessVersion,
+  "artyrambles/DRAMALESS_SHAPE")
+local nativeDramaless = external("DRAMALESS_SHAPE", nativeDramalessVersion,
   "artyrambles/DRAMALESS_SHAPE")
 local parsedDramalessConflict
 for _, spec in ipairs(ascendant.conflictSpecs or {}) do
@@ -161,8 +167,8 @@ for _, spec in ipairs(ascendant.conflictSpecs or {}) do
 end
 assert(parsedDramalessConflict
     and parsedDramalessConflict.range ==
-      "<1.6.2-ST.190.1 || >1.6.2-ST.190.1",
-  "classic hardened-DRAMALESS exception did not parse exactly")
+      "<1.6.2-ST.190.1 || >1.6.2-ST.190.1 <2.0.2 || >2.0.2",
+  "classic exact-DRAMALESS exceptions did not parse exactly")
 local richPolicies = type(Manifest.replacement) == "function"
   and type(Manifest.exclusiveAllows) == "function"
 for _, version in ipairs(unsafeDramalessVersions) do
@@ -186,18 +192,22 @@ for _, version in ipairs(unsafeDramalessVersions) do
     "reverse versioned conflict allowed DRAMALESS " .. version)
 end
 do
-  assert(not Semver.satisfies(safeDramalessVersion,
-      parsedDramalessConflict.range),
-    "classic DRAMALESS conflict range included the hardened build")
-  local mods = { kanto_ascendant = ascendant, DRAMALESS_SHAPE = safeDramaless }
-  local result = ManagerState.resolveToggle(mods, "kanto_ascendant", true,
-    { DRAMALESS_SHAPE = true })
-  assert(#result.conflicts == 0,
-    "versioned conflict blocked hardened DRAMALESS ST.190.1")
-  result = ManagerState.resolveToggle(mods, "DRAMALESS_SHAPE", true,
-    { kanto_ascendant = true })
-  assert(#result.conflicts == 0,
-    "reverse versioned conflict blocked hardened DRAMALESS ST.190.1")
+  for _, row in ipairs({
+    { version = safeDramalessVersion, mod = safeDramaless },
+    { version = nativeDramalessVersion, mod = nativeDramaless },
+  }) do
+    assert(not Semver.satisfies(row.version, parsedDramalessConflict.range),
+      "classic DRAMALESS conflict range included approved " .. row.version)
+    local mods = { kanto_ascendant = ascendant, DRAMALESS_SHAPE = row.mod }
+    local result = ManagerState.resolveToggle(mods, "kanto_ascendant", true,
+      { DRAMALESS_SHAPE = true })
+    assert(#result.conflicts == 0,
+      "versioned conflict blocked approved DRAMALESS " .. row.version)
+    result = ManagerState.resolveToggle(mods, "DRAMALESS_SHAPE", true,
+      { kanto_ascendant = true })
+    assert(#result.conflicts == 0,
+      "reverse versioned conflict blocked approved DRAMALESS " .. row.version)
+  end
 end
 
 -- The released 0.1.90 loader knows only classic conflicts. It blocks either
@@ -260,6 +270,8 @@ for _, id in ipairs(incompatibleRenderers) do
 end
 assert(Manifest.compatibilityConflict(ascendant, safeDramaless) == nil,
   "hardened DRAMALESS must not inherit the rich broken-renderer block")
+assert(Manifest.compatibilityConflict(ascendant, nativeDramaless) == nil,
+  "native DRAMALESS 2.0.2 must not inherit the rich broken-renderer block")
 assert(Manifest.compatibilityConflict(ascendant, safeBattleArt) == nil,
   "Battle Art 1.9.0 must not inherit the rich broken-renderer block")
 for _, item in ipairs(approved) do
@@ -283,6 +295,10 @@ assert(not Manifest.exclusiveAllows(ascendant,
     external("DRAMALESS_SHAPE", safeDramalessVersion,
       "other/DRAMALESS_SHAPE")),
   "a package spoofing the exact DRAMALESS id/version bypassed provenance")
+assert(not Manifest.exclusiveAllows(ascendant,
+    external("DRAMALESS_SHAPE", nativeDramalessVersion,
+      "other/DRAMALESS_SHAPE")),
+  "a package spoofing native DRAMALESS 2.0.2 bypassed provenance")
 assert(not Manifest.exclusiveAllows(ascendant,
     external("DRAMALESS_SHAPE", "1.6.2-ST.190", "other/DRAMALESS_SHAPE")),
   "a package spoofing the renderer id bypassed repository provenance")

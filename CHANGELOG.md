@@ -9,8 +9,10 @@ All notable changes to this project are documented in this file.
 - The manager now admits only the exact upstream
   `artyrambles/DRAMALESS_SHAPE 2.0.2` package on the 0.1.96 stack instead of
   displaying a false conflict. This modern Dramaless line is deliberately
-  renderer-native: it owns its own voxel world and battle-card presentation;
-  Ascendant does not access its private loader or renderer internals. All
+  renderer-native: it owns its own voxel world, battle cards and battle HUD.
+  The exact reviewed package exposes only a narrow fixed camera-preset control;
+  its private loader, renderer modules, raw camera table and HUD authority stay
+  private. All
   unreviewed Dramaless versions, repositories and multi-renderer combinations
   remain blocked.
 
