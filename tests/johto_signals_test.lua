@@ -112,6 +112,17 @@ local function gameFixture(withDex, playerName, version)
   }
 end
 
+-- Production always gives Signals the save-local generation boundary. Tests
+-- which specifically model an untouched Gen-I save use this sealed fixture;
+-- omitting the controller deliberately exercises the legacy standalone
+-- compatibility contract, where Signals is already active.
+local sealedBoundary = {
+  isActive = function() return false end,
+  status = function()
+    return { active = false, decision = "fresh_gen1" }
+  end,
+}
+
 local function newHarness(config)
   config = config or {}
   local root = { earlyJohto = config.state or {} }
@@ -156,6 +167,7 @@ local function newHarness(config)
   }
   local api = createSignals(mod, {
     state = backend,
+    johtoBoundary = config.johtoBoundary,
     content = {
       johtoData = {
         habitats = config.habitats or HABITATS,
@@ -406,7 +418,23 @@ end
 -- ------------------------------------------------------- receiver and UX
 
 do
+  -- Production always installs Signals with the save-local Beyond Kanto
+  -- boundary. Model two different slots here instead of relying on the
+  -- no-boundary compatibility fallback, which is active by definition.
+  local slotBoundary = {}
+  function slotBoundary.isActive(game)
+    local player = game and game.save and game.save.player
+    return player and player.name == "BLITZ" or false
+  end
+  function slotBoundary.status(game)
+    local active = slotBoundary.isActive(game)
+    return {
+      active = active,
+      decision = active and "driftglass_receiver" or "fresh_gen1",
+    }
+  end
   local h = newHarness({
+    johtoBoundary = slotBoundary,
     state = {
       receiverRepaired = true,
       modeChosen = true,
@@ -451,7 +479,32 @@ do
 end
 
 do
-  local h = newHarness()
+  -- The production composition supplies the save-local generation boundary.
+  -- Keep it sealed through the physical quest, then let the receiver choice
+  -- activate that same boundary and Signals state as one transaction.
+  local boundary = { active = false }
+  function boundary.isActive()
+    return boundary.active
+  end
+  function boundary.status()
+    return {
+      active = boundary.active,
+      decision = boundary.active and "driftglass_receiver" or "fresh_gen1",
+    }
+  end
+  function boundary.activate(game, context)
+    if boundary.active then return false, "already-active" end
+    boundary.active = true
+    local ok, reason = boundary.signals.forceUnleashed(game, true, context)
+    if not ok then
+      boundary.active = false
+      return false, reason
+    end
+    return true, "activated"
+  end
+
+  local h = newHarness({ johtoBoundary = boundary })
+  boundary.signals = h.api
   local game = gameFixture(true)
   h.api.install(game)
 
@@ -959,6 +1012,7 @@ end
 
 do
   local h = newHarness({
+    johtoBoundary = sealedBoundary,
     state = {
       capsuleFound = true,
       receiverRepaired = true,
@@ -1184,9 +1238,12 @@ end
 -- -------------------------- one receiver gate for grass and visible Wilds
 
 do
-  local closed = newHarness({ state = {
-    receiverRepaired = false, modeChosen = false, mode = "KANTO_FIRST",
-  } })
+  local closed = newHarness({
+    johtoBoundary = sealedBoundary,
+    state = {
+      receiverRepaired = false, modeChosen = false, mode = "KANTO_FIRST",
+    },
+  })
   eq(closed.api.migrationOpen(), false,
     "Johto migration is closed before the Driftglass receiver is configured")
   eq(#closed.api.allowedSpeciesPool(nil, true), 0,
