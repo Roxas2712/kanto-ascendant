@@ -19,6 +19,8 @@ T.eq(characters.characterStyle(), "crystal",
   "Yellow also receives CRYSTAL CHARS as the default style")
 
 T.eq(characters.isEnabled(), false, "vanilla Yellow keeps the extension opt-in")
+T.eq(characters.trainerCardProfileFit(nil, 56, 56), nil,
+  "unselected vanilla Yellow keeps its edition-native Trainer Card placement")
 T.eq(run.loader.hooks:call("player.sprite", function(path) return path end,
   "yellow-vanilla-back.png", { side = "back", kind = "battle" }),
   "yellow-vanilla-back.png", "vanilla Yellow keeps its player art path")

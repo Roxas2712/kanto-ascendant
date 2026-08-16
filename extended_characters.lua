@@ -22,6 +22,13 @@ return function(mod, opts)
     .. "/characters/"
   local SELECTION_ORDER = { "GREEN", "BLUE", "RED" }
   local PRE_NAME_PLACEHOLDER = "???"
+  -- TrainerCard draws the edition-native 56x56 canvas at (104, 4).  That is
+  -- fine for the much smaller opaque area of the original Gen-I portrait,
+  -- but KASC's complete Red/Blue/Green figures reach the bottom of their
+  -- canvas and consequently paint over the patterned right/bottom frame.
+  -- Rows/columns 0 and 7 are the frame itself; this is the exact 6x6-tile
+  -- white interior reserved for the player picture.
+  local TRAINER_CARD_PROFILE_SAFE_RECT = { x = 104, y = 8, w = 48, h = 48 }
 
   local CHARACTERS = {
     RED = {
@@ -357,6 +364,35 @@ return function(mod, opts)
 
   function M.getCharacterSprite(character, state, direction, frame)
     return M.resolveVisual(character, state, direction, frame)
+  end
+
+  -- Inspectable, image-size-aware placement contract for KASC's fixed
+  -- Trainer Card identities.  Keeping the source aspect ratio and never
+  -- enlarging means a future profile with a different canvas still stays
+  -- wholly inside the authored white interior.  The card intentionally does
+  -- not consult character_sprite_style: FRLG/Crystal/Voxel surfaces are not
+  -- valid identity documents here.
+  function M.trainerCardProfileFit(character, sourceW, sourceH)
+    local state = M.getState()
+    if not state.enabled and GameVersion.get() == "yellow" then return nil end
+    sourceW, sourceH = tonumber(sourceW), tonumber(sourceH)
+    if not sourceW or not sourceH or sourceW <= 0 or sourceH <= 0 then
+      return nil
+    end
+    local safe = TRAINER_CARD_PROFILE_SAFE_RECT
+    local scale = math.min(1, safe.w / sourceW, safe.h / sourceH)
+    local width, height = sourceW * scale, sourceH * scale
+    local characterId = normalizedId(character, M.getPlayerCharacter())
+    return {
+      character = characterId,
+      x = safe.x + (safe.w - width) / 2,
+      y = safe.y + (safe.h - height) / 2,
+      scaleX = scale, scaleY = scale,
+      width = width, height = height,
+      safe = copy(safe),
+      sourceWidth = sourceW, sourceHeight = sourceH,
+      profile = M.getCharacterSprite(characterId, "trainerCard"),
+    }
   end
 
   function M.getState()
@@ -1281,6 +1317,53 @@ return function(mod, opts)
     end
     return visual and runtimePath(visual.path) or path
   end, 80)
+
+  -- TrainerCard currently exposes the profile through player.sprite but has
+  -- no placement hook.  Wrap only its single profile draw call and restore
+  -- love.graphics.draw before returning (or rethrowing), leaving every frame,
+  -- font, title overlay and third-party renderer draw byte-for-byte native.
+  local function installTrainerCardProfileFit()
+    local ok, TrainerCard = pcall(require, "src.ui.TrainerCard")
+    if not ok or type(TrainerCard) ~= "table"
+        or type(TrainerCard.draw) ~= "function" then return false end
+    TrainerCard._kantoAscendantProfileFitController = M
+    if TrainerCard._kantoAscendantProfileFitWrapped then return true end
+    TrainerCard._kantoAscendantProfileFitWrapped = true
+    local originalDraw = TrainerCard.draw
+    TrainerCard.draw = function(card)
+      local picture = card and card.pic
+      local width, height
+      if picture and type(picture.getDimensions) == "function" then
+        local measured, w, h = pcall(picture.getDimensions, picture)
+        if measured then width, height = w, h end
+      end
+      local controller = TrainerCard._kantoAscendantProfileFitController
+      local fit = controller and controller.trainerCardProfileFit
+        and controller.trainerCardProfileFit(nil, width, height) or nil
+      local graphics = love and love.graphics
+      if not fit or not graphics or type(graphics.draw) ~= "function" then
+        return originalDraw(card)
+      end
+
+      local nativeDraw = graphics.draw
+      local profileDrawn = false
+      graphics.draw = function(drawable, ...)
+        if not profileDrawn and drawable == picture then
+          profileDrawn = true
+          return nativeDraw(drawable, fit.x, fit.y, 0,
+            fit.scaleX, fit.scaleY)
+        end
+        return nativeDraw(drawable, ...)
+      end
+      local drawn, problem = xpcall(function() originalDraw(card) end,
+        debug.traceback)
+      graphics.draw = nativeDraw
+      if not drawn then error(problem, 0) end
+    end
+    return true
+  end
+  M.installTrainerCardProfileFit = installTrainerCardProfileFit
+  installTrainerCardProfileFit()
 
   local JOHTO_VOXEL_BY_CLASS = {
     KA_JOHTO_SILVER = {

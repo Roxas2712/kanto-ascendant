@@ -281,6 +281,63 @@ for _, style in ipairs({ "ascendant", "crystal" }) do
         .. style .. " skin mode")
   end
 end
+
+-- KASC's complete 56px figures used to be drawn at the engine-native
+-- (104,4), which lets opaque feet/right-edge pixels overwrite the patterned
+-- border.  The renderer contract must fit every fixed identity wholly inside
+-- the exact 48x48 white card interior and must be the draw actually used by
+-- TrainerCard, not only an unused geometry helper.
+local TrainerCard = require("src.ui.TrainerCard")
+T.eq(TrainerCard._kantoAscendantProfileFitWrapped, true,
+  "Trainer Card installs the KASC-only profile placement seam")
+local graphicsDraw = love.graphics.draw
+for _, identity in ipairs({ "RED", "BLUE", "GREEN" }) do
+  characters.select(identity)
+  local fit = assert(characters.trainerCardProfileFit(identity, 56, 56))
+  T.eq(fit.character, identity, identity .. " fit follows selected identity")
+  T.eq(fit.profile.path, cardProfiles[identity],
+    identity .. " fit cannot fall through to a modern/Crystal profile")
+  T.eq(fit.safe.x, 104, identity .. " safe box begins after card text")
+  T.eq(fit.safe.y, 8, identity .. " safe box begins below top frame")
+  T.eq(fit.safe.w, 48, identity .. " safe box stops before right frame")
+  T.eq(fit.safe.h, 48, identity .. " safe box stops above bottom frame")
+  T.check(math.abs(fit.scaleX - 6 / 7) < 0.000001
+      and math.abs(fit.scaleY - 6 / 7) < 0.000001,
+    identity .. " 56px source is proportionally reduced to 48px")
+  T.check(fit.x >= fit.safe.x and fit.y >= fit.safe.y
+      and fit.x + fit.width <= fit.safe.x + fit.safe.w
+      and fit.y + fit.height <= fit.safe.y + fit.safe.h,
+    identity .. " fitted pixel canvas is wholly inside the frame")
+
+  local picture = { identity = identity }
+  function picture:getDimensions() return 56, 56 end
+  local pictureDraw
+  local recorder = function(drawable, ...)
+    if drawable == picture then pictureDraw = { ... } end
+  end
+  love.graphics.draw = recorder
+  TrainerCard.draw({
+    pic = picture,
+    game = {
+      data = Data,
+      save = {
+        player = { name = identity }, inventory = {}, money = 0, playTime = 0,
+      },
+    },
+    frameBox = function() end,
+  })
+  T.eq(love.graphics.draw, recorder,
+    identity .. " card draw restores the engine graphics function")
+  T.check(pictureDraw ~= nil, identity .. " profile is drawn exactly once")
+  T.check(pictureDraw and math.abs(pictureDraw[1] - 104) < 0.000001
+      and math.abs(pictureDraw[2] - 8) < 0.000001,
+    identity .. " profile draw is anchored in the white interior")
+  T.check(pictureDraw and pictureDraw[3] == 0
+      and math.abs(pictureDraw[4] - 6 / 7) < 0.000001
+      and math.abs(pictureDraw[5] - 6 / 7) < 0.000001,
+    identity .. " live profile draw preserves aspect ratio")
+  love.graphics.draw = graphicsDraw
+end
 run.loader.modOptions.kanto_ascendant.character_sprite_style = "ascendant"
 characters.select("BLUE")
 T.eq(characters.playerVisualState({ kind = "trainer_card" }), "trainerCard",
