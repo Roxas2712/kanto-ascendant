@@ -310,10 +310,11 @@ return function(mod, opts)
     -- The 2D battle fronts remain separate FRLG/Casey art.
     local id = normalizedId(character, "RED")
     -- ORIGINAL is an explicit portrait-family choice, unlike the old field
-    -- style.  Only Green has a separately approved compact identity pair;
-    -- keep Red/Blue and the default Crystal-HD family byte-for-byte intact.
-    if id == "GREEN" and trainerPortraitStyle(activeGame) == "original" then
-      local visual = copy(CHARACTERS.GREEN.visuals.front)
+    -- style. Blue and Green each have a separately approved compact identity
+    -- pair; keep Red and the default Crystal-HD family byte-for-byte intact.
+    if (id == "BLUE" or id == "GREEN")
+        and trainerPortraitStyle(activeGame) == "original" then
+      local visual = copy(CHARACTERS[id].visuals.front)
       visual.character, visual.state, visual.style = id, "selectorHd", "original"
       return visual
     end
@@ -342,7 +343,7 @@ return function(mod, opts)
     trainerCard = true, hallOfFame = true, credits = true,
     intro = true, special = true, rivalPortrait = true,
   }
-  local ORIGINAL_GREEN_FRONT_STATES = {
+  local ORIGINAL_IDENTITY_FRONT_STATES = {
     front = true, selectorHd = true, trainerCard = true,
     hallOfFame = true, credits = true, intro = true,
     special = true, rivalPortrait = true,
@@ -363,16 +364,17 @@ return function(mod, opts)
     -- surface.  It always uses KASC's base Red/Blue/Green profile even when
     -- Crystal field/battle art is active; Voxel/Crystal/FRLG portraits must
     -- never leak into this one screen.
-    local originalGreen = characterId == "GREEN"
+    local originalIdentity = (characterId == "BLUE" or characterId == "GREEN")
       and portraitStyle == "original"
-      and (state == "battleBack" or ORIGINAL_GREEN_FRONT_STATES[state])
-    local baseIdentityOnly = state == "trainerCard" or originalGreen
+      and (state == "battleBack" or ORIGINAL_IDENTITY_FRONT_STATES[state])
+    local baseIdentityOnly = state == "trainerCard" or originalIdentity
     local useFrlg = not baseIdentityOnly
       and (BATTLE_VISUAL_STATES[state] or style == "crystal")
     local visual
-    if originalGreen then
-      visual = state == "battleBack" and CHARACTERS.GREEN.visuals.battleBack
-        or CHARACTERS.GREEN.visuals.front
+    if originalIdentity then
+      visual = state == "battleBack"
+          and CHARACTERS[characterId].visuals.battleBack
+        or CHARACTERS[characterId].visuals.front
     else
       visual = useFrlg and CRYSTAL_VISUALS[characterId][state]
         or M.definition(characterId).visuals[state]

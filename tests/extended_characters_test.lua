@@ -155,10 +155,10 @@ T.eq(frlgTrainerPack.refresh(trainerGame), true,
 T.eq(trainerGame.data.trainers.OPP_BROCK.pic, "baseline/brock.png",
   "ORIGINAL restores the exact pre-pack Brock portrait")
 
--- ORIGINAL is also Green's explicit compact identity family.  It affects
--- only her front-facing identity consumers and normal 2D player back; Voxel
--- battle standees/throws stay in the complete Crystal family, and Red/Blue
--- must not inherit any Green-specific routing.
+-- ORIGINAL is also Blue/Green's explicit compact identity family. It affects
+-- only their front-facing identity consumers and normal 2D player backs;
+-- Voxel battle standees/throws stay in the complete Crystal family, and Red
+-- must not inherit either compact route.
 T.eq(characters.trainerPortraitStyle(), "original",
   "identity resolver reads the same ORIGINAL trainer option")
 local originalGreenFrontStates = {
@@ -183,18 +183,33 @@ T.eq(characters.getCharacterSprite("GREEN", "battleBack").path,
 T.eq(characters.getCharacterSprite("GREEN", "voxelFront").path,
   "assets/characters/crystal_chars/green_voxel_front.png",
   "ORIGINAL never replaces Green's Voxel battle standee")
+
+local originalBlueFront =
+  "save/mod-derived/kanto_ascendant/characters/blue_rival.png"
+for _, state in ipairs(originalGreenFrontStates) do
+  local visual = assert(characters.getCharacterSprite("BLUE", state))
+  T.eq(visual.path, originalBlueFront,
+    "ORIGINAL Blue " .. state .. " uses the imported Rival1 front")
+  T.eq(visual.fallbackCharacter, nil,
+    "ORIGINAL Blue " .. state .. " never aliases another identity")
+end
+local originalBlueSelector = characters.selectionVisual("BLUE")
+T.eq(originalBlueSelector.path, originalBlueFront,
+  "ORIGINAL Oak selector uses Blue's imported Rival1 front")
+T.eq(originalBlueSelector.bounds, nil,
+  "compact Blue selector uses its complete uncropped source canvas")
+T.eq(characters.getCharacterSprite("BLUE", "battleBack").path,
+  "assets/characters/blue_back.png",
+  "ORIGINAL normal 2D Blue back uses the approved compact back")
+T.eq(characters.getCharacterSprite("BLUE", "voxelFront").path,
+  "assets/characters/crystal_chars/blue_voxel_front.png",
+  "ORIGINAL never replaces Blue's Voxel battle standee")
 T.eq(characters.selectionVisual("RED").path,
   "assets/characters/crystal_chars/red_voxel_front_hd.png",
-  "ORIGINAL Green routing leaves Red's selector untouched")
-T.eq(characters.selectionVisual("BLUE").path,
-  "assets/characters/crystal_chars/blue_voxel_front_hd.png",
-  "ORIGINAL Green routing leaves Blue's selector untouched")
+  "ORIGINAL identity routing leaves Red's selector untouched")
 T.eq(characters.getCharacterSprite("RED", "battleBack").path,
   "assets/characters/crystal_chars/red_back.png",
-  "ORIGINAL Green routing leaves Red's 2D back untouched")
-T.eq(characters.getCharacterSprite("BLUE", "battleBack").path,
-  "assets/characters/crystal_chars/blue_back.png",
-  "ORIGINAL Green routing leaves Blue's 2D back untouched")
+  "ORIGINAL identity routing leaves Red's 2D back untouched")
 
 characters.select("GREEN")
 T.eq(characters.getPlayerSprite("intro").path,
@@ -207,6 +222,14 @@ characters.select("BLUE")
 T.eq(characters.getRivalSprite("rivalPortrait").path,
   "assets/characters/green_front.png",
   "Green rival follows ORIGINAL compact identity without aliasing Blue")
+T.eq(characters.getPlayerSprite("intro").path, originalBlueFront,
+  "Blue player intro follows the imported ORIGINAL Rival1 identity")
+T.eq(characters.getPlayerSprite("battleBack").path,
+  "assets/characters/blue_back.png",
+  "Blue player normal battle back follows ORIGINAL compact identity")
+characters.select("RED")
+T.eq(characters.getRivalSprite("rivalPortrait").path, originalBlueFront,
+  "Blue rival follows ORIGINAL imported identity without aliasing Red")
 
 run.loader.modOptions.kanto_ascendant.trainer_portrait_style = "crystal_hd"
 T.eq(characters.trainerPortraitStyle(), "crystal_hd",
@@ -220,6 +243,15 @@ T.eq(characters.getCharacterSprite("GREEN", "front").path,
 T.eq(characters.getCharacterSprite("GREEN", "battleBack").path,
   "assets/characters/crystal_chars/green_back.png",
   "Crystal HD restores Green's complete 2D battle back")
+T.eq(characters.selectionVisual("BLUE").path,
+  "assets/characters/crystal_chars/blue_voxel_front_hd.png",
+  "Crystal HD restores Blue's native selector master")
+T.eq(characters.getCharacterSprite("BLUE", "front").path,
+  "assets/characters/crystal_chars/blue_front.png",
+  "Crystal HD restores Blue's complete front")
+T.eq(characters.getCharacterSprite("BLUE", "battleBack").path,
+  "assets/characters/crystal_chars/blue_back.png",
+  "Crystal HD restores Blue's complete 2D battle back")
 
 local selected = characters.select("BLUE")
 T.eq(selected.player_character, "BLUE", "Blue becomes player identity")
