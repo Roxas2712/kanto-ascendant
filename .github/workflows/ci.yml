@@ -47,6 +47,7 @@ jobs:
           TRAINER_REMATCH_MOD_DIR: ../kanto-ascendant
         run: |
           luajit ../kanto-ascendant/tests/trainer_rematch_test.lua
+          luajit ../kanto-ascendant/tests/rematch_evolved_battler_test.lua
           luajit ../kanto-ascendant/tests/starter_signature_families_test.lua
           luajit ../kanto-ascendant/tests/gorochu_visuals_test.lua
           luajit ../kanto-ascendant/tests/gorochu_audio_matrix_test.lua

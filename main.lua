@@ -2659,6 +2659,33 @@ return function(mod)
     return evolved
   end
 
+  -- BattleState.newTrainer materializes the active battler before Ascendant
+  -- applies persistent rematch evolution. Replacing enemyParty[1] alone
+  -- therefore leaves the old species definition, name, front image and
+  -- Crystal-animation selection cached in battle.enemy. Rebuild the visible
+  -- lead as one identity transaction while the battle is still off-screen.
+  mod.exports.syncRematchLead = function(game, battle, BattleState)
+    if not (game and game.data and battle and battle.enemyParty) then
+      return false
+    end
+    local index = math.max(1, math.floor(tonumber(battle.enemyIndex) or 1))
+    local lead = battle.enemyParty[index]
+    if not lead or (battle.enemy and battle.enemy.mon == lead) then
+      return false
+    end
+    BattleState = BattleState or require("src.battle.BattleState")
+    if type(BattleState.makeBattler) ~= "function" then return false end
+    battle.enemy = BattleState.makeBattler(game.data, lead, false)
+    if game.save and game.save.pokedex then
+      game.save.pokedex.seen = game.save.pokedex.seen or {}
+      game.save.pokedex.seen[lead.species] = true
+    end
+    if type(battle.aiUsesFor) == "function" then
+      battle.aiUses = battle:aiUsesFor()
+    end
+    return true
+  end
+
   mod.exports.remainingSteps = remainingSteps
   mod.exports.trainingCycles = trainingCycles
   mod.exports.trainerKey = trainerKey
@@ -2737,6 +2764,8 @@ return function(mod)
         b.rematchOriginalEvolutions = applyOriginalProgression(
           game, b, team, rematchTeam)
         b.rematchRecruits = appendRecruits(game, b, rematchTeam)
+        b.rematchLeadSynchronized = mod.exports.syncRematchLead(
+          game, b, BattleState)
         b.rematchRecruitSpecies = {}
         for i = math.max(1, #rematchTeam - b.rematchRecruits + 1),
             #rematchTeam do
