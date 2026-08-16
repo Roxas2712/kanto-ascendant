@@ -47,7 +47,9 @@ All notable changes to this project are documented in this file.
 - Character-specific battle art now follows the renderer's actual battle
   mode instead of the mere presence of a voxel world. Native/normal battles
   always use the selected Red, Blue or Green back sprite; only a genuinely
-  staged 3D battle uses that character's standing front card.
+  staged 3D battle uses that character's standing front card. The ORIGINAL
+  and CRYSTAL HD presets now switch the complete 2D identity family for Red,
+  Blue and Green, including selector, profile, scene, rival and battle art.
 - The manager now admits only the exact upstream
   `ShaneMcGovernIE/potato_voxel 1.7.2` release. Ascendant exposes a closed,
   allowlisted renderer facade while PotatoVoxel retains its native camera, HUD,

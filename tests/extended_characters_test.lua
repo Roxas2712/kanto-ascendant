@@ -119,14 +119,11 @@ for _, id in ipairs({ "RED", "GREEN", "BLUE" }) do
   T.eq(characters.getCharacterSprite(id, "fishing").sprite, prefix .. "FISH",
     id .. " owns a Crystal fishing sheet")
   local front = characters.getCharacterSprite(id, "front").path
-  if id == "RED" then
-    T.eq(front, "save/mod-derived/kanto_ascendant/characters/red_front.png",
-      "Red compact front uses the ROM-derived native fallback")
-  else
-    T.check(front:find(
-        "/crystal_chars/" .. id:lower() .. "_front.png", 1, true) ~= nil,
-      id .. " keeps its KASC battle front")
-  end
+  local expectedFront = id == "RED"
+      and "assets/characters/crystal_chars/red_voxel_front.png"
+    or "assets/characters/crystal_chars/" .. id:lower() .. "_front.png"
+  T.eq(front, expectedFront,
+    id .. " defaults to its bundled Crystal front")
   T.check(characters.selectionVisual(id).path:find(
       "/crystal_chars/" .. id:lower() .. "_voxel_front_hd.png", 1, true) ~= nil,
     id .. " selector uses the native 128px standing model")
@@ -155,103 +152,131 @@ T.eq(frlgTrainerPack.refresh(trainerGame), true,
 T.eq(trainerGame.data.trainers.OPP_BROCK.pic, "baseline/brock.png",
   "ORIGINAL restores the exact pre-pack Brock portrait")
 
--- ORIGINAL is also Blue/Green's explicit compact identity family. It affects
--- only their front-facing identity consumers and normal 2D player backs;
--- Voxel battle standees/throws stay in the complete Crystal family, and Red
--- must not inherit either compact route.
+-- ORIGINAL and CRYSTAL HD are complete, disjoint 2D identity families for
+-- all three selectable trainers. Staged 3D battles retain the independently
+-- authored standing front regardless of the 2D portrait choice.
 T.eq(characters.trainerPortraitStyle(), "original",
   "identity resolver reads the same ORIGINAL trainer option")
-local originalGreenFrontStates = {
-  "front", "selectorHd", "trainerCard", "hallOfFame", "credits",
-  "intro", "special", "rivalPortrait",
+local identityFrontStates = {
+  "front", "trainerCard", "hallOfFame", "credits", "intro", "special",
+  "rivalPortrait",
 }
-for _, state in ipairs(originalGreenFrontStates) do
-  local visual = assert(characters.getCharacterSprite("GREEN", state))
-  T.eq(visual.path, "assets/characters/green_front.png",
-    "ORIGINAL Green " .. state .. " uses the approved compact front")
-  T.eq(visual.fallbackCharacter, nil,
-    "ORIGINAL Green " .. state .. " never falls through to Red")
+local originalFronts = {
+  RED = "save/mod-derived/kanto_ascendant/characters/red_front.png",
+  BLUE = "save/mod-derived/kanto_ascendant/characters/blue_rival.png",
+  GREEN = "assets/characters/green_front.png",
+}
+local originalBacks = {
+  RED = "save/mod-derived/kanto_ascendant/characters/red_back.png",
+  BLUE = "assets/characters/blue_back.png",
+  GREEN = "assets/characters/green_back.png",
+}
+local crystalFronts = {
+  RED = "assets/characters/crystal_chars/red_voxel_front.png",
+  BLUE = "assets/characters/crystal_chars/blue_front.png",
+  GREEN = "assets/characters/crystal_chars/green_front.png",
+}
+local crystalBacks, crystalSelectors, crystalVoxels = {}, {}, {}
+for _, id in ipairs({ "RED", "BLUE", "GREEN" }) do
+  crystalBacks[id] = "assets/characters/crystal_chars/"
+    .. id:lower() .. "_back.png"
+  crystalSelectors[id] = "assets/characters/crystal_chars/"
+    .. id:lower() .. "_voxel_front_hd.png"
+  crystalVoxels[id] = "assets/characters/crystal_chars/"
+    .. id:lower() .. "_voxel_front.png"
+  for _, state in ipairs(identityFrontStates) do
+    local visual = assert(characters.getCharacterSprite(id, state))
+    T.eq(visual.path, originalFronts[id],
+      "ORIGINAL " .. id .. " " .. state .. " uses its base front")
+    T.eq(visual.fallbackCharacter, nil,
+      "ORIGINAL " .. id .. " " .. state .. " keeps its identity")
+  end
+  T.eq(characters.getCharacterSprite(id, "selectorHd").path,
+    originalFronts[id], "ORIGINAL " .. id .. " selector state is base art")
+  local selector = characters.selectionVisual(id)
+  T.eq(selector.path, originalFronts[id],
+    "ORIGINAL Oak selector uses " .. id .. " base art")
+  T.eq(selector.bounds, nil,
+    "ORIGINAL " .. id .. " selector uses the complete source canvas")
+  T.eq(characters.getCharacterSprite(id, "battleBack").path,
+    originalBacks[id], "ORIGINAL " .. id .. " uses its base 2D back")
+  T.eq(characters.getCharacterSprite(id, "voxelFront").path,
+    crystalVoxels[id], "ORIGINAL never replaces " .. id .. " 3D standee")
 end
-local originalGreenSelector = characters.selectionVisual("GREEN")
-T.eq(originalGreenSelector.path, "assets/characters/green_front.png",
-  "ORIGINAL Oak selector uses Green's compact approved front")
-T.eq(originalGreenSelector.bounds, nil,
-  "compact Green selector uses its complete uncropped source canvas")
-T.eq(characters.getCharacterSprite("GREEN", "battleBack").path,
-  "assets/characters/green_back.png",
-  "ORIGINAL normal 2D Green back uses the approved compact back")
-T.eq(characters.getCharacterSprite("GREEN", "voxelFront").path,
-  "assets/characters/crystal_chars/green_voxel_front.png",
-  "ORIGINAL never replaces Green's Voxel battle standee")
 
-local originalBlueFront =
-  "save/mod-derived/kanto_ascendant/characters/blue_rival.png"
-for _, state in ipairs(originalGreenFrontStates) do
-  local visual = assert(characters.getCharacterSprite("BLUE", state))
-  T.eq(visual.path, originalBlueFront,
-    "ORIGINAL Blue " .. state .. " uses the imported Rival1 front")
-  T.eq(visual.fallbackCharacter, nil,
-    "ORIGINAL Blue " .. state .. " never aliases another identity")
+for _, id in ipairs({ "RED", "BLUE", "GREEN" }) do
+  characters.select(id)
+  T.eq(characters.getPlayerSprite("intro").path, originalFronts[id],
+    id .. " player intro follows ORIGINAL")
+  T.eq(characters.getPlayerSprite("battleBack").path, originalBacks[id],
+    id .. " normal 2D player back follows ORIGINAL")
+  local rival = characters.getRivalCharacter()
+  T.eq(characters.getRivalSprite("rivalPortrait").path,
+    originalFronts[rival], rival .. " rival portrait follows ORIGINAL")
 end
-local originalBlueSelector = characters.selectionVisual("BLUE")
-T.eq(originalBlueSelector.path, originalBlueFront,
-  "ORIGINAL Oak selector uses Blue's imported Rival1 front")
-T.eq(originalBlueSelector.bounds, nil,
-  "compact Blue selector uses its complete uncropped source canvas")
-T.eq(characters.getCharacterSprite("BLUE", "battleBack").path,
-  "assets/characters/blue_back.png",
-  "ORIGINAL normal 2D Blue back uses the approved compact back")
-T.eq(characters.getCharacterSprite("BLUE", "voxelFront").path,
-  "assets/characters/crystal_chars/blue_voxel_front.png",
-  "ORIGINAL never replaces Blue's Voxel battle standee")
-T.eq(characters.selectionVisual("RED").path,
-  "assets/characters/crystal_chars/red_voxel_front_hd.png",
-  "ORIGINAL identity routing leaves Red's selector untouched")
-T.eq(characters.getCharacterSprite("RED", "battleBack").path,
-  "assets/characters/crystal_chars/red_back.png",
-  "ORIGINAL identity routing leaves Red's 2D back untouched")
-
-characters.select("GREEN")
-T.eq(characters.getPlayerSprite("intro").path,
-  "assets/characters/green_front.png",
-  "Green player intro follows ORIGINAL compact identity")
-T.eq(characters.getPlayerSprite("battleBack").path,
-  "assets/characters/green_back.png",
-  "Green player normal battle back follows ORIGINAL compact identity")
-characters.select("BLUE")
-T.eq(characters.getRivalSprite("rivalPortrait").path,
-  "assets/characters/green_front.png",
-  "Green rival follows ORIGINAL compact identity without aliasing Blue")
-T.eq(characters.getPlayerSprite("intro").path, originalBlueFront,
-  "Blue player intro follows the imported ORIGINAL Rival1 identity")
-T.eq(characters.getPlayerSprite("battleBack").path,
-  "assets/characters/blue_back.png",
-  "Blue player normal battle back follows ORIGINAL compact identity")
-characters.select("RED")
-T.eq(characters.getRivalSprite("rivalPortrait").path, originalBlueFront,
-  "Blue rival follows ORIGINAL imported identity without aliasing Red")
 
 run.loader.modOptions.kanto_ascendant.trainer_portrait_style = "crystal_hd"
 T.eq(characters.trainerPortraitStyle(), "crystal_hd",
   "Crystal HD remains the normalized default identity family")
-T.eq(characters.selectionVisual("GREEN").path,
-  "assets/characters/crystal_chars/green_voxel_front_hd.png",
-  "Crystal HD restores Green's native selector master")
-T.eq(characters.getCharacterSprite("GREEN", "front").path,
-  "assets/characters/crystal_chars/green_front.png",
-  "Crystal HD restores Green's complete front")
-T.eq(characters.getCharacterSprite("GREEN", "battleBack").path,
-  "assets/characters/crystal_chars/green_back.png",
-  "Crystal HD restores Green's complete 2D battle back")
-T.eq(characters.selectionVisual("BLUE").path,
-  "assets/characters/crystal_chars/blue_voxel_front_hd.png",
-  "Crystal HD restores Blue's native selector master")
-T.eq(characters.getCharacterSprite("BLUE", "front").path,
-  "assets/characters/crystal_chars/blue_front.png",
-  "Crystal HD restores Blue's complete front")
-T.eq(characters.getCharacterSprite("BLUE", "battleBack").path,
-  "assets/characters/crystal_chars/blue_back.png",
-  "Crystal HD restores Blue's complete 2D battle back")
+for _, id in ipairs({ "RED", "BLUE", "GREEN" }) do
+  T.eq(characters.selectionVisual(id).path, crystalSelectors[id],
+    "Crystal HD restores " .. id .. " selector master")
+  T.eq(characters.getCharacterSprite(id, "selectorHd").path,
+    crystalSelectors[id], "Crystal HD " .. id .. " selector state is HD")
+  for _, state in ipairs(identityFrontStates) do
+    T.eq(characters.getCharacterSprite(id, state).path, crystalFronts[id],
+      "Crystal HD " .. id .. " " .. state .. " uses bundled front")
+  end
+  T.eq(characters.getCharacterSprite(id, "battleBack").path,
+    crystalBacks[id], "Crystal HD " .. id .. " uses bundled 2D back")
+  T.eq(characters.getCharacterSprite(id, "voxelFront").path,
+    crystalVoxels[id], "Crystal HD keeps " .. id .. " staged-3D standee")
+end
+
+local liveFrontContexts = {
+  { kind = "trainer_card", label = "Trainer Card" },
+  { kind = "hall_of_fame", label = "Hall of Fame" },
+  { kind = "credits", label = "credits" },
+  { kind = "intro", label = "intro" },
+}
+local engineAssets = require("src.render.Assets")
+local identityAssetsExists = engineAssets.exists
+engineAssets.exists = function(path)
+  if type(path) == "string"
+      and path:find("save/mod%-derived/kanto_ascendant/characters/", 1) then
+    return true
+  end
+  return identityAssetsExists(path)
+end
+for _, family in ipairs({
+  { option = "original", fronts = originalFronts, backs = originalBacks },
+  { option = "crystal_hd", fronts = crystalFronts, backs = crystalBacks },
+}) do
+  run.loader.modOptions.kanto_ascendant.trainer_portrait_style = family.option
+  for _, id in ipairs({ "RED", "BLUE", "GREEN" }) do
+    characters.select(id)
+    local battlePath = run.loader.hooks:call("player.sprite",
+      function(path) return path end, "native-player-back.png",
+      { side = "back", kind = "battle" })
+    T.check(battlePath:sub(-#family.backs[id]) == family.backs[id],
+      family.option .. " live 2D battle hook uses " .. id .. " back")
+    for _, surface in ipairs(liveFrontContexts) do
+      local frontPath = run.loader.hooks:call("player.sprite",
+        function(path) return path end, "native-player-front.png",
+        { side = "front", kind = surface.kind })
+      T.check(frontPath:sub(-#family.fronts[id]) == family.fronts[id],
+        family.option .. " live " .. surface.label .. " hook uses "
+          .. id .. " front")
+    end
+    characters.refreshVisuals(trainerGame)
+    local rival = characters.getRivalCharacter()
+    local rivalPath = trainerGame.data.trainers.OPP_RIVAL1.pic
+    T.check(rivalPath:sub(-#family.fronts[rival]) == family.fronts[rival],
+      family.option .. " live rival hook uses " .. rival .. " front")
+  end
+end
+engineAssets.exists = identityAssetsExists
+run.loader.modOptions.kanto_ascendant.trainer_portrait_style = "crystal_hd"
 
 local selected = characters.select("BLUE")
 T.eq(selected.player_character, "BLUE", "Blue becomes player identity")
@@ -359,26 +384,67 @@ local blueBackPath = run.loader.hooks:call("player.sprite",
 T.check(blueBackPath:match(
     "/assets/characters/crystal_chars/blue_back%.png$") ~= nil,
   "battle-back hook follows selected identity without field-style leakage")
-local cardProfiles = {
-  RED = "save/mod-derived/kanto_ascendant/characters/red_front.png",
-  BLUE = "save/mod-derived/kanto_ascendant/characters/blue_rival.png",
-  GREEN = "assets/characters/green_front.png",
-}
 local blueCardPath = run.loader.hooks:call("player.sprite",
   function(path) return path end, "vanilla-front.png",
   { side = "front", kind = "trainer_card" })
-T.check(blueCardPath:sub(-#cardProfiles.BLUE) == cardProfiles.BLUE,
-  "Trainer Card keeps Blue's KASC Kanto profile instead of Crystal art")
-for _, style in ipairs({ "ascendant", "crystal" }) do
-  run.loader.modOptions.kanto_ascendant.character_sprite_style = style
-  for _, identity in ipairs({ "RED", "BLUE", "GREEN" }) do
-    characters.select(identity)
-    T.eq(characters.getPlayerSprite("trainerCard").path,
-      cardProfiles[identity],
-      identity .. " Trainer Card stays on its KASC profile in "
-        .. style .. " skin mode")
+T.check(blueCardPath:sub(-#crystalFronts.BLUE) == crystalFronts.BLUE,
+  "Trainer Card follows Blue's selected Crystal HD family")
+for _, family in ipairs({
+  { option = "original", fronts = originalFronts },
+  { option = "crystal_hd", fronts = crystalFronts },
+}) do
+  run.loader.modOptions.kanto_ascendant.trainer_portrait_style = family.option
+  for _, fieldStyle in ipairs({ "ascendant", "crystal" }) do
+    run.loader.modOptions.kanto_ascendant.character_sprite_style = fieldStyle
+    for _, identity in ipairs({ "RED", "BLUE", "GREEN" }) do
+      characters.select(identity)
+      T.eq(characters.getPlayerSprite("trainerCard").path,
+        family.fronts[identity], identity .. " Trainer Card follows "
+          .. family.option .. " independently of " .. fieldStyle .. " field art")
+    end
   end
 end
+
+-- Missing imported derivatives are not a crash path. Preserve the selected
+-- identity with its bundled Crystal sibling, then automatically return to the
+-- edition-native result as soon as the transform output becomes available.
+local previousFilesystem = love.filesystem
+love.filesystem = { getInfo = function() return nil end }
+run.loader.modOptions.kanto_ascendant.trainer_portrait_style = "original"
+characters.select("RED")
+local missingRedBack = run.loader.hooks:call("player.sprite",
+  function(path) return path end, "native-red-back.png",
+  { side = "back", kind = "battle" })
+T.check(missingRedBack:match(
+    "/assets/characters/crystal_chars/red_back%.png$") ~= nil,
+  "missing derived Red back fails safe to bundled Red back")
+local missingRedCard = run.loader.hooks:call("player.sprite",
+  function(path) return path end, "native-red-front.png",
+  { side = "front", kind = "trainer_card" })
+T.check(missingRedCard:match(
+    "/assets/characters/crystal_chars/red_voxel_front%.png$") ~= nil,
+  "missing derived Red front fails safe to bundled Red front")
+characters.select("BLUE")
+local missingBlueCard = run.loader.hooks:call("player.sprite",
+  function(path) return path end, "native-blue-front.png",
+  { side = "front", kind = "trainer_card" })
+T.check(missingBlueCard:match(
+    "/assets/characters/crystal_chars/blue_front%.png$") ~= nil,
+  "missing derived Blue front fails safe to bundled Blue front")
+love.filesystem = { getInfo = function(path)
+  if path:find("save/mod%-derived/kanto_ascendant/characters/", 1) then
+    return { type = "file" }
+  end
+end }
+characters.select("RED")
+local restoredRedBack = run.loader.hooks:call("player.sprite",
+  function(path) return path end, "native-red-back.png",
+  { side = "back", kind = "battle" })
+T.eq(restoredRedBack,
+  "save/mod-derived/kanto_ascendant/characters/red_back.png",
+  "available derived Red back is restored without reloading the mod")
+love.filesystem = previousFilesystem
+run.loader.modOptions.kanto_ascendant.trainer_portrait_style = "original"
 
 -- KASC's complete 56px figures used to be drawn at the engine-native
 -- (104,4), which lets opaque feet/right-edge pixels overwrite the patterned
@@ -432,8 +498,8 @@ for _, identity in ipairs({ "RED", "BLUE", "GREEN" }) do
   characters.select(identity)
   local fit = assert(characters.trainerCardProfileFit(identity, 56, 56))
   T.eq(fit.character, identity, identity .. " fit follows selected identity")
-  T.eq(fit.profile.path, cardProfiles[identity],
-    identity .. " fit cannot fall through to a modern/Crystal profile")
+  T.eq(fit.profile.path, originalFronts[identity],
+    identity .. " ORIGINAL fit follows its base profile")
   T.eq(fit.safe.x, 104, identity .. " safe box begins after card text")
   T.eq(fit.safe.y, 8, identity .. " safe box begins below top frame")
   T.eq(fit.safe.w, 48, identity .. " safe box stops before right frame")
@@ -475,6 +541,7 @@ for _, identity in ipairs({ "RED", "BLUE", "GREEN" }) do
     identity .. " live profile draw preserves aspect ratio")
   love.graphics.draw = graphicsDraw
 end
+run.loader.modOptions.kanto_ascendant.trainer_portrait_style = "crystal_hd"
 run.loader.modOptions.kanto_ascendant.character_sprite_style = "ascendant"
 characters.select("BLUE")
 T.eq(characters.playerVisualState({ kind = "trainer_card" }), "trainerCard",
@@ -586,8 +653,8 @@ characters.select("GREEN")
 T.eq(characters.getRivalSprite("overworld").sprite, "SPRITE_RED",
   "Green-versus-Red maps use Red's established sheet")
 T.eq(characters.getRivalSprite("rivalPortrait").path,
-  "save/mod-derived/kanto_ascendant/characters/red_front.png",
-  "Red rival portrait uses the ROM-derived native Gen-I front")
+  "assets/characters/crystal_chars/red_voxel_front.png",
+  "Red rival portrait follows the active Crystal HD family")
 T.eq(characters.getThirdCharacter(), "BLUE", "third character is retained on Green route")
 
 local nativePortraits = {

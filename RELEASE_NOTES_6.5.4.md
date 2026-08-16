@@ -40,7 +40,8 @@ offline Hidden Evolution guide.
 - Yellow's follower selection and the genuine partner's evolved portraits work
   again without affecting unrelated Pokémon of the same species.
 - Normal 2D battles consistently use the chosen Red, Blue or Green back sprite.
-  Original Blue/Green identity presets, scripted catching-tutorial art and
+  Original Red/Blue/Green and Crystal HD identity presets, scripted
+  catching-tutorial art and
   selected trainer identity are preserved across renderer paths.
 - Trainer Cards keep profile art inside the frame, use the approved KASC Gym
   Leader faces and no longer label a fresh zero-badge save as Champion.

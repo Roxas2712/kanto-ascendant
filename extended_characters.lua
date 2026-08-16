@@ -42,13 +42,34 @@ return function(mod, opts)
         bike = { sprite = "SPRITE_RED_BIKE", status = "final" },
         surf = { sprite = "SPRITE_SEEL", status = "shared-final" },
         fishing = { id = "red", status = "final" },
-        battleBack = { path = DERIVED .. "red_back.png", status = "final" },
-        front = { path = DERIVED .. "red_front.png", status = "final" },
-        trainerCard = { path = DERIVED .. "red_front.png", status = "final" },
-        hallOfFame = { path = DERIVED .. "red_front.png", status = "final" },
-        credits = { path = DERIVED .. "red_front.png", status = "final" },
-        special = { path = DERIVED .. "red_front.png", status = "final" },
-        rivalPortrait = { path = DERIVED .. "red_front.png", status = "final" },
+        battleBack = {
+          path = DERIVED .. "red_back.png", status = "final",
+          fallbackPath = "assets/characters/crystal_chars/red_back.png",
+        },
+        front = {
+          path = DERIVED .. "red_front.png", status = "final",
+          fallbackPath = "assets/characters/crystal_chars/red_voxel_front.png",
+        },
+        trainerCard = {
+          path = DERIVED .. "red_front.png", status = "final",
+          fallbackPath = "assets/characters/crystal_chars/red_voxel_front.png",
+        },
+        hallOfFame = {
+          path = DERIVED .. "red_front.png", status = "final",
+          fallbackPath = "assets/characters/crystal_chars/red_voxel_front.png",
+        },
+        credits = {
+          path = DERIVED .. "red_front.png", status = "final",
+          fallbackPath = "assets/characters/crystal_chars/red_voxel_front.png",
+        },
+        special = {
+          path = DERIVED .. "red_front.png", status = "final",
+          fallbackPath = "assets/characters/crystal_chars/red_voxel_front.png",
+        },
+        rivalPortrait = {
+          path = DERIVED .. "red_front.png", status = "final",
+          fallbackPath = "assets/characters/crystal_chars/red_voxel_front.png",
+        },
       },
     },
     BLUE = {
@@ -61,13 +82,34 @@ return function(mod, opts)
         surf = { sprite = "SPRITE_SEEL", status = "shared-final" },
         fishing = { id = "red", status = "dev-fallback", fallback = "RED_FISHING" },
         battleBack = { path = "assets/characters/blue_back.png", status = "final" },
-        front = { path = DERIVED .. "blue_rival.png", status = "final" },
-        trainerCard = { path = DERIVED .. "blue_rival.png", status = "final" },
-        hallOfFame = { path = DERIVED .. "blue_rival.png", status = "final" },
-        credits = { path = DERIVED .. "blue_rival.png", status = "final" },
-        intro = { path = DERIVED .. "blue_rival.png", status = "final" },
-        special = { path = DERIVED .. "blue_rival.png", status = "final" },
-        rivalPortrait = { path = DERIVED .. "blue_rival.png", status = "final" },
+        front = {
+          path = DERIVED .. "blue_rival.png", status = "final",
+          fallbackPath = "assets/characters/crystal_chars/blue_front.png",
+        },
+        trainerCard = {
+          path = DERIVED .. "blue_rival.png", status = "final",
+          fallbackPath = "assets/characters/crystal_chars/blue_front.png",
+        },
+        hallOfFame = {
+          path = DERIVED .. "blue_rival.png", status = "final",
+          fallbackPath = "assets/characters/crystal_chars/blue_front.png",
+        },
+        credits = {
+          path = DERIVED .. "blue_rival.png", status = "final",
+          fallbackPath = "assets/characters/crystal_chars/blue_front.png",
+        },
+        intro = {
+          path = DERIVED .. "blue_rival.png", status = "final",
+          fallbackPath = "assets/characters/crystal_chars/blue_front.png",
+        },
+        special = {
+          path = DERIVED .. "blue_rival.png", status = "final",
+          fallbackPath = "assets/characters/crystal_chars/blue_front.png",
+        },
+        rivalPortrait = {
+          path = DERIVED .. "blue_rival.png", status = "final",
+          fallbackPath = "assets/characters/crystal_chars/blue_front.png",
+        },
       },
     },
     GREEN = {
@@ -128,17 +170,18 @@ return function(mod, opts)
       rivalPortrait = { path = root .. "_front.png", status = "final" },
     }
   end
-  -- Public packages do not ship Nintendo's FRLG Red front. Red's
-  -- front-facing surfaces use the edition-native Gen-I image generated from
-  -- the user's own ROM. This leaves the independently authored Red throw
-  -- sequence and both Voxel standees untouched.
+  -- Public packages do not ship Nintendo's FRLG Red front. CRYSTAL HD uses
+  -- the bundled, independently authored Red standing front for its compact
+  -- front-facing surfaces. ORIGINAL remains the edition-native Gen-I image
+  -- generated from the user's own ROM below in CHARACTERS. The HD selector,
+  -- throw sequence and staged-3D standee remain separate and untouched.
   for _, state in ipairs({
     "front", "trainerCard", "hallOfFame", "credits", "intro", "special",
     "rivalPortrait",
   }) do
     CRYSTAL_VISUALS.RED[state] = {
-      path = DERIVED .. "red_front.png", status = "native-rom-fallback",
-      trueColor = false,
+      path = "assets/characters/crystal_chars/red_voxel_front.png",
+      status = "final", trueColor = true,
     }
   end
   local MATRIX = {
@@ -202,6 +245,28 @@ return function(mod, opts)
   local function runtimePath(path)
     if path and path:sub(1, 5) == "save/" then return path end
     return path and (mod.path .. "/" .. path) or nil
+  end
+
+  -- AssetTransform normally creates the edition-native Red/Blue pictures
+  -- before gameplay starts. A damaged or incomplete imported cache must not
+  -- hand a missing save path to a renderer: retain the selected identity and
+  -- fail visibly safe to its bundled Crystal sibling. Headless validation has
+  -- no filesystem backend, so it keeps the inspectable derived-path contract.
+  local function runtimeVisualPath(visual)
+    if type(visual) ~= "table" then return nil end
+    local path = visual.path
+    if type(path) ~= "string" then return nil end
+    if path:sub(1, 5) ~= "save/" then return runtimePath(path) end
+    local fs = love and love.filesystem
+    if not (fs and type(fs.getInfo) == "function") then
+      return runtimePath(path)
+    end
+    local okAssets, Assets = pcall(require, "src.render.Assets")
+    if okAssets and Assets and type(Assets.exists) == "function" then
+      local ok, exists = pcall(Assets.exists, path)
+      if ok and exists == true then return runtimePath(path) end
+    end
+    return runtimePath(visual.fallbackPath)
   end
 
   local APPROVED_OAK_INTRO = {
@@ -310,10 +375,9 @@ return function(mod, opts)
     -- The 2D battle fronts remain separate FRLG/Casey art.
     local id = normalizedId(character, "RED")
     -- ORIGINAL is an explicit portrait-family choice, unlike the old field
-    -- style. Blue and Green each have a separately approved compact identity
-    -- pair; keep Red and the default Crystal-HD family byte-for-byte intact.
-    if (id == "BLUE" or id == "GREEN")
-        and trainerPortraitStyle(activeGame) == "original" then
+    -- style. Every selectable identity owns a separate compact base pair;
+    -- CRYSTAL HD keeps the approved 128px standing selector masters.
+    if trainerPortraitStyle(activeGame) == "original" then
       local visual = copy(CHARACTERS[id].visuals.front)
       visual.character, visual.state, visual.style = id, "selectorHd", "original"
       return visual
@@ -355,20 +419,15 @@ return function(mod, opts)
     local characterId = normalizedId(character, "RED")
     local style = M.characterStyle()
     local portraitStyle = trainerPortraitStyle(activeGame)
-    -- Battle/portrait art is the permanent Kanto Ascendant set. Red's compact
-    -- front surfaces are the explicit native-ROM fallback above.
+    -- Battle/portrait art follows the explicit trainer family. ORIGINAL is
+    -- the edition/base pair for each identity; CRYSTAL HD is the packaged
+    -- Crystal family. Field sheets remain governed independently below.
     -- character_sprite_style now only changes small field-state sheets.  This
     -- prevents a legacy option from silently restoring low-resolution Oak,
     -- rival, card or battle art.
-    -- The Trainer Card is a Kanto identity document, not a selected skin
-    -- surface.  It always uses KASC's base Red/Blue/Green profile even when
-    -- Crystal field/battle art is active; Voxel/Crystal/FRLG portraits must
-    -- never leak into this one screen.
-    local originalIdentity = (characterId == "BLUE" or characterId == "GREEN")
-      and portraitStyle == "original"
+    local originalIdentity = portraitStyle == "original"
       and (state == "battleBack" or ORIGINAL_IDENTITY_FRONT_STATES[state])
-    local baseIdentityOnly = state == "trainerCard" or originalIdentity
-    local useFrlg = not baseIdentityOnly
+    local useFrlg = not originalIdentity
       and (BATTLE_VISUAL_STATES[state] or style == "crystal")
     local visual
     if originalIdentity then
@@ -416,9 +475,10 @@ return function(mod, opts)
   -- Inspectable, image-size-aware placement contract for KASC's fixed
   -- Trainer Card identities.  Keeping the source aspect ratio and never
   -- enlarging means a future profile with a different canvas still stays
-  -- wholly inside the authored white interior.  The card intentionally does
-  -- not consult character_sprite_style: FRLG/Crystal/Voxel surfaces are not
-  -- valid identity documents here.
+  -- wholly inside the authored white interior. The card intentionally ignores
+  -- character_sprite_style (the small field-sheet option), but follows the
+  -- explicit ORIGINAL/CRYSTAL HD trainer-portrait family like every other
+  -- front-facing identity surface.
   function M.trainerCardProfileFit(character, sourceW, sourceH)
     local state = M.getState()
     if not state.enabled and GameVersion.get() == "yellow" then return nil end
@@ -600,7 +660,7 @@ return function(mod, opts)
     end
     local function hdPortrait(visual)
       if not (visual and visual.path) then return nil end
-      local value = image(runtimePath(visual.path))
+      local value = image(runtimeVisualPath(visual))
       if not value then return nil end
       if value.setFilter then value:setFilter("nearest", "nearest") end
       local width, height = value:getDimensions()
@@ -616,14 +676,14 @@ return function(mod, opts)
     end
     if walk and walk.image then speech.walkSheet = image(walk.image) or speech.walkSheet end
     if playerFront and playerFront.path then
-      speech.playerPic = image(runtimePath(playerFront.path)) or speech.playerPic
+      speech.playerPic = image(runtimeVisualPath(playerFront)) or speech.playerPic
       -- These are authored RGB/transparent PNGs.  OakSpeech otherwise sends
       -- them through the four-colour MEWMON pass a second time, which blows
       -- out faces and shifts skin/hair colours.
       speech.playerTrueColor = speech.playerPic and true or false
     end
     if rival and rival.path then
-      speech.rivalPic = image(runtimePath(rival.path)) or speech.rivalPic
+      speech.rivalPic = image(runtimeVisualPath(rival)) or speech.rivalPic
       speech.rivalTrueColor = speech.rivalPic and true or false
     end
     -- Oak's naming sequence used the compact 64px battle fronts after the
@@ -752,7 +812,7 @@ return function(mod, opts)
     for _, id in ipairs(SELECTION_ORDER) do
       -- Keep the native HD source for the post-composite selector overlay.
       local visual = M.selectionVisual(id)
-      local path = visual and runtimePath(visual.path)
+      local path = visual and runtimeVisualPath(visual)
       if path then
         local ok, image = pcall(love.graphics.newImage, Assets.resolve(path))
         if ok then
@@ -1200,7 +1260,7 @@ return function(mod, opts)
             character = trainer.ascendantCharacter or false,
           }
         end
-        trainer.pic = runtimePath(portrait.path) or (rivalPicBaseline[trainer] ~= false
+        trainer.pic = runtimeVisualPath(portrait) or (rivalPicBaseline[trainer] ~= false
           and rivalPicBaseline[trainer].pic or nil)
         trainer.trueColor = true
         trainer.ascendantCharacter = rival
@@ -1368,7 +1428,7 @@ return function(mod, opts)
     if ctx and BATTLE_VISUAL_STATES[visualState] then
       ctx.trueColor = visual and visual.trueColor ~= false or false
     end
-    return visual and runtimePath(visual.path) or path
+    return visual and runtimeVisualPath(visual) or path
   end, 80)
 
   -- TrainerCard currently exposes the profile through player.sprite but has
