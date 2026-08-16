@@ -52,6 +52,7 @@ local data = {
     PIKACHU = species("PIKACHU", 25, 50),
     RATTATA = species("RATTATA", 19, 42),
     MEW = species("MEW", 151, 100),
+    CHIKORITA = species("CHIKORITA", 152, 52),
   },
   items = {
     POTION = { name = "POTION" }, ANTIDOTE = { name = "ANTIDOTE" },
@@ -89,12 +90,20 @@ local mythic = {
   end,
   isProtectedReturn = function() return mythicReturning end,
 }
-local boundaryCallback
+local boundaryListeners = {}
+local function boundaryCallback(...)
+  for _, listener in ipairs(boundaryListeners) do listener(...) end
+end
 local boundary
 boundary = {
   active = true,
   isActive = function() return boundary.active end,
-  onChanged = function(fn) boundaryCallback = fn end,
+  state = function()
+    return boundary.receipt
+  end,
+  onChanged = function(fn)
+    boundaryListeners[#boundaryListeners + 1] = fn
+  end,
 }
 local makeRules = assert(loadfile("run_rules.lua"))()
 local rules = makeRules(mod, {
@@ -363,6 +372,10 @@ do
         hero .. " seeds its fresh Legacy contract")
       eq(seeded.lockReason, "legacy_start",
         hero .. " receives only the Legacy lock reason")
+      eq(seeded.poolPolicy, "fixed",
+        hero .. " keeps its explicit Legacy pool permanently fixed")
+      eq(seeded.finalRules.poolPolicy, "fixed",
+        hero .. " freezes the Legacy pool policy in the final receipt")
       eq(seeded.finalRules.poolDexMax, dexMax,
         hero .. " freezes the chosen 151/251 pool")
       eq(seeded.finalRules.nuzlocke.mode, "standard",
@@ -503,6 +516,8 @@ eq(state.finalRules.nuzlocke.mode, "standard",
   "confirmed Nuzlocke mode has a durable final snapshot")
 eq(state.finalRules.poolDexMax, 251,
   "Beyond-active START RUN snapshots the visible #001-251 pool")
+eq(state.poolPolicy, "expand_on_beyond_kanto",
+  "normal START RUN records the later Driftglass expansion policy")
 
 local deMod = {
   id = mod.id,
@@ -650,7 +665,8 @@ state.randomizer.enabled = false
 state.nuzlocke.mode = "off"
 state.version = 2
 state = rules.state()
-eq(state.version, 3, "reload/upgrade normalizes the current run-rules schema")
+eq(state.version, rules.runRulesVersion,
+  "reload/upgrade normalizes the current run-rules schema")
 eq(state.seed, lockedSeed, "reload restores the confirmed seed")
 eq(state.randomizer.enabled, true,
   "reload restores the confirmed Randomizer switch")
@@ -749,6 +765,31 @@ twoLinePages(kantoOnlyConfirm, "Kanto-only final safety confirmation")
 kantoOnlyConfirm.choice(true)
 eq(rules.state().finalRules.poolDexMax, 151,
   "Beyond-off START RUN snapshots the visible #001-151 pool")
+eq(rules.state().finalRules.poolPolicy, "expand_on_beyond_kanto",
+  "Kanto-only normal START RUN remains eligible for confirmed Johto")
+local kantoLocked = rules.state()
+kantoLocked.mappings.species.RATTATA = "BULBASAUR"
+kantoLocked.finalRules.mappings.species.RATTATA = "BULBASAUR"
+local lockedSeed = kantoLocked.seed
+boundary.active = true
+boundary.receipt = {
+  version = 1, active = true, irreversible = true,
+  decision = "driftglass_receiver",
+}
+boundaryCallback(true, kantoOnly, "activated")
+eq(kantoLocked.poolDexMax, 251,
+  "exact Driftglass activation expands a normal locked pool to #001-251")
+eq(kantoLocked.finalRules.poolDexMax, 251,
+  "expanded pool is reflected in the immutable final receipt")
+eq(kantoLocked.seed, lockedSeed,
+  "pool expansion preserves the deterministic seed")
+eq(kantoLocked.mappings.species.RATTATA, "BULBASAUR",
+  "pool expansion preserves already-resolved species mappings")
+eq(kantoLocked.finalRules.mappings.species.RATTATA, "BULBASAUR",
+  "pool expansion preserves final-receipt mappings")
+ok(rules.byId.CHIKORITA ~= nil,
+  "new mappings can use the Johto half of the expanded pool")
+boundary.receipt = nil
 boundary.active = true
 
 local blue = fresh("OAKS_LAB")
@@ -832,7 +873,8 @@ rc25Save.save.modData = { kanto_ascendant = { run_rules = {
 } } }
 rules.install(rc25Save)
 local repaired = rules.state()
-eq(repaired.version, 3, "RC25 run-rule records migrate to version 3")
+eq(repaired.version, rules.runRulesVersion,
+  "RC25 run-rule records migrate to the current schema")
 eq(repaired.locked, false,
   "RC25's progress-only auto-lock is repaired instead of trapping the menu")
 eq(repaired.migrationNoticePending, true,
@@ -867,6 +909,26 @@ local explicitOldState = rules.state()
 eq(explicitOldState.locked, true,
   "an old explicit Player-PC YES receipt remains permanently locked")
 eq(explicitOldState.finalRules.seed, 650027,
-  "old explicit lock receives an immutable v3 snapshot")
+  "old explicit lock receives an immutable final snapshot")
+eq(explicitOldState.poolPolicy, "expand_on_beyond_kanto",
+  "old explicit Player-PC lock migrates to the normal expansion policy")
+
+local fixedLegacy = fresh("OAKS_LAB")
+local fixedDraft = assert(rules.newLegacyDraft(fixedLegacy.save, nil))
+local fixedSnapshot = assert(rules.legacySnapshot(fixedDraft,
+  fixedLegacy.save))
+assert(rules.seedLegacy(fixedLegacy.save, fixedSnapshot, 151))
+rules.install(fixedLegacy)
+boundary.active = true
+boundary.receipt = {
+  version = 1, active = true, irreversible = true,
+  decision = "driftglass_receiver",
+}
+boundaryCallback(true, fixedLegacy, "activated")
+eq(rules.state().poolDexMax, 151,
+  "Legacy NG+ pool remains fixed even if Driftglass is later activated")
+eq(rules.state().finalRules.poolDexMax, 151,
+  "Legacy NG+ final receipt cannot be expanded by the normal-run authority")
+boundary.receipt = nil
 
 print(("PASS run rules: %d checks"):format(checks))

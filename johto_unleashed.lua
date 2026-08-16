@@ -621,6 +621,7 @@ return function(mod, opts)
       boundary = copy(owner[B.SAVE_KEY]),
       signals = copy(owner.johto_signals),
       dex = copy(owner.dex_progress),
+      runRules = copy(owner.run_rules),
     }
     owner[B.SAVE_KEY] = {
       version = B.SCHEMA_VERSION,
@@ -642,6 +643,7 @@ return function(mod, opts)
         owner[B.SAVE_KEY] = rollback.boundary
         owner.johto_signals = rollback.signals
         owner.dex_progress = rollback.dex
+        owner.run_rules = rollback.runRules
         local signals = controllers.signals
         if signals and type(signals.install) == "function" then
           pcall(signals.install, game, false)
@@ -670,6 +672,7 @@ return function(mod, opts)
       owner[B.SAVE_KEY] = rollback.boundary
       owner.johto_signals = rollback.signals
       owner.dex_progress = rollback.dex
+      owner.run_rules = rollback.runRules
       local signals = controllers.signals
       if signals and type(signals.install) == "function" then
         pcall(signals.install, game, false)

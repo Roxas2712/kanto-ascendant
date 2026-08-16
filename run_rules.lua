@@ -8,8 +8,11 @@ return function(mod, opts)
   local beyondKanto = opts.beyondKanto or opts.johtoBoundary
   local R = { game = nil, pool = {}, byId = {}, roots = {}, stages = {},
     pendingWild = {} }
-  local RUN_RULES_VERSION = 3
+  local RUN_RULES_VERSION = 4
   local LEGACY_SNAPSHOT_VERSION = 1
+  local POOL_POLICY_EXPAND = "expand_on_beyond_kanto"
+  local POOL_POLICY_FIXED = "fixed"
+  local DRIFTGLASS_DECISION = "driftglass_receiver"
   local LEGACY_PLAYER_PC_BRIDGE_KEY =
     "__kantoAscendantRunRulesPlayerPC0186"
 
@@ -33,6 +36,26 @@ return function(mod, opts)
   local function boundaryActive(game)
     return not beyondKanto or type(beyondKanto.isActive) ~= "function"
       or beyondKanto.isActive(game or R.game)
+  end
+
+  local function boundaryState(game)
+    if beyondKanto and type(beyondKanto.state) == "function" then
+      local ok, state = pcall(beyondKanto.state, game or R.game, false)
+      if ok and type(state) == "table" then return state end
+    end
+    local save = game and game.save or R.game and R.game.save
+    local owner = type(save) == "table" and type(save.modData) == "table"
+      and save.modData[mod.id] or nil
+    local state = type(owner) == "table" and owner.beyond_kanto or nil
+    return type(state) == "table" and state or nil
+  end
+
+  local function exactDriftglassAuthority(game)
+    local state = boundaryState(game)
+    return type(state) == "table"
+      and state.active == true
+      and state.irreversible == true
+      and state.decision == DRIFTGLASS_DECISION
   end
 
   local function clone(value)
@@ -64,6 +87,18 @@ return function(mod, opts)
       end
     end
     return false
+  end
+
+  local function poolPolicyFor(s)
+    if type(s) ~= "table" or s.locked ~= true then
+      return POOL_POLICY_EXPAND
+    end
+    if s.lockReason == "explicit_start" or s.lockReason == "player_pc" then
+      return POOL_POLICY_EXPAND
+    end
+    -- Legacy Journey records an explicit 151/251 choice. Unknown historical
+    -- locks fail closed instead of silently changing their deterministic pool.
+    return POOL_POLICY_FIXED
   end
 
   local function newSeed(save, salt)
@@ -105,6 +140,7 @@ return function(mod, opts)
       -- must not silently turn the bedroom controls into a read-only screen.
       legacyProgress = progressed == true,
       preset = "standard", seed = newSeed(save), failed = false,
+      poolPolicy = POOL_POLICY_EXPAND,
       randomizer = {
         enabled = false, wild = true, trainers = true, starters = true,
         gifts = false, static = false, items = false, legendary = false,
@@ -245,6 +281,7 @@ return function(mod, opts)
       preset = s.preset,
       seed = math.max(1, math.floor(tonumber(s.seed) or 1)),
       poolDexMax = tonumber(s.poolDexMax) == 251 and 251 or 151,
+      poolPolicy = poolPolicyFor(s),
       randomizer = clone(s.randomizer),
       nuzlocke = clone(s.nuzlocke),
       mappings = clone(s.mappings or { species = {}, items = {} }),
@@ -257,6 +294,9 @@ return function(mod, opts)
     s.preset = final.preset or s.preset
     s.seed = math.max(1, math.floor(tonumber(final.seed) or s.seed or 1))
     s.poolDexMax = tonumber(final.poolDexMax) == 251 and 251 or 151
+    local policy = poolPolicyFor(s)
+    s.poolPolicy = policy
+    final.poolPolicy = policy
     s.randomizer = clone(final.randomizer or s.randomizer)
     s.nuzlocke = clone(final.nuzlocke or s.nuzlocke)
     s.mappings = clone(final.mappings or s.mappings)
@@ -314,6 +354,13 @@ return function(mod, opts)
     s.encounterSerial = math.max(0,
       math.floor(tonumber(s.encounterSerial) or 0))
     s.nuzlocke.blackout = "end"
+    local policy = poolPolicyFor(s)
+    s.poolPolicy = policy
+    if type(s.finalRules) == "table" then
+      -- Pool policy is derived from the lock authority, never from a mutable
+      -- option. This also performs the one-time v6.5.3 schema inference.
+      s.finalRules.poolPolicy = policy
+    end
     if s.locked and type(s.finalRules) ~= "table" then
       -- One-time migration for genuinely started RC25/RC26 runs.  Their
       -- current saved choices become the immutable per-save contract; no
@@ -328,6 +375,16 @@ return function(mod, opts)
 
   local function saveNow(game)
     if game and game.writeSave then return game:writeSave() end
+    return true
+  end
+
+  local function durableWrite(game)
+    if not (game and type(game.writeSave) == "function") then
+      return false, "missing_writer"
+    end
+    local called, result = pcall(game.writeSave, game)
+    if not called then return false, "writer_threw" end
+    if result == false then return false, "save_failed" end
     return true
   end
 
@@ -399,6 +456,7 @@ return function(mod, opts)
     s.poolDexMax = boundaryActive(game) and 251 or 151
     s.locked, s.configured, s.lockReason = true, true,
       reason or "explicit_start"
+    s.poolPolicy = poolPolicyFor(s)
     s.finalRules = finalRulesSnapshot(s)
     saveNow(game)
     return s
@@ -407,6 +465,7 @@ return function(mod, opts)
   local function legacyContractMatches(s, snapshot, poolDexMax)
     if type(s) ~= "table" or s.locked ~= true
         or s.lockReason ~= "legacy_start"
+        or s.poolPolicy ~= POOL_POLICY_FIXED
         or tonumber(s.poolDexMax) ~= poolDexMax
         or tonumber(s.seed) ~= snapshot.seed
         or tostring(s.preset) ~= snapshot.preset then return false end
@@ -439,6 +498,7 @@ return function(mod, opts)
     local expectedFinal = {
       preset = snapshot.preset, seed = snapshot.seed,
       poolDexMax = poolDexMax,
+      poolPolicy = POOL_POLICY_FIXED,
       randomizer = clone(snapshot.randomizer),
       nuzlocke = clone(snapshot.nuzlocke),
       mappings = { species = {}, items = {} },
@@ -474,6 +534,7 @@ return function(mod, opts)
     seeded.poolDexMax = poolDexMax
     seeded.locked, seeded.configured = true, true
     seeded.lockReason = "legacy_start"
+    seeded.poolPolicy = POOL_POLICY_FIXED
     seeded.legacyProgress = false
     seeded.failed = false
     seeded.mappings = { species = {}, items = {} }
@@ -534,6 +595,44 @@ return function(mod, opts)
     for _, row in ipairs(R.pool) do
       R.roots[row.id], R.stages[row.id] = rootAndStage(row.id)
     end
+  end
+
+  local function normalExpansionEligible(s)
+    return type(s) == "table" and s.locked == true
+      and s.poolPolicy == POOL_POLICY_EXPAND
+      and (s.lockReason == "explicit_start" or s.lockReason == "player_pc")
+      and type(s.finalRules) == "table"
+  end
+
+  -- Pure staging seam. B.activate owns the one atomic write together with the
+  -- Beyond-Kanto, Signals and National-Dex receipts. Existing deterministic
+  -- ledgers are deliberately untouched; only as-yet unseen mapping keys can
+  -- draw from #152-251 after the pool rebuild.
+  local function stageDriftglassExpansion(game)
+    if not exactDriftglassAuthority(game) then
+      return false, "authority"
+    end
+    local s = normalize(game.save, game)
+    if not normalExpansionEligible(s) then return false, "fixed" end
+    if tonumber(s.poolDexMax) == 251
+        and tonumber(s.finalRules.poolDexMax) == 251 then
+      return false, "already-expanded"
+    end
+    s.poolDexMax = 251
+    s.finalRules.poolDexMax = 251
+    return true, "expanded"
+  end
+
+  local function needsDurablePolicyMigration(raw)
+    if not (type(raw) == "table" and raw.locked == true
+        and (raw.lockReason == "explicit_start"
+          or raw.lockReason == "player_pc")) then
+      return false
+    end
+    return math.floor(tonumber(raw.version) or 1) < RUN_RULES_VERSION
+      or raw.poolPolicy ~= POOL_POLICY_EXPAND
+      or type(raw.finalRules) ~= "table"
+      or raw.finalRules.poolPolicy ~= POOL_POLICY_EXPAND
   end
 
   local function hash(seed, key)
@@ -883,7 +982,9 @@ return function(mod, opts)
         help = tr("Deterministic Randomizer master switch. Effective pool: ",
           "Hauptschalter des deterministischen Randomizers. Aktiver Pool: ")
           .. poolText .. tr(". OFF at START RUN means it can never be enabled in this save's run.",
-            ". AUS bei LAUF STARTEN bedeutet: In diesem Spielstand-Lauf nie nachträglich aktivierbar.") },
+            ". AUS bei LAUF STARTEN bedeutet: In diesem Spielstand-Lauf nie nachträglich aktivierbar.")
+          .. tr(" A normal #001-151 run expands to #001-251 only after Johto is permanently activated. Existing mappings never change.",
+            " Ein normaler #001-151-Lauf wächst erst nach der dauerhaften Johto-Aktivierung auf #001-251. Bestehende Zuordnungen ändern sich nie.") },
       { label = tr("NUZLOCKE", "NUZLOCKE"), key = "nuzlocke",
         right = modeLabel(s.nuzlocke.mode),
         help = tr("One-time Nuzlocke mode. Ordinary faints count and a blackout ends the run. Authored Mew/Celebi shadow trials do not count and return safely.",
@@ -1314,20 +1415,61 @@ return function(mod, opts)
   R.cancelVisibleWild = cancelVisibleWild
   R.resolveVisibleWild = resolveVisibleWild
   R.lock = lock
+  R.stageDriftglassExpansion = stageDriftglassExpansion
+  R.runRulesVersion = RUN_RULES_VERSION
+  R.poolPolicies = {
+    expand = POOL_POLICY_EXPAND,
+    fixed = POOL_POLICY_FIXED,
+  }
   R.open = openMain
   R.mapId = mapId
 
   if beyondKanto and type(beyondKanto.onChanged) == "function" then
-    beyondKanto.onChanged(function(_, changedGame)
+    beyondKanto.onChanged(function(active, changedGame, reason)
       local game = changedGame or R.game
       if not (game and game.data) then return end
       R.game = game
+      -- B.activate has already restored the exact pre-transaction run_rules
+      -- table before this notification. Re-normalizing here would partially
+      -- reapply a failed migration, so only rebuild the live cache.
+      if reason == "activation-rollback" then
+        buildPool(game)
+        R.pendingWild = {}
+        return
+      end
+
+      local owner = bucket(game.save)
+      local rawBefore = owner.run_rules
+      local rollback = clone(rawBefore)
+      local policyMigration = needsDurablePolicyMigration(rawBefore)
       local current = normalize(game.save, game)
+      local expanded = false
+      if active == true and exactDriftglassAuthority(game)
+          and (reason == "activated" or reason == "save.loaded") then
+        expanded = stageDriftglassExpansion(game)
+        current = owner.run_rules
+      end
       buildPool(game)
       R.pendingWild = {}
       -- Drafts can follow an option-boundary change.  A confirmed run keeps
       -- both its 151/251 pool and every existing deterministic mapping.
       if not current.locked then current.mappings.species = {} end
+
+      -- A fresh activation is persisted by B.activate's single transaction.
+      -- Existing v6.5.3 saves instead repair at authoritative save.loaded.
+      -- Missing/false/throwing writers restore the byte-equivalent table and
+      -- the #001-151 live pool, so the next reload can retry safely.
+      if reason == "save.loaded" and active == true
+          and exactDriftglassAuthority(game)
+          and normalExpansionEligible(current)
+          and (expanded == true or policyMigration) then
+        local wrote = durableWrite(game)
+        if not wrote then
+          owner.run_rules = rollback
+          buildPool(game)
+          R.pendingWild = {}
+        end
+      end
     end)
   end
   return R
