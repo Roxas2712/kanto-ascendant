@@ -1,5 +1,12 @@
 # Vermächtnis-Titel in Kanto Ascendant 6.5
 
+> [!WARNING]
+> **⚠️ FULL SPOILERS:** Diese technische Referenz nennt geheime Titel,
+> Belohnungen und ihre Fortschrittsbedingungen.
+
+<details>
+<summary><strong>Vollständige technische Spoiler öffnen</strong></summary>
+
 Beim vollständigen **Vermächtnis-Neustart** werden freigeschaltete normale
 Trainerkarten-Titel und der aktiv ausgewählte Titel jetzt im externen
 Vermächtnis-Archiv gespeichert. Der neue Spielstand erhält dieselben
@@ -26,3 +33,5 @@ Unbekannte Achievement- oder Titel-IDs werden beim Archivieren, Migrieren und
 Wiederherstellen verworfen. Ein alter oder manipulierter Spielstand kann dadurch
 keinen namenlosen oder automatisch aus einer internen ID erzeugten
 „Phantomtitel“ in die Galerie oder auf die Trainerkarte bringen.
+
+</details>

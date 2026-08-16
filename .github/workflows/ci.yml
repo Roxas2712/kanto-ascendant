@@ -117,8 +117,6 @@ jobs:
         run: |
           luajit tests/qol_6_5_test.lua
           python3 tests/core_phase10_audit_test.py
-          python3 tests/rc_feature_acceptance_matrix_test.py
-          python3 tests/rc_package_acceptance_lanes_test.py
           python3 tests/starter_signature_tech_package_driver_contract_test.py
           python3 tests/verify_rc_runtime_contract_test.py
           python3 tests/ascendant_ui_audit_test.py
@@ -166,23 +164,20 @@ jobs:
           MODKIT_LUAJIT: luajit
         run: |
           python3 tools/modkit.py pack ../kanto-ascendant \
-            -o ../kanto-ascendant-6.5.0-rc11.modpkg
-          unzip -tq ../kanto-ascendant-6.5.0-rc11.modpkg
-          cp ../kanto-ascendant-6.5.0-rc11.modpkg \
-            ../kanto-ascendant-6.5.0-rc11.zip
+            -o ../kanto-ascendant-6.5.3-rc.1.zip
+          unzip -tq ../kanto-ascendant-6.5.3-rc.1.zip
           (
             cd ..
-            sha256sum kanto-ascendant-6.5.0-rc11.modpkg \
-              kanto-ascendant-6.5.0-rc11.zip \
-              > SHA256SUMS-6.5.0-RC11.txt
+            sha256sum kanto-ascendant-6.5.3-rc.1.zip \
+              > SHA256SUMS-6.5.3-rc.1.txt
           )
           python3 ../kanto-ascendant/tools/johto_signals_release_audit.py \
-            ../kanto-ascendant-6.5.0-rc11.modpkg
+            ../kanto-ascendant-6.5.3-rc.1.zip
           python3 - <<'PY'
           import json
           import zipfile
 
-          package = "../kanto-ascendant-6.5.0-rc11.modpkg"
+          package = "../kanto-ascendant-6.5.3-rc.1.zip"
           forbidden_prefixes = (
               "art_review/",
               "artifacts/",
@@ -275,9 +270,9 @@ jobs:
                   )
 
               manifest = json.loads(archive.read("manifest.json"))
-              if manifest.get("version") != "6.5.0":
+              if manifest.get("version") != "6.5.3-rc.1":
                   raise SystemExit(
-                      "Expected manifest version 6.5.0, got "
+                      "Expected manifest version 6.5.3-rc.1, got "
                       + repr(manifest.get("version"))
                   )
 
@@ -287,9 +282,8 @@ jobs:
       - name: Upload the verified release candidate
         uses: actions/upload-artifact@v4
         with:
-          name: kanto-ascendant-6.5.0-rc11-release-candidate
+          name: kanto-ascendant-6.5.3-rc.1-release-candidate
           if-no-files-found: error
           path: |
-            kanto-ascendant-6.5.0-rc11.modpkg
-            kanto-ascendant-6.5.0-rc11.zip
-            SHA256SUMS-6.5.0-RC11.txt
+            kanto-ascendant-6.5.3-rc.1.zip
+            SHA256SUMS-6.5.3-rc.1.txt

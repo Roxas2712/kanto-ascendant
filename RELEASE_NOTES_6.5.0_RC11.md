@@ -1,5 +1,12 @@
 # Kanto Ascendant 6.5.0 RC11
 
+> [!WARNING]
+> **⚠️ FULL SPOILERS:** This historical technical preview discusses Legacy
+> Journey progression and rewards.
+
+<details>
+<summary><strong>Open the historical spoiler document</strong></summary>
+
 RC11 baut auf dem abgenommenen RC10 auf. Der RC10-Stand bleibt als getrenntes
 Fallback-Paket unverändert erhalten. Aus 6.0.6 bis 6.0.11 wurden nur die
 relevanten Hotfixes übernommen; vorhandene oder weiterentwickelte 6.5-Systeme
@@ -46,3 +53,5 @@ Für einen Rückweg wird das unveränderte, zuvor abgenommene RC10-Paket benutzt
 Vor dem Wechsel Spiel und Mod schließen und den Spielstand sichern. Danach
 RC11 deaktivieren/entfernen und RC10 erneut importieren. Die bereits in RC10
 enthaltene Schattenkopie der alten Mod-ID bleibt unangetastet.
+
+</details>
