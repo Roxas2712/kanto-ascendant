@@ -446,8 +446,14 @@ return function(mod, opts)
       if not DexEntryMenu._ascendantCrystalV15Wrapped then
         DexEntryMenu._ascendantCrystalV15Wrapped = true
         local innerNew, innerUpdate = DexEntryMenu.new, DexEntryMenu.update
-        DexEntryMenu.new = function(activeGame, speciesOrOpts)
-          local screen = innerNew(activeGame, speciesOrOpts)
+        DexEntryMenu.new = function(activeGame, speciesOrOpts, ...)
+          -- DexEntryMenu's third argument is a continuation.  The Fighting
+          -- Dojo prize balls (and any later map script using the same public
+          -- screen seam) rely on it to resume only after the entry closes.
+          -- Forward every trailing engine argument before decorating the
+          -- resulting screen; swallowing onDone made both prizes inert while
+          -- Kanto Ascendant was enabled on 0.1.96 and 0.1.98.
+          local screen = innerNew(activeGame, speciesOrOpts, ...)
           local species = type(speciesOrOpts) == "table"
             and (speciesOrOpts.species or speciesOrOpts[1]) or speciesOrOpts
           DexEntryMenu._ascendantCrystalV15Controller:decorateDex(screen, species)

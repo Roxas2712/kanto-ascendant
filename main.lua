@@ -1675,6 +1675,10 @@ return function(mod)
     beyondKanto = mod.exports.beyondKanto,
   })
   mod.exports.runRules = runRules
+  local dojoPrizes = loadSibling(mod, "dojo_prizes.lua")(mod, {
+    i18n = i18n,
+  })
+  mod.exports.dojoPrizes = dojoPrizes
   local makeSignalsHub = loadSibling(mod, "johto_signals_hub.lua")
   signalsHub = makeSignalsHub(mod, {
     state = signalsState,
@@ -2942,6 +2946,8 @@ return function(mod)
     local talkRuntime = {}
     function talkRuntime.handle(self, npc)
       local d = npc.def
+      if dojoPrizes
+          and dojoPrizes.handleTalk(self, npc, game) then return true end
       if yellowPartner
           and yellowPartner.handleTalk(self, npc, game) then return true end
       if gorochu and gorochu.handleTalk(self, npc, game) then return true end
