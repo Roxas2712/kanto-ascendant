@@ -9,7 +9,10 @@
 -- MEGA_QA_VERSION=red|blue|yellow selects its real edition palette.
 
 return function(game)
-  local U = dofile("tests/drivers/util.lua")
+  assert(os.getenv("KA_PACKAGE_GATE") == "1",
+    "refusing Hoenn Mega acceptance outside the immutable package gate")
+  local U = dofile(assert(os.getenv("KA_TEST_UTIL"),
+    "KA_TEST_UTIL packaged harness path required"))
   local DIR = os.getenv("SHOT_DIR") or "/tmp/kanto-ascendant-mega-qa"
   local form = (os.getenv("MEGA_QA_FORM") or "raichu-x"):lower()
   local layout = (os.getenv("MEGA_QA_LAYOUT") or "voxel"):lower()
@@ -29,22 +32,23 @@ return function(game)
 
   assert(GameVersion.VERSIONS[version],
     "MEGA_QA_VERSION must be red, blue or yellow")
-  GameVersion.set(version)
+  assert(GameVersion.get() == version,
+    "Hoenn Mega package cell edition mismatch")
   game.save.options.colors = "ogred"
   PaletteFX.setMode("ogred")
-  game.mods.modOptions.trainer_rematch =
-    game.mods.modOptions.trainer_rematch or {}
+  game.mods.modOptions.kanto_ascendant =
+    game.mods.modOptions.kanto_ascendant or {}
   assert(dramalessCamera == "fork" or dramalessCamera == "classic"
       or dramalessCamera == "wide",
     "MEGA_QA_DRAMALESS_CAMERA must be fork, classic or wide")
-  game.mods.modOptions.trainer_rematch.dramaless_battle_camera = dramalessCamera
-  game.mods.modOptions.trainer_rematch.kanto_crystal_art = crystalArt
-  game.mods.modOptions.trainer_rematch.legend_art =
+  game.mods.modOptions.kanto_ascendant.dramaless_battle_camera = dramalessCamera
+  game.mods.modOptions.kanto_ascendant.kanto_crystal_art = crystalArt
+  game.mods.modOptions.kanto_ascendant.legend_art =
     crystalArt and "crystal" or "original"
-  game.mods.modOptions.trainer_rematch.crystal_animation = crystalArt
+  game.mods.modOptions.kanto_ascendant.crystal_animation = crystalArt
   U.wait(20)
   local api = assert(game.mods and game.mods.exports
-    and game.mods.exports.trainer_rematch, "Kanto Ascendant export missing")
+    and game.mods.exports.kanto_ascendant, "Kanto Ascendant export missing")
   local mega = assert(api.megaEvolution, "Mega controller missing")
   local secret = form == "ascendant-typhlosion"
   local profile = secret and mega.secretProfile() or nil
@@ -79,15 +83,17 @@ return function(game)
   local overworldBattle
   if dramatic and dramatic.lib then
     overworldBattle = dramatic.lib.require("OverworldBattle")
-    overworldBattle.setting:setIndex(layout == "voxel" and 1 or 2, game)
+    -- DRAMALESS setting indexes 1-4 are staged 2D/3D modes; index 5 is
+    -- OFF. A classic QA pass must disable staging rather than select flatB.
+    overworldBattle.setting:setIndex(layout == "voxel" and 1 or 5, game)
     overworldBattle.backSetting:setIndex(backSprites and 2 or 1, game)
   end
-  local ascendant = game.mods.exports.trainer_rematch
+  local ascendant = game.mods.exports.kanto_ascendant
   if dramatic == game.mods.exports.DRAMALESS_SHAPE
       and ascendant and ascendant.dramalessCameraCompat then
     game.mods.events:emit("mod.options_changed", {
-      mod = "trainer_rematch", key = "dramaless_battle_camera",
-      value = game.mods.modOptions.trainer_rematch.dramaless_battle_camera,
+      mod = "kanto_ascendant", key = "dramaless_battle_camera",
+      value = game.mods.modOptions.kanto_ascendant.dramaless_battle_camera,
     })
     local camera = dramatic and dramatic.lib.require("BattleCam")
     if dramalessCamera == "classic" then
@@ -130,7 +136,7 @@ return function(game)
   -- case after that preset has settled, otherwise a stored FULL profile can
   -- silently turn an ON test into OFF between setup and battler creation.
   if overworldBattle then
-    overworldBattle.setting:setIndex(layout == "voxel" and 1 or 2, game)
+    overworldBattle.setting:setIndex(layout == "voxel" and 1 or 5, game)
     overworldBattle.backSetting:setIndex(backSprites and 2 or 1, game)
     assert(overworldBattle.backPinned()
         == (layout == "voxel" and backSprites),
@@ -206,7 +212,7 @@ return function(game)
     "base Crystal animation kept running after Mega Evolution")
   assert(not target.__crystalAnimation,
     "external Crystal animation kept running after Mega Evolution")
-  if crystalArt then
+  if crystalArt and not profile.staticOnly then
     local animation = assert(target.__ascendantMegaAnimation,
       "authored form animation did not attach in " .. layout)
     local first = animation.frame
@@ -227,7 +233,8 @@ return function(game)
           tostring(current and current.image)))
   else
     assert(not target.__ascendantMegaAnimation,
-      "static Gen-I Mega presentation unexpectedly attached Crystal motion")
+      (crystalArt and "static approved Mega pose unexpectedly attached Crystal motion"
+        or "static Gen-I Mega presentation unexpectedly attached Crystal motion"))
   end
   local scaleSide = targetSide == "enemy" and "front" or "back"
   local scalePath = targetSide == "enemy" and front or back
@@ -292,13 +299,33 @@ return function(game)
       "ordinary 2D lost the authored Mega rear overlay")
   end
   U.wait(30)
-  local label = asset .. "_" .. layout
+  -- Player and enemy are separate acceptance surfaces: rear HUD anchoring is
+  -- only visible on the player side, while the enemy proves the true front.
+  -- Keep both captures rather than allowing the second run to overwrite the
+  -- first merely because form/layout match.
+  local label = asset .. "_" .. layout .. "_" .. targetSide
   if layout == "voxel" and backSprites then
     label = label .. "_back_sprites_on"
   end
   if forcedShiny then label = label .. "_shiny" end
   if not crystalArt then label = label .. "_gen1_" .. version end
   assert(U.shot(game, ("%s/%s.png"):format(DIR, label)))
-  U.log(label, crystalArt and "Crystal" or "Gen-I",
-    "front/back sprite ownership PASS")
+  local out=assert(io.open(DIR.."/driver_result.txt","wb"),
+    "could not write Hoenn Mega package result")
+  out:write("status=PASS\n")
+  out:write("scope=HOENN-MEGA-PRESENTATION\n")
+  out:write("edition=",version,"\n")
+  out:write("form=",form,"\n")
+  out:write("layout=",layout,"\n")
+  out:write("side=",targetSide,"\n")
+  out:write("shiny=",forcedShiny and "1" or "0","\n")
+  out:write("crystal=",crystalArt and "1" or "0","\n")
+  out:write("animation=1/1\n")
+  out:write("sprite_ownership=1/1\n")
+  out:write("fail=0\n")
+  out:close()
+  U.log("HOENN MEGA PACKAGE PASS",label,
+    crystalArt and "Crystal" or "Gen-I",
+    "front/back sprite ownership")
+  love.event.quit(0)
 end

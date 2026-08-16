@@ -26,7 +26,7 @@ return function(game)
 
   local ascendant = assert(
     game.mods and game.mods.exports
-      and game.mods.exports.trainer_rematch,
+      and game.mods.exports.kanto_ascendant,
     "Kanto Ascendant must be loaded while creating acceptance saves")
   local gorochu = assert(ascendant.gorochu,
     "Gorochu controller is missing")
@@ -112,7 +112,7 @@ return function(game)
     return SaveData.buildMeta({
       { id = "DRAMATIC_SHAPE", version = "1.4.0", api = 2 },
       { id = "PokePCFollowers_VoxelMerge", version = "1.3.0", api = 2 },
-      { id = "trainer_rematch", version = "5.4.1", api = 2 },
+      { id = "kanto_ascendant", version = "5.4.1", api = 2 },
     })
   end
 
@@ -197,12 +197,12 @@ return function(game)
     save.lastOutdoor = { id = mapId, x = x, y = y }
     save.hallOfFame = {}
     save.modData = {
-      trainer_rematch = {
+      kanto_ascendant = {
         gorochu_quest = baseGorochuState(opts.gorochuState),
       },
     }
     if isYellow then
-      save.modData.trainer_rematch.yellow_partner =
+      save.modData.kanto_ascendant.yellow_partner =
         basePartnerState(opts.partnerState)
     end
     save.meta = modMeta()
@@ -216,7 +216,7 @@ return function(game)
   end
 
   local function completeState(save)
-    save.modData.trainer_rematch.gorochu_quest =
+    save.modData.kanto_ascendant.gorochu_quest =
       baseGorochuState({
         offered = true,
         heartGiven = true,
@@ -229,7 +229,7 @@ return function(game)
         completedAt = now,
       })
     if isYellow then
-      save.modData.trainer_rematch.yellow_partner =
+      save.modData.kanto_ascendant.yellow_partner =
         basePartnerState({
           offered = true,
           accepted = true,
@@ -460,7 +460,7 @@ return function(game)
   options.mods = {
     DRAMATIC_SHAPE = true,
     PokePCFollowers_VoxelMerge = true,
-    trainer_rematch = true,
+    kanto_ascendant = true,
     deutsch = false,
     ["deutsch-blau"] = false,
     ["deutsch-gelb"] = false,
@@ -522,7 +522,7 @@ return function(game)
         row.id .. " is not a Gorochu checkpoint")
       assert(#lead.moves == 4 and lead.hp == lead.stats.hp,
         row.id .. " Gorochu is not battle-ready")
-      assert(decoded.modData.trainer_rematch.gorochu_quest.completed,
+      assert(decoded.modData.kanto_ascendant.gorochu_quest.completed,
         row.id .. " completion flag is missing")
       if isYellow then
         assert(lead[partner.marker] == true,

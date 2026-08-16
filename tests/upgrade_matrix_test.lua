@@ -10,9 +10,21 @@ local T = require("tests.modkit")
 local GameVersion = require("src.core.GameVersion")
 local SaveData = require("src.core.SaveData")
 local fixtures = dofile((os.getenv("TRAINER_REMATCH_MOD_DIR")
-  or "mods/trainer_rematch") .. "/tests/fixtures/upgrade_saves.lua")
+  or "mods/kanto_ascendant") .. "/tests/fixtures/upgrade_saves.lua")
 local modPath = os.getenv("TRAINER_REMATCH_MOD_DIR")
-  or "mods/trainer_rematch"
+  or "mods/kanto_ascendant"
+
+local germanMarker = {
+  red = modPath .. "/tests/fixtures/language_mods/deutsch",
+  blue = modPath .. "/tests/fixtures/language_mods/deutsch-blau",
+  yellow = modPath .. "/tests/fixtures/language_mods/deutsch-gelb",
+}
+
+local function loadCurrent(version, language, opts)
+  local paths = { modPath }
+  if language == "de" then paths[#paths + 1] = germanMarker[version] end
+  return T.sdk.loadMods(paths, opts)
+end
 
 local function copy(value, seen)
   if type(value) ~= "table" then return value end
@@ -84,27 +96,31 @@ local function makeGame(data, bucket, gameVersion, sourceVersion, fixture)
         format = 4,
         engine = "0.0.0-dev",
         mods = {
-          { id = "trainer_rematch", version = sourceVersion, api = 2 },
+          { id = "kanto_ascendant", version = sourceVersion, api = 2 },
         },
       },
       defeatedTrainers = {
         ["upgrade-fixture-" .. gameVersion] = true,
       },
       options = {},
-      modData = { trainer_rematch = bucket },
+      modData = { kanto_ascendant = bucket },
     },
     stack = { push = function() end },
   }
 end
 
 local function normalize(run, game, language)
+  -- Reproduce Game:restoreSave's pre-validation migration event. Historical
+  -- fixtures intentionally arrive under trainer_rematch; all assertions below
+  -- read the permanent kanto_ascendant namespace.
+  run.loader.events:emit("save.loading", { raw = game.save })
   run.loader.modSave = game.save.modData
-  run.loader.modOptions.trainer_rematch = {
+  run.loader.modOptions.kanto_ascendant = {
     language = language,
     kanto_151 = "ascendant",
   }
   run.loader.events:emit("save.loaded", { save = game.save, game = game })
-  local ex = assert(run.loader.exports.trainer_rematch)
+  local ex = assert(run.loader.exports.kanto_ascendant)
   ex.postgame.state()
   ex.ascendant.state()
   ex.kantoCompletion.state()
@@ -147,12 +163,17 @@ local function verifySignals(fixture, bucket, label)
   }, label .. " keeps only the three production Signals sections")
 
   local early = root.earlyJohto
+  local migratedActive = fixture.expect.beyondActive == true
   T.eq(early.version, 2,
     label .. " initializes early-Johto schema v2")
-  T.eq(early.mode, "KANTO_FIRST",
-    label .. " upgrades into the non-invasive Kanto current")
-  T.eq(early.modeChosen, false,
-    label .. " does not make a migration choice for the player")
+  T.eq(early.mode, migratedActive and "UNLEASHED" or "KANTO_FIRST",
+    migratedActive
+      and label .. " retains proven Beyond-Kanto history"
+      or label .. " upgrades into the non-invasive Kanto current")
+  T.eq(early.modeChosen, migratedActive,
+    migratedActive
+      and label .. "records the migrated irreversible boundary"
+      or label .. " does not make a migration choice for the player")
   T.eq(early.receiverRepaired, false,
     label .. " does not invent a repaired receiver")
   T.eq(early.questStarted, false,
@@ -222,7 +243,7 @@ end
 
 local function verify(fixture, run, game, language, label)
   local ex = normalize(run, game, language)
-  local bucket = game.save.modData.trainer_rematch
+  local bucket = game.save.modData.kanto_ascendant
   local trainer = bucket.trainers.ROUTE_1_obj_1
   T.eq(trainer.rematches, fixture.expect.rematches,
     label .. " preserves field-rematch wins")
@@ -260,11 +281,12 @@ local function verify(fixture, run, game, language, label)
       T.eq(bucket.mega_evolution.stones.RAICHUNITE_X, true,
         label .. " preserves the 5.3 Yellow Mega stone")
     end
-    if fixture.expect.canonicalMewRepair then
-      T.eq(bucket.ascendant.mewCaught, true,
-        label .. " repairs owned Mew into canonical completion")
-      T.eq(bucket.ascendant.mewStage, 4,
-        label .. "repairs the canonical Mew clue stage")
+    if fixture.expect.externalMewKeepsAscendantStage then
+      T.eq(bucket.ascendant.mewCaught, false,
+        label .. " does not infer authored Mew completion from ownership")
+      T.eq(bucket.ascendant.mewStage,
+        fixture.expect.externalMewKeepsAscendantStage,
+        label .. " preserves the authored Mew clue stage")
     end
     if fixture.expect.canonicalCelebiRepair then
       T.eq(bucket.postgame.catches.CELEBI, true,
@@ -327,13 +349,14 @@ for _, fixture in ipairs(fixtures) do
       local bucket = copy(fixture.bucket)
       local pristineGameFields
 
-      local run = T.sdk.loadMod(modPath, { data = T.fixtures.fresh() })
+      local run = loadCurrent(version, language,
+        { data = T.fixtures.fresh() })
       T.eq(#run.errors, 0, label .. " loads the current mod")
       local game = makeGame(
         run.data, bucket, version, fixture.version, fixture)
       pristineGameFields = copy({
         version = game.save.version, player = game.save.player,
-        flags = game.save.flags, meta = game.save.meta,
+        flags = game.save.flags,
         party = game.save.party, boxes = game.save.boxes,
         inventory = game.save.inventory, bagOrder = game.save.bagOrder,
         money = game.save.money,
@@ -343,9 +366,11 @@ for _, fixture in ipairs(fixtures) do
         lastOutdoor = game.save.lastOutdoor,
       })
       verify(fixture, run, game, language, label)
+      T.eq(game.save.meta.mods[1].id, "kanto_ascendant",
+        label .. " rewrites only the historical mod identity")
       T.same({
         version = game.save.version, player = game.save.player,
-        flags = game.save.flags, meta = game.save.meta,
+        flags = game.save.flags,
         party = game.save.party, boxes = game.save.boxes,
         inventory = game.save.inventory, bagOrder = game.save.bagOrder,
         money = game.save.money,
@@ -360,7 +385,8 @@ for _, fixture in ipairs(fixtures) do
       -- Real serializer boundary: fresh loader and merged data, with the
       -- complete save round-tripped through the engine's native codec.
       GameVersion.set(version)
-      local restarted = T.sdk.loadMod(modPath, { data = T.fixtures.fresh() })
+      local restarted = loadCurrent(version, language,
+        { data = T.fixtures.fresh() })
       game = {
         data = restarted.data,
         save = persistedSave,
@@ -378,14 +404,15 @@ for _, fixture in ipairs(fixtures) do
 
       -- Re-enable after the no-mod boot, again through the native serializer.
       GameVersion.set(version)
-      local reenabled = T.sdk.loadMod(modPath, { data = T.fixtures.fresh() })
+      local reenabled = loadCurrent(version, language,
+        { data = T.fixtures.fresh() })
       game = {
         data = reenabled.data,
         save = serializedCopy(beforeDisable),
         stack = { push = function() end },
       }
       verify(fixture, reenabled, game, language, label .. " / re-enabled")
-      T.eq(game.save.modData.trainer_rematch.onboarding.shown, false,
+      T.eq(game.save.modData.kanto_ascendant.onboarding.shown, false,
         label .. " / re-enabled does not consume onboarding off-screen")
       reenabled.release()
     end
@@ -418,7 +445,7 @@ do
   game.save.pokedex.seen.CHIKORITA = true
   game.save.pokedex.owned.CHIKORITA = true
   local ex = normalize(withMod, game, "en")
-  local signals = game.save.modData.trainer_rematch.johto_signals
+  local signals = game.save.modData.kanto_ascendant.johto_signals
   signals.earlyJohto.rarePity.CHIKORITA = 212
   signals.resonance.echoRolls = 778
   T.eq(#SaveData.validate(game.save, withMod.data).lostMons, 0,
@@ -460,7 +487,7 @@ do
     save = { pokedex = { seen = {}, owned = {} } },
     stack = { push = function() end },
   }
-  ex = assert(reenabled.loader.exports.trainer_rematch)
+  ex = assert(reenabled.loader.exports.kanto_ascendant)
   ex.dexProgress.install(game)
   game.save = disabledBytes
   reenabled.loader.modSave = game.save.modData
@@ -493,7 +520,7 @@ do
   T.eq(ex.dexProgress.repairOwnedFromStorage(game), 0,
     "6024 Dex reconstruction is idempotent")
   local restoredSignals =
-    game.save.modData.trainer_rematch.johto_signals
+    game.save.modData.kanto_ascendant.johto_signals
   T.eq(restoredSignals.earlyJohto.rarePity.CHIKORITA, 212,
     "6024 mod-off cycle preserves Early Johto pity")
   T.eq(restoredSignals.resonance.echoRolls, 778,

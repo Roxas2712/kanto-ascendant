@@ -130,9 +130,9 @@ return function(mod)
   local L = {}
 
   function L.isGerman()
-    local selected = mod.options:get("language")
-    if selected == "de" then return true end
-    if selected == "en" then return false end
+    -- Character/story text must follow the language of the actual game data.
+    -- A private mod toggle could otherwise produce German additions inside an
+    -- English ROM (or English additions inside the German translation).
     return detectedGermanMod(mod)
   end
 

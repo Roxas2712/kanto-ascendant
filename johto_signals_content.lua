@@ -625,6 +625,13 @@ function Module.create(mod, opts)
           C.refreshPalletActors(game, mapId)
         end
       end, 120)
+      mod.events:on("save.created", function(ev)
+        C.game = ev and ev.game or C.game
+        -- Dynamic Pallet definitions live in the shared merged map catalog,
+        -- not in a save.  A fresh campaign must therefore actively remove the
+        -- previous slot's capsule/boat after Signals resets its save cache.
+        if C.game then C.refreshPalletActors(C.game) end
+      end, 120)
       mod.events:on("save.loaded", function(ev)
         C.game = ev and ev.game or C.game
         if C.game then C.refreshPalletActors(C.game) end

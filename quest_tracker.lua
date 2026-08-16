@@ -18,6 +18,8 @@ return function(mod, opts)
   local ascendantTyphlosion = opts.ascendantTyphlosion
   local starterRelicQuests = opts.starterRelicQuests
   local signalsHub = opts.signalsHub
+  local legacyPaths = opts.legacyPaths
+  local beyondKanto = opts.beyondKanto or opts.johtoBoundary
   local Q = { game = nil }
 
   local function tr(en, de)
@@ -91,6 +93,10 @@ return function(mod, opts)
 
   local function signalsObjective(game)
     game = game or Q.game
+    if beyondKanto and type(beyondKanto.isActive) == "function"
+        and not beyondKanto.isActive(game) then
+      return nil
+    end
     if not (signalsHub and type(signalsHub.objective) == "function") then
       return nil
     end
@@ -127,7 +133,13 @@ return function(mod, opts)
       and mod.options:get(key) == false)
   end
 
-  local function johtoEnabled()
+  local function beyondActive(game)
+    return not beyondKanto or type(beyondKanto.isActive) ~= "function"
+      or beyondKanto.isActive(game or Q.game)
+  end
+
+  local function johtoEnabled(game)
+    if not beyondActive(game) then return false end
     if not johtoResearch then return false end
     if type(johtoResearch.enabled) == "function" then
       return johtoResearch.enabled()
@@ -169,8 +181,21 @@ return function(mod, opts)
     return math.max(0, math.floor(tonumber(s.clears) or 0))
   end
 
+  -- The Gate Hall and Journal both read the Johto Masters controller bucket.
+  -- Do not infer progress from a generic postgame tier: passages own their
+  -- lock/unlock/entered state and this remains compatible with old saves.
+  local function mastersPassages()
+    local p = johtoMasters and johtoMasters.passages
+    local s = p and p.state and p.state(false) or nil
+    return type(s) == "table" and type(s.passages) == "table"
+      and s.passages or {}
+  end
+
   local function mainObjective(game)
     game = game or Q.game
+    local legacyObjective = legacyPaths and legacyPaths.objective
+      and legacyPaths.objective(game)
+    if legacyObjective then return legacyObjective end
     if not (game and postgame.hasHallOfFame(game.save)) then
       return row("champion",
         tr("BECOME CHAMPION", "WERDE CHAMP"),
@@ -241,7 +266,7 @@ return function(mod, opts)
           "Beende die persönliche\nMission jedes\nArena-Leiters."))
     end
 
-    if johtoEnabled() then
+    if johtoEnabled(game) then
       local jr, starters, rewards = johtoProgress()
       if not jr.finalReward then
         local target = #(johtoData.rewards or {})
@@ -305,16 +330,40 @@ return function(mod, opts)
           "Folge Eich, Fuji und\nden Zinnober-Akten\nzu MEW."))
     end
 
+    -- All Kanto goals remain available in the sealed ruleset. Only after
+    -- those are exhausted does the Journal point at the explicit,
+    -- irreversible post-Hall-of-Fame authority instead of advertising
+    -- SILVER/KRIS/GOLD as though Johto were already enabled.
+    if not beyondActive(game) then
+      return row("beyond_kanto",
+        tr("BEYOND KANTO", "JENSEITS VON KANTO"),
+        tr("ELM'S AIDE / OAK'S LAB", "LIND / EICHS LABOR"), 0, 1,
+        tr("Ask Elm's Aide to unlock\nJohto and Hoenn content.\nThis choice is permanent.",
+          "Schalte Johto und Hoenn\nbei LIND frei. Diese\nEntscheidung ist endgültig."))
+    end
+
     local clears = mastersProgress()
+    local passages = mastersPassages()
     local baseline = a.cycle > 0
       and math.max(0, math.floor(
         tonumber(a.cycleJohtoMastersStartClears) or 0)) or 0
     if clears <= baseline then
+      local nextKey, nextName
+      for _, row in ipairs({ { "silver", "SILVER", "SILBER" },
+        { "kris", "KRIS", "KRIS" }, { "gold", "GOLD", "GOLD" } }) do
+        local passage = passages[row[1]]
+        if not (passage and (passage.status == "cleared"
+            or passage.status == "rewarded")) then
+          nextKey, nextName = row[1], tr(row[2], row[3])
+          break
+        end
+      end
       return row("gold",
-        tr("FINAL MAIN BATTLE: GOLD", "LETZTER HAUPTKAMPF: GOLD"),
-        tr("INDIGO PLATEAU LOBBY", "INDIGO-PLATEAU-LOBBY"),
+        nextKey and tr("JOHTO GATE: ", "JOHTO-TOR: ") .. nextName
+          or tr("FINAL MAIN BATTLE: GOLD", "LETZTER HAUPTKAMPF: GOLD"),
+        tr("JOHTO GATE HALL", "JOHTO-TORHALLE"),
         clears - baseline, 1,
-        tr("Defeat SILVER, KRIS\nand finally GOLD with\nthe Bag sealed.",
+        tr("Clear SILVER, KRIS\nand finally GOLD with\nthe Bag sealed.",
           "Besiege SILBER, KRIS\nund zuletzt GOLD bei\ngesperrtem Beutel."))
     end
 
@@ -323,8 +372,8 @@ return function(mod, opts)
       return row("new_game_plus",
         tr("ASCENDANT CYCLE READY", "ASCENDANT-ZYKLUS BEREIT"),
         tr("HALL OF FAME", "RUHMESHALLE"), 1, 1,
-        tr("Speak to Oak's Steward\nto begin New Game+.",
-          "Sprich mit Eichs Hüter,\num New Game+ zu starten."))
+        tr("Speak to Oak's Steward\nto begin the Challenge.",
+          "Sprich mit Eichs Hüter,\num die Challenge zu starten."))
     end
 
     return row("review",

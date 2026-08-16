@@ -1,15 +1,18 @@
--- The compatible Voxel renderer retains the public OverworldBattle API.
--- Mega presentation must therefore retain the Voxel front-card path and
--- suppress the classic rear overlay.
+-- Exact upstream Battle Art 1.9.0 retains full ownership of its separately
+-- installed sprites/trainers/animations/options. KASC consumes only a local
+-- closed OverworldBattle facade: normal MODDED cards remain byte-for-byte the
+-- renderer result, while an active Ascendant form may redraw its own master
+-- into the renderer-owned card/camera placement.
 
 package.path = "./?.lua;./?/init.lua;" .. package.path
 
 local S = require("tests.harness").suite("voxel renderer compatibility")
 local check, eq = S.check, S.eq
+local Pipelines = require("src.render.Pipelines")
 local modDir = assert(os.getenv("TRAINER_REMATCH_MOD_DIR"),
   "TRAINER_REMATCH_MOD_DIR is required")
 
-local saved, wrapped = {}, {}
+local saved, wrapped, externalMods = {}, {}, {}
 local fakeMod = {
   path = "/fake/kanto-ascendant",
   save = {
@@ -33,9 +36,13 @@ local fakeMod = {
   events = { on = function() end },
   ui = { insertBefore = function(_, rows) return rows end },
   read = function() return true end,
+  find = function(id) return externalMods[id] end,
 }
 
-local mega = assert(dofile(modDir .. "/mega_evolution.lua")(fakeMod))
+local voxelRenderer = assert(dofile(modDir .. "/voxel_renderer_compat.lua")(fakeMod))
+local mega = assert(dofile(modDir .. "/mega_evolution.lua")(fakeMod, {
+  voxelRenderer = voxelRenderer,
+}))
 local apiCalls = 0
 local front = true
 local nativeCanvas = {
@@ -46,27 +53,63 @@ local overworldBattle = {
   wantsFront = function() return front end,
   backPinned = function() return false end,
   sideTexture = function(_, side)
-    return { side = side, canvas = nativeCanvas, ax = 80, ay = 96 }
+    return {
+      side = side, canvas = nativeCanvas, ax = 80, ay = 96,
+      sourceOwner = "BATTLE_ART_MODDED",
+      sourceAsset = "/separately-installed/user-selected-sprite.png",
+    }
   end,
 }
-local game = {
-  data = { pokemon = {} },
-  mods = {
-    exports = {
-      DRAMALESS_SHAPE = {
-        lib = {
-          require = function(name)
-            eq(name, "OverworldBattle",
-              "Voxel renderer exposes the documented companion API")
-            apiCalls = apiCalls + 1
-            return overworldBattle
-          end,
-        },
-      },
+local rawBattleLib = {
+  mod = { id = "BATTLE_ART_VOXEL_FORK", assets = {}, options = {} },
+  path = "/separately-installed/battle-art",
+}
+rawBattleLib.require = function(name)
+  if name == "OverworldBattle" then
+    eq(name, "OverworldBattle",
+      "Battle Art exposes the documented companion API")
+    apiCalls = apiCalls + 1
+    return overworldBattle
+  end
+  return { private = name }
+end
+local battleStage = {
+  apiVersion = 1, sourceModId = "BATTLE_ART_VOXEL_FORK",
+  ownership = { hud = true, animationProjection = true },
+  state = function(expected)
+    return expected and { staged = true, battle = expected,
+      ownership = { battlers = true, animationProjection = true } } or nil
+  end,
+}
+externalMods.BATTLE_ART_VOXEL_FORK = {
+  id = "BATTLE_ART_VOXEL_FORK",
+  version = "1.9.0",
+  exports = {
+    version = "1.9.0",
+    lib = rawBattleLib,
+    battleStage = battleStage,
+    battlePresentation = {
+      apiVersion = 1, sourceModId = "BATTLE_ART_VOXEL_FORK",
+      suppressHook = "battle.presentation.suppress_native.v1",
     },
   },
 }
+local game = { data = { pokemon = {} } }
 local battleState = { update = function() end, finish = function() end }
+
+-- Product code intentionally gives a prepared DRAMALESS shot no ownership
+-- while the Voxel display pipeline is OFF.  Install the same minimal active
+-- pipeline contract the real renderer registers; otherwise this test would
+-- be asserting Voxel front-card behavior while exercising the classic 2D
+-- branch.
+Pipelines.install({ render_pipelines = {
+  voxel = {
+    id = "voxel", levels = { "OFF", "ON" },
+    drawWorld = function() end,
+  },
+} })
+eq(Pipelines.setLevel("voxel", 1), 1,
+  "the compatibility fixture activates the real Voxel pipeline seam")
 
 local oldLove = _G.love
 local currentCanvas
@@ -101,7 +144,7 @@ _G.love = {
 mega.install(game, { battleState = battleState })
 
 eq(apiCalls, 1,
-  "Mega compatibility resolves the renderer's maintained export")
+  "Mega compatibility resolves Battle Art's maintained export once")
 eq(overworldBattle.kantoAscendantMegaAnchorHook, true,
   "Mega Voxel side-texture hook installs through the renderer")
 eq(mega.rearOverlayAllowed({ dramaticShapeShot = true }), false,
@@ -115,6 +158,40 @@ local battle = {
   player = { mon = { species = "RAICHU", _ascMegaForm = "RAICHU_X" } },
   enemy = { mon = { species = "RAICHU", _ascMegaForm = "RAICHU_X" } },
 }
+local ordinary = overworldBattle.sideTexture({
+  player = { mon = { species = "PIKACHU" } },
+  enemy = { mon = { species = "EEVEE" } },
+}, "player")
+eq(ordinary.sourceOwner, "BATTLE_ART_MODDED",
+  "ordinary species card remains owned by Battle Art MODDED selection")
+eq(ordinary.sourceAsset,
+  "/separately-installed/user-selected-sprite.png",
+  "KASC does not replace or copy Battle Art's selected sprite asset")
+
+local safeExport, rendererId, resolverError, safeHandle, resolverReceipt =
+  voxelRenderer.resolve(game)
+eq(rendererId, "BATTLE_ART_VOXEL_FORK",
+  "resolver receipt retains Battle Art identity")
+eq(resolverError, nil, "exact Battle Art package resolves cleanly")
+check(safeExport ~= externalMods.BATTLE_ART_VOXEL_FORK.exports,
+  "KASC exposes a local facade instead of the foreign export")
+eq(safeExport.lib.mod, nil,
+  "local facade exposes no Battle Art asset/options authority")
+check(safeExport.battleStage ~= battleStage,
+  "Battle Art stage data is copied into KASC's read-only facade")
+eq(safeExport.battleStage.state(battle).ownership.animationProjection, true,
+  "move-animation projection remains renderer-owned")
+eq(safeHandle.exports, safeExport,
+  "safe renderer handle does not leak the generic Battle Art loader")
+eq(resolverReceipt.export, "kasc-local-allowlist/v1",
+  "compatibility receipt names the closed local facade")
+eq(resolverReceipt.repository, nil,
+  "real 0.1.90 handle shape does not forge repository attestation")
+eq(safeHandle.github, nil,
+  "local safe handle contains no invented repository authority")
+eq(rawBattleLib.mod.id, "BATTLE_ART_VOXEL_FORK",
+  "foreign Battle Art export remains byte-structure owned and unmodified")
+
 local player = overworldBattle.sideTexture(battle, "player")
 eq(player.kantoAscendantMegaSource,
   "assets/mega_gen1_runtime/mega_raichu_x_front.png",
@@ -135,5 +212,6 @@ eq(back.kantoAscendantMegaSource,
   "world-space BACK SPRITES uses Kanto's dedicated rear Mega master")
 
 _G.love = oldLove
+Pipelines.install()
 
 S.finish()

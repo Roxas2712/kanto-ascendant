@@ -1,0 +1,21 @@
+{
+  "id": "apricorn_quote_de_qa",
+  "name": "Apricorn Quote German QA",
+  "version": "1.0.0",
+  "api": 2,
+  "entry": "main.lua",
+  "profile": "content",
+  "game_version": ">=0.0.0-dev <1.0.0",
+  "category": "TEST",
+  "priority": 1,
+  "permissions": [],
+  "dependencies": [
+    "kanto_ascendant",
+    "deutsch"
+  ],
+  "optional_dependencies": [],
+  "conflicts": [],
+  "incompatible": [],
+  "experimental": true,
+  "description": "Test-only dependency leaf for German Apricorn battle UI captures."
+}

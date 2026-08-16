@@ -13,7 +13,7 @@ return function(game)
 
   U.wait(25)
   local exports = assert(game.mods and game.mods.exports
-      and game.mods.exports.trainer_rematch,
+      and game.mods.exports.kanto_ascendant,
     "Kanto Ascendant export missing")
   local shiny = assert(exports.shinySystem, "shiny system missing")
   local dramatic = game.mods.exports.DRAMATIC_SHAPE
@@ -38,9 +38,9 @@ return function(game)
   game.save.flags = game.save.flags or {}
   game.save.flags.EVENT_BEAT_CHAMPION_RIVAL = true
 
-  game.mods.modOptions.trainer_rematch.red_gyarados = true
-  game.mods.modOptions.trainer_rematch.kanto_crystal_art = true
-  game.mods.modOptions.trainer_rematch.crystal_animation = true
+  game.mods.modOptions.kanto_ascendant.red_gyarados = true
+  game.mods.modOptions.kanto_ascendant.kanto_crystal_art = true
+  game.mods.modOptions.kanto_ascendant.crystal_animation = true
 
   local state = shiny.state()
   state.redGyaradosUnlocked = true

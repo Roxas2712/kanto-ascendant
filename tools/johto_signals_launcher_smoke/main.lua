@@ -1,8 +1,8 @@
--- Real launcher/update smoke test for Kanto Ascendant 6.0.
+-- Real launcher/update smoke test for Kanto Ascendant 6.5.
 --
 -- Required:
 --   POKEPORT_ENGINE_ROOT=/absolute/path/to/gen1recomp
---   KA_SIGNALS_PACKAGE=/absolute/path/to/kanto-ascendant-6.0.5.modpkg
+--   KA_SIGNALS_PACKAGE=/absolute/path/to/kanto-ascendant-6.5.0-rc10-test.zip
 --
 -- Optional but required for the final release gate:
 --   KA_SIGNALS_OLD_PACKAGE=/absolute/path/to/kanto-ascendant-5.3.0.modpkg
@@ -34,7 +34,7 @@ function love.load()
       .. package.path
 
     local LauncherMods = require("src.mods.LauncherMods")
-    local id = "trainer_rematch"
+    local id = "kanto_ascendant"
 
     if oldPackage and oldPackage ~= "" then
       local oldOk, oldResult = LauncherMods.installZip(oldPackage, {
@@ -57,15 +57,15 @@ function love.load()
       expectId = id,
     })
     assert(installedOk and result == id,
-      "6.0 .modpkg import failed: " .. tostring(result))
+      "6.5 package import failed: " .. tostring(result))
 
     local installed
     for _, row in ipairs(LauncherMods.list()) do
       if row.id == id then installed = row break end
     end
-    assert(installed, "launcher did not discover trainer_rematch")
-    assert(installed.version == "6.0.5",
-      ("launcher exposed version %s, expected 6.0.5")
+    assert(installed, "launcher did not discover kanto_ascendant")
+    assert(installed.version == "6.5.0",
+      ("launcher exposed version %s, expected 6.5.0")
         :format(tostring(installed.version)))
     assert(installed.status == "ok",
       "installed package is not launcher-ready: "

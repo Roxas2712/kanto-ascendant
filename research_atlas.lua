@@ -16,6 +16,7 @@ return function(mod, opts)
   local questTracker = opts.questTracker
   local signalsHub = opts.signalsHub
   local lootBands = opts.lootBands or {}
+  local loot = opts.loot
   local trainerStates = opts.trainerStates
   local stepClock = opts.stepClock
   local data = opts.ascendantData or {}
@@ -249,6 +250,7 @@ return function(mod, opts)
   end
 
   local function percent(row)
+    if row.chance then return math.max(0, row.chance * 100) end
     return math.max(0, (tonumber(row.to) or 0)
       - (tonumber(row.from) or 1) + 1) / 100
   end
@@ -262,18 +264,26 @@ return function(mod, opts)
       } }
     end
     local rows, occupied = {}, 0
-    for _, band in ipairs(lootBands[mode] or {}) do
+    local bands, noDrop
+    if loot and loot.catalog then
+      bands, noDrop = loot.catalog(game.data, mode, { level100 = false })
+    else
+      bands = lootBands[mode] or {}
+    end
+    for _, band in ipairs(bands) do
       local chance = percent(band)
       occupied = occupied + chance
       rows[#rows + 1] = {
-        label = itemName(game, band.item),
+        label = itemName(game, band.item)
+          .. ((tonumber(band.qty) or 1) > 1 and (" x" .. band.qty) or ""),
         right = shownPercent(chance),
         value = band,
       }
     end
     rows[#rows + 1] = {
       label = tr("NO DROP (BASE)", "NICHTS (BASIS)"),
-      right = shownPercent(math.max(0, 100 - occupied)),
+      right = shownPercent(noDrop and noDrop * 100
+        or math.max(0, 100 - occupied)),
       value = { noDrop = true },
     }
     return rows
@@ -289,24 +299,10 @@ return function(mod, opts)
       itemName(game, row.item)
         .. "\n" .. shownPercent(percent(row)),
     }
-    if row.minLevel then
+    if row.premium then
       pages[#pages + 1] = tr(
-        ("Trainer team average\nmust be at least Lv.%d."):format(row.minLevel),
-        ("Trainer-Team braucht\nmindestens Ø-Level %d."):format(row.minLevel))
-    end
-    if row.gate == "master" then
-      local p = postgame and postgame.state and postgame.state(false)
-      pages[#pages + 1] = (p and p.apexChampion)
-        and tr("APEX gate cleared.", "APEX-Sperre geöffnet.")
-        or tr("Requires APEX Champion.", "Benötigt APEX-Champ.")
-    elseif row.gate == "expAll" then
-      local inventory = game.save.inventory or {}
-      local flags = game.save.flags or {}
-      pages[#pages + 1] = (inventory.EXP_ALL or flags.EVENT_GOT_EXP_ALL)
-        and tr("Already received;\nfuture rolls become no drop.",
-          "Bereits erhalten;\nweitere Würfe geben nichts.")
-        or tr("Unique reward;\ncan be received once.",
-          "Einmaliger Preis;\nnur einmal erhältlich.")
+        "Premium reward; its weight\nrises slightly at Level 100.",
+        "Premium-Preis; sein Gewicht\nsteigt leicht auf Level 100.")
     end
     return table.concat(pages, "\f")
   end
@@ -600,7 +596,7 @@ return function(mod, opts)
   if mod.content and mod.content.screens then
     mod.content.screens:register("AscendantTrainerAtlas", {
       new = function(game)
-        return mod.ui.ListMenu.new(game, tr("TRAINER LOG", "TRAINER-LOG"),
+        return (mod.ui.KantoListMenu or mod.ui.ListMenu).new(game, tr("TRAINER LOG", "TRAINER-LOG"),
           trainerRows(game), {
             pageJump = true,
             onChoose = function(item)
@@ -614,7 +610,7 @@ return function(mod, opts)
 
     mod.content.screens:register("AscendantRewardAtlas", {
       new = function(game)
-        return mod.ui.ListMenu.new(game, tr("REWARD DATA", "BEUTE-DATEN"),
+        return (mod.ui.KantoListMenu or mod.ui.ListMenu).new(game, tr("REWARD DATA", "BEUTE-DATEN"),
           rewardRows(game), {
             pageJump = true,
             onChoose = function(item)
@@ -628,7 +624,7 @@ return function(mod, opts)
 
     mod.content.screens:register("AscendantHabitatAtlas", {
       new = function(game)
-        return mod.ui.ListMenu.new(game, tr("KNOWN HABITATS", "BEKANNTE FUNDORTE"),
+        return (mod.ui.KantoListMenu or mod.ui.ListMenu).new(game, tr("KNOWN HABITATS", "BEKANNTE FUNDORTE"),
           habitatRows(game), {
             pageJump = true,
             onChoose = function(item)
@@ -649,7 +645,7 @@ return function(mod, opts)
       { label = tr("TM ARCHIVE", "TM-ARCHIV"), value = "tm" },
       { label = tr("KNOWN HABITATS", "BEKANNTE FUNDORTE"), value = "habitats" },
     }
-    game.stack:push(mod.ui.ListMenu.new(game,
+    game.stack:push((mod.ui.KantoListMenu or mod.ui.ListMenu).new(game,
       tr("RESEARCH ATLAS", "FORSCHUNGSATLAS"), rows, {
         onChoose = function(item)
           if item.value == "objective" then

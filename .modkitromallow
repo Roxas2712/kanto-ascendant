@@ -1,0 +1,5 @@
+# Exact-path exceptions for perceptual-hash false positives only.
+# Format: PATH<TAB>REASON
+assets/legacy_workshop/seal_green.png	Original authored 16x16 green Legacy seal; transparent silhouette collides under the coarse 8x8 aHash.
+assets/legacy_workshop/seal_locked.png	Original authored 16x16 locked Legacy seal; transparent silhouette collides under the coarse 8x8 aHash.
+assets/legacy_workshop/seal_red.png	Original authored 16x16 red Legacy seal; transparent silhouette collides under the coarse 8x8 aHash.

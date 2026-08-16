@@ -15,16 +15,27 @@ return {
   name = "KANTO_ASCENDANT_JOHTO_MASTERS",
   textId = "MOD_KANTO_ASCENDANT_JOHTO_MASTERS",
   sprite = "SPRITE_COOLTRAINER_M",
-  preferred = { { 10, 5 }, { 11, 5 }, { 10, 6 }, { 11, 6 } },
+  -- Keep the host on the public visitor floor.  The old coordinates were
+  -- counter/wall cells; findSpawnCell therefore fell back to the first free
+  -- cell in the whole map and put him in the staff alcove at (6,1), where he
+  -- looked like an ordinary clerk and could be mistaken for missing.
+  preferred = {
+    { 10, 8 }, { 11, 8 }, { 10, 9 },
+    { 11, 9 }, { 9, 9 }, { 12, 9 },
+  },
+  publicArea = { minX = 5, maxX = 12, minY = 7, maxY = 9 },
   trainers = {
     {
       key = "silver", name = text("SILVER", "SILVER"),
-      class = "OPP_RIVAL3",
+      -- Never route a Johto Master through Kanto's Rival renderer.  The
+      -- passage controller registers these isolated classes together with
+      -- their own portraits and zero-money trainer records.
+      class = "KA_JOHTO_SILVER",
       intro = text(
-        "SILVER: I discarded\nweakness long ago.\fShow me whether Kanto's\nChampion deserves the\nstories.",
-        "SILVER: Schwäche habe\nich längst abgelegt.\fZeig, ob Kantos Champ\ndie Geschichten verdient."),
-      win = text("I still have farther\nto climb...",
-        "Ich muss noch höher\nsteigen..."),
+        "SILVER: I overcame my\nweaknesses long ago.\fShow me whether Kanto's\nChampion lives up to\nthat title!",
+        "SILVER: Meine Schwächen\nhabe ich überwunden.\fZeig mir, ob Kantos\nChampion seinem Titel\ngerecht wird!"),
+      win = text("Not bad... I still\nhave farther to climb.",
+        "Nicht schlecht... Ich\nmuss noch stärker werden."),
       pool = {
         mon("TYRANITAR", { "CRUNCH", "ROCK_SLIDE", "EARTHQUAKE", "HYPER_BEAM" }),
         mon("CROBAT", { "WING_ATTACK", "CONFUSE_RAY", "TOXIC", "HYPER_BEAM" }),
@@ -33,21 +44,24 @@ return {
         mon("HOUNDOOM", { "CRUNCH", "FIRE_BLAST", "SLUDGE_BOMB", "ROAR" }),
         mon("MAGNETON", { "THUNDERBOLT", "THUNDER_WAVE", "SWIFT", "SCREECH" }),
         mon("ALAKAZAM", { "PSYCHIC_M", "RECOVER", "REFLECT", "THUNDER_WAVE" }),
-        mon("FERALIGATR", { "HYDRO_PUMP", "BLIZZARD", "CRUNCH", "SLASH" }),
-        mon("TYPHLOSION", { "FIRE_BLAST", "THUNDERPUNCH", "EARTHQUAKE", "SMOKESCREEN" }),
-        mon("MEGANIUM", { "RAZOR_LEAF", "BODY_SLAM", "REFLECT", "SLEEP_POWDER" }),
+        mon("FERALIGATR", { "HYDRO_PUMP", "BLIZZARD", "CRUNCH", "SLASH" }, "FERALIGATR"),
+        -- Silver owns the Totodile line exclusively.  ENTEI keeps the hard
+        -- Fire slot without borrowing Gold's Cyndaquil line; URSARING is a
+        -- second strong, Johto-native physical threat unique to this pool.
+        mon("ENTEI", { "SACRED_FIRE", "FIRE_BLAST", "BODY_SLAM", "REFLECT" }),
+        mon("URSARING", { "BODY_SLAM", "EARTHQUAKE", "HYPER_BEAM", "REST" }),
         mon("STEELIX", { "IRON_TAIL", "EARTHQUAKE", "ROCK_SLIDE", "EXPLOSION" }),
         mon("SCIZOR", { "METAL_CLAW", "SLASH", "SWORDS_DANCE", "HYPER_BEAM" }),
       },
     },
     {
       key = "kris", name = text("KRIS", "KRIS"),
-      class = "OPP_COOLTRAINER_F",
+      class = "KA_JOHTO_KRIS",
       intro = text(
-        "KRIS: Power is only the\nfirst question.\fCan your team solve six\nproblems without a Bag?",
-        "KRIS: Kraft ist nur die\nerste Frage.\fLöst dein Team sechs\nProbleme ohne Beutel?"),
-      win = text("Every answer created\na better question.",
-        "Jede Antwort schuf\neine bessere Frage."),
+        "KRIS: Power alone is not\nenough.\fCan your team adapt to\nevery switch without\nthe Bag?",
+        "KRIS: Stärke allein\nreicht nicht.\fKann dein Team ohne\nBeutel auf jeden Wechsel\nreagieren?"),
+      win = text("Your choices passed\nevery test. I still\nhave more to learn.",
+        "Deine Entscheidungen\nbestanden jede Prüfung.\fIch habe noch viel\nzu lernen."),
       pool = {
         mon("ESPEON", { "PSYCHIC_M", "RECOVER", "REFLECT", "SWIFT" }),
         mon("UMBREON", { "CRUNCH", "TOXIC", "CONFUSE_RAY", "REST" }),
@@ -57,7 +71,7 @@ return {
         mon("MILTANK", { "BODY_SLAM", "EARTHQUAKE", "REST", "THUNDER" }),
         mon("FORRETRESS", { "EXPLOSION", "PIN_MISSILE", "TOXIC", "REFLECT" }),
         mon("SLOWKING", { "PSYCHIC_M", "SURF", "AMNESIA", "REST" }),
-        mon("JUMPLUFF", { "SLEEP_POWDER", "GIGA_DRAIN", "LEECH_SEED", "TOXIC" }),
+        mon("MEGANIUM", { "RAZOR_LEAF", "SLEEP_POWDER", "REFLECT", "BODY_SLAM" }, "MEGANIUM"),
         mon("POLITOED", { "HYDRO_PUMP", "BLIZZARD", "HYPNOSIS", "BODY_SLAM" }),
         mon("AMPHAROS", { "THUNDER", "THUNDER_WAVE", "FIRE_PUNCH", "LIGHT_SCREEN" }),
         mon("HERACROSS", { "PIN_MISSILE", "SUBMISSION", "EARTHQUAKE", "SWORDS_DANCE" }),
@@ -65,19 +79,23 @@ return {
     },
     {
       key = "gold", name = text("GOLD", "GOLD"),
-      class = "OPP_RIVAL2",
+      class = "KA_JOHTO_GOLD",
       intro = text(
         "GOLD: Johto followed your\nlegend all the way here.\fNow battle the trainer\nwho followed it farthest!",
         "GOLD: Johto folgte deiner\nLegende bis hierher.\fKämpfe nun gegen den,\nder ihr am weitesten\nfolgte!"),
       win = text("That was a truly\ngolden battle!",
         "Das war ein wahrhaft\ngoldener Kampf!"),
       pool = {
-        mon("MEGANIUM", { "RAZOR_LEAF", "SLEEP_POWDER", "REFLECT", "BODY_SLAM" }),
-        mon("TYPHLOSION", { "FIRE_BLAST", "THUNDERPUNCH", "EARTHQUAKE", "SMOKESCREEN" }),
-        mon("FERALIGATR", { "HYDRO_PUMP", "BLIZZARD", "CRUNCH", "SLASH" }),
-        mon("AMPHAROS", { "THUNDER", "THUNDER_WAVE", "FIRE_PUNCH", "LIGHT_SCREEN" }),
-        mon("TYRANITAR", { "CRUNCH", "ROCK_SLIDE", "EARTHQUAKE", "HYPER_BEAM" }),
-        mon("SCIZOR", { "METAL_CLAW", "SLASH", "SWORDS_DANCE", "HYPER_BEAM" }),
+        -- Gold owns only the Cyndaquil line.  These five replacements make all
+        -- 36 candidates across Silver/Kris/Gold mutually species-unique, so
+        -- the rotating six-member teams can never borrow another Master's
+        -- starter or repeat an opponent from the same connected run.
+        mon("SUICUNE", { "HYDRO_PUMP", "BLIZZARD", "REST", "BODY_SLAM" }),
+        mon("TYPHLOSION", { "FIRE_BLAST", "THUNDERPUNCH", "EARTHQUAKE", "SMOKESCREEN" }, "TYPHLOSION_ASCENDANT"),
+        mon("OCTILLERY", { "HYDRO_PUMP", "BLIZZARD", "FIRE_BLAST", "PSYCHIC_M" }),
+        mon("HITMONTOP", { "SUBMISSION", "EARTHQUAKE", "ROCK_SLIDE", "AGILITY" }),
+        mon("GRANBULL", { "BODY_SLAM", "SHADOW_BALL", "EARTHQUAKE", "THUNDER_WAVE" }),
+        mon("PILOSWINE", { "EARTHQUAKE", "BLIZZARD", "ROCK_SLIDE", "BODY_SLAM" }),
         mon("DONPHAN", { "EARTHQUAKE", "ROCK_SLIDE", "BODY_SLAM", "DEFENSE_CURL" }),
         mon("PORYGON2", { "TRI_ATTACK", "PSYCHIC_M", "RECOVER", "THUNDER_WAVE" }),
         mon("LUGIA", { "AEROBLAST", "PSYCHIC_M", "HYDRO_PUMP", "RECOVER" }),

@@ -15,10 +15,17 @@ return function(mod, opts)
   opts = opts or {}
 
   local i18n = opts.i18n
+  local johtoBoundary = opts.johtoBoundary
   local stateBackend = assert(opts.state, "Johto Signals state missing")
   local content = opts.content or {}
   local johto = opts.johtoData or content.johtoData or content.johto
     or (content.habitats and content) or {}
+  -- RC28 exposes direct progression only through the physical Driftglass
+  -- receiver.  The post-repair enable switch remains available in the
+  -- state-aware Signals hub, while the old launcher direct-start policy is
+  -- disabled by the production composition.
+  local activationOptions = opts.activationOptions ~= false
+  local startPolicyOptions = opts.startPolicyOptions ~= false
   local stepRandom = opts.random or math.random
   local encounterLevels = opts.encounterLevels or {
     routeAverage = function() return nil end,
@@ -34,6 +41,12 @@ return function(mod, opts)
     game = nil,
     ENCOUNTER_PRIORITY = -30,
   }
+
+  local function boundaryActive(game)
+    return not johtoBoundary
+      or type(johtoBoundary.isActive) ~= "function"
+      or johtoBoundary.isActive(game or J.game)
+  end
 
   local MODES = {
     KANTO_FIRST = "KANTO_FIRST",
@@ -188,6 +201,18 @@ return function(mod, opts)
     LUGIA = true, HO_OH = true, CELEBI = true, MEW = true,
   }
 
+  -- Narrow future-content seam: Package 3 may register only these 17
+  -- evolutions of existing Kanto/Johto lines plus Azurill and Wynaut. This is
+  -- intentionally not a Generation-IV wildcard.
+  local EXTENSION_ALLOWED = {
+    AMBIPOM = true, MISMAGIUS = true, HONCHKROW = true, WEAVILE = true,
+    MAGNEZONE = true, LICKILICKY = true, RHYPERIOR = true, TANGROWTH = true,
+    ELECTIVIRE = true, MAGMORTAR = true, TOGEKISS = true, YANMEGA = true,
+    LEAFEON = true, GLACEON = true, GLISCOR = true, MAMOSWINE = true,
+    PORYGON_Z = true, AZURILL = true, WYNAUT = true,
+  }
+  local extensionHabitats = {}
+
   local runtime = {
     pendingCandidate = nil,
     oakCallPending = false,
@@ -303,6 +328,18 @@ return function(mod, opts)
     end
   end
 
+  -- Visible encounters, ambient town Pokemon and the ordinary grass hook all
+  -- consume the same receiver state.  Emit one narrow invalidation event only
+  -- when that state changes materially; the step counter itself must not
+  -- rebuild the overworld every frame.
+  local function notifyMigrationChanged(reason)
+    if mod.events and type(mod.events.emit) == "function" then
+      mod.events:emit("mod.kanto_ascendant.johto_migration_changed", {
+        mod = mod.id, reason = reason or "receiver-state",
+      })
+    end
+  end
+
   local function activeGame(game)
     return game or J.game
   end
@@ -396,7 +433,8 @@ return function(mod, opts)
   local function requestedStartPolicy()
     local policy = opts.startPolicy
     if type(policy) == "function" then policy = policy() end
-    if policy == nil and mod.options and type(mod.options.get) == "function" then
+    if startPolicyOptions and policy == nil
+        and mod.options and type(mod.options.get) == "function" then
       policy = mod.options:get("johto_signals_start")
         or mod.options:get("johto_signals_current")
         or mod.options:get("johto_current_start")
@@ -405,9 +443,15 @@ return function(mod, opts)
   end
 
   local function signalsEnabled()
+    -- Johto Signals is part of the same irreversible generation boundary as
+    -- research, Masters, Bank withdrawals and the six live data overlays.
+    -- Once active, a stale launcher option may not switch it off again.
+    if not boundaryActive(J.game) then return false end
+    if johtoBoundary then return true end
     local enabled = opts.enabled
     if type(enabled) == "function" then enabled = enabled() end
-    if enabled == nil and mod.options and type(mod.options.get) == "function" then
+    if activationOptions and enabled == nil
+        and mod.options and type(mod.options.get) == "function" then
       enabled = mod.options:get("johto_signals_enable")
     end
     return enabled ~= false
@@ -419,6 +463,7 @@ return function(mod, opts)
   -- resolveCandidate() below continues to use signalsEnabled() and therefore
   -- cannot inject a single Johto species.
   local function questInfrastructureEnabled()
+    if not boundaryActive(J.game) then return false end
     if signalsEnabled() then return true end
     local enabled
     if mod.options and type(mod.options.get) == "function" then
@@ -647,6 +692,7 @@ return function(mod, opts)
     s.modeChosen = true
     if s.mode == MODES.WANDERWAVES then ensureWave(s, game) end
     persistOnboardingChoice(game)
+    notifyMigrationChanged("onboarding-configured")
     receiverCallback(game, "onboarding")
     return true, "configured", tr(
       "Receiver ready.\nCurrent:\n" .. modeName(s.mode) .. ".",
@@ -738,8 +784,9 @@ return function(mod, opts)
         "FORSCHER: Das\nMigrationsrelais\nläuft stabil.")
     end
     s.receiverRepaired = true
-    s.mode = MODES.KANTO_FIRST
-    s.modeChosen = false
+    s.mode = boundaryActive(game) and MODES.UNLEASHED
+      or MODES.KANTO_FIRST
+    s.modeChosen = boundaryActive(game)
     s.startPolicy = "quest"
     persist()
     receiverCallback(game, "researcher")
@@ -775,6 +822,12 @@ return function(mod, opts)
         "Receiver rejects\nthat frequency.",
         "Empfänger lehnt\ndiese Frequenz ab.")
     end
+    if johtoBoundary and boundaryActive(game)
+        and normalized ~= MODES.UNLEASHED then
+      return false, "irreversible", tr(
+        "BEYOND KANTO is\npermanent in this save.",
+        "JENSEITS VON KANTO\nist in diesem Spielstand\ndauerhaft.")
+    end
     if not s.receiverRepaired then
       return false, "receiver-locked", tr(
         "Repair the damaged\nreceiver first.",
@@ -784,6 +837,7 @@ return function(mod, opts)
     s.modeChosen = true
     if normalized == MODES.WANDERWAVES then ensureWave(s, game) end
     persist()
+    notifyMigrationChanged("receiver-mode")
     local detail
     if normalized == MODES.WANDERWAVES then
       detail = tr(
@@ -1003,6 +1057,7 @@ return function(mod, opts)
   end
 
   local function habitatFor(species)
+    if extensionHabitats[species] then return extensionHabitats[species] end
     local authored = johto.habitats and johto.habitats[species]
     if authored then return authored end
     local special = SPECIAL[species]
@@ -1030,10 +1085,31 @@ return function(mod, opts)
       local wave = WAVES[s.waveIndex]
       source = wave and wave.species or {}
     elseif s.mode == MODES.UNLEASHED then
-      source = UNLEASHED_BASES
+      source = {}
+      for _, species in ipairs(UNLEASHED_BASES) do
+        source[#source + 1] = species
+      end
+      -- The explicit full-migration choice includes the three starters and
+      -- Larvitar in their authored habitats. Legendary/mythical encounters
+      -- remain exclusively owned by Mythic Signals and their event gates.
+      for _, species in ipairs(TRACE_ORDER) do
+        source[#source + 1] = species
+      end
+    end
+    for species, row in pairs(extensionHabitats) do
+      if s.mode == MODES.UNLEASHED
+          or (s.mode == MODES.WANDERWAVES
+            and tonumber(row.wave) == tonumber(s.waveIndex)) then
+        source[#source + 1] = species
+      end
     end
     for _, species in ipairs(source) do
-      if ORDINARY_ALLOWED[species] and not EXCLUDED[species]
+      local fullMigrationSpecial = s.mode == MODES.UNLEASHED
+        and SPECIAL[species] ~= nil
+      local registeredExtension = extensionHabitats[species] ~= nil
+      if (ORDINARY_ALLOWED[species] or fullMigrationSpecial
+          or registeredExtension)
+          and (not EXCLUDED[species] or fullMigrationSpecial)
           and matchesHabitat(species, ctx) then
         pool[#pool + 1] = species
       end
@@ -1045,6 +1121,10 @@ return function(mod, opts)
   local function rareCandidates(ctx, snapshot)
     local s = snapshot or state()
     local pool = {}
+    -- UNLEASHED is the explicit "all ordinary Johto now" choice.  Its four
+    -- authored starter/Larvitar habitats therefore use the normal 10-percent
+    -- replacement path instead of the Wanderwaves trace pity path.
+    if s.mode == MODES.UNLEASHED then return pool end
     for _, species in ipairs(TRACE_ORDER) do
       local row = SPECIAL[species]
       if s.traces[row.trace] and matchesHabitat(species, ctx) then
@@ -1052,6 +1132,60 @@ return function(mod, opts)
       end
     end
     return pool
+  end
+
+
+  local function migrationOpen(snapshot)
+    local s = snapshot or state()
+    return boundaryActive(J.game) and signalsEnabled()
+      and s.receiverRepaired and s.modeChosen
+      and s.mode ~= MODES.KANTO_FIRST
+  end
+
+  local function allowedPool(snapshot, includeSpecial)
+    local s = snapshot or state()
+    if not migrationOpen(s) then return {} end
+    local source = {}
+    if s.mode == MODES.WANDERWAVES then
+      local wave = WAVES[s.waveIndex]
+      source = wave and wave.species or {}
+    elseif s.mode == MODES.UNLEASHED then
+      source = UNLEASHED_BASES
+    end
+    local out, seen = {}, {}
+    for _, species in ipairs(source) do
+      if not seen[species] and not EXCLUDED[species] then
+        seen[species] = true
+        out[#out + 1] = species
+      end
+    end
+    if includeSpecial then
+      for _, species in ipairs(TRACE_ORDER) do
+        local unlocked = s.mode == MODES.UNLEASHED
+          or s.traces[SPECIAL[species].trace] == true
+        if unlocked and not seen[species] then
+          seen[species] = true
+          out[#out + 1] = species
+        end
+      end
+    end
+    for species, row in pairs(extensionHabitats) do
+      if (s.mode == MODES.UNLEASHED
+          or (s.mode == MODES.WANDERWAVES
+            and tonumber(row.wave) == tonumber(s.waveIndex)))
+          and not seen[species] then
+        seen[species] = true
+        out[#out + 1] = species
+      end
+    end
+    table.sort(out)
+    return out
+  end
+
+  local function allowsHabitatSpecies(species, ctx, snapshot)
+    local allowed = {}
+    for _, id in ipairs(allowedPool(snapshot, true)) do allowed[id] = true end
+    return allowed[species] == true and (not ctx or matchesHabitat(species, ctx))
   end
 
   local function cloneEncounter(native, species, level)
@@ -1079,7 +1213,9 @@ return function(mod, opts)
   -- supplied RNG and returns a transaction description for later commit.
   local function resolveCandidate(native, ctx, snapshot)
     local s = snapshot or state()
-    if not (signalsEnabled() and native and ctx and type(ctx.rng) == "function"
+    if not (boundaryActive(J.game) and signalsEnabled()
+        and native and ctx and not ctx.kaProtected
+        and not ctx.kaEncounterSource and type(ctx.rng) == "function"
         and s.receiverRepaired and s.modeChosen
         and s.mode ~= MODES.KANTO_FIRST) then
       return native, nil
@@ -1285,6 +1421,7 @@ return function(mod, opts)
         end
       end
     end
+    local previousWave = s.waveIndex
     if signalsEnabled() and s.receiverRepaired and s.modeChosen
         and s.mode == MODES.WANDERWAVES then
       if ensureWave(s, game) then changed = true end
@@ -1293,6 +1430,9 @@ return function(mod, opts)
       if s.waveSteps == 0 then chooseWave(s, game, stepRandom) end
     end
     if changed then persist() end
+    if s.waveIndex ~= previousWave then
+      notifyMigrationChanged("wanderwave-rotated")
+    end
     if queuedCall then queueOakCall(game, reminderCall) end
   end
 
@@ -1330,6 +1470,11 @@ return function(mod, opts)
     runtime.onboardingPending = nil
     local s = state()
     local changed = false
+    if boundaryActive(J.game) and s.mode ~= MODES.UNLEASHED then
+      s.mode = MODES.UNLEASHED
+      s.modeChosen = true
+      changed = true
+    end
     if s.receiverRepaired and s.modeChosen
         and s.mode == MODES.WANDERWAVES then
       changed = ensureWave(s, J.game)
@@ -1341,6 +1486,24 @@ return function(mod, opts)
     -- the first real map/step of a new game) is the earliest safe boundary.
     if requestOnboarding ~= false then maybeRequestOnboarding(J.game) end
     return s
+  end
+
+  -- Called by the save-local generation boundary after Signals has adopted
+  -- the current slot.  Deactivation never rewrites old progress; it merely
+  -- cancels runtime candidates while the new/fresh save remains Gen I.
+  function J.forceUnleashed(game, active)
+    J.game = game or J.game
+    J.cancelCandidate(active and "unleashed-sync" or "generation-sealed")
+    if active ~= true then return true, "sealed" end
+    local s = state()
+    local changed = s.mode ~= MODES.UNLEASHED or s.modeChosen ~= true
+    s.mode = MODES.UNLEASHED
+    s.modeChosen = true
+    if changed then
+      persist()
+      notifyMigrationChanged("johto-unleashed")
+    end
+    return true, changed and "unleashed" or "already-unleashed"
   end
 
   if mod.hooks and type(mod.hooks.wrap) == "function" then
@@ -1361,6 +1524,13 @@ return function(mod, opts)
     end, -30)
     mod.events:on("map.entered", onMapEntered, -30)
     mod.events:on("battle.started", onBattleStarted, -30)
+    -- NEW GAME adopts a fresh mod.save bucket but does not emit save.loaded.
+    -- Reset the cached section before content removes any old Pallet actors;
+    -- otherwise an UNLEASHED slot can bleed encounters and travel into the
+    -- new campaign for the rest of the process.
+    mod.events:on("save.created", function(ev)
+      J.install(ev and ev.game or J.game, false)
+    end, 300)
     -- Reset the cached save section before presentation/content listeners
     -- inspect travel permission for the newly loaded slot.
     mod.events:on("save.loaded", function(ev)
@@ -1370,6 +1540,7 @@ return function(mod, opts)
       J.install(ev and ev.game, false)
     end, 300)
     mod.events:on("mod.options_changed", function(ev)
+      if not activationOptions then return end
       if ev and (ev.key == "johto_signals_start"
           or ev.key == "johto_signals_current"
           or ev.key == "johto_signals_enable") then
@@ -1389,7 +1560,28 @@ return function(mod, opts)
   J.encounterLevels = encounterLevels
   J.ordinaryCandidates = ordinaryCandidates
   J.rareCandidates = rareCandidates
+  J.migrationOpen = migrationOpen
+  J.allowedSpeciesPool = allowedPool
+  J.allowsHabitatSpecies = allowsHabitatSpecies
   J.resolveCandidate = resolveCandidate
+  function J.registerExtensionSpecies(species, habitat)
+    species = tostring(species or ""):upper()
+    if not EXTENSION_ALLOWED[species] then
+      return false, "species is outside the 19-species extension contract"
+    end
+    if type(habitat) ~= "table" or type(habitat.map) ~= "string"
+        or type(habitat.terrain) ~= "string" then
+      return false, "extension habitat needs map and terrain"
+    end
+    extensionHabitats[species] = {
+      map = habitat.map, terrain = habitat.terrain,
+      level = tonumber(habitat.level), wave = tonumber(habitat.wave),
+    }
+    notifyMigrationChanged("extension-species-registered")
+    return true
+  end
+  J.extensionAllowed = EXTENSION_ALLOWED
+  J.extensionHabitats = extensionHabitats
   J.enabled = signalsEnabled
   J.questEnabled = questInfrastructureEnabled
   J.hasStarter = function(game) return hasStarter(activeGame(game)) end

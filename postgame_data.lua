@@ -176,7 +176,7 @@ D.apex = {
     mon("HITMONCHAN", 92, { "SUBMISSION", "THUNDERPUNCH", "ICE_PUNCH", "FIRE_PUNCH" }),
     mon("POLIWRATH", 93, { "SUBMISSION", "SURF", "BLIZZARD", "HYPNOSIS" }),
     mon("PRIMEAPE", 93, { "SUBMISSION", "ROCK_SLIDE", "BODY_SLAM", "FOCUS_ENERGY" }),
-    mon("GOLEM", 94, { "EARTHQUAKE", "ROCK_SLIDE", "BODY_SLAM", "EXPLOSION" }),
+    mon("AERODACTYL", 94, { "ROCK_SLIDE", "SKY_ATTACK", "FIRE_BLAST", "HYPER_BEAM" }),
     mon("MACHAMP", 95, { "SUBMISSION", "EARTHQUAKE", "ROCK_SLIDE", "BODY_SLAM" }),
   },
   OPP_AGATHA = {
@@ -185,14 +185,16 @@ D.apex = {
     mon("WEEZING", 95, { "SLUDGE", "THUNDERBOLT", "FIRE_BLAST", "EXPLOSION" }),
     mon("GOLBAT", 95, { "WING_ATTACK", "CONFUSE_RAY", "TOXIC", "HYPER_BEAM" }),
     mon("HAUNTER", 95, { "PSYCHIC_M", "THUNDERBOLT", "HYPNOSIS", "EXPLOSION" }),
-    mon("GENGAR", 96, { "PSYCHIC_M", "MEGA_DRAIN", "HYPNOSIS", "EXPLOSION" }),
+    mon("MISMAGIUS", 96,
+      { "SHADOW_BALL", "PSYCHIC_M", "CONFUSE_RAY", "DREAM_EATER" }),
   },
   OPP_LANCE = {
     mon("GYARADOS", 96, { "HYDRO_PUMP", "BLIZZARD", "THUNDERBOLT", "HYPER_BEAM" }),
-    mon("AERODACTYL", 96, { "ROCK_SLIDE", "SKY_ATTACK", "FIRE_BLAST", "HYPER_BEAM" }),
+    mon("TYRANITAR", 96, { "CRUNCH", "ROCK_SLIDE", "EARTHQUAKE", "HYPER_BEAM" }),
     mon("CHARIZARD", 97, { "FIRE_BLAST", "SLASH", "EARTHQUAKE", "SWORDS_DANCE" }),
     mon("DRAGONAIR", 97, { "BLIZZARD", "THUNDER", "SURF", "THUNDER_WAVE" }),
-    mon("DRAGONITE", 98, { "BLIZZARD", "THUNDER", "BODY_SLAM", "HYPER_BEAM" }),
+    mon("KINGDRA", 98,
+      { "HYDRO_PUMP", "BLIZZARD", "DRAGON_RAGE", "SMOKESCREEN" }),
     mon("DRAGONITE", 99, { "BLIZZARD", "THUNDER", "FIRE_BLAST", "HYPER_BEAM" }),
   },
   OPP_RIVAL3 = {
@@ -257,12 +259,18 @@ for class, team in pairs(D.apex) do
     D.crown[class][#D.crown[class] + 1] = mon(slot.species, 100, slot.moves)
   end
 end
-D.crown.OPP_LORELEI[6] = mon("SUICUNE", 100,
-  { "HYDRO_PUMP", "BLIZZARD", "REST", "BODY_SLAM" })
-D.crown.OPP_LANCE[5] = mon("LUGIA", 100,
-  { "AEROBLAST", "PSYCHIC_M", "HYDRO_PUMP", "RECOVER" })
-D.crown.OPP_LANCE[6] = mon("HO_OH", 100,
-  { "SACRED_FIRE", "SKY_ATTACK", "EARTHQUAKE", "RECOVER" })
+D.crown.OPP_LORELEI[6] = mon("ARTICUNO", 100,
+  { "BLIZZARD", "ICE_BEAM", "SKY_ATTACK", "REFLECT" })
+-- Keep the League's legendary identities unique: the Champion owns the
+-- Johto five, so Lance returns to actual dragons instead of fielding second
+-- copies of LUGIA and HO-OH. Bruno exclusively owns Aerodactyl; Lance's
+-- reserved Mega identity is Dragonite.
+D.crown.OPP_LANCE[5] = mon("KINGDRA", 100,
+  { "HYDRO_PUMP", "BLIZZARD", "DRAGON_RAGE", "SMOKESCREEN" })
+D.crown.OPP_LANCE[6] = mon("DRAGONITE", 100,
+  { "BLIZZARD", "THUNDER", "FIRE_BLAST", "HYPER_BEAM" })
+D.crown.OPP_AGATHA[6] = mon("MISMAGIUS", 100,
+  { "SHADOW_BALL", "PSYCHIC_M", "CONFUSE_RAY", "DREAM_EATER" })
 D.crown.OPP_RIVAL3 = {
   mon("MEWTWO", 100, { "PSYCHIC_M", "BLIZZARD", "THUNDERBOLT", "RECOVER" }),
   mon("RAIKOU", 100, { "THUNDER", "BODY_SLAM", "REFLECT", "THUNDER_WAVE" }),
@@ -270,6 +278,25 @@ D.crown.OPP_RIVAL3 = {
   mon("SUICUNE", 100, { "HYDRO_PUMP", "BLIZZARD", "REST", "BODY_SLAM" }),
   mon("LUGIA", 100, { "AEROBLAST", "PSYCHIC_M", "HYDRO_PUMP", "RECOVER" }),
   mon("HO_OH", 100, { "SACRED_FIRE", "SKY_ATTACK", "EARTHQUAKE", "RECOVER" }),
+}
+
+-- Every post-game League opponent owns one distinct Mega identity.  The
+-- target is tier-aware for Blue: his ordinary Apex rematch keeps Gyarados,
+-- while the all-legend Crown roster reserves its Mega for Mewtwo.
+D.eliteMega = {
+  OPP_LORELEI = { apex = "SLOWBRO", crown = "SLOWBRO" },
+  OPP_BRUNO = { apex = "AERODACTYL", crown = "AERODACTYL" },
+  OPP_AGATHA = { apex = "GENGAR", crown = "GENGAR" },
+  OPP_LANCE = { apex = "DRAGONITE", crown = "DRAGONITE" },
+  OPP_RIVAL3 = { apex = "GYARADOS", crown = "MEWTWO" },
+}
+
+-- Disabling an optional legendary must not silently remove a League
+-- opponent's one Mega Evolution. Mewtwo's configured Crown replacement is
+-- Alakazam, so Blue retains a legal fallback carrier only in that explicit
+-- content-off configuration; the normal Crown identity remains Mewtwo.
+D.eliteMegaFallback = {
+  OPP_RIVAL3 = { crown = "ALAKAZAM" },
 }
 
 D.staticLegends = {

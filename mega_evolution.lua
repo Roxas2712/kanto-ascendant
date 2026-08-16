@@ -12,6 +12,36 @@ return function(mod, opts)
   local animationData = opts.animationData or {}
   local enabled = opts.contentEnabled ~= false
   local yellowPartner = opts.yellowPartner
+  local function sharedVoxelResolver(provided)
+    if provided then return provided end
+    if mod.exports and mod.exports.voxelRendererCompat then
+      return mod.exports.voxelRendererCompat
+    end
+    -- Direct module consumers (focused tests and older integration hosts) do
+    -- not always pass main.lua's dependency table. Installed mods must load
+    -- their sibling through the sandbox-owned filesystem surface.
+    local chunk
+    if type(mod.read) == "function" then
+      local body = mod:read("voxel_renderer_compat.lua")
+      if type(body) == "string" then
+        chunk = loadstring(body, "@voxel_renderer_compat.lua")
+      end
+    end
+    local ok, factory = false, nil
+    if chunk then
+      ok, factory = pcall(chunk)
+    else
+      -- Plain-Lua tests explicitly add the source directory to package.path.
+      -- The installed 0.1.86 path always resolves through mod:read above.
+      ok, factory = pcall(require, "voxel_renderer_compat")
+    end
+    local made, resolver = false, nil
+    if ok and type(factory) == "function" then
+      made, resolver = pcall(factory, mod)
+    end
+    return made and resolver or nil
+  end
+  local voxelRenderer = sharedVoxelResolver(opts.voxelRenderer)
   local M = { game = nil, enabled = enabled }
 
   local function form(species, id, stone, label, tier, cost, bonuses, types,
@@ -25,6 +55,9 @@ return function(mod, opts)
       secret = special.secret == true,
       secretHealing = tonumber(special.secretHealing),
       quest = special.quest,
+      -- Only forms with supplied frame sequences opt into Crystal motion.
+      -- Static approved masters remain fully valid Crystal/Gen-I/Voxel art.
+      staticOnly = special.staticOnly == true,
     }
   end
 
@@ -76,6 +109,19 @@ return function(mod, opts)
       { attack = 20, defense = 0, speed = 30, special = 50 }),
     form("TYRANITAR", "TYRANITAR", "TYRANITARITE", "MEGA TYRANITAR", "hof", 5000,
       { attack = 30, defense = 35, speed = 0, special = 35 }),
+
+    -- Hoenn official Mega forms. Their supplied independent front/back masters
+    -- remain the Voxel and Crystal-off source; locally authored, side-aware
+    -- fan-project motion derivatives are used only by Crystal animation.
+    form("BLAZIKEN", "BLAZIKEN", "BLAZIKENITE", "MEGA BLAZIKEN", "masters", 10000,
+      { attack = 30, defense = 10, speed = 30, special = 30 }, nil,
+      "mega_blaziken"),
+    form("SWAMPERT", "SWAMPERT", "SWAMPERTITE", "MEGA SWAMPERT", "masters", 10000,
+      { attack = 40, defense = 20, speed = 10, special = 30 }, nil,
+      "mega_swampert"),
+    form("SCEPTILE", "SCEPTILE", "SCEPTILITE", "MEGA SCEPTILE", "masters", 10000,
+      { attack = 25, defense = 10, speed = 15, special = 50 },
+      { "GRASS", "DRAGON" }, "mega_sceptile"),
 
     -- Newly discovered Pokémon Legends: Z-A forms within National Dex 1-251.
     form("CLEFABLE", "CLEFABLE", "CLEFABLITE", "MEGA CLEFABLE", "masters", 10000,
@@ -501,8 +547,28 @@ return function(mod, opts)
     local mode = mod.options:get("mega_opponents") or "bosses"
     if mode == "off" or battle.kind ~= "trainer" then return false end
     if mode == "all" then return true end
-    return BOSS_CLASSES[battle.oppClass] == true
-      or (battle.enemy and battle.enemy.mon and battle.enemy.mon.level >= 80)
+    if BOSS_CLASSES[battle.oppClass] == true then return true end
+    for _, mon in ipairs(battle.enemyParty or {}) do
+      if (tonumber(mon.level) or 0) >= 80 then return true end
+    end
+    return battle.enemy and battle.enemy.mon
+      and (tonumber(battle.enemy.mon.level) or 0) >= 80 or false
+  end
+
+  local function enemyMegaTargetReady(battle)
+    local target = battle and battle.ascendantEnemyMegaSpecies
+    if not target then return true end
+    return battle.enemy and battle.enemy.mon
+      and battle.enemy.mon.species == target or false
+  end
+
+  local function enemyMegaTargetAvailable(battle)
+    local target = battle and battle.ascendantEnemyMegaSpecies
+    if not target then return true end
+    for _, mon in ipairs(battle.enemyParty or {}) do
+      if mon.species == target and (tonumber(mon.hp) or 1) > 0 then return true end
+    end
+    return false
   end
 
   local function stoneStatus(profile, game)
@@ -543,15 +609,23 @@ return function(mod, opts)
 
   function M.unlock(game)
     local s = state()
+    game.save.inventory = game.save.inventory or {}
+    local function ensureOnce(id)
+      if (tonumber(game.save.inventory[id]) or 0) > 0 then return true end
+      return require("src.inventory.Bag").add(game.save, id, 1, game.data)
+    end
     if s.ring then
+      -- The state record is authoritative. Rebuild a missing display key once,
+      -- but never increment an already-owned Key Item on a repeated claim.
+      ensureOnce("MEGA_RING")
+      ensureOnce("MEGA_STONE_CASE")
       return tr("The MEGA RING and\nSTONE CASE are ready.",
                 "MEGA-RING und\nSTEIN-KOFFER sind bereit.")
     end
     s.ring, s.case = true, true
     persist(s)
-    game.save.inventory = game.save.inventory or {}
-    require("src.inventory.Bag").add(game.save, "MEGA_RING", 1, game.data)
-    require("src.inventory.Bag").add(game.save, "MEGA_STONE_CASE", 1, game.data)
+    ensureOnce("MEGA_RING")
+    ensureOnce("MEGA_STONE_CASE")
     return tr(
       "The machine forged a\nMEGA RING!\fIt also registered a\nMEGA STONE CASE.\fForge a matching stone,\nthen press SELECT\nin battle.",
       "Die Maschine erzeugt\neinen MEGA-RING!\fDazu kommt ein\nMEGA-STEIN-KOFFER.\fErzeuge den passenden\nStein und drücke im\nKampf SELECT.")
@@ -568,7 +642,7 @@ return function(mod, opts)
         }
       end
     end
-    game.stack:push(mod.ui.ListMenu.new(game,
+    game.stack:push((mod.ui.KantoListMenu or mod.ui.ListMenu).new(game,
       tr("MEGA STONE CASE", "MEGA-STEIN-KOFFER"), rows, {
         pageJump = true,
         onCancel = done,
@@ -639,7 +713,7 @@ return function(mod, opts)
         "Besitze beide X- und\nY-Steine einer Art,\num die Form zu wählen."), done))
       return
     end
-    game.stack:push(mod.ui.ListMenu.new(game,
+    game.stack:push((mod.ui.KantoListMenu or mod.ui.ListMenu).new(game,
       tr("MEGA FORM", "MEGA-FORM"), rows, {
         onCancel = done,
         onChoose = function(item)
@@ -679,17 +753,24 @@ return function(mod, opts)
     if not battler or not battler.mon or battler.mon.isEgg then
       return false, "invalid"
     end
+    local johtoMasterSecret = side == "enemy" and battle
+      and battle.johtoPassage == true
+      and battle.ascendantEnemySecretForm == "TYPHLOSION_ASCENDANT"
+      and battle.ascendantEnemyMegaSpecies == "TYPHLOSION"
+      and battler.mon.species == "TYPHLOSION"
     local secretReady = battler.mon.species == "TYPHLOSION"
       and state().secretUnlocked
     if side == "player" and not M.hasRing() and not secretReady then
       return false, "locked"
     end
-    if battler.mon.species == "TYPHLOSION" and not secretReady then
+    if battler.mon.species == "TYPHLOSION" and not secretReady
+        and not johtoMasterSecret then
       return false, "ineligible"
     end
     local partnerMega = side == "player"
       and directPartnerMega(battler.mon, false)
-    if not FORMS_BY_SPECIES[battler.mon.species] and not partnerMega then
+    if not FORMS_BY_SPECIES[battler.mon.species] and not partnerMega
+        and not johtoMasterSecret then
       return false, "ineligible"
     end
     -- The Basalt Core remains player-only in the real game. The isolated
@@ -699,24 +780,27 @@ return function(mod, opts)
     local qaSecretEnemy = side == "enemy"
       and battle and battle._ascendantQaAllowSecretEnemy == true
       and battler.mon.species == "TYPHLOSION" and secretReady
-    local profile = qaSecretEnemy and FORMS_BY_ID.TYPHLOSION_ASCENDANT
+    local profile = (qaSecretEnemy or johtoMasterSecret)
+        and FORMS_BY_ID.TYPHLOSION_ASCENDANT
       or preferredProfile(battler.mon, side ~= "player")
     if not profile then return false, "stone" end
     return queueActivation(battle, battler, side, profile)
   end
 
   local function installVoxelCompatibility(game)
-    local exports = game and game.mods and game.mods.exports
-    -- The compatible Voxel renderer retains the public OverworldBattle companion
-    -- API under its own mod id. Resolve the maintained fork first while keeping
-    -- older Dramatic Shape installs valid.
-    local dramatic = exports and (exports.DRAMALESS_SHAPE
-      or exports.DRAMATIC_SHAPE)
-    if not (dramatic and dramatic.lib and dramatic.lib.require) then return end
-    local okBattle, overworldBattle = pcall(
-      dramatic.lib.require, "OverworldBattle")
-    if not (okBattle and overworldBattle) then return end
+    -- Every supported renderer exposes the same public companion module under
+    -- its own real package id.  The shared resolver rejects malformed or
+    -- ambiguous stacks instead of manufacturing a DRAMALESS alias.
+    local overworldBattle = voxelRenderer
+      and voxelRenderer.module(game, "OverworldBattle")
+    if type(overworldBattle) ~= "table" then return end
     voxelWantsFront = function()
+      -- DRAMALESS keeps its preferred battle camera state even while the
+      -- engine is drawing classic 2D.  Only an *active* Voxel pipeline may
+      -- exchange the player-facing rear for the camera-facing front; doing
+      -- it unconditionally made 2D Mega backs silently resolve as fronts.
+      local Pipelines = require("src.render.Pipelines")
+      if Pipelines.level("voxel") <= 0 then return false end
       local ok, value = pcall(overworldBattle.wantsFront)
       return ok and value == true
     end
@@ -894,10 +978,12 @@ return function(mod, opts)
   end
 
   function M.rearOverlayAllowed(battle)
-    -- A real staged Voxel shot owns both monster cards, whether it is using
-    -- front sprites, a world-space rear sprite, or its pinned OG UI rear.
-    -- When no shot exists, retain Kanto Ascendant's normal 2D Mega overlay.
-    return not (battle and battle.dramaticShapeShot ~= nil)
+    -- DRAMALESS may keep a prepared shot object while its display pipeline
+    -- is off.  That object must not suppress the classic 2D rear overlay;
+    -- only an active Voxel pass owns both monster cards.
+    local Pipelines = require("src.render.Pipelines")
+    return not (Pipelines.level("voxel") > 0
+      and battle and battle.dramaticShapeShot ~= nil)
   end
 
   function M.install(game, deps)
@@ -912,7 +998,8 @@ return function(mod, opts)
     local vanillaUpdate = BattleState.update
     BattleState.update = function(battle, dt)
       if battle.phase == "menu" and not battle.demo and not battle.safari then
-        if battle._ascMegaEnemyPending and not battle._ascMegaEnemyUsed then
+        if battle._ascMegaEnemyPending and not battle._ascMegaEnemyUsed
+            and enemyMegaTargetReady(battle) then
           local ok = M.activate(battle, battle.enemy, "enemy")
           if ok then
             battle._ascMegaEnemyPending = nil
@@ -1168,6 +1255,9 @@ return function(mod, opts)
           TYPHLOSION_ASCENDANT = -8,
           VENUSAUR = -10,
           VICTREEBEL = 0,
+          BLAZIKEN = -7,
+          SWAMPERT = -13,
+          SCEPTILE = -10,
         }
         local rearX = rearAnchors[profile.id] or 0
         g.setColor(1, 1, 1, 1)
@@ -1222,11 +1312,11 @@ return function(mod, opts)
   mod.events:on("battle.started", function(ev)
     local battle = ev and ev.battle
     if not (battle and optionEnabled()) then return end
-    if eligibleOpponent(battle) and postgame
+    if eligibleOpponent(battle) and enemyMegaTargetAvailable(battle) and postgame
         and postgame.hasHallOfFame(battle.game.save) then
       battle._ascMegaEnemyPending = true
     end
-  end)
+  end, -10)
 
   mod.events:on("battle.battler_switched", function(ev)
     local battle, battler = ev and ev.battle, ev and ev.battler
@@ -1263,6 +1353,38 @@ return function(mod, opts)
     persist(s)
     return true
   end
+  -- Legacy Locker import is a two-step transaction: stage the unique archive
+  -- receipt, update this save-local Stone Case, write the game save, then let
+  -- legacy_archive consume its receipt.  The rollback token lets the caller
+  -- undo only the provisional in-memory change when writeSave fails; an
+  -- already-owned stone is deliberately a successful idempotent import.
+  M.importLegacyStone = function(stone)
+    local profile = FORM_BY_STONE[stone]
+    if not (profile and not profile.secret) then
+      return nil, "unknown official Mega Stone"
+    end
+    local s = state()
+    if not (s.case == true or s.ring == true) then
+      return nil, "Mega Stone Case is not active"
+    end
+    local added = s.stones[stone] ~= true
+    if added then
+      s.stones[stone] = true
+      persist(s)
+    end
+    return { stone = stone, added = added }
+  end
+  M.rollbackLegacyStone = function(receipt)
+    if type(receipt) ~= "table" or receipt.added ~= true then return true end
+    local profile = FORM_BY_STONE[receipt.stone]
+    if not (profile and not profile.secret) then return false end
+    local s = state(false)
+    if not (s and type(s.stones) == "table") then return false end
+    s.stones[receipt.stone] = nil
+    persist(s)
+    receipt.added = false
+    return true
+  end
   M.unlockSecret = function()
     local s = state()
     local fresh = not s.secretUnlocked
@@ -1285,6 +1407,9 @@ return function(mod, opts)
   M.formsBySpecies = OFFICIAL_BY_SPECIES
   M.allFormsBySpecies = FORMS_BY_SPECIES
   M.profileFor = preferredProfile
+  M.opponentEligible = eligibleOpponent
+  M.enemyMegaTargetReady = enemyMegaTargetReady
+  M.enemyMegaTargetAvailable = enemyMegaTargetAvailable
   M.tierAvailable = tierAvailable
   M.boostedStats = boostedStats
   M.stoneName = stoneName

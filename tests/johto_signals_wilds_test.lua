@@ -354,19 +354,47 @@ local function newHarness(config)
   end
 
   local game = gameFixture()
-  game.mods = {
-    exports = {
-      overworld_wild_spawns = wilds,
-    },
-  }
+  mod.find = function(id)
+    if id == "overworld_wild_spawns" then
+      return { id = id, version = wilds.version, exports = wilds }
+    end
+  end
 
   local rng = config.random or function(lo) return lo end
+  local visibleRules
+  if config.visibleRuleSpecies then
+    visibleRules = { maps = 0, remembers = 0, cancels = 0 }
+    function visibleRules.mapVisibleWild(encounter, ctx)
+      visibleRules.maps = visibleRules.maps + 1
+      visibleRules.lastMapContext = ctx
+      local out = {}
+      for key, value in pairs(encounter) do out[key] = value end
+      if not (ctx and (ctx.kaProtected or ctx.kaEncounterSource)) then
+        out.species = config.visibleRuleSpecies
+      end
+      return out
+    end
+    function visibleRules.rememberVisibleWild(encounter, ctx)
+      visibleRules.remembers = visibleRules.remembers + 1
+      visibleRules.lastRememberContext = ctx
+      local ticket = { species = encounter.species, active = true }
+      visibleRules.lastTicket = ticket
+      return encounter, ticket
+    end
+    function visibleRules.cancelVisibleWild(ticket)
+      if not (ticket and ticket.active) then return false end
+      visibleRules.cancels = visibleRules.cancels + 1
+      ticket.active = false
+      return true
+    end
+  end
   local adapter = createAdapter(mod, {
     johtoSignals = early,
     mythicSignals = mythic,
     johtoResearch = lind,
     encounterLevels = encounterLevels,
     random = rng,
+    runRules = visibleRules,
   })
 
   return {
@@ -382,6 +410,7 @@ local function newHarness(config)
     handlers = handlers,
     emit = emit,
     logs = logs,
+    visibleRules = visibleRules,
   }
 end
 
@@ -470,6 +499,7 @@ end
 
 do
   local h = newHarness()
+  h.mod.find = function() return nil end
   local missingGame = gameFixture()
   local ok, reason = h.adapter.install(missingGame)
   eq(ok, false, "install is harmless when Wilds is not active")
@@ -504,6 +534,42 @@ do
 end
 
 -- ---------------------------------------------------- one native slot pick
+
+do
+  local h = newHarness({ earlyMode = "none", mythicMode = "none",
+    visibleRuleSpecies = "RATTATA" })
+  eq(h.adapter.install(h.game), true,
+    "the visible Randomizer bridge installs through the same Wilds adapter")
+  local record = assert(h.logic:trySpawn(h.game, {}))
+  eq(record.species, "RATTATA",
+    "the visible entity uses the Randomizer result before battle")
+  eq(h.visibleRules.maps, 1,
+    "one visible spawn performs exactly one Randomizer mapping")
+  eq(h.visibleRules.remembers, 1,
+    "the final visible species receives one battle-consistency ticket")
+  eq(h.visibleRules.lastTicket.species, "RATTATA",
+    "the battle-consistency ticket binds the rendered species")
+  eq(h.logic:_despawn(record.id), true,
+    "an untouched randomized visible entity can despawn normally")
+  eq(h.visibleRules.cancels, 1,
+    "despawn cancels the exact unused Randomizer ticket")
+end
+
+do
+  local h = newHarness({ earlyMode = "special", mythicMode = "echo",
+    visibleRuleSpecies = "RATTATA" })
+  eq(h.adapter.install(h.game), true,
+    "Randomizer and protected Johto signals share one visible path")
+  local record = assert(h.logic:trySpawn(h.game, {}))
+  eq(record.species, "CHIKORITA",
+    "the protected Johto result remains authoritative after native mapping")
+  eq(h.visibleRules.maps, 1,
+    "native Wilds is randomized exactly once before Johto resolution")
+  eq(h.visibleRules.remembers, 1,
+    "the final protected species is remembered exactly once")
+  eq(h.visibleRules.lastTicket.species, "CHIKORITA",
+    "the consistency ticket follows the final protected Johto species")
+end
 
 do
   local h = newHarness({ earlyMode = "special", withLind = true,
@@ -595,6 +661,28 @@ do
     "the disabled bridge performs no visible Mythic roll")
   eq(h.adapter.runtimeStatus().enabled, false,
     "runtime diagnostics expose the disabled integration")
+end
+
+do
+  local h = newHarness({ earlyMode = "special", mythicMode = "echo",
+    withLind = true, lindSpecies = "NATU", surface = "CAVE" })
+  h.game.data.encounters.ROUTE_1.kaProtected = true
+  h.game.data.encounters.ROUTE_1.kaEncounterSource = "hevo_dungeon"
+  eq(h.adapter.install(h.game), true,
+    "a protected progression habitat keeps the Wilds bridge installed")
+  local record = assert(h.logic:trySpawn(h.game, {}))
+  eq(record.species, "PIDGEY",
+    "visible Wilds preserves the protected table's native species")
+  eq(record.level, 3,
+    "visible Wilds preserves the protected table's authored level")
+  eq(record.kaEncounterSource, "hevo_dungeon",
+    "visible record retains the progression-habitat owner")
+  eq(h.early.rolls, 0,
+    "Early Johto cannot replace a protected progression habitat")
+  eq(h.lind.rolls, 0,
+    "research habitats cannot replace a protected progression habitat")
+  eq(h.mythic.commits, 0,
+    "protected visible habitat creates no Mythic transaction")
 end
 
 -- ---------------------------------------------------- exact battle commit
@@ -1014,6 +1102,28 @@ do
     "loading a save never consumes Early state")
   eq(h.mythic.stateChanges or 0, 0,
     "loading a save never consumes Mythic state")
+end
+
+do
+  local h = newHarness({ earlyMode = "native", mythicMode = "native" })
+  h.adapter.install(h.game)
+  local record = assert(h.logic:trySpawn(h.game, {}))
+  h.logic:_startBattle(record)
+  check(h.adapter.runtimeStatus().pendingBattle ~= nil,
+    "the fresh-save reset begins with a runtime-only proposal")
+  eq(h.handlers["save.created"][1].priority, h.adapter.EVENT_PRIORITY,
+    "fresh-save cancellation uses the transactional bridge priority")
+  h.emit("save.created", {})
+  eq(h.adapter.runtimeStatus().pendingBattle, nil,
+    "NEW GAME clears the previous slot's visible proposal")
+  eq(h.early.cancels, 1,
+    "NEW GAME cancels the previous slot's Early proposal")
+  eq(h.mythic.cancels, 1,
+    "NEW GAME cancels the previous slot's Mythic proposal")
+  eq(h.early.stateChanges or 0, 0,
+    "NEW GAME never consumes the abandoned slot's Early state")
+  eq(h.mythic.stateChanges or 0, 0,
+    "NEW GAME never consumes the abandoned slot's Mythic state")
 end
 
 do

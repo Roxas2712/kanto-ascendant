@@ -4,7 +4,7 @@
 The component branch intentionally still lives beside the frozen Starfall
 prototype.  This audit is therefore aimed at either:
 
-* a final Kanto Ascendant 6.0 source/package directory (default), or
+* a final Kanto Ascendant 6.x source/package directory (default), or
 * only the extracted Signals components (``--component``).
 
 It uses only Python's standard library so the same command can run locally
@@ -38,12 +38,13 @@ REQUIRED_PACKAGE_FILES = {
 }
 
 REQUIRED_SOURCE_FILES = REQUIRED_PACKAGE_FILES | {
-    "RELEASE_NOTES_6.0.11.md",
+    "RELEASE_NOTES_6.5.0_RC11.md",
 }
 
 PUBLIC_RELEASE_TEXTS = {
     "README.md",
-    "RELEASE_NOTES_6.0.11.md",
+    "RELEASE_NOTES_6.5.0_RC10.md",
+    "RELEASE_NOTES_6.5.0_RC11.md",
     "mod.card",
 }
 
@@ -70,6 +71,17 @@ FORBIDDEN_PRODUCTION_TOKENS = {
 }
 
 TEXT_SUFFIXES = {".lua", ".json"}
+
+# Vendored upstream data can legitimately contain species that Kanto
+# Ascendant never registers.  Token-scanning it would confuse an asset name
+# with a production unlock.  The package boundary is still checked above;
+# only the semantic production-token scan skips these non-runtime sources.
+TOKEN_SCAN_EXCLUDED_PREFIXES = (
+    "qa/",
+    "tests/",
+    "tools/",
+    "vendor/",
+)
 
 
 class PackageReader:
@@ -165,16 +177,18 @@ def audit(source: Path, component_only: bool) -> list[str]:
                 except (UnicodeDecodeError, json.JSONDecodeError) as exc:
                     errors.append(f"manifest.json is invalid: {exc}")
                 else:
-                    if manifest.get("id") != "trainer_rematch":
+                    if manifest.get("id") != "kanto_ascendant":
                         errors.append(
-                            "manifest id must remain trainer_rematch for upgrades"
+                            "manifest id must be kanto_ascendant"
                         )
-                    if str(manifest.get("version", "")) != "6.0.11":
-                        errors.append("manifest version must be exactly 6.0.11")
+                    if str(manifest.get("version", "")) != "6.5.0":
+                        errors.append("manifest version must be exactly 6.5.0")
                     if manifest.get("experimental") is True:
                         errors.append("release manifest must not be experimental")
 
         for name in selected_names:
+            if not component_only and name.startswith(TOKEN_SCAN_EXCLUDED_PREFIXES):
+                continue
             if (
                 PurePosixPath(name).suffix.lower() not in TEXT_SUFFIXES
                 and name not in PUBLIC_RELEASE_TEXTS

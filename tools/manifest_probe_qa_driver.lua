@@ -4,10 +4,10 @@
 
 return function(game)
   local manifest = assert(love.filesystem.read(
-    "mods/trainer_rematch/manifest.json"))
+    "mods/kanto_ascendant/manifest.json"))
   local version = assert(manifest:match('"version"%s*:%s*"([^"]+)"'))
   local loaded = assert(game.mods and game.mods.mods
-    and game.mods.mods.trainer_rematch)
+    and game.mods.mods.kanto_ascendant)
   assert(loaded.manifest.version == version,
     ("loaded %s but resolved manifest says %s")
       :format(tostring(loaded.manifest.version), tostring(version)))

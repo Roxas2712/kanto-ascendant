@@ -9,6 +9,7 @@ return function(mod, opts)
   local i18n = opts.i18n
   local daycare = opts.daycare
   local dexProgress = opts.dexProgress
+  local johtoBoundary = opts.johtoBoundary
   local enabled = opts.contentEnabled ~= false
   local encounterLevels = opts.encounterLevels or {
     routeAverage = function() return nil end,
@@ -20,6 +21,7 @@ return function(mod, opts)
     end,
   }
   local R = { game = nil, enabled = enabled }
+  local migrationGate = opts.migrationGate
   local activeTrial
   local researchItems = {}
   for _, row in ipairs(data.items or {}) do researchItems[row.id] = true end
@@ -31,6 +33,12 @@ return function(mod, opts)
   local function localized(row)
     if type(row) ~= "table" then return row end
     return tr(row.en, row.de)
+  end
+
+  local function boundaryActive(game)
+    return not johtoBoundary
+      or type(johtoBoundary.isActive) ~= "function"
+      or johtoBoundary.isActive(game or R.game)
   end
 
   local function state(create)
@@ -106,6 +114,7 @@ return function(mod, opts)
   end
 
   local function speciesResearched(species, s)
+    if not boundaryActive(R.game) then return false end
     s = s or state()
     local mappedBase = data.researchBase and data.researchBase[species]
     if mappedBase then
@@ -123,6 +132,7 @@ return function(mod, opts)
   end
 
   local function itemUnlocked(itemId, s)
+    if not boundaryActive(R.game) then return false end
     s = s or state()
     local claimed = type(s.itemsClaimed) == "table" and s.itemsClaimed or {}
     for _, row in ipairs(data.itemMilestones or {}) do
@@ -135,6 +145,7 @@ return function(mod, opts)
   end
 
   local function habitatCandidates(mapId, terrain, s)
+    if not boundaryActive(R.game) then return {} end
     local out = {}
     s = s or state()
     for species, row in pairs(data.habitats or {}) do
@@ -362,7 +373,8 @@ return function(mod, opts)
   end
 
   function R.afterRematch(game, battle)
-    if not (enabled and game and battle and battle.rematchTrainerClass
+    if not (enabled and boundaryActive(game)
+        and game and battle and battle.rematchTrainerClass
         and postgame.hasHallOfFame(game.save)) then return nil end
     local s = state()
     if not allStarters(s) then return nil end
@@ -480,6 +492,7 @@ return function(mod, opts)
   end
 
   local function handleTrial(ow, npc, game, key)
+    if not boundaryActive(game) then return false end
     local trial = data.starters[key]
     local s = state()
     npc.frozen = true
@@ -552,6 +565,49 @@ return function(mod, opts)
     npc.frozen = true
     npc:facePlayer(ow.player)
     local done = function() npc.frozen = false end
+    if not boundaryActive(game) then
+      local TextBox = require("src.render.TextBox")
+      local first = tr(
+        "PROF. ELM can open\nBEYOND KANTO in\nthis save.\f"
+          .. "This permanently opens\nJOHTO wild waves,\nresearch and Masters.\f"
+          .. "All non-Kanto Legacy\nBank withdrawals open.\f"
+          .. "The same caves gain\ntheir full encounters,\nrewards and evolutions.\f"
+          .. "CONTINUE?",
+        "PROF. LIND kann\nJENSEITS VON KANTO\nin diesem Spielstand\nöffnen.\f"
+          .. "Johto-Wildwellen,\nForschung und Meister\nöffnen sich dauerhaft.\f"
+          .. "Alle Nicht-Kanto-\nEntnahmen aus der Bank\nwerden freigegeben.\f"
+          .. "Dieselben Höhlen erhalten\nvolle Begegnungen,\nBelohnungen und\nEntwicklungen.\f"
+          .. "FORTFAHREN?")
+      local final = tr(
+        "IRREVERSIBLE:\nDark and Steel activate.\f"
+          .. "MAGNEMITE and MAGNETON\ngain STEEL.\f"
+          .. "BITE, GUST, SAND-ATTACK\nand KARATE CHOP use\nGen-II types.\f"
+          .. "This save can never\nreturn to pure Gen I.\f"
+          .. "OPEN BEYOND KANTO?",
+        "NICHT UMKEHRBAR:\nUnlicht und Stahl starten.\f"
+          .. "MAGNETILO und MAGNETON\nerhalten STAHL.\f"
+          .. "BISS, WINDSTOSS,\nSANDWIRBEL und\nKARATESCHLAG nutzen\nGen-II-Typen.\f"
+          .. "Dieser Spielstand kehrt\nnie zu reinem Gen I\nzurück.\f"
+          .. "JENSEITS VON KANTO\nÖFFNEN?")
+      game.stack:push(TextBox.new(game, first, nil, {
+        defaultNo = true,
+        choice = function(yes)
+          if not yes then done() return end
+          game.stack:push(TextBox.new(game, final, nil, {
+            defaultNo = true,
+            choice = function(confirm)
+              if not confirm then done() return end
+              local ok, _, message = johtoBoundary.activate(game)
+              game.stack:push(TextBox.new(game, message, function()
+                if ok then R.refresh(game, ow.map and ow.map.id) end
+                done()
+              end))
+            end,
+          }))
+        end,
+      }))
+      return true
+    end
     local delivered = deliverPending(game)
     if delivered then
       game.stack:push(require("src.render.TextBox").new(game, delivered, done))
@@ -607,6 +663,7 @@ return function(mod, opts)
     if not (enabled and ow and npc and npc.def
         and postgame.hasHallOfFame(game.save)) then return false end
     if npc.def.name == data.aide.name then return handleAide(ow, npc, game) end
+    if not boundaryActive(game) then return false end
     for key, trial in pairs(data.starters) do
       if npc.def.name == trial.name then return handleTrial(ow, npc, game, key) end
     end
@@ -668,12 +725,17 @@ return function(mod, opts)
     for _, key in ipairs(data.starterOrder) do
       local trial = data.starters[key]
       if not mapId or trial.map == mapId then
-        ensureNpc(game, trial, unlocked and not s.starters[key])
+        ensureNpc(game, trial, unlocked and boundaryActive(game)
+          and not s.starters[key])
       end
     end
   end
 
   local function stepEgg(game)
+    -- A copied Legacy/NG+ research queue is evidence stored by the archive,
+    -- not permission to issue or hatch a Johto Egg in this fresh sealed run.
+    -- Leave every pending row byte-for-byte available for an activated save.
+    if not boundaryActive(game) then return end
     local s = state(false)
     if not s then return end
     startNextEgg(s)
@@ -723,7 +785,7 @@ return function(mod, opts)
 
   mod.hooks:wrap("ui.start_menu.items", function(nextItems, game, items)
     local out = nextItems(game, items)
-    if type(out) ~= "table" or not enabled
+    if type(out) ~= "table" or not enabled or not boundaryActive(game)
         or not dexProgress
         or type(dexProgress.hasNationalDex) ~= "function"
         or not dexProgress.hasNationalDex(game) then return out end
@@ -741,14 +803,30 @@ return function(mod, opts)
     return R
   end
 
+  function R.setMigrationGate(value)
+    migrationGate = value
+    return R
+  end
+
   -- Shared habitat selector for ordinary random encounters and companion
   -- mods that materialize those encounters directly in the overworld.
   function R.rollHabitat(
       mapId, terrain, rng, fallbackLevel, s, routeAverageLevel)
-    if not (enabled and R.game and mapId and terrain
+    if not (enabled and R.game and boundaryActive(R.game) and mapId and terrain
         and postgame.hasHallOfFame(R.game.save)) then return nil end
     rng = type(rng) == "function" and rng or math.random
     local candidates = habitatCandidates(mapId, terrain, s or state(false))
+    if type(migrationGate) == "function" then
+      local filtered = {}
+      for _, row in ipairs(candidates) do
+        if migrationGate(row.species, {
+          mapId = mapId, terrain = terrain,
+        }) then
+          filtered[#filtered + 1] = row
+        end
+      end
+      candidates = filtered
+    end
     if #candidates == 0 then return nil end
     local chance = 0
     for _, row in ipairs(candidates) do
@@ -783,7 +861,8 @@ return function(mod, opts)
   end, -20)
 
   mod.events:on("world.stepped", function()
-    if not (enabled and R.game and postgame.hasHallOfFame(R.game.save)) then return end
+    if not (enabled and R.game and boundaryActive(R.game)
+        and postgame.hasHallOfFame(R.game.save)) then return end
     stepEgg(R.game)
     local clock = math.max(0,
       math.floor(tonumber(mod.save:get("step_clock", 0)) or 0))
@@ -823,7 +902,8 @@ return function(mod, opts)
   -- early-Johto signal systems. It deliberately reads the research
   -- controller instead of duplicating unlock rules in either consumer.
   R.isRecruitFamilyEligible = function(species, s)
-    return enabled and speciesResearched(species, s) or false
+    return enabled and boundaryActive(R.game)
+      and speciesResearched(species, s) or false
   end
   R.itemUnlocked = itemUnlocked
   R.habitatCandidates = habitatCandidates
@@ -832,5 +912,6 @@ return function(mod, opts)
     return data.habitats and data.habitats[species] or nil
   end
   R.compensationItemFor = compensationItemFor
+  R.boundaryActive = boundaryActive
   return R
 end

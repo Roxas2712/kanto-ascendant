@@ -10,7 +10,10 @@ return function(mod, opts)
   local ascendant = opts.ascendant
   local ascendantData = opts.ascendantData or {}
   local johtoMasters = opts.johtoMasters
+  local legacyPaths = opts.legacyPaths
+  local legacyJourney = opts.legacyJourney
   local L = { game = nil, grandTour = opts.grandTour }
+  local HALL_VERSION = 1
 
   local CURATOR = {
     map = "CELADON_MANSION_3F",
@@ -39,22 +42,52 @@ return function(mod, opts)
     return table.concat(glyphs), #glyphs
   end
 
+  local function pactCardText(save)
+    if not (legacyJourney and legacyJourney.isActive
+        and legacyJourney.isActive(save)) then return nil end
+    local run = legacyJourney.state and legacyJourney.state(save)
+    if type(run) ~= "table" then return nil end
+    local pact = legacyJourney.currentPact
+      and legacyJourney.currentPact(save) or run.pact
+    pact = tostring(pact or "journey"):lower()
+    local names = {
+      journey = { en = "PACT:JOURNEY", de = "PAKT:REISE" },
+      trainer = { en = "PACT:TRAINER", de = "PAKT:TRAINER" },
+      legacy = { en = "PACT:LEGACY", de = "PAKT:VERM." },
+      ascendant = { en = "PACT:ASCEND.", de = "PAKT:ASCEND." },
+    }
+    local row = names[pact] or names.journey
+    return tr(row.en, row.de)
+  end
+
   local function state(create)
     local s = mod.save:get("legacy_hall")
     if type(s) ~= "table" and create ~= false then
-      s = { version = 1 }
+      s = { version = HALL_VERSION }
       mod.save:set("legacy_hall", s)
     end
     if type(s) == "table" then
-      s.version = 1
+      local version = math.max(1, math.floor(tonumber(s.version) or 1))
+      if version > HALL_VERSION then
+        -- A newer mod owns this state. Keep its complete table byte-for-byte
+        -- and expose only the ascendant fallback until a compatible build is
+        -- installed; old code must never downgrade or partially rewrite it.
+        L.readOnly = true
+        L.futureVersion = version
+        return nil
+      end
+      L.readOnly, L.futureVersion = false, nil
+      s.version = HALL_VERSION
       if type(s.selectedTitle) ~= "string" then s.selectedTitle = nil end
       s.visits = math.max(0, math.floor(tonumber(s.visits) or 0))
+    else
+      L.readOnly, L.futureVersion = false, nil
     end
     return s
   end
 
   local function persist(s)
-    if s then mod.save:set("legacy_hall", s) end
+    if s and not L.readOnly then mod.save:set("legacy_hall", s) end
   end
 
   local function achievementState()
@@ -69,23 +102,46 @@ return function(mod, opts)
   end
 
   local function titleName(id)
+    if legacyPaths and legacyPaths.titleName then
+      local name = legacyPaths.titleName(id)
+      if name then return name end
+    end
     local row = achievementDef(id)
-    return row and localized(row.title) or tostring(id):gsub("_", " "):upper()
+    return row and localized(row.title) or nil
+  end
+
+  local function knownTitle(id)
+    return type(id) == "string" and titleName(id) ~= nil
   end
 
   local function unlocked(id)
-    return achievementState()[id] == true
+    if not knownTitle(id) then return false end
+    if legacyPaths and legacyPaths.titleUnlocked
+        and legacyPaths.titleUnlocked(id) then return true end
+    return achievementDef(id) ~= nil and achievementState()[id] == true
   end
 
   local function currentTitle()
     local s = state()
     local a = ascendant and ascendant.state and ascendant.state(false)
-    if not s.selectedTitle and a and type(a.selectedTitle) == "string" then
+    if s and s.selectedTitle and not unlocked(s.selectedTitle) then
+      s.selectedTitle = nil
+      persist(s)
+    end
+    if a and a.selectedTitle and not unlocked(a.selectedTitle) then
+      a.selectedTitle = nil
+      mod.save:set("ascendant", a)
+    end
+    if s and not s.selectedTitle and a
+        and type(a.selectedTitle) == "string" then
       s.selectedTitle = a.selectedTitle
       persist(s)
     end
-    if s.selectedTitle and unlocked(s.selectedTitle) then
+    if s and s.selectedTitle and unlocked(s.selectedTitle) then
       return s.selectedTitle, titleName(s.selectedTitle)
+    end
+    if a and a.selectedTitle and unlocked(a.selectedTitle) then
+      return a.selectedTitle, titleName(a.selectedTitle)
     end
     if a and a.latestAchievement and unlocked(a.latestAchievement) then
       return a.latestAchievement, titleName(a.latestAchievement)
@@ -94,8 +150,9 @@ return function(mod, opts)
   end
 
   local function selectTitle(id)
-    if not unlocked(id) then return false end
+    if not knownTitle(id) or not unlocked(id) then return false end
     local s = state()
+    if not s then return false end
     s.selectedTitle = id
     persist(s)
     local a = ascendant and ascendant.state and ascendant.state(false)
@@ -132,6 +189,9 @@ return function(mod, opts)
       and johtoMasters.state(false) or {}
     local tour = L.grandTour and L.grandTour.state
       and L.grandTour.state(false) or {}
+    local legacy = legacyPaths and legacyPaths.profile
+      and legacyPaths.profile() or {}
+    local completedPaths = legacy.completedPaths or {}
     local rows = {
       {
         id = "kanto_150", label = tr("KANTO CERTIFICATE", "KANTO-ZERTIFIKAT"),
@@ -185,6 +245,22 @@ return function(mod, opts)
         id = "cruise", label = tr("SEA CHAMPION", "MEERES-CHAMP"),
         value = tour.cruise and tour.cruise.clears or 0, target = 1,
       },
+      {
+        id = "legacy_red", label = tr("RED PATH SEAL", "ROTES PFADSIEGEL"),
+        done = completedPaths.red == true,
+      },
+      {
+        id = "legacy_blue", label = tr("BLUE PATH SEAL", "BLAUES PFADSIEGEL"),
+        done = completedPaths.blue == true,
+      },
+      {
+        id = "legacy_green", label = tr("GREEN PATH SEAL", "GRUENES PFADSIEGEL"),
+        done = completedPaths.green == true,
+      },
+      {
+        id = "legacy_pass", label = tr("LEGACY PASS", "VERMAECHTNIS-PASS"),
+        done = legacy.legacyPass == true,
+      },
     }
     for _, row in ipairs(rows) do
       if row.done == nil then
@@ -227,6 +303,11 @@ return function(mod, opts)
         }
       end
     end
+    if legacyPaths and legacyPaths.titleRows then
+      for _, entry in ipairs(legacyPaths.titleRows(selected)) do
+        rows[#rows + 1] = entry
+      end
+    end
     if #rows == 0 then
       rows[1] = {
         label = tr("NO TITLES EARNED", "NOCH KEIN TITEL"),
@@ -239,7 +320,7 @@ return function(mod, opts)
   if mod.content and mod.content.screens then
     mod.content.screens:register("AscendantTitles", {
       new = function(game)
-        return mod.ui.ListMenu.new(game, tr("SELECT TITLE", "TITEL WÄHLEN"),
+        return (mod.ui.KantoListMenu or mod.ui.ListMenu).new(game, tr("SELECT TITLE", "TITEL WÄHLEN"),
           titleRows(), {
             pageJump = true,
             onChoose = function(item, menu)
@@ -263,7 +344,7 @@ return function(mod, opts)
             label = row.label, right = row.right, value = row,
           }
         end
-        return mod.ui.ListMenu.new(game,
+        return (mod.ui.KantoListMenu or mod.ui.ListMenu).new(game,
           tr("LEGACY GALLERY", "VERMÄCHTNIS-GALERIE"), items, {
             pageJump = true,
             onChoose = function(item)
@@ -277,8 +358,8 @@ return function(mod, opts)
 
   local function open(game)
     local _, title = currentTitle()
-    game.stack:push(mod.ui.ListMenu.new(game,
-      tr("TITLES / TROPHIES", "TITEL / TROPHÄEN"), {
+    local workshop = mod.exports and mod.exports.ngplusLegacyWorkshop
+    local rows = {
         {
           label = tr("SELECT TITLE", "TITEL WÄHLEN"),
           right = title, value = "titles",
@@ -287,13 +368,40 @@ return function(mod, opts)
           label = tr("LEGACY GALLERY", "VERMÄCHTNIS-GALERIE"),
           value = "trophies",
         },
-      }, {
+      }
+    if workshop and workshop.ANCHOR
+        and workshop.ANCHOR.status == "CONNECTED" then
+      rows[#rows + 1] = {
+        label = tr("LEGACY WORKSHOP", "VERMÄCHTNISWERKSTATT"),
+        right = tostring(workshop.sealCount and workshop.sealCount(game.save)
+          or 0) .. "/3",
+        value = "workshop",
+      }
+    end
+    local menu
+    menu = (mod.ui.KantoListMenu or mod.ui.ListMenu).new(game,
+      tr("TITLES / TROPHIES", "TITEL / TROPHÄEN"), rows, {
         onChoose = function(item)
-          if item.value == "titles" then mod.ui.push(game, "AscendantTitles")
-          else mod.ui.push(game, "AscendantTrophies") end
+          if item.value == "titles" then
+            mod.ui.push(game, "AscendantTitles")
+          elseif item.value == "trophies" then
+            mod.ui.push(game, "AscendantTrophies")
+          elseif item.value == "workshop" then
+            if menu and type(menu.close) == "function" then menu:close() end
+            local ok, why = workshop.enter(game)
+            if not ok then
+              game.stack:push(require("src.render.TextBox").new(game,
+                tr("The workshop route is unavailable.",
+                  "Der Weg zur Werkstatt ist nicht verfügbar.")
+                  .. "\n" .. tostring(why or "unknown")))
+            end
+          end
         end,
-      }))
+      })
+    game.stack:push(menu)
   end
+
+  function L.open(game) return open(game) end
 
   local function runtimeObjectIds(game)
     local out = {}
@@ -350,8 +458,10 @@ return function(mod, opts)
       talk = {
         [CURATOR.text] = function(game, ow, npc)
           local s = state()
-          s.visits = s.visits + 1
-          persist(s)
+          if s then
+            s.visits = s.visits + 1
+            persist(s)
+          end
           npc.frozen = true
           npc:facePlayer(ow.player)
           game.stack:push(require("src.render.TextBox").new(game, tr(
@@ -404,18 +514,29 @@ return function(mod, opts)
       TrainerCard.draw = function(card)
         draw(card)
         local _, title = currentTitle()
-        if not title or not (love and love.graphics) then return end
+        if not (love and love.graphics) then return end
         local g = love.graphics
         -- The badge banner has room for 18 actual glyphs. Count UTF-8
         -- characters rather than bytes so titles such as VETERANENJÄGER are
         -- neither shortened early nor centred as if Ä occupied two tiles.
-        local shown, glyphCount = clippedGlyphs(title:upper(), 18)
-        g.setColor(1, 1, 1, 1)
-        g.rectangle("fill", 8, 68, 144, 15)
-        g.setColor(0, 0, 0, 1)
-        local width = glyphCount * 8
-        require("src.render.Font").draw(shown,
-          math.max(8, 80 - math.floor(width / 2)), 71)
+        local Font = require("src.render.Font")
+        if title then
+          local shown, glyphCount = clippedGlyphs(title:upper(), 18)
+          g.setColor(1, 1, 1, 1)
+          g.rectangle("fill", 8, 68, 144, 15)
+          g.setColor(0, 0, 0, 1)
+          local width = glyphCount * 8
+          Font.draw(shown, math.max(8, 80 - math.floor(width / 2)), 71)
+        end
+        local pact = pactCardText(card.game and card.game.save)
+        if pact then
+          -- A compact top-border label leaves NAME/MONEY/TIME, portrait and
+          -- the independent selected-title banner untouched.
+          g.setColor(1, 1, 1, 1)
+          g.rectangle("fill", 8, 3, 96, 9)
+          g.setColor(0, 0, 0, 1)
+          Font.draw(pact, 8, 4)
+        end
         g.setColor(1, 1, 1, 1)
       end
     end
@@ -430,6 +551,8 @@ return function(mod, opts)
   L.selectTitle = selectTitle
   L.titleRows = titleRows
   L.trophyRows = trophyRows
+  L.pactCardText = pactCardText
   L.refresh = refresh
+  L.hallVersion = HALL_VERSION
   return L
 end

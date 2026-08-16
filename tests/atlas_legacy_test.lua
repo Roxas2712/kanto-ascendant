@@ -1,22 +1,22 @@
 -- Focused Kanto Ascendant 6.0 Atlas, wallet and Legacy Gallery regression.
 --
 -- Run from the Gen1 Recomp checkout:
---   TRAINER_REMATCH_MOD_DIR=../trainer_rematch \
+--   TRAINER_REMATCH_MOD_DIR=../kanto_ascendant \
 --   POKEPORT_DATA_DIR=tests/fixture_data \
 --   ./.tools/luajit-src/src/luajit \
---   ../trainer_rematch/tests/atlas_legacy_test.lua
+--   ../kanto_ascendant/tests/atlas_legacy_test.lua
 
 package.path = "./?.lua;./?/init.lua;" .. package.path
 local T = require("tests.modkit")
 local Data = T.fixtures.load()
 local modPath = os.getenv("TRAINER_REMATCH_MOD_DIR")
-  or "mods/trainer_rematch"
+  or "mods/kanto_ascendant"
 local run = T.sdk.loadMod(modPath, { data = Data })
 T.eq(#run.errors, 0, "Kanto Ascendant loads for Atlas/Legacy tests")
-T.eq(run.mod.manifest.version, "6.0.11",
-  "the release manifest identifies the current hotfix")
+T.eq(run.mod.manifest.version, "6.5.0",
+  "the release manifest identifies the internal 6.5 QoL release candidate")
 
-local ex = assert(run.loader.exports.trainer_rematch)
+local ex = assert(run.loader.exports.kanto_ascendant)
 local atlas = assert(ex.researchAtlas)
 local legacy = assert(ex.legacyHall)
 local ascendant = assert(ex.ascendant)
@@ -35,24 +35,32 @@ local game = {
   },
 }
 
+Data.items.POKE_BALL = Data.items.POKE_BALL
+  or { id = "POKE_BALL", name = "POKé BALL", price = 200 }
+Data.items.ULTRA_BALL = Data.items.ULTRA_BALL
+  or { id = "ULTRA_BALL", name = "ULTRA BALL", price = 1200 }
+Data.items.MAX_POTION = Data.items.MAX_POTION
+  or { id = "MAX_POTION", name = "MAX POTION", price = 2500 }
 local rewardById = {}
 for _, row in ipairs(atlas.rewardRows(game)) do
   if row.value and row.value.item then
-    rewardById[row.value.item] = row
+    rewardById[row.value.item .. ":" .. (row.value.qty or 1)] = row
   elseif row.value and row.value.noDrop then
     rewardById.NO_DROP = row
   end
 end
-T.eq(rewardById.MASTER_BALL.right, "1 PCT",
-  "the Atlas publishes the exact balanced Master Ball band")
-T.eq(rewardById.EXP_ALL.right, "5 PCT",
-  "the Atlas publishes EXP.ALL's exact unique band")
-T.eq(rewardById.RARE_CANDY.right, "5 PCT",
-  "the Atlas publishes Rare Candy's exact band")
-T.eq(rewardById.NUGGET.right, "15 PCT",
-  "the Atlas publishes Nugget's exact band")
-T.eq(rewardById.NO_DROP.right, "56 PCT",
-  "the Atlas exposes the true base no-drop probability")
+T.neq(rewardById["POKE_BALL:3"], nil,
+  "the Atlas publishes Phase 8's supported Ball stacks")
+T.neq(rewardById["ULTRA_BALL:1"], nil,
+  "the Atlas publishes premium normal rewards")
+T.neq(rewardById["MAX_POTION:1"], nil,
+  "the Atlas publishes supported healing rewards")
+T.eq(rewardById["MASTER_BALL:1"], nil,
+  "the Master Ball is absent from the ordinary Atlas pool")
+T.eq(rewardById["EXP_ALL:1"], nil,
+  "the one-time EXP Share unlock is separate from normal loot")
+T.eq(rewardById.NO_DROP.right, "35 PCT",
+  "the Atlas exposes the Phase-8 balanced no-item probability")
 
 game.save.pokedex.seen.FIXMON_A = true
 local habitats = atlas.habitatRows(game)
@@ -174,7 +182,7 @@ trainerStates.ROUTE_1_obj_1 = {
   trainerName = "SCOUT", trainerClass = "OPP_YOUNGSTER",
   mapId = "ROUTE_1", rematches = 2, trainingCycles = 3, readyAt = 500,
 }
-run.loader.modSave.trainer_rematch.trainer_step_clock = 100
+run.loader.modSave.kanto_ascendant.trainer_step_clock = 100
 local trainers = atlas.trainerRows(game)
 T.eq(trainers[1].label, "SCOUT",
   "the Trainer Log uses the recorded trainer identity")
@@ -214,6 +222,53 @@ T.eq(ascendant.unlockAchievement("sea_champion"), true,
 T.eq(legacy.currentTitle(), "factory_architect",
   "unlocking a newer achievement does not replace the selected title")
 
+local ascendantState = ascendant.state()
+local hallState = legacy.state()
+ascendantState.achievements.PHANTOM_FROM_OLD_MOD = true
+ascendantState.latestAchievement = "PHANTOM_FROM_OLD_MOD"
+ascendantState.selectedTitle = "PHANTOM_FROM_OLD_MOD"
+hallState.selectedTitle = "PHANTOM_FROM_OLD_MOD"
+local phantomId, phantomName = legacy.currentTitle()
+T.eq(phantomId, nil,
+  "an unknown selected/latest id never becomes a phantom Trainer Card title")
+T.eq(phantomName, "CHAMPION",
+  "unknown title ids fall back to the ordinary Champion label")
+T.eq(legacy.state().selectedTitle, nil,
+  "the Legacy Gallery self-heals an unknown selected-title id")
+T.eq(ascendant.state().selectedTitle, nil,
+  "ascendant state self-heals the same unknown selected-title id")
+T.eq(legacy.selectTitle("PHANTOM_FROM_OLD_MOD"), false,
+  "an unknown id cannot be selected even if a stale achievement flag exists")
+
+-- A future Gallery schema belongs to a newer build. This version may still
+-- render the independently validated Ascendant title, but must not normalize,
+-- select into or otherwise rewrite the unknown Gallery table.
+local modBucket = run.loader.modSave.kanto_ascendant
+ascendant.state().selectedTitle = "factory_architect"
+local futureHall = {
+  version = 99, selectedTitle = "future_title",
+  futureOnly = { marker = "KEEP" }, visits = 77,
+}
+modBucket.legacy_hall = futureHall
+local futureTitleId, futureTitleName = legacy.currentTitle()
+T.eq(futureTitleId, "factory_architect",
+  "future Gallery state falls back to the validated Ascendant title")
+T.eq(futureTitleName, "FACTORY ARCHITECT",
+  "future Gallery fallback retains the authored title name")
+T.eq(legacy.state(), nil,
+  "future Gallery state is fail-closed to this older controller")
+T.eq(legacy.selectTitle("sea_champion"), false,
+  "an older Gallery controller cannot select into future state")
+T.eq(futureHall.version, 99,
+  "future Gallery version is never downgraded")
+T.eq(futureHall.futureOnly.marker, "KEEP",
+  "future-only Gallery data remains untouched")
+T.eq(futureHall.visits, 77,
+  "read-only Gallery inspection does not update visits")
+modBucket.legacy_hall = {
+  version = legacy.hallVersion, selectedTitle = "factory_architect", visits = 0,
+}
+
 local tourState = ex.grandTour.state()
 tourState.factory.wins = 1
 tourState.cruise.clears = 1
@@ -223,6 +278,67 @@ T.eq(trophies.factory.done, true,
   "a Factory clear appears in the Legacy Gallery")
 T.eq(trophies.cruise.done, true,
   "an S.S. Anne clear appears in the Legacy Gallery")
+
+local legacyPaths = assert(ex.legacyPaths)
+T.eq(legacyPaths.titleUnlocked("legacy_path_red"), false,
+  "Kanto Challenger is absent before the durable Red seal exists")
+T.eq(legacyPaths.titleName("legacy_path_red"), "KANTO CHALLENGER",
+  "the Red seal reuses the authored Kanto Challenger title")
+T.eq(legacyPaths.titleName("legacy_path_blue"), "OAK'S HEIR",
+  "the Blue seal reuses the authored Oak's Heir title")
+T.eq(legacyPaths.titleName("legacy_path_green"), "WILDERNESS KEEPER",
+  "the Green seal reuses the authored Wilderness Keeper title")
+T.eq(ex.legacyPathsData.paths.RED.reward.de, "KANTO-HERAUSFORDERER",
+  "the Red Legacy title keeps its authored German name")
+T.eq(ex.legacyPathsData.paths.BLUE.reward.de, "EICHS ERBE",
+  "the Blue Legacy title keeps its authored German name")
+T.eq(ex.legacyPathsData.paths.GREEN.reward.de, "HÜTERIN DER WILDNIS",
+  "the Green Legacy title keeps its authored German name")
+T.eq(legacyPaths.titleName("unknown_legacy_title"), nil,
+  "the Legacy path provider never invents a title for an unknown id")
+local beforeLockedPathSelection = ascendant.state().selectedTitle
+ascendant.state().achievements.legacy_path_red = true
+ascendant.state().selectedTitle = "legacy_path_red"
+T.neq(ascendant.currentTitle(), "legacy_path_red",
+  "an Ascendant achievement flag cannot spoof a locked provider-owned title")
+ascendant.state().achievements.legacy_path_red = nil
+ascendant.state().selectedTitle = beforeLockedPathSelection
+local originalLegacyProfile = legacyPaths.profile
+local originalLegacyTitleUnlocked = legacyPaths.titleUnlocked
+legacyPaths.profile = function()
+  return {
+    completedPaths = { red = true, blue = false, green = true },
+    legacyPass = false,
+  }
+end
+legacyPaths.titleUnlocked = function(id)
+  if id == "legacy_path_red" or id == "legacy_path_green" then return true end
+  return originalLegacyTitleUnlocked(id)
+end
+T.eq(legacy.selectTitle("legacy_path_red"), true,
+  "an earned path title can be selected through the shared provider")
+local pathTitleId, pathTitleName = ascendant.currentTitle()
+T.eq(pathTitleId, "legacy_path_red",
+  "Ascendant and the Gallery resolve the same selected path-title id")
+T.eq(pathTitleName, "KANTO CHALLENGER",
+  "Ascendant reuses the path provider's authored title name")
+T.eq(legacy.currentTitle(), "legacy_path_red",
+  "the Gallery reports the same selected path title")
+T.eq(ascendant.archiveText(game):find("KANTO CHALLENGER", 1, true) ~= nil,
+  true, "Ascendant archive text displays selected Legacy path titles")
+local pathTrophies = {}
+for _, row in ipairs(legacy.trophyRows(game)) do pathTrophies[row.id] = row end
+T.eq(pathTrophies.legacy_red.done, true,
+  "the Red path seal appears in the Legacy Gallery after completion")
+T.eq(pathTrophies.legacy_green.done, true,
+  "the Green path seal appears independently after completion")
+T.eq(pathTrophies.legacy_blue.label, "???",
+  "an unearned path seal remains hidden")
+T.eq(pathTrophies.legacy_pass.label, "???",
+  "the permanent Legacy Pass remains hidden before the finale")
+legacyPaths.profile = originalLegacyProfile
+legacyPaths.titleUnlocked = originalLegacyTitleUnlocked
+legacy.selectTitle("factory_architect")
 
 run.release()
 T.finish("atlas_legacy")

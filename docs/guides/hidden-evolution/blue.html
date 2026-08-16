@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="de" style="--hero: #4299e1">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>BLUE · Kanto Ascendant 6.5.3 RC1</title>
+  <style>
+:root {
+  color-scheme: dark;
+  --bg: #101319;
+  --surface: #181d25;
+  --surface-2: #212833;
+  --text: #f2f5f8;
+  --muted: #b7c0cc;
+  --line: #3a4452;
+  --accent: #d4a83f;
+  --hero: #6d7b8d;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background:
+    radial-gradient(circle at 80% 0%, color-mix(in srgb, var(--hero) 18%, transparent), transparent 34rem),
+    var(--bg);
+  color: var(--text);
+  line-height: 1.62;
+}
+a { color: #9dccff; text-underline-offset: .2em; }
+a:hover { color: #d2e9ff; }
+.site-header {
+  position: sticky;
+  z-index: 20;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: .8rem max(1rem, calc((100vw - 1440px) / 2));
+  border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--bg) 90%, transparent);
+  backdrop-filter: blur(14px);
+}
+.brand { color: var(--text); font-weight: 800; text-decoration: none; white-space: nowrap; }
+.nav { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .45rem; }
+.nav a {
+  padding: .42rem .72rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: .9rem;
+  font-weight: 700;
+}
+.nav a:hover, .nav a[aria-current="page"] {
+  border-color: var(--hero);
+  background: color-mix(in srgb, var(--hero) 22%, var(--surface));
+  color: white;
+}
+main { width: min(1440px, calc(100% - 2rem)); margin: 1.3rem auto 4rem; }
+.provenance {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: .8rem;
+  margin-bottom: 1rem;
+  padding: .85rem 1rem;
+  border: 1px solid #735f29;
+  border-radius: .85rem;
+  background: #27220f;
+  color: #f4d67e;
+}
+.provenance strong { color: #ffe59d; }
+.commit { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .84rem; }
+article, .home-intro, .hero-card {
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  background: color-mix(in srgb, var(--surface) 94%, var(--hero));
+  box-shadow: 0 18px 55px rgba(0,0,0,.2);
+}
+article { padding: clamp(1rem, 2.5vw, 2.4rem); overflow: hidden; }
+h1 {
+  margin: 0 0 1rem;
+  font-size: clamp(2rem, 5vw, 4.4rem);
+  line-height: 1.04;
+  overflow-wrap: anywhere;
+  hyphens: auto;
+}
+h2 {
+  margin: 2.6rem 0 .85rem;
+  padding-top: .4rem;
+  border-top: 1px solid var(--line);
+  font-size: clamp(1.35rem, 2.5vw, 2rem);
+}
+p, li { max-width: 90ch; }
+li + li { margin-top: .35rem; }
+code {
+  padding: .12rem .35rem;
+  border: 1px solid #465064;
+  border-radius: .35rem;
+  background: #0e1218;
+  color: #f5d67a;
+  font-size: .9em;
+}
+.overview-link { display: block; margin: 1rem 0 1.4rem; }
+.overview-image {
+  display: block;
+  width: 100%;
+  max-height: 76vh;
+  object-fit: contain;
+  border: 1px solid var(--line);
+  border-radius: .8rem;
+  background: #eef1f4;
+}
+.map-gallery {
+  margin: 1.4rem 0 2.2rem;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: .9rem;
+  background: #11161d;
+}
+.map-gallery h2 { margin-top: 0; border-top: 0; padding-top: 0; }
+.gallery-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .85rem; }
+.gallery-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: .7rem;
+  overflow: hidden;
+  background: var(--surface-2);
+  color: var(--text);
+  text-decoration: none;
+}
+.gallery-card:hover { border-color: var(--hero); transform: translateY(-1px); }
+.gallery-card img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; object-position: top left; background: white; }
+.gallery-card span { padding: .62rem .7rem; font-weight: 700; }
+.table-wrap { overflow-x: auto; margin: 1rem 0 1.5rem; border: 1px solid var(--line); border-radius: .75rem; }
+table { width: 100%; min-width: 760px; border-collapse: collapse; background: #12171e; }
+th, td { padding: .7rem .78rem; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+th { position: sticky; top: 0; background: color-mix(in srgb, var(--hero) 24%, #171d25); color: white; }
+tr:last-child td { border-bottom: 0; }
+.map-native-link { font-weight: 750; }
+.home-intro { padding: clamp(1.3rem, 3vw, 2.7rem); margin-bottom: 1rem; }
+.home-intro p { color: var(--muted); font-size: 1.08rem; }
+.statue-preview {
+  display: grid;
+  grid-template-columns: 9rem minmax(0, 1fr);
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.25rem;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: .8rem;
+  background: #11161d;
+}
+.statue-preview img {
+  width: 9rem;
+  height: 9rem;
+  padding: 1rem;
+  image-rendering: pixelated;
+  object-fit: contain;
+  border-radius: .65rem;
+  background: #e9edf1;
+}
+.statue-preview p { margin: 0; }
+.hero-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+.hero-card { overflow: hidden; }
+.hero-card img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; object-position: top; background: white; }
+.hero-card-content { padding: 1rem; }
+.hero-card h2 { margin: 0 0 .35rem; padding: 0; border: 0; }
+.button {
+  display: inline-block;
+  margin-top: .7rem;
+  padding: .55rem .8rem;
+  border-radius: .55rem;
+  background: var(--hero);
+  color: white;
+  font-weight: 800;
+  text-decoration: none;
+}
+.source-note { margin-top: 2.5rem; color: var(--muted); font-size: .88rem; }
+dialog {
+  width: min(96vw, 1700px);
+  max-width: none;
+  height: min(94vh, 1200px);
+  max-height: none;
+  padding: 0;
+  border: 1px solid #667386;
+  border-radius: .9rem;
+  background: #090b0f;
+  color: white;
+}
+dialog::backdrop { background: rgba(0,0,0,.86); }
+.lightbox-shell { display: grid; grid-template-rows: auto 1fr; height: 100%; }
+.lightbox-bar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .55rem .75rem; background: #171d25; }
+.lightbox-bar p { margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lightbox-close { border: 1px solid #657083; border-radius: .45rem; background: #252d39; color: white; padding: .4rem .65rem; cursor: pointer; }
+#lightbox-image { width: 100%; height: 100%; object-fit: contain; background: #0a0d12; }
+@media (max-width: 900px) {
+  .site-header { align-items: flex-start; flex-direction: column; }
+  .nav { justify-content: flex-start; }
+  .gallery-grid, .hero-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 620px) {
+  main { width: min(100% - 1rem, 1440px); margin-top: .6rem; }
+  .site-header { padding: .65rem .75rem; }
+  .brand { font-size: .9rem; }
+  .nav a { padding: .34rem .56rem; font-size: .78rem; }
+  article { padding: 1rem .8rem; }
+  .provenance { font-size: .86rem; }
+  .commit { overflow-wrap: anywhere; }
+  .gallery-grid, .hero-grid { grid-template-columns: 1fr; }
+  .statue-preview { grid-template-columns: 1fr; }
+  .statue-preview img { width: 7rem; height: 7rem; }
+  .gallery-card img { aspect-ratio: 3 / 2; }
+  h2 { scroll-margin-top: 8rem; }
+}
+@media print {
+  .site-header, dialog { display: none; }
+  body { background: white; color: black; }
+  main { width: 100%; }
+  article { border: 0; box-shadow: none; background: white; }
+  a { color: black; }
+}
+</style>
+</head>
+<body>
+<header class="site-header"><a class="brand" href="index.html">KASC · Hoenn-Prüfungen</a><nav class="nav" aria-label="Heldenguides"><a href="index.html">Übersicht</a><a href="red.html">RED</a><a href="blue.html" aria-current="page">BLUE</a><a href="green.html">GREEN</a></nav></header>
+<main>
+  <aside class="provenance" role="note">
+    <span><strong>Spoiler:</strong> vollständiger Lösungsweg, Pflichtbedingungen, Mega-Fundorte und Endsequenz.</span>
+    <span><strong>Stand:</strong> Kanto Ascendant 6.5.3 RC1</span>
+  </aside>
+  <article><h1>BLUE – Kyogre-/Wasserpfad</h1><div class="statue-preview"><img src="assets/quiz_statue_preview.png" alt="Neue graue Rätselstatue"><p><strong>Objekte eindeutig unterscheiden:</strong> Diese graue Monsterstatue stellt eine Pflichtfrage. Die gelben Relikte auf den Karten sind nur optionale Etagen-Lichtsteine und zählen niemals als Prüfung.</p></div>
+<p><a class="overview-link" href="blue/blue_kartenuebersicht.png" data-lightbox data-caption="BLUE Kartenübersicht"><img class="overview-image" src="blue/blue_kartenuebersicht.png" alt="BLUE Kartenübersicht"></a></p>
+<section class="map-gallery" aria-labelledby="kartengalerie"><h2 id="kartengalerie">Anklickbare Einzelkarten</h2><div class="gallery-grid"><a class="gallery-card" data-lightbox data-caption="Risstunnel" href="blue/maps/00_ka_hevo_tunnel_all.png"><img src="blue/maps/00_ka_hevo_tunnel_all.png" alt="Risstunnel" loading="lazy"><span>Risstunnel</span></a><a class="gallery-card" data-lightbox data-caption="Frostschwelle" href="blue/maps/01_ka_hevo_blue_frost_threshold.png"><img src="blue/maps/01_ka_hevo_blue_frost_threshold.png" alt="Frostschwelle" loading="lazy"><span>Frostschwelle</span></a><a class="gallery-card" data-lightbox data-caption="Frosthalle" href="blue/maps/02_ka_hevo_blue_frost_hall.png"><img src="blue/maps/02_ka_hevo_blue_frost_hall.png" alt="Frosthalle" loading="lazy"><span>Frosthalle</span></a><a class="gallery-card" data-lightbox data-caption="Gletscherlabyrinth" href="blue/maps/03_ka_hevo_blue_glacier_maze.png"><img src="blue/maps/03_ka_hevo_blue_glacier_maze.png" alt="Gletscherlabyrinth" loading="lazy"><span>Gletscherlabyrinth</span></a><a class="gallery-card" data-lightbox data-caption="Gezeitentiefe" href="blue/maps/04_ka_hevo_blue_tidal_depths.png"><img src="blue/maps/04_ka_hevo_blue_tidal_depths.png" alt="Gezeitentiefe" loading="lazy"><span>Gezeitentiefe</span></a><a class="gallery-card" data-lightbox data-caption="Kyogre-Schrein" href="blue/maps/05_ka_hevo_blue_kyogre_shrine.png"><img src="blue/maps/05_ka_hevo_blue_kyogre_shrine.png" alt="Kyogre-Schrein" loading="lazy"><span>Kyogre-Schrein</span></a><a class="gallery-card" data-lightbox data-caption="Gemeinsame Vorkammer" href="blue/maps/06_ka_hevo_shared_sealed_antechamber.png"><img src="blue/maps/06_ka_hevo_shared_sealed_antechamber.png" alt="Gemeinsame Vorkammer" loading="lazy"><span>Gemeinsame Vorkammer</span></a></div></section>
+<h2>Vor dem Riss</h2>
+<ul><li>Ruhmeshalle abschließen; erst dann erscheint <strong>Professor Nera</strong> auf der Zinnoberinsel bei <code>(6,11)</code>.</li><li>Ihre Antwort lautet <strong>NUGGET-QUELLEN</strong>. Eine falsche Antwort sperrt nur den nächsten Versuch für 250 gelaufene Schritte.</li><li>Danach liegt der Riss hinter der Nuggetbrücke an der langen Felswand von Route 24: Riss <code>(10,3)</code>, Ansprechposition <code>(10,4)</code>, Blick nach Norden.</li><li>Vor dem Abschluss <code>JENSEITS VON KANTO</code> bei Linds Assistenten in Eichs Labor aktivieren.</li><li>Mitnehmen: <strong>STÄRKE</strong> für alle drei Pflichtschalter, als echter Feldnutzer oder bereits freigeschaltet im Feldkoffer. <strong>SURFER</strong> ist nur für das optionale Mega-Versteck erforderlich.</li></ul>
+<h2>Pflichtweg</h2>
+<div class="table-wrap"><table><thead><tr><th>Schritt</th><th>Karte</th><th>Exakte Aufgabe</th></tr></thead><tbody><tr><td>0</td><td><a href="blue/maps/00_ka_hevo_tunnel_all.png" class="map-native-link" data-lightbox data-caption="Risstunnel">Risstunnel</a></td><td>BLUE-Zweig: außen <code>(26,22)</code>, Prüfungspad <code>(27,1)</code>.</td></tr><tr><td>1</td><td><a href="blue/maps/01_ka_hevo_blue_frost_threshold.png" class="map-native-link" data-lightbox data-caption="Frostschwelle">Frostschwelle</a></td><td>Ohne Pflichtstatue zum Ausgang <code>(25,3)</code>. Bodenlichter sind nur Sichtkomfort.</td></tr><tr><td>2</td><td><a href="blue/maps/02_ka_hevo_blue_frost_hall.png" class="map-native-link" data-lightbox data-caption="Frosthalle">Frosthalle</a></td><td><code>S1</code> <code>(25,22)</code>. Felsen <strong>H</strong> mit STÄRKE <code>(13,25)→(27,25)</code> auf den Hallenschalter; Ausgang <code>(41,17)</code>.</td></tr><tr><td>3</td><td><a href="blue/maps/03_ka_hevo_blue_glacier_maze.png" class="map-native-link" data-lightbox data-caption="Gletscherlabyrinth">Gletscherlabyrinth</a></td><td><code>S2</code> <code>(11,5)</code>, danach <code>S3</code> <code>(37,31)</code>. Felsen <strong>E</strong> <code>(29,25)→(35,25)</code> auf den Eisschalter; Ausgang <code>(49,13)</code>. Rote <code>X</code> sind Falllöcher.</td></tr><tr><td>4</td><td><a href="blue/maps/04_ka_hevo_blue_tidal_depths.png" class="map-native-link" data-lightbox data-caption="Gezeitentiefe">Gezeitentiefe</a></td><td><code>S4</code> West <code>(3,19)</code>, dann die für den Abschluss einzeln geprüfte <code>S5</code> Ost <code>(47,9)</code>. Felsen <strong>T</strong> <code>(35,19)→(41,19)</code> auf den Tiefenschalter; Ausgang <code>(41,7)</code>.</td></tr><tr><td>5</td><td><a href="blue/maps/05_ka_hevo_blue_kyogre_shrine.png" class="map-native-link" data-lightbox data-caption="Kyogre-Schrein">Kyogre-Schrein</a></td><td>Optionales Archiv <code>P</code> <code>(19,9)</code>; Pflicht-Siegel <code>Σ</code> <code>(19,3)</code>; danach <code>WEIT</code> <code>(37,7)</code>.</td></tr><tr><td>6</td><td><a href="blue/maps/06_ka_hevo_shared_sealed_antechamber.png" class="map-native-link" data-lightbox data-caption="Gemeinsame Vorkammer">Gemeinsame Vorkammer</a></td><td>BLUE kommt bei <code>(15,21)</code> an; schwarze Tür <code>(15,5)</code>.</td></tr></tbody></table></div>
+<p>Die Statuenreihenfolge ist <code>S1</code>→<code>S5</code>. BLUE verwendet Dreifachfragen aus Kanto, Johto, allgemeinem Pokémon-Wissen und Sinnoh. Fragefolge und korrekte Antwortposition werden spielstandgebunden gemischt und bleiben nach Speichern/Laden stabil. Falsch beantwortet bedeutet: aktuelle Frage verbraucht, beim nächsten Versuch eine neue Frage, bereits gelöster Fortschritt bleibt. Die Pflichtobjekte sind graue Monsterstatuen; gelbe Relikte sind ausschließlich optionale Etagen-Lichtsteine.</p>
+<p>Die sechs Eislochkacheln liegen bei <code>(41,6)</code>, <code>(42,7)</code>, <code>(4,16)</code>, <code>(3,17)</code>, <code>(29,28)</code>, <code>(30,29)</code> und setzen BLUE nur an den Anfang des Gletscherlabyrinths zurück. Statuen- und Schalterfortschritt bleibt gespeichert.</p>
+<h2>Optionaler Mega-Stein und Fallback</h2>
+<p><strong>SUMPEXNIT / SWAMPERTITE</strong> liegt optional in der Gezeitentiefe bei <code>M</code> <code>(21,29)</code>; der Seitenpfad erfordert SURFER. Das Versteck ist <strong>keine</strong> Abschlussbedingung. Wird es ausgelassen, sichert das vollendete blaue Siegel bei <code>(19,3)</code> den Stein als letzte Chance, soweit der Steinkoffer ihn annehmen kann; eine neue Sicherung wird an der schwarzen Tür ausdrücklich bestätigt.</p>
+<h2>Was die schwarze Tür prüft</h2>
+<ul><li>Froststatuen <code>5/5</code></li><li>Tiefen-Oststatue <code>S5: OK</code> (zusätzliche explizite Absicherung)</li><li>Schalter Halle <code>H</code>, Eis <code>E</code> und Tiefe <code>T</code> jeweils <code>OK</code></li><li><code>JENSEITS VON KANTO: AKTIV</code></li></ul>
+<p>Fehlt etwas, listet die Tür jeden Punkt mit <code>OK</code>/<code>FEHLT</code> und bringt BLUE danach zum Risstunnel bei <code>(26,21)</code>, Blick nach oben. Bei Erfolg folgen Kyogre-Ruf, Eich-Sequenz und der Hinweis auf <strong>HYDROPI</strong> in Eichs linkem Ball der nächsten Vermächtnis-Reise.</p>
+</article>
+</main>
+<dialog id="lightbox" aria-label="Kartenansicht">
+  <div class="lightbox-shell">
+    <div class="lightbox-bar"><p id="lightbox-caption">Karte</p><button class="lightbox-close" onclick="this.closest('dialog').close()">Schließen</button></div>
+    <img id="lightbox-image" alt="">
+  </div>
+</dialog>
+<script>
+(() => {
+  const dialog = document.getElementById('lightbox');
+  const image = document.getElementById('lightbox-image');
+  const caption = document.getElementById('lightbox-caption');
+  if (!dialog || !image || !caption || typeof dialog.showModal !== 'function') return;
+  document.querySelectorAll('a[data-lightbox]').forEach((link) => {
+    link.addEventListener('click', (event) => {
+      event.preventDefault();
+      image.src = link.href;
+      image.alt = link.dataset.caption || link.textContent.trim() || 'Karte';
+      caption.textContent = image.alt;
+      dialog.showModal();
+    });
+  });
+  dialog.addEventListener('click', (event) => {
+    if (event.target === dialog) dialog.close();
+  });
+  dialog.addEventListener('close', () => {
+    image.removeAttribute('src');
+  });
+})();
+</script>
+</body>
+</html>

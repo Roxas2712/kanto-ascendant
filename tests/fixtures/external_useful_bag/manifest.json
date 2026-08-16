@@ -1,0 +1,15 @@
+{
+  "id": "useful_bag",
+  "name": "Useful Bag Test Double",
+  "version": "2.4.1",
+  "api": 2,
+  "entry": "main.lua",
+  "profile": "content",
+  "category": "QOL",
+  "game_version": ">=0.0.0-0 <2.0.0",
+  "priority": 100,
+  "permissions": [],
+  "dependencies": [],
+  "optional_dependencies": [],
+  "conflicts": []
+}

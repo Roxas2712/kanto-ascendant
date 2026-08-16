@@ -16,7 +16,7 @@ return function(game)
   assert(version == "red" or version == "blue",
     "retroactive Gorochu QA is for Red/Blue")
   local exports = assert(game.mods and game.mods.exports
-      and game.mods.exports.trainer_rematch,
+      and game.mods.exports.kanto_ascendant,
     "Kanto Ascendant export missing")
   local gorochu = assert(exports.gorochu, "Gorochu export missing")
   local shotDir = assert(os.getenv("SHOT_DIR"), "SHOT_DIR is required")

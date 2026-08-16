@@ -20,7 +20,7 @@ return function(game)
 
   local exports = assert(game.mods and game.mods.exports,
     "mod exports are unavailable")
-  local ascendant = assert(exports.trainer_rematch,
+  local ascendant = assert(exports.kanto_ascendant,
     "Kanto Ascendant export missing")
   local shiny = assert(ascendant.shinySystem,
     "Ascendant shiny controller missing")
@@ -183,12 +183,18 @@ return function(game)
     "player Gorochu did not use Ascendant's supersampled Voxel route")
   assert(textures.enemy.kantoAscendantGorochuSupersampled == true,
     "enemy Gorochu did not use Ascendant's supersampled Voxel route")
+  local expectedNormalSource =
+    ("assets/voxel/gorochu/animation/normal/%03d.png")
+      :format(normalAnimation.frame)
+  local expectedShinySource =
+    ("assets/voxel/gorochu/animation/shiny/%03d.png")
+      :format(shinyAnimation.frame)
   assert(textures.player.kantoAscendantGorochuSource
-      == "assets/voxel/gorochu/gorochu_front.png",
+      == expectedNormalSource,
     "player Voxel Gorochu did not use the approved normal front master: "
       .. tostring(textures.player.kantoAscendantGorochuSource))
   assert(textures.enemy.kantoAscendantGorochuSource
-      == "assets/voxel/gorochu/gorochu_front_shiny.png",
+      == expectedShinySource,
     "enemy Voxel Gorochu did not use the approved shiny front master: "
       .. tostring(textures.enemy.kantoAscendantGorochuSource))
   assert(not textures.player.kantoAscendantGorochuSource:find(
@@ -230,6 +236,14 @@ return function(game)
   assert(animatedTextures.enemy.kantoAscendantGorochuAnimationFrame
       ~= enemyVoxelFrame,
     "shiny high-resolution Voxel master ignored the animation clock")
+  assert(animatedTextures.player.kantoAscendantGorochuSource
+      == ("assets/voxel/gorochu/animation/normal/%03d.png")
+        :format(normalAnimation.frame),
+    "normal Voxel renderer did not load the advanced authored frame")
+  assert(animatedTextures.enemy.kantoAscendantGorochuSource
+      == ("assets/voxel/gorochu/animation/shiny/%03d.png")
+        :format(shinyAnimation.frame),
+    "shiny Voxel renderer did not load the advanced authored frame")
   assert(U.shot(game,
     shotDir .. "/gorochu_battle_voxel_normal_vs_shiny.png"),
     "Voxel battle screenshot failed")

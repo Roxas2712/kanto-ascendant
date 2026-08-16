@@ -58,6 +58,16 @@ PROFILES = (
     ("RAICHU_Y", "mega_raichu_y"),
 )
 
+# These official Hoenn forms retain their locally supplied static masters and
+# carry separately documented fan-project motion derivatives.  They are not
+# installed from the review GIF pack, but must survive a timing-table rebuild.
+HOENN_DERIVED = (
+    ("BLAZIKEN", "mega_blaziken"),
+    ("SWAMPERT", "mega_swampert"),
+    ("SCEPTILE", "mega_sceptile"),
+)
+HOENN_TIMING = [180, 90, 120, 90, 240]
+
 VIEWS = {
     "front": ("front", "normal"),
     "back": ("back", "normal"),
@@ -148,6 +158,24 @@ def secret_timings() -> dict[str, dict[str, list[int]]]:
     return result
 
 
+def hoenn_derived_timings() -> dict[str, dict[str, dict[str, list[int]]]]:
+    result: dict[str, dict[str, dict[str, list[int]]]] = {}
+    for profile_id, key in HOENN_DERIVED:
+        result[profile_id] = {}
+        for side in ("front", "back"):
+            result[profile_id][side] = {}
+            for variant in ("normal", "shiny"):
+                directory = ASSET_ANIMATIONS / key / side / variant
+                count = len(list(directory.glob("*.png")))
+                if count != len(HOENN_TIMING):
+                    raise ValueError(
+                        f"{profile_id} {side}/{variant}: {count} frames, "
+                        f"{len(HOENN_TIMING)} timings"
+                    )
+                result[profile_id][side][variant] = HOENN_TIMING
+    return result
+
+
 def write_timing_data(
     timing: dict[str, dict[str, dict[str, list[int]]]]
 ) -> None:
@@ -157,7 +185,7 @@ def write_timing_data(
         "-- Ascendant Typhlosion's front preserves Crystal #157 timing.",
         "return {",
     ]
-    for profile_id, _ in PROFILES:
+    for profile_id, _ in (*PROFILES, *HOENN_DERIVED):
         lines.append(f'  ["{profile_id}"] = {{')
         for side in ("front", "back"):
             lines.append(f"    {side} = {{")
@@ -192,6 +220,14 @@ def main() -> None:
             checks.append(
                 f"{profile_id} {side}/{variant}: {len(values)} frames"
             )
+    timing.update(hoenn_derived_timings())
+    for profile_id, key in HOENN_DERIVED:
+        for side in ("front", "back"):
+            for variant in ("normal", "shiny"):
+                checks.append(
+                    f"{profile_id} {side}/{variant}: "
+                    f"{len(timing[profile_id][side][variant])} local derived frames"
+                )
     write_timing_data(timing)
 
     total_frames = 0

@@ -7,17 +7,43 @@ return function(game)
 
   U.wait(20)
   local api = assert(game.mods and game.mods.exports
-    and game.mods.exports.trainer_rematch, "Kanto Ascendant export missing")
+    and game.mods.exports.kanto_ascendant, "Kanto Ascendant export missing")
   local tech = assert(api.fieldTech, "field-tech controller missing")
   local Pokemon = require("src.pokemon.Pokemon")
+  local expectedFamilies = {
+    FRENZY_PLANT = {
+      "BULBASAUR", "IVYSAUR", "VENUSAUR",
+      "CHIKORITA", "BAYLEEF", "MEGANIUM",
+      "TREECKO", "GROVYLE", "SCEPTILE",
+    },
+    BLAST_BURN = {
+      "CHARMANDER", "CHARMELEON", "CHARIZARD",
+      "CYNDAQUIL", "QUILAVA", "TYPHLOSION",
+      "TORCHIC", "COMBUSKEN", "BLAZIKEN",
+    },
+    HYDRO_CANNON = {
+      "SQUIRTLE", "WARTORTLE", "BLASTOISE",
+      "TOTODILE", "CROCONAW", "FERALIGATR",
+      "MUDKIP", "MARSHTOMP", "SWAMPERT",
+    },
+  }
+  local status = tech.starterFamilyStatus()
+  assert(status.activeProvider and status.generations == 3
+      and status.totalStages == 27,
+    "registered Hoenn provider did not expose exact 27-stage compatibility")
 
   -- Every registered starter move, TM and compatibility row must survive the
   -- complete mod merge, including the 100 newly registered Johto species.
   for moveId, family in pairs(tech.starterFamilies) do
+    local expected = assert(expectedFamilies[moveId], moveId .. " unexpected")
+    assert(#family == 9 and status.cardinality[moveId] == 9,
+      moveId .. " does not expose exactly nine registered stages")
     local move = assert(game.data.moves[moveId], moveId .. " move missing")
     assert(move.power == 150 and move.accuracy == 90 and move.pp == 5,
       moveId .. " battle data mismatch")
-    for _, species in ipairs(family) do
+    for index, species in ipairs(family) do
+      assert(species == expected[index],
+        moveId .. " stage order mismatch at " .. index)
       local def = assert(game.data.pokemon[species], species .. " missing")
       local canLearn = false
       for _, id in ipairs(def.tmhm or {}) do

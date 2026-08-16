@@ -8,8 +8,9 @@ local eq = S.eq
 local modDir = assert(os.getenv("TRAINER_REMATCH_MOD_DIR"),
   "TRAINER_REMATCH_MOD_DIR is required")
 
-local selected = "fork"
+local selected
 local handlers = {}
+local externalMods = {}
 local camera = {
   RIGS = {
     tele = { back = 217.44, height = 56.82, frameH = 34.11 },
@@ -24,22 +25,44 @@ local mod = {
   events = { on = function(_, name, callback)
     handlers[name] = callback
   end },
+  find = function(id) return externalMods[id] end,
 }
-local game = {
-  mods = { exports = { DRAMALESS_SHAPE = { lib = { require = function(name)
-    eq(name, "BattleCam", "camera resolves the renderer public camera seam")
-    return camera
-  end } } } },
+externalMods.VOXEL_ASCENDANT = {
+  id = "VOXEL_ASCENDANT", version = "0.1.1",
+  exports = {
+    version = "0.1.1", apiVersion = 1,
+    renderer = {
+      id = "VOXEL_ASCENDANT", version = "0.1.1",
+      pipeline = "voxel", cameraProfile = "orbit-only",
+    },
+    capabilities = {
+      voxelWorld = true, battleCards = { "MAP", "DISCS" },
+      wallDecals = 1, diskCache = false, stadium = false, vr = false,
+    },
+    lib = { require = function(name)
+      if name == "BattleCam" then
+        eq(name, "BattleCam", "camera resolves the renderer public camera seam")
+        return camera
+      end
+      return nil
+    end },
+  },
 }
+local game = {}
 
-local compat = dofile(modDir .. "/dramaless_camera_compat.lua")(mod)
+local voxelRenderer = dofile(modDir .. "/voxel_renderer_compat.lua")(mod)
+local compat = dofile(modDir .. "/dramaless_camera_compat.lua")(mod, {
+  voxelRenderer = voxelRenderer,
+})
 eq(compat.install(game), true, "compatibility controller installs")
-eq(compat.CLASSIC_TELE.frameH, 34.11 * 2,
-  "Classic Voxel uses the live-reviewed original-scale frame")
-eq(camera.RIGS.tele.back, 217.44,
-  "the renderer default remains untouched until Classic Voxel is selected")
-eq(camera.RIGS.tele.height, 56.82,
-  "the renderer default height remains untouched until selected")
+eq(compat.CLASSIC_TELE.frameH, 34.11 * 3,
+  "Classic Voxel keeps full-height Crystal trainers inside the frame")
+eq(camera.RIGS.tele.back, compat.WIDE_TELE.back,
+  "a missing saved choice defaults to the Wide Voxel distance")
+eq(camera.RIGS.tele.height, compat.WIDE_TELE.height,
+  "a missing saved choice defaults to the Wide Voxel height")
+eq(camera.RIGS.tele.frameH, compat.WIDE_TELE.frameH,
+  "a missing saved choice defaults to Wide Voxel framing")
 
 selected = "classic"
 handlers["mod.options_changed"]({
@@ -80,12 +103,100 @@ eq(camera.RIGS.tele.height, 56.82,
 eq(camera.RIGS.tele.frameH, 34.11,
   "switching back restores the renderer's exact original framing")
 
-local noRenderer = dofile(modDir .. "/dramaless_camera_compat.lua")({
+local noRendererMod = {
   id = "trainer_rematch",
   options = { get = function() return "classic" end },
   events = { on = function() end },
-})
-eq(noRenderer.install({ mods = { exports = {} } }), true,
+  find = function() return nil end,
+}
+local noRenderer = dofile(modDir .. "/dramaless_camera_compat.lua")(
+  noRendererMod, {
+    voxelRenderer = dofile(modDir .. "/voxel_renderer_compat.lua")(
+      noRendererMod),
+  })
+eq(noRenderer.install({}), true,
   "the optional bridge remains inert when the renderer is absent")
+
+-- Exact Battle Art 1.9.0 owns its camera rigs/options. The generic renderer
+-- resolver may preflight its public module contract, but this legacy KASC
+-- camera adapter must never wrap rigFor or edit RIGS.tele.
+local battleCamera = {
+  RIGS = { tele = { back = 144.96, height = 37.88, frameH = 34.11 } },
+  rigFor = function(self) return self.RIGS.tele end,
+}
+local originalBattleRigFor = battleCamera.rigFor
+local battleModules = {
+  AntiAlias = {}, BattleCam = battleCamera, FirstPerson = {}, Mat4 = {},
+  OverworldBattle = {}, ShadowMap = {}, SpriteBillboards = {},
+  TerrainAtlas = {}, Voxel3D = {}, VoxelScene = {}, VoxelState = {},
+}
+local battleModuleCalls = 0
+local battleLib = {
+  mod = { id = "BATTLE_ART_VOXEL_FORK", options = {} },
+  path = "/separately-installed/battle-art",
+}
+battleLib.require = function(name)
+  battleModuleCalls = battleModuleCalls + 1
+  return battleModules[name]
+end
+local battleHandlers = {}
+local battleOptionReads = 0
+local battleMod = {
+  id = "kanto_ascendant",
+  options = { get = function()
+    battleOptionReads = battleOptionReads + 1
+    return "classic"
+  end },
+  events = { on = function(_, name, callback)
+    battleHandlers[name] = callback
+  end },
+  find = function(id)
+    if id ~= "BATTLE_ART_VOXEL_FORK" then return nil end
+    return {
+      id = id, version = "1.9.0",
+      exports = {
+        version = "1.9.0", lib = battleLib,
+        battleStage = {
+          apiVersion = 1, sourceModId = "BATTLE_ART_VOXEL_FORK",
+          ownership = { hud = true, animationProjection = true },
+          state = function() return { staged = true } end,
+        },
+        battlePresentation = {
+          apiVersion = 1, sourceModId = "BATTLE_ART_VOXEL_FORK",
+          suppressHook = "battle.presentation.suppress_native.v1",
+        },
+      },
+    }
+  end,
+}
+local battleCompat = dofile(modDir .. "/dramaless_camera_compat.lua")(
+  battleMod, {
+    voxelRenderer = dofile(modDir .. "/voxel_renderer_compat.lua")(
+      battleMod),
+  })
+local battleGame = {}
+eq(battleCompat.install(battleGame), true,
+  "exact Battle Art remains safely outside the legacy camera adapter")
+eq(battleModuleCalls, 11,
+  "Battle Art API preflight does not imply camera-option ownership")
+eq(battleOptionReads, 0,
+  "KASC never reads its legacy camera option for Battle Art")
+eq(battleCamera.RIGS.tele.back, 144.96,
+  "Battle Art authored camera distance is untouched")
+eq(battleCamera.RIGS.tele.height, 37.88,
+  "Battle Art authored camera height is untouched")
+eq(battleCamera.RIGS.tele.frameH, 34.11,
+  "Battle Art authored camera frame is untouched")
+eq(battleCamera.rigFor, originalBattleRigFor,
+  "Battle Art rigFor remains its own unwrapped function")
+eq(battleCamera.__kantoAscendantOakLabLens, nil,
+  "KASC does not install its Oak lens into Battle Art")
+eq(type(battleHandlers["battle.started"]), "function",
+  "the optional bridge retains its harmless battle-boundary listener")
+battleHandlers["battle.started"]({ battle = { game = battleGame } })
+eq(battleCamera.rigFor, originalBattleRigFor,
+  "battle boundary cannot acquire Battle Art camera ownership")
+eq(battleCamera.RIGS.tele.back, 144.96,
+  "battle boundary preserves Battle Art camera settings")
 
 S.finish()

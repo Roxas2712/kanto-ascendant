@@ -1,4 +1,5 @@
--- Field Kit, renewable TM archive and the Kanto/Johto starter techniques.
+-- Field Kit, renewable TM archive and the Kanto/Johto/Hoenn starter
+-- techniques.
 --
 -- The Field Kit never skips story progression: a field technique works only
 -- when its original HM and badge are already owned.  It merely removes the
@@ -9,6 +10,15 @@ return function(mod, opts)
   local i18n = opts.i18n
   local F = { game = nil, ITEM = "FIELD_KIT" }
   local SAVE_VERSION = 2
+  local reminderProviders = {}
+  local reminderProviderOrder = {}
+  local mapPolicyProviders = {}
+  local mapPolicyProviderOrder = {}
+  local starterFamilyProviders = {}
+  local starterFamilyProviderOrder = {}
+  local starterFamilyProviderState = {}
+  local activeStarterFamilyProvider
+  local starterFamilyCompatibilityOwned = {}
 
   local FIELD_MOVES = {
     CUT = { hm = "HM_CUT", badge = "CASCADEBADGE" },
@@ -33,7 +43,10 @@ return function(mod, opts)
     },
   }
 
-  local STARTER_FAMILIES = {
+  local SIGNATURE_MOVE_ORDER = {
+    "FRENZY_PLANT", "BLAST_BURN", "HYDRO_CANNON",
+  }
+  local BASE_STARTER_FAMILIES = {
     FRENZY_PLANT = {
       "BULBASAUR", "IVYSAUR", "VENUSAUR",
       "CHIKORITA", "BAYLEEF", "MEGANIUM",
@@ -47,6 +60,304 @@ return function(mod, opts)
       "TOTODILE", "CROCONAW", "FERALIGATR",
     },
   }
+  local REGISTERED_HOENN_FAMILIES = {
+    FRENZY_PLANT = { "TREECKO", "GROVYLE", "SCEPTILE" },
+    BLAST_BURN = { "TORCHIC", "COMBUSKEN", "BLAZIKEN" },
+    HYDRO_CANNON = { "MUDKIP", "MARSHTOMP", "SWAMPERT" },
+  }
+  local HOENN_FAMILY_DEX = {
+    FRENZY_PLANT = { [252] = true, [253] = true, [254] = true },
+    BLAST_BURN = { [255] = true, [256] = true, [257] = true },
+    HYDRO_CANNON = { [258] = true, [259] = true, [260] = true },
+  }
+  local BASE_STARTER_SPECIES = {}
+  for _, family in pairs(BASE_STARTER_FAMILIES) do
+    for _, species in ipairs(family) do BASE_STARTER_SPECIES[species] = true end
+  end
+  local STARTER_FAMILIES = {}
+
+  local function resetStarterFamilies()
+    for _, moveId in ipairs(SIGNATURE_MOVE_ORDER) do
+      local target = STARTER_FAMILIES[moveId]
+      if not target then
+        target = {}
+        STARTER_FAMILIES[moveId] = target
+      end
+      for index = #target, 1, -1 do target[index] = nil end
+      for index, species in ipairs(BASE_STARTER_FAMILIES[moveId]) do
+        target[index] = species
+      end
+    end
+  end
+  resetStarterFamilies()
+
+  local function addStarterFamilyProvider(id, provider)
+    if type(id) ~= "string" or id == "" then
+      return false, "provider id required"
+    end
+    if type(provider) ~= "function" then
+      return false, "provider callback required"
+    end
+    if starterFamilyProviders[id] then return false, "already registered" end
+    starterFamilyProviders[id] = provider
+    starterFamilyProviderOrder[#starterFamilyProviderOrder + 1] = id
+    return true
+  end
+
+  -- Canonical National-Dex ids are deliberately resolved through the merged
+  -- Pokemon registry rather than through legacy_hoenn.lua.  Consequently an
+  -- approved external content package can own #252-260 without Ascendant
+  -- manufacturing duplicate species.  The provider becomes active only when
+  -- all nine stages are present; a partial generation grants no compatibility.
+  assert(addStarterFamilyProvider("registered_hoenn_252_260", function()
+    return {
+      generation = "hoenn",
+      families = REGISTERED_HOENN_FAMILIES,
+    }
+  end))
+
+  for _, row in ipairs(opts.starterFamilyProviders or {}) do
+    assert(type(row) == "table", "starter-family provider row required")
+    local ok, why = addStarterFamilyProvider(row.id, row.provider)
+    assert(ok, why)
+  end
+
+  local function providerPayload(payload)
+    if type(payload) ~= "table" then return nil, "provider returned no table" end
+    if payload.generation ~= nil
+        and tostring(payload.generation):lower() ~= "hoenn" then
+      return nil, "provider generation is not hoenn"
+    end
+    local families = payload.families or payload
+    if type(families) ~= "table" then return nil, "families missing" end
+    for moveId in pairs(families) do
+      local known = false
+      for _, expected in ipairs(SIGNATURE_MOVE_ORDER) do
+        if moveId == expected then known = true break end
+      end
+      if not known then return nil, "unknown signature move " .. tostring(moveId) end
+    end
+    return families
+  end
+
+  local function pokemonDex(def, species)
+    local dex = tonumber(def and (def.dex or def.nationalDex or def.sourceDex))
+    if dex then return math.floor(dex) end
+    for moveId, family in pairs(REGISTERED_HOENN_FAMILIES) do
+      for index, canonical in ipairs(family) do
+        if canonical == species then
+          local first = moveId == "FRENZY_PLANT" and 252
+            or (moveId == "BLAST_BURN" and 255 or 258)
+          return first + index - 1
+        end
+      end
+    end
+  end
+
+  local function validateStarterFamilyProvider(id, payload, getPokemon)
+    local families, why = providerPayload(payload)
+    if not families then return nil, why end
+    local normalized, allSpecies = {}, {}
+    for _, moveId in ipairs(SIGNATURE_MOVE_ORDER) do
+      local family = families[moveId]
+      if type(family) ~= "table" then
+        return nil, moveId .. " family missing"
+      end
+      local entries = 0
+      for key in pairs(family) do
+        if type(key) ~= "number" or key < 1 or key > 3
+            or key ~= math.floor(key) then
+          return nil, moveId .. " family is not a three-stage array"
+        end
+        entries = entries + 1
+      end
+      if entries ~= 3 or #family ~= 3 then
+        return nil, moveId .. " family must contain exactly three stages"
+      end
+      normalized[moveId] = {}
+      local familyDex = {}
+      for index = 1, 3 do
+        local species = family[index]
+        if type(species) ~= "string" or species == "" then
+          return nil, moveId .. " stage " .. index .. " has no species id"
+        end
+        if allSpecies[species] then
+          return nil, "duplicate provider species " .. species
+        end
+        if BASE_STARTER_SPECIES[species] then
+          return nil, "provider repeats base species " .. species
+        end
+        local def = getPokemon(species)
+        if type(def) ~= "table" then
+          return nil, "unregistered provider species " .. species
+        end
+        local dex = pokemonDex(def, species)
+        if not (dex and HOENN_FAMILY_DEX[moveId][dex]) then
+          return nil, species .. " is not a " .. moveId
+            .. " Hoenn starter stage"
+        end
+        if familyDex[dex] then
+          return nil, moveId .. " repeats National Dex " .. dex
+        end
+        familyDex[dex], allSpecies[species] = true, true
+        normalized[moveId][index] = species
+      end
+      for dex in pairs(HOENN_FAMILY_DEX[moveId]) do
+        if not familyDex[dex] then
+          return nil, moveId .. " is missing National Dex " .. dex
+        end
+      end
+    end
+    return normalized
+  end
+
+  local function machineCompatibility(def, moveId, enabled)
+    local tmhm, seen = {}, {}
+    for _, existing in ipairs(def and def.tmhm or {}) do
+      if existing ~= moveId or enabled then
+        if not seen[existing] then
+          seen[existing] = true
+          tmhm[#tmhm + 1] = existing
+        end
+      end
+    end
+    local added = false
+    if enabled and not seen[moveId] then
+      tmhm[#tmhm + 1] = moveId
+      added = true
+    end
+    return tmhm, added
+  end
+
+  local function clearOwnedStarterCompatibility(getPokemon, patchPokemon)
+    local unresolved = {}
+    for species, moves in pairs(starterFamilyCompatibilityOwned) do
+      local def = getPokemon(species)
+      if def then
+        for moveId in pairs(moves) do
+          local tmhm = machineCompatibility(def, moveId, false)
+          patchPokemon(species, moveId, tmhm)
+          -- A registry patch may replace the table rather than mutate `def`.
+          -- Resolve it again before removing another owned move.
+          def = getPokemon(species) or def
+        end
+      else
+        -- Keep the ownership marker while an optional provider is absent. If
+        -- the same definition returns later, its formerly injected move is
+        -- removed before it is revalidated instead of leaking eligibility.
+        unresolved[species] = moves
+      end
+    end
+    starterFamilyCompatibilityOwned = unresolved
+  end
+
+  local function ownStarterCompatibility(species, moveId)
+    starterFamilyCompatibilityOwned[species] =
+      starterFamilyCompatibilityOwned[species] or {}
+    starterFamilyCompatibilityOwned[species][moveId] = true
+  end
+
+  local function addMachineCompatibility(def, moveId)
+    local tmhm, added = machineCompatibility(def, moveId, true)
+    return tmhm, added
+  end
+
+  local function resolveStarterFamilies(getPokemon, patchPokemon, context)
+    assert(type(getPokemon) == "function", "Pokemon lookup required")
+    clearOwnedStarterCompatibility(getPokemon, patchPokemon)
+    resetStarterFamilies()
+    activeStarterFamilyProvider = nil
+    starterFamilyProviderState = {}
+    for _, id in ipairs(starterFamilyProviderOrder) do
+      if activeStarterFamilyProvider then
+        starterFamilyProviderState[id] = {
+          status = "shadowed", reason = "complete Hoenn provider already active",
+        }
+      else
+        local ok, payload = pcall(starterFamilyProviders[id], {
+          data = context, getPokemon = getPokemon,
+        })
+        if not ok then
+          starterFamilyProviderState[id] = {
+            status = "invalid", reason = "provider error: " .. tostring(payload),
+          }
+        else
+          local families, why = validateStarterFamilyProvider(
+            id, payload, getPokemon)
+          if not families then
+            starterFamilyProviderState[id] = {
+              status = "invalid", reason = why,
+            }
+          else
+            for _, moveId in ipairs(SIGNATURE_MOVE_ORDER) do
+              local target = STARTER_FAMILIES[moveId]
+              for _, species in ipairs(families[moveId]) do
+                target[#target + 1] = species
+              end
+            end
+            activeStarterFamilyProvider = id
+            starterFamilyProviderState[id] = {
+              status = "active", stages = 9, generation = "hoenn",
+            }
+          end
+        end
+      end
+    end
+    local expected = activeStarterFamilyProvider and 9 or 6
+    for _, moveId in ipairs(SIGNATURE_MOVE_ORDER) do
+      local family = STARTER_FAMILIES[moveId]
+      assert(#family == expected,
+        moveId .. " starter-family cardinality drifted")
+      for _, species in ipairs(family) do
+        local def = getPokemon(species)
+        if def then
+          local tmhm, added = addMachineCompatibility(def, moveId)
+          patchPokemon(species, moveId, tmhm)
+          if added then ownStarterCompatibility(species, moveId) end
+        end
+      end
+    end
+    return activeStarterFamilyProvider ~= nil
+  end
+
+  function F.registerStarterFamilyProvider(id, provider)
+    local ok, why = addStarterFamilyProvider(id, provider)
+    if not ok then return false, why end
+    if F.game and F.game.data then F.syncStarterFamilies(F.game.data) end
+    return true
+  end
+
+  function F.syncStarterFamilies(data)
+    if not (data and type(data.pokemon) == "table") then
+      return false, "Pokemon registry missing"
+    end
+    local function getPokemon(species) return data.pokemon[species] end
+    return resolveStarterFamilies(getPokemon, function(species, _, tmhm)
+      data.pokemon[species].tmhm = tmhm
+    end, data)
+  end
+
+  function F.starterFamilyStatus()
+    local cardinality, total = {}, 0
+    for _, moveId in ipairs(SIGNATURE_MOVE_ORDER) do
+      cardinality[moveId] = #STARTER_FAMILIES[moveId]
+      total = total + cardinality[moveId]
+    end
+    local providers = {}
+    for id, row in pairs(starterFamilyProviderState) do
+      providers[id] = {
+        status = row.status, reason = row.reason, stages = row.stages,
+        generation = row.generation,
+      }
+    end
+    return {
+      activeProvider = activeStarterFamilyProvider,
+      generations = activeStarterFamilyProvider and 3 or 2,
+      totalStages = total,
+      cardinality = cardinality,
+      providers = providers,
+    }
+  end
 
   local function tr(en, de)
     return i18n and i18n.text(en, de) or en
@@ -208,22 +519,11 @@ return function(mod, opts)
       price = 0, tossable = false, needsTarget = false,
     })
 
-    for moveId, family in pairs(STARTER_FAMILIES) do
-      for _, species in ipairs(family) do
-        local def = mod.content.pokemon:get(species)
-        if def then
-          local tmhm, seen = {}, {}
-          for _, existing in ipairs(def.tmhm or {}) do
-            if not seen[existing] then
-              seen[existing] = true
-              tmhm[#tmhm + 1] = existing
-            end
-          end
-          if not seen[moveId] then tmhm[#tmhm + 1] = moveId end
-          mod.content.pokemon:patch(species, { tmhm = tmhm })
-        end
-      end
-    end
+    resolveStarterFamilies(function(species)
+      return mod.content.pokemon:get(species)
+    end, function(species, _, tmhm)
+      mod.content.pokemon:patch(species, { tmhm = tmhm })
+    end)
   end
   registerStarterContent()
 
@@ -265,6 +565,16 @@ return function(mod, opts)
 
   local function awardKit(game)
     local s = state()
+    -- A migrated save may already contain the Kit while its early preview
+    -- state bit is absent. Adopt that single story receipt instead of adding a
+    -- second count. This also makes a repeated milestone callback idempotent.
+    if (tonumber(game.save.inventory and game.save.inventory[F.ITEM]) or 0) > 0 then
+      if not s.kit then
+        s.kit = true
+        persist(s)
+      end
+      return nil
+    end
     if s.kit then return nil end
     if addItem(game, F.ITEM) then
       s.kit = true
@@ -370,10 +680,18 @@ return function(mod, opts)
     s.signatureAwarded[row.item] = true
     local _, received = reserveOrDeliverTM(game, s, row.item)
     if received then
+      local starterType = row.move == "FRENZY_PLANT" and "GRASS"
+        or (row.move == "BLAST_BURN" and "FIRE" or "WATER")
+      if activeStarterFamilyProvider then
+        return tr(
+          ("%s gives you\nTM%02d!\f%s!\fKANTO, JOHTO and\nHOENN %s starters\ncan learn it."):format(
+            gymKey:upper(), row.number, row.en, starterType),
+          ("%s gibt dir\nTM%02d!\f%s!\fKANTO-, JOHTO- und\nHOENN-Starter\nlernen sie."):format(
+            gymKey:upper(), row.number, row.de))
+      end
       return tr(
         ("%s gives you\nTM%02d!\f%s!\fKanto and Johto\n%s starters learn it."):format(
-          gymKey:upper(), row.number, row.en, row.move == "FRENZY_PLANT"
-            and "GRASS" or (row.move == "BLAST_BURN" and "FIRE" or "WATER")),
+          gymKey:upper(), row.number, row.en, starterType),
         ("%s gibt dir\nTM%02d!\f%s!\fKantos und Johtos\nStarter lernen sie."):format(
           gymKey:upper(), row.number, row.de))
     end
@@ -399,15 +717,52 @@ return function(mod, opts)
                     "Hier kann man nicht\nabsteigen."),
       no_water = tr("No SURFing here!", "Hier kann man nicht\nSURFEN!"),
       nothing = tr("Nothing to CUT!", "Hier gibt es nichts\nzu ZERSCHNEIDEN!"),
+      restricted = tr("That FIELD KIT module\ncannot be used here.",
+        "Dieses FELD-KIT-Modul\nkann hier nicht benutzt werden."),
     }
     message(game, lines[reason] or tr("It won't work here.",
       "Das funktioniert hier nicht."))
+  end
+
+  local function mapPolicy(game, moveId)
+    local ow = game and game.overworld
+    local mapId = ow and ow.map and ow.map.id
+    if type(mapId) ~= "string" then return {} end
+    local result = {}
+    for _, id in ipairs(mapPolicyProviderOrder) do
+      local policy = mapPolicyProviders[id](game, moveId, mapId)
+      if type(policy) == "table" then
+        if policy.allowFlyInside then result.allowFlyInside = true end
+        if policy.blockFlash then result.blockFlash = true end
+        if policy.flashBlockReason == "darkness"
+            or policy.flashBlockReason == "mist" then
+          result.flashBlockReason = policy.flashBlockReason
+        end
+      end
+    end
+    return result
+  end
+
+  local function resistedFlash(game, reason, done)
+    if reason == "mist" then
+      return message(game, tr(
+        "A small light flickers...\fBut nothing pierces\nthis ancient mist.",
+        "Ein kleines Licht\nflackert auf...\fDoch diesen Nebel\ndurchdringt nichts."), done)
+    end
+    return message(game, tr(
+      "A small light flickers...\fBut nothing pierces\nthis darkness.",
+      "Ein kleines Licht\nflackert auf...\fDoch diese Dunkelheit\ndurchdringt nichts."), done)
   end
 
   local function useFieldMove(game, moveId, menu)
     local ow = game.overworld
     if not ow then return fieldFailure(game) end
     if moveId == "FLY" then
+      local outside = require("src.world.Map").isOutside(ow.map.def,
+        game.data.field.outsideTilesets)
+      if not outside and not mapPolicy(game, moveId).allowFlyInside then
+        return fieldFailure(game, "restricted")
+      end
       menu:close()
       require("src.ui.Screens").push(game, "TownMap", {
         fly = true,
@@ -416,6 +771,11 @@ return function(mod, opts)
       return
     end
     if moveId == "FLASH" then
+      local policy = mapPolicy(game, moveId)
+      if policy.blockFlash then
+        menu:close()
+        return resistedFlash(game, policy.flashBlockReason)
+      end
       menu:close()
       game.save.flashLit = true
       message(game, tr("The FIELD KIT lights\nthe whole area!",
@@ -473,9 +833,10 @@ return function(mod, opts)
         game.data.field.outsideTilesets)
     end
     for _, moveId in ipairs({ "CUT", "FLY", "SURF", "STRENGTH", "FLASH" }) do
+      local policy = mapPolicy(game, moveId)
       if available(game.save, moveId)
-          and (moveId ~= "FLY" or outside)
-          and (moveId ~= "FLASH" or (ow and ow.dark)) then
+          and (moveId ~= "FLY" or outside or policy.allowFlyInside)
+          and (moveId ~= "FLASH" or (ow and ow.dark) or policy.blockFlash) then
         rows[#rows + 1] = {
           label = game.data.moves[moveId].name, value = moveId,
         }
@@ -483,6 +844,43 @@ return function(mod, opts)
     end
     return rows
   end
+
+  -- The classic Pokémon submenu is a second, independent FLASH surface.
+  -- Replace its vanilla action in the three visibility trials as well, and
+  -- add the row for GREEN (whose authored fog is not the engine's `dark`
+  -- flag).  Both menu paths therefore show the same resistance text and
+  -- neither writes `save.flashLit` nor clears the world palette.
+  mod.hooks:wrap("ui.party.submenu", function(nextItems, game, items, mon, ctx)
+    local rows = nextItems(game, items, mon, ctx)
+    local policy = mapPolicy(game, "FLASH")
+    if not (type(rows) == "table" and policy.blockFlash and mon
+        and game and game.save and game.save.inventory
+        and game.save.inventory.BOULDERBADGE) then return rows end
+    local knowsFlash=false
+    for _, move in ipairs(mon.moves or {}) do
+      if move.id == "FLASH" then knowsFlash=true break end
+    end
+    if not knowsFlash then return rows end
+    local flashRow
+    for _, row in ipairs(rows) do
+      if row.action == "flash" then flashRow=row break end
+    end
+    local flashDef=game.data and game.data.moves and game.data.moves.FLASH
+    if not flashRow then
+      flashRow={ label=flashDef and flashDef.name or "FLASH" }
+      rows[#rows+1]=flashRow
+    end
+    flashRow.label=flashDef and flashDef.name or flashRow.label or "FLASH"
+    flashRow.action=nil
+    flashRow.onSelect=function(_, menuGame)
+      resistedFlash(menuGame, policy.flashBlockReason, function()
+        if ctx and ctx.menu and type(ctx.menu.close)=="function" then
+          ctx.menu:close()
+        end
+      end)
+    end
+    return rows
+  end, 1800)
 
   function F.open(game, done)
     local rows = fieldRows(game)
@@ -492,7 +890,7 @@ return function(mod, opts)
         "Kein FELD-KIT-Modul\nist hier nutzbar.\fFinde zuerst VM und\nden passenden ORDEN."), done)
       return
     end
-    game.stack:push(mod.ui.ListMenu.new(game, tr("FIELD KIT", "FELD-KIT"),
+    game.stack:push((mod.ui.KantoListMenu or mod.ui.ListMenu).new(game, tr("FIELD KIT", "FELD-KIT"),
       rows, {
         onCancel = done,
         onChoose = function(item, menu)
@@ -541,7 +939,7 @@ return function(mod, opts)
             right = tostring(move.pp or 0), value = index,
           }
         end
-        game.stack:push(mod.ui.ListMenu.new(game,
+        game.stack:push((mod.ui.KantoListMenu or mod.ui.ListMenu).new(game,
           tr("FORGET WHICH?", "WELCHE VERLERNEN?"), rows, {
             onCancel = done,
             onChoose = function(item, menu)
@@ -585,6 +983,34 @@ return function(mod, opts)
     return false
   end
 
+  -- Optional systems may expose additional, species-specific move sources to
+  -- the existing Route 5 Reminder.  Providers return rows shaped as
+  -- `{ id, source, level? }`; the Reminder still owns validation, level gates,
+  -- duplicate suppression and the final teaching transaction.  This keeps a
+  -- legal source narrow instead of turning a regional move list into a global
+  -- free tutor.
+  function F.registerReminderProvider(id, provider)
+    assert(type(id) == "string" and id ~= "",
+      "Move Reminder provider id required")
+    assert(type(provider) == "function",
+      "Move Reminder provider callback required")
+    if reminderProviders[id] then return false, "already registered" end
+    reminderProviders[id] = provider
+    reminderProviderOrder[#reminderProviderOrder + 1] = id
+    return true
+  end
+
+  -- Map packages may grant narrowly-scoped Field Kit exceptions without
+  -- changing vanilla map classification or another package's policy.
+  function F.registerMapPolicyProvider(id, provider)
+    assert(type(id) == "string" and id ~= "", "Map policy provider id required")
+    assert(type(provider) == "function", "Map policy provider callback required")
+    if mapPolicyProviders[id] then return false, "already registered" end
+    mapPolicyProviders[id] = provider
+    mapPolicyProviderOrder[#mapPolicyProviderOrder + 1] = id
+    return true
+  end
+
   -- Only moves with a species-level source or per-Pokémon evidence are
   -- eligible. This deliberately does not turn every compatible TM into a
   -- free move tutor.
@@ -615,6 +1041,18 @@ return function(mod, opts)
         type(mon.rememberedMoves) == "table" and mon.rememberedMoves or {}) do
       local moveId = type(key) == "number" and remembered or key
       if remembered then add(moveId, "memory") end
+    end
+
+    for _, providerId in ipairs(reminderProviderOrder) do
+      local provider = reminderProviders[providerId]
+      local provided = provider and provider(game, mon) or nil
+      for _, row in ipairs(type(provided) == "table" and provided or {}) do
+        local required = tonumber(row.level)
+        if not row.locked
+            and (not required or (tonumber(mon.level) or 1) >= required) then
+          add(row.id, row.source or providerId)
+        end
+      end
     end
 
     local s = state()
@@ -657,6 +1095,7 @@ return function(mod, opts)
       event = tr("EVENT", "EVENT"),
       memory = tr("MEMORY", "ERINN."),
       crown = tr("CROWN", "KRONE"),
+      resonance = tr("JOHTO", "JOHTO"),
     }
     return labels[source] or source
   end
@@ -686,7 +1125,7 @@ return function(mod, opts)
             value = candidate.id,
           }
         end
-        game.stack:push(mod.ui.ListMenu.new(game,
+        game.stack:push((mod.ui.KantoListMenu or mod.ui.ListMenu).new(game,
           tr("REMEMBER WHICH?", "WELCHE ERINNERN?"), rows, {
             onCancel = done,
             onChoose = function(item, menu)
@@ -715,7 +1154,7 @@ return function(mod, opts)
                   label = def and def.name or move.id, value = index,
                 }
               end
-              game.stack:push(mod.ui.ListMenu.new(game,
+              game.stack:push((mod.ui.KantoListMenu or mod.ui.ListMenu).new(game,
                 tr("FORGET WHICH?", "WELCHE VERLERNEN?"), replaceRows, {
                   onCancel = done,
                   onChoose = function(replacement, replacementMenu)
@@ -777,6 +1216,10 @@ return function(mod, opts)
 
   function F.install(game)
     F.game = game
+    -- Re-resolve after every enabled package has merged its content.  This is
+    -- the safe late-binding path for an approved external Hoenn provider and
+    -- keeps partial #252-260 registrations completely ineligible.
+    F.syncStarterFamilies(game.data)
     local s = state()
     if game.save.inventory and game.save.inventory.FIELD_KIT then
       s.kit = true
@@ -849,10 +1292,14 @@ return function(mod, opts)
   F.state = state
   F.available = available
   F.fieldRows = fieldRows
+  -- Kept public for the Field Kit's focused integration tests and future
+  -- alternate menu surfaces; all callers still go through the same policy.
+  F.useFieldMove = useFieldMove
   F.forgetMove = forgetMove
   F.recordRememberedMove = recordRememberedMove
   F.reminderMoves = reminderMoves
   F.rememberMove = rememberMove
+  F.reminderProviders = reminderProviders
   F.renewableTMs = renewableTMs
   F.nextArchiveTM = function(game)
     return nextArchiveRow(game, state())

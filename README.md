@@ -8,9 +8,39 @@ Mew, a full Route 5 breeding Day-Care, Generation-II shinies, official Mega
 Evolutions, Yellow's optional partner evolution, the Silver/Kris/Gold Johto
 Masters trial, optional early Johto migration and Mew/Celebi Signals, a
 Battle Factory, repeatable S.S. Anne voyages, a spoiler-safe Research Atlas
-and a replayable level-100 New Game Plus. The internal
-`trainer_rematch` ID remains unchanged so existing saves and options continue
-to work.
+and a replayable level-100 New Game Plus. From 6.5.0 RC10 onward the internal
+ID is `kanto_ascendant`. The first boot copies legacy Kanto Ascendant options
+and save data from the former `trainer_rematch` namespace and keeps a rollback
+shadow for RC9.
+
+> [!IMPORTANT]
+> RC9 and older Kanto Ascendant builds used the same internal ID as the
+> standalone Trainer Rematch mod. Before enabling RC10, disable or move the
+> old Kanto Ascendant installation out of the launcher's `mods` directory.
+> RC10 declares a conflict with the standalone `trainer_rematch` ID so the two
+> implementations cannot run over the same trainer hooks.
+
+> [!IMPORTANT]
+> **Engine 0.1.90:** this release requires Gen 1 Recomp 0.1.90 or newer; its
+> release acceptance is performed against 0.1.90. Before
+> enabling Kanto Ascendant, disable standalone packages whose systems it
+> already includes, and disable **Kanto Reforged**. The 0.1.90 manager
+> blocks Ascendant while one of those conflicts remains enabled; it does not
+> silently modify or disable the other package. Reforged remains usable on its
+> own. It also blocks renderer archives that currently do not work with 0.1.90
+> and points to Voxel Ascendant, exact upstream Battle Art 1.9.0, hardened
+> Dramaless or native 2D instead. No
+> compatibility or defect claim about Reforged is implied.
+
+> [!IMPORTANT]
+> **Vanilla Kanto boundary:** every save starts with original Generation-I
+> species and move data. After the Hall of Fame, Elm's/Lind's aide in
+> Oak's/Eich's Lab can irreversibly open **BEYOND KANTO / JENSEITS VON KANTO**
+> for that save after two default-NO confirmations. Until then Johto waves,
+> Masters, extended rewards/evolutions and non-Kanto Legacy Bank withdrawals
+> stay sealed. The Hoenn/HEVO caves themselves remain playable with the same
+> maps and puzzles and deterministic #001-151 encounter substitutes. Other
+> slots and every New Game/NG+ begin sealed independently.
 
 Looking for a specific mechanic, item or location? Open the
 **[complete FAQ and spoiler guide](FAQ.md)**. Every detailed answer is
@@ -22,49 +52,6 @@ collapsed so players can reveal only the information they want.
 > and feature wishes are welcome in
 > [GitHub Issues](https://github.com/Roxas2712/kanto-ascendant/issues) and will
 > be considered for future updates.
-
-## What's new in 6.0.11
-
-- **Voxel battle framing is selectable without renderer-specific labels.**
-  `CLASSIC VOXEL` restores the historical composition, `WIDE VOXEL` keeps
-  large Mega models fully in view, and `VOXEL DEFAULT` retains the renderer's
-  standard composition. Find the choice beside the Voxel controls in the
-  regular **OPTIONS** menu.
-
-## What's new in 6.0.9
-
-- The compatible Voxel renderer owns the complete staged-battle composition.
-  Kanto Ascendant supplies its Mega and Gorochu art with matching
-  Voxel-card anchors in the renderer's **2D-3D** views, respects **FRONT
-  SPRITES** and world-space **BACK SPRITES**, and never applies its classic 2D
-  Mega overlay to a live staged shot.
-- **STADIUM** views use their own 3D models. A renderer
-  fallback that cannot stage a 3D arena retains the normal Kanto Ascendant 2D
-  Mega presentation.
-- **VOXEL BATTLE CAMERA** is an optional presentation choice: select
-  **CLASSIC VOXEL** to restore the original Voxel battle framing, or leave
-  **VOXEL DEFAULT** selected for the renderer's wider camera.
-
-## What's new in 6.0.8
-
-- Mega Evolution and Gorochu's high-resolution Voxel cards now recognize the
-  compatible renderer. Its 2D-3D battles no
-  longer receive Kanto Ascendant's classic rear-sprite overlay.
-
-## What's new in 6.0.7
-
-- The release regression suite now tracks the current manifest version, so
-  the verified New Game+ Steward hotfix can complete CI and ship as a
-  self-contained package.
-
-## What's new in 6.0.6
-
-- The **Ascendant Steward** now appears in the reachable **Indigo Plateau
-  Lobby** once New Game+ is ready. Previously, the Steward was placed on the
-  one-way Hall of Fame cutscene map and could not be reached from post-game
-  play.
-- The Research Atlas and spoiler FAQ now name the correct location. Existing
-  saves need no migration and retain every completed cycle requirement.
 
 ## What's new in 6.0.5
 
@@ -383,13 +370,11 @@ Bag never consumes points.
 ### Language
 
 Every new trainer, cooldown, boss and legendary message has complete English
-and German text. **LANGUAGE** defaults to `AUTO`:
+and German text. Language follows the active game translation:
 
 - English is the standalone fallback.
 - `deutsch`, `deutsch-blau` and `deutsch-gelb` are detected automatically for
   the matching Red, Blue or Yellow game version.
-- `ENGLISH` and `DEUTSCH` force either language independently of installed
-  translation mods.
 - The normal trainer text appended after a cooldown comes from the base game,
   so it follows the active translation mod too.
 
@@ -427,12 +412,12 @@ and the National Dex is still awarded by the Driftglass researcher.
 | **Johto Unleashed** | 10% across matching Kanto habitats |
 
 The chosen current can be changed later under
-**ASCENDANT → WORLD → JOHTO SIGNALS**. Turning **EARLY JOHTO** off disables
-only the early migration encounters. If **MYTHIC SIGNALS** remains on, the
+**ASCENDANT → WORLD → JOHTO SIGNALS**. **EARLY JOHTO** is visibly locked until
+the physical receiver has been repaired at Driftglass; only then can that hub
+turn the migration encounters on or off. If **MYTHIC SIGNALS** remains on, the
 shared capsule, receiver, Driftglass trip and researcher remain available and
-the safe **Kanto First** current is enforced. **JOHTO SIGNAL START** can keep
-the field quest or start directly in either active current for players who
-already know what they want.
+the safe **Kanto First** current is enforced. The generic mod-options screen
+cannot bypass the field quest or select an active current.
 
 After the receiver is repaired, a glass seam at Driftglass opens the optional
 **Prism Grotto**. Its six native cave pillars form five short sequence riddles
@@ -535,7 +520,10 @@ while carried. A full party never destroys a prize.
 
 Generation-II evolution support includes:
 
-- Dark and Steel types, including Electric/Steel Magnemite and Magneton.
+- Additive Dark and Steel types for Johto species and moves. Existing
+  Generation-I type, stat, learnset and move records keep their vanilla Kanto
+  data by default; only documented evolution branches into new Johto species
+  are appended, without replacing original Kanto evolutions.
 - Friendship evolutions for Crobat, Togetic and Blissey.
 - Day/night friendship branches for Espeon and Umbreon. **JOHTO TIME** follows
   the system clock by default and can force DAY or NIGHT.
@@ -623,11 +611,11 @@ that floor lead to the guaranteed level-50 shiny until it has been caught, so
 knocking it out or fleeing never destroys the event.
 
 Kanto Ascendant includes its own entrance sparkles, two-note chime, HUD marker
-and status icon. If `Gen II Shiny Indicators` is active, Kanto Ascendant
-detects its export and lets that mod provide the presentation alone—there are
-no doubled sparkles or sounds. The hunt logic, Dex, breeding, Johto art,
-followers and event remain owned by Kanto Ascendant, so the separate visual
-mod can later be disabled without losing progression.
+and status icon. On engine 0.1.90, disable the standalone
+`shiny_indicators` package before enabling Ascendant: its current upstream
+release still uses APIs denied by the sandbox and overlaps Ascendant's
+generated-sprite and battle-presentation hooks. Shiny hunt progress is owned
+entirely by Ascendant and is unaffected by that package being absent.
 
 The Shiny Dex also records wild encounter totals and the number of shiny
 copies caught for each revealed species. **SHINY RELEASE LOCK** protects
@@ -643,7 +631,7 @@ Frontier Points, or five for a run without a faint. A Frontier Festival world
 event doubles that award. Historical event catch-up prizes and the existing
 rare item rewards remain available.
 
-After defeating Kanto's Crown Champion, a second Indigo host opens the final
+After the first Hall-of-Fame entry, a second Indigo host opens the final
 **Johto Masters Trial**:
 
 1. Silver uses a rotating aggressive pool.
@@ -653,7 +641,9 @@ After defeating Kanto's Crown Champion, a second Indigo host opens the final
 All opponents use full level-100 teams, maximum battle AI and a sealed Bag.
 The player's team is fully healed before every round, but the three opponents
 must be cleared in sequence. Each Master owns twelve candidates and selects a
-different set and order for every attempt.
+different set and order for every attempt. Every later run requires one new
+Hall-of-Fame entry—defeat the Elite Four and Champion again—and always starts
+at Silver; Gold cannot be repeated directly to farm shinies.
 
 Gold alone gives the reward after a successful run: one genuine-DV shiny,
 selected uniformly from all 251 Pokémon. Starters, fossils, Mew, Celebi and
@@ -1141,7 +1131,9 @@ from Chikorita through Celebi, including:
 - All three Johto starter lines
 - Every common, baby, branch-evolution and pseudo-legendary family
 - Raikou, Entei, Suicune, Lugia, Ho-Oh and Celebi
-- Dark and Steel typing
+- Additive Dark and Steel typing for the new Johto content; existing
+  Generation-I type, stat, learnset and move records retain their vanilla
+  Kanto data, with only additive evolution branches into new Johto species
 - Crunch, Metal Claw, Iron Tail, Shadow Ball, Flame Wheel, Giga Drain,
   Sludge Bomb, Spark, Powder Snow, Aeroblast and Sacred Fire
 
@@ -1190,15 +1182,27 @@ layout the opponent animates and the player's matching Crystal back remains
 static at native size. In Dramatic Shape's staged Voxel battles both
 front-facing Pokémon animate.
 
-The external mod is now optional. Kanto Ascendant can still be enabled beside
-[Crystal Animated Sprites with Shiny Visuals](https://github.com/distilledorion-sketch/crystal_animated_sprites_with_shiny_visuals).
-When detected, that visual mod keeps ownership of Kanto #001-151 while
-Ascendant supplies Johto. For Dramatic Shape, use
-[LOW-K3YS's Voxel-compatible fork](https://github.com/LOW-K3YS/crystal_animated_sprites_with_shiny_visuals).
-Duplicate Kanto sparkle/chime presentation is suppressed automatically, while
-Johto shinies retain Ascendant's own effects. Mega forms always keep their
-form silhouette: Crystal mode uses the sharp full-colour animation, while
-Gen-I/Kanto-fallback mode uses the matching static four-shade Mega card.
+The integrated v1.5 presentation layer additionally supplies authored
+grayscale animations for #001-251, Kanto normal/shiny/grayscale backs,
+Crystal trainer/player portraits, Tower Ghost art and animated Crystal views
+in summary, Pokédex, evolution, Hall of Fame, title and Oak-intro scenes.
+Palette modes choose the matching colour or grayscale source before the
+engine palette pass. Ditto keeps the copied silhouette with its purple tint
+and returns cleanly after switching or battle end. These additions are
+strictly scoped by the existing battle/summary/Pokédex/box/scene toggles.
+
+The complete v1.5 normal/shiny/grayscale sprite and animation pipeline is now
+owned by Kanto Ascendant. The external
+[Crystal Animated Sprites with Shiny Visuals](https://github.com/distilledorion-sketch/crystal_animated_sprites_with_shiny_visuals)
+package and
+[LOW-K3YS's Voxel-compatible fork](https://github.com/LOW-K3YS/crystal_animated_sprites_with_shiny_visuals)
+must not be enabled beside Ascendant: both packages wrap the same battle,
+party, box, Pokédex and shiny-presentation hooks. The Recompile launcher
+blocks the combination and explains why. Players can still choose Gen-I,
+Crystal, animated/static and per-screen presentation inside Ascendant. Mega
+forms always keep their form silhouette: Crystal mode uses the sharp
+full-colour animation, while Gen-I/Kanto-fallback mode uses the matching
+static four-shade Mega card.
 
 Randomizers also receive every authored Ascendant boss roster as their actual
 input, including Master/Crown Leaders, Apex/Crown Elite battles, Johto
@@ -1212,6 +1216,31 @@ forms rather than a generic animated #201 sheet; the included form-A Crystal
 art remains authentic.
 
 ### Follower and voxel compatibility
+
+Kanto Ascendant does not require a Voxel renderer: the complete campaign,
+including the fissures, remains available through the engine's native 2D
+renderer. For engine 0.1.90, the recommended optional renderer is the standalone
+`VOXEL_ASCENDANT 0.1.1` package. It provides a sandbox-native voxel
+world, native-card MAP/DISCS battles and a public wall-decal API. The dedicated
+`0.1.0-rc.1` package remains accepted for existing installations and receives
+the same Kanto Ascendant sprite anchoring and scaling adapter; `0.1.1` is the
+recommended update. The dedicated
+`DRAMALESS_SHAPE 1.6.2-ST.190.1` compatibility build remains a reviewed,
+hardened alternative. The separately installed upstream
+`BATTLE_ART_VOXEL_FORK 1.9.0` is the third reviewed choice. It retains complete
+ownership of its sprites, trainers, animations, camera, menus and options; Kanto
+Ascendant only builds a local closed module facade and adapts HUD overlays plus
+map-authored wall decals. No Battle Art file or asset is copied, rewritten or
+included in the Kanto Ascendant ZIP. Battle Art 1.8.3 and every other Battle Art
+version remain blocked by an exact version rule. Dramatic Shape, Potato Voxel,
+Terrarium and First Person remain blocked; every other Dramaless version is
+blocked while `.190.1` remains supported. Install only one Voxel renderer.
+
+The reviewed Battle Art package is the upstream 1.9.0 release asset from
+[`absol89/DramaticShapeVoxelMod`](https://github.com/absol89/DramaticShapeVoxelMod/releases/tag/1.9.0),
+SHA-256 `3ba60ad7dc8443f2a337c147ca8be31ce3661fd549cf9b4e4e000206c3d780c8`.
+It must be installed separately. Kanto Ascendant does not mirror that archive;
+the artwork inside it is not covered by Kanto Ascendant's distribution terms.
 
 Species-accurate normal and shiny 16x16 Gen-2-style walking sprites are also
 bundled for every Johto Pokémon. The repair utility can refresh them:
@@ -1232,28 +1261,28 @@ credited in the [PokeWilds project](https://github.com/SheerSt/pokewilds).
 If an individual sheet is damaged or missing, the related Kanto silhouette
 remains as a crash-safe fallback until the package is repaired.
 
-PokéPC Followers remains compatible in Red, Blue and Yellow. Its optional
-all-species follower selection is retained, but Ascendant neutralizes the
-mod's separate Yellow-to-Charmander story conversion: Oak catches the
-canonical level-5 Pikachu in the opening, the lab gift remains Pikachu and the
-original Pikachu name and dialogue are preserved. The Oak encounter carries a
-dedicated engine-level scene marker, so outer graphics/follower wrappers may
-not replace it; an exact Pallet pre-starter fallback also protects older
-engine builds without rewriting unrelated level-5 encounters.
+Ascendant now owns the active follower system in Red, Blue and Yellow. Choose
+up to four party followers from the Pokémon menu; Yellow's native partner
+Pikachu keeps its original mood and dialogue, while additional followers use
+Ascendant's interaction path. Standalone PokéPC Followers/Followers EX
+packages must be disabled before Ascendant is enabled because both would own
+the same follower and sprite hooks.
 
-When **Wilds of Kanto** is active, Ascendant registers all 100 Johto species
-with its renderer as normal/shiny six-frame walker sheets rather than static
-battle portraits. Wilds 1.7.1's public spawn, sprite-provider and refresh APIs
-are supported. `AUTO` or `FOLLOWERS EX` sprite style uses Ascendant's bundled
-Johto walkers while retaining PokéPC/Followers EX art for Kanto species.
+Kanto Ascendant now bundles the supported **Wilds of Kanto 1.12.2** spawn,
+ambient-town, renderer and AI core. Visible Kanto encounters and peaceful
+town Pokémon therefore work in a clean Ascendant-only installation; the
+standalone Wilds follower controller and settings menus are deliberately not
+started. Ascendant registers all 100 Johto species with the renderer as
+normal/shiny six-frame walker sheets rather than static battle portraits.
+`AUTO` or `FOLLOWERS EX` sprite style uses Ascendant's bundled Johto walkers.
 
 Early Wanderwaves and Johto Unleashed apply to newly created visible Wilds
 entities as well as classic grass encounters. A visible Pokémon is rolled when
 it appears, not when the player later touches it. Changing the Johto current,
 scanning a primal trace or toggling **VISIBLE JOHTO**, **EARLY JOHTO** or
 **MYTHIC SIGNALS** clears stale visible rolls so the next entities use the new
-state. The Johto Signals submenu has a **WILDS LINK** page showing whether
-Wilds is linked, disabled or absent.
+state. The Johto Signals submenu has a **WILDS LINK** page showing whether the
+bundled living-world provider is ready or disabled.
 
 Once a family has been researched, the same rare Kanto habitat used by
 ordinary encounters can also produce that species visibly in the overworld.
@@ -1267,8 +1296,6 @@ ordinary Johto replacement.
 Open **MODS → KANTO ASCENDANT → OPTIONS** for the mod's own configuration
 submenu. It contains:
 
-- **LANGUAGE** — automatically follow a compatible German translation, or
-  force English/German.
 - **MIN REST STEPS** — lower end of the training period (default and minimum
   151).
 - **MAX REST STEPS** — upper end (default and maximum 2510). Reversed values
@@ -1302,15 +1329,15 @@ submenu. It contains:
   Bill's PC.
 - **RED GYARADOS** — enable or skip the guaranteed Seafoam shiny event.
 - **JOHTO TIME** — follow the system clock or force DAY/NIGHT for Eevee.
-- **EARLY JOHTO** — enable or disable only the voluntary early migration
-  encounters. Mythic Signals can still use the shared capsule, receiver and
+- **EARLY JOHTO** — after the physical Driftglass repair, enable or disable
+  only the voluntary early migration encounters in the state-aware Signals
+  hub. Before repair the row is locked and the generic options screen cannot
+  activate it. Mythic Signals can still use the shared capsule, receiver and
   Driftglass researcher with Kanto First enforced.
-- **VISIBLE JOHTO** — let Wilds of Kanto's newly generated visible encounters
-  use the active early-Johto current and researched habitat replacements.
-  Turning it off keeps Wilds Kanto-only without disabling Johto in classic
-  grass battles.
-- **JOHTO SIGNAL START** — discover the field quest normally or begin a new
-  save directly with Wanderwaves or Johto Unleashed.
+- **VISIBLE JOHTO** — let the bundled living world's newly generated visible
+  encounters use the active early-Johto current and researched habitat
+  replacements. Turning it off keeps visible encounters Kanto-only without
+  disabling Johto in classic grass battles.
 - **MYTHIC SIGNALS** — enable or disable the Mew/Celebi echo and Resonance
   Seal path independently.
 - Individual encounter rules for all ten post-game legends plus Mew.
@@ -1329,23 +1356,28 @@ submenu. It contains:
   or normal battle access.
 
 The step clock, trainer recovery, growth, pending loot, circuit wins, roaming
-routes and legendary progress are stored under `save.modData.trainer_rematch`.
-Base save structures remain compatible if the mod is disabled.
+routes and legendary progress are stored under
+`save.modData.kanto_ascendant`. RC10 imports a recognizable legacy
+`save.modData.trainer_rematch` bucket before migrations run and writes an
+independent legacy shadow whenever the game is saved, so the supplied RC9
+rollback can still read progress written by RC10. Base save structures remain
+compatible if the mod is disabled.
 The Dex style persists through the standard mod-options file; old profiles
 without the key automatically use `ORIGINAL` and need no migration or restart.
 
 ## Achievements, titles and New Game Plus
 
-The Crown Archive and Legacy Gallery now record **seventeen** permanent titles,
+The Crown Archive and Legacy Gallery now record **twenty-one** permanent titles,
 including Rematch Legend, Crestbearer, Beast Tracker, Grand Champion, Rocket
 Breaker, Myth Seeker, Johto Master, Factory Architect, Sea Champion and Kanto
-Ascendant. Special titles also recognize a Crown victory without legendary
-party members and major fights completed without a faint. Every unlocked title
-can be selected for the Trainer Card in the Legacy Gallery.
+Ascendant. The three path seals and the completed Legacy Pass add four more.
+Special titles also recognize a Crown victory without legendary party members
+and major fights completed without a faint. Every unlocked title can be
+selected for the Trainer Card in the Legacy Gallery.
 
 Completing the Crown, all eight Leader missions, the Johto specimen tracks,
 one Ascendant Frontier victory, Rocket Resurgence and the enabled Mew finale unlocks an
-Ascendant Steward in the Indigo Plateau Lobby. The Steward starts a double-confirmed
+Ascendant Steward in the Hall of Fame. The Steward starts a double-confirmed
 **Ascendant Cycle**:
 
 - Master, Apex, Crown, circuit-research, Leader-mission and Rocket progress
@@ -1366,12 +1398,79 @@ Ascendant Steward in the Indigo Plateau Lobby. The Steward starts a double-confi
 A later cycle cannot be restarted until its circuits, research, Leader
 missions, Rocket story and one new tournament bracket are completed.
 
+### True Legacy Journeys
+
+The 6.5 Legacy Journey starts a genuinely fresh game directly after the
+previous journey's finale while keeping only the deliberately archived
+legacy. The chosen RED, BLUE or GREEN avatar binds that journey to a distinct
+combat, research or nature path. Each completed path awards a permanent seal;
+the active path stage itself resets for every fresh journey.
+Completing all three paths unlocks the Oak's Lab finale and the permanent
+Legacy Pass. Seals and the Pass are displayed in the Legacy Gallery.
+
+Only during an active Legacy Journey, Oak's next Red/Blue-edition partner
+scene gives the three physical balls fixed roles. The left ball contains the
+current hero's Hoenn partner (RED → Torchic, BLUE → Mudkip, GREEN → Treecko),
+but only after that hero's matching rift seal was earned in an earlier
+Legacy life. Before the unlock it remains visible and Oak gives a
+story-specific "perhaps next life" hint; seals never cross-unlock another
+hero's gift. The middle ball opens a graphical
+Pokédex-style catalogue: Balanced is a curated early/lower-power pool and Free
+contains exactly the 129 lowest-stage or standalone canonical species within
+#001-251. If a baby stage exists in that range, it replaces its evolution (so
+Pichu is offered, not Pikachu); Gastly and Ditto remain legal, while Gengar and
+Dragonite do not. The rival claims and hides the right ball
+first; its real species line is resolved only after the player's double-
+confirmed choice. Only the received partner is added to the otherwise fresh
+Pokédex. The complete player/rival decision is written once and mirrored into
+the Legacy archive without duplication. Yellow retains its authored Pikachu
+staging and offers the same catalogue as the alternative choice.
+
+The canonical Hoenn starter families #252-260 are registered solely for this
+character-bound, matching-seal left-ball reward and never enter wild encounter
+tables. No Sinnoh starter is offered.
+
+Johto visibility follows one shared Driftglass receiver contract in grass,
+water, caves, towns and the bundled visible-Wilds layer. KANTO FIRST exposes
+none; WANDERWAVES exposes only the active wave at its authored routes and
+native 2/4-percent replacement rate; JOHTO UNLEASHED exposes every authored
+ordinary base, including the three starters and Larvitar, at the native
+10-percent replacement rate. The visible layer still creates exactly the
+same number of entities as the native map roll. Legendary and mythical
+species remain absent from generic pools and become visible only through
+their own active event.
+
+A separate Package-3 compatibility catalogue reserves private Dex slots
+#261-279 for exactly seventeen later evolutions of existing Kanto/Johto lines
+plus Azurill and Wynaut. It is loaded after the earned Hoenn starter module,
+uses HGSS level-up data filtered against moves the engine actually provides,
+and does not unlock a Sinnoh Pokédex or place any of those species into a
+generic wild pool. Their eventual habitats and evolution relic rewards remain
+explicit downstream hooks rather than automatic RC23 content.
+
+Crystal presentation uses identity-correct authored front loops for all 28
+private catalogue species: 21 from Nuuk's supplied Crystal packs and the
+remaining seven exact identities from the pinned Polished Crystal source.
+These normal/shiny fronts animate in enemy battles, Title, Pokédex, Summary
+(including Box `STATS`) and Hall of Fame. Supplied rear cards contain one pose
+and stay static; no artificial jitter is used. Followers, visible Wilds and
+Voxel keep the actual walking/pose animation owned by their respective
+renderers.
+
 ## Installation
 
-1. Download `kanto-ascendant-6.0.11.modpkg` from the
+> [!NOTE]
+> **Demo package convention:** every playable demo is published as a
+> launcher-compatible `.zip`. A matching `.modpkg` may be retained only as an
+> internal build or verification artifact.
+
+1. Download the current `Kanto-Ascendant-6.5.3-*.zip` from the
    [latest release](https://github.com/Roxas2712/kanto-ascendant/releases/latest)
    and import it through the launcher. Developers may alternatively install
    the checked-out mod directory.
+   If you downloaded a complete bundle, extract it first and import the inner
+   Ascendant ZIP; the outer bundle is a transport archive and deliberately has
+   no root `manifest.json`.
 2. Restart the game and enable **Kanto Ascendant**.
 3. Existing saves work. Old trainer wins receive one initial rest period, and
    existing Pokédex ownership is imported into legendary progression.
@@ -1395,16 +1494,16 @@ Run the ROM-free headless suite from the Gen1 Recomp engine checkout:
 
 ```sh
 export POKEPORT_DATA_DIR=tests/fixture_data
-export TRAINER_REMATCH_MOD_DIR=../trainer_rematch
-./.tools/luajit-src/src/luajit ../trainer_rematch/tests/trainer_rematch_test.lua
-./.tools/luajit-src/src/luajit ../trainer_rematch/tests/gorochu_visuals_test.lua
-./.tools/luajit-src/src/luajit ../trainer_rematch/tests/gorochu_audio_matrix_test.lua
-./.tools/luajit-src/src/luajit ../trainer_rematch/tests/field_economy_test.lua
-./.tools/luajit-src/src/luajit ../trainer_rematch/tests/atlas_legacy_test.lua
-./.tools/luajit-src/src/luajit ../trainer_rematch/tests/reachability_test.lua
+export TRAINER_REMATCH_MOD_DIR=../kanto-ascendant
+./.tools/luajit-src/src/luajit ../kanto-ascendant/tests/trainer_rematch_test.lua
+./.tools/luajit-src/src/luajit ../kanto-ascendant/tests/gorochu_visuals_test.lua
+./.tools/luajit-src/src/luajit ../kanto-ascendant/tests/gorochu_audio_matrix_test.lua
+./.tools/luajit-src/src/luajit ../kanto-ascendant/tests/field_economy_test.lua
+./.tools/luajit-src/src/luajit ../kanto-ascendant/tests/atlas_legacy_test.lua
+./.tools/luajit-src/src/luajit ../kanto-ascendant/tests/reachability_test.lua
 env -u POKEPORT_DATA_DIR ./.tools/luajit-src/src/luajit \
-  ../trainer_rematch/tests/recruitment_full_data_test.lua
-./.tools/luajit-src/src/luajit ../trainer_rematch/tests/upgrade_matrix_test.lua
+  ../kanto-ascendant/tests/recruitment_full_data_test.lua
+./.tools/luajit-src/src/luajit ../kanto-ascendant/tests/upgrade_matrix_test.lua
 ```
 
 Run the standalone Signals gates from the mod checkout:
@@ -1426,7 +1525,7 @@ python3 tools/johto_signals_release_audit.py .
 The map-collision and Mythic battle suites run from the engine checkout with
 `KANTO_SIGNALS_MOD_DIR` and `TRAINER_REMATCH_MOD_DIR` pointed at this mod.
 GitHub CI runs both contracts and repeats the release-boundary audit against
-the exact `kanto-ascendant-6.0.11.modpkg`.
+the exact RC10 package.
 
 The upgrade matrix includes separate schema-derived Kanto Ascendant 5.3
 fixtures for Red, Blue and Yellow. They pin the public 5.3 package hash and
@@ -1440,7 +1539,7 @@ Validate against an imported Kanto data set:
 
 ```sh
 MODKIT_LUAJIT="$PWD/.tools/luajit-src/src/luajit" \
-python3 tools/modkit.py validate ../trainer_rematch --base imported
+python3 tools/modkit.py validate ../kanto-ascendant --base imported
 ```
 
 `tools/make_postgame_assets.py` deterministically regenerates all 18 original
@@ -1462,8 +1561,9 @@ captures the same independent static selection in the party status screen.
 `tools/gorochu_qa_driver.lua` performs the real Raichu evolution, validates
 normal/shiny front and back art, and captures Gorochu's follower plus all
 seven normal/shiny partner expressions without covering the emotion bubble.
-`tools/gorochu_voxel_qa_driver.lua` verifies the dedicated 96×96 normal/shiny
-front and back masters plus all six follower poses.
+`tools/gorochu_voxel_qa_driver.lua` verifies Gorochu's six authored 96×96
+normal/shiny Voxel front frames, dedicated rear masters, smooth Dex/status
+cards and all six follower poses. The Crystal pixel-art route stays separate.
 `tools/gorochu_dialogue_qa_driver.lua` captures the complete English/German
 Raichu and Gorochu conversation matrix. The headless audio matrix verifies
 Yellow's spoken cry, Red/Blue's chip fallback and external-owner priority.

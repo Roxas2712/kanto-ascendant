@@ -15,7 +15,7 @@ return function(game)
 
   U.wait(20)
   local api = assert(game.mods and game.mods.exports
-    and game.mods.exports.trainer_rematch,
+    and game.mods.exports.kanto_ascendant,
     "Kanto Ascendant export missing")
   assert(api.crystalAnimation and api.crystalAnimation.staticFrameOne,
     "static Crystal Dex resolver missing")
@@ -34,18 +34,18 @@ return function(game)
 
   game.mods.modOptions = game.mods.modOptions or {}
   local loaderOptions = game.mods.modOptions
-  loaderOptions.trainer_rematch = loaderOptions.trainer_rematch or {}
-  local options = loaderOptions.trainer_rematch
+  loaderOptions.kanto_ascendant = loaderOptions.kanto_ascendant or {}
+  local options = loaderOptions.kanto_ascendant
   local function setOption(key, value)
     options[key] = value
     game.save.options = game.save.options or {}
     game.save.options.modOptions = game.save.options.modOptions or {}
-    game.save.options.modOptions.trainer_rematch =
-      game.save.options.modOptions.trainer_rematch or {}
-    game.save.options.modOptions.trainer_rematch[key] = value
+    game.save.options.modOptions.kanto_ascendant =
+      game.save.options.modOptions.kanto_ascendant or {}
+    game.save.options.modOptions.kanto_ascendant[key] = value
     if game.mods.events then
       game.mods.events:emit("mod.options_changed", {
-        mod = "trainer_rematch", key = key, value = value,
+        mod = "kanto_ascendant", key = key, value = value,
       })
     end
   end

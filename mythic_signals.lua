@@ -17,6 +17,7 @@ return function(mod, opts)
   local signalsState = assert(opts.state, "Mythic Signals state missing")
   local content = opts.content or {}
   local johtoSignals = opts.johtoSignals
+  local beyondKanto = opts.beyondKanto or opts.johtoBoundary
   local i18n = opts.i18n
 
   local M = {
@@ -45,6 +46,24 @@ return function(mod, opts)
 
   local function tr(english, german)
     return i18n and i18n.text(english, german) or english
+  end
+
+  local function boundaryActive(game)
+    return not beyondKanto or type(beyondKanto.isActive) ~= "function"
+      or beyondKanto.isActive(game or M.game)
+  end
+
+  local function speciesAllowed(game, species)
+    if boundaryActive(game) then return true end
+    local def = game and game.data and game.data.pokemon
+      and game.data.pokemon[species]
+    local dex = def and tonumber(def.dex)
+    if not dex and beyondKanto
+        and type(beyondKanto.speciesDex) == "function" then
+      dex = beyondKanto.speciesDex(game or M.game, species)
+    end
+    dex = tonumber(dex)
+    return dex ~= nil and dex >= 1 and dex <= 151
   end
 
   local function copy(value, seen)
@@ -172,18 +191,13 @@ return function(mod, opts)
       if ok then return result ~= false end
     end
 
-    -- Default bridge for Kanto Ascendant's existing canonical controllers.
-    -- Their pokemon.caught listeners perform the same writes for new catches;
-    -- this path additionally repairs older saves which already own the species.
+    -- Default bridge for canonical controllers.  MEW ownership alone has no
+    -- recoverable encounter provenance: a Truck/event/foreign-mod MEW must
+    -- never complete Ascendant's authored OAK-FUJI-CINNABAR investigation.
+    -- Pre-6.5 ambiguous saves are handled by the explicit Journal repair.
     if not (mod.save and mod.save.get and mod.save.set) then return false end
     if species == "MEW" then
-      local ascendant = mod.save:get("ascendant")
-      ascendant = type(ascendant) == "table" and ascendant or {}
-      ascendant.mewCaught = true
-      ascendant.mewStage = math.max(4,
-        integer(ascendant.mewStage, 0))
-      mod.save:set("ascendant", ascendant)
-      return true
+      return false
     elseif species == "CELEBI" then
       local postgame = mod.save:get("postgame")
       postgame = type(postgame) == "table" and postgame or {}
@@ -223,6 +237,7 @@ return function(mod, opts)
     local pool = {}
     for _, species in ipairs(POOL) do
       if speciesEnabled(species)
+          and speciesAllowed(game, species)
           and not snapshot.completed[species]
           and not owns(game, species) then
         pool[#pool + 1] = species
@@ -414,6 +429,9 @@ return function(mod, opts)
 
     local bound = normalizeBound(after.bound)
     if bound then
+      -- A carried CELEBI retry belongs to the save but is dormant in the
+      -- sealed ruleset. Do not retire it, advance pity or let it replace MEW.
+      if not speciesAllowed(game, bound.species) then return out, nil end
       if not speciesEnabled(bound.species)
           or after.completed[bound.species]
           or owns(game, bound.species) then
@@ -709,6 +727,11 @@ return function(mod, opts)
 
   function M.researcherCanSeal(game)
     game = game or M.game
+    if not boundaryActive(game) then
+      return false, "beyond_kanto", tr(
+        "BEYOND KANTO is\nstill sealed.",
+        "JENSEITS VON KANTO\nist noch versiegelt.")
+    end
     local s = syncOwned(game)
     if s.sealed then
       return false, "sealed", tr(

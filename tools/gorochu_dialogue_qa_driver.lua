@@ -33,7 +33,7 @@ return function(game)
     "SHOT_DIR is required for Gorochu dialogue QA")
   local ascendant = assert(
     game.mods and game.mods.exports
-      and game.mods.exports.trainer_rematch,
+      and game.mods.exports.kanto_ascendant,
     "Kanto Ascendant export missing")
   local partnerApi = assert(ascendant.yellowPartner,
     "Yellow partner controller missing")
@@ -87,9 +87,9 @@ return function(game)
     { id = "shiny", shiny = true },
   }
 
-  local originalOptions = game.mods.modOptions.trainer_rematch
+  local originalOptions = game.mods.modOptions.kanto_ascendant
   local originalLanguage = originalOptions and originalOptions.language
-  game.mods.modOptions.trainer_rematch = originalOptions or {}
+  game.mods.modOptions.kanto_ascendant = originalOptions or {}
 
   local imageDataCache = {}
   local function portraitData(path)
@@ -173,7 +173,7 @@ return function(game)
   local localizedText = {}
   local captures = 0
   for _, language in ipairs(languages) do
-    game.mods.modOptions.trainer_rematch.language = language
+    game.mods.modOptions.kanto_ascendant.language = language
     assert(ascendant.language() == language,
       "live language switch did not select " .. language)
     localizedText[language] = {}
@@ -405,7 +405,7 @@ return function(game)
   if originalOptions then
     originalOptions.language = originalLanguage
   else
-    game.mods.modOptions.trainer_rematch = nil
+    game.mods.modOptions.kanto_ascendant = nil
   end
 
   assert(captures == 2 * 2 * 2 * 7 * 4,

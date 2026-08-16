@@ -58,6 +58,24 @@ runtime card to produce a master; always reduce from the best approved source.
 - Record every frame duration in `mega_animation_data.lua`.
 - A static fallback must remain available whenever Crystal animation is off.
 
+### Hoenn locally authored derivative exception
+
+Mega Blaziken, Mega Swampert and Mega Sceptile retain the four supplied,
+independent static masters as their Voxel source and their Crystal-off/Gen-I
+fallback source. Their Crystal-on movement is a separate local fan-project
+derivative in `assets/mega_animated/`, made from each matching front/back
+normal/shiny master by `tools/build_hoenn_mega_animation_frames.py`. It has
+five recorded integer-pixel keys per view and is neither mirrored nor padded
+with a duplicate dummy frame. `HOENN_MEGA_DERIVATIVE_SHA256.txt` records every
+derived frame hash.
+
+These frames are local derived fan-project graphics; they are **not** claimed
+to be official artwork or freely licensed/redistributable. The source masters
+remain attributed to the locally supplied pinned `PokeAPI/sprites` package.
+Do not replace this provenance statement with a free-license claim. The
+runtime uses the derivatives only when Crystal animation is enabled; Voxel
+continues to read the approved static master directly.
+
 ## 4. 2D layout rules
 
 - Enemy forms use the front drawing and face the player.

@@ -1,0 +1,8 @@
+{
+  "id": "deutsch-blau",
+  "name": "German Blue Test Marker",
+  "version": "0.0.0-test",
+  "api": 2,
+  "entry": "main.lua",
+  "profile": "content"
+}

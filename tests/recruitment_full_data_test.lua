@@ -5,10 +5,10 @@ love = love or require("tests.love_stub")
 local Data = require("src.core.Data")
 if not (Data.pokemon and Data.pokemon.RATTATA) then Data:load() end
 local T = require("tests.modkit")
-local modPath = os.getenv("TRAINER_REMATCH_MOD_DIR") or "../trainer_rematch"
+local modPath = os.getenv("TRAINER_REMATCH_MOD_DIR") or "../kanto_ascendant"
 local run = T.sdk.loadMod(modPath, { data = Data })
 assert(#run.errors == 0, table.concat(run.errors, "\n"))
-local api = assert(run.loader.exports.trainer_rematch)
+local api = assert(run.loader.exports.kanto_ascendant)
 local recruitment = assert(api.recruitment)
 local checks = 0
 
@@ -40,8 +40,8 @@ for class, pool in pairs(api.recruitPools) do
     check(not legendary[species],
       class .. " exposed legendary recruitment candidate " .. species)
     local def = assert(Data.pokemon[species], "unknown candidate " .. species)
-    check(def.dex > 151 and def.dex <= 251,
-      class .. " exposed a non-Johto candidate " .. species)
+    check(def.dex > 151 and def.dex <= 279,
+      class .. " exposed a candidate outside Beyond Kanto " .. species)
   end
 end
 check(classCount == 47, "expected all 47 authored trainer classes")
@@ -56,9 +56,14 @@ for i = 1, 6 do
   fullTeam[i] = { species = i % 2 == 0 and "RATTATA" or "SPEAROW",
     level = 20 + i }
 end
-check(recruitment.expand(Data, fullTeam, "OPP_BUG_CATCHER",
-  "VIRIDIAN_BUG_CATCHER", 99, 99, true) == fullTeam,
-  "an already-full Viridian Bug Catcher team must remain unchanged")
+local progressedFull = recruitment.expand(Data, fullTeam, "OPP_BUG_CATCHER",
+  "VIRIDIAN_BUG_CATCHER", 99, 99, true)
+check(#progressedFull == #fullTeam,
+  "an already-full Viridian Bug Catcher team must not gain a seventh slot")
+for index, slot in ipairs(progressedFull) do
+  check(slot.origin == "original" and slot.originalSpecies == fullTeam[index].species,
+    "a full team's original roster identity was lost")
+end
 
 recruitment.configureJohto(api.johtoData.order, function(species)
   return species == "LEDYBA"
@@ -85,9 +90,13 @@ recruitment.configureJohto(api.johtoData.order, function() return true end)
 local loaded = recruitment.expand(Data,
   { { species = "CATERPIE", level = 30 } }, "OPP_BUG_CATCHER",
   trainerSeed, 1, 30, true,
-  { selections = selections })
-check(selections[2] == rememberedFamily and loaded[2].species == first[2].species,
-  "save/load or a larger unlock pool rerolled the existing recruit")
+  { selections = selections,
+    recentHistory = { { first[2].species }, { first[2].species } },
+    random = function(_, hi) return hi end })
+check(loaded[2].species ~= first[2].species,
+  "two consecutive appearances did not rotate a newly enlarged recruit pool")
+check(selections[2] ~= nil and rememberedFamily ~= nil,
+  "the compact save-facing latest-family history was lost")
 
 local Pokemon = require("src.pokemon.Pokemon")
 local recruitedMon = Pokemon.new(Data, loaded[2].species, 60,

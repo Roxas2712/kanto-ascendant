@@ -1,21 +1,22 @@
 -- Focused Kanto Ascendant 5.0 field-tech and Frontier economy regression.
 --
 -- Run from the Gen1 Recomp checkout:
---   TRAINER_REMATCH_MOD_DIR=../trainer_rematch \
+--   TRAINER_REMATCH_MOD_DIR=../kanto_ascendant \
 --   POKEPORT_DATA_DIR=tests/fixture_data \
 --   ./.tools/luajit-src/src/luajit \
---   ../trainer_rematch/tests/field_economy_test.lua
+--   ../kanto_ascendant/tests/field_economy_test.lua
 
 package.path = "./?.lua;./?/init.lua;" .. package.path
 local T = require("tests.modkit")
 local Data = T.fixtures.load()
 local modPath = os.getenv("TRAINER_REMATCH_MOD_DIR")
-  or "mods/trainer_rematch"
+  or "mods/kanto_ascendant"
 local run = T.sdk.loadMod(modPath, { data = Data })
 T.eq(#run.errors, 0, "Kanto Ascendant loads for field-economy tests")
 
-local exports = run.loader.exports.trainer_rematch
+local exports = run.loader.exports.kanto_ascendant
 local tech = assert(exports.fieldTech)
+local mega = assert(exports.megaEvolution)
 T.neq(exports.frontierExchange, nil,
   "main exports the integrated Frontier Exchange")
 T.eq(exports.frontierExchange.walletReady(), true,
@@ -43,10 +44,30 @@ local function fullBag(keepKit)
   return inventory
 end
 
+-- Current-run Key Items are idempotent grants, not Legacy Locker counts. A
+-- migrated save may have the inventory receipt but lack the mod-state bit;
+-- repeated milestone or Route-5 callbacks must adopt it without duplicating.
+run.loader.modSave = {}
+local keyItemGame = gameWithInventory({
+  FIELD_KIT = 1, MEGA_RING = 1, MEGA_STONE_CASE = 1,
+})
+tech.afterRematch(keyItemGame)
+tech.afterRematch(keyItemGame)
+T.eq(keyItemGame.save.inventory.FIELD_KIT, 1,
+  "repeated rematch milestones never duplicate the Field Kit")
+T.eq(tech.state().kit, true,
+  "an existing Field Kit repairs its missing current-run state receipt")
+mega.unlock(keyItemGame)
+mega.unlock(keyItemGame)
+T.eq(keyItemGame.save.inventory.MEGA_RING, 1,
+  "repeated Mega unlock callbacks never duplicate the Mega Ring")
+T.eq(keyItemGame.save.inventory.MEGA_STONE_CASE, 1,
+  "repeated Mega unlock callbacks never duplicate the Stone Case")
+
 -- Version-1 migration retains the blocked reward and removes only the
 -- historical phantom first cycle.
 run.loader.modSave = {
-  trainer_rematch = {
+  kanto_ascendant = {
     field_tech = {
       version = 1, kit = true, rematchWins = 8, tmWins = 6,
       tmCursor = 1, tmCycles = 1, pendingTM = "TM_LEGACY",

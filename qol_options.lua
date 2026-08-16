@@ -1,0 +1,171 @@
+local SCREEN_ID = "JohtoAscendantQol"
+
+local M = {}
+
+function M.install(mod, features)
+  local schema = {}
+  local modes = {}
+  local aliases = {}
+  for _, feature in ipairs(features) do
+    local option = feature.option
+    schema[#schema + 1] = option
+    aliases[option.key] = option.aliases
+    if option.type == "choice" then
+      local choices = {}
+      for _, choice in ipairs(option.choices) do
+        choices[#choices + 1] = { id = choice[2], label = choice[1] }
+      end
+      modes[option.key] = choices
+    else
+      modes[option.key] = {
+        { id = false, label = "OFF" },
+        { id = true, label = "ON" },
+      }
+    end
+  end
+  mod.options:define(schema)
+
+  local function optionValue(game, key)
+    local options = game and game.save and game.save.options
+    local bucket = options and options.modOptions
+                   and options.modOptions[mod.id]
+    local master = bucket and bucket.ascendant_qol
+    if master == nil then master = mod.options:get("ascendant_qol") end
+    -- The master switch is a real runtime gate. Individual preferences stay
+    -- persisted while disabled and immediately resume when the bundle is
+    -- enabled again.
+    if master == false and modes[key] then
+      return modes[key][1].id
+    end
+    local value = bucket and bucket[key]
+    if value == nil then value = mod.options:get(key) end
+    local optionAliases = aliases[key]
+    if optionAliases and optionAliases[value] ~= nil then
+      return optionAliases[value]
+    end
+    return value
+  end
+
+  local function optionBucket(container)
+    container.modOptions = container.modOptions or {}
+    container.modOptions[mod.id] = container.modOptions[mod.id] or {}
+    return container.modOptions[mod.id]
+  end
+
+  local function setOption(game, key, value)
+    optionBucket(game.save.options)[key] = value
+
+    -- Keep mod.options:get synchronized until options.lua is reloaded.
+    if game.mods then optionBucket(game.mods)[key] = value end
+    if game.writeOptions then game:writeOptions() end
+  end
+
+  local function modeIndex(game, key)
+    local value = optionValue(game, key)
+    for i, mode in ipairs(modes[key]) do
+      if mode.id == value then return i end
+    end
+    return 1
+  end
+
+  local function stepMode(game, key, dir)
+    local values = modes[key]
+    local i = (modeIndex(game, key) - 1 + dir) % #values + 1
+    setOption(game, key, values[i].id)
+  end
+
+  local function makeScreen(game)
+    local OptionRows = require("src.ui.OptionRows")
+    local rows = {}
+    for _, feature in ipairs(features) do
+      local menu = feature.menu
+      local key = menu.key
+      rows[#rows + 1] = {
+        label = menu.label,
+        key = key,
+        description = menu.description,
+        value = function(g)
+          return modes[key][modeIndex(g, key)].label
+        end,
+      }
+    end
+
+    local screen = {
+      game = game,
+      rows = rows,
+      index = 1,
+      scroll = 0,
+      isOpaque = true,
+    }
+
+    function screen:sgbPalettes(g)
+      return require("src.render.PaletteFX").wholeNamed(g.data, "MEWMON")
+    end
+
+    function screen:update()
+      local input = self.game.input
+      if input:wasPressed("up") then
+        self.index = (self.index - 2) % #self.rows + 1
+      elseif input:wasPressed("down") then
+        self.index = self.index % #self.rows + 1
+      elseif input:wasPressed("left") or input:wasPressed("right") then
+        local dir = input:wasPressed("left") and -1 or 1
+        stepMode(self.game, self.rows[self.index].key, dir)
+      elseif input:wasPressed("a") then
+        self.game.stack:push(mod.ui.TextBox.new(
+          self.game, self.rows[self.index].description))
+      elseif input:wasPressed("b") then
+        self.game.stack:pop()
+      end
+      self.scroll = OptionRows.clampScroll(
+        self.index, self.scroll, #self.rows, nil)
+    end
+
+    function screen:draw()
+      OptionRows.draw(self.game, self.rows, self.index, self.scroll,
+                      "A:INFO B:EXIT")
+    end
+
+    return screen
+  end
+
+  mod.content.screens:register(SCREEN_ID, { new = makeScreen })
+
+  -- The manager's schema screen cannot assign a custom A action to choices.
+  -- Route only this mod to the same registered screen after loading succeeds.
+  mod.events:once("mods.loaded", function()
+    local ManagerState = require("src.mods.ManagerState")
+    local routes = rawget(ManagerState, "__modOptionScreenRoutes")
+    if not routes then
+      routes = {}
+      local openOptions = ManagerState.openOptions
+      ManagerState.openOptions = function(self, manifest)
+        local screenId = manifest and routes[manifest.id]
+        if screenId then
+          return require("src.ui.Screens").push(self.game, screenId)
+        end
+        return openOptions(self, manifest)
+      end
+      ManagerState.__modOptionScreenRoutes = routes
+    end
+    routes[mod.id] = mod.exports.ascendantFeaturesScreen or SCREEN_ID
+  end)
+
+  mod.hooks:wrap("ui.options.rows", function(next, game, rows)
+    local out = next(game, rows)
+    if type(out) ~= "table" then return out end
+    if mod.exports.ascendantFeaturesScreen then return out end
+    return mod.ui.insertBefore(out, "MODS", {
+      id = "johto_ascendant_qol",
+      label = "JOHTO ASCENDANT",
+      value = function() return "CONFIGURE" end,
+      activate = function(g) mod.ui.push(g, SCREEN_ID) end,
+    })
+  end)
+
+  mod.exports.screenId = SCREEN_ID
+  mod.exports.optionValue = optionValue
+  return { value = optionValue }
+end
+
+return M

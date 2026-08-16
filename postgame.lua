@@ -21,13 +21,16 @@ local GYM_CROWN_LEGENDS = {
   sabrina = "LUGIA", blaine = "ENTEI",
 }
 local ELITE_CROWN_LEGENDS = {
-  OPP_LORELEI = { "SUICUNE" },
-  OPP_LANCE = { "LUGIA", "HO_OH" },
+  OPP_LORELEI = { "ARTICUNO" },
   OPP_RIVAL3 = {
     "MEWTWO", "RAIKOU", "ENTEI", "SUICUNE", "LUGIA", "HO_OH",
   },
 }
 local LEGEND_ALTERNATES = {
+  ARTICUNO = {
+    species = "LAPRAS",
+    moves = { "BLIZZARD", "SURF", "THUNDERBOLT", "BODY_SLAM" },
+  },
   MEWTWO = {
     species = "ALAKAZAM",
     moves = { "PSYCHIC_M", "RECOVER", "REFLECT", "THUNDER_WAVE" },
@@ -55,6 +58,16 @@ local LEGEND_ALTERNATES = {
   CELEBI = {
     species = "EXEGGUTOR",
     moves = { "PSYCHIC_M", "MEGA_DRAIN", "SLEEP_POWDER", "EXPLOSION" },
+  },
+}
+local BEYOND_KANTO_ALTERNATES = {
+  KINGDRA = {
+    species = "SEADRA",
+    moves = { "HYDRO_PUMP", "BLIZZARD", "SMOKESCREEN", "AGILITY" },
+  },
+  TYRANITAR = {
+    species = "RHYDON",
+    moves = { "ROCK_SLIDE", "EARTHQUAKE", "BODY_SLAM", "HYPER_BEAM" },
   },
 }
 
@@ -87,6 +100,7 @@ return function(mod, data, opts)
   local fieldTech = opts.fieldTech
   local kantoCompletion = opts.kantoCompletion
   local gorochu = opts.gorochu
+  local rematchRewards = opts.rematchRewards
   local function tr(english, german)
     return i18n and i18n.text(english, german) or english
   end
@@ -158,10 +172,34 @@ return function(mod, data, opts)
     return true
   end
   local controller = { game = nil, contentEnabled = opts.contentEnabled and true or false }
+  local beyondKanto = opts.beyondKanto or opts.johtoBoundary
+  local function beyondActive(save)
+    return not beyondKanto or type(beyondKanto.isActive) ~= "function"
+      or beyondKanto.isActive(save or controller.game)
+  end
   local forcedStack = {}
   local enabledTeam
   local newForcedBattle
   local pendingRoamer
+  local mastery
+  local bossProgress
+
+  local function applyMastery(game, battle, context)
+    if not (mastery and game and battle) or battle.postgameMasteryApplied then
+      return battle and battle.rematchMastery
+    end
+    context = context or {}
+    local wins = type(bossProgress) == "function"
+      and bossProgress(context) or 0
+    context.progress = math.max(0, math.floor(tonumber(wins) or 0))
+    context.masteryWins = context.progress
+    context.specialist = true
+    context.champion = context.key == "OPP_RIVAL3"
+    local report = mastery.apply(game, battle, context)
+    battle.postgameMasteryApplied = true
+    battle.postgameMasteryWins = context.masteryWins
+    return report
+  end
 
   local function state(create)
     local s = mod.save:get("postgame")
@@ -263,6 +301,9 @@ return function(mod, data, opts)
   end
 
   local function legendaryAvailable(species, s, save)
+    if ADDED_LEGEND_OPTIONS[species] and not beyondActive(save) then
+      return false
+    end
     local setting = legendSetting(species)
     if setting == "off" then return false end
     if setting == "vanilla" then return true end
@@ -277,9 +318,16 @@ return function(mod, data, opts)
   enabledTeam = function(team)
     if type(team) ~= "table" then return team end
     local out
+    local kantoOnly = not beyondActive(controller.game and controller.game.save)
     for i, slot in ipairs(team) do
       local replacement = LEGEND_ALTERNATES[slot.species]
-      if replacement and legendSetting(slot.species) == "off" then
+        or BEYOND_KANTO_ALTERNATES[slot.species]
+      local def = controller.game and controller.game.data
+        and controller.game.data.pokemon and controller.game.data.pokemon[slot.species]
+        or data.species and data.species[slot.species]
+      local beyond = def and tonumber(def.dex) and tonumber(def.dex) > 151
+      if replacement and (legendSetting(slot.species) == "off"
+          or kantoOnly and beyond) then
         if not out then
           out = {}
           for j = 1, i - 1 do out[j] = team[j] end
@@ -314,6 +362,25 @@ return function(mod, data, opts)
       end
     end
     return out
+  end
+
+  local function teamHasSpecies(team, species)
+    if not species then return false end
+    for _, slot in ipairs(team or {}) do
+      if slot.species == species then return true end
+    end
+    return false
+  end
+
+  local function eliteMegaTarget(class, tier, team)
+    local configured = data.eliteMega and data.eliteMega[class]
+    local target = configured and configured[tier]
+    if teamHasSpecies(team, target) then return target end
+    local fallbacks = data.eliteMegaFallback
+      and data.eliteMegaFallback[class]
+    local fallback = fallbacks and fallbacks[tier]
+    if teamHasSpecies(team, fallback) then return fallback end
+    return nil
   end
 
   local function sourceForTier(tier)
@@ -543,7 +610,7 @@ return function(mod, data, opts)
         skipPartyHook = true,
         displayPartyIndex = 1,
       })
-    end, debug.traceback)
+    end, function(err) return tostring(err) end)
     parties[1] = originalParty
     if hookChains then hookChains["trainer.party"] = savedPartyChain end
     for i = #forcedStack, 1, -1 do
@@ -678,7 +745,8 @@ return function(mod, data, opts)
         }
       end
       if setting == "apex" and game.save.flags then
-        game.save.flags[def.flag] = not visible
+        if visible then game.save.flags[def.flag] = nil
+        else game.save.flags[def.flag] = true end
       end
     end
     if hasHallOfFame(game.save) then
@@ -954,6 +1022,9 @@ return function(mod, data, opts)
         if controller.extension and controller.extension.applyBossRules then
           controller.extension.applyBossRules(battle)
         end
+        applyMastery(game, battle, {
+          kind = "gym", key = gym.key, tier = tier,
+        })
         battle.endBattleText = gymDialogue(gym, tier, "win")
         battle.onFinish = function(result)
           scheduleBossRest(key)
@@ -966,6 +1037,9 @@ return function(mod, data, opts)
             if tier == "master" then s.masterWins[gym.key] = true
             else s.crownWins[gym.key] = true end
             persist(s)
+            if rematchRewards then
+              addReward(rematchRewards.afterWin(game, battle, nil))
+            end
             if fieldTech then
               addReward(fieldTech.afterBossWin(game, gym.key, tier))
             end
@@ -1126,7 +1200,8 @@ return function(mod, data, opts)
 
     local TextBox = require("src.render.TextBox")
     local function startBattle()
-      local battle = require("src.battle.BattleState").newWild(game, species, level)
+      local battle = require("src.battle.BattleState").newWild(game, species,
+        level, { encounterSource = "static", randomizerProtected = true })
       battle.postgameLegend = species
       if data.roamers[species] then battle.postgameRoamer = species end
       battle.onFinish = function(result)
@@ -1358,8 +1433,28 @@ return function(mod, data, opts)
           battle.ascendantForcedSource = "elite"
           battle.rematch = true
         end
+        battle.ascendantEnemyMegaSpecies = eliteMegaTarget(
+          battle.oppClass, tier, team)
         if controller.extension and controller.extension.applyBossRules then
           controller.extension.applyBossRules(battle)
+        end
+        applyMastery(controller.game, battle, {
+          kind = "elite", key = battle.oppClass, tier = tier,
+        })
+        if rematchRewards and not battle.phase8RewardWrapped then
+          local previousFinish = battle.onFinish
+          battle.onFinish = function(result)
+            local reward
+            if result == "win" then
+              reward = rematchRewards.afterWin(controller.game, battle, nil)
+            end
+            if previousFinish then previousFinish(result) end
+            if reward then
+              controller.game.stack:push(
+                require("src.render.TextBox").new(controller.game, reward))
+            end
+          end
+          battle.phase8RewardWrapped = true
         end
         battle.endBattleText =
           eliteDialogue(battle.oppClass, tier, "win")
@@ -1494,7 +1589,9 @@ return function(mod, data, opts)
   controller.caught = caught
   controller.legendSetting = legendSetting
   controller.legendaryAvailable = legendaryAvailable
+  controller.beyondActive = beyondActive
   controller.enabledTeam = enabledTeam
+  controller.eliteMegaTarget = eliteMegaTarget
   controller.phaseFor = phaseFor
   controller.eliteTier = eliteTier
   controller.gymDialogue = gymDialogue
@@ -1510,6 +1607,12 @@ return function(mod, data, opts)
   controller.beastsCaught = beastsCaught
   controller.newForcedBattle = newForcedBattle
   controller.finalizeForcedBattle = finalizeForcedBattle
+  controller.applyMastery = applyMastery
+  controller.setMastery = function(value, progress)
+    mastery = value
+    bossProgress = progress
+    return mastery ~= nil
+  end
   controller.forcedConstructionDepth = function() return #forcedStack end
   return controller
 end

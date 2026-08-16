@@ -4,6 +4,89 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- Added the save-local, irreversible **BEYOND KANTO / JENSEITS VON KANTO**
+  Hall-of-Fame decision. Before opt-in, original Kanto data, rematches and
+  surprise battles stay Gen-I; non-Kanto bank withdrawals, Johto waves,
+  Masters and extended rewards/evolutions remain sealed. HEVO/Hoenn caves keep
+  one shared map/script set and substitute deterministic #001-151 encounters
+  while sealed.
+- Rematch 2.0 now evolves each field trainer's recognizable original roster
+  through the registered evolution graph. Exact progressive two-stage and
+  three-stage odds are constrained by real levels and existing Johto/custom
+  unlock state; registered branches remain data-driven.
+- All 47 authored class pools now expand from live species/type metadata.
+  Released Johto families enter matching classes naturally, and the generic
+  catalog remains open to future registered content.
+- Dynamically added rematch members keep a compact three-battle history. The
+  immediately previous species is strongly down-weighted, twice-consecutive
+  use is excluded where alternatives exist, and exhausted pools relax without
+  an unbounded selection loop.
+- The Ascendant options tree now keeps essential gameplay choices visible and
+  moves rematch, EXP training, Johto, legendary and heritage controls into
+  focused FireRed-style submenus.
+
+### Fixed
+
+- Major Bob/Lt. Surge now recognizes the canonical victory flag when an
+  upgraded or imported save has lost its Thunder Badge inventory entry, so
+  Red, Blue and Yellow reach the Thunderheart hand-off instead of only the
+  vanilla Ground-type advice. Yellow can also reconsider a declined trial,
+  and a previously earned but missing permanent Thunderheart is restored on
+  every loss, without replaying its choice or ever stacking above one, with
+  an explicit English/German explanation.
+- Re-authored the HEVO cave light relics as solid, discoverable side-branch
+  objects instead of placing them on traversal lines. Red, Blue and Green now
+  use varied forward stairs, and the real 0.1.90 collision path is checked
+  from entrance through interaction, retreat and continuation.
+- Restored the intended hybrid cave ecology: visible Wilds and classic random
+  encounters can coexist, while Beyond Kanto adds registered Johto swimmers
+  and a single rare Gyarados slot without changing either user option.
+
+- Raised the supported engine minimum to Gen 1 Recomp 0.1.90. Version 6.5.1
+  repaired the engine boundary; 6.5.2 adds the independently packaged Voxel
+  Ascendant choice while retaining native 2D and the hardened DRAMALESS
+  transition build.
+- Extended the guarded Player-PC and Apricorn-Bag compatibility bridges to
+  the unchanged 0.1.90 menu surfaces; ASC RUN and the pre-throw Apricorn Ball
+  explanation remain reachable on the current engine.
+- The matching 0.1.90 clientfix now renders discovered HEVO fissures through
+  the proper flat wall-decal pass instead of leaving only an invisible
+  interaction anchor in 2D.
+
+- The current standalone `shiny_indicators` release is not advertised as an
+  engine-0.1.90 partner. Ascendant declares its exact manifest ID as a hard
+  conflict because the package overlaps built-in shiny presentation hooks and
+  still uses APIs denied by the reviewed sandbox.
+- Engine-0.1.90 Voxel discovery admits the standalone
+  `VOXEL_ASCENDANT 0.1.0` package and the fully audited
+  `DRAMALESS_SHAPE 1.6.2-ST.190.1` compatibility build. The full game also remains
+  available in native 2D. Other upstream Dramatic Shape, Battle Art and First
+  Person releases fail closed instead of being advertised as supported while
+  using APIs removed by the sandbox; the capability bridge remains
+  renderer-neutral for a future reviewed build.
+- Declared 0.1.90 hard conflicts for every bundled standalone subsystem
+  and for the exact `Kanto-Reforged` manifest ID. The manager now prevents
+  simultaneous initialization and asks the player to disable the other
+  package first; Reforged remains untouched and loadable on its own.
+- Removed the unconditional Generation-II retyping of Magnemite, Magneton,
+  Bite, Gust, Sand-Attack and Karate Chop introduced in 3.0.0. Dark, Steel and
+  the Johto records remain additive, while existing Generation-I type, stat,
+  learnset and move records retain their vanilla Kanto data by default.
+- Re-enabling Kanto Ascendant beside the standalone Useful Bag no longer
+  fails with `screens already registered: BagMenu`. Ascendant now explicitly
+  overrides the earlier optional-dependency screen while its own bag mode is
+  active, so the engine can complete its normal restoration of Pokémon and
+  items quarantined by a save made while Ascendant was disabled.
+- Individual field-trainer progress now increments only after a won rematch.
+  Losses and escapes no longer count as victories; existing `rematches` values
+  remain the authoritative backward-compatible per-trainer save field.
+- Voxel battle framing now defaults to `WIDE VOXEL`; existing saved camera
+  choices still take precedence.
+- Rematch recovery controls cycle through useful 151–2510 presets instead of
+  requiring thousands of individual button presses.
+
 ## [6.0.11] - 2026-08-08
 
 ### Changed
@@ -42,6 +125,14 @@ All notable changes to this project are documented in this file.
 
 ### Fixed
 
+- Renamed the permanent manifest identity from the conflicting
+  `trainer_rematch` to `kanto_ascendant`, so the launcher no longer rejects
+  Kanto Ascendant because an unrelated mod owns the old ID.
+- Added lossless first-load migration for 6.0.7 progress, active-mod metadata
+  and all configured Ascendant options. Existing current values take
+  precedence; the old namespaces remain untouched for rollback.
+- Declared the historical `trainer_rematch` identity as a runtime conflict so
+  an accepted old build and 6.0.8 cannot execute over the same save together.
 - Battle Art Voxel 1.7.6 renamed its public API export to
   `BATTLE_ART_VOXEL_FORK`. Mega Evolution and Gorochu now use that API as
   well as the legacy Dramatic Shape ID, so front-facing Voxel fights do not

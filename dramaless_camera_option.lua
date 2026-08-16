@@ -4,6 +4,31 @@
 
 return function(mod, labels)
   local C = {}
+  local function sharedVoxelResolver(provided)
+    if provided then return provided end
+    if mod.exports and mod.exports.voxelRendererCompat then
+      return mod.exports.voxelRendererCompat
+    end
+    local chunk
+    if type(mod.read) == "function" then
+      local body = mod:read("voxel_renderer_compat.lua")
+      if type(body) == "string" then
+        chunk = loadstring(body, "@voxel_renderer_compat.lua")
+      end
+    end
+    local ok, factory = false, nil
+    if chunk then
+      ok, factory = pcall(chunk)
+    else
+      ok, factory = pcall(require, "voxel_renderer_compat")
+    end
+    local made, resolver = false, nil
+    if ok and type(factory) == "function" then
+      made, resolver = pcall(factory, mod)
+    end
+    return made and resolver or nil
+  end
+  local voxelRenderer = sharedVoxelResolver(labels.voxelRenderer)
   local key = "dramaless_battle_camera"
   local fork = "fork"
   local classic = "classic"
@@ -11,16 +36,20 @@ return function(mod, labels)
 
   local function selected()
     if not (mod.options and type(mod.options.get) == "function") then
-      return fork
+      return wide
     end
     local value = mod.options:get(key)
-    if value == classic or value == wide then return value end
-    return fork
+    if value == fork or value == classic or value == wide then return value end
+    return wide
   end
 
-  local function hasDramaless(game)
-    return game and game.mods and game.mods.exports
-      and game.mods.exports.DRAMALESS_SHAPE ~= nil
+  local function hasCompatibleCameraRenderer(game)
+    if not (voxelRenderer and type(voxelRenderer.resolve) == "function") then
+      return false
+    end
+    local _, rendererId = voxelRenderer.resolve(game)
+    return rendererId == "VOXEL_ASCENDANT"
+      or rendererId == "DRAMALESS_SHAPE"
   end
 
   local function set(value, game)
@@ -74,7 +103,7 @@ return function(mod, labels)
     local anchor
     for i, existing in ipairs(rows) do
       local id = type(existing) == "table" and existing.id or ""
-      if id == "pipeline:voxel" or id:find("^DRAMALESS_SHAPE:") then
+      if voxelRenderer and voxelRenderer.optionRowMatches(id) then
         anchor = i
       end
     end
@@ -85,7 +114,8 @@ return function(mod, labels)
   function C.install()
     mod.hooks:wrap("ui.options.rows", function(next, game, rows)
       local out = next(game, rows)
-      if type(out) ~= "table" or not hasDramaless(game) then return out end
+      if type(out) ~= "table"
+          or not hasCompatibleCameraRenderer(game) then return out end
       local row = C.row()
       if contains(out, row.id) then return out end
       return insertNearVoxel(out, row)

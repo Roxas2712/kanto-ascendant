@@ -1,0 +1,67 @@
+{
+  "schema": "kanto-ascendant.character-walk.v1",
+  "checkpoint": "2026-08-10-user-reviewed",
+  "status": "approved-master",
+  "runtime_format": {
+    "image": "RGBA PNG",
+    "sheet_size": [16, 96],
+    "frame_size": [16, 16],
+    "frame_order": [
+      "down_idle",
+      "up_idle",
+      "left_idle",
+      "down_walk",
+      "up_walk",
+      "left_walk"
+    ],
+    "right_facing": "mirror left frames at runtime",
+    "resampling": "nearest-neighbour only",
+    "alpha": "hard 0-or-255"
+  },
+  "characters": {
+    "red": {
+      "file": "red_walk.png",
+      "sha256": "9610ec76545c3e4483a99037719ec28d2b13df3e671534e745a047a6ef693116",
+      "design": [
+        "FireRed-shaped red cap",
+        "small centered white Pokeball badge with red core in front frames",
+        "white cap panel only at the forward edge in side frames",
+        "no white cap band in rear frames",
+        "black shirt between red vest panels",
+        "white center line on the front of the vest",
+        "yellow backpack in rear frames"
+      ]
+    },
+    "green": {
+      "file": "green_walk.png",
+      "sha256": "6bd2e838436af982ea031e59463f956904c68e9cd7a6b1d8f333e20e97440727",
+      "display_name": "Casey / Green",
+      "design": [
+        "long brown hair without a dark forehead shadow or rear hump",
+        "soft brown facial ink instead of harsh black facial pixels",
+        "green-and-white earrings in front and side frames",
+        "white shirt stripe in readable directions",
+        "small dark-green side handbag",
+        "skin-coloured hands",
+        "no skin-coloured pixels inside the hair mass"
+      ]
+    },
+    "blue": {
+      "file": "blue_walk.png",
+      "sha256": "69a71acb78d5137204e40298cbeee3d82a5012576ed278b860797ada96fabb3c",
+      "design": [
+        "approved existing Blue silhouette",
+        "orange-brown hair",
+        "black shirt and purple trousers",
+        "no geometry changes in the 2026-08-10 checkpoint"
+      ]
+    }
+  },
+  "invariants": [
+    "Walking art is field-only and must never be replaced by a battle sprite.",
+    "Battle backs, battle fronts, Voxel fronts, bike sheets and fishing sheets are separate surfaces.",
+    "Do not resize, extend, pad, smooth or vertically shift a 16x16 walking frame.",
+    "Transparent pixels stay transparent; no white, pink or chroma-key background may enter runtime art.",
+    "Editing one character must not alter another character or any battle asset."
+  ]
+}

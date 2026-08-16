@@ -12,6 +12,8 @@ return function(mod, opts)
   local spriteAssets = opts.spriteAssets
   local shinySystem = opts.shinySystem
   local gorochu = opts.gorochu
+  local followerConfig = opts.followerConfig
+  local nativeTextBox = opts.nativeTextBox
   local Y = { game = nil }
 
   local ITEM = "ASCENDANT_THUNDERHEART"
@@ -29,6 +31,7 @@ return function(mod, opts)
     baseFollowerWalker = nil,
     baseFollowerTrueColor = nil,
     portraitImages = {},
+    portraitMetrics = {},
   }
   local pendingEvolutionHP = setmetatable({}, { __mode = "k" })
 
@@ -48,6 +51,30 @@ return function(mod, opts)
       if not ok then return false end
     end
     return gv and type(gv.isYellow) == "function" and gv.isYellow() == true
+  end
+
+  local function present(value)
+    return value == true or (tonumber(value) or 0) > 0
+  end
+
+  local function itemOwned(game, item)
+    return game and game.save and game.save.inventory
+      and present(game.save.inventory[item]) or false
+  end
+
+  local function surgeVictory(game)
+    if gorochu and type(gorochu.surgeVictory) == "function" then
+      return gorochu.surgeVictory(game)
+    end
+    local save = game and game.save
+    if not save then return false, "not_defeated" end
+    if save.inventory and present(save.inventory.THUNDERBADGE) then
+      return true, "badge"
+    end
+    if save.flags and present(save.flags.EVENT_BEAT_LT_SURGE) then
+      return true, "victory_flag"
+    end
+    return false, "not_defeated"
   end
 
   local function state(create)
@@ -327,7 +354,11 @@ return function(mod, opts)
   end
 
   local function installPartnerTextCompatibility()
-    local TextBox = require("src.render.TextBox")
+    -- Player builds scope KASC's require("src.render.TextBox") to a proxy.
+    -- This adapter is intentionally different: vanilla engine text must also
+    -- name an evolved Yellow partner, so main hands it the reviewed native
+    -- constructor seam explicitly.
+    local TextBox = nativeTextBox or require("src.render.TextBox")
     local compat = rawget(TextBox, TEXTBOX_COMPAT_KEY)
     if type(compat) ~= "table" or TextBox.new ~= compat.wrapper then
       local original = TextBox.new
@@ -395,7 +426,7 @@ return function(mod, opts)
       grantHeart(game)
       changed = true
     elseif game.save.inventory
-        and (game.save.inventory[ITEM] or 0) > 0 then
+        and present(game.save.inventory[ITEM]) then
       s.heartGiven = true
     end
     local partner = markedPartner(game.save)
@@ -596,7 +627,7 @@ return function(mod, opts)
 
   choiceMenu = function(game, mon)
     local rows = choiceRows(mon)
-    game.stack:push(mod.ui.ListMenu.new(game,
+    game.stack:push((mod.ui.KantoListMenu or mod.ui.ListMenu).new(game,
       tr("PARTNER'S CHOICE", "WAHL DES PARTNERS"), rows, {
         onCancel = function() end,
         onChoose = function(item, menu)
@@ -618,7 +649,7 @@ return function(mod, opts)
         value = index,
       }
     end
-    game.stack:push(mod.ui.ListMenu.new(game,
+    game.stack:push((mod.ui.KantoListMenu or mod.ui.ListMenu).new(game,
       tr("YOUR PARTNER", "DEIN PARTNER"), menuRows, {
         onCancel = function() end,
         onChoose = function(item, menu)
@@ -729,14 +760,35 @@ return function(mod, opts)
   function Y.handleTalk(ow, npc, game)
     if not (isYellow() and ow and npc and npc.def and game
         and ow.map and ow.map.id == "VERMILION_GYM"
-        and npc.def.name == SURGE
-        and game.save.inventory and game.save.inventory.THUNDERBADGE) then
+        and npc.def.name == SURGE) then
       return false
     end
+    if not surgeVictory(game) then return false end
     Y.migrate(game)
     local s = state()
-    if not s.offered then return offerQuest(ow, npc, game) end
-    if not s.accepted or s.heartGiven then return false end
+    if itemOwned(game, ITEM) then return false end
+
+    -- heartGiven records that this save already earned the permanent item;
+    -- it is not proof that the Bag still contains it. Repair an incomplete
+    -- import/update explicitly instead of dropping into Surge's vanilla
+    -- Ground-type advice forever.
+    if s.heartGiven then
+      npc.frozen = true
+      npc:facePlayer(ow.player)
+      local done = function() npc.frozen = false end
+      grantHeart(game)
+      showText(game, tr(
+        "LT.SURGE: HOLD IT,\nKID!\fYOUR THUNDERHEART\nWAS MISSING.\fI restored its\npermanent charge.\fTHUNDERHEART is\nback in your BAG!",
+        "MAJOR BOB: HALT,\nKIND!\fDEIN DONNERHERZ\nHAT GEFEHLT.\fIch stelle seine\ndauerhafte Kraft\nwieder her.\fDONNERHERZ ist\nzurück im BEUTEL!"), done)
+      return true
+    end
+
+    -- A refusal is never permanent. Older code remembered `offered=true`
+    -- but returned false while `accepted=false`, which made every later A
+    -- press show only the vanilla post-battle advice.
+    if not s.offered or not s.accepted then
+      return offerQuest(ow, npc, game)
+    end
     npc.frozen = true
     npc:facePlayer(ow.player)
     local done = function() npc.frozen = false end
@@ -839,9 +891,12 @@ return function(mod, opts)
   end
 
   local function externalFollowerMon(game)
-    local exports = game and game.mods and game.mods.exports
-    if type(exports) ~= "table" then return nil, false end
-    for _, api in pairs(exports) do
+    for _, id in ipairs({ "FOLLOWERS_EX", "PokePCFollowers_VoxelMerge" }) do
+      local ok, handle = false, nil
+      if mod and type(mod.find) == "function" then
+        ok, handle = pcall(function() return mod.find(id) end)
+      end
+      local api = ok and type(handle) == "table" and handle.exports or nil
       if api ~= Y and type(api) == "table"
           and type(api.activeMon) == "function" then
         local ok, mon = pcall(api.activeMon, game)
@@ -858,13 +913,22 @@ return function(mod, opts)
   end
 
   local function followerPath(mon)
-    if not (spriteAssets and spriteAssets.iconFollower) then return nil end
+    if not spriteAssets then return nil end
     local shiny = shinySystem and shinySystem.isShiny
       and shinySystem.isShiny(mon) or false
     if mon and mon.species == "GOROCHU" and spriteAssets.follower then
       local path = spriteAssets.follower("GOROCHU", shiny)
       if path then return path end
     end
+    -- Kanto's authored Raichu walker is already renderer-ready (six 16x16
+    -- frames in a 16x96 sheet). Kanto's current shiny policy deliberately
+    -- keeps that same species-authentic sheet, matching follower_sprites;
+    -- never reinterpret a 56x56 battle frame as six overworld frames.
+    if spriteAssets.kantoFollower then
+      local path = spriteAssets.kantoFollower(26)
+      if path then return path end
+    end
+    if not spriteAssets.iconFollower then return nil end
     local variant = shiny and "shiny" or "normal"
     local dex = mon and mon.species == "GOROCHU" and 1026 or 26
     local cacheSpecies = mon and mon.species == "GOROCHU"
@@ -1059,6 +1123,46 @@ return function(mod, opts)
     return ok and image or nil
   end
 
+  local function portraitBounds(path, image)
+    local cached = runtime.portraitMetrics[path]
+    if cached then return cached end
+    local width, height = image:getDimensions()
+    local result = { x = 0, y = 0, w = width, h = height }
+    -- Center the visible artwork, not merely the PNG canvas. Several mood
+    -- frames deliberately carry asymmetric transparent padding; centering
+    -- their 40x40 files left Raichu visibly shifted in the talking box.
+    if love and love.image and love.image.newImageData then
+      local ok, data = pcall(love.image.newImageData, path)
+      if ok and data and data.getDimensions and data.getPixel then
+        local dw, dh = data:getDimensions()
+        local minX, minY, maxX, maxY = dw, dh, -1, -1
+        for y = 0, dh - 1 do
+          for x = 0, dw - 1 do
+            local _, _, _, alpha = data:getPixel(x, y)
+            if (alpha or 0) > 0 then
+              minX, minY = math.min(minX, x), math.min(minY, y)
+              maxX, maxY = math.max(maxX, x), math.max(maxY, y)
+            end
+          end
+        end
+        if maxX >= minX and maxY >= minY then
+          result = {
+            x = minX, y = minY,
+            w = maxX - minX + 1, h = maxY - minY + 1,
+          }
+        end
+      end
+    end
+    runtime.portraitMetrics[path] = result
+    return result
+  end
+
+  local function portraitDrawOffset(containerW, containerH, bounds)
+    bounds = bounds or { x = 0, y = 0, w = containerW, h = containerH }
+    return math.floor((containerW - bounds.w) / 2 - bounds.x),
+      math.floor((containerH - bounds.h) / 2 - bounds.y)
+  end
+
   local function portraitBoxX(ow, npc)
     local cameraX = ow and ow.camera and tonumber(ow.camera.x) or 0
     local worldX = npc and tonumber(npc.px)
@@ -1099,7 +1203,7 @@ return function(mod, opts)
     local image = portraitImage(emote.pikaPic)
     if not image then return end
     love.graphics.setColor(1, 1, 1, 1)
-    local w, h = image:getDimensions()
+    local bounds = portraitBounds(emote.pikaPic, image)
     local imageX = (boxX + 1) * 8
     local imageY = (boxY + 1) * 8
     -- These are intentionally colored dialogue portraits. Exempt only the
@@ -1110,9 +1214,8 @@ return function(mod, opts)
     if okPalette and PaletteFX and PaletteFX.markTrueColor then
       PaletteFX.markTrueColor(imageX, imageY, 40, 40)
     end
-    love.graphics.draw(image,
-      math.floor(imageX + (40 - w) / 2),
-      math.floor(imageY + (40 - h) / 2))
+    local offsetX, offsetY = portraitDrawOffset(40, 40, bounds)
+    love.graphics.draw(image, imageX + offsetX, imageY + offsetY)
   end
 
   local function installPortraitAnimator()
@@ -1265,15 +1368,29 @@ return function(mod, opts)
     local _, external = externalFollowerMon(game)
     if external then return callback() end
     local mon = partnerInParty(game, true)
-    if not (mon and isEvolvedPartnerSpecies(mon.species)) then
-      restoreVanillaFollower(game)
-      return callback()
+    -- PikachuFollower.shouldSpawn still scans party species directly.  Hide
+    -- every unmarked Pikachu for the duration of that vanilla call so a
+    -- caught/event Pikachu can never stand in for a boxed or fainted starter.
+    -- When the exact marked partner is active, it is the only temporary
+    -- Pikachu the native spawn code is allowed to see.
+    local masked = {}
+    for _, candidate in ipairs(game and game.save and game.save.party or {}) do
+      if candidate ~= mon and candidate.species == "PIKACHU" then
+        masked[#masked + 1] = candidate
+        candidate.species = "RAICHU"
+      end
     end
-    configureRaichuFollower(game, mon)
-    local species = mon.species
-    mon.species = "PIKACHU"
+    local species
+    if mon and isEvolvedPartnerSpecies(mon.species) then
+      configureRaichuFollower(game, mon)
+      species = mon.species
+      mon.species = "PIKACHU"
+    else
+      restoreVanillaFollower(game)
+    end
     local packed = { pcall(callback) }
-    mon.species = species
+    if species then mon.species = species end
+    for _, candidate in ipairs(masked) do candidate.species = "PIKACHU" end
     if not packed[1] then error(packed[2], 2) end
     return unpack(packed, 2)
   end
@@ -1305,11 +1422,14 @@ return function(mod, opts)
     local frames = portraitFrames(mon, reaction)
     local pic = frames and frames[1] or nil
     local portrait = reaction.portrait or {}
+    local presentation = followerConfig and followerConfig.presentation
+      and followerConfig.presentation() or "ascendant_box"
+    local ascendantBox = presentation ~= "yellow_center"
     ow.emote = {
       npc = npc, frames = portrait.hold or 120,
       bubble = bubble or false, pikaPic = pic,
       pikaTotal = portrait.hold or 120, skippable = true,
-      _ascendantRaichuPortrait = true,
+      _ascendantRaichuPortrait = ascendantBox,
       _ascendantRaichuFrames = frames,
       _ascendantRaichuTicks = portrait.ticks,
       _ascendantRaichuBoxX = portraitBoxX(ow, npc),
@@ -1347,17 +1467,29 @@ return function(mod, opts)
       talk = follower.talk,
     }
     follower.starterInParty = function(save, needHealthy)
-      local original = holder.starterInParty(save, needHealthy)
-      if original then return original end
       local gameNow = holder.controller and holder.controller.game
-      if gameNow and gameNow.save == save then
+      -- Once the identity controller owns this Yellow save, species alone is
+      -- never evidence of being Oak's partner.  Calling the vanilla lookup
+      -- first made every caught/event Pikachu impersonate the starter and, if
+      -- the real partner had evolved, hid that Raichu behind the first normal
+      -- Pikachu in the party.
+      if gameNow and gameNow.save == save and isYellow() then
         return partnerInParty(gameNow, needHealthy)
       end
+      return holder.starterInParty(save, needHealthy)
     end
     follower.modifyHappiness = function(save, reason, mon)
       local gameNow = holder.controller and holder.controller.game
       local partner = gameNow and gameNow.save == save
         and markedPartner(save) or nil
+      if gameNow and gameNow.save == save and isYellow() then
+        local globalReason = reason == "GYMLEADER" or reason == "WALKING"
+        if not globalReason and mon ~= partner then
+          -- Items, level-ups, fainting and deposits affect the exact starter
+          -- only.  An ordinary or event Pikachu must remain an ordinary mon.
+          return nil
+        end
+      end
       if partner and mon == partner
           and isEvolvedPartnerSpecies(partner.species) then
         local species = partner.species
@@ -1407,8 +1539,26 @@ return function(mod, opts)
     Y.migrate(game)
   end
 
+  function Y.setFollowerConfig(config)
+    followerConfig = config
+  end
+
   function Y.isPartner(mon)
     return type(mon) == "table" and mon[MARKER] == true
+  end
+
+  -- Legacy Yellow's three-path Oak handoff creates the chosen Pikachu through
+  -- the shared partner transaction rather than Commands.give_pokemon. Mark
+  -- that exact object explicitly; species alone is never sufficient.
+  function Y.markLegacyPartner(game, mon)
+    game = game or Y.game
+    if not (game and game.save and isYellow()
+        and type(mon) == "table" and mon.species == "PIKACHU") then
+      return false
+    end
+    stamp(mon)
+    trackStatsIdentity(mon)
+    return true
   end
 
   function Y.partner(game)
@@ -1463,6 +1613,8 @@ return function(mod, opts)
   Y._advanceRaichuPortrait = advanceRaichuPortrait
   Y._drawRaichuPortrait = drawRaichuPortrait
   Y._portraitBoxX = portraitBoxX
+  Y._portraitDrawOffset = portraitDrawOffset
+  Y._portraitBounds = portraitBounds
   Y._portraitFrames = portraitFrames
   Y._adaptPartnerText = adaptPartnerText
   Y._choiceRows = choiceRows

@@ -6,6 +6,9 @@ return function(mod, opts)
   local i18n = opts.i18n
   local postgame = opts.postgame
   local breedingData = opts.breedingData or {}
+  local eggMoves = opts.eggMoves or {}
+  local pokemonGender = opts.pokemonGender
+  local hatchAnimation = opts.hatchAnimation
   local enabled = opts.contentEnabled ~= false
   local D = {
     game = nil,
@@ -15,13 +18,15 @@ return function(mod, opts)
   local mega
   local shinySystem = opts.shinySystem
   local fieldTech = opts.fieldTech
+  local hevoPackages = opts.hevoPackages
   local frontierExchange = opts.frontierExchange
+  local beyondKanto = opts.beyondKanto or opts.johtoBoundary
 
-  local EGG_CHECK_STEPS = 256
   local DEFAULT_HATCH_STEPS = 2048
   local BABY_SPECIES = {
     PICHU = true, CLEFFA = true, IGGLYBUFF = true, TOGEPI = true,
     TYROGUE = true, SMOOCHUM = true, ELEKID = true, MAGBY = true,
+    AZURILL = true, WYNAUT = true,
   }
   local BABY_ROOTS = {
     PIKACHU = "PICHU", RAICHU = "PICHU", GOROCHU = "PICHU",
@@ -30,46 +35,59 @@ return function(mod, opts)
     TOGETIC = "TOGEPI",
     HITMONLEE = "TYROGUE", HITMONCHAN = "TYROGUE", HITMONTOP = "TYROGUE",
     JYNX = "SMOOCHUM", ELECTABUZZ = "ELEKID", MAGMAR = "MAGBY",
+    MARILL = "AZURILL", AZUMARILL = "AZURILL",
+    WOBBUFFET = "WYNAUT",
   }
   local NO_EGGS = {
     ARTICUNO = true, ZAPDOS = true, MOLTRES = true, MEWTWO = true,
     MEW = true, RAIKOU = true, ENTEI = true, SUICUNE = true,
     LUGIA = true, HO_OH = true, CELEBI = true, UNOWN = true,
   }
-  local GENDERLESS = {
-    MAGNEMITE = true, MAGNETON = true, VOLTORB = true, ELECTRODE = true,
-    STARYU = true, STARMIE = true, PORYGON = true, PORYGON2 = true,
-    DITTO = true,
-  }
-  local FEMALE_ONLY = {
-    NIDORAN_F = true, NIDORINA = true, NIDOQUEEN = true,
-    CHANSEY = true, BLISSEY = true, KANGASKHAN = true, JYNX = true,
-    SMOOCHUM = true, MILTANK = true,
-  }
-  local MALE_ONLY = {
-    NIDORAN_M = true, NIDORINO = true, NIDOKING = true,
-    HITMONLEE = true, HITMONCHAN = true, HITMONTOP = true,
-    TAUROS = true,
-  }
 
   local function tr(en, de)
     return i18n and i18n.text(en, de) or en
+  end
+
+  local function beyondActive(game)
+    return not beyondKanto or type(beyondKanto.isActive) ~= "function"
+      or beyondKanto.isActive(game or D.game)
+  end
+
+  local function speciesAllowed(game, species)
+    if beyondActive(game) then return true end
+    local def = game and game.data and game.data.pokemon
+      and game.data.pokemon[species]
+    local dex = def and tonumber(def.dex)
+    if not dex and beyondKanto
+        and type(beyondKanto.speciesDex) == "function" then
+      dex = beyondKanto.speciesDex(game or D.game, species)
+    end
+    dex = tonumber(dex)
+    return dex ~= nil and dex >= 1 and dex <= 151
+  end
+
+  local function sealedEggText()
+    return tr(
+      "This EGG remains safe,\nbut BEYOND KANTO is\nsealed in this save.",
+      "Dieses EI bleibt sicher,\naber JENSEITS VON KANTO\nist hier versiegelt.")
   end
 
   local function state(create)
     local s = mod.save:get("daycare_plus")
     if type(s) ~= "table" and create ~= false then
       s = {
-        version = 2, parents = {}, eggMeter = 0, reservedEggs = {},
+        version = 3, parents = {}, eggStepsToCheck = nil, reservedEggs = {},
         eggsProduced = 0, eggsHatched = 0,
       }
       mod.save:set("daycare_plus", s)
     end
     if type(s) == "table" then
-      s.version = 2
+      s.version = 3
       s.parents = type(s.parents) == "table" and s.parents or {}
       s.reservedEggs = type(s.reservedEggs) == "table" and s.reservedEggs or {}
-      s.eggMeter = math.max(0, math.floor(tonumber(s.eggMeter) or 0))
+      s.eggStepsToCheck = s.eggStepsToCheck == nil and nil
+        or math.max(0, math.min(255,
+          math.floor(tonumber(s.eggStepsToCheck) or 0)))
       s.eggsProduced = math.max(0, math.floor(tonumber(s.eggsProduced) or 0))
       s.eggsHatched = math.max(0, math.floor(tonumber(s.eggsHatched) or 0))
     end
@@ -86,23 +104,11 @@ return function(mod, opts)
   end
 
   local function gender(game, mon)
-    if not mon then return nil end
-    local def = game and game.data.pokemon[mon.species]
-    local row = def and breedingData[def.dex]
-    if row then
-      if row.gender == nil or row.gender < 0 then return nil end
-      if row.gender == 0 then return "M" end
-      if row.gender >= 8 then return "F" end
-      local attackDv = mon.dvs and tonumber(mon.dvs.attack) or 0
-      return attackDv < row.gender * 2 and "F" or "M"
-    end
-    if GENDERLESS[mon.species] or NO_EGGS[mon.species] then
-      return nil
-    end
-    if FEMALE_ONLY[mon.species] then return "F" end
-    if MALE_ONLY[mon.species] then return "M" end
-    local attackDv = mon.dvs and tonumber(mon.dvs.attack) or 0
-    return attackDv % 2 == 0 and "F" or "M"
+    if not (pokemonGender and mon) then return nil end
+    local value = pokemonGender.getMonGender(mon, game)
+    if value == pokemonGender.MALE then return "M" end
+    if value == pokemonGender.FEMALE then return "F" end
+    return nil
   end
 
   -- A compact Kanto/Johto breeding-group model. A species may occupy more
@@ -153,18 +159,34 @@ return function(mod, opts)
   end
 
   local function babyFor(game, species)
-    if BABY_ROOTS[species] then return BABY_ROOTS[species] end
+    if BABY_ROOTS[species] and speciesAllowed(game, BABY_ROOTS[species]) then
+      return BABY_ROOTS[species]
+    end
     local pre = preEvolutionMap(game)
     local seen = {}
     while pre[species] and not seen[species] do
       seen[species] = true
+      if not speciesAllowed(game, pre[species]) then break end
       species = pre[species]
     end
-    return species
+    return speciesAllowed(game, species) and species or nil
   end
 
+  local function sameOt(a, b)
+    if a and b and a.otId ~= nil and b.otId ~= nil then
+      return tonumber(a.otId) == tonumber(b.otId)
+    end
+    return a and b and a.ot ~= nil and a.ot == b.ot
+  end
+
+  -- Crystal's compatibility byte: 255/254 for matching species and 128/51
+  -- for different species; matching OTs take the lower value.
   local function compatible(game, a, b)
     if not (a and b) or a.isEgg or b.isEgg then return false, 0 end
+    if not speciesAllowed(game, a.species)
+        or not speciesAllowed(game, b.species) then
+      return false, 0
+    end
     local ag, bg = groupsFor(game, a), groupsFor(game, b)
     if ag["no-eggs"] or bg["no-eggs"]
         or (ag.ditto and bg.ditto) then return false, 0 end
@@ -179,29 +201,30 @@ return function(mod, opts)
         and ad.special % 8 == bd.special % 8 then
       return false, 0
     end
-    if (ag.ditto and not bg["no-eggs"])
-        or (bg.ditto and not ag["no-eggs"]) then return true, 50 end
-    local ga, gb = gender(game, a), gender(game, b)
-    if not ga or not gb or ga == gb then return false, 0 end
-    if babyFor(game, a.species) == babyFor(game, b.species) then
-      return true, a.species == b.species and 70 or 50
+    local dittoA, dittoB = ag.ditto == true, bg.ditto == true
+    if not (dittoA or dittoB) then
+      local ga, gb = gender(game, a), gender(game, b)
+      if not ga or not gb or ga == gb then return false, 0 end
+      local shared = false
+      for group in pairs(ag) do if bg[group] then shared = true break end end
+      if not shared then return false, 0 end
     end
-    for group in pairs(ag) do
-      if bg[group] then return true, a.species == b.species and 50 or 30 end
-    end
-    return false, 0
+    local base = a.species == b.species and 255 or 128
+    return true, sameOt(a, b) and (base - 1) or base
   end
 
-  local function eggSpecies(game, a, b)
+  local function eggSpecies(game, a, b, random)
     local mother
     if a.species == "DITTO" then mother = b
     elseif b.species == "DITTO" then mother = a
     else mother = gender(game, a) == "F" and a or b end
     local species = babyFor(game, mother.species)
-    -- The two Nidoran families share eggs; retain the mother's family so
-    -- the result is deterministic and save/replay friendly.
-    if mother.species == "NIDORINA" or mother.species == "NIDOQUEEN" then
-      species = "NIDORAN_F"
+    if not species then return nil end
+    -- Crystal's Nidoran♀ offspring roll is the historical exception to the
+    -- maternal-family rule: it produces either Nidoran at 50/50.
+    if species == "NIDORAN_F" then
+      random = random or (love and love.math and love.math.random) or math.random
+      if random(0, 255) >= 128 then species = "NIDORAN_M" end
     end
     return species
   end
@@ -244,6 +267,74 @@ return function(mod, opts)
     return dvs
   end
 
+  local function moveIds(mon)
+    local out = {}
+    for _, move in ipairs(mon and mon.moves or {}) do
+      local id = type(move) == "table" and move.id or move
+      if id then out[#out + 1] = id end
+    end
+    return out
+  end
+
+  local function hasMove(mon, id)
+    for _, known in ipairs(moveIds(mon)) do if known == id then return true end end
+    return false
+  end
+
+  local function learnsByLevel(def, id)
+    for _, entry in ipairs(def and def.learnset or {}) do
+      if entry.move == id then return true end
+    end
+    for _, starting in ipairs(def and def.level1Moves or {}) do
+      if starting == id then return true end
+    end
+    return false
+  end
+
+  local function canLearnMachine(def, id)
+    for _, machineMove in ipairs(def and def.tmhm or {}) do
+      if machineMove == id then return true end
+    end
+    return false
+  end
+
+  local function addEggMove(moves, id)
+    for _, known in ipairs(moves) do if known == id then return end end
+    if #moves >= 4 then table.remove(moves, 1) end
+    moves[#moves + 1] = id
+  end
+
+  -- Crystal InitEggMoves: egg/TM moves come from the father; level-up moves
+  -- transfer only when both parents know them. A female paired with Ditto
+  -- has no move donor, while a male paired with Ditto may pass egg/TM moves.
+  local function inheritedMoves(game, species, a, b)
+    local Pokemon = require("src.pokemon.Pokemon")
+    local def = game.data.pokemon[species] or {}
+    local moves = Pokemon.movesAtLevel(def, 5)
+    local source, counterpart
+    if a.species == "DITTO" then
+      source, counterpart = b, a
+      if gender(game, b) ~= "M" then source = a end
+    elseif b.species == "DITTO" then
+      source, counterpart = a, b
+      if gender(game, a) ~= "M" then source = b end
+    elseif gender(game, a) == "M" then
+      source, counterpart = a, b
+    else
+      source, counterpart = b, a
+    end
+    local eggSet = {}
+    for _, id in ipairs(eggMoves[def.dex] or {}) do eggSet[id] = true end
+    for _, id in ipairs(moveIds(source)) do
+      if game.data.moves[id] and (eggSet[id]
+          or (hasMove(counterpart, id) and learnsByLevel(def, id))
+          or canLearnMachine(def, id)) then
+        addEggMove(moves, id)
+      end
+    end
+    return moves
+  end
+
   local function compatibilityText(game, s)
     local a = s.parents[1] and s.parents[1].mon
     local b = s.parents[2] and s.parents[2].mon
@@ -251,14 +342,14 @@ return function(mod, opts)
       return tr("The old man needs two\nPOKéMON to find an EGG.",
                 "Der Pfleger braucht zwei\nPOKéMON für ein EI.")
     end
-    local ok, chance = compatible(game, a, b)
+    local ok, compatibility = compatible(game, a, b)
     if not ok then
       return tr("They prefer to play\nwith other POKéMON.",
                 "Sie spielen lieber mit\nanderen POKéMON.")
-    elseif chance >= 60 then
+    elseif compatibility >= 230 then
       return tr("The two get along\nextraordinarily well!",
                 "Die beiden verstehen\nsich ausgezeichnet!")
-    elseif chance >= 45 then
+    elseif compatibility >= 70 then
       return tr("The two seem to get\nalong very well.",
                 "Die beiden verstehen\nsich sehr gut.")
     end
@@ -285,6 +376,13 @@ return function(mod, opts)
         game.data.pokemon[row.species], mon.level, mon.dvs, mon.statExp)
     end
     require("src.battle.BattleState").stampOT(game.save, mon)
+    if type(row.moves) == "table" then
+      mon.moves = {}
+      for _, id in ipairs(row.moves) do
+        local move = game.data.moves[id]
+        if move then mon.moves[#mon.moves + 1] = { id = id, pp = move.pp or 0 } end
+      end
+    end
     mon.isEgg = true
     mon.eggSpecies = row.species
     mon.eggStepsRemaining = math.max(1,
@@ -311,24 +409,33 @@ return function(mod, opts)
     local row = s.reservedEggs[index or 1]
     if not row then
       return tr("There is no EGG\nwaiting right now.",
-                "Momentan wartet\nkein EI.")
+                "Momentan wartet\nkein EI."), false
+    end
+    if not speciesAllowed(game, row.species) then
+      return sealedEggText(), false
     end
     if #game.save.party >= require("src.pokemon.Party").MAX then
       return tr("Make room in your\nPARTY for the EGG.",
-                "Schaffe im TEAM\nPlatz für das EI.")
+                "Schaffe im TEAM\nPlatz für das EI."), false
     end
     table.insert(game.save.party, makeEgg(game, row))
     table.remove(s.reservedEggs, index or 1)
+    s.eggStepsToCheck = nil
     persist(s)
     return tr(
       ("%s received an EGG!\fIt may hatch after\n%d steps."):format(
         game.save.player.name, row.steps or DEFAULT_HATCH_STEPS),
       ("%s erhält ein EI!\fEs schlüpft nach\netwa %d Schritten."):format(
-        game.save.player.name, row.steps or DEFAULT_HATCH_STEPS))
+        game.save.player.name, row.steps or DEFAULT_HATCH_STEPS)), true
   end
 
   local function hatchEgg(game, mon)
     local species = mon.eggSpecies or mon.species
+    if not speciesAllowed(game, species) then
+      mon.eggStepsRemaining = math.max(1,
+        math.floor(tonumber(mon.eggStepsRemaining) or 1))
+      return sealedEggText(), false
+    end
     mon.species = species
     mon.isEgg = nil
     mon.eggSpecies = nil
@@ -364,7 +471,7 @@ return function(mod, opts)
       ("Oh?\fThe EGG hatched!\f%s was born!"):format(
         game.data.pokemon[species].name),
       ("Oh?\fDas EI schlüpft!\f%s wurde geboren!"):format(
-        game.data.pokemon[species].name))
+        game.data.pokemon[species].name)), true
   end
 
   local function step(game)
@@ -378,38 +485,61 @@ return function(mod, opts)
     end
     local a = s.parents[1] and s.parents[1].mon
     local b = s.parents[2] and s.parents[2].mon
-    local ok, chance = compatible(game, a, b)
+    local ok, compatibility = compatible(game, a, b)
     if ok and #s.reservedEggs == 0 then
-      s.eggMeter = s.eggMeter + 1
-      if s.eggMeter >= EGG_CHECK_STEPS then
-        s.eggMeter = s.eggMeter - EGG_CHECK_STEPS
-        local random = love and love.math and love.math.random or math.random
-        if random(1, 100) <= chance then
-          local species = eggSpecies(game, a, b)
-          s.reservedEggs[#s.reservedEggs + 1] = {
-            species = species,
-            steps = hatchStepsFor(game, species),
-            origin = "ROUTE 5 DAY-CARE",
-            dvs = inheritedDVs(game, species, a, b, random),
-          }
-          s.eggsProduced = s.eggsProduced + 1
+      local random = love and love.math and love.math.random or math.random
+      if s.eggStepsToCheck == nil then
+        repeat s.eggStepsToCheck = random(0, 255)
+        until s.eggStepsToCheck >= 150
+      end
+      s.eggStepsToCheck = s.eggStepsToCheck - 1
+      if s.eggStepsToCheck <= 0 then
+        s.eggStepsToCheck = random(0, 255)
+        local threshold = compatibility >= 230 and 80
+          or compatibility >= 170 and 40
+          or compatibility >= 110 and 30 or 10
+        if random(0, 255) < threshold then
+          local species = eggSpecies(game, a, b, random)
+          if species then
+            s.reservedEggs[#s.reservedEggs + 1] = {
+              species = species,
+              steps = hatchStepsFor(game, species),
+              origin = "ROUTE 5 DAY-CARE",
+              dvs = inheritedDVs(game, species, a, b, random),
+              moves = inheritedMoves(game, species, a, b),
+            }
+            s.eggsProduced = s.eggsProduced + 1
+          end
         end
       end
     end
-    local pages = {}
+    local hatching = {}
     for _, mon in ipairs(game.save.party or {}) do
       if mon.isEgg then
         mon.hp = 0
         mon.status = nil
-        mon.eggStepsRemaining = math.max(0,
-          math.floor(tonumber(mon.eggStepsRemaining) or 1) - 1)
-        if mon.eggStepsRemaining <= 0 then
-          pages[#pages + 1] = hatchEgg(game, mon)
+        if not speciesAllowed(game, mon.eggSpecies or mon.species) then
+          mon.eggStepsRemaining = math.max(1,
+            math.floor(tonumber(mon.eggStepsRemaining) or 1))
+        else
+          mon.eggStepsRemaining = math.max(0,
+            math.floor(tonumber(mon.eggStepsRemaining) or 1) - 1)
+          if mon.eggStepsRemaining <= 0 then
+            hatching[#hatching + 1] = mon
+          end
         end
       end
     end
     persist(s)
-    if #pages > 0 then
+    if #hatching > 0 and hatchAnimation
+        and hatchAnimation.start(game, hatching, function(mon)
+          return hatchEgg(game, mon)
+        end) then
+      return
+    end
+    if #hatching > 0 then
+      local pages = {}
+      for _, mon in ipairs(hatching) do pages[#pages + 1] = hatchEgg(game, mon) end
       game.stack:push(require("src.render.TextBox").new(
         game, table.concat(pages, "\f")))
     end
@@ -439,6 +569,7 @@ return function(mod, opts)
         s.parents[slot] = {
           mon = mon, depositLevel = mon.level, steps = 0,
         }
+        s.eggStepsToCheck = nil
         persist(s)
         game.stack:push(require("src.render.TextBox").new(game, tr(
           ("I'll look after\n%s in slot %d."):format(nameOf(game, mon), slot),
@@ -488,6 +619,7 @@ return function(mod, opts)
         require("src.pokemon.Pokemon").heal(mon)
         table.insert(game.save.party, mon)
         s.parents[slot] = nil
+        s.eggStepsToCheck = nil
         persist(s)
         game.stack:push(require("src.render.TextBox").new(game, tr(
           ("%s came back to\nyour PARTY!"):format(nameOf(game, mon)),
@@ -509,6 +641,13 @@ return function(mod, opts)
         end
       end
     end
+    if hevoPackages and hevoPackages.daycareChoices then
+      for _, row in ipairs(hevoPackages.daycareChoices(game)) do
+        out[#out + 1] = { mon = row.mon, evo = {
+          species = row.target, item = row.item, method = row.package.method,
+        }, hevo = row }
+      end
+    end
     return out
   end
 
@@ -528,15 +667,24 @@ return function(mod, opts)
         value = i,
       }
     end
-    game.stack:push(mod.ui.ListMenu.new(game, tr("EVOLUTION", "ENTWICKLUNG"),
+    game.stack:push((mod.ui.KantoListMenu or mod.ui.ListMenu).new(game, tr("EVOLUTION", "ENTWICKLUNG"),
       rows, {
         onCancel = done,
         onChoose = function(item, menu)
           local row = choices[item.value]
           menu:close()
-          require("src.inventory.Bag").remove(game.save, row.evo.item, 1)
-          require("src.pokemon.Evolution").evolve(
-            game, row.mon, row.evo.species, done, row.evo.method)
+          if row.hevo then
+            local ok = hevoPackages.evolveAtDaycare(game, row.hevo, done)
+            if not ok then
+              game.stack:push(require("src.render.TextBox").new(game, tr(
+                "The evolution could not start.",
+                "Die Entwicklung konnte nicht starten."), done))
+            end
+          else
+            require("src.inventory.Bag").remove(game.save, row.evo.item, 1)
+            require("src.pokemon.Evolution").evolve(
+              game, row.mon, row.evo.species, done, row.evo.method)
+          end
         end,
       }))
   end
@@ -584,7 +732,7 @@ return function(mod, opts)
       end
     end
     rows[#rows + 1] = { label = tr("CANCEL", "ZURÜCK"), value = "cancel" }
-    game.stack:push(mod.ui.ListMenu.new(game,
+    game.stack:push((mod.ui.KantoListMenu or mod.ui.ListMenu).new(game,
       tr("EVOLUTION MACHINE", "ENTWICKLUNGSMASCHINE"), rows, {
         onCancel = done,
         onChoose = function(item, menu)
@@ -656,7 +804,7 @@ return function(mod, opts)
       }
     end
     rows[#rows + 1] = { label = tr("CANCEL", "ZURÜCK"), value = "cancel" }
-    game.stack:push(mod.ui.ListMenu.new(game, tr("ROUTE 5 DAY-CARE", "ROUTE-5-PENSION"),
+    game.stack:push((mod.ui.KantoListMenu or mod.ui.ListMenu).new(game, tr("ROUTE 5 DAY-CARE", "ROUTE-5-PENSION"),
       rows, {
         onCancel = done,
         onChoose = function(item, menu)
@@ -665,10 +813,13 @@ return function(mod, opts)
             game.stack:push(require("src.render.TextBox").new(
               game, compatibilityText(game, s)))
           elseif item.value == "egg" then
+            local message, taken = takeReservedEgg(game, 1)
             game.stack:push(require("src.render.TextBox").new(
-              game, takeReservedEgg(game, 1)))
-            item.right = nil
-            item.label = tr("NO EGG", "KEIN EI")
+              game, message))
+            if taken then
+              item.right = nil
+              item.label = tr("NO EGG", "KEIN EI")
+            end
           else
             local action, slot = item.value:match("^(%a+)(%d)$")
             menu:close()
@@ -831,6 +982,57 @@ return function(mod, opts)
   function D.inheritedDVs(game, species, a, b, random)
     return inheritedDVs(game, species, a, b, random)
   end
+
+  function D.inheritedMoves(game, species, a, b)
+    return inheritedMoves(game, species, a, b)
+  end
+
+  function D.eggSpecies(game, a, b, random)
+    return eggSpecies(game, a, b, random)
+  end
+
+  -- Controller seams used by the authored research hand-off and regression
+  -- tests. Both retain their payload and fail closed while the save is sealed.
+  function D.takeReservedEgg(game, index)
+    return takeReservedEgg(game, index)
+  end
+
+  function D.hatchEgg(game, mon)
+    return hatchEgg(game, mon)
+  end
+
+  D.evolutionChoices = evolutionChoices
+
+  function D.productionThreshold(compatibility)
+    compatibility = tonumber(compatibility) or 0
+    return compatibility >= 230 and 80
+      or compatibility >= 170 and 40
+      or compatibility >= 110 and 30 or 10
+  end
+
+  mod.hooks:wrap("fieldmove.eligibility", function(nextEligibility, moveId, ctx)
+    local mon = nextEligibility(moveId, ctx)
+    return mon and not mon.isEgg and mon or nil
+  end, 80)
+
+  -- The engine assembles field-move rows from a mon's known moves before it
+  -- asks fieldmove.eligibility.  Keep Eggs out of that earlier presentation
+  -- step too: a blocked CUT/SURF row is misleading, and a battle switch to an
+  -- Egg must never be offered.  Outside battle an Egg may still be inspected
+  -- or reordered in the party, which keeps the normal hatch workflow intact.
+  mod.hooks:wrap("ui.party.submenu", function(nextItems, game, items, mon, ctx)
+    local resolved = nextItems(game, items, mon, ctx)
+    if not (mon and mon.isEgg) then return resolved end
+    local filtered = {}
+    for _, item in ipairs(resolved or {}) do
+      local action = item.action
+      if action == "stats" or (action == "switch" and not (ctx and ctx.battle))
+          or action == "cancel" then
+        filtered[#filtered + 1] = item
+      end
+    end
+    return filtered
+  end, 80)
 
   mod.events:on("world.stepped", function()
     if enabled and D.game then step(D.game) end

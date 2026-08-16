@@ -1,0 +1,9 @@
+{
+  "id": "ka_legacy_story_blue_de",
+  "name": "KA Legacy Story Blue German QA Bridge",
+  "version": "0.0.0-test",
+  "api": 2,
+  "entry": "main.lua",
+  "profile": "content",
+  "dependencies": ["kanto_ascendant", "deutsch-blau"]
+}

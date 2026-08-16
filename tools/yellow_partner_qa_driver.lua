@@ -13,7 +13,7 @@ return function(game)
 
   U.wait(20)
   local ascendant = assert(
-    game.mods and game.mods.exports and game.mods.exports.trainer_rematch,
+    game.mods and game.mods.exports and game.mods.exports.kanto_ascendant,
     "Kanto Ascendant export missing")
   local partnerApi = assert(ascendant.yellowPartner,
     "Yellow partner controller missing")
@@ -50,7 +50,7 @@ return function(game)
   game.save.flags.EVENT_CHOSE_PIKACHU = true
   game.save.inventory.THUNDERBADGE = true
 
-  local bucket = game.save.modData and game.save.modData.trainer_rematch
+  local bucket = game.save.modData and game.save.modData.kanto_ascendant
   if bucket then bucket.yellow_partner = nil end
 
   if not GameVersion.isYellow() then

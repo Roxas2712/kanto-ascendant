@@ -13,7 +13,7 @@ return function(game)
   U.wait(20)
   local exports = assert(game.mods and game.mods.exports,
     "mod exports unavailable")
-  local ascendant = assert(exports.trainer_rematch,
+  local ascendant = assert(exports.kanto_ascendant,
     "Kanto Ascendant export missing")
   local wilds = assert(exports.overworld_wild_spawns,
     "Wilds of Kanto export missing")

@@ -5,6 +5,7 @@
 return function(mod, opts)
   opts = opts or {}
   local i18n = opts.i18n
+  local beyondKanto = opts.beyondKanto or opts.johtoBoundary
   local D = { game = nil }
   local KANTO_DEX_SIZE = 151
 
@@ -95,6 +96,11 @@ return function(mod, opts)
     if s then mod.save:set("dex_progress", s) end
   end
 
+  local function boundaryActive(game)
+    return not beyondKanto or type(beyondKanto.isActive) ~= "function"
+      or beyondKanto.isActive(game or D.game)
+  end
+
   local function nationalDexText()
     return tr(
       "POKéDEX linked to\nJohto records!\f"
@@ -103,13 +109,17 @@ return function(mod, opts)
         .. "Dein POKéDEX wurde\nzum NATIONALDEX\nerweitert!")
   end
 
-  function D.hasNationalDex()
+  function D.hasNationalDex(game)
+    if not boundaryActive(game) then return false end
     local s = state(false)
     return type(s) == "table" and s.nationalDexUnlocked == true
   end
 
   function D.unlockNationalDex(game)
     D.game = game or D.game
+    if not boundaryActive(D.game) then
+      return false, "beyond-kanto-sealed"
+    end
     local s = state()
     if s.nationalDexUnlocked then
       return false, "already-unlocked", nationalDexText()
@@ -126,7 +136,10 @@ return function(mod, opts)
   -- receiverRepaired, so that flag alone must never reveal Johto early.
   function D.reconcileNationalDex(game)
     D.game = game or D.game
-    if D.hasNationalDex() then return false, "already-unlocked" end
+    if not boundaryActive(D.game) then
+      return false, "beyond-kanto-sealed"
+    end
+    if D.hasNationalDex(D.game) then return false, "already-unlocked" end
     local s = state()
     local exports = mod.exports or {}
     local signals = exports.johtoSignals
@@ -158,7 +171,7 @@ return function(mod, opts)
     local constants = game and game.data and game.data.constants or {}
     local registered = math.max(KANTO_DEX_SIZE,
       math.floor(tonumber(constants.dexSize) or KANTO_DEX_SIZE))
-    return D.hasNationalDex() and registered or KANTO_DEX_SIZE
+    return D.hasNationalDex(game) and registered or KANTO_DEX_SIZE
   end
 
   -- The engine's ordinary Pokédex builds its list directly from the global
@@ -361,7 +374,7 @@ return function(mod, opts)
         }
       end
     end
-    game.stack:push(mod.ui.ListMenu.new(game,
+    game.stack:push((mod.ui.KantoListMenu or mod.ui.ListMenu).new(game,
       #rows == 1 and tr("DEX CERTIFICATE", "DEX-ZERTIFIKAT")
         or tr("DEX CERTIFICATES", "DEX-ZERTIFIKATE"), rows, {
         pageJump = true,
@@ -391,7 +404,7 @@ return function(mod, opts)
             }
           end
         end
-        return mod.ui.ListMenu.new(game,
+        return (mod.ui.KantoListMenu or mod.ui.ListMenu).new(game,
           #rows == 1 and tr("DEX CERTIFICATE", "DEX-ZERTIFIKAT")
             or tr("DEX CERTIFICATES", "DEX-ZERTIFIKATE"), rows, {
             pageJump = true,
@@ -474,6 +487,7 @@ return function(mod, opts)
   end, 280)
 
   D.state = state
+  D.boundaryActive = boundaryActive
   D.ownedThrough = ownedThrough
   D.complete = complete
   D.refresh = refresh

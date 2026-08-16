@@ -47,15 +47,41 @@ jobs:
           TRAINER_REMATCH_MOD_DIR: ../kanto-ascendant
         run: |
           luajit ../kanto-ascendant/tests/trainer_rematch_test.lua
+          luajit ../kanto-ascendant/tests/starter_signature_families_test.lua
           luajit ../kanto-ascendant/tests/gorochu_visuals_test.lua
-          luajit ../kanto-ascendant/tests/battle_art_voxel_compat_test.lua
-          luajit ../kanto-ascendant/tests/dramaless_camera_compat_test.lua
-          luajit ../kanto-ascendant/tests/dramaless_camera_option_menu_test.lua
           luajit ../kanto-ascendant/tests/gorochu_audio_matrix_test.lua
           luajit ../kanto-ascendant/tests/field_economy_test.lua
+          luajit ../kanto-ascendant/tests/espeon_psybeam_regression_test.lua
           luajit ../kanto-ascendant/tests/atlas_legacy_test.lua
           luajit ../kanto-ascendant/tests/reachability_test.lua
           luajit ../kanto-ascendant/tests/upgrade_matrix_test.lua
+          luajit ../kanto-ascendant/tests/crystal_v15_test.lua
+          python3 ../kanto-ascendant/tests/crystal_v15_assets_test.py
+          luajit ../kanto-ascendant/tests/extended_characters_test.lua
+          luajit ../kanto-ascendant/tests/extended_characters_yellow_test.lua
+          luajit ../kanto-ascendant/tests/rival_teams_test.lua
+          luajit ../kanto-ascendant/tests/pokemon_gender_test.lua
+          luajit ../kanto-ascendant/tests/breeding_phase7_test.lua
+          python3 ../kanto-ascendant/tests/crystal_character_assets_test.py
+          python3 ../kanto-ascendant/tools/character_asset_tool.py validate
+
+      - name: Verify the real-data Johto Move Reminder merge
+        working-directory: gen1recomp
+        env:
+          TRAINER_REMATCH_MOD_DIR: ../kanto-ascendant
+        run: luajit ../kanto-ascendant/tests/johto_move_reminder_engine_test.lua
+
+      - name: Verify private-Dex data and move mechanics
+        working-directory: gen1recomp
+        env:
+          TRAINER_REMATCH_MOD_DIR: ../kanto-ascendant
+        run: luajit ../kanto-ascendant/tests/legacy_252_279_data_engine_test.lua
+
+      - name: Verify the real-data NG+ rival partner curve
+        working-directory: gen1recomp
+        env:
+          TRAINER_REMATCH_MOD_DIR: ../kanto-ascendant
+        run: luajit ../kanto-ascendant/tests/legacy_rival_partner_engine_test.lua
 
       - name: Run the Johto Signals regression suite
         working-directory: kanto-ascendant
@@ -69,6 +95,8 @@ jobs:
           luajit tests/johto_signals_wilds_test.lua
           luajit tests/wilds_1_7_1_compat_test.lua
           luajit tests/johto_signals_ui_integration_test.lua
+          luajit tests/legacy_starters_test.lua
+          luajit tests/hevo_species_test.lua
           python3 tests/johto_signals_scope_audit_test.py
 
       - name: Run the engine-backed Johto Signals suite
@@ -82,6 +110,52 @@ jobs:
           luajit ../kanto-ascendant/tests/driftglass_prisms_map_test.lua
           luajit ../kanto-ascendant/tests/mythic_signals_test.lua
 
+      - name: Run the 6.5 integration and UI suite
+        working-directory: kanto-ascendant
+        env:
+          GEN1RECOMP_ROOT: ../gen1recomp
+        run: |
+          luajit tests/qol_6_5_test.lua
+          python3 tests/core_phase10_audit_test.py
+          python3 tests/rc_feature_acceptance_matrix_test.py
+          python3 tests/rc_package_acceptance_lanes_test.py
+          python3 tests/starter_signature_tech_package_driver_contract_test.py
+          python3 tests/verify_rc_runtime_contract_test.py
+          python3 tests/ascendant_ui_audit_test.py
+          python3 tests/gorochu_follower_quality_test.py
+          python3 tests/gorochu_crystal_animation_test.py
+          python3 tests/gorochu_voxel_animation_test.py
+
+      - name: Run the engine-backed 6.5 systems suite
+        working-directory: gen1recomp
+        env:
+          POKEPORT_DATA_DIR: tests/fixture_data
+          TRAINER_REMATCH_MOD_DIR: ../kanto-ascendant
+        run: |
+          luajit ../kanto-ascendant/tests/id_migration_test.lua
+          luajit ../kanto-ascendant/tests/mod_conflicts_test.lua
+          luajit ../kanto-ascendant/tests/follower_phase1_assets_test.lua
+          luajit ../kanto-ascendant/tests/follower_phase2_assets_test.lua
+          luajit ../kanto-ascendant/tests/follower_phase2_test.lua
+          luajit ../kanto-ascendant/tests/follower_phase3_registry_test.lua
+          luajit ../kanto-ascendant/tests/follower_phase4_chain_test.lua
+          luajit ../kanto-ascendant/tests/follower_phase5_config_test.lua
+          luajit ../kanto-ascendant/tests/rematch_phase6_test.lua
+          luajit ../kanto-ascendant/tests/rematch_phase7_test.lua
+          luajit ../kanto-ascendant/tests/rematch_phase8_test.lua
+          luajit ../kanto-ascendant/tests/core_phase9_test.lua
+          luajit ../kanto-ascendant/tests/mythic_safety_test.lua
+          luajit ../kanto-ascendant/tests/ascendant_ui_test.lua
+          luajit ../kanto-ascendant/tests/party_icons_test.lua
+          luajit ../kanto-ascendant/tests/help_and_bag_test.lua
+          luajit ../kanto-ascendant/tests/voxel_renderer_compat_test.lua
+          luajit ../kanto-ascendant/tests/battle_art_voxel_compat_test.lua
+          luajit ../kanto-ascendant/tests/dramaless_camera_compat_test.lua
+          luajit ../kanto-ascendant/tests/dramaless_camera_option_menu_test.lua
+          luajit ../kanto-ascendant/tests/dramaless_wall_decals_compat_test.lua
+          GEN1RECOMP_DIR=. luajit ../kanto-ascendant/tests/legacy_archive_test.lua
+          GEN1RECOMP_DIR=. luajit ../kanto-ascendant/tests/legacy_journey_test.lua
+
       - name: Audit the 6.0 release boundary
         working-directory: kanto-ascendant
         run: python3 tools/johto_signals_release_audit.py .
@@ -92,26 +166,28 @@ jobs:
           MODKIT_LUAJIT: luajit
         run: |
           python3 tools/modkit.py pack ../kanto-ascendant \
-            -o ../kanto-ascendant-6.0.11.modpkg
-          unzip -tq ../kanto-ascendant-6.0.11.modpkg
-          cp ../kanto-ascendant-6.0.11.modpkg \
-            ../kanto-ascendant-6.0.11.zip
+            -o ../kanto-ascendant-6.5.0-rc11.modpkg
+          unzip -tq ../kanto-ascendant-6.5.0-rc11.modpkg
+          cp ../kanto-ascendant-6.5.0-rc11.modpkg \
+            ../kanto-ascendant-6.5.0-rc11.zip
           (
             cd ..
-            sha256sum kanto-ascendant-6.0.11.modpkg \
-              kanto-ascendant-6.0.11.zip \
-              > SHA256SUMS-6.0.11.txt
+            sha256sum kanto-ascendant-6.5.0-rc11.modpkg \
+              kanto-ascendant-6.5.0-rc11.zip \
+              > SHA256SUMS-6.5.0-RC11.txt
           )
           python3 ../kanto-ascendant/tools/johto_signals_release_audit.py \
-            ../kanto-ascendant-6.0.11.modpkg
+            ../kanto-ascendant-6.5.0-rc11.modpkg
           python3 - <<'PY'
           import json
           import zipfile
 
-          package = "../kanto-ascendant-6.0.11.modpkg"
+          package = "../kanto-ascendant-6.5.0-rc11.modpkg"
           forbidden_prefixes = (
               "art_review/",
+              "artifacts/",
               "assets/sources/",
+              "docs/",
               "qa/",
               "tests/",
               "tools/",
@@ -143,6 +219,35 @@ jobs:
               "johto_signals_state.lua",
               "johto_signals_wilds.lua",
               "mythic_signals.lua",
+              "legacy_hoenn.lua",
+              "legacy_starters.lua",
+              "hevo_species.lua",
+              "hevo_species_data.lua",
+              "assets/audio/legacy_hoenn_cries/252.ogg",
+              "assets/audio/legacy_hoenn_cries/260.ogg",
+              "assets/legacy_hoenn/front/252.png",
+              "assets/legacy_hoenn/back/260.png",
+              "assets/audio/hevo_19_cries/261.ogg",
+              "assets/audio/hevo_19_cries/279.ogg",
+              "assets/hevo_19/front/261.png",
+              "assets/hevo_19/back/279.png",
+              "assets/crystal_animated/front/normal/261/001.png",
+              "assets/crystal_animated/back/shiny/279/001.png",
+              "modern_ball_skins.lua",
+              "modern_storage_ui.lua",
+              "useful_bag.lua",
+              "catch_destination.lua",
+              "party_icons.lua",
+              "crystal_animation_data_grayscale.lua",
+              "crystal_v15_features.lua",
+              "assets/crystal_v15/provenance.json",
+              "assets/crystal_animated/front/grayscale/1/001.png",
+              "assets/crystal_animated/front/grayscale/251/001.png",
+              "assets/crystal_animated/back/normal/1/001.png",
+              "assets/crystal_animated/back/shiny/151/001.png",
+              "assets/crystal_animated/back/grayscale/151/001.png",
+              "assets/crystal_v15/trainers/normal/red.png",
+              "assets/crystal_v15/trainers/grayscale/red.png",
           }
 
           with zipfile.ZipFile(package) as archive:
@@ -170,9 +275,9 @@ jobs:
                   )
 
               manifest = json.loads(archive.read("manifest.json"))
-              if manifest.get("version") != "6.0.11":
-                raise SystemExit(
-                      "Expected manifest version 6.0.11, got "
+              if manifest.get("version") != "6.5.0":
+                  raise SystemExit(
+                      "Expected manifest version 6.5.0, got "
                       + repr(manifest.get("version"))
                   )
 
@@ -182,9 +287,9 @@ jobs:
       - name: Upload the verified release candidate
         uses: actions/upload-artifact@v4
         with:
-          name: kanto-ascendant-6.0.11-release-candidate
+          name: kanto-ascendant-6.5.0-rc11-release-candidate
           if-no-files-found: error
           path: |
-            kanto-ascendant-6.0.11.modpkg
-            kanto-ascendant-6.0.11.zip
-            SHA256SUMS-6.0.11.txt
+            kanto-ascendant-6.5.0-rc11.modpkg
+            kanto-ascendant-6.5.0-rc11.zip
+            SHA256SUMS-6.5.0-RC11.txt

@@ -42,10 +42,16 @@ return function(mod, opts)
   local i18n = opts.i18n
   local postgame = opts.postgame
   local johtoResearch = opts.johtoResearch
+  local beyondKanto = opts.beyondKanto or opts.johtoBoundary
   -- The shared WORLD hub can own presentation while this controller keeps
   -- driving its existing events. Omitted means enabled for 5.3 compatibility.
   local showMenu = opts.showMenu ~= false
   local W = { game = nil }
+
+  local function boundaryActive(game)
+    return not beyondKanto or type(beyondKanto.isActive) ~= "function"
+      or beyondKanto.isActive(game or W.game)
+  end
 
   local function tr(en, de)
     return i18n and i18n.text(en, de) or en
@@ -65,6 +71,13 @@ return function(mod, opts)
         s.active.steps = math.max(0,
           math.floor(tonumber(s.active.steps) or 0))
         if s.active.steps == 0 then s.active = nil end
+      end
+      -- NG+ may carry an old event bucket into a freshly sealed save. Keep
+      -- every Kanto event, but discard the one active Johto spawn before it
+      -- can be announced, displayed or consulted by encounter.roll.
+      if s.active and s.active.id == "johto_migration"
+          and not boundaryActive(W.game) then
+        s.active = nil
       end
     end
     return s
@@ -124,6 +137,7 @@ return function(mod, opts)
   end
 
   local function migrationAvailable(row)
+    if not boundaryActive(W.game) then return false end
     return row.species ~= "LARVITAR" or johtoFinaleComplete()
   end
 
@@ -137,8 +151,11 @@ return function(mod, opts)
   end
 
   local function startEvent(game, s, clock)
-    s.index = s.index + 1
-    local row = EVENTS[((s.index - 1) % #EVENTS) + 1]
+    local row
+    repeat
+      s.index = s.index + 1
+      row = EVENTS[((s.index - 1) % #EVENTS) + 1]
+    until row.id ~= "johto_migration" or boundaryActive(game)
     s.active = { id = row.id, steps = 2048, announced = false }
     if row.id == "johto_migration" then
       local cycle = math.floor((s.index - 1) / #EVENTS) + 1
@@ -176,6 +193,7 @@ return function(mod, opts)
     local s = state(false)
     local event = s and s.active
     if not (out and event and event.id == "johto_migration"
+        and boundaryActive(ctx and ctx.game)
         and event.steps > 0 and ctx and ctx.mapId == event.map) then
       return out
     end
@@ -215,6 +233,18 @@ return function(mod, opts)
         math.floor(tonumber(mod.save:get("step_clock", 0)) or 0)) + 1024
       persist(s)
     end
+  end
+
+  if beyondKanto and type(beyondKanto.onChanged) == "function" then
+    beyondKanto.onChanged(function(activeNow, game)
+      W.game = game or W.game
+      if activeNow then return end
+      local s = state(false)
+      if s and s.active and s.active.id == "johto_migration" then
+        s.active = nil
+        persist(s)
+      end
+    end)
   end
 
   W.state = state

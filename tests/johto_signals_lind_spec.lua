@@ -1,7 +1,7 @@
 -- Focused Kanto Ascendant 6.0 hand-off tests for Early Johto -> Elm/Lind.
 --
 -- This file is a spec helper instead of a second stand-alone suite so the
--- release's existing trainer_rematch_test.lua CI entry executes every check.
+-- release's existing kanto_ascendant_test.lua CI entry executes every check.
 
 return function(T, Data, modPath)
   local johtoData = assert(loadfile(modPath .. "/johto_data.lua"))()
@@ -46,7 +46,7 @@ return function(T, Data, modPath)
     local bucket = existingBucket or {}
     local hooks = {}
     local fakeMod = {
-      id = "trainer_rematch",
+      id = "kanto_ascendant",
       save = {
         get = function(_, key, default)
           local value = bucket[key]
@@ -152,6 +152,12 @@ return function(T, Data, modPath)
     end
     table.sort(ids)
     local capacity = require("src.inventory.Bag").capacity(game.data)
+    -- Expanded ASC bags can exceed the number of distinct items in this
+    -- deliberately tiny fixture. Clamp the fixture's configured capacity so
+    -- this scenario still represents a genuinely full bag.
+    capacity = math.min(capacity, #ids)
+    game.data.constants = game.data.constants or {}
+    game.data.constants.bagSize = capacity
     for index = 1, capacity do
       local id = assert(ids[index], "fixture needs enough Bag items")
       game.save.inventory[id] = 1

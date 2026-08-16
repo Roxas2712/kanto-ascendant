@@ -869,7 +869,7 @@ do
     "Mythic Signals contains no warp API")
 end
 
--- ------------------------------------------------ old canonical-save repair
+-- ------------------------------------------ provenance-safe owned-save sync
 
 do
   local modSave = {
@@ -883,10 +883,10 @@ do
   h.game.save.pokedex.owned.MEW = true
   h.game.save.pokedex.owned.CELEBI = true
   h.controller.install(h.game, { battleState = h.battleState })
-  T.eq(modSave.ascendant.mewCaught, true,
-    "an old owned Mew completes the canonical Ascendant event")
-  T.eq(modSave.ascendant.mewStage, 4,
-    "an old owned Mew advances the canonical clue stage")
+  T.eq(modSave.ascendant.mewCaught, false,
+    "an externally owned Mew cannot complete the Ascendant event")
+  T.eq(modSave.ascendant.mewStage, 1,
+    "owned Mew synchronization preserves the authored clue stage")
   T.eq(modSave.postgame.catches.CELEBI, true,
     "an old owned Celebi completes the canonical postgame event")
   T.eq(modSave.postgame.roamers.CELEBI, nil,
@@ -908,10 +908,8 @@ do
   h.game.save.pokedex.owned.MEW = true
   h.game.save.pokedex.owned.CELEBI = true
   h.controller.install(h.game, { battleState = h.battleState })
-  T.eq(modSave.ascendant.mewCaught, true,
-    "canonical Mew completion creates a missing legacy state table")
-  T.eq(modSave.ascendant.mewStage, 4,
-    "a newly created canonical Mew state is fully advanced")
+  T.eq(modSave.ascendant, nil,
+    "external Mew ownership never invents an Ascendant state table")
   T.eq(modSave.postgame.catches.CELEBI, true,
     "canonical Celebi completion creates a missing postgame state table")
 end

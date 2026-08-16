@@ -143,6 +143,12 @@ function Module.create(mod, opts)
     if S.registered then return false, "already registered" end
     S.registered = true
     if mod.events and mod.events.on then
+      -- NEW GAME adopts a completely new mod.save bucket without emitting
+      -- save.loaded.  Seed that bucket before any controller/content listener
+      -- can inspect state left behind by the previously active slot.
+      mod.events:on("save.created", function(ev)
+        S.install(ev and ev.game or S.game)
+      end, 1000)
       mod.events:on("save.loaded", function(ev)
         S.install(ev and ev.game or S.game)
       end, 1000)

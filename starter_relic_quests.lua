@@ -459,7 +459,7 @@ return function(mod, opts)
       ascendantOrder = 72,
       ascendantKey = "starter_relics",
       onSelect = function()
-        game.stack:push(mod.ui.ListMenu.new(game,
+        game.stack:push((mod.ui.KantoListMenu or mod.ui.ListMenu).new(game,
           tr("STARTER RELICS", "STARTER-RELIKTE"), rows, {
             onCancel = function() end,
             onChoose = function(item)

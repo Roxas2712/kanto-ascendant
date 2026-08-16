@@ -12,7 +12,7 @@ return function(game)
   U.wait(20)
   assert(GameVersion.isYellow(), "Raichu reaction QA requires Yellow")
   local ascendant = assert(
-    game.mods and game.mods.exports and game.mods.exports.trainer_rematch,
+    game.mods and game.mods.exports and game.mods.exports.kanto_ascendant,
     "Kanto Ascendant is not loaded")
   local partnerApi = assert(ascendant.yellowPartner,
     "Yellow partner controller missing")

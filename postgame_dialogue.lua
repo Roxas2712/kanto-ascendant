@@ -17,11 +17,11 @@ end
 return {
   story = {
     oakLegendEvent = text(
-      "OAK: {PLAYER}!\fThe bond with your\nPOKéMON made this\nvictory possible.\fListen closely.\fReports of\nlegendary POKéMON\ngrow across Kanto.\fShadows cross the\nsky. Storms rage.\fBeasts roam afar.\fThey stay hidden,\nbut their power is\nstirring.\fYour journey is\nfar from over.\fCome with me!\nThe HALL OF FAME\nis waiting!",
-      "EICH: {PLAYER}!\fDie Verbindung zu\ndeinen POKéMON hat\nzum Sieg geführt.\fDoch höre gut zu.\fImmer häufiger\nwerden legendäre\nPOKéMON gesichtet.\fSchatten kreuzen\nden Himmel. Stürme\nziehen auf.\fFerne Bestien\nziehen durch Kanto.\fSie bleiben fern,\ndoch ihre Kraft\nregt sich.\fDeine Reise ist\nnoch lange nicht\nvorbei.\fFolge mir!\nDie RUHMESHALLE\nwartet!"),
+      "OAK: {PLAYER}!\fThe bond with your\nPOKéMON made this\nvictory possible.\fListen closely.\fReports of\nlegendary POKéMON\ngrow across Kanto.\fShadows cross the\nsky. Storms rage.\fBeasts roam afar.\fThey stay hidden,\nbut their power is\nstirring.\fYour journey is\nfar from over.\fAfter this first\nHALL OF FAME, use\nmy LAB PC.\fIt explains a\nseparate LEGACY\nJOURNEY.\fFirst complete your\nown fissure path and\nanswer its final\nblack door.\fThe HALL alone never\nunlocks a new cycle.\fNothing resets this\nlife by itself.\fCome with me!\nThe HALL OF FAME\nis waiting!",
+      "EICH: {PLAYER}!\fDie Verbindung zu\ndeinen POKéMON hat\nzum Sieg geführt.\fDoch höre gut zu.\fImmer häufiger\nwerden legendäre\nPOKéMON gesichtet.\fSchatten kreuzen\nden Himmel. Stürme\nziehen auf.\fFerne Bestien\nziehen durch Kanto.\fSie bleiben fern,\ndoch ihre Kraft\nregt sich.\fDeine Reise ist\nnoch lange nicht\nvorbei.\fNach dieser ersten\nRUHMESHALLE nutze\nden LABOR-PC.\fEr erklärt eine\neigene\nVERMÄCHTNIS-REISE.\fVollende zuerst\ndeinen eigenen\nRisspfad und antworte\nan seiner letzten\nschwarzen Tür.\fDie RUHMESHALLE\nallein öffnet keinen\nneuen Zyklus.\fNichts setzt diesen\nLauf selbst zurück.\fFolge mir!\nDie RUHMESHALLE\nwartet!"),
     oakNoLegendEvent = text(
-      "OAK: {PLAYER}!\fThe bond with your\nPOKéMON made this\nvictory possible.\fListen closely.\fKanto is changing.\nTrainers all over\ngrow stronger.\fYour journey is\nfar from over.\fCome with me!\nThe HALL OF FAME\nis waiting!",
-      "EICH: {PLAYER}!\fDie Verbindung zu\ndeinen POKéMON hat\nzum Sieg geführt.\fDoch höre gut zu.\fKanto ändert sich.\nÜberall werden die\nTrainer stärker.\fDeine Reise ist\nnoch lange nicht\nvorbei.\fFolge mir!\nDie RUHMESHALLE\nwartet!"),
+      "OAK: {PLAYER}!\fThe bond with your\nPOKéMON made this\nvictory possible.\fListen closely.\fKanto is changing.\nTrainers all over\ngrow stronger.\fYour journey is\nfar from over.\fAfter this first\nHALL OF FAME, use\nmy LAB PC.\fIt explains a\nseparate LEGACY\nJOURNEY.\fFirst complete your\nown fissure path and\nanswer its final\nblack door.\fThe HALL alone never\nunlocks a new cycle.\fNothing resets this\nlife by itself.\fCome with me!\nThe HALL OF FAME\nis waiting!",
+      "EICH: {PLAYER}!\fDie Verbindung zu\ndeinen POKÉMON hat\nzum Sieg geführt.\fDoch höre gut zu.\fKanto ändert sich.\nÜberall werden die\nTrainer stärker.\fDeine Reise ist\nnoch lange nicht\nvorbei.\fNach dieser ersten\nRUHMESHALLE nutze\nden LABOR-PC.\fEr erklärt eine\neigene\nVERMÄCHTNIS-REISE.\fVollende zuerst\ndeinen eigenen\nRisspfad und antworte\nan seiner letzten\nschwarzen Tür.\fDie RUHMESHALLE\nallein öffnet keinen\nneuen Zyklus.\fNichts setzt diesen\nLauf selbst zurück.\fFolge mir!\nDie RUHMESHALLE\nwartet!"),
   },
   gyms = {
     brock = {
@@ -563,8 +563,8 @@ return {
       },
       crown = {
         before = text(
-          "SUICUNE quieted the\nsea itself.\fNow its cold joins\nmine at LEVEL 100.\fLet us freeze even\na champion's fire.",
-          "SUICUNE besänftigte\ndas Meer selbst.\fNun vereint sich\nseine Kälte mit\nmeiner auf LEVEL 100.\fAuch Champ-Feuer\nkann gefrieren."),
+          "ARTICUNO rules the\nfrozen sky.\fNow its cold joins\nmine at LEVEL 100.\fLet us freeze even\na champion's fire.",
+          "ARKTOS beherrscht den\ngefrorenen Himmel.\fNun vereint sich\nseine Kälte mit\nmeiner auf LEVEL 100.\fAuch Champ-Feuer\nkann gefrieren."),
         beforeNoLegend = text(
           "I need no legend to\ncommand winter.\fMy own LEVEL 100\nteam has perfected\nabsolute cold.",
           "Ich brauche keine\nLegende, um den\nWinter zu beherrschen.\fMein LEVEL-100-Team\nvollendet die Kälte."),
@@ -648,8 +648,8 @@ return {
           "So bright...\nyou erased every\nshadow.",
           "So hell...\ndu hast jeden\nSchatten ausgelöscht."),
         after = text(
-          "Three seals gone.\fNow face LANCE and\nthe legends that\nrule his sky.",
-          "Drei Siegel sind fort.\fNun stell dich LANCE\nund den Legenden,\ndie seinen Himmel\nbeherrschen."),
+          "Three seals gone.\fNow face LANCE and\nthe dragons that\nrule his sky.",
+          "Drei Siegel sind fort.\fNun stell dich LANCE\nund den Drachen,\ndie seinen Himmel\nbeherrschen."),
         retreat = text(
           "AGATHA: Turn back and\nthe shadows win.",
           "AGATHA: Kehr um, und\ndie Schatten siegen."),
@@ -676,8 +676,8 @@ return {
       },
       crown = {
         before = text(
-          "You awakened the two\nsovereigns of the\nsky.\fNow face LUGIA and\nHO-OH together, with\nmy dragons beside them!",
-          "Du hast die beiden\nHerrscher des Himmels\nerweckt.\fNun kämpfe gegen\nLUGIA und HO-OH\ngemeinsam mit meinen\nDrachen!"),
+          "You awakened the two\nsovereigns of the\nsky.\fThey chose the Champion.\fMy LEVEL 100 dragons\nwill answer them!",
+          "Du hast die beiden\nHerrscher des Himmels\nerweckt.\fSie wählten den Champ.\fMeine LEVEL-100-\nDrachen antworten!"),
         beforeNoLegend = text(
           "No legend stands\nbeside me today.\fGood.\fMy LEVEL 100 dragons\nwill prove the sky\nwas always theirs!",
           "Heute steht keine\nLegende an meiner\nSeite.\fGut.\fMeine LEVEL-100-\nDrachen beweisen,\ndass der Himmel ihnen\ngehört!"),

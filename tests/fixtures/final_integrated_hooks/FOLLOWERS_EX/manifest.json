@@ -1,0 +1,8 @@
+{
+  "id": "FOLLOWERS_EX",
+  "name": "Followers EX Replacement Probe",
+  "version": "1.0.0",
+  "api": 2,
+  "entry": "main.lua",
+  "profile": "content"
+}

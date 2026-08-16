@@ -54,7 +54,7 @@ local function fakeMod(bucket)
   local nextChoice = true
   local blocked = {}
   local mod = {
-    id = "trainer_rematch",
+    id = "kanto_ascendant",
     save = {
       get = function(_, key)
         saveStats.get = saveStats.get + 1
@@ -206,7 +206,7 @@ local gatedGame = {
         id = "PALLET_TOWN",
         objects = {
           {
-            index = 1, runtime = true, owner = "trainer_rematch",
+            index = 1, runtime = true, owner = "kanto_ascendant",
             name = "DRIFTGLASS_PALLET_BOAT",
           },
         },
@@ -513,6 +513,28 @@ enteredHandlers[1].fn({ game = game, mapId = "PALLET_TOWN" })
 equal(#game.data.maps.PALLET_TOWN.objects, 1,
   "repeated map entry still cannot duplicate the boatman")
 
+travelUnlocked = false
+local createdHandlers = fixture.events.rows["save.created"] or {}
+equal(#createdHandlers, 2,
+  "state and Driftglass content both register a fresh-save reset")
+local createdState, createdContent
+for _, handler in ipairs(createdHandlers) do
+  if handler.priority == 1000 then createdState = handler end
+  if handler.priority == 120 then createdContent = handler end
+end
+truthy(createdState,
+  "fresh-save state reset runs before every controller listener")
+truthy(createdContent,
+  "fresh-save actor reset runs after the Signals cache reset")
+createdState.fn({ game = game, save = game.save })
+createdContent.fn({ game = game, save = game.save })
+equal(#game.data.maps.PALLET_TOWN.objects, 0,
+  "NEW GAME removes the previous slot's runtime boatman")
+
+travelUnlocked = true
+enteredHandlers[1].fn({ game = game, mapId = "PALLET_TOWN" })
+equal(#game.data.maps.PALLET_TOWN.objects, 1,
+  "the actor fixture can restore an eligible boatman after fresh-save reset")
 travelUnlocked = false
 local loadedHandlers = fixture.events.rows["save.loaded"] or {}
 for _, handler in ipairs(loadedHandlers) do

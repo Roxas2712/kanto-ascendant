@@ -15,6 +15,31 @@ local Module = {
   RETURN = { x = 12, y = 10, facing = "down" },
 }
 
+local function loadCrystalSource(mod)
+  local body, readErr
+  if mod and type(mod.read) == "function" then
+    body, readErr = mod:read("crystal_learnsets.lua")
+  end
+  local chunk, err
+  if body then
+    chunk, err = loadstring(
+      body, "@" .. tostring(mod.path or ".") .. "/crystal_learnsets.lua")
+  else
+    -- Plain-Lua focused tests can still resolve the sibling through their
+    -- explicit package.path.  Installed mods always take the sandboxed
+    -- mod:read/loadstring branch above.
+    local ok, result = pcall(require, "crystal_learnsets")
+    if ok and type(result) == "table" then return result end
+    err = result
+  end
+  if not chunk then return nil, err or readErr or "source unavailable" end
+  local ok, result = pcall(chunk)
+  if not ok or type(result) ~= "table" then
+    return nil, ok and "invalid Crystal source" or result
+  end
+  return result
+end
+
 local TEXT = {
   READER = "TEXT_KA_PRISM_READER",
   TABLET = "TEXT_KA_PRISM_TABLET",
@@ -154,9 +179,44 @@ local PUZZLES = {
 -- Species that can carry an inherited move through evolution are included in
 -- the same family so an already-evolved partner is not punished.
 local RESONANCE_MOVE_ORDER = {
-  "CRUNCH", "METAL_CLAW", "IRON_TAIL", "SHADOW_BALL",
+  "CRUNCH", "METAL_CLAW", "FALSE_SWIPE", "IRON_TAIL", "SHADOW_BALL",
   "FLAME_WHEEL", "GIGA_DRAIN", "SLUDGE_BOMB", "POWDER_SNOW",
 }
+
+-- Only internally reviewed Gen-II implementations may be derived from the
+-- 251-species source.  Merely registering an id is not enough: unsupported
+-- moves such as PURSUIT remain visible in the audit until their defining
+-- battle mechanic (the switch intercept in Pursuit's case) is implemented.
+local VETTED_CRYSTAL_LEVEL_MOVE_ORDER = {
+  "BONE_RUSH", "CHARM", "CROSS_CHOP", "EXTREMESPEED", "FAINT_ATTACK",
+  "FALSE_SWIPE", "MACH_PUNCH", "MEGAHORN", "MILK_DRINK", "SWEET_KISS",
+  "SYNTHESIS", "VITAL_THROW",
+}
+
+-- Generation-II move ids which actually occur in Crystal's level-up source.
+-- This larger set is audit-only; it must never itself become a tutor pool.
+local GEN2_LEVEL_MOVE_IDS = {}
+for _, id in ipairs({
+  "AEROBLAST", "ANCIENTPOWER", "BATON_PASS", "BEAT_UP", "BELLY_DRUM",
+  "BONE_RUSH", "CHARM", "CONVERSION2", "COTTON_SPORE", "CROSS_CHOP",
+  "CRUNCH", "CURSE", "DESTINY_BOND", "DETECT", "ENCORE", "ENDURE",
+  "EXTREMESPEED", "FAINT_ATTACK", "FALSE_SWIPE", "FLAIL", "FLAME_WHEEL",
+  "FORESIGHT", "FUTURE_SIGHT", "GIGA_DRAIN", "HEAL_BELL", "HIDDEN_POWER",
+  "LOCK_ON", "MACH_PUNCH", "MAGNITUDE", "MEAN_LOOK", "MEGAHORN",
+  "METAL_CLAW", "MILK_DRINK", "MIND_READER", "MIRROR_COAT", "MOONLIGHT",
+  "MORNING_SUN", "OCTAZOOKA", "OUTRAGE", "PAIN_SPLIT", "PERISH_SONG",
+  "POWDER_SNOW", "PRESENT", "PROTECT", "PSYCH_UP", "PURSUIT",
+  "RAIN_DANCE", "RAPID_SPIN", "REVERSAL", "ROLLOUT", "SACRED_FIRE",
+  "SAFEGUARD", "SANDSTORM", "SCARY_FACE", "SKETCH", "SLUDGE_BOMB",
+  "SNORE", "SPARK", "SPIDER_WEB", "SPIKES", "SPITE", "STEEL_WING",
+  "SUNNY_DAY", "SWAGGER", "SWEET_KISS", "SWEET_SCENT", "SYNTHESIS",
+  "TRIPLE_KICK", "TWISTER", "VITAL_THROW", "ZAP_CANNON",
+}) do GEN2_LEVEL_MOVE_IDS[id] = true end
+
+local VETTED_CRYSTAL_LEVEL_MOVES = {}
+for _, id in ipairs(VETTED_CRYSTAL_LEVEL_MOVE_ORDER) do
+  VETTED_CRYSTAL_LEVEL_MOVES[id] = true
+end
 
 local RESONANCE_RULES = {
   CRUNCH = {
@@ -166,6 +226,12 @@ local RESONANCE_RULES = {
   },
   METAL_CLAW = {
     inherited = { "SANDSHREW", "SANDSLASH" },
+  },
+  -- SCYTHER keeps its RBY level-up table in Kanto Ascendant.  Crystal's
+  -- species-specific level-18 move is exposed only through optional Johto
+  -- Move Resonance (and, once unlocked, the Route 5 Move Reminder).
+  FALSE_SWIPE = {
+    level = { SCYTHER = 18 },
   },
   IRON_TAIL = {
     machine = {
@@ -250,6 +316,108 @@ for move, rules in pairs(RESONANCE_RULES) do
   end
 end
 
+local function copyResonanceRules()
+  local out = {}
+  for species, rules in pairs(RESONANCE_BY_SPECIES) do
+    out[species] = {}
+    for move, rule in pairs(rules) do
+      out[species][move] = {
+        move = rule.move, source = rule.source, level = rule.level,
+      }
+    end
+  end
+  return out
+end
+
+local function buildResonanceCatalog(mod)
+  local catalog = copyResonanceRules()
+  local order, ordered = {}, {}
+  for _, move in ipairs(RESONANCE_MOVE_ORDER) do
+    order[#order + 1], ordered[move] = move, true
+  end
+  for _, move in ipairs(VETTED_CRYSTAL_LEVEL_MOVE_ORDER) do
+    if not ordered[move] then
+      order[#order + 1], ordered[move] = move, true
+    end
+  end
+
+  local report = {
+    schema = "kanto-ascendant.johto-resonance-levels.v1",
+    source = "crystal_learnsets.lua",
+    activeLevelRows = {}, unsupportedLevelRows = {},
+    sourceAvailable = false,
+  }
+  local pokemon = mod and mod.content and mod.content.pokemon
+  local moves = mod and mod.content and mod.content.moves
+  if not (pokemon and type(pokemon.get) == "function"
+      and moves and type(moves.get) == "function") then
+    report.reason = "registries unavailable"
+    return catalog, order, report
+  end
+  local canonical, sourceErr = loadCrystalSource(mod)
+  if not canonical then
+    report.reason = tostring(sourceErr)
+    return catalog, order, report
+  end
+  report.sourceAvailable = true
+  report.sourceRevision = canonical._meta and canonical._meta.revision or nil
+
+  local function addLevel(species, move, level)
+    local rules = catalog[species]
+    if not rules then rules = {}; catalog[species] = rules end
+    local current = rules[move]
+    if not current
+        or SOURCE_PRIORITY.level > SOURCE_PRIORITY[current.source] then
+      rules[move] = { move = move, source = "level", level = level }
+    end
+  end
+
+  local unsupportedIds = {}
+  for species, rows in pairs(canonical) do
+    local def = species ~= "_meta" and pokemon:get(species) or nil
+    local dex = tonumber(def and def.dex)
+    if dex and dex >= 1 and dex <= 151 then
+      for _, row in ipairs(rows) do
+        if GEN2_LEVEL_MOVE_IDS[row.move] then
+          local registered = moves:get(row.move) ~= nil
+          local curated = catalog[species] and catalog[species][row.move]
+          local vetted = VETTED_CRYSTAL_LEVEL_MOVES[row.move] == true
+            or curated ~= nil
+          local auditRow = {
+            species = species, move = row.move, level = row.level,
+          }
+          if registered and vetted then
+            addLevel(species, row.move, math.max(1, row.level))
+            report.activeLevelRows[#report.activeLevelRows + 1] = auditRow
+          else
+            auditRow.reason = registered and "mechanics-not-vetted"
+              or "move-unavailable"
+            report.unsupportedLevelRows[#report.unsupportedLevelRows + 1] =
+              auditRow
+            unsupportedIds[row.move] = true
+          end
+        end
+      end
+    end
+  end
+  table.sort(report.activeLevelRows, function(a, b)
+    if a.species ~= b.species then return a.species < b.species end
+    if a.level ~= b.level then return a.level < b.level end
+    return a.move < b.move
+  end)
+  table.sort(report.unsupportedLevelRows, function(a, b)
+    if a.species ~= b.species then return a.species < b.species end
+    if a.level ~= b.level then return a.level < b.level end
+    return a.move < b.move
+  end)
+  report.unsupportedMoveIds = {}
+  for id in pairs(unsupportedIds) do
+    report.unsupportedMoveIds[#report.unsupportedMoveIds + 1] = id
+  end
+  table.sort(report.unsupportedMoveIds)
+  return catalog, order, report
+end
+
 local function packed(rows)
   local width = #rows[1]
   local blocks = {}
@@ -274,6 +442,8 @@ function Module.create(mod, opts)
     and type(tilesets.get) == "function"
   local mapSupported = content.mapSupported ~= false
     and (not catalogAware or tilesets:get("CAVERN") ~= nil)
+  local resonanceRules, resonanceMoveOrder, resonanceAudit =
+    buildResonanceCatalog(mod)
 
   local P = {
     game = nil,
@@ -289,8 +459,9 @@ function Module.create(mod, opts)
     puzzles = PUZZLES,
     puzzleOrder = PUZZLE_ORDER,
     statues = STATUES,
-    resonanceMoveOrder = RESONANCE_MOVE_ORDER,
-    resonanceRules = RESONANCE_BY_SPECIES,
+    resonanceMoveOrder = resonanceMoveOrder,
+    resonanceRules = resonanceRules,
+    resonanceAudit = resonanceAudit,
   }
 
   local function tr(english, german)
@@ -346,7 +517,7 @@ function Module.create(mod, opts)
     if type(opts.openMenu) == "function" then
       return opts.openMenu(game, title, rows, menuOpts)
     end
-    game.stack:push(mod.ui.ListMenu.new(game, title, rows, menuOpts))
+    game.stack:push((mod.ui.KantoListMenu or mod.ui.ListMenu).new(game, title, rows, menuOpts))
     return true
   end
 
@@ -484,11 +655,11 @@ function Module.create(mod, opts)
       and game.data.pokemon[mon.species]
     local dex = tonumber(def and def.dex)
     if not dex or dex < 1 or dex > 151 then return {}, "not-kanto" end
-    local legal = RESONANCE_BY_SPECIES[mon.species]
+    local legal = resonanceRules[mon.species]
     if type(legal) ~= "table" then return {}, "none" end
 
     local rows, supported, known = {}, 0, 0
-    for _, moveId in ipairs(RESONANCE_MOVE_ORDER) do
+    for _, moveId in ipairs(resonanceMoveOrder) do
       local rule = legal[moveId]
       if rule and game.data.moves and game.data.moves[moveId] then
         supported = supported + 1
@@ -508,6 +679,23 @@ function Module.create(mod, opts)
     if #rows > 0 then return rows end
     if supported > 0 and known == supported then return {}, "known" end
     return {}, "none"
+  end
+
+  -- Route 5 consumes the same species rules as the tablet, but only after
+  -- the player has repaired the Driftglass receiver.  The provider returns
+  -- locked rows as well; Field Tech owns the final reached-level filter.
+  function P.reminderResonanceMoves(game, mon)
+    local early = earlyState()
+    if not early or early.receiverRepaired ~= true then return {} end
+    local rows = P.resonanceMoves(game, mon)
+    local provided = {}
+    for _, row in ipairs(rows) do
+      provided[#provided + 1] = {
+        id = row.id, source = "resonance", level = row.level,
+        locked = row.locked,
+      }
+    end
+    return provided
   end
 
   local function rememberMove(mon, moveId)
@@ -1082,6 +1270,12 @@ function Module.create(mod, opts)
         text = statue.text, x = statue.x, y = statue.y,
       }
     end
+    objects[#objects + 1] = {
+      index = 9, name = "PRISM_EXIT_ARCH",
+      movement = "STAY", range = "NONE",
+      sprite = "SPRITE_KA_PRISM_TABLET",
+      text = TEXT.EXIT, x = 7, y = 13,
+    }
     P.mapRecord = {
       id = Module.MAP_ID,
       label = "DriftglassPrismGrotto",
@@ -1096,7 +1290,6 @@ function Module.create(mod, opts)
       connections = {},
       objects = objects,
       signs = {
-        { text = TEXT.EXIT, x = 7, y = 13 },
         { text = TEXT.SIGN, x = 2, y = 2 },
       },
     }
@@ -1164,6 +1357,12 @@ function Module.create(mod, opts)
       total = total,
       twilightCompletions = twilight,
     }
+  end
+
+  if fieldTech
+      and type(fieldTech.registerReminderProvider) == "function" then
+    fieldTech.registerReminderProvider(
+      "johto_resonance", P.reminderResonanceMoves)
   end
 
   return P

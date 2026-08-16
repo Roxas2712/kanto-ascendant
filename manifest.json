@@ -1,11 +1,11 @@
 {
-  "id": "trainer_rematch",
+  "id": "kanto_ascendant",
   "name": "Kanto Ascendant",
-  "version": "6.0.11",
+  "version": "6.5.3-rc.1",
   "api": 2,
   "entry": "main.lua",
   "profile": "content",
-  "game_version": ">=0.0.0-dev <1.0.0",
+  "game_version": ">=0.1.90",
   "category": "GAMEPLAY",
   "priority": 100,
   "assets_transforms": "shiny_transforms.lua",
@@ -16,16 +16,197 @@
   "optional_dependencies": [
     "deutsch",
     "deutsch-blau",
-    "deutsch-gelb",
-    "all_pokemon_catchable_151_mod",
-    "overworld_wild_spawns",
-    "PokePCFollowers_VoxelMerge",
-    "crystal_animated_sprites_with_shiny_visuals",
-    "DRAMALESS_SHAPE",
-    "DRAMATIC_SHAPE"
+    "deutsch-gelb"
   ],
-  "conflicts": [],
+  "exclusive": {
+    "allow_ids": [
+      "deutsch",
+      "deutsch-blau",
+      "deutsch-gelb",
+      "all_pokemon_catchable_151_mod",
+      "DRAMATIC_SHAPE",
+      "potato_voxel",
+      "TERRARIUM",
+      "ds_fp_ceiling"
+    ],
+    "allow_repositories": [],
+    "allow_packages": [
+      {
+        "repositories": ["Roxas2712/voxel-ascendant"],
+        "version": "=0.1.0-rc.1"
+      },
+      {
+        "repositories": ["Roxas2712/voxel-ascendant"],
+        "version": "=0.1.1"
+      },
+      {
+        "repositories": ["artyrambles/DRAMALESS_SHAPE"],
+        "version": "=1.6.2-ST.190.1"
+      },
+      {
+        "repositories": ["absol89/DramaticShapeVoxelMod"],
+        "version": "=1.9.0"
+      }
+    ],
+    "reason_en": "This runtime mod has not been explicitly approved for the Kanto Ascendant 6.5 stack.",
+    "reason_de": "Diese Laufzeit-Mod wurde nicht ausdrücklich für den Kanto-Ascendant-6.5-Verbund freigegeben.",
+    "resolution_en": "Disable the unreviewed mod before enabling Kanto Ascendant. Ask for an explicit compatibility review before combining them.",
+    "resolution_de": "Deaktiviere die ungeprüfte Mod, bevor du Kanto Ascendant aktivierst. Für einen gemeinsamen Betrieb ist zuerst eine ausdrückliche Kompatibilitätsprüfung nötig."
+  },
+  "conflicts": [
+    "overworld_wild_spawns",
+    "trainer_rematch",
+    "FOLLOWERS_EX",
+    "PokePCFollowers_VoxelMerge",
+    "pokepc_followers_rb",
+    "pokepcfollowers",
+    "quality_of_life",
+    "quality_of_life_pr9_test",
+    "crystal_animated_sprites_with_shiny_visuals",
+    "shiny_indicators",
+    "gender_mod",
+    "pokemon_gender",
+    "pokemon_genders",
+    "pokemon_gender_system",
+    "gen2_pokemon_gender",
+    "pokemon_breeding",
+    "gen2_breeding",
+    "useful_bag",
+    "jj_quick_select",
+    "nuzlocke",
+    "Kanto-Reforged",
+    "BATTLE_ART_VOXEL_FORK@<1.9.0 || >1.9.0",
+    "DRAMATIC_SHAPE",
+    "potato_voxel",
+    "TERRARIUM",
+    "ds_fp_ceiling",
+    "DRAMALESS_SHAPE@<1.6.2-ST.190.1 || >1.6.2-ST.190.1"
+  ],
   "incompatible": [],
+  "compatibility_conflicts": [
+    {
+      "policy": "replace",
+      "ids": ["overworld_wild_spawns"],
+      "repositories": ["YoDrehDenSwagAuf/overworld-spawn-mod"],
+      "reason_en": "Ascendant already bundles the Wilds 1.12.2 spawn, town, renderer and AI core; loading both would duplicate entities and encounter hooks.",
+      "reason_de": "Ascendant enthält bereits den Wilds-1.12.2-Kern für Spawns, Städte, Darstellung und KI; beide gleichzeitig würden Pokémon und Begegnungs-Hooks doppeln.",
+      "resolution_en": "Disable standalone Wilds before enabling Ascendant; use LIVING WORLD inside Ascendant.",
+      "resolution_de": "Deaktiviere die eigenständige Wilds-Mod, bevor du Ascendant aktivierst; verwende LEBENDIGE WELT in Ascendant.",
+      "areas": ["visible encounters", "town Pokemon", "spawn AI", "water Pokemon", "encounter hooks"]
+    },
+    {
+      "policy": "replace",
+      "ids": ["trainer_rematch"],
+      "repositories": ["ShaneMcGovernIE/trainer_rematch"],
+      "reason_en": "Both mods own trainer rematches and progression saves.",
+      "reason_de": "Beide Mods steuern Rematches und deren Spielstanddaten.",
+      "resolution_en": "Disable Trainer Rematch before enabling Ascendant because Ascendant already includes the system.",
+      "resolution_de": "Deaktiviere Trainer Rematch, bevor du Ascendant aktivierst, weil Ascendant das System bereits enthält.",
+      "areas": ["rematches", "trainer progression", "save data"]
+    },
+    {
+      "policy": "replace",
+      "ids": ["FOLLOWERS_EX", "PokePCFollowers_VoxelMerge", "pokepc_followers_rb", "pokepcfollowers"],
+      "repositories": ["gamecorner-033/PokePCFollowers"],
+      "reason_en": "Both mods control followers, party icons and sprite hooks.",
+      "reason_de": "Beide Mods steuern Follower, Teamicons und Sprite-Hooks.",
+      "resolution_en": "Disable the standalone follower mod before enabling Ascendant because Ascendant includes its own follower system.",
+      "resolution_de": "Deaktiviere die eigenständige Follower-Mod, bevor du Ascendant aktivierst, weil Ascendant ein eigenes Follower-System enthält.",
+      "areas": ["followers", "party icons", "box sprites", "sprite hooks"]
+    },
+    {
+      "policy": "replace",
+      "ids": ["quality_of_life", "quality_of_life_pr9_test"],
+      "repositories": ["unxpected-uxp/pokemon-gen1-recomp-mod-qol"],
+      "reason_en": "Both mods patch field moves, menus and QoL event hooks.",
+      "reason_de": "Beide Mods patchen VMs, Menüs und QoL-Ereignisse.",
+      "resolution_en": "Disable Quality of Life before enabling Ascendant; its covered features are configurable inside Ascendant.",
+      "resolution_de": "Deaktiviere Quality of Life, bevor du Ascendant aktivierst; die abgedeckten Funktionen sind in Ascendant einstellbar.",
+      "areas": ["field moves", "menus", "capture flow", "event hooks"]
+    },
+    {
+      "policy": "replace",
+      "ids": ["crystal_animated_sprites_with_shiny_visuals"],
+      "repositories": [
+        "distilledorion-sketch/crystal_animated_sprites_with_shiny_visuals",
+        "LOW-K3YS/crystal_animated_sprites_with_shiny_visuals"
+      ],
+      "reason_en": "Both mods own Crystal/shiny sprites and animation hooks.",
+      "reason_de": "Beide Mods steuern Crystal-/Shiny-Sprites und Animationen.",
+      "resolution_en": "Disable this sprite mod before enabling Ascendant; choose the sprite style inside Ascendant.",
+      "resolution_de": "Deaktiviere diese Sprite-Mod, bevor du Ascendant aktivierst; der Stil wird in Ascendant gewählt.",
+      "areas": ["battle sprites", "party icons", "box sprites", "shiny visuals", "animations"]
+    },
+    {
+      "policy": "replace",
+      "ids": ["shiny_indicators"],
+      "repositories": ["Deftones565/gen1recomp-mod-shiny-indicators"],
+      "reason_en": "Ascendant already owns shiny battle effects, status markers and generated-sprite hooks; the current standalone release also uses APIs denied by the reviewed sandbox.",
+      "reason_de": "Ascendant steuert bereits Shiny-Kampfeffekte, Statusmarker und generierte Sprite-Hooks; die aktuelle eigenständige Version verwendet außerdem APIs, die die geprüfte Sandbox sperrt.",
+      "resolution_en": "Disable the standalone shiny-indicator mod before enabling Ascendant; use Ascendant's built-in presentation on engine 0.1.90.",
+      "resolution_de": "Deaktiviere die eigenständige Shiny-Indikator-Mod, bevor du Ascendant aktivierst; verwende unter Engine 0.1.90 Ascendants integrierte Darstellung.",
+      "areas": ["shiny effects", "status markers", "generated sprites", "battle hooks"]
+    },
+    {
+      "policy": "replace",
+      "ids": ["gender_mod", "pokemon_gender", "pokemon_genders", "pokemon_gender_system", "gen2_pokemon_gender", "pokemon_breeding", "gen2_breeding"],
+      "repositories": ["WizzStar/PKMN-G1R-Gender-Mod"],
+      "reason_en": "Both mods derive gender from DVs and patch Pokemon UI/save logic.",
+      "reason_de": "Beide Mods berechnen Geschlecht aus DVs und patchen UI/Spielstandlogik.",
+      "resolution_en": "Disable the gender/breeding mod before enabling Ascendant because Ascendant includes Gen-II rules.",
+      "resolution_de": "Deaktiviere die Gender-/Zucht-Mod, bevor du Ascendant aktivierst, weil Ascendant Gen-II-Regeln enthält.",
+      "areas": ["gender", "breeding", "status HUD", "storage UI", "save logic"]
+    },
+    {
+      "policy": "replace",
+      "ids": ["useful_bag"],
+      "repositories": ["ShaneMcGovernIE/useful-bag"],
+      "reason_en": "Both mods replace Bag layout, pockets and item UI hooks.",
+      "reason_de": "Beide Mods ersetzen Beutel, Taschen und Item-UI-Hooks.",
+      "resolution_en": "Disable Useful Bag before enabling Ascendant; configure ASC Bag inside Ascendant.",
+      "resolution_de": "Deaktiviere Useful Bag, bevor du Ascendant aktivierst; ASC-BEUTEL wird in Ascendant eingestellt.",
+      "areas": ["bag layout", "item pockets", "item descriptions", "bag input"]
+    },
+    {
+      "policy": "replace",
+      "ids": ["jj_quick_select"],
+      "repositories": ["Roxas2712/pokemon-quick-select"],
+      "reason_en": "Both mods own SELECT registration and quick-action input.",
+      "reason_de": "Beide Mods steuern SELECT-Belegung und Schnellaktionen.",
+      "resolution_en": "Disable Quick Select before enabling Ascendant; configure shortcuts inside Ascendant.",
+      "resolution_de": "Deaktiviere Quick Select, bevor du Ascendant aktivierst; Kürzel werden in Ascendant eingestellt.",
+      "areas": ["select input", "quick actions", "shortcut registration"]
+    },
+    {
+      "policy": "replace",
+      "ids": ["nuzlocke"],
+      "repositories": ["bryanthaboi/nuzlocke"],
+      "reason_en": "Both mods enforce fainting, encounter and blackout rules.",
+      "reason_de": "Beide Mods steuern K.O.-, Begegnungs- und Blackout-Regeln.",
+      "resolution_en": "Disable standalone Nuzlocke before enabling Ascendant; configure the integrated run at the bedroom PC.",
+      "resolution_de": "Deaktiviere die eigenständige Nuzlocke-Mod, bevor du Ascendant aktivierst; der integrierte Lauf wird am Zimmer-PC eingestellt.",
+      "areas": ["nuzlocke", "fainting", "encounter limits", "blackout handling", "save rules"]
+    },
+    {
+      "policy": "replace",
+      "ids": ["Kanto-Reforged"],
+      "repositories": ["1Jamie/Kanto-Reforged"],
+      "reason_en": "Kanto Reforged has not been reviewed with Ascendant and may overlap in type, type-chart, move and species registries.",
+      "reason_de": "Kanto Reforged wurde nicht mit Ascendant geprüft und kann sich bei Typen-, Typentabellen-, Attacken- und Pokémon-Registern überschneiden.",
+      "resolution_en": "Disable Kanto Reforged before enabling Ascendant. Run only one of them unless the exact Reforged version receives a dedicated compatibility review.",
+      "resolution_de": "Deaktiviere Kanto Reforged, bevor du Ascendant aktivierst. Nutze nur eine der beiden Mods, solange die genaue Reforged-Version nicht ausdrücklich auf Kompatibilität geprüft wurde.",
+      "areas": ["types", "type chart", "moves", "species"]
+    },
+    {
+      "policy": "block",
+      "ids": ["DRAMATIC_SHAPE", "potato_voxel", "TERRARIUM", "ds_fp_ceiling"],
+      "reason_en": "This renderer currently does not work with Gen1 Recomp 0.1.90.",
+      "reason_de": "Dieser Renderer funktioniert derzeit nicht mit Gen1 Recomp 0.1.90.",
+      "resolution_en": "Use Voxel Ascendant, Battle Art 1.9.0, the hardened DRAMALESS 1.6.2-ST.190.1 build, or native 2D.",
+      "resolution_de": "Verwende Voxel Ascendant, Battle Art 1.9.0, den gehärteten DRAMALESS-Build 1.6.2-ST.190.1 oder die native 2D-Darstellung.",
+      "areas": ["render pipeline", "sandbox APIs", "battle presentation"]
+    }
+  ],
   "experimental": false,
   "description": "A living 251-Pokémon Kanto adventure with optional early Johto migrations, mythical Mew/Celebi signals, Gorochu, ranked rematches, research habitats, shinies and Mega Evolution.",
   "github": "Roxas2712/kanto-ascendant"

@@ -95,12 +95,14 @@ return function(mod, opts)
   end
 
   local function followerApi(game)
-    local exports = game and game.mods and game.mods.exports
-    if type(exports) == "table" then
-      for _, api in pairs(exports) do
-        if type(api) == "table" and type(api.activeMon) == "function" then
-          return api
-        end
+    for _, id in ipairs({ "FOLLOWERS_EX", "PokePCFollowers_VoxelMerge" }) do
+      local ok, handle = false, nil
+      if mod and type(mod.find) == "function" then
+        ok, handle = pcall(function() return mod.find(id) end)
+      end
+      local api = ok and type(handle) == "table" and handle.exports or nil
+      if type(api) == "table" and type(api.activeMon) == "function" then
+        return api
       end
     end
   end
@@ -119,10 +121,6 @@ return function(mod, opts)
         return mon
       end
     end
-  end
-
-  function C.setShinySystem(controller)
-    shinySystem = controller
   end
 
   local function upvalue(fn, wanted)
@@ -162,6 +160,10 @@ return function(mod, opts)
       end
       index = index + 1
     end
+  end
+
+  function C.setShinySystem(controller)
+    shinySystem = controller
   end
 
   local STATE_KEY = "__kantoAscendantFollowerCompat"
@@ -286,10 +288,20 @@ return function(mod, opts)
 
   local function pathExists(path)
     if type(path) ~= "string" or path == "" then return false end
-    local fs = love and love.filesystem
-    if not (fs and fs.getInfo) then return true end
-    local ok, found = pcall(fs.getInfo, path)
-    return ok and found ~= nil
+    local prefix = tostring(mod.path or "") .. "/"
+    if path:sub(1, #prefix) == prefix and type(mod.read) == "function" then
+      local ok, found = pcall(mod.read, mod, path:sub(#prefix + 1))
+      return ok and found ~= nil
+    end
+    -- External follower APIs own their paths. Ask the engine-owned resolver
+    -- rather than dereferencing the sandbox-denied love.filesystem facade or
+    -- assuming a stale Followers-EX/PokePC path still exists.
+    local okAssets, Assets = pcall(require, "src.render.Assets")
+    if not (okAssets and Assets and type(Assets.exists) == "function") then
+      return false
+    end
+    local ok, found = pcall(Assets.exists, path)
+    return ok and found == true
   end
 
   local function resolvedFollowerPath(game, mon, originalAssetPath)

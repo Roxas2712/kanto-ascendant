@@ -119,19 +119,22 @@ return function(mod, opts)
   end
 
   local function externalApi()
-    local exports = S.game and S.game.mods and S.game.mods.exports
-    local api = type(exports) == "table" and exports.shiny_indicators
+    local ok, handle = false, nil
+    if mod and type(mod.find) == "function" then
+      ok, handle = pcall(function() return mod.find("shiny_indicators") end)
+    end
+    local api = ok and type(handle) == "table" and handle.exports or nil
     return type(api) == "table" and api or nil
   end
 
   local function crystalVisualsActive(mon)
-    local loader = S.game and S.game.mods
-    local exports = loader and loader.exports
-    local loaded = type(exports) == "table"
-      and type(exports.crystal_animated_sprites_with_shiny_visuals) == "table"
-    if not loaded then
-      loaded = loader and type(loader.mods) == "table"
-        and loader.mods.crystal_animated_sprites_with_shiny_visuals ~= nil
+    local loaded = false
+    if mod and type(mod.find) == "function" then
+      local ok, handle = pcall(function()
+        return mod.find("crystal_animated_sprites_with_shiny_visuals")
+      end)
+      loaded = ok and type(handle) == "table"
+        and type(handle.exports) == "table"
     end
     if not (loaded and mon and mon.species) then return false end
     local def = S.game and S.game.data and S.game.data.pokemon
@@ -322,14 +325,27 @@ return function(mod, opts)
   end
 
   local function derivedShinyPath(path)
-    if type(path) ~= "string" or not love or not love.filesystem then return nil end
+    if type(path) ~= "string" then return nil end
     local rel = path:sub(1, #SOURCE_PREFIX) == SOURCE_PREFIX
       and path:sub(#SOURCE_PREFIX + 1) or nil
     if not rel then return nil end
     local candidate = "save/mod-derived/" .. mod.id .. "/shiny/" .. rel
     if derived[candidate] == nil then
-      local ok, info = pcall(love.filesystem.getInfo, candidate)
-      derived[candidate] = ok and info ~= nil or false
+      -- love.image is allowed in the 0.1.86 sandbox and gives us a stronger
+      -- probe than a filesystem stat: missing *and corrupt* transform output
+      -- both fail closed to the original sprite. Do not infer existence from
+      -- a source path; AssetTransform can legitimately skip a failed decode.
+      local exists = false
+      local okAssets, Assets = pcall(require, "src.render.Assets")
+      if okAssets and Assets and type(Assets.exists) == "function" then
+        local ok, value = pcall(Assets.exists, candidate)
+        exists = ok and value == true
+      end
+      local readable, image = false, nil
+      if exists and love and love.image and love.image.newImageData then
+        readable, image = pcall(love.image.newImageData, candidate)
+      end
+      derived[candidate] = exists and readable and image ~= nil or false
     end
     return derived[candidate] and candidate or nil
   end
@@ -552,7 +568,7 @@ return function(mod, opts)
             value = seen and row.id or nil,
           }
         end
-        return mod.ui.ListMenu.new(game,
+        return (mod.ui.KantoListMenu or mod.ui.ListMenu).new(game,
           tr(("SHINY DEX %d/%d"):format(totalCaught, totalSeen),
              ("SHINY-DEX %d/%d"):format(totalCaught, totalSeen)),
           rows, {
@@ -726,7 +742,7 @@ return function(mod, opts)
               value = index,
             }
           end
-          boxGame.stack:push(mod.ui.ListMenu.new(boxGame,
+          boxGame.stack:push((mod.ui.KantoListMenu or mod.ui.ListMenu).new(boxGame,
             tr("RELEASE POKéMON", "POKéMON FREILASSEN"), rows, {
               onChoose = function(item, list)
                 local mon = box[list.index]

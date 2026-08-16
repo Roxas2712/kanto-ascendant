@@ -150,6 +150,7 @@ return function(mod, baseData, opts)
   local johtoResearch = opts.johtoResearch
   local worldEvents = opts.worldEvents
   local kantoCompletion = opts.kantoCompletion
+  local titleProvider = opts.titleProvider or opts.legacyPaths
   local johtoMasters
   local questTracker
   local trainerStates = opts.trainerStates or function() return {} end
@@ -221,6 +222,12 @@ return function(mod, baseData, opts)
         math.floor(tonumber(s.rocketStage) or 0)))
       s.mewStage = math.max(0, math.min(4,
         math.floor(tonumber(s.mewStage) or 0)))
+      s.mewAuthoredCatch = s.mewAuthoredCatch == true and true or nil
+      if s.mewRepairDecision ~= "restored"
+          and s.mewRepairDecision ~= "kept"
+          and s.mewRepairDecision ~= "authored" then
+        s.mewRepairDecision = nil
+      end
       s.cycle = math.max(0, math.floor(tonumber(s.cycle) or 0))
       s.cycleJohtoMastersStartClears = math.max(0, math.floor(
         tonumber(s.cycleJohtoMastersStartClears) or 0))
@@ -244,6 +251,45 @@ return function(mod, baseData, opts)
 
   local function persist(s)
     if s then mod.save:set("ascendant", s) end
+  end
+
+  local markAuthoredMew
+
+  local function mewRepairAvailable()
+    local s = state()
+    -- Pre-6.5 saves did not retain encounter provenance.  Offer one explicit
+    -- player decision rather than guessing from Party/PC ownership.
+    return s.mewCaught == true and s.mewAuthoredCatch ~= true
+      and s.mewRepairDecision == nil
+  end
+
+  local function repairMewInvestigation(game, restore)
+    if not mewRepairAvailable() then return false, "unavailable" end
+    local s = state()
+    local before = {
+      mewCaught = s.mewCaught,
+      mewStage = s.mewStage,
+      mewAuthoredCatch = s.mewAuthoredCatch,
+      mewRepairDecision = s.mewRepairDecision,
+    }
+    if restore == true then
+      s.mewCaught, s.mewStage = false, 0
+      s.mewAuthoredCatch = nil
+      s.mewRepairDecision = "restored"
+    else
+      s.mewRepairDecision = "kept"
+    end
+    persist(s)
+    if game and type(game.writeSave) == "function"
+        and game:writeSave() == false then
+      s.mewCaught = before.mewCaught
+      s.mewStage = before.mewStage
+      s.mewAuthoredCatch = before.mewAuthoredCatch
+      s.mewRepairDecision = before.mewRepairDecision
+      persist(s)
+      return false, "save"
+    end
+    return true, restore == true and "restored" or "kept"
   end
 
   local function rankFor(progress)
@@ -402,11 +448,46 @@ return function(mod, baseData, opts)
     return true
   end
 
+  markAuthoredMew = function(s)
+    s = s or state()
+    s.mewCaught, s.mewStage = true, 4
+    s.mewAuthoredCatch = true
+    s.mewRepairDecision = "authored"
+    persist(s)
+    unlock("mew_found", s)
+    return s
+  end
+
+  local function providerTitle(id)
+    if titleProvider and titleProvider.titleName then
+      return titleProvider.titleName(id)
+    end
+  end
+
   local function achievementTitle(id)
+    local provided = providerTitle(id)
+    if provided then return provided end
     for _, row in ipairs(data.achievements) do
       if row.id == id then return localized(row.title) end
     end
-    return id
+    return nil
+  end
+
+  local function titleUnlocked(s, id)
+    if type(id) ~= "string" or not achievementTitle(id) then return false end
+    if providerTitle(id) then
+      return titleProvider and titleProvider.titleUnlocked
+        and titleProvider.titleUnlocked(id) == true
+    end
+    return s.achievements[id] == true
+  end
+
+  local function currentTitle(s)
+    s = s or state()
+    local id = s.selectedTitle
+    if not titleUnlocked(s, id) then id = s.latestAchievement end
+    if titleUnlocked(s, id) then return id, achievementTitle(id) end
+    return nil, tr("CHAMPION", "CHAMP")
   end
 
   local function evaluateAchievements(game)
@@ -594,26 +675,86 @@ return function(mod, baseData, opts)
 
     if context.kind == "elite" and context.key == "OPP_RIVAL3"
         and #out > 0 then
+      local configured = baseData.eliteMega and baseData.eliteMega.OPP_RIVAL3
+      local reserved = configured and configured[context.tier]
+      local function containsSpecies(species)
+        if not species then return false end
+        for _, slot in ipairs(out) do
+          if slot.species == species then return true end
+        end
+        return false
+      end
+      if not containsSpecies(reserved) then
+        local fallback = baseData.eliteMegaFallback
+          and baseData.eliteMegaFallback.OPP_RIVAL3
+          and baseData.eliteMegaFallback.OPP_RIVAL3[context.tier]
+        if containsSpecies(fallback) then reserved = fallback end
+      end
+      local counterIndex
       local counter = COUNTERS[dominantPlayerType(game)]
       if counter then
-        out[1] = {
+        counterIndex = 1
+        -- If Blue already owns the adaptive counter species, rewrite that
+        -- slot instead of manufacturing a duplicate exact species. This
+        -- includes the configured Mega fallback (for example Alakazam when
+        -- Mewtwo content is off): rewriting it preserves both contracts.
+        local existingCounterIndex
+        for index, slot in ipairs(out) do
+          if slot.species == counter.species then
+            existingCounterIndex = index
+            break
+          end
+        end
+        -- The adaptive counter must never delete Blue's one Mega carrier.
+        -- In the Crown roster Suicune is the intentional flexible slot; this
+        -- also prevents the League from fielding a second Suicune beside the
+        -- Champion's unique legendary lineup.
+        if existingCounterIndex then
+          counterIndex = existingCounterIndex
+        elseif context.tier == "crown" then
+          for index, slot in ipairs(out) do
+            if slot.species == "SUICUNE" or slot.species == "LAPRAS" then
+              counterIndex = index
+              break
+            end
+          end
+        end
+        if reserved and out[counterIndex]
+            and out[counterIndex].species == reserved
+            and counter.species ~= reserved then
+          for index, slot in ipairs(out) do
+            if slot.species ~= reserved then counterIndex = index break end
+          end
+        end
+        out[counterIndex] = {
           species = counter.species,
-          level = context.tier == "crown" and 100 or out[1].level,
+          level = context.tier == "crown" and 100 or out[counterIndex].level,
           moves = {
             counter.moves[1], counter.moves[2],
             counter.moves[3], counter.moves[4],
           },
         }
       end
-      -- Blue studies Johto after every encounter instead of merely
-      -- shuffling the same six Kanto slots forever.
-      if #out > 1 then
+      -- Blue studies Johto across Apex rematches. The Crown team is the
+      -- explicitly earned six-legend finale, so its identities are never
+      -- overwritten by this lower-tier evolution rotation.
+      if #out > 1 and context.tier ~= "crown" then
         local evolved = RIVAL_EVOLUTIONS[
           ((fought + s.cycle) % #RIVAL_EVOLUTIONS) + 1]
         if game and game.data and game.data.pokemon[evolved.species] then
-          out[2] = {
+          local evolutionIndex = 2
+          if out[evolutionIndex].species == reserved
+              or evolutionIndex == counterIndex then
+            for index, slot in ipairs(out) do
+              if slot.species ~= reserved and index ~= counterIndex then
+                evolutionIndex = index
+                break
+              end
+            end
+          end
+          out[evolutionIndex] = {
             species = evolved.species,
-            level = context.tier == "crown" and 100 or out[2].level,
+            level = out[evolutionIndex].level,
             moves = {
               evolved.moves[1], evolved.moves[2],
               evolved.moves[3], evolved.moves[4],
@@ -637,6 +778,16 @@ return function(mod, baseData, opts)
     s.bossBattles[key] = math.max(0,
       math.floor(tonumber(s.bossBattles[key]) or 0)) + 1
     persist(s)
+  end
+
+  local function bossBattleCount(context)
+    context = context or {}
+    local s = state(false)
+    if not s then return 0 end
+    local key = (context.kind or "boss") .. ":"
+      .. (context.key or "unknown") .. ":" .. (context.tier or "open")
+    return math.max(0,
+      math.floor(tonumber(s.bossBattles[key]) or 0))
   end
 
   local function runtimeObjectIds(game, mapId, name)
@@ -1024,16 +1175,13 @@ return function(mod, baseData, opts)
         and eventArchive.mewProfile() == "historical"
       local level = historical and 5 or data.mew.level
       local b = require("src.battle.BattleState").newWild(game, "MEW",
-        level)
+        level, { encounterSource = "static", randomizerProtected = true })
       b.ascendantMew = true
       if historical then eventArchive.applyHistoricalMew(b) end
       b.onFinish = function(result)
         if result == "caught"
             and (not historical or b.eventArchiveStored ~= false) then
-          local s = state()
-          s.mewCaught, s.mewStage = true, 4
-          persist(s)
-          unlock("mew_found", s)
+          markAuthoredMew()
           if npc and npc.def and npc.def.runtime then mod.world:removeNpc(npc.id) end
         end
         ow:afterBattle(result, b)
@@ -1114,8 +1262,8 @@ return function(mod, baseData, opts)
     npc.frozen = true
     npc:facePlayer(ow.player)
     local first = tr(
-      "ASCENDANT CYCLE\nNEW GAME PLUS\fReplay every mod\ncircuit with adaptive\nteams and stricter\nbattle rules?\fBase story progress,\nPOKéMON, items and\ncaptured legends stay.",
-      "ASCENDANT-ZYKLUS\nNEW GAME PLUS\fAlle Mod-Prüfungen mit\nadaptiven Teams und\nstrengeren Regeln\nwiederholen?\fBasis-Story, POKéMON,\nItems und gefangene\nLegenden bleiben.")
+      "ASCENDANT CHALLENGE\fReplay every mod\ncircuit with adaptive\nteams and stricter\nbattle rules?\fBase story progress,\nPOKéMON, items and\ncaptured legends stay.",
+      "ASCENDANT-CHALLENGE\fAlle Mod-Prüfungen mit\nadaptiven Teams und\nstrengeren Regeln\nwiederholen?\fBasis-Story, POKéMON,\nItems und gefangene\nLegenden bleiben.")
     game.stack:push(TextBox.new(game, first, nil, {
       choice = function(yes)
         if not yes then npc.frozen = false return end
@@ -1279,27 +1427,52 @@ return function(mod, baseData, opts)
       ascendantLabel = tr("JOURNAL", "JOURNAL"),
       ascendantOrder = 10,
       onSelect = function()
-        local pages = {}
-        if questTracker and questTracker.statusText then
-          pages[#pages + 1] = questTracker.statusText(game)
+        local TextBox = require("src.render.TextBox")
+        local function openJournal()
+          local pages = {}
+          if questTracker and questTracker.statusText then
+            pages[#pages + 1] = questTracker.statusText(game)
+          end
+          if base.events and base.events.researchLog then
+            pages[#pages + 1] = base.events.researchLog(base.state(), game.save)
+          end
+          pages[#pages + 1] = E.archiveText(game)
+          pages[#pages + 1] = typeMasteryText()
+          if worldEvents and worldEvents.statusText then
+            pages[#pages + 1] = tr("WORLD PULSE", "WELT-IMPULS")
+              .. "\n" .. worldEvents.statusText(game)
+          end
+          if kantoCompletion and kantoCompletion.statusText then
+            pages[#pages + 1] = kantoCompletion.statusText()
+          end
+          if johtoMasters and johtoMasters.statusText then
+            pages[#pages + 1] = johtoMasters.statusText()
+          end
+          game.stack:push(TextBox.new(game, table.concat(pages, "\f")))
         end
-        if base.events and base.events.researchLog then
-          pages[#pages + 1] = base.events.researchLog(base.state(), game.save)
-        end
-        pages[#pages + 1] = E.archiveText(game)
-        pages[#pages + 1] = typeMasteryText()
-        if worldEvents and worldEvents.statusText then
-          pages[#pages + 1] = tr("WORLD PULSE", "WELT-IMPULS")
-            .. "\n" .. worldEvents.statusText(game)
-        end
-        if kantoCompletion and kantoCompletion.statusText then
-          pages[#pages + 1] = kantoCompletion.statusText()
-        end
-        if johtoMasters and johtoMasters.statusText then
-          pages[#pages + 1] = johtoMasters.statusText()
-        end
-        game.stack:push(require("src.render.TextBox").new(
-          game, table.concat(pages, "\f")))
+        if not mewRepairAvailable() then return openJournal() end
+        game.stack:push(TextBox.new(game, tr(
+          "An external MEW\nmay have completed\nthis investigation\nby mistake.\fRestore the OAK-\nFUJI-CINNABAR quest?\fYour MEW and all\nother progress stay.",
+          "Ein externes MEW\nkönnte diese Quest\nfalsch beendet\nhaben.\fEICH-FUJI-ZINNOBER-\nQuest erneuern?\fMEW und Fortschritt\nbleiben erhalten."), nil, {
+          choice = function(restore)
+            local ok, why = repairMewInvestigation(game, restore == true)
+            local message
+            if ok and why == "restored" then
+              message = tr(
+                "The Ascendant MEW\ninvestigation was\nrestored.\fYour external MEW\nwas not changed.",
+                "Die Ascendant-MEW-\nUntersuchung wurde\nwiederhergestellt.\fDein externes MEW\nblieb unverändert.")
+            elseif ok then
+              message = tr(
+                "The completed quest\nwas kept.\fNo POKéMON or\nprogress was changed.",
+                "Die abgeschlossene\nQuest bleibt erhalten.\fKein POKéMON und kein\nFortschritt wurden\nverändert.")
+            else
+              message = tr(
+                "The repair could not\nbe saved.\fNothing was changed.",
+                "Die Reparatur konnte\nnicht gespeichert\nwerden.\fNichts wurde geändert.")
+            end
+            game.stack:push(TextBox.new(game, message, openJournal))
+          end,
+        }))
       end,
     })
   end, 235)
@@ -1361,13 +1534,11 @@ return function(mod, baseData, opts)
   end)
 
   mod.events:on("pokemon.caught", function(ev)
-    if ev and ev.species == "MEW"
+    if ev and ev.species == "MEW" and ev.battle
+        and ev.battle.ascendantMew == true
         and not (ev.mon and ev.mon.eventDistribution
           and ev.battle and ev.battle.eventArchiveStored == false) then
-      local s = state()
-      s.mewCaught, s.mewStage = true, 4
-      persist(s)
-      unlock("mew_found", s)
+      markAuthoredMew()
     end
     if E.game then evaluateAchievements(E.game) end
   end)
@@ -1462,7 +1633,10 @@ return function(mod, baseData, opts)
 
   function E.rankLine(progress)
     local rank = rankFor(progress)
-    return ("★ %s: %s"):format(tr("TRAINER RANK", "TRAINER-RANG"),
+    -- Keep this line inside the actual Gen-I font. The decorative Unicode
+    -- star used during development rendered as a missing-glyph warning in
+    -- real Red/Blue/Yellow processes.
+    return ("%s: %s"):format(tr("TRAINER RANK", "TRAINER-RANG"),
       localized(rank.name))
   end
 
@@ -1486,6 +1660,10 @@ return function(mod, baseData, opts)
 
   function E.selectBossTeam(team, context, game)
     return selectBossTeam(team, context, game)
+  end
+
+  function E.bossBattleCount(context)
+    return bossBattleCount(context)
   end
 
   local function cycleRule(cycle, setting)
@@ -1534,11 +1712,7 @@ return function(mod, baseData, opts)
     local s = evaluateAchievements(game)
     local unlocked = countKeys(s.achievements)
     local researchDone, researchTotal = researchCounts(s)
-    local shownTitle = s.selectedTitle
-      and s.achievements[s.selectedTitle] and s.selectedTitle
-      or s.latestAchievement
-    local title = shownTitle
-      and achievementTitle(shownTitle) or tr("CHAMPION", "CHAMP")
+    local _, title = currentTitle(s)
     local researchDone = countKeys(s.research.completed)
     return ("\f%s\n%s"):format(tr("CURRENT TITLE", "AKTIVER TITEL"), title)
       .. ("\f%s: %d/%d\n%s: %d/%d"):format(
@@ -1557,6 +1731,7 @@ return function(mod, baseData, opts)
   end
 
   E.state = state
+  E.currentTitle = currentTitle
   E.rankFor = rankFor
   E.rematchTotal = rematchTotal
   E.expertTrainerCount = expertTrainerCount
@@ -1566,6 +1741,8 @@ return function(mod, baseData, opts)
   E.questDoneCount = questDoneCount
   E.allEnabledLegendsCaught = allEnabledLegendsCaught
   E.mewEligible = mewEligible
+  E.mewRepairAvailable = mewRepairAvailable
+  E.repairMewInvestigation = repairMewInvestigation
   E.worldPhase = worldPhase
   E.evaluateAchievements = evaluateAchievements
   E.beginNewGamePlus = beginNewGamePlus

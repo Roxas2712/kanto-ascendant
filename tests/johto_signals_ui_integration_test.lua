@@ -181,10 +181,10 @@ local game = {
 tracker.install(game)
 
 equal(tracker.nextObjective(game).id, "gold",
-  "a voluntary signal never replaces Gold as the mandatory main fight")
+  "a voluntary signal never replaces the connected Johto Masters objective")
 local mainText = tracker.objectiveText(game)
-contains(mainText, "FINAL MAIN BATTLE: GOLD",
-  "the authoritative main-objective page remains unchanged")
+contains(mainText, "JOHTO GATE: SILVER",
+  "the authoritative main-objective page starts with the first sealed passage")
 excludes(mainText, "OPTIONAL SIGNAL",
   "the main-objective API is not silently redefined as a side objective")
 
@@ -201,7 +201,7 @@ excludes(optional.detail, "CELEBI",
   "an unseen species name cannot leak through objective details")
 
 local status = tracker.statusText(game)
-local mainAt = assert(status:find("FINAL MAIN BATTLE: GOLD", 1, true))
+local mainAt = assert(status:find("JOHTO GATE: SILVER", 1, true))
 local sideAt = assert(status:find("OPTIONAL SIGNAL\nGOAL", 1, true))
 equal(mainAt < sideAt, true,
   "Journal status always presents mandatory progress before the side goal")
@@ -214,8 +214,8 @@ contains(tracker.signalsObjectiveText(game), "CELEBI SIGNAL",
 game.save.pokedex.seen.CELEBI = nil
 
 language = "de"
-contains(tracker.objectiveText(game), "LETZTER HAUPTKAMPF: GOLD",
-  "mandatory Journal progress remains localized in German")
+contains(tracker.objectiveText(game), "JOHTO-TOR: SILBER",
+  "the first connected Johto passage remains localized in German")
 local germanSignals = tracker.signalsObjectiveText(game)
 contains(germanSignals, "FREIWILLIGES\nSIGNALZIEL",
   "the voluntary Journal label is localized in German")
@@ -257,8 +257,8 @@ do
     "DRIFTGLASS POST",
     "Atlas map cleanup prefers the hub's authored signal location")
   local text = atlas.objectiveText(game)
-  contains(text, "FINAL MAIN BATTLE: GOLD",
-    "Atlas keeps the mandatory objective")
+  contains(text, "JOHTO GATE: SILVER",
+    "Atlas keeps the connected Johto Masters objective")
   contains(text, "OPTIONAL SIGNAL\nGOAL",
     "Atlas adds the voluntary signal objective as a separate page")
   contains(text, "LOCATION: DRIFTGLASS POST",

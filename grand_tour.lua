@@ -133,6 +133,8 @@ return function(mod, opts)
   local data = assert(opts.data, "Grand Tour data missing")
   local postgame = assert(opts.postgame, "postgame controller missing")
   local i18n = opts.i18n
+  local dialoguePagination = opts.dialoguePagination
+  local beyondKanto = opts.beyondKanto or opts.johtoBoundary
   local G = { game = nil }
   local activeFactory
 
@@ -189,16 +191,33 @@ return function(mod, opts)
     return p and p.crownChampion == true or false
   end
 
+  local function boundaryActive(game)
+    return not beyondKanto or type(beyondKanto.isActive) ~= "function"
+      or beyondKanto.isActive(game or G.game)
+  end
+
+  local function maxDex(game)
+    return boundaryActive(game) and 251 or 151
+  end
+
+  local function speciesAllowed(game, species)
+    local def = game and game.data and game.data.pokemon
+      and game.data.pokemon[species]
+    local dex = def and tonumber(def.dex)
+    return dex and dex >= 1 and dex <= maxDex(game) or false
+  end
+
   local function isFinalEvolution(game, species)
     local def = game and game.data and game.data.pokemon
       and game.data.pokemon[species]
     if not def then return false end
     local dex = tonumber(def.dex)
-    if not dex or dex < 1 or dex > 251 or LEGENDARY[species] then return false end
+    local limit = maxDex(game)
+    if not dex or dex < 1 or dex > limit or LEGENDARY[species] then return false end
     for _, evo in ipairs(def.evolutions or {}) do
       local target = game.data.pokemon[evo.species]
       local targetDex = target and tonumber(target.dex)
-      if targetDex and targetDex >= 1 and targetDex <= 251 then return false end
+      if targetDex and targetDex >= 1 and targetDex <= limit then return false end
     end
     return true
   end
@@ -216,20 +235,91 @@ return function(mod, opts)
     return copyTeam(selected)
   end
 
-  local function factoryBracket(attempt)
-    local out = {}
-    for _, row in ipairs(rotatingSelection(
-        data.factory.opponents, data.factory.rounds or 3, attempt)) do
-      out[#out + 1] = copyOpponent(row)
+  local function stableHash(value)
+    local out = 5381
+    value = tostring(value or "")
+    for index = 1, #value do
+      out = (out * 33 + value:byte(index) * index) % 2147483647
     end
     return out
   end
 
-  local function cruiseBracket(attempt)
+  local function sealedMoves(moves)
+    local out = {}
+    for _, move in ipairs(moves or {}) do
+      -- GIGA DRAIN is the only Gen-II move authored on a #1-151 Grand Tour
+      -- row. Keep Exeggutor legal and useful under pure Gen-I semantics.
+      out[#out + 1] = move == "GIGA_DRAIN" and "MEGA_DRAIN" or move
+    end
+    return out
+  end
+
+  local function constrainedTeam(game, team, salt)
+    if boundaryActive(game) then return copyTeam(team) end
+    local candidates = availableCandidates(game)
+    local out, used = {}, {}
+    for _, slot in ipairs(team or {}) do
+      if speciesAllowed(game, slot.species) then used[slot.species] = true end
+    end
+    for index, slot in ipairs(team or {}) do
+      if speciesAllowed(game, slot.species) then
+        out[index] = {
+          species = slot.species,
+          level = integer(slot.level, 100, 1, 100),
+          moves = sealedMoves(slot.moves),
+        }
+      else
+        local replacement
+        if #candidates > 0 then
+          local start = stableHash(tostring(salt) .. ":" .. tostring(index)
+            .. ":" .. tostring(slot.species)) % #candidates + 1
+          for offset = 0, #candidates - 1 do
+            local row = candidates[(start + offset - 1) % #candidates + 1]
+            if not used[row.species] then replacement = row break end
+          end
+          replacement = replacement or candidates[start]
+        end
+        -- Canonical data always has twenty Kanto Factory candidates. The
+        -- fallback is deliberately fail-closed for malformed test/content
+        -- packs: no extended species is ever copied through.
+        replacement = replacement or {
+          species = "RATICATE", moves = { "BODY_SLAM", "HYPER_FANG" },
+        }
+        used[replacement.species] = true
+        out[index] = {
+          species = replacement.species,
+          level = integer(slot.level, 100, 1, 100),
+          moves = sealedMoves(replacement.moves),
+        }
+      end
+    end
+    return out
+  end
+
+  local function constrainedOpponent(game, row, salt)
+    local out = copyOpponent(row)
+    out.team = constrainedTeam(game, row.team, salt)
+    return out
+  end
+
+  local function factoryBracket(attempt, game)
+    game = game or G.game
+    local out = {}
+    for _, row in ipairs(rotatingSelection(
+        data.factory.opponents, data.factory.rounds or 3, attempt)) do
+      out[#out + 1] = constrainedOpponent(game, row,
+        "factory:" .. tostring(attempt) .. ":" .. tostring(row.key))
+    end
+    return out
+  end
+
+  local function cruiseBracket(attempt, game)
+    game = game or G.game
     local out = {}
     for _, row in ipairs(rotatingSelection(
         data.cruise.opponents, data.cruise.rounds or 5, attempt + 17)) do
-      out[#out + 1] = copyOpponent(row)
+      out[#out + 1] = constrainedOpponent(game, row,
+        "cruise:" .. tostring(attempt) .. ":" .. tostring(row.key))
     end
     return out
   end
@@ -338,7 +428,11 @@ return function(mod, opts)
       battle.trainer = setmetatable({ name = localized(opponent.name) },
         { __index = battle.trainer })
     end
-    battle.introText = localized(opponent.intro)
+    local intro = localized(opponent.intro)
+    -- BattleState owns a separate message parser and never opens TextBox.
+    -- Give every authored Grand Tour intro row its native CONT/A-B wait.
+    battle.introText = dialoguePagination
+      and dialoguePagination.gateBattleText(intro) or intro
     battle.endBattleText = localized(opponent.win)
     return battle
   end
@@ -405,7 +499,7 @@ return function(mod, opts)
     end
     game.save.party = rentals
     activeFactory = { backup = backup, attempt = attempt }
-    local bracket = factoryBracket(attempt)
+    local bracket = factoryBracket(attempt, game)
     local round, clean = 0, true
 
     local function nextRound()
@@ -531,7 +625,7 @@ return function(mod, opts)
       startRow.right = tostring(#picked) .. "/3"
     end
 
-    game.stack:push(mod.ui.ListMenu.new(game,
+    game.stack:push((mod.ui.KantoListMenu or mod.ui.ListMenu).new(game,
       tr("FACTORY DRAFT", "FABRIK-AUSWAHL"), rows, {
         footer = tr("A PICK  SELECT INFO", "A WAHL  SELECT INFO"),
         onCancel = function() npc.frozen = false end,
@@ -611,7 +705,7 @@ return function(mod, opts)
     s.cruise.attempts = s.cruise.attempts + 1
     local attempt = s.cruise.attempts
     persist(s)
-    local bracket = cruiseBracket(attempt)
+    local bracket = cruiseBracket(attempt, game)
     local round = 0
     healParty(game)
 
@@ -882,6 +976,8 @@ return function(mod, opts)
   G.realSteps = realSteps
   G.cruiseRemaining = cruiseRemaining
   G.isFinalEvolution = isFinalEvolution
+  G.maxDex = maxDex
+  G.constrainedTeam = constrainedTeam
   G.availableCandidates = availableCandidates
   G.draftCandidates = draftCandidates
   G.factoryBracket = factoryBracket

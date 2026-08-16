@@ -281,7 +281,7 @@ return function(mod, opts)
         }
       end
     end
-    game.stack:push(mod.ui.ListMenu.new(game,
+    game.stack:push((mod.ui.KantoListMenu or mod.ui.ListMenu).new(game,
       tr("RESEARCH ITEMS", "FORSCHUNGSITEMS"), rows, {
         onChoose = function(item)
           local ok, text = X.buyEvolutionItem(game, item.value.id)
@@ -305,7 +305,7 @@ return function(mod, opts)
         "Verdiene zuerst eine TM\nim Archiv, bevor du\nKopien auswählst."))
       return
     end
-    game.stack:push(mod.ui.ListMenu.new(game,
+    game.stack:push((mod.ui.KantoListMenu or mod.ui.ListMenu).new(game,
       tr("TM LIBRARY", "TM-BIBLIOTHEK"), rows, {
         pageJump = true,
         onChoose = function(item)
@@ -326,7 +326,7 @@ return function(mod, opts)
       { label = tr("STATUS", "STATUS"), value = "status" },
       { label = tr("CANCEL", "ZURÜCK"), value = "cancel" },
     }
-    game.stack:push(mod.ui.ListMenu.new(game,
+    game.stack:push((mod.ui.KantoListMenu or mod.ui.ListMenu).new(game,
       tr("FRONTIER EXCHANGE", "FRONTIER-TAUSCH"), rows, {
         onCancel = done,
         onChoose = function(item, menu)

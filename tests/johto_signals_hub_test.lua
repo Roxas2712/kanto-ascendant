@@ -92,6 +92,8 @@ local function newHarness(config)
     warpCalls = 0,
     doneCalls = 0,
     closedMenus = 0,
+    optionWrites = 0,
+    optionEvents = {},
     bagFull = config.bagFull == true,
     dexUnlocks = 0,
     dexUnlocked = dexUnlocked,
@@ -127,6 +129,7 @@ local function newHarness(config)
 
   local hooks = {}
   local mod = {
+    id = "kanto_ascendant",
     hooks = {},
     options = {
       get = function(_, key) return options[key] end,
@@ -369,6 +372,19 @@ local function newHarness(config)
       bagOrder = {},
       pokedex = { seen = {}, owned = {} },
       player = { map = "PALLET_TOWN" },
+      options = {
+        modOptions = { kanto_ascendant = options },
+      },
+    },
+    mods = {
+      modOptions = { kanto_ascendant = options },
+      events = {
+        emit = function(_, name, payload)
+          fixture.optionEvents[#fixture.optionEvents + 1] = {
+            name = name, payload = payload,
+          }
+        end,
+      },
     },
     data = {
       items = {
@@ -378,6 +394,10 @@ local function newHarness(config)
     overworld = { map = { id = "PALLET_TOWN" } },
     stack = { push = function() end },
   }
+  function game:writeOptions()
+    fixture.optionWrites = fixture.optionWrites + 1
+    return true
+  end
 
   local function showText(_, text, onDone, boxOpts)
     fixture.displays[#fixture.displays + 1] = {
@@ -614,6 +634,14 @@ local function rowByValue(rows, value)
 end
 local lockedScan = assert(rowByValue(lockedRows, "scan"))
 local lockedCurrent = assert(rowByValue(lockedRows, "set"))
+local lockedEnabled = assert(rowByValue(lockedRows, "enabled"))
+equal(lockedEnabled.right, "LOCK",
+  "the Early-Johto switch is visibly locked before Driftglass repair")
+lockedEnabled.onSelect()
+equal(locked.optionWrites, 0,
+  "the locked Early-Johto switch cannot change persisted options")
+equal(locked.options.johto_signals_enable, true,
+  "selecting the locked row cannot alter its backing option")
 equal(lockedScan.right, "LOCKED",
   "the compact scan row visibly reports its lock")
 equal(lockedCurrent.right, "LOCKED",
@@ -641,6 +669,34 @@ equal(#locked.menus, menusBeforeOffSelection,
   "an OFF current selector cannot open the migration mode menu")
 equal(locked.setModeCalls, 0,
   "an OFF current selector cannot preselect a migration current")
+
+local postRepairToggle = newHarness({
+  johtoEnabled = false,
+  early = {
+    questStarted = true,
+    capsuleFound = true,
+    capsuleOpened = true,
+    boatmanBriefed = true,
+    receiverRepaired = true,
+    modeChosen = true,
+    mode = "KANTO_FIRST",
+    traces = {},
+  },
+})
+local enableAfterRepair = assert(rowByValue(
+  postRepairToggle.hub.johtoRows(postRepairToggle.game), "enabled"))
+equal(enableAfterRepair.right, "OFF",
+  "the repaired receiver exposes the saved Early-Johto OFF state")
+enableAfterRepair.onSelect()
+equal(postRepairToggle.options.johto_signals_enable, true,
+  "only the repaired receiver menu may enable Early Johto")
+equal(postRepairToggle.optionWrites, 1,
+  "the post-repair toggle persists exactly once")
+equal(#postRepairToggle.optionEvents, 1,
+  "the post-repair toggle emits one normal option-change event")
+equal(postRepairToggle.optionEvents[1].payload.key,
+  "johto_signals_enable",
+  "the post-repair event targets only the Early-Johto switch")
 locked.hub.openWorld(locked.game)
 locked.hub.openJohto(locked.game)
 locked.hub.openMythic(locked.game)

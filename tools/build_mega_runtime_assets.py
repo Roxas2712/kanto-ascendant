@@ -231,10 +231,13 @@ def source_groups() -> dict[tuple[str, str, str], list[Path]]:
     return groups
 
 
-def build() -> tuple[int, int, int]:
+def build(only_assets: set[str] | None = None,
+          include_static: bool = True) -> tuple[int, int, int]:
     static_count = animation_count = gen1_count = 0
     pattern = re.compile(r"(.+)_(front|back)(_shiny)?\.png$")
     for (asset, side, variant), sources in sorted(source_groups().items()):
+        if only_assets and asset not in only_assets:
+            continue
         box = union_alpha_box(sources)
         palette = opaque_palette(sources)
         if not palette:
@@ -243,7 +246,7 @@ def build() -> tuple[int, int, int]:
             f"{asset}_{side}{'_shiny' if variant == 'shiny' else ''}.png"
         )
         static_source = STATIC_SOURCE / static_name
-        if static_source.is_file():
+        if include_static and static_source.is_file():
             runtime_target = STATIC_TARGET / static_name
             convert(
                 static_source,
@@ -284,9 +287,17 @@ def source_side(source_root: Path, source: Path) -> str | None:
     return relative.parts[1] if len(relative.parts) >= 2 else None
 
 
-def check_tree(source_root: Path, target_root: Path) -> list[str]:
+def check_tree(source_root: Path, target_root: Path,
+               only_assets: set[str] | None = None) -> list[str]:
     errors: list[str] = []
     for source in sorted(source_root.rglob("*.png")):
+        if source_root == STATIC_SOURCE:
+            match = re.fullmatch(r"(.+)_(front|back)(?:_shiny)?\.png", source.name)
+            asset = match.group(1) if match else None
+        else:
+            asset = source.relative_to(source_root).parts[0]
+        if only_assets and asset not in only_assets:
+            continue
         target = target_root / source.relative_to(source_root)
         if not target.is_file():
             errors.append(f"missing: {target.relative_to(ROOT)}")
@@ -351,12 +362,22 @@ def main() -> int:
     parser.add_argument(
         "--check", action="store_true", help="verify generated files only"
     )
+    parser.add_argument(
+        "--asset", action="append", default=[], metavar="ASSET",
+        help="limit generation/checking to an asset key (repeatable)"
+    )
+    parser.add_argument(
+        "--animations-only", action="store_true",
+        help="do not rewrite static Crystal/Gen-I derivatives"
+    )
     args = parser.parse_args()
+    selected = set(args.asset) or None
 
     if args.check:
-        errors = check_tree(STATIC_SOURCE, STATIC_TARGET)
-        errors += check_tree(ANIM_SOURCE, ANIM_TARGET)
-        errors += check_gen1_tree()
+        errors = check_tree(STATIC_SOURCE, STATIC_TARGET, selected)
+        errors += check_tree(ANIM_SOURCE, ANIM_TARGET, selected)
+        if not selected:
+            errors += check_gen1_tree()
         if errors:
             print("\n".join(errors))
             return 1
@@ -366,7 +387,8 @@ def main() -> int:
         )
         return 0
 
-    static_count, animation_count, gen1_count = build()
+    static_count, animation_count, gen1_count = build(
+        selected, include_static=not args.animations_only)
     print(
         f"Built {static_count} Crystal static, {animation_count} animated "
         f"and {gen1_count} four-shade Gen-I Mega runtime assets "

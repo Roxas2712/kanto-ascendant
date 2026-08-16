@@ -395,9 +395,60 @@ do
   end
   eq(savePriority, 300,
     "Early resets its slot cache before content refreshes Pallet travel")
+  local createdPriority
+  for _, row in ipairs(h.handlers["save.created"] or {}) do
+    createdPriority = math.max(createdPriority or row.priority, row.priority)
+  end
+  eq(createdPriority, 300,
+    "NEW GAME resets the same slot cache before Pallet content refresh")
 end
 
 -- ------------------------------------------------------- receiver and UX
+
+do
+  local h = newHarness({
+    state = {
+      receiverRepaired = true,
+      modeChosen = true,
+      mode = "UNLEASHED",
+      boatmanBriefed = true,
+      capsuleOpened = true,
+      traces = {},
+      rarePity = {},
+    },
+  })
+  local game = gameFixture(true, "BLITZ")
+  h.api.install(game, false)
+  eq(h.api.migrationOpen(), true,
+    "the source slot models BLITZ's live UNLEASHED migration")
+
+  -- Game:adoptSave replaces mod.save's bucket before save.created.  The
+  -- controller object itself survives New Game, exactly like the real app.
+  h.root.earlyJohto = {}
+  game.save = gameFixture(false, "GREEN").save
+  h.emit("save.created", { game = game, save = game.save })
+
+  local fresh = h.api.state()
+  eq(fresh.receiverRepaired, false,
+    "NEW GAME cannot inherit the prior slot's repaired receiver")
+  eq(fresh.modeChosen, false,
+    "NEW GAME cannot inherit the prior slot's migration choice")
+  eq(fresh.boatmanBriefed, false,
+    "NEW GAME cannot inherit the prior slot's boatman permission")
+  eq(h.api.migrationOpen(fresh), false,
+    "the fresh slot remains Kanto-only after an in-process slot replacement")
+  eq(#h.api.allowedSpeciesPool(fresh, true), 0,
+    "the fresh slot exposes no catchable Johto pool")
+  local native = { species = "RATTATA", level = 3 }
+  local resolved, transaction = h.api.resolveCandidate(native, {
+    mapId = "ROUTE_1", terrain = "grass",
+    rng = sequence({ 1, 1 }, "min"),
+  })
+  eq(resolved, native,
+    "a visible-Wilds proposal after New Game keeps the native species")
+  eq(transaction, nil,
+    "a visible-Wilds proposal after New Game creates no Johto ticket")
+end
 
 do
   local h = newHarness()
@@ -671,7 +722,7 @@ do
   eq(hit.species, "SENTRET",
     "Unleashed includes a roll of exactly 10 in 100")
   eq(hit.level, 8,
-    "Unleashed never exceeds route average plus five")
+    "Unleashed applies the configured minimum route bonus")
   local miss = h.api.rollReplacement(native, {
     mapId = "ROUTE_1", terrain = "grass",
     rng = sequence({ 11 }, "max"),
@@ -734,12 +785,13 @@ do
   local native = { species = "KOFFING", level = 30 }
   local out = h.api.rollReplacement(native, {
     mapId = "POKEMON_MANSION_B1F", terrain = "indoor",
-    rng = sequence({}, "max"),
+    routeAverageLevel = 30,
+    rng = sequence({ 1, 1, 2 }, "max"),
   })
   eq(out.species, "CYNDAQUIL",
-    "the 256th eligible Unleashed encounter is guaranteed")
+    "Unleashed places an authored starter on its normal ten-percent path")
   eq(h.state.rarePity.CYNDAQUIL, 255,
-    "the 256 guarantee is transactional before battle.started")
+    "Unleashed does not consume or mutate Wanderwave trace pity")
   h.emit("battle.started", {
     kind = "wild",
     species = "CYNDAQUIL",
@@ -748,8 +800,8 @@ do
       enemy = { mon = { species = "CYNDAQUIL", level = out.level } },
     },
   })
-  eq(h.state.rarePity.CYNDAQUIL, 0,
-    "the real matching wild battle commits the 256 guarantee")
+  eq(h.state.rarePity.CYNDAQUIL, 255,
+    "an Unleashed battle leaves the dormant Wanderwave pity intact")
 end
 
 do
@@ -775,7 +827,7 @@ do
   eq(out.species, "SENTRET",
     "the registered encounter hook still performs the ordinary replacement")
   eq(out.level, 8,
-    "the hook derives Route 1's weighted average and applies its +5 ceiling")
+    "the hook derives Route 1's weighted average and applies its +2 floor")
 end
 
 do
@@ -849,10 +901,27 @@ do
     "switching to Unleashed preserves the accumulated counter")
   local out = h.api.rollReplacement({ species = "ODDISH", level = 14 }, {
     mapId = "ROUTE_24", terrain = "grass",
-    rng = sequence({}, "max"),
+    routeAverageLevel = 14,
+    rng = sequence({ 1, 1, 2 }, "max"),
   })
   eq(out.species, "CHIKORITA",
-    "a preserved counter above 256 guarantees the next Unleashed encounter")
+    "Unleashed can roll the authored Chikorita habitat at ten percent")
+  eq(h.state.rarePity.CHIKORITA, 300,
+    "the preserved counter remains dormant until Wanderwaves is selected")
+end
+
+do
+  local h = activeWaveHarness(false)
+  local native = { species = "ODDISH", level = 70 }
+  local out = h.api.rollReplacement(native, {
+    mapId = "KA_HEVO_GREEN_MIST", terrain = "grass",
+    rng = sequence({ 1, 1, 1 }, "min"),
+    kaProtected = true, kaEncounterSource = "hevo_dungeon",
+  })
+  eq(out, native,
+    "classic Johto Signals preserves a protected progression habitat")
+  eq(h.api.pendingCandidate(), nil,
+    "protected progression habitat creates no Early-Johto transaction")
 end
 
 -- ------------------------------------------- exclusions and hook ordering
@@ -1110,6 +1179,76 @@ do
   end
   eq(fullyOff.state.capsuleTarget, nil,
     "disabling both systems leaves the hidden field quest dormant")
+end
+
+-- -------------------------- one receiver gate for grass and visible Wilds
+
+do
+  local closed = newHarness({ state = {
+    receiverRepaired = false, modeChosen = false, mode = "KANTO_FIRST",
+  } })
+  eq(closed.api.migrationOpen(), false,
+    "Johto migration is closed before the Driftglass receiver is configured")
+  eq(#closed.api.allowedSpeciesPool(nil, true), 0,
+    "closed migration exposes no Johto species to ambient Wilds")
+
+  local wave = newHarness({ state = {
+    receiverRepaired = true, modeChosen = true, mode = "WANDERWAVES",
+    waveIndex = 1, waveSteps = 400, traces = {}, rarePity = {},
+  } })
+  eq(wave.api.migrationOpen(), true,
+    "a configured Wanderwave opens the shared migration gate")
+  local permitted = {}
+  for _, species in ipairs(wave.api.allowedSpeciesPool(nil, false)) do
+    permitted[species] = true
+  end
+  check(permitted.SENTRET and permitted.HOOTHOOT and not permitted.NATU,
+    "Wanderwaves expose only species in the current wave")
+  check(wave.api.allowsHabitatSpecies("SENTRET", {
+    mapId = "ROUTE_1", terrain = "grass",
+  }), "the current wave is accepted only on its authored route")
+  check(not wave.api.allowsHabitatSpecies("SENTRET", {
+    mapId = "ROUTE_2", terrain = "grass",
+  }), "a permitted wave species cannot migrate to a foreign route")
+
+  local all = newHarness({ state = {
+    receiverRepaired = true, modeChosen = true, mode = "UNLEASHED",
+    traces = {}, rarePity = {},
+  } })
+  local full = {}
+  for _, species in ipairs(all.api.allowedSpeciesPool(nil, true)) do
+    full[species] = true
+  end
+  check(full.SENTRET and full.CHIKORITA and full.CYNDAQUIL
+      and full.TOTODILE and full.LARVITAR,
+    "the explicit full-migration choice includes ordinary Johto and authored bases")
+  check(not full.RAIKOU and not full.ENTEI and not full.SUICUNE
+      and not full.LUGIA and not full.HO_OH and not full.CELEBI,
+    "legendary and mythical species remain owned by their live event gates")
+end
+
+-- ------------------------- future Package-3 nineteen-species narrow seam
+
+do
+  local h = newHarness({ state = {
+    receiverRepaired = true, modeChosen = true, mode = "UNLEASHED",
+    traces = {}, rarePity = {},
+  } })
+  local count = 0
+  for _ in pairs(h.api.extensionAllowed) do count = count + 1 end
+  eq(count, 19, "the future extension contract accepts exactly nineteen species")
+  local accepted, err = h.api.registerExtensionSpecies("MAMOSWINE", {
+    map = "SEAFOAM_ISLANDS_B2F", terrain = "indoor", level = 42,
+  })
+  check(accepted, "an allowlisted old-line evolution can register a habitat")
+  check(h.api.allowsHabitatSpecies("MAMOSWINE", {
+    mapId = "SEAFOAM_ISLANDS_B2F", terrain = "indoor",
+  }), "registered extension species use the same Driftglass route gate")
+  accepted, err = h.api.registerExtensionSpecies("LUCARIO", {
+    map = "ROUTE_1", terrain = "grass",
+  })
+  eq(accepted, false, "unrelated Generation-IV species cannot broaden the catalogue")
+  contains(err, "19-species", "a rejected registration explains the narrow contract")
 end
 
 print(("JOHTO SIGNALS TEST PASS: %d assertions"):format(assertions))

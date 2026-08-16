@@ -1,0 +1,42 @@
+{
+  "purpose": "Unpackaged source authority for Gorochu's connected-tail 64 px 2D battle sprites",
+  "package_policy": "assets/sources/ is excluded by .modkitignore",
+  "page": "https://p-infinity.fandom.com/wiki/Gorochu",
+  "final_64_pipeline": {
+    "front": "Exact wiki normal/shiny PNGs; native 2x grid decimated to the authored 80 px basis, then explicit hard-nearest centre sampling to 64 px. Full body and complete tail remain one fixed opaque component.",
+    "back": "Reviewed 5.4.0 edition back enlarged to 64 px with the same hard-nearest sampler and mapped into exact wiki fur/gold palette slots. The dark root, loop and yellow lightning blade remain connected and fixed.",
+    "animation": "Only detached yellow/white charge clusters change over six frames; no body or tail pixel moves.",
+    "variants": "Shiny uses the exact wiki shiny source/palette; classic is an exact 0/85/170/255 neutral transform. Variant alpha masks are identical frame-by-frame.",
+    "forbidden": "No bilinear filtering, antialiasing, halo colours, cyan or light-blue in the normal set."
+  },
+  "wiki_originals": {
+    "api": "https://p-infinity.fandom.com/api.php?action=query&titles=File%3A732.png%7CFile%3A732b.png%7CFile%3A732s.png%7CFile%3A732sb.png&prop=imageinfo&iiprop=url%7Csha1%7Csize%7Cmime&format=json",
+    "pinfinity_wiki_732_front_normal.png": {
+      "source_file": "File:732.png",
+      "mediawiki_sha1": "0fe1eb0115e7371dde3e5bc63973e4049ac06cd6",
+      "sha256": "b2402d1fd6d6370571d0df59cadc978558785788f9b17144211d5ea9c0e9d498"
+    },
+    "pinfinity_wiki_732_back_normal.png": {
+      "source_file": "File:732b.png",
+      "mediawiki_sha1": "4fde7f3a70e610466cc6cdda6a0e71ec7223a1de",
+      "sha256": "1f3102fbfeed10979d02361fcda182e9317df9b79690f6b521c0075f08c6e88e"
+    },
+    "pinfinity_wiki_732_front_shiny.png": {
+      "source_file": "File:732s.png",
+      "mediawiki_sha1": "c61106b2595f7e1de8e26370f31e3d4d08806d25",
+      "sha256": "aa794f5f6ba794a1de7f14e569ff1156249a4e83ab5b87c355c0a5d383ba5ed5"
+    },
+    "pinfinity_wiki_732_back_shiny.png": {
+      "source_file": "File:732sb.png",
+      "mediawiki_sha1": "5e069929b21c83b3864465ea204e3a0e93a1f9c8",
+      "sha256": "9a31e2e71e295452ab0f8c0650a4a46bfeb0d96cbed18fa13bb97c58f22e75c4"
+    }
+  },
+  "reviewed_edition_sources": {
+    "repository_commit": "285be1576be86dfbb1fbf8dc24bcdcd8cd91b6a5",
+    "pinfinity_v540_front_normal_56.png": "5f09edea0a186df794a549a5a8d2db2d42a96df7fab90beff9cdc8c27eb40d16",
+    "pinfinity_v540_front_shiny_56.png": "605f2f9ccbb973de0ce5e7c20b994db7f716eae4d153fa718262da140159e274",
+    "pinfinity_v540_back_normal_56.png": "6ca9669687ca68ebfb9ebfc99eaa6644dc312fc4e18c701f83dab33f069886b1",
+    "pinfinity_v540_back_shiny_56.png": "942bed4b1e789ca0db45d221ec67e734f9f849030de0ea0eee29805760d31292"
+  }
+}

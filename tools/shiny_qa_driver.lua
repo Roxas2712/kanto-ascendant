@@ -12,7 +12,7 @@ return function(game)
 
   U.wait(15)
   local api = assert(game.mods and game.mods.exports
-    and game.mods.exports.trainer_rematch, "Kanto Ascendant export missing")
+    and game.mods.exports.kanto_ascendant, "Kanto Ascendant export missing")
   local shiny = assert(api.shinySystem, "shiny controller missing")
 
   game.save.pokedex = game.save.pokedex or { seen = {}, owned = {} }

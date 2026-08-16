@@ -16,6 +16,7 @@ return function(mod, opts)
   local mythic = assert(opts.mythicSignals,
     "Johto Signals Wilds adapter needs Mythic Signals")
   local lind = opts.johtoResearch
+  local runRules = opts.runRules
   local encounterLevels = opts.encounterLevels or early.encounterLevels or {
     routeAverage = function() return nil end,
   }
@@ -92,10 +93,14 @@ return function(mod, opts)
 
   local function wildsExport(game, deps)
     if deps and type(deps.wilds) == "table" then return deps.wilds end
-    local mods = game and game.mods
-    local exports = mods and mods.exports
-    return type(exports) == "table"
-      and exports.overworld_wild_spawns or nil
+    local ok, handle = false, nil
+    if mod and type(mod.find) == "function" then
+      ok, handle = pcall(function() return mod.find("overworld_wild_spawns") end)
+    end
+    local public = ok and type(handle) == "table" and handle.exports or nil
+    if public then return public end
+    local internal = mod.exports and mod.exports.internalWilds
+    return type(internal) == "table" and internal.exports or nil
   end
 
   local function cancelEarly(transaction, reason)
@@ -117,6 +122,10 @@ return function(mod, opts)
         or bundle.cancelled or bundle.committed then return false end
     bundle.cancelled = true
     bundle.cancelReason = reason or "cancelled"
+    if bundle.randomizerTicket and runRules
+        and type(runRules.cancelVisibleWild) == "function" then
+      runRules.cancelVisibleWild(bundle.randomizerTicket)
+    end
     cancelEarly(bundle.early, bundle.cancelReason)
     cancelMythic(bundle.mythic)
     if bundle.rareClaim
@@ -166,6 +175,8 @@ return function(mod, opts)
       mapId = mapId,
       terrain = terrain,
       encounterKind = encounterKind,
+      kaProtected = encDef.kaProtected == true or nil,
+      kaEncounterSource = encDef.kaEncounterSource,
       routeAverageLevel =
         encounterLevels.routeAverage(encDef, encounterKind),
       rng = rng,
@@ -194,9 +205,16 @@ return function(mod, opts)
     if type(pick) ~= "function" then
       return nil, nil, "encounter-pick-unavailable"
     end
-    local native = pick(encDef, rng, encounterKind)
-    if type(native) ~= "table" or not native.species then
+    local sourceNative = pick(encDef, rng, encounterKind)
+    if type(sourceNative) ~= "table" or not sourceNative.species then
       return nil, nil, "rejected: no encounter data"
+    end
+    local native = sourceNative
+    if runRules and type(runRules.mapVisibleWild) == "function" then
+      native = runRules.mapVisibleWild(sourceNative, ctx)
+      if type(native) ~= "table" or not native.species then
+        return nil, nil, "rejected: invalid Randomizer result"
+      end
     end
 
     -- encounter.roll can leave a proposal pending when Repel or another
@@ -209,8 +227,15 @@ return function(mod, opts)
     runtime.serial = runtime.serial + 1
     local serial = runtime.serial
 
-    local selected, earlyTransaction =
-      early.rollWildsReplacement(native, ctx)
+    local selected, earlyTransaction
+    if not integrationEnabled() then
+      selected = native
+    elseif ctx.kaProtected or ctx.kaEncounterSource then
+      selected = protectedCopy(native, nil,
+        ctx.kaEncounterSource or "protected_encounter")
+    else
+      selected, earlyTransaction = early.rollWildsReplacement(native, ctx)
+    end
     if type(selected) ~= "table" or not selected.species then
       selected = native
       cancelEarly(earlyTransaction, "invalid-early-proposal")
@@ -233,10 +258,12 @@ return function(mod, opts)
       end
     end
 
-    selected = rollLind(selected, ctx, rng)
+    if integrationEnabled() then
+      selected = rollLind(selected, ctx, rng)
+    end
 
     local mythicTransaction
-    if not runtime.mythicClaim then
+    if integrationEnabled() and not runtime.mythicClaim then
       local mythicSelected
       mythicSelected, mythicTransaction =
         mythic.rollReplacement(selected, encDef, ctx, game)
@@ -248,8 +275,23 @@ return function(mod, opts)
       end
     end
 
+    local randomizerTicket
+    if runRules and type(runRules.rememberVisibleWild) == "function" then
+      local finalCtx = copyTable(ctx)
+      finalCtx.kaProtected = selected.kaProtected == true or nil
+      finalCtx.kaEncounterSource = selected.kaEncounterSource
+      selected, randomizerTicket =
+        runRules.rememberVisibleWild(selected, finalCtx)
+      if type(selected) ~= "table" or not selected.species then
+        cancelEarly(earlyTransaction, "invalid-randomizer-ticket")
+        cancelMythic(mythicTransaction)
+        return nil, nil, "rejected: invalid Randomizer ticket"
+      end
+    end
+
     local bundle = {
       serial = serial,
+      sourceNative = sourceNative,
       native = native,
       output = selected,
       early = earlyTransaction,
@@ -259,6 +301,7 @@ return function(mod, opts)
       committed = false,
       cancelled = false,
       rareClaim = rareClaim,
+      randomizerTicket = randomizerTicket,
     }
     if rareClaim then runtime.rareClaims[rareClaim] = bundle end
     if mythicTransaction then runtime.mythicClaim = bundle end
@@ -272,7 +315,8 @@ return function(mod, opts)
       cancelBundle(bundle, "spawn-result-mismatch")
       return false
     end
-    if bundle and (bundle.early or bundle.mythic) then
+    if bundle and (bundle.early or bundle.mythic
+        or bundle.randomizerTicket) then
       record._kaSignalsWilds = bundle
     end
     record.kaProtected = selected.kaProtected == true or nil
@@ -362,12 +406,6 @@ return function(mod, opts)
   function W.dispatchTrySpawn(originalTrySpawn, logic, spawnGame, spawnOpts)
     local incoming = spawnOpts or {}
     local activeGame = spawnGame or W.game
-    if not integrationEnabled() then
-      if type(mythic.cancelPending) == "function" then
-        mythic.cancelPending()
-      end
-      return originalTrySpawn(logic, spawnGame, incoming)
-    end
     local skipped = skipSignals(activeGame, incoming)
     if skipped then
       if type(mythic.cancelPending) == "function" then
@@ -445,7 +483,8 @@ return function(mod, opts)
     if runtime.pendingBattle then
       cancelPending("superseded-visible-battle")
     end
-    if bundle and (bundle.early or bundle.mythic) then
+    if bundle and (bundle.early or bundle.mythic
+        or bundle.randomizerTicket) then
       runtime.pendingBattle = {
         bundle = bundle,
         expectedSpecies = record.species,
@@ -597,23 +636,30 @@ return function(mod, opts)
       or (alreadyBound and "already installed" or nil)
   end
 
+  local function resetSlotClaims(reason)
+    cancelPending(reason)
+    if runtime.mythicClaim then
+      cancelBundle(runtime.mythicClaim, reason)
+    end
+    local claimed = {}
+    for _, bundle in pairs(runtime.rareClaims) do
+      claimed[#claimed + 1] = bundle
+    end
+    for _, bundle in ipairs(claimed) do
+      cancelBundle(bundle, reason)
+    end
+    if type(mythic.cancelPending) == "function" then
+      mythic.cancelPending()
+    end
+  end
+
   if mod.events and type(mod.events.on) == "function" then
     mod.events:on("battle.started", commitPending, W.EVENT_PRIORITY)
+    mod.events:on("save.created", function()
+      resetSlotClaims("save-created")
+    end, W.EVENT_PRIORITY)
     mod.events:on("save.loaded", function()
-      cancelPending("save-loaded")
-      if runtime.mythicClaim then
-        cancelBundle(runtime.mythicClaim, "save-loaded")
-      end
-      local claimed = {}
-      for _, bundle in pairs(runtime.rareClaims) do
-        claimed[#claimed + 1] = bundle
-      end
-      for _, bundle in ipairs(claimed) do
-        cancelBundle(bundle, "save-loaded")
-      end
-      if type(mythic.cancelPending) == "function" then
-        mythic.cancelPending()
-      end
+      resetSlotClaims("save-loaded")
     end, W.EVENT_PRIORITY)
     mod.events:on("battle.ended", function()
       cancelPending("battle-ended-without-start")

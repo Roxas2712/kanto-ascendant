@@ -273,7 +273,7 @@ return function(mod, opts)
             value = profile.id,
           }
         end
-        return mod.ui.ListMenu.new(game, tr("EVENT ARCHIVE", "EVENT-ARCHIV"),
+        return (mod.ui.KantoListMenu or mod.ui.ListMenu).new(game, tr("EVENT ARCHIVE", "EVENT-ARCHIV"),
           rows, {
             pageJump = true,
             onChoose = function(item)

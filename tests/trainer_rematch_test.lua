@@ -1,5 +1,5 @@
 -- Trainer Rematch headless suite. Run from the engine checkout:
---   POKEPORT_DATA_DIR=tests/fixture_data luajit mods/trainer_rematch/tests/trainer_rematch_test.lua
+--   POKEPORT_DATA_DIR=tests/fixture_data luajit mods/kanto_ascendant/tests/trainer_rematch_test.lua
 package.path = "./?.lua;./?/init.lua;" .. package.path
 local T = require("tests.modkit")
 local Data = T.fixtures.load()
@@ -44,20 +44,93 @@ for index, moveId in ipairs({
   }
 end
 
-local modPath = os.getenv("TRAINER_REMATCH_MOD_DIR") or "mods/trainer_rematch"
+local modPath = os.getenv("TRAINER_REMATCH_MOD_DIR") or "mods/kanto_ascendant"
 local function packagedPath(runtimePath)
   local relative = type(runtimePath) == "string"
     and runtimePath:match("(assets/.*)$")
   return relative and (modPath .. "/" .. relative) or runtimePath
 end
-local run = T.sdk.loadMod(modPath, { data = Data })
+local sdkOpts = { data = Data }
+if modPath:sub(1, 1) == "/" then sdkOpts.root = "/" end
+-- Source checkouts intentionally report 0.0.0-dev, while this release is
+-- pinned to the current public engine contract of 0.1.90. Stamp only this
+-- synthetic loader;
+-- the exact archived-engine gate independently validates the real range.
+_G.__kaTestSavedEngineVersion = require("src.core.Version").engine
+require("src.core.Version").engine = "0.1.90"
+local run = T.sdk.loadMod(modPath, sdkOpts)
+require("src.core.Version").engine = _G.__kaTestSavedEngineVersion
+_G.__kaTestSavedEngineVersion = nil
+if not run.mod then
+  local rows = {}
+  for id, loaded in pairs(run.loader and run.loader.mods or {}) do
+    rows[#rows + 1] = tostring(id) .. "=" .. tostring(loaded.path)
+  end
+  error("Kanto Ascendant did not load: " .. table.concat(run.errors or {}, " | ")
+    .. " discovered=" .. table.concat(rows, ","))
+end
 T.eq(#run.errors, 0, "loads clean")
+-- The shipped language layer follows an installed translation mod instead of
+-- a private KA toggle. Simulate that installation only around localized unit
+-- checks; the dedicated renderer test loads the real Deutsch mod.
+function setTestGerman(enabled)
+  if enabled then
+    run.loader.mods.deutsch = {
+      enabled = true, failed = false,
+      manifest = { id = "deutsch", version = "test" },
+    }
+    run.loader.exports.deutsch = {}
+  else
+    run.loader.mods.deutsch = nil
+    run.loader.exports.deutsch = nil
+  end
+end
 T.eq(run.mod.manifest.name, "Kanto Ascendant",
   "the full expansion uses its new visible name")
-T.eq(run.mod.manifest.id, "trainer_rematch",
-  "the stable internal id preserves existing save data")
-local ex = run.loader.exports.trainer_rematch
+T.eq(run.mod.manifest.id, "kanto_ascendant",
+  "the permanent internal id no longer collides with Trainer Rematch")
+local ex = run.loader.exports.kanto_ascendant
 T.neq(ex, nil, "exports reachable")
+-- This long-running historical suite exercises the authored extended content
+-- unless a case explicitly says otherwise. Pin its synthetic slot ON; the
+-- dedicated beyond_kanto_* suites own fresh-save/OFF coverage.
+do
+  local save = { modData = { kanto_ascendant = {
+    beyond_kanto = {
+      version = 1, active = true, irreversible = true,
+      decision = "test_fixture",
+    },
+  } } }
+  run.__extendedFixtureGame = { data = Data, save = save }
+  ex.beyondKanto.sync(run.__extendedFixtureGame, save,
+    "trainer-rematch-extended-fixture")
+  -- This historical monolith predates per-save content boundaries and every
+  -- assertion in it targets authored extended content. Dedicated
+  -- beyond_kanto_* suites exercise sealed slots; keep all of this suite's
+  -- numerous synthetic save tables on the explicit ON side without adding a
+  -- boundary receipt to each unrelated fixture.
+  ex.beyondKanto.isActive = function() return true end
+end
+
+-- Cross-mod fixtures must exercise the same public handle a sandboxed mod
+-- receives from mod.find(id).  In particular, do not teach a fixture about
+-- the host-only loader buckets or the obsolete game.mods.exports shortcut.
+function publicModFixture(base, exportsById)
+  base = base or {}
+  base.exports = base.exports or {}
+  base.find = function(first, second)
+    local id = second == nil and first or second
+    local exported = exportsById and exportsById[id]
+    if exported == nil then return nil end
+    return {
+      id = id,
+      version = exported.version or "fixture",
+      exports = exported.exports or exported,
+    }
+  end
+  return base
+end
+
 T.eq(ex.dexKindCompat.MEW.en, "NEW SPECIE",
   "Mew restores its canonical English Pokédex category")
 T.eq(ex.dexKindCompat.MEW.de, "NEUE ART",
@@ -180,7 +253,7 @@ do
   T.eq(repeatedExternal, 100,
     "a repeated install preserves every already resolved cry")
   Data.audio.cries.CHIKORITA = ex.johtoAudio.fallbacks.CHIKORITA
-  Data.audio._owners.cries.CHIKORITA = "trainer_rematch"
+  Data.audio._owners.cries.CHIKORITA = "kanto_ascendant"
   local upgradedOwn, preservedAfterUpgrade =
     ex.johtoAudio.install({ data = Data })
   T.eq(upgradedOwn, 1,
@@ -247,13 +320,13 @@ do
     "Gorochu preserves the historical line's Electric identity")
   T.same(Data.pokemon.GOROCHU.baseStats, {
     hp = 85, attack = 135, defense = 90, speed = 125, special = 125,
-  }, "Gorochu totals 560, 13.13 percent above either 495-point Mega Raichu")
+  }, "Gorochu base stats changed")
   local gorochuTotal = 0
   for _, value in pairs(Data.pokemon.GOROCHU.baseStats) do
     gorochuTotal = gorochuTotal + value
   end
-  T.eq(gorochuTotal, 560,
-    "Gorochu stays inside the requested 10-15 percent strength band")
+  -- KA-INTERNAL: BALANCE-GOROCHU-001
+  T.eq(gorochuTotal, 560, "Gorochu base-stat total changed")
 
   local gorochuEvolution
   for _, row in ipairs(Data.pokemon.RAICHU.evolutions or {}) do
@@ -275,6 +348,21 @@ do
     "Tear of Thunder remains protected until its chosen evolution")
   T.eq(Data.items[gorochu.tearItemId].tossable, false,
     "Tear of Thunder cannot be discarded accidentally")
+
+  run.loader.modSave.kanto_ascendant = {}
+  setTestGerman(true)
+  local germanStatus = gorochu.statusText({
+    save = { inventory = {}, party = {}, boxes = {} },
+  })
+  T.eq(germanStatus:find("GOROCHU-APP", 1, true), 1,
+    "the German Gorochu status uses the compact readable app title")
+  T.eq(germanStatus:find("GOROCHU-FORSCHUNG", 1, true), nil,
+    "the oversized German research title is no longer rendered")
+  for line in germanStatus:gmatch("[^\n\f]+") do
+    T.eq(#line <= 18, true,
+      "each German Gorochu app line fits the Gen-I text viewport: " .. line)
+  end
+  setTestGerman(false)
 
   local raichu = {
     species = "RAICHU", level = 61, johtoBond = 100,
@@ -386,12 +474,11 @@ do
     map = { id = "VERMILION_GYM" }, player = {},
   }
   T.eq(gorochu.handleTalk(surgeOw, surgeNpc, evolutionGame), true,
-    "postgame Gorochu owners with a missing Heart receive the repair offer")
-  T.eq(type(surgeBoxes[#surgeBoxes].choice), "function",
-    "the repaired Surge hand-off still asks before granting THUNDERHEART")
-  surgeBoxes[#surgeBoxes].choice(true)
+    "postgame Gorochu owners with a missing earned Heart receive repair")
+  T.eq(surgeBoxes[#surgeBoxes].choice, nil,
+    "earned THUNDERHEART repair never replays the acquisition decision")
   T.eq(evolutionGame.save.inventory[gorochu.heartItemId], 1,
-    "accepting the postgame repair restores exactly one THUNDERHEART")
+    "postgame repair restores exactly one THUNDERHEART")
   T.eq(gorochu.handleTalk({
     map = { id = "VERMILION_GYM" }, player = {},
   }, {
@@ -499,14 +586,29 @@ T.neq(ex.kantoCrystalBacks, nil,
     "all 100 Johto species plus Gorochu ship with Crystal front/back art")
   T.eq(crystalShinyCount, 101,
     "all 100 Johto species plus shiny Gorochu ship with Crystal art")
-  T.eq(animatedNormalCount, 252,
-    "all 251 native species plus Gorochu ship with animated normal art")
-  T.eq(animatedShinyCount, 252,
-    "all 251 native species plus Gorochu ship with animated shiny art")
+  T.eq(animatedNormalCount, 280,
+    "251 native species, all 28 identity-correct extended species and Gorochu ship with animated normal art")
+  T.eq(animatedShinyCount, 280,
+    "251 native species, all 28 identity-correct extended species and Gorochu ship with animated shiny art")
   T.eq(ex.crystalAnimation.backAvailable[1026], true,
     "Gorochu owns animated player-side art")
   T.eq(ex.crystalAnimation.backShinyAvailable[1026], true,
     "shiny Gorochu owns animated player-side art")
+  T.eq(ex.crystalAnimation.available[252], true,
+    "Treecko begins the authored extended Crystal animation set")
+  T.eq(ex.crystalAnimation.available[263], true,
+    "private #263 correctly animates Honchkrow rather than National Zigzagoon")
+  T.eq(ex.crystalAnimation.available[261], true,
+    "Ambipom owns exact authored Polished Crystal motion")
+  T.eq(ex.crystalAnimation.available[279], true,
+    "Wynaut owns exact authored Polished Crystal motion")
+  T.eq(ex.crystalAnimation.backAnimatedAvailable.normal[252], false,
+    "extended Crystal player backs remain honest one-pose art")
+  T.neq(ex.crystalAnimation.presentationSurfaces.title, nil,
+    "Crystal controller publishes the title surface contract")
+  T.eq(ex.crystalAnimation.presentationSurfaces.follower:find(
+      "walking", 1, true) ~= nil, true,
+    "Crystal controller leaves follower walking animation to its renderer")
   T.eq(kantoBackCount, 151,
     "all 151 Kanto species ship with Crystal player-side art")
   T.eq(kantoShinyBackCount, 151,
@@ -521,7 +623,7 @@ local crystalCtx = { species = "RAIKOU", side = "front", trueColor = false }
 local crystalPath = RealRuntime.call("pokemon.sprite",
   function(path) return path end, "fallback_front.png", crystalCtx)
 if ex.crystalSprites.RAIKOU then
-  T.eq(crystalPath:find("assets/crystal/raikou_front.png", 1, true) ~= nil, true,
+  T.eq(crystalPath:match("/crystal/raikou_front%.png$") ~= nil, true,
     "an installed Crystal front sprite is selected")
   T.eq(crystalCtx.trueColor, true, "Crystal art keeps its GBC colors")
 else
@@ -539,8 +641,8 @@ local crystalShinyCtx = {
 local crystalShinyPath = RealRuntime.call("pokemon.sprite",
   function(path) return path end, "fallback_front.png", crystalShinyCtx)
 if ex.crystalShinySprites.RAIKOU then
-  T.eq(crystalShinyPath:find(
-      "assets/crystal/raikou_front_shiny.png", 1, true) ~= nil, true,
+  T.eq(crystalShinyPath:match(
+      "/crystal/raikou_front_shiny%.png$") ~= nil, true,
     "a shiny Johto mon selects Crystal's real shiny sprite")
   T.eq(crystalShinyCtx.trueColor, true,
     "the official shiny Crystal palette is kept in true color")
@@ -558,9 +660,9 @@ local animatedKantoPath = RealRuntime.call("pokemon.sprite",
   function(path) return path end, "fallback_front.png", animatedKantoCtx)
 T.eq(animatedKantoPath:find(
     "assets/crystal_animated/front/normal/1/001.png", 1, true) ~= nil, true,
-  "Kanto enemy fronts use the bundled Crystal animation without another mod")
+  "the renderer-free SDK uses Kanto's authored Crystal animation")
 T.eq(animatedKantoCtx.trueColor, true,
-  "bundled Kanto Crystal frames keep their authored palette")
+  "the renderer-free SDK preserves authored Crystal colours")
 local shinyKantoPath = RealRuntime.call("pokemon.sprite",
   function(path) return path end, "fallback_front.png", {
     species = "FIXMON_A", side = "front", trueColor = false,
@@ -572,19 +674,21 @@ local shinyKantoPath = RealRuntime.call("pokemon.sprite",
   })
 T.eq(shinyKantoPath:find(
     "assets/crystal_animated/front/shiny/1/001.png", 1, true) ~= nil, true,
-  "Kanto shinies use the bundled matching Crystal frames")
+  "the renderer-free SDK selects Kanto's authored shiny frames")
 local kantoBackPath = RealRuntime.call("pokemon.sprite",
   function(path) return path end, "fallback_back.png", {
     species = "FIXMON_A", side = "back", trueColor = false,
     mon = animatedKanto, kind = "battle", data = Data,
   })
 T.eq(kantoBackPath:find(
-    "assets/crystal/kanto/001_back.png", 1, true) ~= nil, true,
-  "Kanto player battlers use the matching bundled Crystal back sprite")
+    "assets/crystal_animated/back/normal/1/001.png", 1, true) ~= nil, true,
+  "the renderer-free SDK selects Kanto's authored rear animation")
 T.eq(Data.battle_sprite_scales
     .KANTO_ASCENDANT_CRYSTAL_001_BACK.scale, 1,
   "Kanto Crystal back sprites use their native 1x scale")
-run.loader.modOptions.trainer_rematch = { kanto_crystal_art = false }
+run.loader.modOptions.kanto_ascendant = {
+  kanto_crystal_art = false, pokemon_sprite_style = "legacy",
+}
 local disabledKantoPath = RealRuntime.call("pokemon.sprite",
   function(path) return path end, "fallback_front.png", animatedKantoCtx)
 T.eq(disabledKantoPath, "fallback_front.png",
@@ -596,7 +700,7 @@ local disabledKantoBackPath = RealRuntime.call("pokemon.sprite",
   })
 T.eq(disabledKantoBackPath, "fallback_back.png",
   "KANTO CRYSTAL ART also restores the original Gen-I player back sprites")
-run.loader.modOptions.trainer_rematch = nil
+run.loader.modOptions.kanto_ascendant = nil
 
 -- Pokédex art is intentionally independent from every live battle-art
 -- setting. Use the three canonical starter dex numbers and edition-shaped
@@ -633,7 +737,7 @@ for _, crystalArt in ipairs({ false, true }) do
   for _, dexStyle in ipairs({ "original", "crystal" }) do
     local matrixKey = tostring(crystalArt) .. ":" .. dexStyle
     dexMatrix[matrixKey] = { dex = {}, summary = {}, battle = {} }
-    run.loader.modOptions.trainer_rematch = {
+    run.loader.modOptions.kanto_ascendant = {
       kanto_crystal_art = crystalArt,
       dex_sprite_style = dexStyle,
       crystal_animation = true,
@@ -720,7 +824,7 @@ T.eq(dexMatrix["true:original"].battle.path,
   dexMatrix["true:crystal"].battle.path,
   "DEX SPRITES does not affect Crystal Kanto battle art")
 
-run.loader.modOptions.trainer_rematch = {
+run.loader.modOptions.kanto_ascendant = {
   kanto_crystal_art = false,
   dex_sprite_style = "crystal",
   crystal_animation = false,
@@ -742,7 +846,7 @@ T.eq(ex.crystalAnimation.selected[dexOnlyMon], nil,
   "a static Dex frame cannot advance through the battle animator")
 
 for _, dexStyle in ipairs({ "original", "crystal" }) do
-  run.loader.modOptions.trainer_rematch = {
+  run.loader.modOptions.kanto_ascendant = {
     dex_sprite_style = dexStyle, kanto_crystal_art = true,
   }
   local johtoDexData = { pokemon = {} }
@@ -776,16 +880,53 @@ for _, dexStyle in ipairs({ "original", "crystal" }) do
     species = "GOROCHU", side = "front", kind = "dex",
     trueColor = false, data = starterDexData,
   }
-  T.eq(RealRuntime.call("pokemon.sprite",
+  local guestResolved = RealRuntime.call("pokemon.sprite",
       function(path) return path end, "registered/guest_gorochu.png",
-      guestCtx), "registered/guest_gorochu.png",
-    "GOROCHU keeps its registered guest Dex artwork in "
-      .. dexStyle .. " mode")
+      guestCtx)
+  if dexStyle == "crystal" then
+    T.eq(guestResolved:find(
+        "assets/crystal_animated/front/normal/1026/001.png", 1, true) ~= nil,
+      true, "GOROCHU uses its Crystal-compatible Dex animation frame")
+    T.eq(guestCtx.trueColor, true,
+      "GOROCHU Crystal Dex animation is true-color")
+  else
+    T.eq(guestResolved:find(
+        "assets/voxel/gorochu/gorochu_catalogue_placeholder.png", 1, true)
+        ~= nil,
+      true, "GOROCHU reserves its Dex slot for the high-density HUD pass")
+    T.eq(guestCtx.trueColor, false,
+      "GOROCHU's transparent Dex placeholder does not claim a colour zone")
+  end
+end
+
+run.loader.modOptions.kanto_ascendant = { dex_sprite_style = "original" }
+for _, surface in ipairs({ "summary", "box" }) do
+  if surface == "box" then
+    run.loader.modOptions.kanto_ascendant = {
+      dex_sprite_style = "original",
+      pokemon_sprite_style = "original",
+      sprite_style_box = true,
+    }
+  end
+  local mon = { species = "GOROCHU" }
+  local ctx = {
+    species = "GOROCHU", side = "front", kind = surface,
+    mon = mon, trueColor = false, data = starterDexData,
+  }
+  local resolved = RealRuntime.call("pokemon.sprite",
+    function(path) return path end, "registered/guest_gorochu.png", ctx)
+  local expected = surface == "box"
+    and "assets/voxel/gorochu/gorochu_dex.png"
+    or "assets/voxel/gorochu/gorochu_catalogue_placeholder.png"
+  T.eq(resolved:find(expected, 1, true) ~= nil, true,
+    "GOROCHU " .. surface .. " selects its dedicated presentation path")
+  T.eq(ctx.trueColor, surface == "box",
+    "GOROCHU " .. surface .. " applies true colour only to visible base art")
 end
 
 local originalStaticFrameOne = ex.crystalAnimation.staticFrameOne
 ex.crystalAnimation.staticFrameOne = function() return nil end
-run.loader.modOptions.trainer_rematch = { dex_sprite_style = "crystal" }
+run.loader.modOptions.kanto_ascendant = { dex_sprite_style = "crystal" }
 local missingCtx = {
   species = "BULBASAUR", side = "front", kind = "dex",
   trueColor = false, data = starterDexData,
@@ -807,7 +948,7 @@ local removeExternalDex = run.loader.hooks:wrap(
     end
     return downstream
   end, 0, "dex_external_owner_test")
-run.loader.modOptions.trainer_rematch = { dex_sprite_style = "crystal" }
+run.loader.modOptions.kanto_ascendant = { dex_sprite_style = "crystal" }
 local externalDexCtx = {
   species = "BULBASAUR", side = "front", kind = "dex",
   trueColor = false, data = starterDexData,
@@ -821,7 +962,7 @@ removeExternalDex()
 local Json = require("src.link.Json")
 run.loader.modOptions = Json.decode(Json.encode({
   modOptions = {
-    trainer_rematch = { dex_sprite_style = "crystal" },
+    kanto_ascendant = { dex_sprite_style = "crystal" },
   },
 })).modOptions
 local persistedDexCtx = {
@@ -830,12 +971,12 @@ local persistedDexCtx = {
 }
 local persistedDexPath = RealRuntime.call("pokemon.sprite",
   function(path) return path end, "red/squirtle_front.png", persistedDexCtx)
-T.eq(run.loader.modOptions.trainer_rematch.dex_sprite_style, "crystal",
+T.eq(run.loader.modOptions.kanto_ascendant.dex_sprite_style, "crystal",
   "the selected Dex style survives the standard serialized options round trip")
 T.eq(persistedDexPath,
   dexMatrix["false:crystal"].dex["red:SQUIRTLE"],
   "a reloaded CRYSTAL Dex option takes effect without restarting the game")
-run.loader.modOptions.trainer_rematch = nil
+run.loader.modOptions.kanto_ascendant = nil
 
 local animatedTotodile = {
   species = "TOTODILE",
@@ -849,9 +990,9 @@ local animatedTotodilePath = RealRuntime.call("pokemon.sprite",
   function(path) return path end, "fallback_front.png", animatedTotodileCtx)
 T.eq(animatedTotodilePath:find(
     "assets/crystal_animated/front/normal/158/001.png", 1, true) ~= nil, true,
-  "Johto enemy fronts use the bundled Crystal animation frames")
+  "the renderer-free SDK uses Johto's authored Crystal animation")
 T.eq(animatedTotodileCtx.trueColor, true,
-  "animated Crystal frames keep their authored palette")
+  "the renderer-free SDK preserves Johto's authored colours")
 local animatedShinyTotodile = {
   species = "TOTODILE",
   dvs = { attack = 10, defense = 10, speed = 10, special = 10, hp = 0 },
@@ -863,14 +1004,14 @@ local animatedShinyTotodilePath = RealRuntime.call("pokemon.sprite",
   })
 T.eq(animatedShinyTotodilePath:find(
     "assets/crystal_animated/front/shiny/158/001.png", 1, true) ~= nil, true,
-  "Johto shinies use Crystal's matching animated shiny frames")
+  "the renderer-free SDK selects Johto's authored shiny frames")
 local totodileBackPath = RealRuntime.call("pokemon.sprite",
   function(path) return path end, "fallback_back.png", {
     species = "TOTODILE", side = "back", trueColor = false,
     mon = animatedTotodile, kind = "battle",
   })
-T.eq(totodileBackPath:find(
-    "assets/crystal/totodile_back.png", 1, true) ~= nil, true,
+T.eq(totodileBackPath:match(
+    "/crystal/totodile_back%.png$") ~= nil, true,
   "ordinary 2D battles retain the correct Crystal back sprite")
 RealRuntime.call("pokemon.sprite", function(path) return path end,
   "fallback_front.png", animatedTotodileCtx)
@@ -925,7 +1066,7 @@ T.eq(externalCrystalPath, "external/crystal/raikou/001.png",
 removeExternalCrystal()
 end
 
-run.loader.modOptions.trainer_rematch = { legend_art = "original" }
+run.loader.modOptions.kanto_ascendant = { legend_art = "original" }
 local originalCtx = { species = "RAIKOU", side = "back", trueColor = false }
 local originalPath = RealRuntime.call("pokemon.sprite",
   function(path) return path end, "fallback_back.png", originalCtx)
@@ -933,11 +1074,19 @@ T.eq(originalPath, "fallback_back.png",
   "the LEGEND ART option can force the original sprite")
 T.eq(originalCtx.trueColor, false,
   "the original four-shade sprite stays palette-aware")
-run.loader.modOptions.trainer_rematch = nil
+run.loader.modOptions.kanto_ascendant = nil
 T.neq(ex.spriteAssets, nil,
   "sprite preparation for transparent battle and follower art is exported")
 T.same(ex.spriteAssets.followerOrder, { 4, 2, 0, 5, 3, 1 },
   "PokeWilds poses map to Gen1 Recomp's down/up/side frame order")
+require("src.render.Pipelines").install({ render_pipelines = {
+  voxel = {
+    id = "voxel", levels = { "OFF", "ON" },
+    drawWorld = function() end,
+  },
+} })
+assert(require("src.render.Pipelines").setLevel("voxel", 1) == 1,
+  "the Voxel battle-art fixture did not activate its render pipeline")
 local voxelCtx = {
   species = "RAIKOU", side = "back", trueColor = false,
   mon = { species = "RAIKOU" }, kind = "battle",
@@ -945,28 +1094,41 @@ local voxelCtx = {
 }
 local voxelPath = RealRuntime.call("pokemon.sprite",
   function() return "voxel_front.png" end, "fallback_back.png", voxelCtx)
+require("src.render.Pipelines").install(Data)
 if ex.crystalSprites.RAIKOU then
-  T.eq(voxelPath:find(
+  T.eq(voxelCtx.trueColor == true and voxelPath:find(
       "assets/crystal_animated/front/normal/243/001.png", 1, true) ~= nil, true,
-    "voxel battles animate Dramatic Shape's front-facing player sprite")
+    "an active voxel pipeline uses Dramatic Shape's full-color front animation")
 end
 
 local optionRows = {}
-for _, row in ipairs(run.loader.optionSchemas.trainer_rematch or {}) do
+for _, row in ipairs(run.loader.optionSchemas.kanto_ascendant or {}) do
   optionRows[row.key] = row
 end
-T.eq(optionRows.language.type, "choice",
-  "language can be selected as AUTO, ENGLISH or DEUTSCH")
+T.eq(optionRows.language, nil,
+  "language follows the installed translation and has no private override")
 T.eq(optionRows.team_growth.type, "toggle",
   "class-appropriate party recruitment can be switched off")
 T.eq(optionRows.loot_mode.type, "choice",
   "rare rematch loot has OFF, BALANCED and GENEROUS modes")
+T.eq(optionRows.legacy_wanderer_frequency.type, "choice",
+  "Legacy NG+ Wanderer frequency is a stable four-way choice")
+T.eq(optionRows.legacy_wanderer_frequency.default, "normal",
+  "existing active Legacy saves default to NORMAL cadence")
+T.same(optionRows.legacy_wanderer_frequency.choices, {
+  { "NEVER", "never" }, { "RARE", "rare" },
+  { "NORMAL", "normal" }, { "OFTEN", "often" },
+}, "English frequency labels map to stable saved ids")
 T.eq(optionRows.dramaless_battle_camera, nil,
   "the Voxel camera choice is not duplicated in Kanto Ascendant's mod page")
 T.eq(optionRows.rest_min.min, 151,
   "the configurable rematch range starts at Kanto's full Pokédex count")
 T.eq(optionRows.rest_max.max, 2510,
   "the configurable rematch range reaches the complete 251 roster times ten")
+T.same(optionRows.rest_min.presets, { 151, 302, 604, 1255, 2510 },
+  "rematch rest controls use useful presets instead of 2359 single steps")
+T.same(optionRows.rest_max.presets, { 151, 302, 604, 1255, 2510 },
+  "minimum and maximum rest controls expose the same predictable presets")
 T.eq(optionRows.kanto_151.type, "choice",
   "all 151 Kanto species support reward, wild and off modes")
 T.eq(optionRows.kanto_151.default, "ascendant",
@@ -1047,11 +1209,13 @@ T.eq(keptRows[1].label, "ITEM",
   "ordinary Start-menu row order remains unchanged")
 T.eq(keptRows[2].label, "SAVE",
   "the vanilla SAVE anchor remains present")
-T.eq(#groupedRows, 2,
-  "only explicitly marked Ascendant rows enter the submenu")
-T.eq(groupedRows[1].label, "JOURNAL",
+T.eq(#groupedRows, 3,
+  "marked utilities plus the integrated Options row enter the submenu")
+T.eq(groupedRows[1].label, "OPTIONS",
+  "the integrated Options entry leads the Ascendant submenu")
+T.eq(groupedRows[2].label, "JOURNAL",
   "Ascendant utilities use their intentional logical order")
-T.eq(groupedRows[2].label, "MEGA STONES",
+T.eq(groupedRows[3].label, "MEGA STONES",
   "the submenu can use a clearer label than the compact old Start row")
 local _, expandedRows, anyNew = ascendantMenu.collect({
   {
@@ -1069,7 +1233,7 @@ local _, expandedRows, anyNew = ascendantMenu.collect({
 })
 T.eq(anyNew, true,
   "a utility unlocked after the initial menu visit raises a visible NEW hint")
-T.eq(expandedRows[3].right, "NEW",
+T.eq(expandedRows[4].right, "NEW",
   "the newly unlocked utility itself carries the NEW marker")
 
 local menuOwned = {}
@@ -1121,7 +1285,7 @@ T.neq(pushedAscendantMenu, nil,
   "selecting ASCENDANT opens the dedicated utility list")
 T.eq(pushedAscendantMenu.title, "KANTO ASCENDANT",
   "the utility list carries the expansion's full title")
-T.eq(#pushedAscendantMenu.items, 9,
+T.eq(#pushedAscendantMenu.items, 10,
   "the fixture exposes every utility whose content is available")
 T.same((function()
   local labels = {}
@@ -1130,7 +1294,7 @@ T.same((function()
   end
   return labels
 end)(), {
-  "RESEARCH ATLAS", "JOURNAL", "GOROCHU RESEARCH", "WORLD", "SHINY DEX",
+  "OPTIONS", "RESEARCH ATLAS", "JOURNAL", "GOROCHU RESEARCH", "WORLD", "SHINY DEX",
   "EVENT ARCHIVE", "MEGA STONES", "FRONTIER EXCHANGE",
   "TITLES / TROPHIES",
 }, "available Ascendant utilities are clear and consistently ordered")
@@ -1140,8 +1304,51 @@ end)()
 
 local daycare = ex.daycare
 T.neq(daycare, nil, "the full Route 5 Day-Care controller is exported")
-T.eq(#ex.breedingData, 251,
-  "canonical breeding metadata covers every Kanto and Johto species")
+T.eq(#ex.breedingData, 279,
+  "breeding metadata covers the canonical roster and Ascendant #252-279")
+do
+local expectedExtendedBreeding = {
+  [252] = { 1, 20, { "monster", "dragon" } },
+  [253] = { 1, 20, { "monster", "dragon" } },
+  [254] = { 1, 20, { "monster", "dragon" } },
+  [255] = { 1, 20, { "ground" } },
+  [256] = { 1, 20, { "ground" } },
+  [257] = { 1, 20, { "ground" } },
+  [258] = { 1, 20, { "monster", "water1" } },
+  [259] = { 1, 20, { "monster", "water1" } },
+  [260] = { 1, 20, { "monster", "water1" } },
+  [261] = { 4, 20, { "ground" } },
+  [262] = { 4, 25, { "indeterminate" } },
+  [263] = { 4, 20, { "flying" } },
+  [264] = { 4, 20, { "ground" } },
+  [265] = { -1, 20, { "mineral" } },
+  [266] = { 4, 20, { "monster" } },
+  [267] = { 4, 20, { "monster", "ground" } },
+  [268] = { 4, 20, { "plant" } },
+  [269] = { 2, 25, { "humanshape" } },
+  [270] = { 2, 25, { "humanshape" } },
+  [271] = { 1, 10, { "flying", "fairy" } },
+  [272] = { 4, 20, { "bug" } },
+  [273] = { 1, 35, { "ground" } },
+  [274] = { 1, 35, { "ground" } },
+  [275] = { 4, 20, { "bug" } },
+  [276] = { 4, 20, { "ground" } },
+  [277] = { -1, 20, { "mineral" } },
+  [278] = { 6, 10, { "no-eggs" } },
+  [279] = { 4, 20, { "no-eggs" } },
+}
+for dex, expected in pairs(expectedExtendedBreeding) do
+  local row = ex.breedingData[dex]
+  T.neq(row, nil,
+    ("breeding metadata identifies private-Dex species #%03d"):format(dex))
+  T.eq(row.gender, expected[1],
+    ("private-Dex species #%03d keeps its authored gender ratio"):format(dex))
+  T.eq(row.hatch, expected[2],
+    ("private-Dex species #%03d keeps its authored hatch cycle"):format(dex))
+  T.same(row.groups, expected[3],
+    ("private-Dex species #%03d keeps its authored egg groups"):format(dex))
+end
+end
 T.eq(ex.breedingData[25].gender, 4,
   "Pikachu uses the canonical half-female Attack-DV threshold")
 T.eq(ex.breedingData[150].groups[1], "no-eggs",
@@ -1159,7 +1366,8 @@ local malePikachu = { species = "PIKACHU", dvs = { attack = 9 } }
 local compatible, eggChance = daycare.compatible(
   breedingGame, femalePikachu, malePikachu)
 T.eq(compatible, true, "opposite-gender compatible parents can produce eggs")
-T.eq(eggChance, 70, "same-species parents receive the best egg chance")
+T.eq(eggChance, 255,
+  "same-species different-OT parents receive Crystal's best compatibility byte")
 local legendaryCompatible = daycare.compatible(breedingGame,
   { species = "MEWTWO", dvs = { attack = 8 } },
   { species = "DITTO", dvs = { attack = 9 } })
@@ -1217,12 +1425,12 @@ T.eq(reservedLocation, "reserved", "research egg reports the Day-Care location")
 
 local mega = ex.megaEvolution
 T.neq(mega, nil, "the official-species Mega controller is exported")
-T.eq(#mega.forms, 30,
-  "the Kanto/Johto roster contains the 30 official forms available by July 2026")
+T.eq(#mega.forms, 33,
+  "the official roster includes the three approved Hoenn Mega forms")
 local megaSpeciesCount = 0
 for _ in pairs(mega.formsBySpecies) do megaSpeciesCount = megaSpeciesCount + 1 end
-T.eq(megaSpeciesCount, 27,
-  "the official forms belong to exactly 27 of the first 251 species")
+T.eq(megaSpeciesCount, 30,
+  "the official forms belong to 30 species across the supported roster")
 T.eq(#mega.secretForms, 1,
   "fan-made secret forms are exported outside the official Mega catalog")
 T.eq(mega.formsBySpecies.TYPHLOSION, nil,
@@ -1303,17 +1511,22 @@ for _, profile in ipairs(mega.forms) do
       local gen1Handle = io.open(modPath .. "/" .. gen1, "rb")
       T.neq(gen1Handle, nil, gen1 .. " is packaged")
       if gen1Handle then gen1Handle:close() end
-      local timings = mega.animationData[profile.id][side][variant]
-      T.eq(#timings >= 3, true,
-        profile.id .. " " .. side .. "/" .. variant
-          .. " has a real motion loop")
-      for frame = 1, #timings do
-        local relative = (
-          "assets/mega_animated/%s/%s/%s/%03d.png")
-          :format(profile.asset, side, variant, frame)
-        local frameHandle = io.open(modPath .. "/" .. relative, "rb")
-        T.neq(frameHandle, nil, relative .. " is packaged")
-        if frameHandle then frameHandle:close() end
+      local sides = mega.animationData[profile.id]
+      local timings = sides and sides[side] and sides[side][variant]
+      if profile.staticOnly then
+        T.eq(timings, nil, profile.id .. " has no invented animation frames")
+      else
+        T.eq(#timings >= 3, true,
+          profile.id .. " " .. side .. "/" .. variant
+            .. " has a real motion loop")
+        for frame = 1, #timings do
+          local relative = (
+            "assets/mega_animated/%s/%s/%s/%03d.png")
+            :format(profile.asset, side, variant, frame)
+          local frameHandle = io.open(modPath .. "/" .. relative, "rb")
+          T.neq(frameHandle, nil, relative .. " is packaged")
+          if frameHandle then frameHandle:close() end
+        end
       end
     end
   end
@@ -1344,6 +1557,12 @@ do
   local priorPartnerGame = yellowPartner.game
   local priorMegaGame = mega.game
   local realGameVersion = require("src.core.GameVersion")
+  -- PikachuFollower is engine-owned and reads the process-wide edition
+  -- source directly.  Keep that source aligned with the injected Yellow
+  -- controller for this fixture; otherwise its real happiness routine exits
+  -- as Red before the marked Raichu compatibility alias can be exercised.
+  local priorEngineVersion = realGameVersion.get()
+  realGameVersion.set("yellow")
   local fakeYellow = { isYellow = function() return true end }
   local oldPikachuDef, oldRaichuDef =
     Data.pokemon.PIKACHU, Data.pokemon.RAICHU
@@ -1380,6 +1599,10 @@ do
       data = Data,
       save = {
         flags = { EVENT_GOT_STARTER = true, EVENT_CHOSE_PIKACHU = true },
+        -- These fixtures are free-roam Yellow saves after Oak's lab. Explicit
+        -- false is the engine's authoritative "partner is out of its Ball"
+        -- state; nil still means the pre-rival-fight transition.
+        pikachuInBall = false,
         inventory = badge and { THUNDERBADGE = true } or {},
         bagOrder = {}, party = party, boxes = {},
         player = { name = "YELLOW", id = 25 },
@@ -1530,6 +1753,12 @@ do
   T.eq(yellowPartner._portraitBoxX(
     { camera = { x = 0 } }, { px = 100 }), 1,
     "a right-side emotion bubble moves the Raichu portrait to the left")
+  local centeredX, centeredY = yellowPartner._portraitDrawOffset(
+    40, 40, { x = 4, y = 2, w = 30, h = 34 })
+  T.eq(centeredX, 1,
+    "Raichu portrait centers its visible alpha bounds horizontally")
+  T.eq(centeredY, 1,
+    "Raichu portrait centers its visible alpha bounds vertically")
   local sleepyPortraitFiles = yellowPartner._portraitFrames(
     mon("RAICHU"), sleepyReaction)
   T.eq(sleepyPortraitFiles[1]:find(
@@ -1590,6 +1819,23 @@ do
   local legacyMon = mon("PIKACHU")
   local legacyGame = yellowGame({ legacyMon }, true)
   yellowPartner.install(legacyGame, { gameVersion = fakeYellow })
+  -- The pagination guard scopes KASC TextBox requires in player builds, but
+  -- Yellow's partner-name adapter deliberately receives the native seam: an
+  -- engine-created NPC textbox must still name the evolved marked partner.
+  local nativeTextBox = ex.dialoguePagination.nativeTextBox
+  local seamTextBefore = Data.text[partnerTextKey]
+  Data.text[partnerTextKey] = "Your PIKACHU looks happy."
+  local seamMon = mon("GOROCHU")
+  seamMon[yellowPartner.marker] = true
+  local seamGame = yellowGame({ seamMon }, true)
+  local seamBox = nativeTextBox.new(seamGame, Data.text[partnerTextKey])
+  local seamRendered = {}
+  for _, page in ipairs(seamBox.pages or {}) do
+    for _, line in ipairs(page) do seamRendered[#seamRendered + 1] = line end
+  end
+  T.eq(table.concat(seamRendered):find("GOROCHU", 1, true) ~= nil, true,
+    "native engine TextBox seam retains evolved Yellow partner naming")
+  Data.text[partnerTextKey] = seamTextBefore
   T.eq(yellowPartner.partner(legacyGame), legacyMon,
     "an unambiguous upgraded Yellow save adopts its original partner")
   T.eq(legacyMon[yellowPartner.marker], true,
@@ -1615,8 +1861,92 @@ do
   T.eq(ambiguousGame.save.inventory[yellowPartner.itemId], 1,
     "an ambiguous old save still receives its permanent story item")
 
+  -- Regression: the engine's original helper identifies every Pikachu by
+  -- species.  The installed controller must instead follow the one persistent
+  -- per-Pokémon marker, including after the real starter becomes Raichu.
+  local PikachuFollower = require("src.world.PikachuFollower")
+  T.eq(PikachuFollower.starterInParty(ambiguousGame.save, true), nil,
+    "an ambiguous save never promotes the first ordinary Pikachu implicitly")
+  ambiguousB[yellowPartner.marker] = true
+  T.eq(PikachuFollower.starterInParty(ambiguousGame.save, true), ambiguousB,
+    "the marked evolved starter remains Yellow's active partner behind an ordinary Pikachu")
+  ambiguousGame.save.pikachuHappiness = 90
+  PikachuFollower.modifyHappiness(ambiguousGame.save, "USEDITEM", ambiguousA)
+  T.eq(ambiguousGame.save.pikachuHappiness, 90,
+    "using an item on an ordinary Pikachu never changes starter happiness")
+  PikachuFollower.modifyHappiness(ambiguousGame.save, "USEDITEM", ambiguousB)
+  T.eq(ambiguousGame.save.pikachuHappiness, 95,
+    "the same individual starter keeps Yellow happiness after evolving to Raichu")
+  local activeFollowerWorld = {
+    player = { cellX=5, cellY=5, facing="down", surfing=false },
+    map = {
+      id="PALLET_TOWN",
+      inBounds=function() return true end,
+      isWalkableCell=function() return true end,
+    },
+    npcs = {}, entities = {},
+  }
+  PikachuFollower.onMapEntered(ambiguousGame, activeFollowerWorld)
+  T.neq(PikachuFollower.current(activeFollowerWorld), nil,
+    "the marked evolved starter still creates Yellow's interactive follower")
+  T.eq(ambiguousA.species, "PIKACHU",
+    "active follower selection restores an ordinary Pikachu's species")
+  T.eq(ambiguousB.species, "RAICHU",
+    "active follower selection restores the marked Raichu's species")
+  local IdentitySaveData = require("src.core.SaveData")
+  local serializedIdentity = IdentitySaveData.decode(
+    IdentitySaveData.encode(ambiguousGame.save))
+  T.eq(serializedIdentity.party[1][yellowPartner.marker], nil,
+    "save/reload never stamps an ordinary Pikachu as the starter")
+  T.eq(serializedIdentity.party[2][yellowPartner.marker], true,
+    "save/reload preserves the evolved starter's individual marker")
+
+  ambiguousB.hp = 0
+  T.eq(PikachuFollower.starterInParty(ambiguousGame.save, true), nil,
+    "a fainted marked starter does not lend its role to an ordinary Pikachu")
+  ambiguousGame.save.pikachuHappiness = 95
+  PikachuFollower.modifyHappiness(ambiguousGame.save, "GYMLEADER")
+  T.eq(ambiguousGame.save.pikachuHappiness, 95,
+    "an ordinary healthy Pikachu cannot earn global happiness for a fainted starter")
+  local faintedFollowerWorld = {
+    player = { cellX=5, cellY=5, facing="down", surfing=false },
+    map = {
+      id="PALLET_TOWN",
+      inBounds=function() return true end,
+      isWalkableCell=function() return true end,
+    },
+    npcs = {}, entities = {},
+  }
+  PikachuFollower.onMapEntered(ambiguousGame, faintedFollowerWorld)
+  T.eq(PikachuFollower.current(faintedFollowerWorld), nil,
+    "an ordinary party Pikachu never becomes the follower while the marked starter is fainted")
+  T.eq(ambiguousA.species, "PIKACHU",
+    "the fainted-partner follower filter restores an ordinary Pikachu's species")
+  ambiguousB.hp = 100
+
+  ambiguousGame.save.party = { ambiguousA }
+  ambiguousGame.save.boxes = { { mons = { ambiguousB } } }
+  T.eq(PikachuFollower.starterInParty(ambiguousGame.save, true), nil,
+    "a boxed starter does not lend its follower role to a party Pikachu")
+  T.eq(yellowPartner.partner(ambiguousGame), ambiguousB,
+    "the exact evolved starter remains identifiable while boxed")
+  local boxedFollowerWorld = {
+    player = { cellX=5, cellY=5, facing="down", surfing=false },
+    map = {
+      id="PALLET_TOWN",
+      inBounds=function() return true end,
+      isWalkableCell=function() return true end,
+    },
+    npcs = {}, entities = {},
+  }
+  PikachuFollower.onMapEntered(ambiguousGame, boxedFollowerWorld)
+  T.eq(PikachuFollower.current(boxedFollowerWorld), nil,
+    "an ordinary party Pikachu never becomes the follower while the marked starter is boxed")
+  T.eq(ambiguousA.species, "PIKACHU",
+    "the temporary follower filter restores an ordinary Pikachu's species")
+
   run.loader.modSave = {
-    trainer_rematch = {
+    kanto_ascendant = {
       yellow_partner = {
         version = 1, initialized = true,
         offered = true, accepted = true, heartGiven = true,
@@ -1642,7 +1972,7 @@ do
   -- A new game initializes the feature state before Oak gives the starter,
   -- so it follows the optional quest instead of the legacy shortcut.
   run.loader.modSave = {
-    trainer_rematch = { yellow_partner = { initialized = true } },
+    kanto_ascendant = { yellow_partner = { initialized = true } },
   }
   local questMon = mon("PIKACHU")
   local questGame = yellowGame({ questMon }, false)
@@ -1974,6 +2304,7 @@ do
     yellowPartner.install(priorPartnerGame, { gameVersion = realGameVersion })
   end
   if priorMegaGame then mega.install(priorMegaGame) end
+  realGameVersion.set(priorEngineVersion)
 end
 
 local megaCtx = {
@@ -2084,7 +2415,7 @@ T.neq(megaAnimationBattle.enemy.__ascendantMegaAnimation, nil,
   "Mega Charizard X receives an independent live animation state")
 T.eq(megaAnimationBattle.enemy.__ascendantMegaAnimation.frame > 1, true,
   "Mega Charizard X animation advances using packaged timing")
-run.loader.modOptions.trainer_rematch = {
+run.loader.modOptions.kanto_ascendant = {
   kanto_crystal_art = false,
   crystal_animation = false,
 }
@@ -2106,7 +2437,7 @@ megaAnimationBattle.enemy.__ascendantMegaAnimation = nil
 mega.updateAnimations(megaAnimationBattle, 1.0)
 T.eq(megaAnimationBattle.enemy.__ascendantMegaAnimation, nil,
   "the Gen-I Mega presentation remains authentically static")
-run.loader.modOptions.trainer_rematch = {
+run.loader.modOptions.kanto_ascendant = {
   legend_art = "original",
   crystal_animation = false,
 }
@@ -2123,7 +2454,63 @@ T.eq(gen1AmpharosPath:find(
   "JOHTO ART = KANTO FALLBACK also selects the Gen-I Johto Mega card")
 T.eq(gen1AmpharosCtx.trueColor, false,
   "Johto Gen-I Mega art also receives the active edition palette")
-run.loader.modOptions.trainer_rematch = nil
+run.loader.modOptions.kanto_ascendant = nil
+end
+do
+  -- Hoenn P0 acceptance: this runs against the main-loaded controller and
+  -- proves both sides/shinies, authored Crystal motion, static Gen-I fallback,
+  -- stone ownership, form resolution and Voxel master provenance.
+  local hoenn = {
+    { species="BLAZIKEN", id="BLAZIKEN", stone="BLAZIKENITE", asset="mega_blaziken" },
+    { species="SWAMPERT", id="SWAMPERT", stone="SWAMPERTITE", asset="mega_swampert" },
+    { species="SCEPTILE", id="SCEPTILE", stone="SCEPTILITE", asset="mega_sceptile", types={"GRASS","DRAGON"} },
+  }
+  for _, row in ipairs(hoenn) do
+    local profile = mega.formsBySpecies[row.species] and mega.formsBySpecies[row.species][1]
+    T.neq(profile, nil, row.species .. " profile resolves from main load")
+    T.eq(profile.id, row.id, row.species .. " canonical form id")
+    T.eq(profile.stone, row.stone, row.species .. " canonical Stone Case item")
+    T.eq(profile.staticOnly, false, row.species .. " enables documented authored animation")
+    T.neq(mega.animationData[row.id], nil, row.species .. " has timing data")
+    T.eq(mega.grantStone(row.stone), true, row.species .. " stone grants once")
+    T.eq(mega.hasStone(row.stone), true, row.species .. " stone persists in Stone Case")
+    T.eq(mega.profileFor({ species=row.species }, false).id, row.id,
+      row.species .. " resolves through owned-form selector")
+    for _, side in ipairs({"front","back"}) do
+      for _, shiny in ipairs({false,true}) do
+        local suffix=shiny and "_shiny" or ""
+        for _, root in ipairs({"assets/mega/","assets/mega_runtime/","assets/mega_gen1_runtime/"}) do
+          local handle=io.open(modPath.."/"..root..row.asset.."_"..side..suffix..".png","rb")
+          T.neq(handle,nil,row.species.." "..root..side..suffix.." packages master/derivative")
+          if handle then handle:close() end
+        end
+        local variant=shiny and "shiny" or "normal"
+        local timings=mega.animationData[row.id][side][variant]
+        T.eq(#timings,5,row.species.." authored "..side.."/"..variant.." timing count")
+        for frame=1,#timings do
+          local master=("assets/mega_animated/%s/%s/%s/%03d.png"):format(row.asset,side,variant,frame)
+          local runtime=("assets/mega_animated_runtime/%s/%s/%s/%03d.png"):format(row.asset,side,variant,frame)
+          local masterHandle=io.open(modPath.."/"..master,"rb"); local runtimeHandle=io.open(modPath.."/"..runtime,"rb")
+          T.neq(masterHandle,nil,row.species.." authored key "..frame.." packages")
+          T.neq(runtimeHandle,nil,row.species.." runtime key "..frame.." packages")
+          if masterHandle then masterHandle:close() end
+          if runtimeHandle then runtimeHandle:close() end
+        end
+        run.loader.modOptions.kanto_ascendant={kanto_crystal_art=true,crystal_animation=true}
+        local crystalCtx={species=row.species,side=side,trueColor=false,mon={species=row.species,_ascMegaForm=row.id,shiny=shiny,_ascMegaAnimationFrame=3}}
+        local crystal=RealRuntime.call("pokemon.sprite",function(path)return path end,"fallback.png",crystalCtx)
+        T.eq(crystal:find(("assets/mega_animated_runtime/%s/%s/%s/003.png"):format(row.asset,side,variant),1,true)~=nil,true,row.species.." Crystal motion "..side..suffix.." resolves")
+        T.eq(crystalCtx.trueColor,true,row.species.." Crystal art remains true-colour")
+        run.loader.modOptions.kanto_ascendant={kanto_crystal_art=false,crystal_animation=false}
+        local gen1Ctx={species=row.species,side=side,trueColor=true,mon={species=row.species,_ascMegaForm=row.id,shiny=shiny}}
+        local gen1=RealRuntime.call("pokemon.sprite",function(path)return path end,"fallback.png",gen1Ctx)
+        T.eq(gen1:find("assets/mega_gen1_runtime/"..row.asset.."_"..side..suffix..".png",1,true)~=nil,true,row.species.." Gen-I "..side..suffix.." fallback resolves")
+        T.eq(gen1Ctx.trueColor,false,row.species.." Gen-I fallback receives edition palette")
+      end
+    end
+    if row.types then T.same(profile.types,row.types,row.species.." battle-local type profile is retained") end
+  end
+  run.loader.modOptions.kanto_ascendant=nil
 end
 do
 local removeCrystalKanto = run.loader.hooks:wrap(
@@ -2200,6 +2587,47 @@ T.eq(johto.partyIcons.HO_OH, "BIRD",
 T.eq(johto.partyIcons.CELEBI, "FAIRY",
   "Celebi uses the standard animated Mew-like party icon")
 
+-- -------------------------------------- narrow earned Hoenn starter reward
+
+do
+local legacyHoenn = ex.legacyHoenn
+T.neq(legacyHoenn, nil, "the earned Legacy starter catalogue is exported")
+T.eq(#legacyHoenn.order, 9,
+  "Legacy Journey registers only the three Hoenn starter families")
+T.eq(Data.pokemon.TREECKO.dex, 252,
+  "Treecko begins the narrow National-Dex extension at 252")
+T.eq(Data.pokemon.BLAZIKEN.dex, 257,
+  "Blaziken keeps its canonical National-Dex number")
+T.eq(Data.pokemon.SWAMPERT.dex, 260,
+  "Swampert closes the deliberately narrow extension at 260")
+T.eq(Data.pokemon.SWAMPERT.evolutions[1], nil,
+  "the final Hoenn starter stages do not acquire fabricated evolutions")
+T.eq(Data.pokemon.GROVYLE.evolutions[1].species, "SCEPTILE",
+  "the earned Hoenn starter family keeps its level evolution chain")
+T.eq(type(Data.audio.cries.TREECKO.file), "string",
+  "Treecko's bundled cry resolves before content validation")
+T.eq(Data.pokemon["POOCHYENA"], nil,
+  "Legacy Journey does not silently enable the rest of Hoenn")
+T.eq(#ex.legacyStarters.canonicalOrder, 251,
+  "Oak's Legacy catalogue authors exactly canonical Dex #001-251")
+T.eq(ex.legacyStarters.canonicalOrder[151], "MEW",
+  "the Legacy catalogue closes Kanto before Johto")
+T.eq(ex.legacyStarters.canonicalOrder[152], "CHIKORITA",
+  "the Legacy catalogue starts Johto at its canonical number")
+T.eq(ex.legacyStarters.balancedIds.MEWTWO, nil,
+  "Balanced Choice never includes an endgame legendary")
+local mapScripts = require("data.scripts.init")
+T.eq(ex.legacyStarters.install({ data = Data }, { mapScripts = mapScripts }), true,
+  "the NG+ partner adapter recognizes the engine's real Oak scripts")
+local oakScripts = mapScripts.get("OAKS_LAB")
+T.eq(type(oakScripts.talk.TEXT_OAKSLAB_CHARMANDER_POKE_BALL), "function",
+  "the real left ball exposes the character-bound Hoenn selector")
+T.eq(type(oakScripts.talk.TEXT_OAKSLAB_SQUIRTLE_POKE_BALL), "function",
+  "the real middle ball exposes the graphical partner catalogue")
+T.eq(type(oakScripts.talk.TEXT_OAKSLAB_BULBASAUR_POKE_BALL), "function",
+  "the real right ball exposes only the rival-claim handler")
+end
+
 ;(function()
 local johtoDexTexts, johtoLearnProfiles, johtoTmProfiles = {}, {}, {}
 for _, id in ipairs(johto.order) do
@@ -2252,6 +2680,7 @@ T.eq(johto.species.LUGIA.dexEntry.kindDe, "TAUCHER",
 
 local johtoResearch = ex.johtoResearch
 T.neq(johtoResearch, nil, "Elm's living-habitat research API is exported")
+johtoResearch.install(run.__extendedFixtureGame)
 T.eq(johtoResearch.state().version, 2,
   "existing Johto research saves migrate in place to living habitats")
 local blankResearch = {
@@ -2463,17 +2892,28 @@ do
   end
   PikachuFollower.update = followersExWrapper
 
-  local oldLocalPath = followerCompat.localPath
-  local oldGetInfo = love.filesystem.getInfo
-  love.filesystem.getInfo = function(path, ...)
+  local fixtureFollowerCompat =
+    assert(loadfile(modPath .. "/follower_compat.lua"))()(
+      publicModFixture({}, {
+        FOLLOWERS_EX = {
+          version = "fixture",
+          exports = {
+            activeMon = function(game) return game.save.party[1] end,
+          },
+        },
+      }), {})
+  local Assets = require("src.render.Assets")
+  local oldLocalPath = fixtureFollowerCompat.localPath
+  local oldAssetsExists = Assets.exists
+  Assets.exists = function(path)
     if type(path) == "string"
         and (path:find("ascendant/cache/", 1, true) == 1
           or path:find("pokepc/assets/", 1, true) == 1) then
-      return { type = "file" }
+      return true
     end
-    return oldGetInfo(path, ...)
+    return oldAssetsExists(path)
   end
-  followerCompat.localPath = function(species)
+  fixtureFollowerCompat.localPath = function(species)
     return "ascendant/cache/follower_" .. tostring(species) .. ".png"
   end
   local followerGame = {
@@ -2482,15 +2922,8 @@ do
       sprites = { SPRITE_PIKACHU = {} },
     },
     save = { party = { { species = "NATU", hp = 10 } } },
-    mods = {
-      exports = {
-        pokepc = {
-          activeMon = function(game) return game.save.party[1] end,
-        },
-      },
-    },
   }
-  T.eq(followerCompat.install(followerGame), true,
+  T.eq(fixtureFollowerCompat.install(followerGame), true,
     "the follower bridge reaches PokéPC through an outer wrapper")
   followersExWrapper(followerGame, {})
   T.eq(seenPath, "ascendant/cache/follower_NATU.png",
@@ -2498,10 +2931,10 @@ do
   T.eq(followerGame.data.sprites.SPRITE_PIKACHU.image,
     "ascendant/cache/follower_NATU.png",
     "the currently visible follower definition refreshes immediately")
-  T.eq(followerCompat.restore(), true,
+  T.eq(fixtureFollowerCompat.restore(), true,
     "the nested follower bridge restores its original asset resolver")
-  followerCompat.localPath = oldLocalPath
-  love.filesystem.getInfo = oldGetInfo
+  fixtureFollowerCompat.localPath = oldLocalPath
+  Assets.exists = oldAssetsExists
   PikachuFollower.update = originalUpdate
 end
 
@@ -2513,19 +2946,34 @@ do
   local SpriteRenderer = require("src.render.SpriteRenderer")
   local originalUpdate = PikachuFollower.update
   local originalNew = SpriteRenderer.new
-  local oldLocalPath = followerCompat.localPath
-  local oldGetInfo = love.filesystem.getInfo
+  local fixtureFollowerCompat =
+    assert(loadfile(modPath .. "/follower_compat.lua"))()(
+      publicModFixture({}, {
+        PokePCFollowers_VoxelMerge = {
+          version = "fixture",
+          exports = {
+            activeMon = function(game) return game.save.party[1] end,
+            assetPath = function(species)
+              return "pokepc/assets/follower_"
+                .. tostring(species) .. ".png"
+            end,
+          },
+        },
+      }), {})
+  local Assets = require("src.render.Assets")
+  local oldLocalPath = fixtureFollowerCompat.localPath
+  local oldAssetsExists = Assets.exists
   local renderedPath
 
-  love.filesystem.getInfo = function(path, ...)
+  Assets.exists = function(path)
     if type(path) == "string"
         and (path:find("ascendant/runtime/", 1, true) == 1
           or path:find("pokepc/assets/follower_CHARMANDER", 1, true)) then
-      return { type = "file" }
+      return true
     end
-    return oldGetInfo(path, ...)
+    return oldAssetsExists(path)
   end
-  followerCompat.localPath = function(species)
+  fixtureFollowerCompat.localPath = function(species)
     return "ascendant/runtime/follower_" .. tostring(species) .. ".png"
   end
   SpriteRenderer.new = function(def)
@@ -2552,28 +3000,18 @@ do
       },
     },
     save = { party = { { species = "NATU", hp = 10 } } },
-    mods = {
-      exports = {
-        pokepc = {
-          activeMon = function(game) return game.save.party[1] end,
-          assetPath = function(species)
-            return "pokepc/assets/follower_" .. tostring(species) .. ".png"
-          end,
-        },
-      },
-    },
   }
-  T.eq(followerCompat.install(followerGame), true,
+  T.eq(fixtureFollowerCompat.install(followerGame), true,
     "the follower renderer guard installs without a PokéPC closure seam")
   T.eq(pcall(PikachuFollower.update, followerGame, {}), true,
     "selecting a Johto follower cannot reach the missing PokéPC sheet")
   T.eq(renderedPath, "ascendant/runtime/follower_NATU.png",
     "the renderer receives Natu's bundled mobile-ready sheet")
-  T.eq(followerCompat.restore(), true,
+  T.eq(fixtureFollowerCompat.restore(), true,
     "the renderer-only follower guard restores cleanly")
 
-  followerCompat.localPath = oldLocalPath
-  love.filesystem.getInfo = oldGetInfo
+  fixtureFollowerCompat.localPath = oldLocalPath
+  Assets.exists = oldAssetsExists
   PikachuFollower.update = originalUpdate
   SpriteRenderer.new = originalNew
 end
@@ -2590,15 +3028,15 @@ T.eq(ex.resolveLine("OPP_FIX_YOUNGSTER"), "You're looking\nfor a rematch?",
   "unknown class falls back to the default prompt")
 T.eq(ex.resolveLine(nil), "You're looking\nfor a rematch?",
   "nil class falls back to the default prompt")
-run.loader.modOptions.trainer_rematch = { language = "de" }
-T.eq(ex.language(), "de", "the manual DEUTSCH override selects German")
+setTestGerman(true)
+T.eq(ex.language(), "de", "an installed Deutsch translation selects German")
 T.eq(ex.resolveLine("OPP_YOUNGSTER"):find("Shorts", 1, true) ~= nil, true,
   "German rematch dialogue keeps the class voice")
 T.eq(ex.resolveDecline("OPP_KOGA"):find("Gift", 1, true) ~= nil, true,
   "German decline dialogue is localized too")
 T.eq(ex.restLine(2):find("Schritten", 1, true) ~= nil, true,
   "German cooldown dialogue uses the correct plural")
-run.loader.modOptions.trainer_rematch = nil
+setTestGerman(false)
 T.eq(ex.language(), "en", "English remains the standalone AUTO fallback")
 
 -- ------------------------------------------------ pure decline resolution
@@ -2783,61 +3221,36 @@ do
     oldChikorita, oldBayleef, oldMeganium
 end
 
-T.eq(ex.lootForRoll(1, "balanced",
-  { averageLevel = 100, masterUnlocked = false, expAllAvailable = true }), nil,
-  "Master Ball rolls are sealed before the Apex Champion")
-T.eq(ex.lootForRoll(1, "balanced",
-  { averageLevel = 100, masterUnlocked = true }), "MASTER_BALL",
-  "the rarest eligible roll awards a Master Ball")
-T.eq(ex.lootForRoll(1, "balanced",
-  { averageLevel = 79, masterUnlocked = true }), nil,
-  "the Master Ball also requires a genuinely high-level rematch")
-T.eq(ex.lootForRoll(101, "balanced",
-  { averageLevel = 40, expAllAvailable = true }), "EXP_ALL",
-  "the functional EXP.ALL/EP-Teiler starts its five-percent balanced band")
-T.eq(ex.lootForRoll(600, "balanced",
-  { averageLevel = 40, expAllAvailable = true }), "EXP_ALL",
-  "the functional EXP.ALL/EP-Teiler fills its five-percent balanced band")
-T.eq(ex.lootForRoll(101, "balanced",
-  { averageLevel = 40, expAllAvailable = false }), nil,
-  "EXP.ALL can only drop once")
-T.eq(ex.lootForRoll(101, "balanced",
-  { averageLevel = 39, expAllAvailable = true }), nil,
-  "EXP.ALL waits for a level-40 rematch")
-T.eq(ex.lootForRoll(601, "balanced",
-  { averageLevel = 20 }), "RARE_CANDY",
-  "Rare Candy starts its five-percent balanced band")
-T.eq(ex.lootForRoll(1101, "balanced",
-  { averageLevel = 35 }), "PP_UP",
-  "level-35 rematches can drop PP Up")
-T.eq(ex.lootForRoll(2101, "balanced",
-  { averageLevel = 50 }), "MAX_REVIVE",
-  "level-50 rematches can drop Max Revive")
-T.eq(ex.lootForRoll(2901, "balanced", { averageLevel = 1 }), "NUGGET",
-  "Nugget starts its fifteen-percent balanced band")
-T.eq(ex.lootForRoll(4401, "balanced",
-  { averageLevel = 100, masterUnlocked = true, expAllAvailable = true }), nil,
-  "balanced loot keeps the removed percentages as no-drop results")
-T.eq(ex.lootForRoll(200, "generous",
-  { averageLevel = 100, masterUnlocked = true }), "MASTER_BALL",
-  "GENEROUS mode gives the Master Ball its full two-percent band")
-T.eq(ex.lootForRoll(201, "generous",
-  { averageLevel = 40, expAllAvailable = true }), "EXP_ALL",
-  "GENEROUS mode also keeps EXP.ALL at five percent")
-T.eq(ex.lootForRoll(701, "generous", { averageLevel = 20 }), "RARE_CANDY",
-  "GENEROUS mode also keeps Rare Candy at five percent")
-T.eq(ex.lootForRoll(1201, "generous", { averageLevel = 35 }), "PP_UP",
-  "GENEROUS mode retains its existing PP Up band")
-T.eq(ex.lootForRoll(2701, "generous", { averageLevel = 50 }), "MAX_REVIVE",
-  "GENEROUS mode retains its existing Max Revive band")
-T.eq(ex.lootForRoll(3901, "generous", { averageLevel = 1 }), "NUGGET",
-  "GENEROUS mode keeps Nuggets at fifteen percent")
-T.eq(ex.lootForRoll(5401, "generous",
-  { averageLevel = 100, masterUnlocked = true, expAllAvailable = true }), nil,
-  "GENEROUS leaves reduced reward space as no drop")
-T.eq(ex.lootForRoll(1, "off",
-  { averageLevel = 100, masterUnlocked = true }), nil,
-  "loot can be disabled completely")
+T.eq(ex.rematchRewards.loot.itemChance("balanced", {}), .65,
+  "Phase 8 balanced rematches use the normal item-success pool")
+T.eq(ex.rematchRewards.loot.itemChance("balanced", { level100 = true }), .72,
+  "Level-100 rematches improve item odds without guaranteeing a drop")
+T.eq(ex.rematchRewards.loot.itemChance("off", { level100 = true }), 0,
+  "normal rewards remain completely optional")
+T.eq(type(ex.lootForRoll(1, "balanced", { data = Data })), "string",
+  "the legacy loot inspection export still returns an item id")
+T.eq(select(2, ex.lootForRoll(1, "balanced", { data = Data })) >= 1, true,
+  "the legacy loot inspection export also exposes the Phase-8 stack size")
+T.eq(ex.rematchRewards.loot.money(1, false), 0,
+  "the normal fallback retains its explicit five-percent zero result")
+T.eq(ex.rematchRewards.loot.money(9901, false), 2000,
+  "the normal fallback reaches its one-percent ¥2000 result")
+T.eq(ex.rematchRewards.loot.money(1, true), 1000,
+  "the Level-100 fallback begins at ¥1000")
+T.eq(ex.rematchRewards.loot.money(9901, true), 8000,
+  "the Level-100 fallback reaches its one-percent ¥8000 result")
+T.eq(ex.rematchRewards.loot.specialHit("expShare", 225), true,
+  "EXP Share fills exactly 225 of 10,000 special rolls")
+T.eq(ex.rematchRewards.loot.specialHit("expShare", 226), false,
+  "EXP Share does not exceed 2.25 percent")
+T.eq(ex.rematchRewards.loot.specialHit("multiplier2", 1), true,
+  "the one-in-300 ×2 roll is reachable")
+T.eq(ex.rematchRewards.loot.specialHit("multiplier2", 2), false,
+  "×2 has exactly one successful face")
+T.eq(ex.rematchRewards.loot.specialHit("multiplier3", 1), true,
+  "the gated one-in-250 ×3 roll is reachable")
+T.eq(ex.rematchRewards.loot.specialHit("multiplier5", 1), true,
+  "the gated one-in-250 ×5 roll is reachable")
 
 -- ------------------------------------------------ post-game progression + rosters
 
@@ -2920,7 +3333,7 @@ T.eq(pg.applyEliteDialogue("CHAMPIONS_ROOM", oakGame, pgState), true,
 T.eq(oakGame.data.text[oakLabel]:find(
     "legendary POKéMON", 1, true) ~= nil, true,
   "Oak foreshadows the growing legendary sightings in English")
-run.loader.modOptions.trainer_rematch = { language = "de" }
+setTestGerman(true)
 local germanOakGame = {
   save = { flags = {}, hallOfFame = {} },
   data = { text = { [oakLabel] = oakBase } },
@@ -2932,7 +3345,7 @@ T.eq(germanOakGame.data.text[oakLabel]:find(
     and germanOakGame.data.text[oakLabel]:find(
       "legendäre", 1, true) ~= nil, true,
   "Oak's event announcement is fully localized in German")
-run.loader.modOptions.trainer_rematch = nil
+setTestGerman(false)
 pgSave.flags.EVENT_BEAT_CHAMPION_RIVAL = true
 T.eq(pg.applyEliteDialogue("CHAMPIONS_ROOM", oakGame, pgState), false,
   "the first-clear announcement is not reused on later League runs")
@@ -2969,23 +3382,23 @@ T.eq(eliteTextData.text._LoreleisRoomLoreleiBeforeBattleText
 T.eq(eliteTextData.text._LoreleisRoomLoreleiEndBattleText
     :find("perfected", 1, true) ~= nil, true,
   "Lorelei's personal defeat quote is installed too")
-run.loader.modOptions.trainer_rematch = { language = "de" }
+setTestGerman(true)
 T.eq(pg.gymDialogue(pgd.gyms[6], "crown", "intro")
     :find("Zukünfte", 1, true) ~= nil, true,
   "Sabrina's German Crown challenge is localized")
 T.eq(pg.gymRestDialogue(pgd.gyms[3], "master", 27)
     :find("27 Schritten", 1, true) ~= nil, true,
   "Surge's personal German cooldown reports the exact plural step count")
-run.loader.modOptions.trainer_rematch = nil
+setTestGerman(false)
 T.eq(pg.legendaryAvailable("ARTICUNO", pgState, pgSave), false,
   "legendaries stay sealed before the Apex Champion")
-run.loader.modOptions.trainer_rematch = { legend_articuno = "vanilla" }
+run.loader.modOptions.kanto_ascendant = { legend_articuno = "vanilla" }
 T.eq(pg.legendaryAvailable("ARTICUNO", pgState, pgSave), true,
   "VANILLA Articuno is available without the Apex Champion")
-run.loader.modOptions.trainer_rematch = { legend_articuno = "off" }
+run.loader.modOptions.kanto_ascendant = { legend_articuno = "off" }
 T.eq(pg.legendaryAvailable("ARTICUNO", pgState, pgSave), false,
   "OFF removes the Articuno encounter")
-run.loader.modOptions.trainer_rematch = nil
+run.loader.modOptions.kanto_ascendant = nil
 
 pgState.apexChampion = true
 T.eq(pg.phaseFor(pgState, pgSave), "legend_hunt",
@@ -2996,12 +3409,12 @@ T.eq(pg.legendaryAvailable("RAIKOU", pgState, pgSave), true,
   "the roaming beasts unlock after the Apex Champion")
 T.eq(pg.legendaryAvailable("LUGIA", pgState, pgSave), false,
   "Lugia waits for all three birds")
-run.loader.modOptions.trainer_rematch = {
+run.loader.modOptions.kanto_ascendant = {
   legend_articuno = "off", legend_zapdos = "off", legend_moltres = "off",
 }
 T.eq(pg.legendaryAvailable("LUGIA", pgState, pgSave), true,
   "disabled bird encounters do not make Lugia impossible to unlock")
-run.loader.modOptions.trainer_rematch = nil
+run.loader.modOptions.kanto_ascendant = nil
 for _, id in ipairs({ "ARTICUNO", "ZAPDOS", "MOLTRES" }) do
   pgState.catches[id] = true
 end
@@ -3054,7 +3467,7 @@ T.eq(pgd.crown.OPP_RIVAL3[1].species, "MEWTWO",
   "the final Champion opens with a legendary")
 T.eq(pgd.crown.OPP_RIVAL3[6].species, "HO_OH",
   "the final Champion closes with Ho-Oh")
-run.loader.modOptions.trainer_rematch = { legend_raikou = false }
+run.loader.modOptions.kanto_ascendant = { legend_raikou = false }
 local noRaikou = pg.enabledTeam(pgd.crown.OPP_RIVAL3)
 T.eq(noRaikou[2].species, "JOLTEON",
   "disabling Raikou also removes it from boss rosters")
@@ -3066,7 +3479,7 @@ T.eq(pg.eliteDialogue("OPP_RIVAL3", "crown", "before")
   "the Crown Champion acknowledges a legendary option change")
 T.eq(pgd.crown.OPP_RIVAL3[2].species, "RAIKOU",
   "option filtering never mutates the canonical Crown roster")
-run.loader.modOptions.trainer_rematch = nil
+run.loader.modOptions.kanto_ascendant = nil
 
 -- ------------------------------------------------ narrative event layer
 
@@ -3139,14 +3552,15 @@ T.eq(archive:find("FIELD REMATCHES: 7", 1, true) ~= nil, true,
   "the Crown Archive totals all field rematches")
 T.eq(archive:find("MASTER CRESTS: 8/8", 1, true) ~= nil, true,
   "the Crown Archive records the Master Circuit")
-run.loader.modOptions.trainer_rematch = { language = "de" }
+setTestGerman(true)
 T.eq(event.researchLog(eventState, eventSave)
     :find("EICHS FORSCHUNGSLOG", 1, true) ~= nil, true,
   "the research log is fully localized in German")
 T.eq(event.legendIntro("HO_OH")
     :find("Sieben Farben", 1, true) ~= nil, true,
   "Ho-Oh's cinematic introduction follows the selected language")
-run.loader.modOptions.trainer_rematch = {
+setTestGerman(false)
+run.loader.modOptions.kanto_ascendant = {
   legend_articuno = "off", legend_zapdos = "off",
   legend_moltres = "off", legend_mewtwo = "off",
   legend_raikou = false, legend_entei = false, legend_suicune = false,
@@ -3159,7 +3573,7 @@ T.eq(event.worldReaction("PALLET_TOWN", "PALLETTOWN_FISHER",
   "legendary world rumors disappear when every encounter is disabled")
 T.eq(event.huntRivalAvailable(eventState, eventSave), false,
   "the legendary-hunt Rival is skipped when every encounter is disabled")
-run.loader.modOptions.trainer_rematch = nil
+run.loader.modOptions.kanto_ascendant = nil
 
 -- ------------------------------------------------ install (stubbed deps)
 
@@ -3196,12 +3610,14 @@ local game = {
            player = { name = "RED" },
            party = { { level = 5 }, { level = 6 }, { level = 7 } } },
   stack = { push = function(_, s) table.insert(pushed, s) end },
-  mods = {
-    exports = {
-      overworld_wild_spawns = { logic = calls.fakeWildsLogic },
-    },
+}
+game.save.modData.kanto_ascendant = {
+  beyond_kanto = {
+    version = 1, active = true, irreversible = true,
+    decision = "test_fixture",
   },
 }
+ex.beyondKanto.sync(game, game.save, "trainer-rematch-game-fixture")
 
 -- ------------------------------------------ centralized forced-battle guard
 
@@ -3402,11 +3818,29 @@ local battleStateStub = {
 local runtimeStub = { emit = function(_, name, payload)
   calls.engaged = calls.engaged + 1 end }
 local scriptedFlag = { value = false }
-local mapScriptsStub = { talkScript = function()
-  return scriptedFlag.value end }
+local mapScriptsStub = {
+  talkScript = function()
+    return scriptedFlag.value
+  end,
+  get = function(mapId)
+    if mapId == "ROUTE_22" then
+      return {
+        -- The real Route 22 rival is driven by this map-level onStep script,
+        -- not by a trainer talk script.
+        onStep = function()
+          calls.route22Entries = (calls.route22Entries or 0) + 1
+          return true
+        end,
+      }
+    end
+  end,
+}
 local vanillaTalkTo = function() calls.vanillaTalk = calls.vanillaTalk + 1 end
-local vanillaEngageTrainer = function(self, npc, onDone)
+local vanillaEngageTrainer = function(self, npc, onDone,
+    endBattleText, skipBattleText)
   calls.vanillaEngaged = (calls.vanillaEngaged or 0) + 1
+  calls.vanillaEndBattleText = endBattleText
+  calls.vanillaSkipBattleText = skipBattleText
   game.save.defeatedTrainers[npc.id] = true
   if onDone then onDone() end
 end
@@ -3445,8 +3879,8 @@ T.eq(#ex.johtoResearch.habitatCandidates(
 do
   local scaled = ex.johtoResearch.encounterLevels
     .ordinaryLevelFromAverage(10, function(_, hi) return hi end, 3)
-  T.eq(scaled, 15,
-    "the research controller shares the route average plus-five ceiling")
+  T.eq(scaled, 18,
+    "the research controller shares the configured plus-eight ceiling")
 end
 calls.explicitWild = calls.fakeWildsLogic:trySpawn(game, {
   species = "FIXMON_B", level = 31, testSpawn = true,
@@ -3486,12 +3920,17 @@ T.eq(calls.explicitWild.species, "FIXMON_B",
     end,
   }
   local makeCompat = assert(loadfile(modPath .. "/wilds_compat.lua"))()
-  local compat = makeCompat({ log = { info = function() end } }, {
+  local compat = makeCompat(publicModFixture({
+    log = { info = function() end },
+  }, {
+    overworld_wild_spawns = {
+      version = "fixture",
+      exports = { logic = logic },
+    },
+  }), {
     johtoResearch = research,
   })
-  local compatGame = {
-    mods = { exports = { overworld_wild_spawns = { logic = logic } } },
-  }
+  local compatGame = {}
   T.eq(compat.install(compatGame, {
     random = function(lo) return lo end,
   }), true, "a compatible Wilds export installs cleanly")
@@ -3507,6 +3946,54 @@ T.eq(calls.explicitWild.species, "FIXMON_B",
 end)()
 pg.game = game
 local livePostgame = pg.state()
+do
+  local staticFlags = {
+    ARTICUNO = "EVENT_BEAT_ARTICUNO",
+    ZAPDOS = "EVENT_BEAT_ZAPDOS",
+    MOLTRES = "EVENT_BEAT_MOLTRES",
+    MEWTWO = "EVENT_BEAT_MEWTWO",
+  }
+  local previousOptions = run.loader.modOptions.kanto_ascendant
+  local previousToggles = game.save.objectToggles
+  local previousFlags, previousCatches, previousOwned = {}, {}, {}
+  game.save.pokedex = game.save.pokedex or { seen = {}, owned = {} }
+  game.save.pokedex.owned = game.save.pokedex.owned or {}
+  for species, flag in pairs(staticFlags) do
+    previousFlags[flag] = game.save.flags[flag]
+    previousCatches[species] = livePostgame.catches[species]
+    previousOwned[species] = game.save.pokedex.owned[species]
+    game.save.flags[flag] = nil
+    livePostgame.catches[species] = nil
+    game.save.pokedex.owned[species] = nil
+  end
+  run.loader.modOptions.kanto_ascendant = nil
+  game.save.objectToggles = nil
+
+  RealRuntime.emit("map.entered", { mapId = "REDS_HOUSE_2F" })
+  for species, flag in pairs(staticFlags) do
+    T.eq(game.save.flags[flag], nil,
+      "map entry keeps unbeaten Apex " .. species .. " flags canonical")
+  end
+
+  livePostgame.catches.ARTICUNO = true
+  RealRuntime.emit("map.entered", { mapId = "REDS_HOUSE_2F" })
+  T.eq(game.save.flags.EVENT_BEAT_ARTICUNO, true,
+    "map entry marks a caught hidden Apex Articuno as defeated")
+  for species, flag in pairs(staticFlags) do
+    if species ~= "ARTICUNO" then
+      T.eq(game.save.flags[flag], nil,
+        "one caught legend does not materialize false " .. species .. " flags")
+    end
+  end
+
+  for species, flag in pairs(staticFlags) do
+    game.save.flags[flag] = previousFlags[flag]
+    livePostgame.catches[species] = previousCatches[species]
+    game.save.pokedex.owned[species] = previousOwned[species]
+  end
+  game.save.objectToggles = previousToggles
+  run.loader.modOptions.kanto_ascendant = previousOptions
+end
 livePostgame.masterWins.brock = true
 livePostgame.bossRest["master:brock"] = 42
 livePostgame.masterWins.misty = nil
@@ -3529,7 +4016,7 @@ local masterNpc = {
 local masterOw = { map = { id = "PEWTER_GYM" }, player = {} }
 local realTextBoxModule = package.loaded["src.render.TextBox"]
 package.loaded["src.render.TextBox"] = textBoxStub
-run.loader.modOptions.trainer_rematch = { language = "de" }
+setTestGerman(true)
 T.eq(pg.handleTalk(masterOw, masterNpc, game), true,
   "a resting Master Leader consumes the conversation")
 package.loaded["src.render.TextBox"] = realTextBoxModule
@@ -3537,7 +4024,8 @@ T.eq(pushed[#pushed].text:find("42", 1, true) ~= nil, true,
   "a resting Master Leader reports the exact steps remaining")
 T.eq(pushed[#pushed].text:find("Schritten", 1, true) ~= nil, true,
   "Master Leader cooldown dialogue follows the selected language")
-run.loader.modOptions.trainer_rematch = nil
+setTestGerman(false)
+run.loader.modOptions.kanto_ascendant = nil
 
 pushed = {}
 local labScientist = {
@@ -3626,8 +4114,8 @@ local function freshNpc(id)
     frozen = false,
     facePlayer = function() end,
   }
-  local bucket = game.save.modData.trainer_rematch or {}
-  game.save.modData.trainer_rematch = bucket
+  local bucket = game.save.modData.kanto_ascendant or {}
+  game.save.modData.kanto_ascendant = bucket
   bucket.trainers = bucket.trainers or {}
   bucket.trainers[npc.id] = { rematches = 0, readyAt = 0 }
   return npc
@@ -3642,7 +4130,7 @@ local ow = {
 
 -- A0: a defeated trainer whose old save has no mod record is repaired lazily
 local lazyNpc = freshNpc("FIX_ROUTE_obj_lazy")
-game.save.modData.trainer_rematch.trainers[lazyNpc.id] = nil
+game.save.modData.kanto_ascendant.trainers[lazyNpc.id] = nil
 overworldStub.talkTo(ow, lazyNpc)
 T.eq(pushed[#pushed].text:find("151 more steps.", 1, true) ~= nil, true,
   "a missing defeated-trainer record starts a visible initial rest")
@@ -3691,7 +4179,7 @@ T.eq(npc.frozen, true,
   "the trainer stays frozen until the Field Kit reward text closes")
 pushed[#pushed].onDone()
 T.eq(npc.frozen, false, "npc unfrozen after the reward")
-local savedState = game.save.modData.trainer_rematch.trainers[npc.id]
+local savedState = game.save.modData.kanto_ascendant.trainers[npc.id]
 T.eq(savedState.rematches, 1, "completed rematch count persists per trainer")
 T.eq(ex.remainingSteps(npc.id), 151, "trainer starts the configured rest")
 
@@ -3734,6 +4222,11 @@ T.eq(b2.enemyParty[3].species, "RAICHU",
   "the recruited Pokémon is appended to the actual battle party")
 T.eq(b2.enemyParty[3].level, 9,
   "the recruit receives the same final rematch level growth")
+b2.onFinish("loss")
+T.eq(savedState.rematches, 1,
+  "a lost rematch does not increment the persistent trainer win count")
+T.eq(savedState.rematchProgressionVersion, 3,
+  "the attempted rematch preserves Phase-6 history and adds mastery state")
 
 -- C: NO -> the class reacts, then the vanilla post-battle line as a page
 pushed = {}
@@ -3794,9 +4287,13 @@ local owOriginal = {
 }
 overworldStub.engageTrainer(owOriginal, originalNpc, function()
   originalDone = originalDone + 1
-end)
+end, "CUSTOM LOSS TEXT", true)
 T.eq(calls.vanillaEngaged, 1, "the original trainer flow still runs")
 T.eq(originalDone, 1, "the original completion callback still runs")
+T.eq(calls.vanillaEndBattleText, "CUSTOM LOSS TEXT",
+  "trainer wrapper preserves a caller-supplied end-battle line")
+T.eq(calls.vanillaSkipBattleText, true,
+  "trainer wrapper preserves the pre-spoken challenge-text flag")
 T.eq(ex.remainingSteps(originalNpc.id), 151,
   "a newly beaten trainer is not immediately ready for a rematch")
 
@@ -3829,7 +4326,7 @@ T.eq(idleBattle.rematchLevelBoost, 4,
 
 -- E3: enabling the mod on an existing CONTINUE slot seeds old victories
 local oldTimerSave = {
-  trainer_rematch = {
+  kanto_ascendant = {
     step_clock = 100,
     trainers = {
       OLD_TIMER = {
@@ -3842,7 +4339,7 @@ local oldTimerSave = {
 }
 run.loader.modSave = oldTimerSave
 ex.migrateRestTimers({ random = function(_, hi) return hi end })
-local migratedTimer = oldTimerSave.trainer_rematch.trainers.OLD_TIMER
+local migratedTimer = oldTimerSave.kanto_ascendant.trainers.OLD_TIMER
 T.eq(migratedTimer.readyAt, 2610,
   "an active legacy cooldown rerolls once into the expanded range")
 T.eq(migratedTimer.nextTrainingAt, 5120,
@@ -3868,16 +4365,70 @@ T.eq(calls.vanillaTalk, 1, "scripted trainer skips the rematch prompt")
 T.eq(#pushed, 0, "no rematch prompt for scripted trainers")
 scriptedFlag.value = false
 
--- G: rematch win awards no money and drops the prize line
+-- F2: Route 22's first rival is an onStep story encounter.  A loss followed
+-- by save reload/map re-entry must leave it in that original encounter flow:
+-- no generic prompt, no rematch record, scale or reward flags.  The actual
+-- map script still receives the re-entry and is responsible for starting the
+-- unscaled first battle again.
+calls.vanillaTalk = 0
+pushed = {}
+calls.route22Rival = {
+  id = "ROUTE22_RIVAL1",
+  -- Exact generated-map shape: Route 22's story rival has no trainerClass.
+  def = { name = "ROUTE22_RIVAL1", text = "TEXT_ROUTE22_RIVAL1", index = 1 },
+  frozen = false,
+  facePlayer = function() end,
+}
+calls.route22Ow = {
+  map = { id = "ROUTE_22", def = { label = "Route22" } },
+  player = {},
+  -- This is the stale defeated shape that used to send the respawned rival
+  -- into the generic rematch hook after a blackout/reload.
+  trainerDefeated = function() return true end,
+}
+game.save.modData.kanto_ascendant.trainers[calls.route22Rival.id] = nil
+game.save.defeatedTrainers[calls.route22Rival.id] = true
+overworldStub.talkTo(calls.route22Ow, calls.route22Rival)
+T.eq(calls.vanillaTalk, 1,
+  "lost Route 22 rival is never offered a generic rematch")
+T.eq(#pushed, 0,
+  "lost Route 22 rival opens no rematch dialogue or reward queue")
+T.eq(game.save.modData.kanto_ascendant.trainers[calls.route22Rival.id], nil,
+  "lost Route 22 rival creates no rematch state")
+T.eq(calls.route22Entries, nil, "loss itself does not consume the re-entry script")
+overworldStub.engageTrainer(calls.route22Ow, calls.route22Rival)
+T.eq(game.save.modData.kanto_ascendant.trainers[calls.route22Rival.id], nil,
+  "a lost Route 22 encounter cannot schedule a generic rematch cooldown")
+
+-- Reload/map re-entry returns control to the story map's onStep encounter;
+-- its win flag remains clear, so the next battle is the authored first one.
+T.eq(mapScriptsStub.get("ROUTE_22").onStep(game, calls.route22Ow, 29, 4), true,
+  "Route 22 re-entry keeps the original onStep encounter armed")
+T.eq(calls.route22Entries, 1,
+  "Route 22 re-entry reaches the story encounter instead of rematch logic")
+T.eq(game.save.flags.EVENT_BEAT_ROUTE22_RIVAL_1ST_BATTLE, nil,
+  "a loss/reload cannot set the Route 22 victory flag")
+T.eq(game.save.modData.kanto_ascendant.trainers[calls.route22Rival.id], nil,
+  "re-entered first battle has no rematch progression to scale or reward")
+game.save.flags.EVENT_BEAT_ROUTE22_RIVAL_1ST_BATTLE = true
+T.eq(game.save.modData.kanto_ascendant.trainers[calls.route22Rival.id], nil,
+  "winning the authored retry still creates no generic rematch reward state")
+game.save.flags.EVENT_BEAT_ROUTE22_RIVAL_1ST_BATTLE = nil
+game.save.defeatedTrainers[calls.route22Rival.id] = nil
+calls.route22Rival, calls.route22Ow, calls.route22Entries = nil, nil, nil
+
+-- G: Phase 8 preserves ordinary prize money and its message
 local moneyBefore = game.save.money
 local rematch = { game = game, rematch = true,
   trainer = { baseMoney = 150, name = "FIX YOUNGSTER" },
   enemy = { mon = { level = 10 } }, queue = {},
   sayNext = function(self, text) table.insert(self.queue, text) end }
 battleStateStub.enemyMonFainted(rematch)
-T.eq(game.save.money, moneyBefore, "rematch awards no money")
-T.eq(#rematch.queue, 1, "prize line dropped")
-T.eq(rematch.queue[1], "RED defeated\nYOUNGSTER!", "flavor line kept")
+T.eq(game.save.money, moneyBefore + 1500,
+  "rematch keeps ordinary trainer prize money separate from its bonus")
+T.eq(#rematch.queue, 2, "rematch keeps the ordinary prize line")
+T.eq(rematch.queue[1], "RED got ¥1500\nfor winning!", "prize line kept")
+T.eq(rematch.queue[2], "RED defeated\nYOUNGSTER!", "flavor line kept")
 T.eq(rematch.trainer.baseMoney, 150, "shared trainer record untouched")
 
 -- H: the first (non-rematch) fight still pays
@@ -3890,12 +4441,13 @@ battleStateStub.enemyMonFainted(normal)
 T.eq(game.save.money, moneyBefore + 1500, "normal win still pays")
 T.eq(#normal.queue, 2, "prize line kept on normal wins")
 
--- I: Pay Day pays nothing on a rematch
+-- I: Pay Day also remains an independent ordinary battle mechanic
 moneyBefore = game.save.money
 local pay = { game = game, rematch = true, payDay = 500, result = "win" }
 battleStateStub.finish(pay)
-T.eq(pay.paid, nil, "pay day suppressed on rematch")
-T.eq(game.save.money, moneyBefore, "no money from pay day on rematch")
+T.eq(pay.paid, 500, "pay day remains available on a rematch")
+T.eq(game.save.money, moneyBefore + 500,
+  "rematch rewards do not replace Pay Day money")
 
 -- J: Pay Day still pays in normal battles
 moneyBefore = game.save.money
@@ -3962,10 +4514,13 @@ T.eq(ex.levelGap({ { level = 60 }, { level = 60 } },
 T.eq(ex.levelGap(nil, { { level = 64 } }), nil, "an empty party yields no gap")
 T.eq(ex.levelGap({ { level = 5 } }, nil), nil, "an empty team yields no gap")
 
--- O: successful loot, full-bag reservation and later delivery
-Data.items.NUGGET = { id = "NUGGET", name = "NUGGET", price = 5000 }
-run.loader.modOptions.trainer_rematch = { loot_mode = "balanced" }
-installDeps.lootRandom = function() return 2901 end
+-- O: successful Phase-8 stack reward, full-bag reservation and delivery
+Data.items.POKE_BALL = Data.items.POKE_BALL
+  or { id = "POKE_BALL", name = "POKé BALL", price = 200 }
+run.loader.modOptions.kanto_ascendant = { loot_mode = "balanced" }
+installDeps.rewardRolls = {
+  expShare = 10000, multiplier2 = 300, normal = 1, money = 1,
+}
 game.save.inventory, game.save.bagOrder = {}, {}
 pushed = {}
 local lootNpc = freshNpc("FIX_ROUTE_obj_loot")
@@ -3973,9 +4528,9 @@ overworldStub.talkTo(ow, lootNpc)
 pushed[1].opts.choice(true)
 local lootBattle = calls.battles[#calls.battles].battle
 lootBattle.onFinish("win")
-T.eq(game.save.inventory.NUGGET, 1,
-  "a winning eligible rematch puts its rolled Nugget in the Bag")
-T.eq(pushed[#pushed].text:find("NUGGET", 1, true) ~= nil, true,
+T.eq(game.save.inventory.POKE_BALL, 3,
+  "a winning eligible rematch puts its rolled Ball stack in the Bag")
+T.eq(pushed[#pushed].text:find("BALL", 1, true) ~= nil, true,
   "the player sees the awarded item after the battle")
 T.eq(lootNpc.frozen, true,
   "the trainer remains frozen until the loot message closes")
@@ -3983,7 +4538,7 @@ pushed[#pushed].onDone()
 T.eq(lootNpc.frozen, false, "closing the loot message releases the trainer")
 
 game.save.inventory, game.save.bagOrder = {}, {}
-for i = 1, 20 do
+for i = 1, (Data.constants.bagSize or 20) do
   local id = "FILLER_" .. i
   game.save.inventory[id] = 1
   game.save.bagOrder[i] = id
@@ -3995,10 +4550,10 @@ pushed[1].opts.choice(true)
 local fullBattle = calls.battles[#calls.battles].battle
 fullBattle.onFinish("win")
 local fullState =
-  game.save.modData.trainer_rematch.trainers[fullNpc.id]
-T.eq(game.save.inventory.NUGGET, nil,
+  game.save.modData.kanto_ascendant.trainers[fullNpc.id]
+T.eq(game.save.inventory.POKE_BALL, nil,
   "a full Bag never destroys or silently inserts the rolled item")
-T.eq(fullState.pendingLoot.item, "NUGGET",
+T.eq(fullState.pendingLoot.item, "POKE_BALL",
   "the trainer keeps an undeliverable reward for the player")
 pushed[#pushed].onDone()
 
@@ -4006,33 +4561,69 @@ pushed = {}
 overworldStub.talkTo(ow, fullNpc)
 T.eq(pushed[1].text:find("BAG is", 1, true) ~= nil, true,
   "talking again explains that the reserved reward still cannot fit")
-T.eq(fullState.pendingLoot.item, "NUGGET",
+T.eq(fullState.pendingLoot.item, "POKE_BALL",
   "the pending reward survives another full-Bag conversation")
 pushed[1].onDone()
 game.save.inventory.FILLER_1 = nil
 pushed = {}
 overworldStub.talkTo(ow, fullNpc)
-T.eq(game.save.inventory.NUGGET, 1,
+T.eq(game.save.inventory.POKE_BALL, 3,
   "making room lets the trainer deliver the reserved reward")
 T.eq(fullState.pendingLoot, nil,
   "a delivered pending reward is cleared exactly once")
 pushed[1].onDone()
-installDeps.lootRandom = function() return 10000 end
-run.loader.modOptions.trainer_rematch = nil
+installDeps.rewardRolls = nil
+installDeps.lootRandom = function() return 100000 end
+run.loader.modOptions.kanto_ascendant = nil
 
 -- P: an actual circuit battle receives the personal in-battle defeat quote
 game.save.hallOfFame = { {} }
 for _, gym in ipairs(pgd.gyms) do livePostgame.masterWins[gym.key] = true end
 livePostgame.apexChampion = nil
 pg.game = game
-local eliteBattle = { kind = "trainer", oppClass = "OPP_LORELEI" }
-RealRuntime.emit("battle.started", { battle = eliteBattle })
-T.eq(eliteBattle.postgameTier, "apex",
-  "an active Elite Four battle is tagged with the Apex tier")
-T.eq(eliteBattle.rematch, true,
-  "an active Elite Four circuit fight is treated as a no-money rematch")
-T.eq(eliteBattle.endBattleText:find("perfected", 1, true) ~= nil, true,
-  "the circuit battle receives Lorelei's personal defeat quote")
+do
+  -- This block isolates listener ordering, not the separately tested mastery
+  -- transform. The fixture omits Kanto species definitions, so temporarily
+  -- detach mastery instead of making its production path consume fake data.
+  pg.setMastery(nil)
+  local eliteBattle = {
+    kind = "trainer", oppClass = "OPP_LORELEI", game = game,
+    enemy = { mon = { species = "DEWGONG", level = 90 } },
+    -- The focused fixture deliberately has no Kanto species definitions, so
+    -- use a lightweight observed party to prove listener order without
+    -- pretending to construct the package's real roster here.
+    enemyParty = {
+      { species = "DEWGONG", level = 90, hp = 1 },
+      { species = "SLOWBRO", level = 91, hp = 1 },
+    },
+  }
+  RealRuntime.emit("battle.started", { battle = eliteBattle })
+  T.eq(eliteBattle.postgameTier, "apex",
+    "an active Elite Four battle is tagged with the Apex tier")
+  T.eq(eliteBattle.rematch, true,
+    "an active Elite Four circuit fight is treated as a no-money rematch")
+  T.eq(eliteBattle.endBattleText:find("perfected", 1, true) ~= nil, true,
+    "the circuit battle receives Lorelei's personal defeat quote")
+  T.eq(eliteBattle.ascendantEnemyMegaSpecies, "SLOWBRO",
+    "postgame reserves Lorelei's one distinct Apex Mega carrier")
+  -- This engine fixture has no MEWTWO registry entry, so main.lua correctly
+  -- constructs the content-safety-disabled Mega controller.  A menu option
+  -- must never override that missing-content guard.  Automatic arming and
+  -- listener priority are covered with an enabled production controller in
+  -- hoenn_mega_runtime_test.lua and in the package visual driver.
+  T.eq(ex.megaEvolution.enabled, false,
+    "the ROM-minimal fixture keeps Mega content safety-disabled")
+  T.eq(eliteBattle._ascMegaEnemyPending, nil,
+    "the public option cannot arm Mega Evolution without its content registry")
+  T.eq(ex.megaEvolution.enemyMegaTargetAvailable(eliteBattle), true,
+    "the finalized party exposes Slowbro to the later enabled Mega listener")
+  T.eq(ex.megaEvolution.enemyMegaTargetReady(eliteBattle), false,
+    "Lorelei waits for Slowbro instead of Mega Evolving her Dewgong lead")
+  pg.setMastery(ex.rematchMastery, function(context)
+    return ex.ascendant and ex.ascendant.bossBattleCount
+      and ex.ascendant.bossBattleCount(context) or 0
+  end)
+end
 
 -- ------------------------------------------------ Kanto Ascendant 2.0 systems
 
@@ -4044,6 +4635,99 @@ T.neq(asc, nil, "the Ascendant systems controller is exported")
 T.neq(asd, nil, "the Ascendant progression data is exported")
 T.neq(heritage, nil, "the permanent Event Archive controller is exported")
 T.neq(heritageData, nil, "the historical event profiles are exported")
+
+-- An externally supplied MEW must never complete Ascendant's authored
+-- Oak-Fuji-Cinnabar investigation.  Old ambiguous saves instead receive one
+-- explicit, save-local Journal decision without touching the Pokemon.
+do
+  local mewState = asc.state()
+  local saved = {
+    caught = mewState.mewCaught,
+    stage = mewState.mewStage,
+    authored = mewState.mewAuthoredCatch,
+    decision = mewState.mewRepairDecision,
+    found = mewState.achievements.mew_found,
+    latest = mewState.latestAchievement,
+  }
+  mewState.mewCaught, mewState.mewStage = false, 2
+  mewState.mewAuthoredCatch, mewState.mewRepairDecision = nil, nil
+  mewState.achievements.mew_found = nil
+  RealRuntime.emit("pokemon.caught", {
+    game = game, species = "MEW", mon = { species = "MEW" },
+    battle = { encounterSource = "foreign_event" },
+  })
+  T.eq(mewState.mewCaught, false,
+    "an external Mew cannot complete the Ascendant investigation")
+  T.eq(mewState.mewStage, 2,
+    "an external Mew preserves the authored clue stage")
+
+  RealRuntime.emit("pokemon.caught", {
+    game = game, species = "MEW", mon = { species = "MEW" },
+    battle = { ascendantMew = true },
+  })
+  T.eq(mewState.mewCaught, true,
+    "the authored Route 24 Mew completes its investigation")
+  T.eq(mewState.mewStage, 4,
+    "the authored Mew advances the canonical clue stage")
+  T.eq(mewState.mewAuthoredCatch, true,
+    "the authored Mew persists encounter provenance")
+  T.eq(mewState.achievements.mew_found, true,
+    "the authored Mew unlocks MYTH SEEKER")
+
+  mewState.mewAuthoredCatch, mewState.mewRepairDecision = nil, nil
+  local partyBefore = game.save.party
+  local writes, oldWriteSave = 0, game.writeSave
+  game.writeSave = function() writes = writes + 1 return true end
+  T.eq(asc.mewRepairAvailable(), true,
+    "a provenance-ambiguous pre-6.5 completion exposes the Journal repair")
+  local kept, keptWhy = asc.repairMewInvestigation(game, false)
+  T.eq(kept and keptWhy, "kept",
+    "declining the repair records an explicit one-time decision")
+  T.eq(mewState.mewCaught, true,
+    "declining the repair keeps the completed investigation")
+  T.eq(game.save.party, partyBefore,
+    "the repair decision never replaces or deletes the party")
+
+  mewState.mewRepairDecision = nil
+  local restored, restoredWhy = asc.repairMewInvestigation(game, true)
+  T.eq(restored and restoredWhy, "restored",
+    "confirming the repair restores only the investigation")
+  T.eq(mewState.mewCaught, false,
+    "confirmed repair reopens the authored Mew investigation")
+  T.eq(mewState.mewStage, 0,
+    "confirmed repair restarts the Oak clue sequence")
+  T.eq(mewState.achievements.mew_found, true,
+    "repair preserves already earned achievements")
+  T.eq(game.save.party, partyBefore,
+    "confirmed repair leaves the external Mew and party untouched")
+
+  mewState.mewCaught, mewState.mewStage = true, 4
+  mewState.mewAuthoredCatch, mewState.mewRepairDecision = nil, nil
+  game.writeSave = function() writes = writes + 1 return false end
+  local failed, failedWhy = asc.repairMewInvestigation(game, true)
+  T.eq(failed, false,
+    "a failed native save rejects the Journal repair")
+  T.eq(failedWhy, "save",
+    "a failed native save reports the persistence boundary")
+  T.eq(mewState.mewCaught, true,
+    "failed persistence rolls the completion bit back")
+  T.eq(mewState.mewStage, 4,
+    "failed persistence rolls the authored clue stage back")
+  T.eq(mewState.mewRepairDecision, nil,
+    "failed persistence does not consume the one-time decision")
+  T.eq(game.save.party, partyBefore,
+    "failed persistence still leaves the external Mew untouched")
+  T.eq(writes, 3, "both decisions and the failed attempt hit native save")
+  game.writeSave = oldWriteSave
+
+  mewState.mewCaught = saved.caught
+  mewState.mewStage = saved.stage
+  mewState.mewAuthoredCatch = saved.authored
+  mewState.mewRepairDecision = saved.decision
+  mewState.achievements.mew_found = saved.found
+  mewState.latestAchievement = saved.latest
+end
+
 T.eq(asd.newGamePlus.map, "INDIGO_PLATEAU_LOBBY",
   "the ready New Game Plus Steward appears in the reachable League lobby")
 local longestEventLabelEn, longestEventLabelDe = 0, 0
@@ -4066,6 +4750,8 @@ T.eq(asc.rematchRank(10).key, "master",
   "ten completed growth tiers reach MASTER rank")
 T.eq(asc.rematchRank(20).key, "legend",
   "twenty completed growth tiers reach LEGEND rank")
+T.eq(asc.rankLine(20):find("★", 1, true), nil,
+  "trainer rank text stays inside the actual Gen-I font")
 T.eq(asc.rankBonusLoot(7500, "veteran", 10), nil,
   "VETERAN rank no longer inflates the configured loot table")
 T.eq(asc.rankBonusLoot(8000, "expert", 20), nil,
@@ -4205,6 +4891,96 @@ T.eq(adaptiveSignature[#adaptiveSignature].species, "AERODACTYL",
   "finishing Brock's mission unlocks his signature roster variant")
 T.eq(adaptiveSource[3].species, "FIXMON_A",
   "adaptive selection never mutates the shared base roster")
+
+-- Exercise every order variant, not merely the canonical slot order. Blue's
+-- adaptive counter and Apex Johto evolution are allowed to move flexible
+-- slots, but never his reserved Mega carrier or Crown legend identities.
+do
+  local function speciesCount(team, species)
+    local count = 0
+    for _, slot in ipairs(team or {}) do
+      if slot.species == species then count = count + 1 end
+    end
+    return count
+  end
+
+  local function hasDuplicateSpecies(team)
+    local seen = {}
+    for _, slot in ipairs(team or {}) do
+      if seen[slot.species] then return true end
+      seen[slot.species] = true
+    end
+    return false
+  end
+
+  local adaptiveBlueGame = {
+    data = Data,
+    save = { party = { { species = "RAICHU" } } },
+  }
+  for variant = 0, 5 do
+    ascState.cycle = 0
+    ascState.bossBattles["elite:OPP_RIVAL3:apex"] = variant
+    local apexBlue = asc.selectBossTeam(pgd.apex.OPP_RIVAL3,
+      { kind = "elite", key = "OPP_RIVAL3", tier = "apex" },
+      adaptiveBlueGame)
+    T.eq(speciesCount(apexBlue, "GYARADOS"), 1,
+      "Apex Blue variant " .. variant .. " preserves exactly one Mega Gyarados")
+    T.eq(hasDuplicateSpecies(apexBlue), false,
+      "Apex Blue variant " .. variant .. " has no duplicate exact species")
+
+    ascState.bossBattles["elite:OPP_RIVAL3:crown"] = variant
+    local crownBlue = asc.selectBossTeam(pgd.crown.OPP_RIVAL3,
+      { kind = "elite", key = "OPP_RIVAL3", tier = "crown" },
+      adaptiveBlueGame)
+    T.eq(speciesCount(crownBlue, "MEWTWO"), 1,
+      "Crown Blue variant " .. variant .. " preserves exactly one Mega Mewtwo")
+    T.eq(hasDuplicateSpecies(crownBlue), false,
+      "Crown Blue variant " .. variant .. " has no duplicate exact species")
+    for _, species in ipairs({ "RAIKOU", "ENTEI", "LUGIA", "HO_OH" }) do
+      T.eq(speciesCount(crownBlue, species), 1,
+        "Crown Blue variant " .. variant .. " preserves unique " .. species)
+    end
+    for _, species in ipairs({
+        "TYRANITAR", "SCIZOR", "KINGDRA", "AMPHAROS", "ESPEON", "HOUNDOOM",
+    }) do
+      T.eq(speciesCount(crownBlue, species), 0,
+        "Crown Blue variant " .. variant
+          .. " is not overwritten by Apex evolution " .. species)
+    end
+  end
+  ascState.bossBattles["elite:OPP_RIVAL3:apex"] = 0
+  ascState.bossBattles["elite:OPP_RIVAL3:crown"] = 0
+
+  T.eq(pg.eliteMegaTarget("OPP_RIVAL3", "apex", pgd.apex.OPP_RIVAL3),
+    "GYARADOS", "ordinary Apex Blue reserves Mega Gyarados")
+  T.eq(pg.eliteMegaTarget("OPP_RIVAL3", "crown", pgd.crown.OPP_RIVAL3),
+    "MEWTWO", "default Crown Blue reserves Mega Mewtwo")
+  run.loader.modOptions.kanto_ascendant = { legend_mewtwo = "off" }
+  local noMewtwoCrown = pg.enabledTeam(pgd.crown.OPP_RIVAL3)
+  T.eq(pg.eliteMegaTarget("OPP_RIVAL3", "crown", noMewtwoCrown),
+    "ALAKAZAM",
+    "Mewtwo-off Crown Blue retains one legal configured Mega fallback")
+  for dominant, expectedCounter in pairs({
+      FIGHTING = "ALAKAZAM", WATER = "JOLTEON", ICE = "ARCANINE",
+  }) do
+    local fixtureSpecies = "TYPE_" .. dominant
+    adaptiveBlueGame.data = {
+      pokemon = { [fixtureSpecies] = { types = { dominant } } },
+    }
+    adaptiveBlueGame.save.party = {
+      { species = fixtureSpecies },
+    }
+    local fallbackTeam = asc.selectBossTeam(noMewtwoCrown,
+      { kind = "elite", key = "OPP_RIVAL3", tier = "crown" },
+      adaptiveBlueGame)
+    T.eq(speciesCount(fallbackTeam, expectedCounter), 1,
+      "Mewtwo-off Crown counter " .. expectedCounter .. " stays unique")
+    T.eq(hasDuplicateSpecies(fallbackTeam), false,
+      "Mewtwo-off Crown " .. dominant .. " adaptation has no duplicates")
+  end
+  run.loader.modOptions.kanto_ascendant = nil
+end
+
 T.eq(asc.cycleRule(1, "rotating"), "no_items",
   "Ascendant Cycle 1 seals battle items")
 T.eq(asc.cycleRule(2, "rotating"), "set",
@@ -4244,10 +5020,10 @@ T.eq(asc.allEnabledLegendsCaught(game), true,
   "the finale recognizes every enabled captured legend")
 T.eq(asc.mewEligible(game), true,
   "Crown, research, Rocket and legendary completion unlock Mew's clues")
-run.loader.modOptions.trainer_rematch = { legend_mew = false }
+run.loader.modOptions.kanto_ascendant = { legend_mew = false }
 T.eq(asc.mewEligible(game), false,
   "the dedicated Mew option disables the mythic finale")
-run.loader.modOptions.trainer_rematch = nil
+run.loader.modOptions.kanto_ascendant = nil
 
 for key in pairs(asd.gymQuests) do
   ascState.gymQuests[key] = { done = true }
@@ -4307,12 +5083,12 @@ for _, slot in ipairs(cycleTeam) do
   T.eq(slot.level, 100,
     "every post-game boss slot reaches level 100 in New Game Plus")
 end
-run.loader.modOptions.trainer_rematch = { ascendant_rules = "normal" }
+run.loader.modOptions.kanto_ascendant = { ascendant_rules = "normal" }
 local relaxedCycleTeam = asc.selectBossTeam(adaptiveSource,
   { kind = "gym", key = "misty", tier = "master" }, adaptiveGame)
 T.eq(relaxedCycleTeam[1].level, 100,
   "level-100 cycle teams do not depend on optional challenge rules")
-run.loader.modOptions.trainer_rematch = nil
+run.loader.modOptions.kanto_ascendant = nil
 
 local cycleRuleGame = {
   save = {
@@ -4412,15 +5188,35 @@ T.eq(shinySystem.state().redGyaradosUnlocked, true,
   "a 25-win post-Hall-of-Fame streak unlocks the red Gyarados event")
 T.eq(shinySystem.eventMap, "SEAFOAM_ISLANDS_B4F",
   "the guaranteed shiny event lives in Seafoam's deepest floor")
+
+-- These focused feature checks invoke the engine's *classic* encounter.roll
+-- seam directly.  Fresh 6.5 profiles now let visible Wilds own encounters by
+-- default so players do not receive both visible and random battles.  Opt the
+-- fixture into classic rolls for exactly one call at a time and restore the
+-- original option table immediately afterwards.
+function withClassicEncounterRoll(fn)
+  local previous = run.loader.modOptions.kanto_ascendant
+  local enabled = {}
+  for key, value in pairs(previous or {}) do enabled[key] = value end
+  enabled.living_world_random_encounters = true
+  run.loader.modOptions.kanto_ascendant = enabled
+  local result = { pcall(fn) }
+  run.loader.modOptions.kanto_ascendant = previous
+  if not result[1] then error(result[2], 0) end
+  return unpack(result, 2)
+end
+
 do
-  local eventEncounter = RealRuntime.call("encounter.roll",
-    function() return { species = "ZUBAT", level = 32 } end,
-    Data.encounters.SEAFOAM_ISLANDS_B4F,
-    {
-      mapId = "SEAFOAM_ISLANDS_B4F",
-      terrain = "indoor",
-      rng = function(_, hi) return hi end,
-    })
+  local eventEncounter = withClassicEncounterRoll(function()
+    return RealRuntime.call("encounter.roll",
+      function() return { species = "ZUBAT", level = 32 } end,
+      Data.encounters.SEAFOAM_ISLANDS_B4F,
+      {
+        mapId = "SEAFOAM_ISLANDS_B4F",
+        terrain = "indoor",
+        rng = function(_, hi) return hi end,
+      })
+  end)
   T.eq(eventEncounter.species, "GYARADOS",
     "the unlocked Seafoam event replaces a normal encounter with Gyarados")
   T.eq(eventEncounter.level, 50,
@@ -4458,14 +5254,16 @@ do
   local savedOutbreak = shinyProgress.outbreak
   shinyProgress.redGyaradosCaught = true
   shinyProgress.outbreak = nil
-  local bonusEncounter = RealRuntime.call("encounter.roll",
-    function() return { species = "ZUBAT", level = 21 } end,
-    Data.encounters.ROUTE_1,
-    {
-      mapId = "ROUTE_1",
-      terrain = "grass",
-      rng = function() return 1 end,
-    })
+  local bonusEncounter = withClassicEncounterRoll(function()
+    return RealRuntime.call("encounter.roll",
+      function() return { species = "ZUBAT", level = 21 } end,
+      Data.encounters.ROUTE_1,
+      {
+        mapId = "ROUTE_1",
+        terrain = "grass",
+        rng = function() return 1 end,
+      })
+  end)
   local bonusMon = {
     species = bonusEncounter.species,
     level = bonusEncounter.level,
@@ -4522,8 +5320,8 @@ T.eq(#kantoCompletion.criticalAcquisitions, 13,
   "the Kanto completion audit documents every former version or choice lock")
 T.eq(kantoCompletion.loadedMode(), "ascendant",
   "KANTO 151 reports the content mode that was actually patched at startup")
-local priorKantoOptions = run.loader.modOptions.trainer_rematch
-run.loader.modOptions.trainer_rematch = { kanto_151 = "wild" }
+local priorKantoOptions = run.loader.modOptions.kanto_ascendant
+run.loader.modOptions.kanto_ascendant = { kanto_151 = "wild" }
 T.eq(kantoCompletion.configuredMode(), "wild",
   "KANTO 151 separately observes a newly selected option")
 T.eq(kantoCompletion.restartRequired(), true,
@@ -4534,7 +5332,7 @@ T.eq(kantoCompletion.statusText():find(
 T.eq(kantoCompletion.statusText():find(
   "RESTART REQUIRED", 1, true) ~= nil, true,
   "KANTO 151 status gives an explicit restart warning")
-run.loader.modOptions.trainer_rematch = priorKantoOptions
+run.loader.modOptions.kanto_ascendant = priorKantoOptions
 
 if kantoCompletion.enabled then
   local function encounterHas(mapId, species)
@@ -4599,17 +5397,21 @@ if kantoCompletion.enabled then
   end
   game.save.hallOfFame = {}
   game.save.flags.EVENT_BEAT_CHAMPION_RIVAL = nil
-  local beforeLeague = RealRuntime.call("encounter.roll",
-    function() return { species = "PIDGEY", level = 22 } end,
-    Data.encounters.ROUTE_7,
-    { mapId = "ROUTE_7", terrain = "grass", rng = eeveeRng })
+  local beforeLeague = withClassicEncounterRoll(function()
+    return RealRuntime.call("encounter.roll",
+      function() return { species = "PIDGEY", level = 22 } end,
+      Data.encounters.ROUTE_7,
+      { mapId = "ROUTE_7", terrain = "grass", rng = eeveeRng })
+  end)
   T.eq(beforeLeague.species, "PIDGEY",
     "Route 7 does not reveal renewable Eevee before the League")
   game.save.hallOfFame = { {} }
-  local afterLeague = RealRuntime.call("encounter.roll",
-    function() return { species = "PIDGEY", level = 22 } end,
-    Data.encounters.ROUTE_7,
-    { mapId = "ROUTE_7", terrain = "grass", rng = eeveeRng })
+  local afterLeague = withClassicEncounterRoll(function()
+    return RealRuntime.call("encounter.roll",
+      function() return { species = "PIDGEY", level = 22 } end,
+      Data.encounters.ROUTE_7,
+      { mapId = "ROUTE_7", terrain = "grass", rng = eeveeRng })
+  end)
   T.eq(afterLeague.species, "EEVEE",
     "Route 7 can replace two percent of post-League grass encounters with Eevee")
   T.eq(afterLeague.level, 25,
@@ -4660,12 +5462,17 @@ T.eq(Data.items.TM_BLAST_BURN.machine.number, 52,
   "TM52 contains Blast Burn")
 T.eq(Data.items.TM_HYDRO_CANNON.machine.number, 53,
   "TM53 contains Hydro Cannon")
-T.eq(#fieldTech.starterFamilies.FRENZY_PLANT, 6,
-  "the Grass TM covers both complete Kanto and Johto starter families")
-T.eq(#fieldTech.starterFamilies.BLAST_BURN, 6,
-  "the Fire TM covers both complete Kanto and Johto starter families")
-T.eq(#fieldTech.starterFamilies.HYDRO_CANNON, 6,
-  "the Water TM covers both complete Kanto and Johto starter families")
+T.eq(#fieldTech.starterFamilies.FRENZY_PLANT, 9,
+  "the Grass TM covers complete Kanto, Johto and Hoenn starter families")
+T.eq(#fieldTech.starterFamilies.BLAST_BURN, 9,
+  "the Fire TM covers complete Kanto, Johto and Hoenn starter families")
+T.eq(#fieldTech.starterFamilies.HYDRO_CANNON, 9,
+  "the Water TM covers complete Kanto, Johto and Hoenn starter families")
+T.eq(fieldTech.starterFamilyStatus().totalStages, 27,
+  "three registered generations expose exactly 27 signature-move stages")
+T.eq(fieldTech.starterFamilyStatus().activeProvider,
+  "registered_hoenn_252_260",
+  "the complete registered Hoenn content owns the optional third generation")
 
 local previousFieldSave = run.loader.modSave
 run.loader.modSave = {}
@@ -4706,8 +5513,17 @@ for _, trainer in ipairs(ex.johtoMastersData.trainers) do
   local second = johtoMasters.teamFor(trainer.key, 2)
   T.eq(#first, 6, trainer.key .. " selects a full six-Pokémon team")
   T.eq(first[1].level, 100, trainer.key .. " always fights at level 100")
-  T.eq(first[1].species ~= second[1].species, true,
-    trainer.key .. " changes the team lead on the next challenge")
+  T.eq(first[1].species, johtoMasters.megaTargetFor(trainer.key),
+    trainer.key .. " always leads with the promised Johto starter")
+  T.eq(second[1].species, johtoMasters.megaTargetFor(trainer.key),
+    trainer.key .. " keeps the signature starter on later attempts")
+  T.eq((function(a, b)
+    for index = 2, 6 do
+      if a[index].species ~= b[index].species then return true end
+    end
+    return false
+  end)(first, second), true,
+    trainer.key .. " still rotates the five supporting partners")
 end
 
 local expandedPokemon, expandedOwned = {}, {}
@@ -4802,7 +5618,7 @@ T.eq(caughtDex.items[161].ball, true,
   "catching the Johto species adds the ordinary owned marker")
 
 run.loader.modSave = {
-  trainer_rematch = {
+  kanto_ascendant = {
     dex_progress = { version = 1, certificates = {} },
   },
 }
@@ -4828,7 +5644,7 @@ T.eq(dexProgress.state().nationalDexLegacyMigration, false,
   "the automatic active-save upgrade is consumed exactly once")
 
 run.loader.modSave = {
-  trainer_rematch = {
+  kanto_ascendant = {
     dex_progress = { version = 1, certificates = {} },
   },
 }
@@ -4917,7 +5733,7 @@ T.eq(worldEvents.active("training_rush"), true,
   "the first scheduled step event starts a real Training Rush")
 T.eq(worldEvents.trainingStepBonus(), 1,
   "Training Rush adds one trainer-only recovery tick per walked step")
-local worldBucket = run.loader.modSave.trainer_rematch
+local worldBucket = run.loader.modSave.kanto_ascendant
 worldBucket.step_clock, worldBucket.trainer_step_clock = 50, 50
 worldEvents.state().active = { id = "training_rush", steps = 100 }
 run.loader.events:emit("world.stepped", {})
@@ -5141,7 +5957,7 @@ local interruptedOriginal = {
 local interruptedSave = {
   party = { { species = "VENUSAUR", level = 100, factoryRental = true } },
   modData = {
-    trainer_rematch = {
+    kanto_ascendant = {
       grand_tour = {
         factory = {
           attempts = 1, activeRound = 2,
@@ -5157,7 +5973,7 @@ T.eq(grandTour.recoverRawParty(interruptedSave), true,
 T.eq(interruptedSave.party, interruptedOriginal,
   "interrupted Factory saves restore the exact original team")
 local recoveredFactory =
-  interruptedSave.modData.trainer_rematch.grand_tour.factory
+  interruptedSave.modData.kanto_ascendant.grand_tour.factory
 T.eq(recoveredFactory.backupParty, nil,
   "successful recovery consumes the stale Factory backup")
 T.eq(recoveredFactory.activeRound, 0,
@@ -5181,11 +5997,11 @@ T.eq(oldGrandTour.cruise.bestRound, 5,
 local priorGrandTourSave = run.loader.modSave
 run.loader.modSave = {}
 local grandTourState = grandTour.state()
-run.loader.modSave.trainer_rematch.step_clock = 1000
+run.loader.modSave.kanto_ascendant.step_clock = 1000
 grandTourState.cruise.nextAt = 5096
 T.eq(grandTour.cruiseRemaining(), 4096,
   "the voyage status measures its cooldown on literal walked tiles")
-run.loader.modSave.trainer_rematch.step_clock = 5096
+run.loader.modSave.kanto_ascendant.step_clock = 5096
 T.eq(grandTour.cruiseRemaining(), 0,
   "the S.S. Anne returns after all 4096 real steps")
 local factoryWrites = 0
@@ -5351,7 +6167,6 @@ assert(loadfile(modPath .. "/tests/johto_signals_lind_spec.lua"))()(
         hotPushed[#hotPushed + 1] = state
       end,
     },
-    mods = { exports = {} },
   }
   local hotDeps = {}
   for key, value in pairs(installDeps) do hotDeps[key] = value end
@@ -5370,7 +6185,7 @@ assert(loadfile(modPath .. "/tests/johto_signals_lind_spec.lua"))()(
     frozen = false,
     facePlayer = function() end,
   }
-  game.save.modData.trainer_rematch.trainers[hotNpc.id] = {
+  game.save.modData.kanto_ascendant.trainers[hotNpc.id] = {
     rematches = 0,
     trainingCycles = 0,
     readyAt = 0,
@@ -5404,4 +6219,4 @@ assert(loadfile(modPath .. "/tests/johto_signals_lind_spec.lua"))()(
 end)()
 
 run.release()
-T.finish("trainer_rematch")
+T.finish("kanto_ascendant")

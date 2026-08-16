@@ -9,7 +9,7 @@ return function(game)
 
   U.wait(30)
   local exports = assert(game.mods and game.mods.exports
-      and game.mods.exports.trainer_rematch,
+      and game.mods.exports.kanto_ascendant,
     "Kanto Ascendant export missing")
   local shiny = assert(exports.shinySystem, "Shiny controller missing")
   local dramatic = assert(game.mods.exports.DRAMATIC_SHAPE,

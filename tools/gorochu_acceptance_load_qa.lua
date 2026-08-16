@@ -23,7 +23,7 @@ return function(game)
 
   local exports = assert(game.mods and game.mods.exports,
     "mod exports unavailable")
-  local ascendant = assert(exports.trainer_rematch,
+  local ascendant = assert(exports.kanto_ascendant,
     "Kanto Ascendant is not loaded")
   local gorochu = assert(ascendant.gorochu,
     "Gorochu controller unavailable")

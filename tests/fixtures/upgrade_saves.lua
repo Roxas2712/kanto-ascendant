@@ -1,4 +1,4 @@
--- Sanitized trainer_rematch save buckets used by upgrade_matrix_test.lua.
+-- Sanitized kanto_ascendant save buckets used by upgrade_matrix_test.lua.
 --
 -- 1.1.0 and 2.0.0 were generated from the schemas in the exact public
 -- GitHub release archives named below.  3.1.0 and 4.1.1 are reduced copies
@@ -132,7 +132,7 @@ return {
       },
     },
     expect = { rematches = 18, research = true, daycare = true,
-      fieldKit = false },
+      fieldKit = false, beyondActive = true },
   },
   {
     version = "4.1.1",
@@ -201,7 +201,7 @@ return {
       },
     },
     expect = { rematches = 1, research = false, daycare = false,
-      fieldKit = true },
+      fieldKit = true, beyondActive = true },
   },
   {
     version = "5.3.0",
@@ -285,8 +285,9 @@ return {
     },
     expect = {
       rematches = 53, research = true, daycare = true, fieldKit = true,
+      beyondActive = true,
       signalsCompleted = { MEW = true },
-      canonicalMewRepair = true,
+      externalMewKeepsAscendantStage = 1,
       worldEvent = {
         id = "johto_migration", steps = 512,
         map = "ROUTE_12", species = "MARILL",
@@ -373,6 +374,7 @@ return {
       pokedexOwned = { CELEBI = true },
     },
     expect = {
+      beyondActive = true,
       rematches = 35, research = true, daycare = false, fieldKit = true,
       signalsCompleted = { CELEBI = true },
       canonicalCelebiRepair = true,
@@ -467,6 +469,10 @@ return {
       hallOfFame = false,
     },
     expect = {
+      -- Yellow partner/Gen-I Mega/Field Kit history is all Kanto evidence.
+      -- With no Hall of Fame, non-Gen-I mon, Johto research or Masters
+      -- progress, Variant A must migrate this save sealed.
+      beyondActive = false,
       rematches = 25, research = true, daycare = false, fieldKit = true,
       signalsCompleted = {},
       yellowPartner = true,

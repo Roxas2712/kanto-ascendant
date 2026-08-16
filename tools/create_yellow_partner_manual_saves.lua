@@ -1,7 +1,7 @@
 -- Creates four isolated, playable Yellow save slots for manual testing of
 -- Kanto Ascendant's partner path. Run only with a throwaway POKEPORT_IDENTITY.
 --
--- Slot 1 deliberately contains no trainer_rematch save bucket or partner
+-- Slot 1 deliberately contains no kanto_ascendant save bucket or partner
 -- marker. Loading it with Ascendant enabled reproduces installing the mod
 -- after an ordinary Yellow playthrough was already in progress.
 
@@ -17,7 +17,7 @@ return function(game)
   assert(GameVersion.isYellow(), "manual partner saves require Yellow")
 
   local ascendant = assert(
-    game.mods and game.mods.exports and game.mods.exports.trainer_rematch,
+    game.mods and game.mods.exports and game.mods.exports.kanto_ascendant,
     "Kanto Ascendant must be installed while creating the test saves")
   local partnerApi = assert(ascendant.yellowPartner,
     "Yellow partner controller missing")
@@ -97,7 +97,7 @@ return function(game)
 
   local function modMeta()
     return SaveData.buildMeta({
-      { id = "trainer_rematch", version = "5.3.0", api = 2 },
+      { id = "kanto_ascendant", version = "5.3.0", api = 2 },
     })
   end
 
@@ -120,7 +120,7 @@ return function(game)
   local function armMega(save, preference)
     save.inventory.MEGA_RING = 1
     save.inventory.MEGA_STONE_CASE = 1
-    save.modData.trainer_rematch.mega_evolution = {
+    save.modData.kanto_ascendant.mega_evolution = {
       version = 3,
       ring = true,
       case = true,
@@ -148,7 +148,7 @@ return function(game)
   local quest = prepare("VERMILION_GYM", 4, 13, "PIKACHU")
   quest.party[1][partnerApi.marker] = true
   quest.modData = {
-    trainer_rematch = {
+    kanto_ascendant = {
       yellow_partner = partnerState(),
     },
   }
@@ -160,7 +160,7 @@ return function(game)
   pikachu.party[1][partnerApi.marker] = true
   pikachu.inventory[partnerApi.itemId] = 1
   pikachu.modData = {
-    trainer_rematch = {
+    kanto_ascendant = {
       yellow_partner = partnerState({
         legacy = true,
         heartGiven = true,
@@ -176,7 +176,7 @@ return function(game)
   raichu.party[1][partnerApi.marker] = true
   raichu.inventory[partnerApi.itemId] = 1
   raichu.modData = {
-    trainer_rematch = {
+    kanto_ascendant = {
       yellow_partner = partnerState({
         legacy = true,
         heartGiven = true,
@@ -206,7 +206,7 @@ return function(game)
   local options = SaveData.loadOptions()
   options.mods = {
     PokePCFollowers_VoxelMerge = true,
-    trainer_rematch = true,
+    kanto_ascendant = true,
     deutsch = false,
     ["deutsch-blau"] = false,
     ["deutsch-gelb"] = false,

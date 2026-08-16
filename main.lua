@@ -1,5 +1,6 @@
 -- Kanto Ascendant: talk to a trainer you have already beaten to get a
--- ranked rematch. Rematch battles award no money. Each trainer class opens
+-- ranked rematch. Ordinary prize money remains intact; the bonus-reward
+-- layer adds either an item or a separate money bonus after a victory.
 -- with a line in its own voice, matched to the personality that class
 -- shows in its regular dialogue.
 
@@ -15,20 +16,15 @@ local CRYSTAL_ASSETS = {
   LUGIA = "lugia", HO_OH = "ho_oh", CELEBI = "celebi",
 }
 
-local ENTRY_SOURCE = debug.getinfo(1, "S").source
-local ENTRY_DIR = ENTRY_SOURCE:sub(1, 1) == "@"
-  and ENTRY_SOURCE:sub(2):match("^(.*)/[^/]+$") or "."
-
 local function loadSibling(mod, filename)
   -- mod:read goes through the loader filesystem, so this works identically
   -- for an installed directory, a ZIP and Modkit's virtual validation FS.
   local body, readErr = mod:read(filename)
-  local chunk, err
-  if body then
-    chunk, err = loadstring(body, "@" .. mod.path .. "/" .. filename)
-  elseif ENTRY_DIR then
-    chunk, err = loadfile(ENTRY_DIR .. "/" .. filename)
-  end
+  assert(type(body) == "string", readErr or ("unable to read " .. filename))
+  -- 0.1.86 compiles every chunk produced by loadstring back into this mod's
+  -- own sandbox.  A host loadfile fallback would both escape that contract
+  -- and is intentionally absent from the mod environment.
+  local chunk, err = loadstring(body, "@" .. mod.path .. "/" .. filename)
   assert(chunk, err or readErr)
   return chunk()
 end
@@ -255,10 +251,217 @@ local function isPrizeLine(text)
 end
 
 return function(mod)
+  -- Must run before any option is read or save migration is registered.
+  -- 6.5 corrects the historical trainer_rematch identity collision while
+  -- preserving old options/save data and an RC9 rollback shadow.
+  local identityMigration = loadSibling(mod, "identity_migration.lua")
+  assert(identityMigration.install(mod))
+
+  -- The newer migration layer supplies schema defaults and the launcher-time
+  -- validation bridge.  Keep the RC10 shadow migration above as well: it is
+  -- what makes the accepted RC9 rollback able to read saves written by 6.5.
+  local idMigration = loadSibling(mod, "id_migration.lua").new(mod)
+  -- A saved GAME SPEED belongs to gameplay. Keep the title and the complete
+  -- New Game / Oak sequence at the authored 1x cadence.
+  assert(loadSibling(mod, "pre_game_speed.lua")())
+  -- This runs before the engine validates the selected slot. The accepted
+  -- 6.0.7 data remains in its old bucket as a rollback snapshot and is copied
+  -- into the new permanent namespace for 6.0.8+.
+  mod.events:on("save.loading", function(ev)
+    if idMigration.migrateSave(ev and ev.raw) then
+      mod.log:info("migrated legacy trainer_rematch save data")
+    end
+  end, 10000)
+
   local makeLocalization = loadSibling(mod, "localization.lua")
   local i18n = makeLocalization(mod)
+  -- KASC dialogue must never auto-scroll a third visible Gen-I text row.
+  -- Install the ownership-aware guard before any sibling registers text, and
+  -- track both localized results and content-backed map dialogue.
+  local dialoguePagination = loadSibling(mod, "dialogue_pagination.lua")(
+    mod)
+  dialoguePagination.wrapLocalization(i18n)
+  mod.exports.dialoguePagination = dialoguePagination
+  -- One fail-closed renderer authority for native Voxel Ascendant, the
+  -- reviewed DRAMALESS transition build and exact upstream Battle Art 1.9.0.
+  -- Gameplay remains renderer-optional. Bridges consume KASC's local closed
+  -- facade instead of forwarding a renderer owner's private loader.
+  mod.exports.voxelRendererCompat = loadSibling(
+    mod, "voxel_renderer_compat.lua")(mod)
+  mod.exports.rendererBattleHud = loadSibling(
+    mod, "renderer_battle_hud.lua")(mod, {
+      voxelRenderer = mod.exports.voxelRendererCompat,
+    })
+  local makeAscendantUi = loadSibling(mod, "ascendant_ui.lua")
+  local ascendantUi = makeAscendantUi(mod, { i18n = i18n })
+  -- A separate widget facade keeps vanilla/third-party lists untouched.
+  -- Every Kanto Ascendant feature explicitly asks for this presentation.
+  mod.ui.KantoListMenu = ascendantUi.ListMenu
+  mod.exports.ascendantUi = ascendantUi
+  -- KA-INTERNAL: LEGACY-JOURNEY-001
+  local makeLegacyArchive = loadSibling(mod, "legacy_archive.lua")
+  local makeLegacyJourney = loadSibling(mod, "legacy_journey.lua")
+  local legacyJourney = makeLegacyJourney(mod, {
+    i18n = i18n, makeArchive = makeLegacyArchive,
+    -- The Signals hub is constructed later, but the callback runs only after
+    -- gameplay starts.  This keeps the HEVO unlock on the same real Oak-call
+    -- presentation seam as Johto while retaining a TextBox fallback inside
+    -- legacy_journey.lua for minimal/headless loads.
+    onOakCall = function(game, text, onDone)
+      local hub = mod.exports and mod.exports.signalsHub
+      if hub and type(hub.showOakCall) == "function" then
+        return hub.showOakCall(game, text, onDone)
+      end
+    end,
+  })
+  mod.exports.legacyJourney = legacyJourney
+  local makeLegacyWanderers = loadSibling(mod, "legacy_wanderers.lua")
+  local legacyWanderers = makeLegacyWanderers(mod, {
+    i18n = i18n, journey = legacyJourney,
+    -- Rematch rewards is constructed later because its UI depends on the
+    -- complete option schema. Resolve it lazily when a Wanderer reward rolls.
+    rewards = function() return mod.exports.rematchRewards end,
+  })
+  mod.exports.legacyWanderers = legacyWanderers
+  local legacyPathsData = loadSibling(mod, "legacy_paths_data.lua")
+  local makeLegacyPaths = loadSibling(mod, "legacy_paths.lua")
+  local legacyPaths = makeLegacyPaths(mod, {
+    i18n = i18n, journey = legacyJourney,
+    wanderers = legacyWanderers, data = legacyPathsData,
+  })
+  mod.exports.legacyPaths = legacyPaths
+  mod.exports.legacyPathsData = legacyPathsData
+  local makeLegacyOakFinale = loadSibling(mod, "legacy_oak_finale.lua")
+  local legacyOakFinale = makeLegacyOakFinale(mod, {
+    i18n = i18n, journey = legacyJourney, paths = legacyPaths,
+  })
+  legacyPaths.setFinale(legacyOakFinale)
+  mod.exports.legacyOakFinale = legacyOakFinale
+  local characterDialogue = loadSibling(mod, "character_dialogue.lua")
+
+  -- SGB's historical paper shade is a faint magenta (255,239,255).  It was
+  -- unobtrusive on four-colour tiles but becomes an obvious pink cast beside
+  -- the full-colour trainer and Pokemon PNGs in this model pack.  Normalize
+  -- only SGB shade zero to real white across the complete rendered game;
+  -- colored ink, world midtones and every other selectable display mode stay
+  -- untouched.
+  do
+    local PaletteFX = require("src.render.PaletteFX")
+    if not PaletteFX.__kantoAscendantWhitePaper then
+      local originalEffectiveColors = PaletteFX.effectiveColors
+      PaletteFX.effectiveColors = function(colors)
+        local resolved = originalEffectiveColors(colors)
+        if PaletteFX.mode ~= "gbc" or type(resolved) ~= "table"
+            or not resolved[1] then
+          return resolved
+        end
+        return {
+          { 255, 255, 255 }, resolved[2], resolved[3], resolved[4],
+        }
+      end
+      PaletteFX.__kantoAscendantWhitePaper = true
+    end
+  end
+  mod.content.field:patch("title", { copyrightText = "KANTO ASCENDANT" })
+  mod.content.sprites:register("SPRITE_KA_GREEN", {
+    id = "SPRITE_KA_GREEN",
+    image = mod.path .. "/assets/characters/green_walk.png",
+    frames = 6,
+    walker = true,
+    -- RED++ group 2 is the authentic green OBJ family. SpriteRenderer shares
+    -- this resolved sheet with Dramatic Shape, so Red/Blue/Green, SGB and
+    -- monochrome modes all produce their own coherent Voxel spectrum.
+    paletteSource = "ROM:SpriteSheetPointerTable[21]",
+  })
+  -- Optional cohesive Gen-I field set. Every identity owns native 16x16 walk,
+  -- bicycle and fishing frames; no state silently falls back to Red. The
+  -- larger reviewed designs are used only for battle/selection portraits.
+  for _, character in ipairs({ "RED", "GREEN", "BLUE" }) do
+    local stem = character:lower()
+    for _, state in ipairs({
+      { suffix = "WALK", file = "walk" },
+      { suffix = "BIKE", file = "bike" },
+      { suffix = "FISH", file = "fish" },
+    }) do
+      local id = "SPRITE_KA_CRYSTAL_" .. character .. "_" .. state.suffix
+      mod.content.sprites:register(id, {
+        id = id,
+        image = mod.path .. "/assets/characters/crystal_chars/" .. stem
+          .. "_" .. state.file .. ".png",
+        frames = 6, walker = true, trueColor = true,
+      })
+    end
+  end
+  -- CRYSTAL CHARS combines the three playable identities above with Kanto
+  -- Ascendant's own Voxel portraits. Native FRLG trainer PNGs are deliberately
+  -- absent; compact 2D opponents remain the edition-original Gen-I pictures.
+  -- Register this before extended_characters so its event refresh runs first
+  -- and the identity-aware Rival front remains the final override.
+  local frlgTrainerPack = loadSibling(mod, "frlg_trainer_pack.lua")(mod)
+  mod.exports.frlgTrainerPack = frlgTrainerPack
+  local trainerVoxelPortraits = loadSibling(mod,
+    "trainer_voxel_portraits.lua")(mod)
+  mod.exports.trainerVoxelPortraits = trainerVoxelPortraits
+  local extendedCharacters = loadSibling(mod, "extended_characters.lua")(mod, {
+    i18n = i18n, dialogue = characterDialogue,
+    trainerVoxelPortraits = trainerVoxelPortraits,
+    frlgTrainerPack = frlgTrainerPack,
+    voxelRenderer = mod.exports.voxelRendererCompat,
+  })
+  mod.exports.extendedCharacters = extendedCharacters
+  -- Casey's default Ascendant back remains the compact Gen-I asset.
+  mod.content.battle_sprite_scales:register("KA_GREEN_TRAINER_BACK", {
+    path = mod.path .. "/assets/characters/green_back.png",
+    scale = 2,
+    offsetY = 2,
+  })
+  -- CRYSTAL CHARS backs are native 64x64 FRLG-scale art. They draw once at
+  -- source resolution; the previous 32x32->2x path was the source of blur.
+  local crystalBackOffsetY = { red = 0, green = 4, blue = 1 }
+  for _, character in ipairs({ "red", "green", "blue" }) do
+    local throwFrames = {}
+    for frame = 1, 5 do
+      throwFrames[frame] = mod.path .. "/assets/characters/crystal_chars/"
+        .. character .. "_back_throw_" .. frame .. ".png"
+    end
+    mod.content.battle_sprite_scales:register(
+      "KA_CRYSTAL_" .. character:upper() .. "_TRAINER_BACK", {
+        path = mod.path .. "/assets/characters/crystal_chars/"
+          .. character .. "_back.png",
+        scale = 1,
+        -- Authored silhouettes have different transparent foot baselines.
+        -- Offset only the battle placement so all three meet the stock frame;
+        -- the pixels and every field animation remain untouched.
+        offsetY = crystalBackOffsetY[character],
+        throwFrames = throwFrames,
+        throwTicks = 6,
+      })
+  end
+  mod.exports.rivalTeams = loadSibling(mod, "rival_teams.lua")(mod, extendedCharacters)
+  mod.exports.legacyRivalPartner = loadSibling(mod, "legacy_rival_partner.lua")(mod)
+  mod.exports.battleAcceptance = loadSibling(mod, "battle_acceptance.lua")(mod, {
+    i18n = i18n,
+  })
+  mod.exports.titleIntro = loadSibling(mod, "title_intro.lua")(mod, extendedCharacters)
   local recruitment = loadSibling(mod, "trainer_recruits.lua")
   local loot = loadSibling(mod, "rematch_loot.lua")
+  local function installedMod(id)
+    local ok, handle = pcall(mod.find, id)
+    return ok and handle ~= nil
+  end
+  -- Register content-backed QoL screens before the loader freezes registries.
+  if not installedMod("jj_quick_select") then
+    local installQuickSelect = loadSibling(mod, "quick_select.lua")
+    if type(installQuickSelect) == "function" then installQuickSelect(mod) end
+  else
+    mod.exports.externalQuickSelect = true
+  end
+  if not installedMod("quality_of_life") then
+    local installQuality = loadSibling(mod, "quality_of_life.lua")
+    if type(installQuality) == "function" then installQuality(mod) end
+  else
+    mod.exports.externalQualityOfLife = true
+  end
   local function menuLabel(english, german)
     return i18n.isGerman() and german or english
   end
@@ -293,17 +496,30 @@ return function(mod)
         "EICH: Du solltest\nmit ihm sprechen\nund Dich um es\nkümmern."))
   end
 
-  mod.options:define({
-    { key = "language", label = menuLabel("LANGUAGE", "SPRACHE"), type = "choice",
-      default = "auto",
-      choices = { { "AUTO", "auto" }, { "ENGLISH", "en" },
-                  { "DEUTSCH", "de" } } },
+  local ascendantOptionSchema = {
+    { key = "difficulty", label = menuLabel("DIFFICULTY", "SCHWIERIGKEIT"),
+      type = "choice", default = "standard",
+      choices = {
+        { menuLabel("STANDARD", "STANDARD"), "standard" },
+        { menuLabel("HIGH", "HOCH"), "high" },
+        { menuLabel("HARD", "SCHWER"), "hard" },
+        { menuLabel("VERY HARD", "SEHR SCHWER"), "very_hard" },
+        { menuLabel("EXTREME", "EXTREM"), "extreme" },
+      } },
+    { key = "rare_item_lock",
+      label = menuLabel("RARE ITEM LOCK", "SELTENE ITEMS SCHÜTZEN"),
+      type = "toggle", default = true },
+    { key = "vision_encounters",
+      label = menuLabel("HO-OH VISION", "HO-OH-VISION"),
+      type = "toggle", default = true },
     { key = "rest_min", label = menuLabel("MIN REST STEPS", "MIN PAUSE"),
       type = "number",
-      default = DEFAULT_MIN_REST_STEPS, min = 151, max = 2510, step = 1 },
+      default = DEFAULT_MIN_REST_STEPS, min = 151, max = 2510, step = 1,
+      presets = { 151, 302, 604, 1255, 2510 } },
     { key = "rest_max", label = menuLabel("MAX REST STEPS", "MAX PAUSE"),
       type = "number",
-      default = DEFAULT_MAX_REST_STEPS, min = 151, max = 2510, step = 1 },
+      default = DEFAULT_MAX_REST_STEPS, min = 151, max = 2510, step = 1,
+      presets = { 151, 302, 604, 1255, 2510 } },
     { key = "level_gain", label = menuLabel("LEVELS / REMATCH", "LEVEL / REVANCHE"),
       type = "number",
       default = DEFAULT_LEVEL_GAIN, min = 0, max = MAX_LEVEL_GAIN, step = 1 },
@@ -315,6 +531,15 @@ return function(mod)
         { menuLabel("OFF", "AUS"), "off" },
         { menuLabel("BALANCED", "NORMAL"), "balanced" },
         { menuLabel("GENEROUS", "VIEL"), "generous" },
+      } },
+    { key = "legacy_wanderer_frequency",
+      label = menuLabel("WANDERER FREQ.", "WANDERER-HÄUFIGK."),
+      type = "choice", default = "normal",
+      choices = {
+        { menuLabel("NEVER", "NIE"), "never" },
+        { menuLabel("RARE", "SELTEN"), "rare" },
+        { menuLabel("NORMAL", "NORMAL"), "normal" },
+        { menuLabel("OFTEN", "OFT"), "often" },
       } },
     { key = "kanto_151",
       label = menuLabel("KANTO 151 RESTART", "KANTO 151 NEUST."),
@@ -341,8 +566,55 @@ return function(mod)
         { menuLabel("ORIGINAL", "ORIGINAL"), "original" },
         { menuLabel("CRYSTAL", "CRYSTAL"), "crystal" },
       } },
+    { key = "party_icon_style",
+      label = menuLabel("TEAM ICONS", "TEAM-ICONS"),
+      type = "choice", default = "animated",
+      choices = {
+        { menuLabel("ANIMATED SPECIES", "ANIMIERTE ARTEN"), "animated" },
+        { menuLabel("ORIGINAL GEN I", "ORIGINAL GEN I"), "original" },
+      } },
     { key = "crystal_animation",
       label = menuLabel("CRYSTAL ANIMATION", "KRISTALL-ANIMATION"),
+      type = "toggle", default = true },
+    { key = "pokemon_sprite_style",
+      label = menuLabel("POKéMON SPRITE STYLE", "POKéMON-SPRITESTIL"),
+      -- Fresh 6.5 profiles start with the complete Crystal presentation,
+      -- including title and Oak's demo Pokémon. Existing explicit choices
+      -- remain untouched by the option migration.
+      type = "choice", default = "crystal",
+      choices = {
+        { menuLabel("AUTO (COMPATIBLE)", "AUTO (KOMPATIBEL)"), "legacy" },
+        { menuLabel("GAME-ORIGINAL", "SPIEL-ORIGINAL"), "original" },
+        { "CRYSTAL 2D", "crystal" },
+      } },
+    { key = "character_sprite_style",
+      label = menuLabel("FIELD CHARACTERS", "FELD-FIGUREN"),
+      type = "choice", default = "crystal",
+      choices = {
+        { "ASCENDANT FIELD", "ascendant" },
+        { "KASC FIELD", "crystal" },
+      } },
+    { key = "trainer_portrait_style",
+      label = menuLabel("TRAINER PORTRAITS", "TRAINER-PORTRÄTS"),
+      type = "choice", default = "crystal_hd",
+      choices = {
+        { "CRYSTAL HD", "crystal_hd" },
+        { menuLabel("ORIGINAL", "ORIGINAL"), "original" },
+      } },
+    { key = "sprite_style_battle",
+      label = menuLabel("SPRITES IN BATTLE", "SPRITES IM KAMPF"),
+      type = "toggle", default = true },
+    { key = "sprite_style_summary",
+      label = menuLabel("SPRITES IN PARTY/STATUS", "SPRITES IN TEAM/STATUS"),
+      type = "toggle", default = true },
+    { key = "sprite_style_dex",
+      label = menuLabel("SPRITES IN POKéDEX", "SPRITES IM POKéDEX"),
+      type = "toggle", default = true },
+    { key = "sprite_style_box",
+      label = menuLabel("SPRITES IN BOXES", "SPRITES IN BOXEN"),
+      type = "toggle", default = true },
+    { key = "sprite_style_scenes",
+      label = menuLabel("SPRITES IN OTHER SCENES", "SPRITES IN SZENEN"),
       type = "toggle", default = true },
     { key = "shiny_hunts", label = menuLabel("SHINY HUNTS", "SHINY-JAGD"),
       type = "choice", default = "ascendant",
@@ -377,20 +649,221 @@ return function(mod)
         { menuLabel("DAY", "TAG"), "day" },
         { menuLabel("NIGHT", "NACHT"), "night" },
       } },
-    { key = "johto_signals_enable",
-      label = menuLabel("EARLY JOHTO", "FRÜHES JOHTO"),
+    { key = "living_world_enabled",
+      label = menuLabel("WILD POKéMON", "WILD-POKéMON"),
       type = "toggle", default = true },
-    { key = "johto_wilds_integration",
-      label = menuLabel("VISIBLE JOHTO", "JOHTO SICHTBAR"),
-      type = "toggle", default = true },
-    { key = "johto_signals_start",
-      label = menuLabel("JOHTO SIGNAL START", "JOHTO-SIGNALSTART"),
-      type = "choice", default = "quest",
+    { key = "living_world_density",
+      label = menuLabel("WILD COUNT", "WILD-MENGE"),
+      type = "choice", default = "normal",
       choices = {
-        { menuLabel("FIELD QUEST", "FELDQUEST"), "quest" },
-        { menuLabel("WANDERWAVES NOW", "WANDERWELLEN SOFORT"), "waves" },
-        { menuLabel("UNLEASHED NOW", "ENTFESSELT SOFORT"), "unleashed" },
+        { menuLabel("LOW", "WENIG"), "low" },
+        { menuLabel("NORMAL", "NORMAL"), "normal" },
+        { menuLabel("HIGH", "VIEL"), "high" },
+        { menuLabel("VERY HIGH", "SEHR VIEL"), "very_high" },
       } },
+    { key = "living_world_random_encounters",
+      label = menuLabel("RANDOM BATTLES", "ZUFALLSKÄMPFE"),
+      -- A fresh/missing setting starts with both encounter presentations:
+      -- visible Wilds and the classic step roll.  The option loader still
+      -- prefers any stored boolean, so an explicit player choice of false is
+      -- never rewritten by this schema default.
+      type = "toggle", default = true },
+    { key = "living_world_water",
+      label = menuLabel("WATER", "WASSER"),
+      type = "choice", default = "swimming_sprites",
+      choices = {
+        { menuLabel("SWIMMING SPRITES", "SCHWIMMSPRITES"), "swimming_sprites" },
+        { menuLabel("HIDDEN SILHOUETTES", "VERBORGENE SILHOUETTEN"), "hidden_silhouettes" },
+        { menuLabel("SILHOUETTES", "SILHOUETTEN"), "silhouettes" },
+        { menuLabel("CLASSIC ENCOUNTERS", "KLASSISCHE KÄMPFE"), "classic_encounters" },
+        { menuLabel("DISABLED", "AUS"), "disabled" },
+      } },
+    { key = "living_world_caves",
+      label = menuLabel("CAVES", "HÖHLEN"),
+      type = "choice", default = "reachable",
+      choices = {
+        { menuLabel("REACHABLE ONLY", "NUR ERREICHBAR"), "reachable" },
+        { menuLabel("MIXED SCENERY", "GEMISCHTE KULISSE"), "mixed" },
+      } },
+    { key = "living_world_grass",
+      label = menuLabel("GRASS", "GRAS"),
+      type = "choice", default = "immersed",
+      choices = {
+        { menuLabel("IN GRASS", "IM GRAS"), "immersed" },
+        { menuLabel("ABOVE GRASS", "ÜBER GRAS"), "above" },
+      } },
+    { key = "living_world_idle",
+      label = menuLabel("CALM SPECIES", "RUHIGE ARTEN"),
+      type = "toggle", default = true },
+    { key = "living_world_wander",
+      label = menuLabel("WANDERING", "WANDERND"),
+      type = "toggle", default = true },
+    { key = "living_world_chase",
+      label = menuLabel("CHASE", "VERFOLGUNG"),
+      type = "toggle", default = true },
+    { key = "living_world_hidden",
+      label = menuLabel("HIDDEN", "VERSTECKT"),
+      type = "toggle", default = true },
+    { key = "living_world_silhouettes",
+      label = menuLabel("SILHOUETTES", "SILHOUETTEN"),
+      type = "toggle", default = false },
+    { key = "johto_wilds_integration",
+      label = menuLabel("JOHTO HABITATS", "JOHTO-HABITATE"),
+      type = "toggle", default = true },
+    { key = "living_world_towns",
+      label = menuLabel("TOWN POKéMON", "STADT-POKéMON"),
+      type = "toggle", default = true },
+    { key = "wilds_town_pokemon_amount",
+      label = menuLabel("TOWN COUNT", "STADTMENGE"),
+      type = "choice", default = "auto",
+      choices = {
+        { menuLabel("AUTOMATIC", "AUTOMATISCH"), "auto" },
+        { "0", 0 },
+        { "1", 1 },
+        { "2", 2 },
+        { "3", 3 },
+        { "4", 4 },
+        { "5", 5 },
+      } },
+    { key = "wilds_town_pokemon_species",
+      label = menuLabel("TOWN REGION", "STADTREGION"),
+      type = "choice", default = "mixed",
+      choices = {
+        { menuLabel("KANTO ONLY", "NUR KANTO"), "kanto" },
+        { menuLabel("KANTO + JOHTO", "KANTO + JOHTO"), "mixed" },
+        { menuLabel("JOHTO ONLY", "NUR JOHTO"), "johto" },
+      } },
+    { key = "johto_level_bonus",
+      label = menuLabel("JOHTO LEVEL BONUS", "JOHTO-LEVELBONUS"),
+      type = "choice", default = "2_8",
+      choices = {
+        { menuLabel("ROUTE AVG PLUS 2 TO 8", "ROUTENMITTEL PLUS 2 BIS 8"), "2_8" },
+        { menuLabel("ROUTE AVG PLUS 2 TO 5", "ROUTENMITTEL PLUS 2 BIS 5"), "2_5" },
+      } },
+    { key = "ascendant_useful_bag",
+      label = menuLabel("ASCENDANT BAG", "ASCENDANT-BEUTEL"),
+      type = "toggle", default = true },
+    { key = "ascendant_bag_mode",
+      label = menuLabel("ASCENDANT BAG MODE", "ASCENDANT-BEUTELMODUS"),
+      type = "choice", default = "pockets",
+      choices = {
+        { menuLabel("OFF / EXTERNAL MOD", "AUS / EXTERNE MOD"), "off" },
+        { menuLabel("GAME STANDARD", "SPIELSTANDARD"), "standard" },
+        { menuLabel("STANDARD SKIN", "STANDARD-SKIN"), "skin" },
+        { menuLabel("999 SLOTS WITH SKIN", "999 PLÄTZE MIT SKIN"), "expanded" },
+        { menuLabel("999 SLOTS WITH POCKETS", "999 PLÄTZE MIT FÄCHERN"), "pockets" },
+      } },
+    { key = "ascendant_quick_select",
+      label = menuLabel("QUICK SELECT", "SCHNELLWAHL"),
+      type = "toggle", default = true },
+    { key = "ascendant_qol",
+      label = menuLabel("ASCENDANT QOL", "ASCENDANT-QOL"),
+      type = "toggle", default = true },
+    -- These four rows must remain in the final schema. quality_of_life.lua
+    -- registers them before this full Ascendant schema is defined; omitting
+    -- them here made untouched profiles resolve EASY INTERACTIONS to nil,
+    -- even though its submenu displayed the intended ON default.
+    { key = "qol_exp_bar", label = "BATTLE EXP BAR",
+      type = "choice", default = "blue",
+      choices = {
+        { menuLabel("OFF", "AUS"), "off" },
+        { menuLabel("ON (BLACK)", "AN (SCHWARZ)"), "black" },
+        { menuLabel("ON (BLUE)", "AN (BLAU)"), "blue" },
+      } },
+    { key = "qol_caught_indicator", label = "POKéDEX INDICATOR",
+      type = "choice", default = "red",
+      choices = {
+        { menuLabel("OFF", "AUS"), "off" },
+        { menuLabel("ON (GREY)", "AN (GRAU)"), "grey" },
+        { menuLabel("ON (RED)", "AN (ROT)"), "red" },
+      } },
+    { key = "qol_easy_interactions",
+      label = menuLabel("EASY INTERACTIONS", "EINFACHE INTERAKTION"),
+      type = "toggle", default = true },
+    { key = "qol_location_banners",
+      label = menuLabel("LOCATION BANNERS", "ORTSBANNER"),
+      type = "choice", default = 2,
+      choices = {
+        { menuLabel("OFF", "AUS"), false },
+        { menuLabel("ON (1 SECOND)", "AN (1 SEKUNDE)"), 1 },
+        { menuLabel("ON (2 SECONDS)", "AN (2 SEKUNDEN)"), 2 },
+        { menuLabel("ON (3 SECONDS)", "AN (3 SEKUNDEN)"), 3 },
+      } },
+    { key = "modern_storage_ui",
+      label = menuLabel("MODERN BAG/BOX UI", "MODERNE BEUTEL/BOX-OPTIK"),
+      type = "toggle", default = true },
+    { key = "catch_destination",
+      label = menuLabel("CATCH DESTINATION", "FANGZIEL"),
+      type = "choice", default = "ask",
+      choices = {
+        { menuLabel("ASK PARTY / BOX", "TEAM / BOX FRAGEN"), "ask" },
+        { menuLabel("PARTY FIRST", "ZUERST TEAM"), "party" },
+        { menuLabel("BOX FIRST", "ZUERST BOX"), "box" },
+        { menuLabel("OFF", "AUS"), "off" },
+      } },
+    { key = "pokedex_filter",
+      label = menuLabel("POKéDEX FILTER", "POKéDEX-FILTER"),
+      type = "choice", default = "all",
+      choices = {
+        { menuLabel("ALL", "ALLE"), "all" },
+        { menuLabel("SEEN", "GESEHEN"), "seen" },
+        { menuLabel("OWNED", "BESITZT"), "owned" },
+      } },
+    { key = "box_filter",
+      label = menuLabel("BOX FILTER", "BOX-FILTER"),
+      type = "choice", default = "all",
+      choices = {
+        { menuLabel("ALL", "ALLE"), "all" },
+        { menuLabel("KANTO ONLY", "NUR KANTO"), "kanto" },
+        { menuLabel("JOHTO ONLY", "NUR JOHTO"), "johto" },
+      } },
+    { key = "text_speed",
+      label = menuLabel("TEXT SPEED PRESET", "TEXTGESCHWINDIGKEIT"),
+      type = "choice", default = "engine",
+      choices = {
+        { menuLabel("ENGINE OPTION", "ENGINE-EINSTELLUNG"), "engine" },
+        { menuLabel("FAST", "SCHNELL"), "fast" },
+        { menuLabel("NORMAL", "NORMAL"), "normal" },
+        { menuLabel("SLOW", "LANGSAM"), "slow" },
+      } },
+    { key = "ride_control",
+      label = menuLabel("BICYCLE SHORTCUT", "FAHRRAD-KÜRZEL"),
+      type = "choice", default = "select",
+      choices = {
+        { menuLabel("SELECT USES BICYCLE", "SELECT NUTZT FAHRRAD"), "select" },
+        { menuLabel("CLASSIC BAG ONLY", "NUR KLASSISCHER BEUTEL"), "classic" },
+      } },
+    { key = "quick_select_tap",
+      label = menuLabel("SELECT TAP", "SELECT-TIPPEN"),
+      type = "choice", default = "bicycle",
+      choices = {
+        { menuLabel("BICYCLE", "FAHRRAD"), "bicycle" },
+        { menuLabel("FIELD KIT", "FELD-KIT"), "field_kit" },
+        { menuLabel("NOTHING", "NICHTS"), "none" },
+      } },
+    { key = "quick_select_registration",
+      label = menuLabel("BAG REGISTRATION", "BEUTEL-REGISTRIERUNG"),
+      type = "toggle", default = true },
+    { key = "quick_select_empty_notice",
+      label = menuLabel("EMPTY SLOT NOTICE", "LEERER-PLATZ-HINWEIS"),
+      type = "toggle", default = true },
+    { key = "catch_box_notice",
+      label = menuLabel("BOX TRANSFER NOTICE", "BOX-TRANSFER-HINWEIS"),
+      type = "toggle", default = true },
+    { key = "status_values",
+      label = menuLabel("STATUS VALUES", "STATUSWERTE"),
+      type = "choice", default = "off",
+      choices = {
+        { menuLabel("OFF", "AUS"), "off" },
+        { "DV / IV", "dv" },
+        { "DV / IV AND EV", "full" },
+      } },
+    { key = "modern_ball_skins",
+      label = menuLabel("MODERN BALL SKINS", "MODERNE BALL-SKINS"),
+      type = "toggle", default = true },
+    { key = "fast_box_switch",
+      label = menuLabel("FAST BOX SWITCH", "SCHNELLER BOXWECHSEL"),
+      type = "toggle", default = true },
     { key = "mythic_signals",
       label = menuLabel("MYTHIC SIGNALS", "MYTHOS-SIGNALE"),
       type = "toggle", default = true },
@@ -449,15 +922,132 @@ return function(mod)
     { key = "grand_tournament",
       label = menuLabel("BATTLE FRONTIER", "KAMPF-FRONTIER"),
       type = "toggle", default = true },
+    { key = "follower_count",
+      label = menuLabel("FOLLOWER COUNT", "BEGLEITER-ANZAHL"),
+      type = "choice", default = 1,
+      choices = { { "1", 1 }, { "2", 2 }, { "3", 3 }, { "4", 4 } } },
+    { key = "follower_order",
+      label = menuLabel("FOLLOWER ORDER", "BEGLEITER-FOLGE"),
+      type = "choice", default = "party",
+      choices = {
+        { menuLabel("PARTY", "TEAM"), "party" },
+        { "CUSTOM", "custom" },
+      } },
     { key = "ascendant_rules",
-      label = menuLabel("NEW GAME+ RULES", "NEW-GAME+-REGELN"),
+      label = menuLabel("CHALLENGE RULES", "CHALLENGE-REGELN"),
       type = "choice", default = "rotating",
       choices = {
         { menuLabel("ROTATING", "ROTIEREND"), "rotating" },
         { menuLabel("NO ITEMS", "KEINE ITEMS"), "ascendant" },
         { menuLabel("NORMAL", "NORMAL"), "normal" },
       } },
+  }
+  -- The engine option schema has no dynamic row predicate. Build the schema
+  -- edition-aware instead so Red and Blue do not carry a dead Yellow-only
+  -- setting while Yellow still gets the normal one-row option control.
+  if GameVersion.isYellow() then
+    ascendantOptionSchema[#ascendantOptionSchema + 1] = {
+      key = "yellow_partner_presentation",
+      label = menuLabel("YELLOW PARTNER UI", "YELLOW-PARTNER-UI"),
+      type = "choice", default = "ascendant_box",
+      choices = {
+        { menuLabel("ASCENDANT BOX", "ASCENDANT-BOX"), "ascendant_box" },
+        { menuLabel("YELLOW CENTER", "YELLOW-ZENTRUM"), "yellow_center" },
+      },
+    }
+  end
+  idMigration.applyOptionDefaults(ascendantOptionSchema)
+  mod.options:define(ascendantOptionSchema)
+
+  local makeOptionHelp = loadSibling(mod, "option_help.lua")
+  local optionHelp = makeOptionHelp(i18n)
+  local makeRematchRewards = loadSibling(mod, "rematch_rewards.lua")
+  local rematchRewards = makeRematchRewards(mod, {
+    i18n = i18n,
+    loot = loot,
+    optionSchema = ascendantOptionSchema,
+    optionHelp = optionHelp,
+    ascendantUi = ascendantUi,
+    legacyWanderers = legacyWanderers,
   })
+  mod.exports.rematchRewards = rematchRewards
+  mod.exports.optionHelp = optionHelp
+  local makeItemHelp = loadSibling(mod, "item_help.lua")
+  local itemHelp = makeItemHelp(i18n)
+  local makeAscendantBag = loadSibling(mod, "ascendant_bag.lua")
+  local ascendantBag = makeAscendantBag(mod, {
+    ui = ascendantUi,
+    itemHelp = itemHelp,
+  })
+  mod.exports.itemHelp = itemHelp
+  mod.exports.ascendantBag = ascendantBag
+
+  -- Ascendant's bag owns the screen while enabled, even when the standalone
+  -- Useful Bag is installed. Turning this option off restores the standalone
+  -- mod; its optional dependency loads before Ascendant.
+  local bagMode = mod.options:get("ascendant_bag_mode")
+  if bagMode == nil then
+    bagMode = mod.options:get("ascendant_useful_bag") == false
+      and "off" or "pockets"
+  end
+  if bagMode == "expanded" or bagMode == "pockets" then
+    mod.content.constants:patch("bagSize", 999)
+  end
+  if bagMode == "pockets" then
+    local installBag = loadSibling(mod, "useful_bag.lua")
+    if type(installBag) == "function" then installBag(mod) end
+    mod.exports.externalUsefulBag = false
+  elseif bagMode ~= "off" then
+    -- Reclaim the Bag screen from an installed standalone Useful Bag while
+    -- any Ascendant mode is selected. "OFF / EXTERNAL" below is the single
+    -- explicit hand-off back to the external mod.
+    -- BagMenu may already be owned by the standalone Useful Bag, which
+    -- loads first through our optional dependency.  Re-enabling Ascendant
+    -- after a mod-off save must reclaim that existing id explicitly;
+    -- register() treats the second owner as a fatal duplicate and prevents
+    -- SaveData from restoring quarantined Pokémon and items.
+    mod.content.screens:override("BagMenu", {
+      new = function(game, opts)
+        return require("src.ui.BagMenu").new(game, opts)
+      end,
+    })
+    mod.exports.externalUsefulBag = false
+  else
+    mod.exports.externalUsefulBag = installedMod("useful_bag")
+  end
+  local installAscendantFeatures =
+    loadSibling(mod, "ascendant_features.lua")
+  if type(installAscendantFeatures) == "function" then
+    mod.exports.ascendantFeatures = installAscendantFeatures(mod)
+  end
+
+  -- 6.5 QoL is bundled, but an installed standalone mod owns the same UI
+  -- surface.  Defer detection until the loader has resolved all manifests,
+  -- then install only the features that do not have an external owner.
+  mod.events:once("mods.loaded", function()
+    local installStorage = loadSibling(mod, "modern_storage_ui.lua")
+    if type(installStorage) == "function" then installStorage(mod) end
+    local installCatchDestination = loadSibling(mod, "catch_destination.lua")
+    if type(installCatchDestination) == "function" then
+      installCatchDestination(mod)
+    end
+    local installFilters = loadSibling(mod, "storage_filters.lua")
+    if type(installFilters) == "function" then installFilters(mod) end
+    local installTextSpeed = loadSibling(mod, "text_speed.lua")
+    if type(installTextSpeed) == "function" then installTextSpeed(mod) end
+    -- Party icons are installed below after the follower registries exist;
+    -- the animated renderer requires those registries as explicit inputs.
+    local installCapturePreview = loadSibling(mod, "capture_preview.lua")
+    if type(installCapturePreview) == "function" then
+      installCapturePreview(mod)
+    end
+    local installSummaryInsights = loadSibling(mod, "summary_insights.lua")
+    if type(installSummaryInsights) == "function" then
+      installSummaryInsights(mod)
+    end
+    local installModernBalls = loadSibling(mod, "modern_ball_skins.lua")
+    if type(installModernBalls) == "function" then installModernBalls(mod) end
+  end)
 
   -- The German translation packs currently ship a misaligned category
   -- table: Mew and Mewtwo both end up labelled "VOGEL".  Ascendant uses
@@ -469,6 +1059,20 @@ return function(mod)
     MEW = { en = "NEW SPECIE", de = "NEUE ART" },
     MEWTWO = { en = "GENETIC", de = "GENMUTANT" },
   }
+  if i18n.isGerman() then
+    local germanKinds = loadSibling(mod, "german_dex_kinds.lua")
+    for species, kind in pairs(germanKinds) do
+      dexKindCompat[species] = { en = kind, de = kind }
+    end
+    -- Keep the original preset spelling. Player names are data, not words
+    -- to translate; in particular ASH must never be rewritten by a locale.
+    mod.content.field:patch("boot", {
+      namePresets = {
+        player = { "RED", "ASH", "JACK" },
+        rival = { "BLUE", "GARY", "JOHN" },
+      },
+    })
+  end
   for species, labels in pairs(dexKindCompat) do
     if mod.content.pokemon:get(species) then
       mod.content.pokemon:patch(species, {
@@ -496,6 +1100,17 @@ return function(mod)
   local postgameData = loadSibling(mod, "postgame_data.lua")
   postgameData.dialogue = loadSibling(mod, "postgame_dialogue.lua")
   local johtoData = loadSibling(mod, "johto_data.lua")
+  -- One save-local, irreversible boundary owns every transition away from the
+  -- original 151. Keep it on exports to avoid another top-level LuaJIT local.
+  mod.exports.beyondKanto = loadSibling(mod, "johto_unleashed.lua")(mod, {
+    i18n = i18n, johtoData = johtoData,
+  })
+  legacyWanderers.setBeyondKantoBoundary(mod.exports.beyondKanto)
+  if legacyJourney.archive and legacyJourney.archive.setWithdrawalGate then
+    legacyJourney.archive.setWithdrawalGate(function(save, mon)
+      return mod.exports.beyondKanto.canWithdrawMon(save, mon)
+    end)
+  end
   local makeAscendantMenu = loadSibling(mod, "ascendant_menu.lua")
   local ascendantMenu = makeAscendantMenu(mod, { i18n = i18n })
   mod.exports.ascendantMenu = ascendantMenu
@@ -510,6 +1125,34 @@ return function(mod)
   local contentEnabled, johtoAudio =
     registerSpecies(mod, postgameData, johtoData, i18n)
   mod.exports.johtoAudio = johtoAudio
+  local legacyHoenn = loadSibling(mod, "legacy_hoenn.lua")(mod, { i18n = i18n })
+  mod.exports.legacyHoenn = legacyHoenn
+  local hevoSpeciesData = loadSibling(mod, "hevo_species_data.lua")
+  -- Existing HEVO content uses this package registry as its source of truth.
+  -- Store it on exports so this dense factory gains no additional local.
+  mod.exports.hevoPackages = loadSibling(mod, "hevo_packages.lua")(mod, {
+    i18n = i18n, enabled = contentEnabled, journey = legacyJourney,
+    beyondKanto = mod.exports.beyondKanto,
+  })
+  local hevoSpecies = loadSibling(mod, "hevo_species.lua")(mod, {
+    i18n = i18n, data = hevoSpeciesData, packages = mod.exports.hevoPackages,
+    enabled = contentEnabled,
+  })
+  mod.exports.hevoSpecies = hevoSpecies
+  mod.exports.extendedSpeciesRuntime = loadSibling(mod, "extended_species_runtime.lua")(mod, {
+    legacyHoenn = legacyHoenn,
+    hevoSpecies = hevoSpecies,
+    hevoData = hevoSpeciesData,
+  })
+  if spriteAssets.setExtendedSpeciesRuntime then
+    spriteAssets.setExtendedSpeciesRuntime(mod.exports.extendedSpeciesRuntime)
+  end
+  local legacyStarters = loadSibling(mod, "legacy_starters.lua")(mod, {
+    i18n = i18n, journey = legacyJourney, hoenn = legacyHoenn,
+    rival = mod.exports.legacyRivalPartner, johto = johtoData,
+    beyondKanto = mod.exports.beyondKanto,
+  })
+  mod.exports.legacyStarters = legacyStarters
   local registerGorochu = loadSibling(mod, "gorochu.lua")
   local gorochu = registerGorochu(mod, { i18n = i18n })
   if gorochu.available then CRYSTAL_ASSETS.GOROCHU = "gorochu" end
@@ -526,6 +1169,9 @@ return function(mod)
     contentEnabled = contentEnabled,
   })
   mod.exports.fieldTech = fieldTech
+  if mod.exports.hevoPackages and mod.exports.hevoPackages.attachFieldTech then
+    assert(mod.exports.hevoPackages.attachFieldTech(fieldTech))
+  end
   local makePostgameEvents = loadSibling(mod, "postgame_events.lua")
   local makePostgame = loadSibling(mod, "postgame.lua")
   local postgame = makePostgame(mod, postgameData, {
@@ -535,18 +1181,55 @@ return function(mod)
     fieldTech = fieldTech,
     kantoCompletion = kantoCompletion,
     gorochu = gorochu,
+    rematchRewards = rematchRewards,
+    beyondKanto = mod.exports.beyondKanto,
   })
   mod.exports.postgame = postgame
   mod.exports.postgameData = postgameData
   mod.exports.johtoData = johtoData
   local breedingData = loadSibling(mod, "breeding_data.lua")
+  local eggMoves = loadSibling(mod, "egg_moves.lua")
+  local pokemonGender = loadSibling(mod, "pokemon_gender.lua")(mod, {
+    breedingData = breedingData,
+    voxelRenderer = mod.exports.voxelRendererCompat,
+    rendererBattleHud = mod.exports.rendererBattleHud,
+  })
+  mod.exports.pokemonGender = pokemonGender
+  -- P1 Apricorn Balls are installed here (after the canonical Gen-II gender
+  -- source is available, before the loader freezes item/ball registries).
+  -- They use the regular battle, bag, PC and save paths; no parallel capture
+  -- UI or inventory is introduced.
+  do
+    local makeApricornBalls = loadSibling(mod, "apricorn_balls.lua")
+    local apricornBalls = makeApricornBalls(mod, {
+      i18n = i18n,
+      breedingData = breedingData,
+      pokemonGender = pokemonGender,
+      speciesData = loadSibling(mod, "apricorn_ball_data.lua"),
+      itemEffects = require("src.inventory.ItemEffects"),
+    })
+    apricornBalls.install()
+    mod.exports.apricornBalls = apricornBalls
+    -- Replaces the existing procedural modern-ball raster bridge with the
+    -- imported Journeys/Essentials masters. The module is visual-only.
+    loadSibling(mod, "journeys_ball_skins.lua")(mod)
+  end
+  local eggHatchAnimation = loadSibling(mod, "egg_hatch_animation.lua")(mod, {
+    i18n = i18n,
+  })
+  mod.exports.eggHatchAnimation = eggHatchAnimation
   local makeDaycare = loadSibling(mod, "daycare.lua")
   local daycare = makeDaycare(mod, {
     postgame = postgame,
     i18n = i18n,
     contentEnabled = contentEnabled,
     breedingData = breedingData,
+    eggMoves = eggMoves,
+    pokemonGender = pokemonGender,
+    hatchAnimation = eggHatchAnimation,
     fieldTech = fieldTech,
+    hevoPackages = mod.exports.hevoPackages,
+    beyondKanto = mod.exports.beyondKanto,
   })
   local makeMegaEvolution = loadSibling(mod, "mega_evolution.lua")
   local megaAnimationData = loadSibling(mod, "mega_animation_data.lua")
@@ -555,6 +1238,7 @@ return function(mod)
     i18n = i18n,
     contentEnabled = contentEnabled,
     animationData = megaAnimationData,
+    voxelRenderer = mod.exports.voxelRendererCompat,
   })
   daycare.setMega(megaEvolution)
   local makeShinySystem = loadSibling(mod, "shiny_system.lua")
@@ -566,12 +1250,36 @@ return function(mod)
   local gorochuVisuals = makeGorochuVisuals(mod, {
     species = gorochu.id,
     shinySystem = shinySystem,
+    voxelRenderer = mod.exports.voxelRendererCompat,
   })
   mod.exports.gorochuVisuals = gorochuVisuals
+  local gorochuCatalogueOverlay = loadSibling(
+    mod, "gorochu_catalogue_overlay.lua"
+  )(mod, {
+    species = gorochu.id,
+    shinySystem = shinySystem,
+  })
+  gorochuCatalogueOverlay.register()
+  mod.exports.gorochuCatalogueOverlay = gorochuCatalogueOverlay
   local makeDramalessCameraCompat =
     loadSibling(mod, "dramaless_camera_compat.lua")
-  local dramalessCameraCompat = makeDramalessCameraCompat(mod)
+  local dramalessCameraCompat = makeDramalessCameraCompat(mod, {
+    voxelRenderer = mod.exports.voxelRendererCompat,
+  })
   mod.exports.dramalessCameraCompat = dramalessCameraCompat
+  -- Reviewed DRAMALESS 1.6.2-ST.190.1 and Battle Art 1.9.0 predate a native
+  -- wall-decal module. Keep HEVO's fissures bound to real wall planes without
+  -- modifying either separately installed renderer; future/native support wins.
+  mod.exports.rendererWallDecalsCompat = loadSibling(
+    mod, "dramaless_wall_decals_compat.lua")(mod, {
+      voxelRenderer = mod.exports.voxelRendererCompat,
+    })
+  -- Backward-compatible diagnostic name for existing QA/support tooling.
+  mod.exports.dramalessWallDecalsCompat =
+    mod.exports.rendererWallDecalsCompat
+  local trueColorWorldCompat = loadSibling(mod,
+    "truecolor_world_compat.lua")()
+  mod.exports.trueColorWorldCompat = trueColorWorldCompat
   local makeDramalessCameraOption =
     loadSibling(mod, "dramaless_camera_option.lua")
   local dramalessCameraOption = makeDramalessCameraOption(mod, {
@@ -579,20 +1287,74 @@ return function(mod)
     fork = menuLabel("VOXEL DEFAULT", "VOXEL-STANDARD"),
     classic = menuLabel("CLASSIC VOXEL", "KLASSISCHES VOXEL"),
     wide = menuLabel("WIDE VOXEL", "WEITES VOXEL"),
+    voxelRenderer = mod.exports.voxelRendererCompat,
   })
   dramalessCameraOption.install()
   mod.exports.dramalessCameraOption = dramalessCameraOption
   local crystalAnimationData = loadSibling(mod, "crystal_animation_data.lua")
+  crystalAnimationData.grayscale = loadSibling(
+    mod, "crystal_animation_data_grayscale.lua")
+  local function readOptionalAnimationData(filename)
+    local body = mod:read(filename)
+    if not body then return {} end
+    local chunk, err = loadstring(body, "@" .. mod.path .. "/" .. filename)
+    assert(chunk, err)
+    return chunk()
+  end
+  -- Fail closed for older/sparse package mirrors: the base mod still boots
+  -- with reviewed static cards if this optional authored-motion table was
+  -- omitted. Release/package gates require it in the 6.5 artifact.
+  local extendedCrystalAnimationData = readOptionalAnimationData(
+    "extended_crystal_animation_data.lua")
+  crystalAnimationData.back = crystalAnimationData.back or {
+    normal = {}, shiny = {},
+  }
+  for _, variant in ipairs({ "normal", "shiny" }) do
+    for dex, timing in pairs(extendedCrystalAnimationData[variant] or {}) do
+      crystalAnimationData[variant][dex] = timing
+    end
+    crystalAnimationData.back[variant] =
+      crystalAnimationData.back[variant] or {}
+    local rear = extendedCrystalAnimationData.back
+      and extendedCrystalAnimationData.back[variant] or {}
+    for dex, timing in pairs(rear) do
+      crystalAnimationData.back[variant][dex] = timing
+    end
+  end
   crystalAnimationData.normal[tostring(gorochu.dex)] =
     gorochu.animationDurations
   crystalAnimationData.shiny[tostring(gorochu.dex)] =
+    gorochu.animationDurations
+  crystalAnimationData.grayscale[tostring(gorochu.dex)] =
+    gorochu.animationDurations
+  crystalAnimationData.back.grayscale =
+    crystalAnimationData.back.grayscale or {}
+  crystalAnimationData.back.grayscale[tostring(gorochu.dex)] =
     gorochu.animationDurations
   local makeCrystalAnimation = loadSibling(mod, "crystal_animation.lua")
   local crystalAnimation = makeCrystalAnimation(mod, {
     animationData = crystalAnimationData,
     shinySystem = shinySystem,
     speciesOrder = johtoData.order,
-    guestDexes = { [gorochu.dex] = true },
+    guestDexes = {
+      [gorochu.dex] = true,
+      [252] = true, [253] = true, [254] = true,
+      [255] = true, [256] = true, [257] = true,
+      [258] = true, [259] = true, [260] = true,
+      [261] = true, [262] = true, [263] = true,
+      [264] = true, [265] = true, [266] = true,
+      [267] = true, [268] = true, [269] = true,
+      [270] = true, [271] = true, [272] = true,
+      [273] = true, [274] = true, [275] = true,
+      [276] = true, [277] = true, [278] = true,
+      [279] = true,
+    },
+    classicGuestDexes = { [gorochu.dex] = true },
+  })
+  mod.exports.extendedSpeciesRuntime.bind({ crystalAnimation = crystalAnimation })
+  local crystalV15 = loadSibling(mod, "crystal_v15_features.lua")(mod, {
+    crystalAnimation = crystalAnimation,
+    shinySystem = shinySystem,
   })
   daycare.setShinySystem(shinySystem)
   mod.exports.daycare = daycare
@@ -600,6 +1362,81 @@ return function(mod)
   mod.exports.megaEvolution = megaEvolution
   mod.exports.shinySystem = shinySystem
   mod.exports.crystalAnimation = crystalAnimation
+  mod.exports.crystalV15 = crystalV15
+  -- Hidden Evolution only consumes the established journey/character/Mega
+  -- surfaces.  The adapter is exported once so future reward controllers can
+  -- reuse the same durable transaction boundary without reaching into the
+  -- Legacy Archive's private state.
+  mod.exports.legacyDungeonAdapter = mod.exports.legacyDungeonAdapter
+    or loadSibling(mod, "legacy_dungeon_adapter.lua")({
+      archive = legacyJourney,
+      journey = legacyJourney,
+      characters = extendedCharacters,
+      starters = legacyStarters,
+      packages = mod.exports.hevoPackages,
+      megaEvolution = megaEvolution,
+      events = mod.events,
+      log = mod.log,
+      i18n = i18n,
+      modId = mod.id,
+      beyondKanto = mod.exports.beyondKanto,
+    })
+  mod.exports.ngplusLegacyWorkshop = loadSibling(
+    mod, "ngplus_legacy_workshop.lua")(mod, {
+      i18n = i18n, packages = mod.exports.hevoPackages,
+      legacyProfile = legacyJourney.profile,
+    })
+  if contentEnabled then
+    assert(mod.exports.ngplusLegacyWorkshop.register())
+  end
+  -- Keep this on exports rather than adding another top-level local: this
+  -- factory is intentionally near LuaJIT's 200-local limit. Registration is
+  -- fail-closed, so a missing package cannot fall back to prototype maps.
+  mod.exports.hiddenEvolutionCampaign = loadSibling(mod, "hidden_evolution_campaign.lua")(mod, {
+    i18n = i18n,
+    questionUi = ascendantUi,
+    extendedCharacters = extendedCharacters,
+    activeCharacter = function(game)
+      return legacyJourney.activeCharacter(game and game.save)
+    end,
+    -- Use the active save's seeded Journey record, not the mutable global
+    -- archive counter, so an original or recovered slot cannot inherit the
+    -- level scale of another save.
+    journeyCycle = function(game)
+      local state = legacyJourney.state(game and game.save)
+      return state and state.cycle
+    end,
+    -- One Hall-of-Fame authority for every postgame feature.  The HEVO
+    -- researchers must follow the same hall record/champion-flag migration
+    -- semantics as rematches and the rest of the postgame controller.
+    postgame = postgame,
+    journey = legacyJourney,
+    legacyDungeonAdapter = mod.exports.legacyDungeonAdapter,
+    megaEvolution = megaEvolution,
+    hevoPackages = mod.exports.hevoPackages,
+    voxelRenderer = mod.exports.voxelRendererCompat,
+    beyondKanto = mod.exports.beyondKanto,
+  })
+  if contentEnabled then
+    assert(mod.exports.hiddenEvolutionCampaign.register())
+    if mod.exports.hevoPackages.enabled then
+      assert(mod.exports.hevoPackages.registerFieldAltar(
+        "KA_HEVO_BLUE_KYOGRE_SHRINE", "TEXT_KA_HEVO_MAGNETIC_ALTAR",
+        "magnetic_field", { x = 11, y = 9 }))
+      assert(mod.exports.hevoPackages.registerFieldAltar(
+        "KA_HEVO_BLUE_KYOGRE_SHRINE", "TEXT_KA_HEVO_ICE_ALTAR",
+        "ice_field", { x = 27, y = 9 }))
+      assert(mod.exports.hevoPackages.registerFieldAltar(
+        "KA_HEVO_GREEN_RAYQUAZA_SHRINE", "TEXT_KA_HEVO_MOSS_ALTAR",
+        "moss_field", { x = 39, y = 7 }))
+    end
+    if fieldTech and fieldTech.registerMapPolicyProvider then
+      assert(fieldTech.registerMapPolicyProvider("hidden_evolution_campaign",
+        function(game, moveId, mapId)
+          return mod.exports.hiddenEvolutionCampaign.fieldPolicy(game, moveId, mapId)
+        end))
+    end
+  end
   local makeFollowerCompat = loadSibling(mod, "follower_compat.lua")
   local followerCompat = makeFollowerCompat(mod, {
     spriteAssets = spriteAssets,
@@ -612,13 +1449,81 @@ return function(mod)
     spriteAssets = spriteAssets,
     shinySystem = shinySystem,
     gorochu = gorochu,
+    -- This deliberate native seam lets the Yellow adapter continue handling
+    -- engine-created partner text while ordinary KASC requires stay scoped.
+    nativeTextBox = dialoguePagination.nativeTextBox,
   })
   if megaEvolution and megaEvolution.setYellowPartner then
     megaEvolution.setYellowPartner(yellowPartner)
   end
   mod.exports.yellowPartner = yellowPartner
+  local makeFollowerConfig = loadSibling(mod, "follower_config.lua")
+  local followerConfig = makeFollowerConfig(mod, {
+    i18n = i18n,
+    gameVersion = GameVersion,
+  })
+  if yellowPartner and yellowPartner.setFollowerConfig then
+    yellowPartner.setFollowerConfig(followerConfig)
+  end
+  local makeFollowerSelection = loadSibling(mod, "follower_selection.lua")
+  local followerSelection = makeFollowerSelection({
+    gameVersion = GameVersion,
+    yellowPartner = yellowPartner,
+    legacyStarters = legacyStarters,
+    config = followerConfig,
+  })
+  local makeFollowerSprites = loadSibling(mod, "follower_sprites.lua")
+  local extendedFollowerOrder = {}
+  for _, species in ipairs(johtoData.order) do
+    extendedFollowerOrder[#extendedFollowerOrder + 1] = species
+  end
+  for _, species in ipairs(legacyHoenn.order) do
+    extendedFollowerOrder[#extendedFollowerOrder + 1] = species
+  end
+  for _, species in ipairs(hevoSpecies.order) do
+    extendedFollowerOrder[#extendedFollowerOrder + 1] = species
+  end
+  local followerSprites = makeFollowerSprites(mod, {
+    spriteAssets = spriteAssets,
+    shinySystem = shinySystem,
+    johtoData = { order = extendedFollowerOrder },
+    extendedRuntime = mod.exports.extendedSpeciesRuntime,
+  })
+  local kantoSpecies = loadSibling(mod, "kanto_species.lua")
+  local makePartyIcons = loadSibling(mod, "party_icons.lua")
+  local partyIcons = makePartyIcons(mod, {
+    sprites = followerSprites,
+    kanto = kantoSpecies,
+    johto = extendedFollowerOrder,
+    extendedRuntime = mod.exports.extendedSpeciesRuntime,
+  })
+  local makeSingleFollower = loadSibling(mod, "single_follower.lua")
+  local singleFollower = makeSingleFollower(mod, {
+    selection = followerSelection,
+    sprites = followerSprites,
+    yellowPartner = yellowPartner,
+    config = followerConfig,
+    i18n = i18n,
+  })
+  mod.exports.followerConfig = followerConfig
+  mod.exports.followerSelection = followerSelection
+  mod.exports.followerSprites = followerSprites
+  mod.exports.partyIcons = partyIcons
+  mod.exports.singleFollower = singleFollower
+  mod.exports.extendedSpeciesRuntime.bind({
+    followerSprites = followerSprites,
+    partyIcons = partyIcons,
+  })
   local johtoEncounterLevels =
     loadSibling(mod, "johto_encounter_levels.lua")
+  do
+    local band = mod.options:get("johto_level_bonus")
+    if band == "2_5" then
+      johtoEncounterLevels.setBonusRange(2, 5)
+    else
+      johtoEncounterLevels.setBonusRange(2, 8)
+    end
+  end
   local makeJohtoResearch = loadSibling(mod, "johto_research.lua")
   local johtoResearch = makeJohtoResearch(mod, {
     data = johtoData,
@@ -627,11 +1532,22 @@ return function(mod)
     contentEnabled = contentEnabled,
     daycare = daycare,
     encounterLevels = johtoEncounterLevels,
+    johtoBoundary = mod.exports.beyondKanto,
   })
   shinySystem.setJohtoResearch(johtoResearch)
   recruitment.configureJohto(johtoData.order, function(species)
     return johtoResearch.isRecruitFamilyEligible(species)
   end)
+  recruitment.configureEvolutionAvailability(function(target)
+    if not mod.exports.beyondKanto.isActive() then return false end
+    if target == "GOROCHU" then
+      local s = gorochu and gorochu.state and gorochu.state(false)
+      return s and s.playerEvolved == true or false
+    end
+    return johtoResearch.isSpeciesResearched(target)
+      or johtoResearch.isRecruitFamilyEligible(target)
+  end)
+  legacyWanderers.setRecruitmentProvider(recruitment)
   mod.exports.johtoResearch = johtoResearch
 
   local signalsStateModule = loadSibling(mod, "johto_signals_state.lua")
@@ -651,6 +1567,11 @@ return function(mod)
     johtoData = johtoData,
     i18n = i18n,
     encounterLevels = johtoEncounterLevels,
+    -- Only the physical receiver at Driftglass can skip Kanto First.  The
+    -- state-aware Signals hub still offers its post-repair ON/OFF switch, but
+    -- old launcher SIGNAL START values are intentionally ignored.
+    startPolicyOptions = false,
+    johtoBoundary = mod.exports.beyondKanto,
     onOakCall = function(game, text, onDone)
       if signalsHub then
         return signalsHub.showOakCall(game, text, onDone)
@@ -665,11 +1586,19 @@ return function(mod)
       end
     end,
   })
+  -- Elm's permanent research habitats and every visible-Wilds consumer must
+  -- obey the same Driftglass receiver mode.  Without this shared gate a
+  -- post-game research flag could leak Johto into Kanto First or into an
+  -- unrelated Wanderwave.
+  johtoResearch.setMigrationGate(function(species, ctx)
+    return johtoSignals.allowsHabitatSpecies(species, ctx)
+  end)
   local makeMythicSignals = loadSibling(mod, "mythic_signals.lua")
   local mythicSignals = makeMythicSignals(mod, {
     state = signalsState,
     content = signalsContent,
     johtoSignals = johtoSignals,
+    beyondKanto = mod.exports.beyondKanto,
     i18n = i18n,
   })
   local prismModule = loadSibling(mod, "driftglass_prisms.lua")
@@ -680,6 +1609,48 @@ return function(mod)
     fieldTech = fieldTech,
   })
   driftglassPrisms.register()
+  local masteryModule = loadSibling(mod, "rematch_mastery.lua")
+  local rematchMastery = masteryModule.create({
+    resonanceRules = driftglassPrisms.resonanceRules,
+    -- Driftglass is the existing legal seam for Generation-II moves on
+    -- Kanto species.  Trainers may use those moves only after the receiver
+    -- has actually been repaired in this save.
+    johtoUnlocked = function()
+      if not mod.exports.beyondKanto.isActive() then return false end
+      local root = signalsState.root(false)
+      return root and root.earlyJohto
+        and root.earlyJohto.receiverRepaired == true or false
+    end,
+  })
+  mod.exports.rematchMastery = rematchMastery
+  legacyWanderers.setMasteryProvider(rematchMastery)
+  local difficulty = loadSibling(mod, "difficulty.lua")(mod, {
+    i18n = i18n,
+    mastery = rematchMastery,
+  })
+  mod.exports.difficulty = difficulty
+  local bicycleSelect = loadSibling(mod, "bicycle_select.lua")(mod, {
+    i18n = i18n,
+  })
+  mod.exports.bicycleSelect = bicycleSelect
+  local itemProtection = loadSibling(mod, "item_protection.lua")(mod, {
+    i18n = i18n,
+  })
+  mod.exports.itemProtection = itemProtection
+  local visionEncounters = loadSibling(mod, "vision_encounters.lua")(mod, {
+    i18n = i18n,
+    crystalAnimation = crystalAnimation,
+  })
+  mod.exports.visionEncounters = visionEncounters
+  local mythicSafety = loadSibling(mod, "mythic_safety.lua")(mod)
+  mod.exports.mythicSafety = mythicSafety
+  local runRules = loadSibling(mod, "run_rules.lua")(mod, {
+    i18n = i18n,
+    shinySystem = shinySystem,
+    mythicSafety = mythicSafety,
+    beyondKanto = mod.exports.beyondKanto,
+  })
+  mod.exports.runRules = runRules
   local makeSignalsHub = loadSibling(mod, "johto_signals_hub.lua")
   signalsHub = makeSignalsHub(mod, {
     state = signalsState,
@@ -688,6 +1659,7 @@ return function(mod)
     mythic = mythicSignals,
     prisms = driftglassPrisms,
     i18n = i18n,
+    johtoBoundary = mod.exports.beyondKanto,
   })
   local makeSignalsWilds = loadSibling(mod, "johto_signals_wilds.lua")
   local signalsWilds = makeSignalsWilds(mod, {
@@ -695,6 +1667,7 @@ return function(mod)
     mythicSignals = mythicSignals,
     johtoResearch = johtoResearch,
     encounterLevels = johtoEncounterLevels,
+    runRules = runRules,
   })
   mod.exports.johtoSignalsState = signalsState
   mod.exports.johtoSignalsContent = signalsContent
@@ -707,13 +1680,25 @@ return function(mod)
   local makeWildsCompat = loadSibling(mod, "wilds_compat.lua")
   local wildsCompat = makeWildsCompat(mod, {
     johtoResearch = johtoResearch,
+    johtoSignals = johtoSignals,
     data = johtoData,
     crystalNames = CRYSTAL_ASSETS,
     spriteAssets = spriteAssets,
+    extendedRuntime = mod.exports.extendedSpeciesRuntime,
     contentEnabled = contentEnabled,
     encounterLevels = johtoEncounterLevels,
+    voxelRenderer = mod.exports.voxelRendererCompat,
   })
   mod.exports.wildsCompat = wildsCompat
+  -- A clean Ascendant install must own a working visible-spawn provider.
+  -- Prefer a separately installed Wilds release when present; otherwise load
+  -- the bundled 1.12.2 spawn/ambient core without its overlapping follower
+  -- controller or settings menus.
+  local internalWilds = loadSibling(mod, "internal_wilds.lua")(mod, {
+    extendedRuntime = mod.exports.extendedSpeciesRuntime,
+    voxelRenderer = mod.exports.voxelRendererCompat,
+  })
+  mod.exports.internalWilds = internalWilds
   local ascendantData = loadSibling(mod, "ascendant_data.lua")
   local makeAscendant = loadSibling(mod, "ascendant.lua")
   local ascendant
@@ -732,6 +1717,23 @@ return function(mod)
   -- bundled animated fronts and also covers Yellow's special Pikachu route.
   local crystalAvailable = {}
   local crystalShinyAvailable = {}
+  local function registerCrystalBackScale(id, relative)
+    local source = mod.path .. "/" .. relative
+    mod.content.battle_sprite_scales:register(id, {
+      path = source,
+      scale = 1,
+    })
+    -- spriteAssets.crystal removes the edge-connected opaque background and
+    -- normally returns a derived-cache path. BattleState keys image scales by
+    -- the path it actually loaded, so the prepared path needs its own record.
+    local prepared = spriteAssets.crystal(relative)
+    if prepared and prepared ~= source then
+      mod.content.battle_sprite_scales:register(id .. "_PREPARED", {
+        path = prepared,
+        scale = 1,
+      })
+    end
+  end
   for species, name in pairs(CRYSTAL_ASSETS) do
     local front = "assets/crystal/" .. name .. "_front.png"
     local back = "assets/crystal/" .. name .. "_back.png"
@@ -740,6 +1742,19 @@ return function(mod)
     crystalShinyAvailable[species] =
       mod:read("assets/crystal/" .. name .. "_front_shiny.png") ~= nil
       and mod:read("assets/crystal/" .. name .. "_back_shiny.png") ~= nil
+    -- These are full 56x56 Crystal backs. Without an explicit image scale
+    -- the 2D battle renderer applies the Gen-I 2x back-sprite default and
+    -- clips them badly; Dramatic Shape happened to hide that mistake by
+    -- requesting front art for both sides.
+    if mod:read(back) ~= nil then
+      registerCrystalBackScale(
+        "KANTO_ASCENDANT_CRYSTAL_" .. species .. "_BACK", back)
+    end
+    local shinyBack = "assets/crystal/" .. name .. "_back_shiny.png"
+    if mod:read(shinyBack) ~= nil then
+      registerCrystalBackScale(
+        "KANTO_ASCENDANT_CRYSTAL_" .. species .. "_BACK_SHINY", shinyBack)
+    end
   end
   local kantoCrystalBacks = { normal = {}, shiny = {} }
   for dex = 1, 151 do
@@ -748,19 +1763,14 @@ return function(mod)
     local shinyRelative = prefix .. "_shiny.png"
     if mod:read(normalRelative) ~= nil then
       kantoCrystalBacks.normal[dex] = true
-      mod.content.battle_sprite_scales:register(
-        ("KANTO_ASCENDANT_CRYSTAL_%03d_BACK"):format(dex), {
-          path = mod.path .. "/" .. normalRelative,
-          scale = 1,
-        })
+      registerCrystalBackScale(
+        ("KANTO_ASCENDANT_CRYSTAL_%03d_BACK"):format(dex), normalRelative)
     end
     if mod:read(shinyRelative) ~= nil then
       kantoCrystalBacks.shiny[dex] = true
-      mod.content.battle_sprite_scales:register(
-        ("KANTO_ASCENDANT_CRYSTAL_%03d_BACK_SHINY"):format(dex), {
-          path = mod.path .. "/" .. shinyRelative,
-          scale = 1,
-        })
+      registerCrystalBackScale(
+        ("KANTO_ASCENDANT_CRYSTAL_%03d_BACK_SHINY"):format(dex),
+        shinyRelative)
     end
   end
   mod.exports.crystalSprites = crystalAvailable
@@ -782,6 +1792,78 @@ return function(mod)
     local def = ctx.data and ctx.data.pokemon
       and ctx.data.pokemon[ctx.species]
     local dex = def and tonumber(def.dex)
+    local name = ctx and CRYSTAL_ASSETS[ctx.species]
+
+    -- Ascendant's #252-279 catalogue has one deliberately split identity:
+    -- private `dex` is save/menu ordering, while sourceDex is reserved for
+    -- National-Dex consumers such as Wilds. Every 2D game surface uses the
+    -- exact authored internal-slot front/back card. select() reports motion
+    -- only when this exact registered species has supplied timing and a real
+    -- next frame; staticFrameOne remains the honest fallback for missing
+    -- sources and every one-pose rear card.
+    local extendedIdentity = mod.exports.extendedSpeciesRuntime
+      and mod.exports.extendedSpeciesRuntime.identity(ctx.species, ctx.data)
+    if extendedIdentity
+        and not (ctx.mon and (ctx.mon._ascMegaForm or ctx.mon.ascMegaForm)) then
+      local extendedSide = ctx.side == "back" and "back" or "front"
+      local voxelFront = extendedSide == "back"
+        and def and path == def.spriteFront
+      if voxelFront then extendedSide = "front" end
+      local externalOverride = type(path) == "string" and path ~= ""
+        and path ~= requestedPath and not voxelFront
+      if externalOverride then
+        if crystalAnimation then
+          crystalAnimation.select(ctx, extendedSide, true)
+        end
+        return shinySystem and shinySystem.spritePath(path, ctx) or path
+      end
+      local shiny = shinySystem and shinySystem.isShiny(ctx.mon)
+      local variant = shiny and "shiny" or "normal"
+      local animated, animatedTrueColor
+      if crystalAnimation then
+        animated, animatedTrueColor = crystalAnimation.select(
+          ctx, extendedSide, false)
+      end
+      if animated then
+        ctx.trueColor = animatedTrueColor
+        return animated
+      end
+      local static, staticTrueColor
+      if crystalAnimation then
+        static, staticTrueColor = crystalAnimation.staticFrameOne(
+          ctx, extendedSide, variant)
+      end
+      if static then
+        ctx.trueColor = staticTrueColor
+        return static
+      end
+    end
+
+    -- Gorochu's registered 2D sprite remains the flat/Crystal source. Its
+    -- authored high-resolution Voxel master owns catalogue-style views when
+    -- the player did not explicitly request the Crystal Dex presentation.
+    -- External sprite resolvers still win because their changed path is
+    -- preserved before this local presentation choice is considered.
+    local gorochuCrystalCatalogue =
+      (ctx.kind == "dex" or ctx.kind == "summary")
+        and mod.options:get("dex_sprite_style") == "crystal"
+      or ctx.kind == "box"
+        and mod.options:get("pokemon_sprite_style") == "crystal"
+        and mod.options:get("sprite_style_box") ~= false
+    if ctx.species == "GOROCHU"
+        and (ctx.kind == "dex" or ctx.kind == "summary" or ctx.kind == "box")
+        and not gorochuCrystalCatalogue
+        and path == requestedPath and gorochuVisuals then
+      -- Dex/status keep the approved 96px artwork until the final
+      -- screen-space pass.  Box previews remain on the ordinary image path.
+      local relative = gorochuCatalogueOverlay
+          and gorochuCatalogueOverlay.placeholderPath(ctx)
+        or gorochuVisuals.cataloguePath(ctx.mon)
+      if relative then
+        ctx.trueColor = ctx.kind == "box"
+        return mod.path .. "/" .. relative
+      end
+    end
 
     -- Pokédex and summary presentation share the player's static artwork
     -- choice. The party detail screen is a catalogue-style view, not a live
@@ -797,25 +1879,36 @@ return function(mod)
         return path
       end
       if dex and dex >= 152 and dex <= 251 and crystalAnimation then
-        local static = crystalAnimation.staticFrameOne(ctx, "front", "normal")
+        local static, trueColor = crystalAnimation.staticFrameOne(
+          ctx, "front", "normal")
         if static then
-          ctx.trueColor = true
+          ctx.trueColor = trueColor
           return static
         end
+      end
+      -- Registered guest species (Gorochu is Dex #1026) use the same
+      -- Crystal frame provider.  Previously only #001-251 reached it, so
+      -- the high-quality Pokédex/summary path silently fell back.
+      if dex and dex > 251 and name
+          and mod.options:get("dex_sprite_style") == "crystal"
+          and crystalAnimation then
+        local static, trueColor = crystalAnimation.staticFrameOne(
+          ctx, "front", "normal")
+        if static then ctx.trueColor = trueColor; return static end
       end
       if dex and dex >= 1 and dex <= 151
           and mod.options:get("dex_sprite_style") == "crystal"
           and crystalAnimation then
-        local static = crystalAnimation.staticFrameOne(ctx, "front", "normal")
+        local static, trueColor = crystalAnimation.staticFrameOne(
+          ctx, "front", "normal")
         if static then
-          ctx.trueColor = true
+          ctx.trueColor = trueColor
           return static
         end
       end
       return path or requestedPath
     end
 
-    local name = ctx and CRYSTAL_ASSETS[ctx.species]
     local selectedSide = ctx.side == "back" and "back" or "front"
     -- Dramatic Shape asks the normal back-sprite route, then replaces its
     -- answer with the species' front path so both battlers face the voxel
@@ -837,6 +1930,102 @@ return function(mod)
       end
       return shinySystem and shinySystem.spritePath(path, ctx) or path
     end
+
+    -- The 6.5 Sprite tree is the single owner for every ordinary #001-251
+    -- presentation surface. The selected style can be enabled independently
+    -- for battle, party/status, Pokédex, boxes and all remaining scenes.
+    -- External visual mods still win above this wrapper.
+    local scopeKey = ({
+      battle = "sprite_style_battle",
+      summary = "sprite_style_summary",
+      dex = "sprite_style_dex",
+      box = "sprite_style_box",
+    })[ctx.kind] or "sprite_style_scenes"
+    local selectedStyle = mod.options:get("pokemon_sprite_style")
+    local selectedForSurface = mod.options:get(scopeKey) ~= false
+    if selectedStyle == "legacy"
+        and (ctx.kind == "dex" or ctx.kind == "summary") then
+      if crystalAnimation and dex and dex <= 151
+          and crystalAnimation.externalKantoActive(dex) then
+        return path
+      end
+      if dex and dex >= 152 and dex <= 251 and crystalAnimation then
+        local static, trueColor = crystalAnimation.staticFrameOne(
+          ctx, "front", "normal")
+        if static then
+          ctx.trueColor = trueColor
+          return static
+        end
+      end
+      if dex and dex >= 1 and dex <= 151
+          and mod.options:get("dex_sprite_style") == "crystal"
+          and crystalAnimation then
+        local static, trueColor = crystalAnimation.staticFrameOne(
+          ctx, "front", "normal")
+        if static then
+          ctx.trueColor = trueColor
+          return static
+        end
+      end
+      return path or requestedPath
+    end
+    if selectedStyle ~= "legacy"
+        and dex and dex >= 1 and dex <= 251 then
+      if crystalAnimation and dex <= 151
+          and crystalAnimation.externalKantoActive(dex) then
+        return shinySystem and shinySystem.spritePath(path, ctx) or path
+      end
+      if selectedStyle ~= "crystal" or not selectedForSurface then
+        if crystalAnimation then
+          crystalAnimation.select(ctx, selectedSide, true)
+        end
+        return shinySystem and shinySystem.spritePath(path, ctx) or path
+      end
+
+      local shiny = shinySystem and shinySystem.isShiny(ctx.mon)
+      local variant = shiny and "shiny" or "normal"
+      local animated, animatedTrueColor
+      if crystalAnimation then
+        animated, animatedTrueColor = crystalAnimation.select(
+          ctx, selectedSide, false)
+      end
+      if animated then
+        ctx.trueColor = animatedTrueColor
+        return animated
+      end
+
+      local static, staticTrueColor
+      if crystalAnimation then
+        static, staticTrueColor = crystalAnimation.staticFrameOne(
+          ctx, selectedSide, variant)
+      end
+      if static then
+        ctx.trueColor = staticTrueColor
+        return static
+      end
+
+      local relative
+      if selectedSide == "back" and dex <= 151
+          and kantoCrystalBacks.normal[dex] then
+        relative = ("assets/crystal/kanto/%03d_back%s.png"):format(
+          dex, shiny and kantoCrystalBacks.shiny[dex] and "_shiny" or "")
+      elseif selectedSide == "back" and name
+          and crystalAvailable[ctx.species] then
+        relative = "assets/crystal/" .. name .. "_back"
+          .. (shiny and crystalShinyAvailable[ctx.species]
+            and "_shiny" or "") .. ".png"
+      end
+      if relative then
+        ctx.trueColor = true
+        return spriteAssets.crystal(relative)
+          or (mod.path .. "/" .. relative)
+      end
+
+      -- Coverage validation should make this unreachable for #001-251.
+      -- Keep the edition sprite as a safe fallback for a damaged install.
+      return shinySystem and shinySystem.spritePath(path, ctx) or path
+    end
+
     local bundledKantoBack = selectedSide == "back" and not voxelFront
       and dex and dex >= 1 and dex <= 151
       and kantoCrystalBacks.normal[dex]
@@ -857,9 +2046,15 @@ return function(mod)
     end
     if mod.options:get("legend_art") ~= "crystal"
         or not name or not crystalAvailable[ctx.species] then
-      local animated = crystalAnimation
-        and crystalAnimation.select(ctx, selectedSide, false)
-      if animated then return animated end
+      local animated, animatedTrueColor
+      if crystalAnimation then
+        animated, animatedTrueColor = crystalAnimation.select(
+          ctx, selectedSide, false)
+      end
+      if animated then
+        ctx.trueColor = animatedTrueColor
+        return animated
+      end
       return shinySystem and shinySystem.spritePath(path, ctx) or path
     end
     -- Crystal PNGs carry their own limited GBC palette. Opt them out of
@@ -870,11 +2065,44 @@ return function(mod)
       and crystalShinyAvailable[ctx.species]
     local relative = "assets/crystal/" .. name .. "_"
       .. selectedSide .. (shiny and "_shiny" or "") .. ".png"
-    local animated = crystalAnimation
-      and crystalAnimation.select(ctx, selectedSide, false)
-    if animated then return animated end
+    local animated, animatedTrueColor
+    if crystalAnimation then
+      animated, animatedTrueColor = crystalAnimation.select(
+        ctx, selectedSide, false)
+    end
+    if animated then
+      ctx.trueColor = animatedTrueColor
+      return animated
+    end
     return spriteAssets.crystal(relative)
       or (mod.path .. "/" .. relative)
+  end, 100)
+
+  -- The party list uses the separate pokemon.icon seam. The bundled files
+  -- are genuine six-pose 16x96 menu/walker sheets; party_icons.lua renders
+  -- their two down-facing frames without the vanilla mirrored-OBJ treatment.
+  -- A dedicated external icon resolver still keeps priority.
+  mod.hooks:wrap("pokemon.icon", function(nextIcon, path, ctx)
+    local requestedPath = path
+    path = nextIcon(path, ctx)
+    if type(path) == "string" and path ~= ""
+        and path ~= requestedPath then
+      return path
+    end
+    -- party_icons.lua replaces the engine's mirrored 8x8 OBJ renderer. If
+    -- that compatibility seam is unavailable, keep vanilla icons instead of
+    -- returning a sheet that the stock renderer cannot display correctly.
+    if not mod.exports.partyIcons then return path end
+    ctx = ctx or {}
+    if mod.options:get("party_icon_style") ~= "animated"
+        or mod.options:get("sprite_style_summary") == false then
+      return path
+    end
+    local def = ctx.data and ctx.data.pokemon
+      and ctx.data.pokemon[ctx.species]
+    local dex = def and tonumber(def.dex)
+    if not (dex and dex >= 1 and dex <= 251) then return path end
+    return ("%s/assets/crystal_menu_icons/%03d.png"):format(mod.path, dex)
   end, 100)
 
   mod.exports.resolveLine = localizedLine
@@ -892,7 +2120,15 @@ return function(mod)
   mod.exports.recruitTeam = recruitment.expand
   mod.exports.recruitPools = recruitment.pools
   mod.exports.recruitment = recruitment
-  mod.exports.lootForRoll = loot.select
+  -- Preserve the legacy inspection seam: callers receive an item id,
+  -- not the new stack row.  Registry-aware callers pass imported data either
+  -- as the fourth argument or as ctx.data.
+  mod.exports.lootForRoll = function(roll, mode, ctx, data)
+    local row = loot.select(roll, mode, ctx,
+      data or (ctx and ctx.data))
+    return row and row.item or nil, row and row.qty or nil
+  end
+  mod.exports.rematchLoot = loot
   mod.exports.lootBands = loot.bands
   mod.exports.defaults = {
     minRestSteps = DEFAULT_MIN_REST_STEPS,
@@ -917,6 +2153,7 @@ return function(mod)
 
   mod.exports.playerStepClock = playerStepClock
   mod.exports.trainerStepClock = stepClock
+  legacyWanderers.setClockProvider(stepClock)
 
   local function trainerStates()
     local states = mod.save:get("trainers")
@@ -932,6 +2169,7 @@ return function(mod)
     postgame = postgame,
     i18n = i18n,
     johtoResearch = johtoResearch,
+    beyondKanto = mod.exports.beyondKanto,
     showMenu = false,
   })
   signalsHub.setWorldEvents(worldEvents)
@@ -947,9 +2185,16 @@ return function(mod)
     johtoResearch = johtoResearch,
     worldEvents = worldEvents,
     kantoCompletion = kantoCompletion,
+    legacyPaths = legacyPaths,
   })
   eventArchive.setAscendant(ascendant)
   postgame.extension = ascendant
+  if postgame.setMastery then
+    postgame.setMastery(rematchMastery, function(context)
+      return ascendant and ascendant.bossBattleCount
+        and ascendant.bossBattleCount(context) or 0
+    end)
+  end
   mod.exports.ascendant = ascendant
   mod.exports.ascendantData = ascendantData
 
@@ -972,10 +2217,26 @@ return function(mod)
     ascendant = ascendant,
     shinySystem = shinySystem,
     i18n = i18n,
+    journey = legacyJourney,
+    beyondKanto = mod.exports.beyondKanto,
   })
   ascendant.setJohtoMasters(johtoMasters)
   mod.exports.johtoMasters = johtoMasters
   mod.exports.johtoMastersData = johtoMastersData
+  johtoMasters.music = loadSibling(mod, "johto_masters_music.lua")(mod)
+  if contentEnabled then johtoMasters.music.register() end
+  mod.exports.johtoMastersMusic = johtoMasters.music
+  -- One attached controller keeps the large install closure below from
+  -- gaining another local while passages retain their own map namespace.
+  johtoMasters.passages = loadSibling(mod, "johto_masters_passages.lua")(mod, {
+    baseline = johtoMasters, postgame = postgame, i18n = i18n,
+    questionUi = ascendantUi,
+    contentEnabled = contentEnabled,
+    tilesetFactory = loadSibling(mod, "johto_masters_tilesets.lua"),
+    music = johtoMasters.music,
+  })
+  johtoMasters.passages.register()
+  mod.exports.johtoMastersPassages = johtoMasters.passages
 
   local makeDexProgress = loadSibling(mod, "dex_progress.lua")
   local dexProgress = makeDexProgress(mod, {
@@ -984,6 +2245,7 @@ return function(mod)
     johtoData = johtoData,
     shinySystem = shinySystem,
     ascendant = ascendant,
+    beyondKanto = mod.exports.beyondKanto,
   })
   mod.exports.dexProgress = dexProgress
   if signalsHub and type(signalsHub.setDexProgress) == "function" then
@@ -992,6 +2254,9 @@ return function(mod)
   if johtoResearch and type(johtoResearch.setDexProgress) == "function" then
     johtoResearch.setDexProgress(dexProgress)
   end
+  mod.exports.beyondKanto.bindControllers({
+    signals = johtoSignals, research = johtoResearch, dex = dexProgress,
+  })
 
   local makeAscendantTyphlosion = loadSibling(
     mod, "ascendant_typhlosion.lua")
@@ -1021,6 +2286,7 @@ return function(mod)
     kantoCompletion = kantoCompletion,
     johtoResearch = johtoResearch,
     lootBands = loot.bands,
+    loot = loot,
     trainerStates = trainerStates,
     stepClock = stepClock,
     signalsHub = signalsHub,
@@ -1033,6 +2299,8 @@ return function(mod)
     data = grandTourData,
     postgame = postgame,
     i18n = i18n,
+    dialoguePagination = dialoguePagination,
+    beyondKanto = mod.exports.beyondKanto,
     stepClock = playerStepClock,
     awardFrontierPoints = function(amount)
       local multiplier = worldEvents and worldEvents.frontierMultiplier
@@ -1062,6 +2330,8 @@ return function(mod)
     ascendantTyphlosion = ascendantTyphlosion,
     starterRelicQuests = starterRelicQuests,
     signalsHub = signalsHub,
+    legacyPaths = legacyPaths,
+    beyondKanto = mod.exports.beyondKanto,
   })
   ascendant.setQuestTracker(questTracker)
   researchAtlas.setQuestTracker(questTracker)
@@ -1085,8 +2355,11 @@ return function(mod)
     ascendantData = ascendantData,
     johtoMasters = johtoMasters,
     grandTour = grandTour,
+    legacyPaths = legacyPaths,
+    legacyJourney = legacyJourney,
   })
   mod.exports.legacyHall = legacyHall
+  legacyWanderers.setTitleProvider(legacyHall)
 
   local function trainerKey(overworld, npc)
     if npc and npc.id then return tostring(npc.id) end
@@ -1095,11 +2368,36 @@ return function(mod)
     return tostring(mapId) .. "_obj_" .. tostring(index)
   end
 
+  -- Route 22's first rival is an onStep story encounter, not a field
+  -- trainer.  It intentionally remains available after a loss until its
+  -- story flag is set on a win.  Its hidden/respawned object can otherwise
+  -- look like a defeated trainer to the generic talk hook after a reload.
+  -- Keep this deliberately narrow: ordinary OPP_RIVAL1 trainers and every
+  -- normal trainer on Route 22 retain the standard rematch path.
+  local function isRoute22FirstRival(overworld, npc, scripts)
+    local map = overworld and overworld.map
+    local def = npc and npc.def
+    -- The real generated ROUTE22_RIVAL1 object intentionally has no
+    -- trainerClass; its onStep story script supplies OPP_RIVAL1 at runtime.
+    -- Match the authored object identity/text instead of a field that exists
+    -- only on ordinary talk trainers (and previously only in the test stub).
+    if not (map and map.id == "ROUTE_22" and def
+        and ((def.name == "ROUTE22_RIVAL1")
+          or (def.index == 1 and def.text == "TEXT_ROUTE22_RIVAL1"))) then
+      return false
+    end
+    local script = scripts and scripts.get and scripts.get(map.id)
+    return script and type(script.onStep) == "function" or false
+  end
+
   local function stateFor(key, create)
     local states = trainerStates()
     local state = states[key]
     if type(state) ~= "table" and create then
-      state = { rematches = 0, trainingCycles = 0, recruitFamilies = {} }
+      state = {
+        rematches = 0, trainingCycles = 0, masteryWins = 0,
+        recruitFamilies = {},
+      }
       states[key] = state
     end
     if type(state) == "table" then
@@ -1107,8 +2405,19 @@ return function(mod)
         tonumber(state.rematches) or 0))
       state.trainingCycles = math.max(0, math.floor(
         tonumber(state.trainingCycles) or 0))
+      state.masteryWins = math.max(0, math.floor(
+        tonumber(state.masteryWins) or 0))
       state.recruitFamilies = type(state.recruitFamilies) == "table"
         and state.recruitFamilies or {}
+      state.recruitHistory = type(state.recruitHistory) == "table"
+        and state.recruitHistory or {}
+      while #state.recruitHistory > 3 do table.remove(state.recruitHistory, 1) end
+      state.originalStages = type(state.originalStages) == "table"
+        and state.originalStages or {}
+      state.originalBranches = type(state.originalBranches) == "table"
+        and state.originalBranches or {}
+      state.rematchProgressionVersion = math.max(1, math.floor(
+        tonumber(state.rematchProgressionVersion) or 1))
     end
     return state
   end
@@ -1297,113 +2606,35 @@ return function(mod)
     return added
   end
 
-  local function itemName(game, itemId)
-    local def = game.data.items and game.data.items[itemId]
-    return def and def.name or itemId
-  end
-
-  local function playerName(game)
-    return game.save.player and game.save.player.name or "PLAYER"
-  end
-
-  local function markUniqueLoot(game, itemId)
-    if itemId == "EXP_ALL" then
-      game.save.flags = game.save.flags or {}
-      -- EXP.ALL is the fully functional Gen-1 EP-TEILER. Mark Oak's Aide
-      -- reward as claimed so he cannot hand out a duplicate later.
-      game.save.flags.EVENT_GOT_EXP_ALL = true
+  local function applyOriginalProgression(game, battle, baseTeam, rematchTeam)
+    if not (battle and battle.enemyParty and type(baseTeam) == "table"
+        and type(rematchTeam) == "table") then return 0 end
+    local Pokemon = require("src.pokemon.Pokemon")
+    local Stats = require("src.pokemon.Stats")
+    local trainerDvs = (game.data.constants and game.data.constants.trainerDvs)
+      or { hp = 8, attack = 9, defense = 8, speed = 8, special = 8 }
+    local evolved = 0
+    for index = 1, math.min(#baseTeam, #battle.enemyParty) do
+      local planned = rematchTeam[index]
+      local original = baseTeam[index]
+      local current = battle.enemyParty[index]
+      if planned and original and planned.species ~= original.species
+          and current and current.species == original.species
+          and game.data.pokemon[planned.species] then
+        local level = math.max(1, math.min(100,
+          math.floor(tonumber(current and current.level)
+            or tonumber(original.level) or 1)))
+        local mon = Pokemon.new(game.data, planned.species, level,
+          function(lo, hi) return math.floor((lo + hi) / 2) end)
+        mon.dvs = trainerDvs
+        mon.stats = Stats.calc(game.data.pokemon[planned.species],
+          level, trainerDvs, nil, mon)
+        mon.hp = mon.stats.hp
+        battle.enemyParty[index] = mon
+        evolved = evolved + 1
+      end
     end
-  end
-
-  local function hasPendingItem(itemId)
-    for _, trainerState in pairs(trainerStates()) do
-      if trainerState.pendingLoot
-          and trainerState.pendingLoot.item == itemId then return true end
-    end
-    return false
-  end
-
-  local function expAllAvailable(game)
-    local inventory = game.save.inventory or {}
-    local flags = game.save.flags or {}
-    return not inventory.EXP_ALL and not flags.EVENT_GOT_EXP_ALL
-      and not hasPendingItem("EXP_ALL")
-  end
-
-  local function masterBallUnlocked()
-    local s = postgame and postgame.state(false)
-    return s and s.apexChampion and true or false
-  end
-
-  local function lootRoll(deps)
-    local rng = deps and deps.lootRandom
-    if not rng and love and love.math and love.math.random then
-      rng = love.math.random
-    end
-    return (rng or math.random)(1, 10000)
-  end
-
-  local function lootMessage(game, trainerName, itemId, kind)
-    local name = itemName(game, itemId)
-    local player = playerName(game)
-    if kind == "pending" then
-      return i18n.text(
-        ("%s kept the\n%s safe.\f%s received the\n%s!"):format(
-          trainerName, name, player, name),
-        ("%s bewahrte den\nPreis auf:\n%s!\f%s erhält das\nItem!"):format(
-          trainerName, name, player))
-    end
-    if kind == "full" then
-      return i18n.text(
-        ("Loot from %s:\n%s!\fBut the BAG is\nfull.\fThe trainer keeps\nit for you."):format(
-          trainerName, name),
-        ("Beute von %s:\n%s!\fDoch der BEUTEL\nist voll.\fDer TRAINER bewahrt\nsie für dich auf."):format(
-          trainerName, name))
-    end
-    return i18n.text(
-      ("Loot from %s:\n%s!\f%s put it in\nthe BAG."):format(
-        trainerName, name, player),
-      ("Beute von %s:\n%s!\f%s legt das Item\nin den BEUTEL."):format(
-        trainerName, name, player))
-  end
-
-  local function awardRematchLoot(game, battle, state, deps)
-    local mode = mod.options:get("loot_mode") or "balanced"
-    if mode == "off" or state.pendingLoot then return nil end
-    local roll = lootRoll(deps)
-    local averageLevel = loot.averageLevel(battle.enemyParty)
-    local itemId = loot.select(roll, mode, {
-      averageLevel = averageLevel,
-      masterUnlocked = masterBallUnlocked(),
-      expAllAvailable = expAllAvailable(game),
-    })
-    if not itemId or not (game.data.items and game.data.items[itemId]) then
-      return nil
-    end
-    game.save.inventory = game.save.inventory or {}
-    local Bag = require("src.inventory.Bag")
-    local trainerName = battle.trainer and battle.trainer.name or "TRAINER"
-    if Bag.add(game.save, itemId, 1, game.data) then
-      markUniqueLoot(game, itemId)
-      return lootMessage(game, trainerName, itemId, "received")
-    end
-    state.pendingLoot = { item = itemId, trainer = trainerName }
-    return lootMessage(game, trainerName, itemId, "full")
-  end
-
-  local function deliverPendingLoot(game, state)
-    local pending = state and state.pendingLoot
-    if not (pending and pending.item) then return nil, false end
-    game.save.inventory = game.save.inventory or {}
-    local trainerName = pending.trainer or "TRAINER"
-    if require("src.inventory.Bag").add(
-        game.save, pending.item, 1, game.data) then
-      local itemId = pending.item
-      state.pendingLoot = nil
-      markUniqueLoot(game, itemId)
-      return lootMessage(game, trainerName, itemId, "pending"), true
-    end
-    return lootMessage(game, trainerName, pending.item, "full"), false
+    return evolved
   end
 
   mod.exports.remainingSteps = remainingSteps
@@ -1452,9 +2683,16 @@ return function(mod)
       local progress = state.rematches + state.trainingCycles
       local boost = nextLevelBoost(progress, levelGain())
       local rank = ascendant and ascendant.rematchRank(progress)
-      local rematchTeam = recruitment.expand(game.data, team, d.trainerClass,
+      local rematchTeam, generation = recruitment.expand(
+        game.data, team, d.trainerClass,
         key, progress, boost, mod.options:get("team_growth") ~= false, {
           selections = state.recruitFamilies,
+          recentHistory = state.recruitHistory,
+          originalStages = state.originalStages,
+          originalBranches = state.originalBranches,
+          rematchNumber = (state.rematches or 0) + 1,
+          random = deps.rematchRandom or randomSource(deps),
+          deferCommit = true,
         })
       local previewTeam = boostedTeam(rematchTeam, boost)
 
@@ -1474,6 +2712,8 @@ return function(mod)
         if ascendant then ascendant.applyRematchRank(b, rank) end
         b.rematchNumber = (state.rematches or 0) + 1
         b.rematchTrainingCycles = state.trainingCycles
+        b.rematchOriginalEvolutions = applyOriginalProgression(
+          game, b, team, rematchTeam)
         b.rematchRecruits = appendRecruits(game, b, rematchTeam)
         b.rematchRecruitSpecies = {}
         for i = math.max(1, #rematchTeam - b.rematchRecruits + 1),
@@ -1484,12 +2724,27 @@ return function(mod)
           end
         end
         strengthenBattle(game, b, boost)
+        b.rematchMasteryReport = rematchMastery.apply(game, b, {
+          kind = "field", key = key, progress = progress,
+          rematches = state.rematches, masteryWins = state.masteryWins,
+          trainerClass = d.trainerClass,
+        })
+        state.lastTeamSize = #(b.enemyParty or {})
         b.endBattleText = wonText and TextBox.substitute(game, wonText) or nil
         b.onFinish = function(result)
           -- A completed battle sends this trainer back to training whether
           -- the player won or blacked out.  The next meeting gets the next
           -- strength tier only after that rest has elapsed.
-          state.rematches = math.max(0, math.floor(state.rematches or 0)) + 1
+          recruitment.commit(state, generation, result == "win")
+          if result == "win" then
+            state.rematches = math.max(0,
+              math.floor(state.rematches or 0)) + 1
+            if b.rematchAtLevelCap then
+              state.masteryWins = math.max(0,
+                math.floor(state.masteryWins or 0)) + 1
+            end
+            state.rematchProgressionVersion = 3
+          end
           scheduleRest(key, deps)
           local rewards = {}
           local function addReward(text)
@@ -1497,7 +2752,7 @@ return function(mod)
           end
           if result == "win" then
             addReward(fieldTech and fieldTech.afterRematch(game, b))
-            addReward(awardRematchLoot(game, b, state, deps))
+            addReward(rematchRewards.afterWin(game, b, state, deps))
             addReward(johtoResearch.afterRematch(game, b))
             addReward(shinySystem and shinySystem.afterRematch(game, b))
           end
@@ -1564,16 +2819,34 @@ return function(mod)
     if gorochu then gorochu.install(game, deps) end
     if megaEvolution then megaEvolution.install(game, deps) end
     if gorochuVisuals then gorochuVisuals.install(game) end
+    if trueColorWorldCompat then trueColorWorldCompat.install() end
     if dramalessCameraCompat then dramalessCameraCompat.install(game) end
+    if mod.exports.rendererWallDecalsCompat then
+      mod.exports.rendererWallDecalsCompat.install(game)
+    end
     if kantoCompletion then kantoCompletion.install(game, deps) end
     if fieldTech then fieldTech.install(game, deps) end
+    if contentEnabled and mod.exports.hiddenEvolutionCampaign then
+      mod.exports.hiddenEvolutionCampaign.install(game, deps)
+    end
     if frontierExchange then frontierExchange.install(game, deps) end
     if daycare then daycare.install(game, deps) end
     if shinySystem then shinySystem.install(game, deps) end
+    if runRules then runRules.install(game) end
+    if mod.exports.extendedSpeciesRuntime then
+      mod.exports.extendedSpeciesRuntime.install(game)
+    end
     if crystalAnimation then crystalAnimation.install(game, deps) end
+    if crystalV15 then crystalV15.install(game, deps) end
     if ascendant then ascendant.install(game, deps) end
     if eventArchive then eventArchive.install(game, deps) end
     if johtoResearch then johtoResearch.install(game, deps) end
+    if legacyHoenn then legacyHoenn.install(game) end
+    if mod.exports.hevoPackages then mod.exports.hevoPackages.install(game) end
+    if hevoSpecies then hevoSpecies.install(game) end
+    if legacyStarters then legacyStarters.install(game, {
+      mapScripts = mapScripts,
+    }) end
     if signalsState then signalsState.install(game) end
     if johtoSignals and johtoSignals.game ~= game then
       -- CONTINUE adopts its selected save only after game.ready. Deferring
@@ -1605,6 +2878,8 @@ return function(mod)
     if legacyHall then legacyHall.install(game, deps) end
     if followerCompat then followerCompat.install(game) end
     if yellowPartner then yellowPartner.install(game, deps) end
+    if followerConfig then followerConfig.install(game, singleFollower) end
+    if singleFollower then singleFollower.install(game) end
 
     -- Keep the installed wrappers stable, but replace their dispatch target
     -- on every install. Dev hot reload keeps engine module tables alive while
@@ -1628,7 +2903,8 @@ return function(mod)
       if postgame and postgame.handleTalk(self, npc, game) then return true end
       -- only the generic-trainer branch: scripted encounters (gym leaders,
       -- rivals, story fights) keep their own flow, defeated or not
-      local scripted = mapScripts and mapScripts.talkScript(self.map.id, d.text)
+      local scripted = (mapScripts and mapScripts.talkScript(self.map.id, d.text))
+        or isRoute22FirstRival(self, npc, mapScripts)
       if not scripted and d.trainerClass and self:trainerDefeated(npc) then
         local key = trainerKey(self, npc)
         -- A defeated trainer without a mod record can occur when an older
@@ -1641,10 +2917,10 @@ return function(mod)
         trainerState.trainerClass = d.trainerClass
           or trainerState.trainerClass
         trainerState.trainerName = trainerState.trainerName or d.name
-        if trainerState.pendingLoot then
+        if rematchRewards.hasPending(game, trainerState) then
           npc.frozen = true
           npc:facePlayer(self.player)
-          local text = deliverPendingLoot(game, trainerState)
+          local text = rematchRewards.deliverPending(game, trainerState)
           game.stack:push(TextBox.new(game, text, function()
             npc.frozen = false
           end))
@@ -1668,7 +2944,8 @@ return function(mod)
       return false
     end
     function talkRuntime.afterTrainer(self, npc, defeatedBefore)
-      if not defeatedBefore and self:trainerDefeated(npc) then
+      if not isRoute22FirstRival(self, npc, mapScripts)
+          and not defeatedBefore and self:trainerDefeated(npc) then
         scheduleRest(trainerKey(self, npc), deps)
       end
     end
@@ -1694,7 +2971,8 @@ return function(mod)
     -- trainer's first rest only after the base game has recorded the win.
     local vanillaEngageTrainer = Overworld.engageTrainer
     if vanillaEngageTrainer then
-      Overworld.engageTrainer = function(self, npc, onDone)
+      Overworld.engageTrainer = function(self, npc, onDone,
+          endBattleText, skipBattleText)
         local defeatedBefore = self:trainerDefeated(npc)
         local function done(...)
           local current = Overworld._kantoAscendantTalkRuntime
@@ -1703,7 +2981,8 @@ return function(mod)
           end
           if onDone then return onDone(...) end
         end
-        return vanillaEngageTrainer(self, npc, done)
+        return vanillaEngageTrainer(self, npc, done,
+          endBattleText, skipBattleText)
       end
     end
 
@@ -1712,30 +2991,9 @@ return function(mod)
     -- so enabling the mod mid-playthrough follows the same rule.
     seedDefeatedTrainers(game.save, deps)
 
-    -- no money from a rematch: zero the class base money for this battle
-    -- only (never touch the shared data record) and drop the prize line
-    local vanillaFainted = BattleState.enemyMonFainted
-    BattleState.enemyMonFainted = function(self, ...)
-      if not self.rematch then return vanillaFainted(self, ...) end
-      local realTrainer = self.trainer
-      self.trainer = setmetatable({ baseMoney = 0 }, { __index = realTrainer })
-      local realSayNext = self.sayNext
-      self.sayNext = function(s, text)
-        if isPrizeLine(text) then return end
-        return realSayNext(s, text)
-      end
-      local ok, err = pcall(vanillaFainted, self, ...)
-      self.trainer = realTrainer
-      self.sayNext = realSayNext
-      if not ok then error(err, 2) end
-    end
-
-    -- Pay Day is a reward too: nothing to collect on a rematch
-    local vanillaFinish = BattleState.finish
-    BattleState.finish = function(self)
-      if self.rematch then self.payDay = nil end
-      return vanillaFinish(self)
-    end
+    -- The bonus system leaves the engine's trainer prize and Pay Day
+    -- paths untouched.  The additional item-or-money roll happens only in
+    -- rematchRewards.afterWin and therefore cannot replace ordinary winnings.
   end
   mod.exports.install = install
 
@@ -1767,6 +3025,9 @@ return function(mod)
   end)
 
   mod.events:on("game.ready", function(ev)
+    if idMigration.persistOptions(ev.game, ascendantOptionSchema) then
+      mod.log:info("migrated legacy trainer_rematch options")
+    end
     install(ev.game)
   end)
 end

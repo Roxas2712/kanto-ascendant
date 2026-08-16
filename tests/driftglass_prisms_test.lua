@@ -54,14 +54,22 @@ local function registry()
 end
 
 local maps, scripts, mapSongs = registry(), registry(), registry()
+local pokemonCatalog, moveCatalog = registry(), registry()
+pokemonCatalog:register("SCYTHER", { id = "SCYTHER", dex = 123 })
+pokemonCatalog:register("MACHOP", { id = "MACHOP", dex = 66 })
+moveCatalog:register("FALSE_SWIPE", { id = "FALSE_SWIPE" })
+moveCatalog:register("CROSS_CHOP", { id = "CROSS_CHOP" })
+moveCatalog:register("VITAL_THROW", { id = "VITAL_THROW" })
 local events = {}
 local warps = {}
 local mod = {
-  id = "trainer_rematch",
+  id = "kanto_ascendant",
   content = {
     maps = maps,
     map_songs = mapSongs,
     map_scripts = scripts,
+    pokemon = pokemonCatalog,
+    moves = moveCatalog,
   },
   events = {
     on = function(_, name, callback, priority)
@@ -154,12 +162,17 @@ local game = {
     pokemon = {
       GENGAR = { name = "GENGAR", dex = 94 },
       GROWLITHE = { name = "GROWLITHE", dex = 58 },
+      SCYTHER = { name = "SCYTHER", dex = 123 },
+      MACHOP = { name = "MACHOP", dex = 66 },
       CHIKORITA = { name = "CHIKORITA", dex = 152 },
       MAGIKARP = { name = "MAGIKARP", dex = 129 },
     },
     moves = {
       CRUNCH = { name = "CRUNCH", pp = 15 },
       METAL_CLAW = { name = "METAL CLAW", pp = 35 },
+      FALSE_SWIPE = { name = "FALSE SWIPE", pp = 40 },
+      CROSS_CHOP = { name = "CROSS CHOP", pp = 5 },
+      VITAL_THROW = { name = "VITAL THROW", pp = 10 },
       IRON_TAIL = { name = "IRON TAIL", pp = 15 },
       SHADOW_BALL = { name = "SHADOW BALL", pp = 15 },
       FLAME_WHEEL = { name = "FLAME WHEEL", pp = 25 },
@@ -186,9 +199,11 @@ equal(mapSongs:get(prism.MAP_ID), "Music_Dungeon1",
   "the grotto uses its own ominous native cave theme")
 equal(#map.blocks, map.width * map.height,
   "the grotto has a rectangular block layer")
-equal(#map.objects, 8,
-  "one tablet, one reader and six glass pillars are authored")
-equal(#map.signs, 2, "the grotto has an exit and inscription sign")
+equal(#map.objects, 9,
+  "tablet, reader, six glass pillars and a visible exit are authored")
+equal(#map.signs, 1, "only the wall inscription remains a hidden sign")
+equal(map.objects[9].name, "PRISM_EXIT_ARCH",
+  "the return interaction has an explicit visible map object")
 equal(map.objects[1].name, "PRISM_TABLET",
   "a visible crystal tablet owns the pillar legend")
 equal(map.objects[1].sprite, "SPRITE_KA_PRISM_TABLET",
@@ -199,8 +214,22 @@ local resonanceSpecies = 0
 for _ in pairs(prism.resonanceRules) do
   resonanceSpecies = resonanceSpecies + 1
 end
-equal(resonanceSpecies, 104,
+equal(resonanceSpecies, 106,
   "all Kanto species covered by an implemented Crystal move are indexed")
+equal(prism.resonanceRules.MACHOP.CROSS_CHOP.level, 37,
+  "the 251-species source derives Machop's vetted Crystal Cross Chop level")
+equal(prism.resonanceRules.MACHOP.VITAL_THROW.level, 31,
+  "the 251-species source derives Machop's vetted Crystal Vital Throw level")
+local auditedPursuit = false
+for _, row in ipairs(prism.resonanceAudit.unsupportedLevelRows) do
+  if row.species == "SCYTHER" and row.move == "PURSUIT"
+      and row.level == 12 then
+    auditedPursuit = row.reason == "move-unavailable"
+    break
+  end
+end
+truthy(auditedPursuit,
+  "Scyther's unsupported Pursuit switch mechanic remains explicit in audit")
 local seenSprites = {}
 for _, statue in ipairs(prism.statues) do
   truthy(statue.sprite and statue.sprite:find("SPRITE_KA_PRISM_", 1, true),
@@ -310,6 +339,27 @@ contains(displays[#displays].text, "Come back at\nLv. 34.",
 growlithe.level = 34
 truthy(prism.teachResonanceMove(game, growlithe, "FLAME_WHEEL"),
   "the same move unlocks at the exact original level")
+
+local scyther = {
+  species = "SCYTHER", level = 17,
+  moves = { { id = "TACKLE", pp = 35 } },
+}
+local scytherRows = prism.resonanceMoves(game, scyther)
+local falseSwipe
+for _, row in ipairs(scytherRows) do
+  if row.id == "FALSE_SWIPE" then falseSwipe = row break end
+end
+truthy(falseSwipe,
+  "Scyther exposes its implemented canonical Crystal move")
+equal(falseSwipe.level, 18,
+  "Scyther keeps Crystal's exact False Swipe level")
+equal(falseSwipe.locked, true,
+  "level-17 Scyther cannot receive level-18 False Swipe")
+scyther.level = 18
+truthy(prism.teachResonanceMove(game, scyther, "FALSE_SWIPE"),
+  "level-18 Scyther can awaken False Swipe")
+equal(scyther.moves[#scyther.moves].id, "FALSE_SWIPE",
+  "Scyther receives the species-specific Johto move")
 
 local johtoRows, johtoReason = prism.resonanceMoves(game, {
   species = "CHIKORITA", level = 20, moves = {},

@@ -17,7 +17,7 @@ return function(game)
 
   U.wait(30)
   local exports = assert(game.mods and game.mods.exports
-      and game.mods.exports.trainer_rematch,
+      and game.mods.exports.kanto_ascendant,
     "Kanto Ascendant export missing")
   local shiny = assert(exports.shinySystem, "Shiny controller missing")
   local shotDir = assert(os.getenv("SHOT_DIR"), "SHOT_DIR is required")
@@ -25,17 +25,17 @@ return function(game)
   local qaLanguage = os.getenv("QA_LANGUAGE")
   if qaLanguage then
     game.mods.modOptions = game.mods.modOptions or {}
-    game.mods.modOptions.trainer_rematch =
-      game.mods.modOptions.trainer_rematch or {}
-    game.mods.modOptions.trainer_rematch.language = qaLanguage
+    game.mods.modOptions.kanto_ascendant =
+      game.mods.modOptions.kanto_ascendant or {}
+    game.mods.modOptions.kanto_ascendant.language = qaLanguage
     game.save.options = game.save.options or {}
     game.save.options.modOptions = game.save.options.modOptions or {}
-    game.save.options.modOptions.trainer_rematch =
-      game.save.options.modOptions.trainer_rematch or {}
-    game.save.options.modOptions.trainer_rematch.language = qaLanguage
+    game.save.options.modOptions.kanto_ascendant =
+      game.save.options.modOptions.kanto_ascendant or {}
+    game.save.options.modOptions.kanto_ascendant.language = qaLanguage
     if game.mods.events then
       game.mods.events:emit("mod.options_changed", {
-        mod = "trainer_rematch", key = "language", value = qaLanguage,
+        mod = "kanto_ascendant", key = "language", value = qaLanguage,
       })
     end
     if exports.johtoAudio and exports.johtoAudio.refreshLocalization then

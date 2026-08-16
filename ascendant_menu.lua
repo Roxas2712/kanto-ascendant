@@ -49,6 +49,24 @@ return function(mod, opts)
         startItems[#startItems + 1] = item
       end
     end
+    local hasOptions = false
+    for _, item in ipairs(ascendantItems) do
+      if item.ascendantKey == "options" then
+        hasOptions = true
+        break
+      end
+    end
+    if mod.exports.ascendantFeaturesScreen and not hasOptions then
+      ascendantItems[#ascendantItems + 1] = {
+        label = tr("OPTIONS", "OPTIONEN"),
+        onSelect = function()
+          mod.ui.push(mod.world.game, mod.exports.ascendantFeaturesScreen)
+        end,
+        order = 1,
+        sourceIndex = #items + 1,
+        ascendantKey = "options",
+      }
+    end
     table.sort(ascendantItems, function(a, b)
       if a.order == b.order then return a.sourceIndex < b.sourceIndex end
       return a.order < b.order
@@ -74,7 +92,7 @@ return function(mod, opts)
   end
 
   function A.open(game, rows)
-    game.stack:push(mod.ui.ListMenu.new(game, "KANTO ASCENDANT", rows, {
+    game.stack:push((mod.ui.KantoListMenu or mod.ui.ListMenu).new(game, "KANTO ASCENDANT", rows, {
       pageJump = true,
       onCancel = function() mod.ui.push(game, "StartMenu") end,
       onChoose = function(item)

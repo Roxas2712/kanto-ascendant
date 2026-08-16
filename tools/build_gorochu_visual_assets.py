@@ -81,7 +81,7 @@ def alpha_box(image: Image.Image) -> tuple[int, int, int, int]:
 
 
 def clear_connected_sheet_background(image: Image.Image) -> Image.Image:
-    """Remove the user's magenta review matte without touching highlights."""
+    """KA-INTERNAL: ART-MATTE-001"""
     rgba = image.convert("RGBA")
     pixels = rgba.load()
     width, height = rgba.size

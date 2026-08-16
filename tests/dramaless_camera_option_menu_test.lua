@@ -11,8 +11,11 @@ local modDir = assert(os.getenv("TRAINER_REMATCH_MOD_DIR"),
 
 local hook
 local stored
+local handles = {}
 local mod = {
-  id = "trainer_rematch",
+  id = "kanto_ascendant",
+  exports = {},
+  find = function(id) return handles[id] end,
   options = { get = function(_, key)
     eq(key, "dramaless_battle_camera", "main-options row reads its camera key")
     return stored
@@ -23,20 +26,33 @@ local mod = {
     hook = callback
   end },
 }
+local voxelRenderer = assert(
+  dofile(modDir .. "/voxel_renderer_compat.lua")(mod))
 
 local cameraOption = dofile(modDir .. "/dramaless_camera_option.lua")(mod, {
   camera = "VOXEL BATTLE CAMERA",
   fork = "VOXEL DEFAULT",
   classic = "CLASSIC VOXEL",
   wide = "WIDE VOXEL",
+  voxelRenderer = voxelRenderer,
 })
 cameraOption.install()
 
 local emitted = {}
+handles.DRAMALESS_SHAPE = {
+  id = "DRAMALESS_SHAPE",
+  version = "1.6.2-ST.190.1",
+  exports = {
+    version = "1.6.2-ST.190.1",
+    lib = { require = function(name)
+      if name == "BattleCam" then return {} end
+      return nil
+    end },
+  },
+}
 local game = {
   save = { options = {} },
   mods = {
-    exports = { DRAMALESS_SHAPE = {} },
     events = { emit = function(_, name, payload)
       if name == "mod.options_changed" then stored = payload.value end
       emitted[#emitted + 1] = { name = name, payload = payload }
@@ -50,33 +66,70 @@ local rows = hook(function() return {
   { id = "DRAMALESS_SHAPE:overworld_battle" },
   { id = "sound" },
 } end, game, {})
-eq(rows[3].id, "trainer_rematch:dramaless_battle_camera",
+eq(rows[3].id, "kanto_ascendant:dramaless_battle_camera",
   "camera appears immediately after the compatible Voxel controls")
 eq(rows[3].label, "VOXEL BATTLE CAMERA",
   "camera keeps its localized main-options label")
-eq(rows[3].value(), "VOXEL DEFAULT", "camera defaults to the standard view")
+eq(rows[3].value(), "WIDE VOXEL", "camera defaults to the wide view")
 
 rows[3].step(game)
-eq(game.save.options.modOptions.trainer_rematch.dramaless_battle_camera,
-  "classic", "main-options step persists the classic selection")
-eq(game.mods.modOptions.trainer_rematch.dramaless_battle_camera,
-  "classic", "main-options step updates the live option store")
-eq(rows[3].value(), "CLASSIC VOXEL", "row reflects its new live selection")
+eq(game.save.options.modOptions.kanto_ascendant.dramaless_battle_camera,
+  "fork", "main-options step persists the renderer-default selection")
+eq(game.mods.modOptions.kanto_ascendant.dramaless_battle_camera,
+  "fork", "main-options step updates the live option store")
+eq(rows[3].value(), "VOXEL DEFAULT", "row reflects its new live selection")
 eq(emitted[#emitted].name, "mod.options_changed",
   "main-options step notifies the camera compatibility bridge")
-eq(emitted[#emitted].payload.mod, "trainer_rematch",
+eq(emitted[#emitted].payload.mod, "kanto_ascendant",
   "camera notification remains namespaced to Kanto Ascendant storage")
 
 rows[3].step(game)
-eq(game.save.options.modOptions.trainer_rematch.dramaless_battle_camera,
-  "wide", "second main-options step selects the extra-wide view")
-eq(rows[3].value(), "WIDE VOXEL", "row labels the extra-wide selection")
+eq(game.save.options.modOptions.kanto_ascendant.dramaless_battle_camera,
+  "classic", "second main-options step selects the classic view")
+eq(rows[3].value(), "CLASSIC VOXEL", "row labels the classic selection")
 rows[3].step(game)
-eq(game.save.options.modOptions.trainer_rematch.dramaless_battle_camera,
-  "fork", "third main-options step returns to the fork view")
+eq(game.save.options.modOptions.kanto_ascendant.dramaless_battle_camera,
+  "wide", "third main-options step returns to the wide default")
 
+handles.DRAMALESS_SHAPE = nil
 local noRenderer = hook(function() return { { id = "pipeline:voxel" } } end,
-  { mods = { exports = {} } }, {})
+  { mods = {} }, {})
 eq(#noRenderer, 1, "camera row stays hidden when the renderer is unavailable")
+
+local battleModules = {
+  AntiAlias = {}, BattleCam = {}, FirstPerson = {}, Mat4 = {},
+  OverworldBattle = {}, ShadowMap = {}, SpriteBillboards = {},
+  TerrainAtlas = {}, Voxel3D = {}, VoxelScene = {}, VoxelState = {},
+}
+local battleLib = {
+  mod = { id = "BATTLE_ART_VOXEL_FORK", options = {} },
+  require = function(name) return battleModules[name] end,
+}
+handles.BATTLE_ART_VOXEL_FORK = {
+  id = "BATTLE_ART_VOXEL_FORK", version = "1.9.0",
+  exports = {
+    version = "1.9.0", lib = battleLib,
+    battleStage = {
+      apiVersion = 1, sourceModId = "BATTLE_ART_VOXEL_FORK",
+      ownership = { hud = true, animationProjection = true },
+      state = function() return { staged = true } end,
+    },
+    battlePresentation = {
+      apiVersion = 1, sourceModId = "BATTLE_ART_VOXEL_FORK",
+      suppressHook = "battle.presentation.suppress_native.v1",
+    },
+  },
+}
+local battleRows = hook(function() return {
+  { id = "BATTLE_ART_VOXEL_FORK:battle_art" },
+  { id = "BATTLE_ART_VOXEL_FORK:camera" },
+  { id = "sound" },
+} end, game, {})
+eq(#battleRows, 3,
+  "Battle Art keeps only its own camera/options rows")
+eq(battleRows[1].id, "BATTLE_ART_VOXEL_FORK:battle_art",
+  "KASC does not displace Battle Art option ordering")
+eq(battleLib.mod.options ~= nil, true,
+  "Battle Art remains owner of its separately installed options")
 
 S.finish()

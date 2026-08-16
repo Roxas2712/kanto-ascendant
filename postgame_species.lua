@@ -2,6 +2,14 @@
 -- battle sprites are optional local files; every species has a distributable
 -- Kanto-silhouette fallback so the mod remains self-contained.
 
+local function loadSibling(mod, filename)
+  local body, readErr = mod:read(filename)
+  assert(type(body) == "string", readErr or ("unable to read " .. filename))
+  local chunk, err = loadstring(body, "@" .. mod.path .. "/" .. filename)
+  assert(chunk, err or readErr)
+  return chunk()
+end
+
 local function evolutionRow(row)
   local out = { method = row[1], species = row[2] }
   if row[1] == "LEVEL" or row[1]:match("^TYROGUE_") then
@@ -192,37 +200,103 @@ return function(mod, legends, johto, i18n)
 
   -- A compact move set gives the new families their defining Gen-II tools
   -- without depending on another mechanics mod.
+  -- Gen I has no two-stage Attack drop, so Charm supplies the one missing
+  -- registry effect by composing the engine's proven one-stage handler.
+  mod.content.move_effects:register("ATTACK_DOWN2_EFFECT", {
+    kind = "primary", accuracyChecked = true,
+    run = function(battle, user, target, move)
+      local down = require("src.battle.MoveEffects").primary.ATTACK_DOWN1_EFFECT
+      local first = down(battle, user, target, move)
+      down(battle, user, target, move)
+      return first
+    end,
+  })
   local moves = {
     CRUNCH = { "CRUNCH", "DARK", 80, 100, 15, "special" },
     METAL_CLAW = { "METAL CLAW", "STEEL", 50, 95, 35, "physical" },
+    FALSE_SWIPE = { "FALSE SWIPE", "NORMAL", 40, 100, 40, "physical" },
     IRON_TAIL = { "IRON TAIL", "STEEL", 100, 75, 15, "physical" },
     SHADOW_BALL = { "SHADOW BALL", "GHOST", 80, 100, 15, "physical" },
     FLAME_WHEEL = { "FLAME WHEEL", "FIRE", 60, 100, 25, "special" },
     GIGA_DRAIN = { "GIGA DRAIN", "GRASS", 60, 100, 10, "special" },
+    -- Canonical Mt. Silver Red coverage. These definitions keep his exact
+    -- Gold/Crystal move lists valid even without a separate Gen-II move mod.
+    -- Weather field bonuses are not invented here; the moves still retain
+    -- their original type/PP and the engine-supported effects where present.
+    CHARM = { "CHARM", "NORMAL", 0, 100, 20, "status",
+              "ATTACK_DOWN2_EFFECT" },
+    MUD_SLAP = { "MUD-SLAP", "GROUND", 20, 100, 10, "physical",
+                 "ACCURACY_DOWN1_EFFECT" },
+    SNORE = { "SNORE", "NORMAL", 40, 100, 15, "physical" },
+    SUNNY_DAY = { "SUNNY DAY", "FIRE", 0, 100, 5, "status" },
+    SYNTHESIS = { "SYNTHESIS", "GRASS", 0, 100, 5, "status",
+                  "HEAL_EFFECT" },
+    RAIN_DANCE = { "RAIN DANCE", "WATER", 0, 100, 5, "status" },
+    WHIRLPOOL = { "WHIRLPOOL", "WATER", 15, 70, 15, "special",
+                  "TRAPPING_EFFECT" },
     SLUDGE_BOMB = { "SLUDGE BOMB", "POISON", 90, 100, 10, "physical" },
     SPARK = { "SPARK", "ELECTRIC", 65, 100, 20, "special" },
     POWDER_SNOW = { "POWDER SNOW", "ICE", 40, 100, 25, "special" },
     SACRED_FIRE = { "SACRED FIRE", "FIRE", 100, 95, 5, "special",
                     "BURN_SIDE_EFFECT1" },
     AEROBLAST = { "AEROBLAST", "FLYING", 100, 95, 5, "physical" },
+    -- Crystal level-up gaps whose complete mechanics already exist in
+    -- Gen1 Recomp.  Do not register unsupported moves as harmless-looking
+    -- no-ops: the learnset overlay audits and omits those instead.
+    BONE_RUSH = { "BONE RUSH", "GROUND", 25, 80, 10, "physical",
+                  "TWO_TO_FIVE_ATTACKS_EFFECT" },
+    CROSS_CHOP = { "CROSS CHOP", "FIGHTING", 100, 80, 5, "physical",
+                   "NO_ADDITIONAL_EFFECT", { highCrit = true } },
+    EXTREMESPEED = { "EXTREMESPEED", "NORMAL", 80, 100, 5, "physical",
+                     "NO_ADDITIONAL_EFFECT", { priority = 1 } },
+    FAINT_ATTACK = { "FAINT ATTACK", "DARK", 60, 100, 20, "special",
+                     "SWIFT_EFFECT" },
+    MACH_PUNCH = { "MACH PUNCH", "FIGHTING", 40, 100, 30, "physical",
+                   "NO_ADDITIONAL_EFFECT", { priority = 1 } },
+    MEGAHORN = { "MEGAHORN", "BUG", 120, 85, 10, "physical" },
+    MILK_DRINK = { "MILK DRINK", "NORMAL", 0, 100, 10, "status",
+                   "HEAL_EFFECT" },
+    SWEET_KISS = { "SWEET KISS", "NORMAL", 0, 75, 10, "status",
+                   "CONFUSION_EFFECT" },
+    VITAL_THROW = { "VITAL THROW", "FIGHTING", 70, 100, 10, "physical",
+                    "SWIFT_EFFECT", { priority = -1 } },
   }
   for id, row in pairs(moves) do
+    local flags = row[8] or {}
     mod.content.moves:register(id, {
       id = id, name = row[1], type = row[2], power = row[3],
       accuracy = row[4], pp = row[5], category = row[6],
       effect = row[7] or "NO_ADDITIONAL_EFFECT",
-      highCrit = id == "AEROBLAST" and true or nil,
+      highCrit = flags.highCrit or (id == "AEROBLAST" and true or nil),
+      priority = flags.priority,
     })
   end
-  mod.content.moves:patch("BITE", { type = "DARK", category = "special" })
-  mod.content.moves:patch("GUST", { type = "FLYING", category = "physical" })
-  mod.content.moves:patch("SAND_ATTACK", {
-    type = "GROUND", category = "status",
+  -- TM23 is the first Wanderer machine whose move was actually introduced
+  -- in Johto.  Register it through the engine's ordinary machine item seam:
+  -- Bag/PartyMenu/ItemEffects therefore use the same `tmhm` compatibility as
+  -- every native TM, and Legacy Wanderers discover it from the live registry
+  -- instead of carrying a parallel reward-only teaching path.
+  mod.content.items:register("TM_IRON_TAIL", {
+    id = "TM_IRON_TAIL", name = "TM23", price = 3000,
+    tossable = true, needsTarget = true,
+    machine = { kind = "TM", move = "IRON_TAIL", number = 23 },
   })
-  mod.content.moves:patch("KARATE_CHOP", {
-    type = "FIGHTING", category = "physical",
-  })
-
+  -- False Swipe is a real damaging move, not a placeholder status effect.
+  -- Cap only direct damage to the target itself; a Substitute may still be
+  -- broken normally.  The hook preserves the engine's complete damage-info
+  -- record and composes with the existing Mythic Echo one-HP protection.
+  mod.hooks:wrap("battle.damage", function(nextDamage, ctx)
+    local damage, info = nextDamage(ctx)
+    local substituteHP = tonumber(ctx and ctx.target
+      and ctx.target.substituteHP) or 0
+    if not (ctx and ctx.move and ctx.move.id == "FALSE_SWIPE"
+        and ctx.target and substituteHP <= 0) then
+      return damage, info
+    end
+    local mon = ctx.target.mon or ctx.target
+    return math.min(tonumber(damage) or 0,
+      math.max(0, (tonumber(mon.hp) or 1) - 1)), info
+  end, 850)
   -- Friendship is stored on the individual mon and grows through travel and
   -- victories in johto_research.lua. AUTO follows the computer clock; the
   -- option also lets players force either Eevee branch.
@@ -284,17 +358,6 @@ return function(mod, legends, johto, i18n)
       price = 2100, tossable = true, needsTarget = false,
     })
   end
-
-  -- Steel became part of Magnemite's family in Generation II.
-  local function replaceTypes(id, types)
-    local current = assert(mod.content.pokemon:get(id), "missing " .. id)
-    local replacement = {}
-    for key, value in pairs(current) do replacement[key] = value end
-    replacement.types = types
-    mod.content.pokemon:override(id, replacement)
-  end
-  replaceTypes("MAGNEMITE", { "ELECTRIC", "STEEL" })
-  replaceTypes("MAGNETON", { "ELECTRIC", "STEEL" })
 
   local function sameEvolution(a, b)
     return a.method == b.method
@@ -457,6 +520,17 @@ return function(mod, legends, johto, i18n)
     })
     mod.content.icons:register(id, icon)
   end
+
+  -- Replace approximate levels with Crystal's exact schedule wherever the
+  -- move exists.  KA-only additions survive; unavailable Crystal ids are
+  -- omitted and exposed through a deterministic audit instead of poisoning
+  -- the registry with references to unknown moves.
+  local crystal = loadSibling(mod, "crystal_learnsets.lua")
+  local learnsetCompat = loadSibling(mod, "crystal_learnset_compat.lua")
+  -- Production intentionally scopes the overlay to Johto (#152-251).  The
+  -- complete 251-species source remains available for audits/future opt-in,
+  -- but Kanto keeps Ascendant's established Gen-I schedules.
+  audioCompat.crystalLearnsets = learnsetCompat.apply(mod, crystal, johto.order)
 
   mod.content.constants:patch("dexSize", 251)
   mod.content.constants:patch("dexDigits", 3)

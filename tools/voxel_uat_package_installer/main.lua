@@ -21,15 +21,15 @@ function love.load()
     local LauncherMods = require("src.mods.LauncherMods")
     local installed, result = LauncherMods.installZip(packagePath, {
       replace = true,
-      expectId = "trainer_rematch",
+      expectId = "kanto_ascendant",
     })
-    assert(installed and result == "trainer_rematch",
+    assert(installed and result == "kanto_ascendant",
       "package import failed: " .. tostring(result))
     local version
     for _, row in ipairs(LauncherMods.list()) do
-      if row.id == "trainer_rematch" then version = row.version break end
+      if row.id == "kanto_ascendant" then version = row.version break end
     end
-    assert(version == "6.0.5",
+    assert(version == "6.5.0",
       "installed unexpected version " .. tostring(version))
     print("VOXEL UAT PACKAGE INSTALL PASS: " .. version)
   end, debug.traceback)

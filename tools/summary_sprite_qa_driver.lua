@@ -16,18 +16,18 @@ return function(game)
   game.save.options = game.save.options or {}
   game.save.options.textSpeed = 1
   game.save.options.modOptions = game.save.options.modOptions or {}
-  game.save.options.modOptions.trainer_rematch =
-    game.save.options.modOptions.trainer_rematch or {}
+  game.save.options.modOptions.kanto_ascendant =
+    game.save.options.modOptions.kanto_ascendant or {}
   game.mods.modOptions = game.mods.modOptions or {}
-  game.mods.modOptions.trainer_rematch =
-    game.mods.modOptions.trainer_rematch or {}
+  game.mods.modOptions.kanto_ascendant =
+    game.mods.modOptions.kanto_ascendant or {}
 
   local function setOption(key, value)
-    game.mods.modOptions.trainer_rematch[key] = value
-    game.save.options.modOptions.trainer_rematch[key] = value
+    game.mods.modOptions.kanto_ascendant[key] = value
+    game.save.options.modOptions.kanto_ascendant[key] = value
     if game.mods.events then
       game.mods.events:emit("mod.options_changed", {
-        mod = "trainer_rematch", key = key, value = value,
+        mod = "kanto_ascendant", key = key, value = value,
       })
     end
   end

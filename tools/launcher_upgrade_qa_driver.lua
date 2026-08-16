@@ -5,8 +5,9 @@
 --   KA_CURRENT_PACKAGE current .modpkg
 --
 -- The driver switches to a dedicated LOVE identity before installing. It
--- first imports the old release, then replaces it through the launcher's
--- exact .zip/.modpkg path and verifies the manager sees 6.0.5.
+-- first imports the accepted old-ID release, then imports the current 6.5
+-- package through the launcher's exact .zip/.modpkg path. Both IDs are
+-- inspected so this catches duplicate-ID and upgrade regressions.
 
 return function()
   assert(love and love.filesystem, "launcher QA requires LOVE")
@@ -26,9 +27,9 @@ return function()
   -- QA run may have another development copy mounted earlier in PhysFS, which
   -- can legitimately shadow LauncherMods.list() without changing where
   -- installZip wrote the selected package.
-  local function installedVersion()
+  local function installedVersion(modId)
     local path = love.filesystem.getSaveDirectory()
-      .. "/mods/trainer_rematch/manifest.json"
+      .. "/mods/" .. modId .. "/manifest.json"
     local file = assert(io.open(path, "rb"),
       "launcher did not create " .. path)
     local manifest = file:read("*a")
@@ -41,21 +42,24 @@ return function()
   })
   assert(ok and id == "trainer_rematch",
     "older package import failed: " .. tostring(id))
-  local oldVersion = installedVersion()
-  assert(oldVersion == "5.4.2",
-    "launcher did not expose installed 5.4.2: " .. tostring(oldVersion))
+  local oldVersion = installedVersion("trainer_rematch")
 
   ok, id = LauncherMods.installZip(currentPackage, {
-    replace = true, expectId = "trainer_rematch",
+    replace = true, expectId = "kanto_ascendant",
   })
-  assert(ok and id == "trainer_rematch",
-    "6.0.5 .modpkg update failed: " .. tostring(id))
-  local currentVersion, manifest = installedVersion()
-  assert(currentVersion == "6.0.5",
-    "launcher did not expose installed 6.0.5: " .. tostring(currentVersion))
-  assert(manifest:find('"version"%s*:%s*"6%.0%.4"'),
+  assert(ok and id == "kanto_ascendant",
+    "6.5.0 RC10 package import failed: " .. tostring(id))
+  local currentVersion, manifest = installedVersion("kanto_ascendant")
+  assert(currentVersion == "6.5.0",
+    "launcher did not expose installed 6.5.0: " .. tostring(currentVersion))
+  assert(manifest:find('"id"%s*:%s*"kanto_ascendant"'),
+    "installed tree does not contain the permanent manifest id")
+  assert(manifest:find('"version"%s*:%s*"6%.5%.0"'),
     "installed tree does not contain the current manifest")
+  assert(manifest:find('"trainer_rematch"', 1, true),
+    "RC10 manifest does not declare the old identity conflict")
 
-  print(("LAUNCHER PACKAGE QA PASS: 5.4.2 -> %s (%s)")
-    :format(currentVersion, love.filesystem.getSaveDirectory()))
+  print(("LAUNCHER PACKAGE QA PASS: trainer_rematch %s + "
+      .. "kanto_ascendant %s (%s)")
+    :format(oldVersion, currentVersion, love.filesystem.getSaveDirectory()))
 end

@@ -1,0 +1,15 @@
+{
+  "id": "ka65_unknown_probe",
+  "name": "Final Unknown-Mod Negative Probe",
+  "version": "1.0.0",
+  "api": 2,
+  "entry": "main.lua",
+  "profile": "content",
+  "category": "GAMEPLAY",
+  "game_version": ">=0.1.79 <0.2.0",
+  "priority": 999,
+  "permissions": [],
+  "dependencies": [],
+  "optional_dependencies": [],
+  "conflicts": []
+}

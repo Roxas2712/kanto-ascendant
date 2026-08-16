@@ -16,7 +16,7 @@ local GameVersion = require("src.core.GameVersion")
 local Sound = require("src.core.Sound")
 
 local modPath = os.getenv("TRAINER_REMATCH_MOD_DIR")
-  or "mods/trainer_rematch"
+  or "mods/kanto_ascendant"
 
 local function fixtureData()
   local data = T.fixtures.fresh()
@@ -82,7 +82,7 @@ GameVersion.set("red")
 local run = T.sdk.loadMod(modPath, { data = data })
 T.eq(#run.errors, 0, "the complete mod loads against ROM-free fixture data")
 
-local gorochu = run.loader.exports.trainer_rematch.gorochu
+local gorochu = run.loader.exports.kanto_ascendant.gorochu
 T.neq(gorochu, nil, "the Gorochu controller is exported")
 T.eq(gorochu.available, true, "the seeded Raichu enables Gorochu")
 T.eq(gorochu.audio.primary:match("([^/]+)$"), "gorochu_cry.wav",

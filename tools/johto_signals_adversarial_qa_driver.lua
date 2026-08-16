@@ -23,7 +23,7 @@ return function(game)
 
   U.wait(30)
   local exports = assert(game.mods and game.mods.exports
-      and game.mods.exports.trainer_rematch,
+      and game.mods.exports.kanto_ascendant,
     "Kanto Ascendant export missing")
   local stateApi = assert(exports.johtoSignalsState,
     "Johto Signals state export missing")
@@ -40,9 +40,9 @@ return function(game)
   local qaLanguage = os.getenv("QA_LANGUAGE")
   if qaLanguage then
     game.mods.modOptions = game.mods.modOptions or {}
-    game.mods.modOptions.trainer_rematch =
-      game.mods.modOptions.trainer_rematch or {}
-    game.mods.modOptions.trainer_rematch.language = qaLanguage
+    game.mods.modOptions.kanto_ascendant =
+      game.mods.modOptions.kanto_ascendant or {}
+    game.mods.modOptions.kanto_ascendant.language = qaLanguage
     assert(exports.language() == qaLanguage,
       "could not select QA language " .. tostring(qaLanguage))
   end

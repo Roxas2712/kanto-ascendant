@@ -13,6 +13,7 @@ return function(mod, opts)
   local mythic = assert(opts.mythic, "Mythic Signals controller missing")
   local prisms = opts.prisms
   local i18n = opts.i18n
+  local johtoBoundary = opts.johtoBoundary
   local worldEvents = opts.worldEvents
   local dexProgress = opts.dexProgress
 
@@ -33,6 +34,12 @@ return function(mod, opts)
 
   local function tr(english, german)
     return i18n and i18n.text and i18n.text(english, german) or english
+  end
+
+  local function boundaryActive(game)
+    return not johtoBoundary
+      or type(johtoBoundary.isActive) ~= "function"
+      or johtoBoundary.isActive(game or H.game)
   end
 
   local function persist()
@@ -65,7 +72,7 @@ return function(mod, opts)
     if type(opts.openMenu) == "function" then
       return opts.openMenu(game, title, rows, menuOpts)
     end
-    game.stack:push(mod.ui.ListMenu.new(game, title, rows, menuOpts))
+    game.stack:push((mod.ui.KantoListMenu or mod.ui.ListMenu).new(game, title, rows, menuOpts))
     return true
   end
 
@@ -450,6 +457,15 @@ return function(mod, opts)
   end
 
   function H.openModeChoice(game, onDone)
+    if johtoBoundary and boundaryActive(game) then
+      return show(game, tr(
+        "BEYOND KANTO is\npermanent in this save.\f"
+          .. "The current cannot be\nreturned to Kanto First.",
+        "JENSEITS VON KANTO\nist in diesem Spielstand\ndauerhaft.\f"
+          .. "Der Strom kann nicht\nzu Kanto Zuerst\nzurückkehren."), function()
+            if onDone then onDone(false) end
+          end)
+    end
     local rows = {}
     for _, mode in ipairs({
       MODES.KANTO_FIRST, MODES.WANDERWAVES, MODES.UNLEASHED,
@@ -487,10 +503,35 @@ return function(mod, opts)
   end
 
   local function earlyEnabled()
+    if johtoBoundary then return boundaryActive(H.game) end
     if type(early.enabled) == "function" then return early.enabled() ~= false end
     if mod.options and type(mod.options.get) == "function" then
       local value = mod.options:get("johto_signals_enable")
       return value ~= false and value ~= "off"
+    end
+    return true
+  end
+
+  local function writeEarlyEnabled(game, value)
+    if johtoBoundary then return false, "irreversible" end
+    if not (game and game.save) then return false end
+    game.save.options = game.save.options or {}
+    game.save.options.modOptions = game.save.options.modOptions or {}
+    game.save.options.modOptions[mod.id] =
+      game.save.options.modOptions[mod.id] or {}
+    game.save.options.modOptions[mod.id].johto_signals_enable = value == true
+    if game.mods then
+      game.mods.modOptions = game.mods.modOptions or {}
+      game.mods.modOptions[mod.id] = game.mods.modOptions[mod.id] or {}
+      game.mods.modOptions[mod.id].johto_signals_enable = value == true
+    end
+    if type(game.writeOptions) == "function" then game:writeOptions() end
+    if game.mods and game.mods.events
+        and type(game.mods.events.emit) == "function" then
+      game.mods.events:emit("mod.options_changed", {
+        game = game, mod = mod.id,
+        key = "johto_signals_enable", value = value == true,
+      })
     end
     return true
   end
@@ -704,11 +745,42 @@ return function(mod, opts)
         end,
       },
       {
+        label = johtoBoundary and tr("BEYOND KANTO", "JENSEITS KANTO")
+          or tr("EARLY JOHTO", "FRÜHES JOHTO"),
+        right = not repaired and tr("LOCK", "ZU")
+          or (enabled and tr("ON", "AN") or tr("OFF", "AUS")),
+        value = "enabled",
+        onSelect = function()
+          if johtoBoundary then
+            return show(game, tr(
+              "BEYOND KANTO is\npermanent in this save.",
+              "JENSEITS VON KANTO\nist in diesem Spielstand\ndauerhaft."))
+          end
+          if not earlyState().receiverRepaired then
+            return show(game, lockedText())
+          end
+          local nextValue = not earlyEnabled()
+          if writeEarlyEnabled(game, nextValue) then
+            refreshVisibleWilds("Early Johto post-repair toggle")
+          end
+          show(game, nextValue and tr(
+            "Early Johto is ON.", "Frühes Johto ist AN.") or tr(
+            "Early Johto is OFF.\fKanto encounters stay unchanged.",
+            "Frühes Johto ist AUS.\fKanto-Begegnungen bleiben unverändert."))
+        end,
+      },
+      {
         label = tr("WILDS LINK", "WILDS-VERBIND."),
         value = "wilds",
         onSelect = function()
-          local wilds = game and game.mods and game.mods.exports
-            and game.mods.exports.overworld_wild_spawns
+          local okWilds, wildsHandle = false, nil
+          if mod and type(mod.find) == "function" then
+            okWilds, wildsHandle = pcall(function()
+              return mod.find("overworld_wild_spawns")
+            end)
+          end
+          local wilds = okWilds and type(wildsHandle) == "table"
+            and wildsHandle.exports or nil
           local compat = mod.exports and mod.exports.wildsCompat
           local status = compat and type(compat.runtimeStatus) == "function"
             and compat.runtimeStatus() or {}
@@ -790,6 +862,11 @@ return function(mod, opts)
   end
 
   function H.openJohto(game)
+    if not boundaryActive(game) then
+      return show(game, tr(
+        "BEYOND KANTO is sealed.\fAfter entering the Hall\nof Fame, speak with\nELM'S AIDE in OAK'S LAB.",
+        "JENSEITS VON KANTO ist\nversiegelt.\fSprich nach der\nRuhmeshalle mit LINDs\nAssistent in EICHs Labor."))
+    end
     local rows = H.johtoRows(game)
     return openList(game, tr("JOHTO SIGNALS", "JOHTO-SIGNALE"), rows, {
       onChoose = function(item)
@@ -847,7 +924,9 @@ return function(mod, opts)
     end
     rows[#rows + 1] =
       {
-        label = tr("JOHTO SIGNALS", "JOHTO-SIGNALE"),
+        label = boundaryActive(game)
+          and tr("JOHTO SIGNALS", "JOHTO-SIGNALE")
+          or tr("JOHTO SEALED", "JOHTO VERSIEGELT"),
         value = "johto",
         onSelect = function() H.openJohto(game) end,
       }
@@ -870,6 +949,7 @@ return function(mod, opts)
   end
 
   function H.objective(game)
+    if not boundaryActive(game) then return nil end
     local johtoOn = earlyEnabled()
     local mythicOn = mythicEnabled()
     if not johtoOn and not mythicOn then return nil end

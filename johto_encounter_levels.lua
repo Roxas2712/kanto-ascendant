@@ -4,6 +4,12 @@
 
 local L = {}
 
+-- 6.5 keeps the encounters deliberately punchy: ordinary Johto species are
+-- two to eight levels above the current route average by default.  The range
+-- is configurable so internal UAT can compare the old 2..5 band without
+-- changing any caller or save data.
+local BONUS_MIN, BONUS_MAX = 2, 8
+
 -- Gen I's cumulative encounter-slot thresholds out of 256. Encounter tables
 -- may override these with their own `buckets`, matching Encounter.roll.
 local DEFAULT_BUCKETS = {
@@ -49,7 +55,7 @@ function L.routeAverage(encDef, encounterKind)
   if totalWeight == 0 then return nil end
 
   -- Pokémon levels are integral. Use the nearest whole route average so the
-  -- promised +2..+5 band is itself exact and easy to explain to players.
+  -- configured bonus band is exact and easy to explain to players.
   return math.max(1, math.floor(weightedTotal / totalWeight + 0.5))
 end
 
@@ -57,9 +63,21 @@ function L.ordinaryLevelFromAverage(averageLevel, rng, fallbackLevel)
   local base = tonumber(averageLevel) or tonumber(fallbackLevel) or 1
   base = math.max(1, math.floor(base + 0.5))
   rng = type(rng) == "function" and rng or math.random
-  local bonus = math.floor(tonumber(rng(2, 5)) or 2)
-  bonus = math.max(2, math.min(5, bonus))
+  local bonus = math.floor(tonumber(rng(BONUS_MIN, BONUS_MAX)) or BONUS_MIN)
+  bonus = math.max(BONUS_MIN, math.min(BONUS_MAX, bonus))
   return math.min(100, base + bonus)
+end
+
+function L.setBonusRange(minimum, maximum)
+  minimum, maximum = math.floor(tonumber(minimum) or 2),
+    math.floor(tonumber(maximum) or 8)
+  if minimum < 0 then minimum = 0 end
+  if maximum < minimum then maximum = minimum end
+  BONUS_MIN, BONUS_MAX = minimum, maximum
+end
+
+function L.bonusRange()
+  return BONUS_MIN, BONUS_MAX
 end
 
 function L.ordinaryLevel(encDef, encounterKind, rng, fallbackLevel)

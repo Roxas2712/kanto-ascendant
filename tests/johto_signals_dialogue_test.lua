@@ -115,7 +115,7 @@ local function newSystem(language)
   }
   local hookRows, eventRows = {}, {}
   local mod = {
-    id = "trainer_rematch",
+    id = "kanto_ascendant",
     options = {
       get = function(_, key) return options[key] end,
     },

@@ -29,7 +29,7 @@ end
 local maps, items, scripts, mapSongs =
   registry(), registry(), registry(), registry()
 local mod = {
-  id = "trainer_rematch",
+  id = "kanto_ascendant",
   content = {
     maps = maps,
     items = items,

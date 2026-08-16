@@ -13,9 +13,9 @@ return function(game)
   local action = os.getenv("KA_ONBOARDING_ACTION")
   local requested = action == "decline" and "waves" or "unleashed"
   game.mods.modOptions = game.mods.modOptions or {}
-  game.mods.modOptions.trainer_rematch =
-    game.mods.modOptions.trainer_rematch or {}
-  game.mods.modOptions.trainer_rematch.johto_signals_start = requested
+  game.mods.modOptions.kanto_ascendant =
+    game.mods.modOptions.kanto_ascendant or {}
+  game.mods.modOptions.kanto_ascendant.johto_signals_start = requested
   assert(SaveData.setActiveSlot(version, slot) == slot,
     "could not select onboarding UAT slot")
   local loaded, recovered = SaveData.load(version)
@@ -25,7 +25,7 @@ return function(game)
   U.wait(90)
 
   local exports = assert(game.mods and game.mods.exports
-      and game.mods.exports.trainer_rematch,
+      and game.mods.exports.kanto_ascendant,
     "Kanto Ascendant exports are unavailable")
   local early = assert(exports.johtoSignals,
     "Johto Signals controller is unavailable")

@@ -13,12 +13,12 @@ return function(game)
   U.wait(30)
   U.log("Prism UAT save directory:", love.filesystem.getSaveDirectory())
   local loaded = game.mods and game.mods.mods
-    and game.mods.mods.trainer_rematch
+    and game.mods.mods.kanto_ascendant
   U.log("Prism UAT Kanto Ascendant:",
     loaded and loaded.path,
     loaded and loaded.manifest and loaded.manifest.version)
   local exports = assert(game.mods and game.mods.exports
-      and game.mods.exports.trainer_rematch,
+      and game.mods.exports.kanto_ascendant,
     "Kanto Ascendant export missing")
   local stateApi = assert(exports.johtoSignalsState,
     "Johto Signals state export missing")
@@ -142,7 +142,7 @@ return function(game)
   assert(game.save.inventory.SUN_STONE == 1,
     "replaying a solved inscription duplicated its reward")
 
-  local options = game.mods.modOptions.trainer_rematch
+  local options = game.mods.modOptions.kanto_ascendant
   options.language = "de"
   root.prismGrotto.introduced = false
   prisms.interactReader(game, npc)

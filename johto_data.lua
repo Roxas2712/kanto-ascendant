@@ -406,9 +406,16 @@ profile({ "YANMA" }, { "TACKLE", "QUICK_ATTACK" },
 profile({ "WOOPER", "QUAGSIRE" }, { "WATER_GUN", "TAIL_WHIP" },
   { 11, "SLAM", 21, "AMNESIA", 31, "EARTHQUAKE",
     41, "MIST", 51, "HAZE" }, "water,ground", { "ICE_PUNCH" })
-profile({ "ESPEON" }, { "TACKLE", "TAIL_WHIP", "SAND_ATTACK" },
-  { 8, "CONFUSION", 16, "QUICK_ATTACK", 23, "SWIFT",
-    30, "PSYCHIC_M" }, "psychic,normal")
+-- Espeon is a Gen-II evolution, so its own Crystal level-up schedule is the
+-- authority here.  Keep unsupported Crystal moves out of the registry rather
+-- than shifting the remaining moves to earlier levels: SAND_ATTACK belongs at
+-- 8, SWIFT at 30, PSYBEAM at 36 and PSYCHIC at 47.  The Route 5 Move Reminder
+-- consumes this same learnset and therefore also repairs already-levelled
+-- Espeon without routing PSYBEAM through Johto Move Resonance.
+profile({ "ESPEON" }, { "TACKLE", "TAIL_WHIP" },
+  { 8, "SAND_ATTACK", 16, "CONFUSION", 23, "QUICK_ATTACK",
+    30, "SWIFT", 36, "PSYBEAM", 47, "PSYCHIC_M" },
+  "psychic,normal")
 profile({ "UMBREON" }, { "TACKLE", "TAIL_WHIP", "SAND_ATTACK" },
   { 8, "BITE", 16, "CONFUSE_RAY", 23, "QUICK_ATTACK",
     30, "SCREECH", 42, "SHADOW_BALL" }, "dark,normal", { "PSYCHIC_M" })

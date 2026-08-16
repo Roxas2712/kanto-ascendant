@@ -11,7 +11,7 @@ return function(mod, opts)
     id = "GOROCHU",
     dex = 1026,
     method = "ITEM",
-    animationDurations = { 120, 80, 100, 120, 80, 100 },
+    animationDurations = { 230, 100, 115, 105, 115, 300 },
   }
 
   local STATE_KEY = "gorochu_quest"
@@ -123,9 +123,30 @@ return function(mod, opts)
     return found
   end
 
+  local function present(value)
+    return value == true or (tonumber(value) or 0) > 0
+  end
+
   local function itemOwned(game, item)
     return game and game.save and game.save.inventory
-      and (tonumber(game.save.inventory[item]) or 0) > 0 or false
+      and present(game.save.inventory[item]) or false
+  end
+
+  local function surgeVictory(game)
+    local save = game and game.save
+    if not save then return false, "not_defeated" end
+    if save.inventory and present(save.inventory.THUNDERBADGE) then
+      return true, "badge"
+    end
+    -- The vanilla post-battle advice shown by Surge is gated by this exact
+    -- victory flag. Treat it as canonical proof too: imported/upgraded saves
+    -- can retain the win while their badge table is temporarily incomplete.
+    -- Otherwise KASC falls through to that advice forever and the durable
+    -- Thunderheart can never be repaired.
+    if save.flags and present(save.flags.EVENT_BEAT_LT_SURGE) then
+      return true, "victory_flag"
+    end
+    return false, "not_defeated"
   end
 
   local function orderBag(save)
@@ -239,9 +260,7 @@ return function(mod, opts)
       tmhm[#tmhm + 1] = move
     end
 
-    -- Raichu's two Mega profiles both total 495 in the Gen-I five-stat
-    -- model. Gorochu totals 560: 13.13% higher, deliberately inside the
-    -- requested 10-15% band, in exchange for being a permanent choice.
+    -- KA-INTERNAL: BALANCE-GOROCHU-001
     mod.content.pokemon:register(G.id, {
       id = G.id,
       name = "GOROCHU",
@@ -378,21 +397,21 @@ return function(mod, opts)
     if s and s.completed or hasSpecies(game and game.save, G.id) then
       return tr(
         "GOROCHU RESEARCH\fThe THUNDER TEAR has\nbecome a living storm.\fGOROCHU cannot Mega\nEvolve.",
-        "GOROCHU-FORSCHUNG\fDie DONNERTRÄNE wurde\nzum lebenden Sturm.\fGOROCHU kann sich nicht\nmegaentwickeln.")
+        "GOROCHU-APP\fDie DONNERTRÄNE\nwurde zum lebenden\nSturm.\fGOROCHU kann sich\nnicht megaentwickeln.")
     end
     if itemOwned(game, TEAR) then
       return tr(
         "GOROCHU RESEARCH\fUse the THUNDER TEAR\non the RAICHU you\nchoose.\fThe evolution is\npermanent.",
-        "GOROCHU-FORSCHUNG\fNutze die DONNERTRÄNE\nam gewählten RAICHU.\fDie Entwicklung ist\ndauerhaft.")
+        "GOROCHU-APP\fNutze die\nDONNERTRÄNE am\ngewählten RAICHU.\fDie Entwicklung ist\ndauerhaft.")
     end
     if itemOwned(game, HEART) then
       return tr(
         "GOROCHU RESEARCH\fThe THUNDERHEART\npoints to a remote\ncondenser in the\nPOWER PLANT's east wing.\fIt is far from ZAPDOS.",
-        "GOROCHU-FORSCHUNG\fDas DONNERHERZ weist\nzu einem abgelegenen\nKondensator im Ostflügel\ndes KRAFTWERKS.\fWeit entfernt von ZAPDOS.")
+        "GOROCHU-APP\fDas DONNERHERZ\nweist zu einem\nKondensator im\fOstfluegel des\nKRAFTWERKS.\fWeit entfernt von\nZAPDOS.")
     end
     return tr(
       "GOROCHU RESEARCH\fLT.SURGE carries a\ncharge that cannot be\nsold, tossed or traded.",
-      "GOROCHU-FORSCHUNG\fMAJOR BOB bewahrt eine\nKraft, die weder verkauft,\nweggeworfen noch getauscht\nwerden kann.")
+      "GOROCHU-APP\fMAJOR BOB bewahrt\neine Kraft, die\nweder verkauft,\fweggeworfen noch\ngetauscht werden\nkann.")
   end
 
   local function openHeart(game)
@@ -481,9 +500,18 @@ return function(mod, opts)
     local done = function() npc.frozen = false end
     s.offered = true
     persist(s)
-    return showText(game, tr(
-      "LT.SURGE: KID! THIS\nCHARGE ANSWERED YOUR\nTHUNDER BADGE.\fThe THUNDERHEART can\nnever be sold, tossed\nor traded.\fTake it and search the\nPOWER PLANT's far\neast wing?",
-      "MAJOR BOB: KIND!\fDIESE KRAFT REAGIERT\nAUF DEINEN DONNERORDEN.\fDas DONNERHERZ kann\nnie verkauft, weggeworfen\noder getauscht werden.\fNimm es und suche im\nfernen Ostflügel des\nKRAFTWERKS?"), nil, {
+    local _, proof = surgeVictory(game)
+    local prompt
+    if proof == "badge" then
+      prompt = tr(
+        "LT.SURGE: KID! THIS\nCHARGE ANSWERED YOUR\nTHUNDER BADGE.\fThe THUNDERHEART can\nnever be sold, tossed\nor traded.\fTake it and search the\nPOWER PLANT's far\neast wing?",
+        "MAJOR BOB: KIND!\fDIESE KRAFT REAGIERT\nAUF DEINEN DONNERORDEN.\fDas DONNERHERZ kann\nnie verkauft, weggeworfen\noder getauscht werden.\fNimm es und suche im\nfernen Ostflügel des\nKRAFTWERKS?")
+    else
+      prompt = tr(
+        "LT.SURGE: KID!\fYOUR VICTORY IS ON\nRECORD.\fTHIS CHARGE ANSWERS\nTHAT WIN.\fTHUNDERHEART can\nnever be sold, tossed\nor traded.\fTake it and search the\nPOWER PLANT's far\neast wing?",
+        "MAJOR BOB: KIND!\fDEIN SIEG IST\nGESPEICHERT.\fDIE KRAFT REAGIERT\nDARAUF.\fDONNERHERZ kann nie\nverkauft, weggeworfen\noder getauscht werden.\fNimm es und suche im\nfernen Ostflügel des\nKRAFTWERKS?")
+    end
+    return showText(game, prompt, nil, {
         choice = function(yes)
           if yes then
             grantHeart(game)
@@ -503,6 +531,21 @@ return function(mod, opts)
           end
         end,
       })
+  end
+
+  local function repairHeart(ow, npc, game)
+    npc.frozen = true
+    if npc.facePlayer then npc:facePlayer(ow.player) end
+    local done = function() npc.frozen = false end
+    -- heartGiven is the durable entitlement. The physical key item may be
+    -- absent after a damaged import or another mod's migration, but repairing
+    -- it must never replay the original optional hand-off. grantHeart clamps
+    -- the inventory row to exactly one on every recovery.
+    grantHeart(game)
+    showText(game, tr(
+      "LT.SURGE: HOLD IT,\nKID!\fYOUR THUNDERHEART\nWAS MISSING.\fI restored its\npermanent charge.\fTHUNDERHEART is\nback in your BAG!",
+      "MAJOR BOB: HALT,\nKIND!\fDEIN DONNERHERZ\nHAT GEFEHLT.\fIch stelle seine\ndauerhafte Kraft\nwieder her.\fDONNERHERZ ist\nzurück im BEUTEL!"), done)
+    return true
   end
 
   local function useShrine(ow, npc, game)
@@ -554,8 +597,7 @@ return function(mod, opts)
       return useShrine(ow, npc, game)
     end
     if ow.map.id ~= "VERMILION_GYM" or npc.def.name ~= SURGE
-        or isYellow() or not (game.save.inventory
-          and game.save.inventory.THUNDERBADGE) then
+        or isYellow() or not surgeVictory(game) then
       return false
     end
     -- THUNDERHEART is the durable hand-off marker. If it is missing, always
@@ -568,6 +610,10 @@ return function(mod, opts)
       -- rematches) or his original script can handle every later conversation.
       -- Quest status remains available from ASCENDANT -> THUNDER PATH.
       return false
+    end
+    local s = state()
+    if s.heartGiven then
+      return repairHeart(ow, npc, game)
     end
     return offerHeart(ow, npc, game)
   end
@@ -678,6 +724,7 @@ return function(mod, opts)
   end
 
   G.state = state
+  G.surgeVictory = surgeVictory
   G.grantHeart = grantHeart
   G.grantTear = grantTear
   G.heartOwned = function(game)
@@ -713,7 +760,7 @@ return function(mod, opts)
       label = tr("THUNDER PATH", "DONNERPFAD"),
       right = right,
       ascendantMenu = true,
-      ascendantLabel = tr("GOROCHU RESEARCH", "GOROCHU-FORSCHUNG"),
+      ascendantLabel = tr("GOROCHU RESEARCH", "GOROCHU-APP"),
       ascendantOrder = 16,
       ascendantKey = "gorochu_quest",
       onSelect = function()

@@ -11,37 +11,49 @@
 
 return function(mod)
   local A = {}
-  -- Bump the derived cache whenever follower layout/alpha handling changes.
-  -- Mobile installations otherwise keep an older converted sheet forever.
-  local CACHE_ROOT = "mod-derived/trainer_rematch/sprite-cache-v6"
+  local extendedRuntime
   local prepared = {}
 
-  local function available()
-    return love and love.filesystem and love.image
-      and love.image.newImageData and love.filesystem.createDirectory
+  -- Engine 0.1.86 deliberately withholds love.filesystem from mod code; even
+  -- reading that property raises through the LOVE facade. Packaged existence
+  -- checks therefore use mod:read. ImageData decode/encode remains an allowed
+  -- sandbox surface (and writes only under LÖVE's save identity), so the few
+  -- Kanto story-partner fallbacks can still be converted deterministically.
+  local function relativeToMod(path)
+    if type(path) ~= "string" or path == "" then return nil end
+    local prefix = tostring(mod.path or "") .. "/"
+    if path:sub(1, #prefix) == prefix then return path:sub(#prefix + 1) end
+    if path:sub(1, 1) ~= "/" and not path:match("^save/") then return path end
+    return nil
   end
 
   local function info(path)
-    return love and love.filesystem and love.filesystem.getInfo
-      and love.filesystem.getInfo(path) or nil
+    local relative = relativeToMod(path)
+    if not relative or type(mod.read) ~= "function" then return nil end
+    local ok, bytes = pcall(mod.read, mod, relative)
+    return ok and bytes ~= nil and { type = "file" } or nil
   end
 
-  local function current(source, target)
-    local src, dst = info(source), info(target)
-    if not (src and dst) then return false end
-    if src.modtime and dst.modtime then return dst.modtime >= src.modtime end
-    return true
+  local function available()
+    return love and love.image and love.image.newImageData
   end
 
-  local function ensureParent(path)
-    local parent = path:match("^(.*)/[^/]+$")
-    return parent and love.filesystem.createDirectory(parent)
+  local function cacheTarget(kind, name)
+    local safe = (tostring(kind) .. "_" .. tostring(name))
+      :gsub("[^%w_.-]", "_")
+    if #safe > 120 then safe = safe:sub(#safe - 119) end
+    -- Flat paths need no forbidden createDirectory call. ImageData:encode
+    -- resolves them inside LÖVE's own save directory.
+    return "ka_sprite_cache_v8_" .. safe .. ".png"
   end
 
   local function encode(image, target)
-    if not ensureParent(target) then return false end
     local ok = pcall(image.encode, image, "png", target)
-    return ok and info(target) ~= nil
+    if not ok then return false end
+    -- Decode is both an allowed existence probe and corruption guard. Never
+    -- return a path merely because encode did not throw.
+    local readable, decoded = pcall(love.image.newImageData, target)
+    return readable and decoded ~= nil
   end
 
   local function sameColor(a, b)
@@ -86,13 +98,9 @@ return function(mod)
     if not info(source) then return nil end
     if not available() then return source end
     local filename = relativePath:match("([^/]+)$")
-    local target = CACHE_ROOT .. "/crystal/" .. filename
+    local target = cacheTarget("crystal", relativePath)
     local key = "crystal:" .. source
     if prepared[key] then return prepared[key] end
-    if current(source, target) then
-      prepared[key] = target
-      return target
-    end
     local ok, image = pcall(love.image.newImageData, source)
     if ok and image then
       clearConnectedBackground(image)
@@ -110,6 +118,15 @@ return function(mod)
   -- side walk.
   local FOLLOWER_ORDER = { 4, 2, 0, 5, 3, 1 }
   A.followerOrder = FOLLOWER_ORDER
+
+  function A.kantoFollower(dex)
+    dex = tonumber(dex)
+    if not dex then return nil end
+    local relative = ("assets/followers_kanto/follower_%03d.png")
+      :format(math.floor(dex))
+    local path = mod.path .. "/" .. relative
+    return info(path) and path or nil
+  end
 
   local function iconFollower(source)
     local input = love.image.newImageData(source)
@@ -158,16 +175,15 @@ return function(mod)
     if type(relativePath) ~= "string" or relativePath == "" then return nil end
     local source = mod.path .. "/" .. relativePath
     if not info(source) then return nil end
-    if not available() then return source end
+    -- A battle portrait is never a renderer-valid 16x96 / six-pose walker.
+    -- If the host cannot perform the deterministic conversion, fail closed
+    -- and let the caller choose another follower provider.
+    if not available() then return nil end
     cacheName = tostring(cacheName or relativePath:match("([^/]+)$")
       or "icon"):gsub("[^%w_.-]", "_")
-    local target = CACHE_ROOT .. "/followers/icon_" .. cacheName .. ".png"
+    local target = cacheTarget("icon", cacheName)
     local key = "icon-follower:" .. source
     if prepared[key] then return prepared[key] end
-    if current(source, target) then
-      prepared[key] = target
-      return target
-    end
     local ok, image = pcall(iconFollower, source)
     if ok and image and encode(image, target) then
       prepared[key] = target
@@ -198,6 +214,10 @@ return function(mod)
 
   function A.follower(species, shiny)
     if type(species) ~= "string" or species == "" then return nil end
+    if extendedRuntime and extendedRuntime.identity(species) then
+      local exact = extendedRuntime.followerPath(species, shiny)
+      if exact and info(exact) then return exact end
+    end
     -- Release packages carry renderer-ready vertical sheets. Mobile builds
     -- can consume these directly without depending on ImageData encoding or
     -- write access during follower selection.
@@ -215,20 +235,21 @@ return function(mod)
     end
     if not info(source) then return nil end
     if not available() then return source end
-    local target = CACHE_ROOT .. "/followers/follower_"
-      .. species .. (shiny and "_shiny" or "") .. ".png"
+    local target = cacheTarget("follower",
+      species .. (shiny and "_shiny" or "_normal"))
     local key = "follower:" .. source
     if prepared[key] then return prepared[key] end
-    if current(source, target) then
-      prepared[key] = target
-      return target
-    end
     local ok, image = pcall(verticalFollower, source, species)
     if ok and image and encode(image, target) then
       prepared[key] = target
       return target
     end
     return nil
+  end
+
+  function A.setExtendedSpeciesRuntime(runtime)
+    extendedRuntime = runtime
+    A.invalidate()
   end
 
   function A.invalidate()

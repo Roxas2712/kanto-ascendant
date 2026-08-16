@@ -34,7 +34,7 @@ return function(game)
   Pipelines.syncOptions(game.save.options)
   U.wait(20)
   local ascendant = assert(
-    game.mods and game.mods.exports and game.mods.exports.trainer_rematch,
+    game.mods and game.mods.exports and game.mods.exports.kanto_ascendant,
     "Kanto Ascendant export missing")
   local gorochuApi = assert(ascendant.gorochu,
     "Gorochu controller missing")
