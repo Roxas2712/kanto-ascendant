@@ -4,6 +4,16 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+
+- The manager now admits only the exact upstream
+  `artyrambles/DRAMALESS_SHAPE 2.0.2` package on the 0.1.96 stack instead of
+  displaying a false conflict. This modern Dramaless line is deliberately
+  renderer-native: it owns its own voxel world and battle-card presentation;
+  Ascendant does not access its private loader or renderer internals. All
+  unreviewed Dramaless versions, repositories and multi-renderer combinations
+  remain blocked.
+
 ## [6.5.3] - 2026-08-16
 
 ### Added

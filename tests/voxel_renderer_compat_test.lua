@@ -194,6 +194,56 @@ eq(receipt.provenance, "artyrambles-classic-release-0190-compat",
 eq(receipt.capability, "sideTexture",
   "the receipt names the required capability")
 
+-- Upstream DRAMALESS 2.0.2 is an explicitly approved *native-only* renderer.
+-- Its legacy V table deliberately retains the renderer owner's mod/path/data
+-- authority, so KASC must never probe or forward it. The package owns its
+-- standalone voxel arena + 2D card host; KASC keeps optional overlays on the
+-- safe native path and must not make the historical Wilds alias claim it.
+local nativeCalls = 0
+local nativeOnly = {
+  version = "2.0.0", -- upstream's exported runtime string
+  lib = {
+    mod = { id = "DRAMALESS_SHAPE" },
+    path = "/separately-installed/dramaless-2.0.2",
+    require = function(name)
+      nativeCalls = nativeCalls + 1
+      return { private = name }
+    end,
+  },
+  voxelArenaProvider = {}, voxelCardProvider = {}, voxel2DBattleHost = {},
+}
+gameFor("DRAMALESS_SHAPE", "2.0.2", nil, nativeOnly)
+local nativeHandle
+package, id, reason, nativeHandle, receipt = resolver.resolve()
+eq(package, nil, "DRAMALESS 2.0.2 never becomes a KASC renderer facade")
+eq(id, "DRAMALESS_SHAPE", "native-only receipt keeps the real manifest id")
+eq(reason, "renderer-native-owned:DRAMALESS_SHAPE",
+  "native-only renderer reports its ownership boundary")
+eq(nativeCalls, 0, "KASC never calls DRAMALESS 2.0.2's private loader")
+eq(receipt.export, "renderer-native-only/v1",
+  "receipt records the renderer-native fallback contract")
+ok(receipt.nativeOnly == true,
+  "receipt marks the deliberately non-bridged renderer path")
+module, moduleId, moduleError = resolver.module(nil, "OverworldBattle")
+eq(module, nil, "native-only DRAMALESS exposes no KASC battle module")
+eq(moduleId, "DRAMALESS_SHAPE",
+  "native-only module rejection keeps renderer identity")
+eq(moduleError, "renderer-native-owned:DRAMALESS_SHAPE",
+  "native-only module rejection is explicit")
+eq(nativeCalls, 0, "module lookup still never touches the private loader")
+eq(resolver.findAlias(fakeMod, "DRAMATIC_SHAPE"), nil,
+  "Wilds' historical alias never reaches DRAMALESS 2.0.2")
+eq(nativeCalls, 0, "alias rejection does not touch the private loader")
+
+local nativeAndVoxel = voxelExport("0.1.1")
+gameFor("DRAMALESS_SHAPE", "2.0.2", {
+  VOXEL_ASCENDANT = nativeAndVoxel,
+}, nativeOnly)
+package, id, reason = resolver.resolve()
+eq(package, nil, "DRAMALESS 2.0.2 plus another renderer fails closed")
+eq(reason, "ambiguous-renderers:DRAMALESS_SHAPE,VOXEL_ASCENDANT",
+  "native-only package still enforces one renderer at runtime")
+
 -- Upstream Battle Art 1.9.0 is admitted as a separate install. Its historical
 -- owner loader remains untouched, while every KASC/Wilds consumer receives a
 -- local read-only allowlist facade.

@@ -2,7 +2,10 @@
 --
 -- Engine 0.1.90 sandboxes every mod.  Voxel Ascendant is the standalone,
 -- sandbox-native renderer; the dedicated DRAMALESS 1.6.2-ST.190.1 build and
--- upstream Battle Art 1.9.0 are exact reviewed packages.  Older upstream
+-- upstream Battle Art 1.9.0 are exact reviewed packages.  DRAMALESS 2.0.2 is
+-- separately admitted as a renderer-native stack: it owns its modern world
+-- and native-card battle path, but does not publish the closed module/HUD
+-- contract KASC needs for its optional renderer bridges. Older upstream
 -- DRAMALESS, DRAMATIC_SHAPE, Battle Art and First Person builds touch APIs that
 -- the reviewed sandbox removes, so this authority must reject them instead of
 -- advertising a partial bridge.
@@ -29,6 +32,16 @@ return function(ownerMod)
     },
     BATTLE_ART_VOXEL_FORK = {
       ["1.9.0"] = "battle-art-1.9.0-reviewed-api-contract",
+    },
+  }
+  -- This is deliberately distinct from `approvedVersions`. A native-only
+  -- package is allowed by the manifest but never receives an alias, module
+  -- facade, HUD wrapper, camera mutation or Wilds renderer hook from KASC.
+  -- That keeps DRAMALESS 2.0.2's own providers authoritative and ensures a
+  -- spoofed runtime handle cannot gain cross-mod authority through KASC.
+  R.nativeRendererVersions = {
+    DRAMALESS_SHAPE = {
+      ["2.0.2"] = "artyrambles-dramaless-2.0.2-native-card-provider",
     },
   }
   R.approvedRepositories = {
@@ -288,6 +301,24 @@ return function(ownerMod)
       return nil, nil, "ambiguous-renderers:" .. table.concat(ids, ",")
     end
     local row = candidates[1]
+    local nativeVersions = R.nativeRendererVersions[row.id]
+    local nativeProvenance = nativeVersions
+      and nativeVersions[tostring(versionOf(row.handle, row.exported))]
+    if nativeProvenance then
+      -- Do not read, probe or forward `exports.lib`: DRAMALESS 2.0.2's
+      -- legacy V table retains its renderer owner's mod/path/data authority.
+      -- Its built-in arena/card host remains fully renderer-owned, while
+      -- KASC keeps every optional overlay in its ordinary native-2D path.
+      return nil, row.id, "renderer-native-owned:" .. row.id,
+        nil, {
+          schema = "ka-voxel-renderer-capability/v1",
+          rendererId = row.id,
+          rendererVersion = tostring(versionOf(row.handle, row.exported)),
+          provenance = nativeProvenance,
+          export = "renderer-native-only/v1",
+          nativeOnly = true,
+        }
+    end
     local ok, reason, receipt, safeExport =
       validate(row.id, row.exported, row.handle)
     if not ok then return nil, nil, reason end
