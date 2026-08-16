@@ -48,6 +48,18 @@ return function(mod, opts)
       or johtoBoundary.isActive(game or J.game)
   end
 
+  local function legacyWildsRepairAuthority(game)
+    return johtoBoundary
+      and type(johtoBoundary.hasLegacyJohtoAuthority) == "function"
+      and johtoBoundary.hasLegacyJohtoAuthority(game or J.game) == true
+  end
+
+  local function legacyWildsAuthority(game)
+    return johtoBoundary
+      and type(johtoBoundary.hasLegacyJohtoWildsAuthority) == "function"
+      and johtoBoundary.hasLegacyJohtoWildsAuthority(game or J.game) == true
+  end
+
   local MODES = {
     KANTO_FIRST = "KANTO_FIRST",
     WANDERWAVES = "WANDERWAVES",
@@ -215,6 +227,7 @@ return function(mod, opts)
 
   local runtime = {
     pendingCandidate = nil,
+    legacyWildsRepairPending = nil,
     oakCallPending = false,
     lastEnteredMap = nil,
     onboardingPending = nil,
@@ -223,6 +236,24 @@ return function(mod, opts)
 
   local function tr(en, de)
     return i18n and i18n.text and i18n.text(en, de) or en
+  end
+
+  local function copy(value, seen)
+    if type(value) ~= "table" then return value end
+    seen = seen or {}
+    if seen[value] then return seen[value] end
+    local out = {}
+    seen[value] = out
+    for key, child in pairs(value) do
+      out[copy(key, seen)] = copy(child, seen)
+    end
+    return out
+  end
+
+  local function replaceTable(target, source)
+    for key in pairs(target) do target[key] = nil end
+    for key, value in pairs(source or {}) do target[key] = copy(value) end
+    return target
   end
 
   local function integer(value, minimum, maximum)
@@ -279,6 +310,11 @@ return function(mod, opts)
     s.mode = normalizeMode(s.mode)
     s.modeChosen = s.modeChosen == true
     s.receiverRepaired = s.receiverRepaired == true or s.repaired == true
+    -- Oak's irreversible Legacy/New Game+ YES is a distinct ordinary-wild
+    -- authority. It must not masquerade as completion of the physical
+    -- Driftglass receiver quest, and a copied flag is trusted only while the
+    -- boundary exposes that exact durable decision.
+    s.legacyWildsAuthorized = s.legacyWildsAuthorized == true
     s.repaired = nil
     s.questStarted = s.questStarted == true
     -- 6.0 used capsuleFound for the complete shore interaction. Preserve that
@@ -1138,7 +1174,10 @@ return function(mod, opts)
   local function migrationOpen(snapshot)
     local s = snapshot or state()
     return boundaryActive(J.game) and signalsEnabled()
-      and s.receiverRepaired and s.modeChosen
+      and (s.receiverRepaired
+        or not runtime.legacyWildsRepairPending
+          and s.legacyWildsAuthorized and legacyWildsAuthority(J.game))
+      and s.modeChosen
       and s.mode ~= MODES.KANTO_FIRST
   end
 
@@ -1216,7 +1255,10 @@ return function(mod, opts)
     if not (boundaryActive(J.game) and signalsEnabled()
         and native and ctx and not ctx.kaProtected
         and not ctx.kaEncounterSource and type(ctx.rng) == "function"
-        and s.receiverRepaired and s.modeChosen
+        and (s.receiverRepaired
+          or not runtime.legacyWildsRepairPending
+            and s.legacyWildsAuthorized and legacyWildsAuthority(J.game))
+        and s.modeChosen
         and s.mode ~= MODES.KANTO_FIRST) then
       return native, nil
     end
@@ -1504,6 +1546,71 @@ return function(mod, opts)
       notifyMigrationChanged("johto-unleashed")
     end
     return true, changed and "unleashed" or "already-unleashed"
+  end
+
+  -- Stage only the missing ordinary-wild authority. The boundary owns the
+  -- durable write together with its versioned receipt, then calls commit or
+  -- rollback. Keeping this transaction separate from forceUnleashed prevents
+  -- inferred old-save witnesses, imported Pokémon and later Driftglass opens
+  -- from acquiring Oak's Legacy YES authority.
+  function J.stageLegacyWildsRepair(game)
+    J.game = game or J.game
+    if not legacyWildsRepairAuthority(J.game) then
+      return nil, "legacy-johto-authority"
+    end
+    local s = state()
+    local receipt = {
+      state = s,
+      before = copy(s),
+    }
+    runtime.legacyWildsRepairPending = receipt
+    s.mode = MODES.UNLEASHED
+    s.modeChosen = true
+    s.legacyWildsAuthorized = true
+    normalizeState(s)
+    persist()
+    J.cancelCandidate("legacy-wilds-repair-staged")
+    return receipt
+  end
+
+  function J.rollbackLegacyWildsRepair(receipt)
+    if type(receipt) ~= "table" or type(receipt.state) ~= "table"
+        or type(receipt.before) ~= "table" or receipt.finished then
+      return false, "legacy-wilds-receipt"
+    end
+    replaceTable(receipt.state, receipt.before)
+    persist()
+    J.cancelCandidate("legacy-wilds-repair-rollback")
+    if runtime.legacyWildsRepairPending == receipt then
+      runtime.legacyWildsRepairPending = nil
+    end
+    receipt.finished = "rolled-back"
+    return true
+  end
+
+  function J.commitLegacyWildsRepair(receipt)
+    if type(receipt) ~= "table" or receipt.finished then
+      return false, "legacy-wilds-receipt"
+    end
+    receipt.finished = "committed"
+    if runtime.legacyWildsRepairPending == receipt then
+      runtime.legacyWildsRepairPending = nil
+    end
+    -- A missing boundary receipt can be the only repaired half while the
+    -- Signals fields are already present (for example after an interrupted
+    -- older attempt). Successful repair always changes durable authority, so
+    -- every live Wilds consumer must invalidate once.
+    notifyMigrationChanged("legacy-johto-wilds-authorized")
+    return true
+  end
+
+  function J.legacyWildsReady(game)
+    J.game = game or J.game
+    local s = state()
+    return not runtime.legacyWildsRepairPending
+      and legacyWildsAuthority(J.game)
+      and s.legacyWildsAuthorized == true
+      and s.modeChosen == true and s.mode == MODES.UNLEASHED
   end
 
   if mod.hooks and type(mod.hooks.wrap) == "function" then

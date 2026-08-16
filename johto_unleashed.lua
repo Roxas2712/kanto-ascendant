@@ -14,6 +14,7 @@ return function(mod, opts)
   local B = {
     SAVE_KEY = "beyond_kanto",
     SCHEMA_VERSION = 1,
+    LEGACY_WILDS_VERSION = 1,
     game = nil,
   }
 
@@ -330,6 +331,26 @@ return function(mod, opts)
     return state
   end
 
+  -- This exact receipt is written only by Oak's irreversible Legacy/New
+  -- Game+ Johto YES transaction. Old-save witnesses, imported Pokémon,
+  -- Pokédex rows and a later Driftglass activation intentionally fail it.
+  function B.hasLegacyJohtoAuthority(value)
+    local state = rawState(saveOf(value))
+    return type(state) == "table"
+      and state.active == true and state.irreversible == true
+      and state.decision == "legacy_partner_catalog"
+  end
+
+  function B.hasLegacyJohtoWildsAuthority(value)
+    local state = rawState(saveOf(value))
+    local receipt = type(state) == "table" and state.ordinaryWilds or nil
+    return B.hasLegacyJohtoAuthority(value)
+      and type(receipt) == "table"
+      and receipt.version == B.LEGACY_WILDS_VERSION
+      and receipt.authority == "legacy_partner_catalog"
+      and receipt.applied == true
+  end
+
   function B.state(value, create)
     local save = saveOf(value)
     local state = normalizeState(rawState(save))
@@ -481,6 +502,105 @@ return function(mod, opts)
     return B
   end
 
+  local function legacyWildsReceiptReady(state)
+    local receipt = type(state) == "table" and state.ordinaryWilds or nil
+    return type(receipt) == "table"
+      and receipt.version == B.LEGACY_WILDS_VERSION
+      and receipt.authority == "legacy_partner_catalog"
+      and receipt.applied == true
+  end
+
+  local function legacyWildsControllerReady(signals, game)
+    if not (signals and type(signals.legacyWildsReady) == "function") then
+      return false
+    end
+    local ok, ready = pcall(signals.legacyWildsReady, game)
+    return ok and ready == true
+  end
+
+  local function stageLegacyWilds(game, state)
+    local signals = controllers.signals
+    if not (signals
+        and type(signals.stageLegacyWildsRepair) == "function"
+        and type(signals.rollbackLegacyWildsRepair) == "function"
+        and type(signals.commitLegacyWildsRepair) == "function") then
+      return nil, "legacy-wilds-controller"
+    end
+    local called, signalsReceipt, reason =
+      pcall(signals.stageLegacyWildsRepair, game)
+    if not called then return nil, "legacy-wilds-stage" end
+    if type(signalsReceipt) ~= "table" then
+      return nil, reason or "legacy-wilds-authority"
+    end
+    local staged = {
+      signals = signals,
+      signalsReceipt = signalsReceipt,
+      previousReceipt = copy(state.ordinaryWilds),
+    }
+    state.ordinaryWilds = {
+      version = B.LEGACY_WILDS_VERSION,
+      authority = "legacy_partner_catalog",
+      applied = true,
+    }
+    return staged
+  end
+
+  local function rollbackLegacyWilds(state, staged)
+    if type(state) == "table" and type(staged) == "table" then
+      state.ordinaryWilds = copy(staged.previousReceipt)
+    end
+    if not (type(staged) == "table" and staged.signals
+        and type(staged.signals.rollbackLegacyWildsRepair) == "function") then
+      return false
+    end
+    local ok, restored = pcall(staged.signals.rollbackLegacyWildsRepair,
+      staged.signalsReceipt)
+    return ok and restored == true
+  end
+
+  local function commitLegacyWilds(staged)
+    if not (type(staged) == "table" and staged.signals
+        and type(staged.signals.commitLegacyWildsRepair) == "function") then
+      return false
+    end
+    local ok, committed = pcall(staged.signals.commitLegacyWildsRepair,
+      staged.signalsReceipt)
+    return ok and committed == true
+  end
+
+  -- Backward-compatible 6.5.3 repair. It mutates only the versioned boundary
+  -- receipt and the narrow Johto Signals ordinary-wild authority. A failed
+  -- durable write restores both in memory, leaves canonical YES intact, and
+  -- therefore makes the next lifecycle pass a safe retry.
+  function B.repairLegacyWilds(game, reason)
+    game = type(game) == "table" and game or B.game
+    local save = saveOf(game)
+    if type(save) ~= "table" then return false, "save" end
+    if not B.hasLegacyJohtoAuthority(save) then
+      return false, "not-legacy-johto"
+    end
+    local state = rawState(save)
+    local signals = controllers.signals
+    if legacyWildsReceiptReady(state)
+        and legacyWildsControllerReady(signals, game) then
+      return false, "already-repaired"
+    end
+
+    local staged, stageReason = stageLegacyWilds(game, state)
+    if not staged then return false, stageReason end
+    local wrote = false
+    if type(game.writeSave) == "function" then
+      local called, result = pcall(game.writeSave, game)
+      wrote = called and result ~= false
+    end
+    if not wrote then
+      local restored = rollbackLegacyWilds(state, staged)
+      return false, restored and "save_failed" or "rollback_failed"
+    end
+    commitLegacyWilds(staged)
+    return true, "repaired", reason
+  end
+
   function B.activate(game, activation)
     game = type(game) == "table" and game or B.game
     activation = type(activation) == "table" and activation or {}
@@ -511,21 +631,52 @@ return function(mod, opts)
     B.sync(game, save, "activated")
     notify(true, game, "activated")
 
-    local wrote = true
+    local legacyWildsStage
+    if B.hasLegacyJohtoAuthority(save) then
+      local stageReason
+      legacyWildsStage, stageReason = stageLegacyWilds(game, owner[B.SAVE_KEY])
+      if not legacyWildsStage then
+        owner[B.SAVE_KEY] = rollback.boundary
+        owner.johto_signals = rollback.signals
+        owner.dex_progress = rollback.dex
+        local signals = controllers.signals
+        if signals and type(signals.install) == "function" then
+          pcall(signals.install, game, false)
+        end
+        B.sync(game, save, "activation-rollback")
+        notify(false, game, "activation-rollback")
+        return false, stageReason or "legacy-wilds-stage", tr(
+          "The save remains sealed.\nJohto wilds could not\nbe prepared safely.",
+          "Der Spielstand bleibt\nversiegelt. Johto-Wildnis\nkonnte nicht sicher\nvorbereitet werden.")
+      end
+    end
+
+    -- The canonical Legacy YES is allowed to become visible only together
+    -- with a durable ordinary-wild receipt. Other historical activation
+    -- callers retain the pre-existing no-writer behavior.
+    local wrote = legacyWildsStage == nil
     if type(game.writeSave) == "function" then
       local called, result = pcall(game.writeSave, game)
       wrote = called and result ~= false
     end
     if not wrote then
+      if legacyWildsStage then
+        rollbackLegacyWilds(owner[B.SAVE_KEY], legacyWildsStage)
+      end
       owner[B.SAVE_KEY] = rollback.boundary
       owner.johto_signals = rollback.signals
       owner.dex_progress = rollback.dex
+      local signals = controllers.signals
+      if signals and type(signals.install) == "function" then
+        pcall(signals.install, game, false)
+      end
       B.sync(game, save, "activation-rollback")
       notify(false, game, "activation-rollback")
       return false, "save_failed", tr(
         "The save failed.\nBEYOND KANTO remains\nsealed; nothing changed.",
         "Speichern fehlgeschlagen.\nJENSEITS VON KANTO bleibt\nversiegelt; nichts änderte sich.")
     end
+    if legacyWildsStage then commitLegacyWilds(legacyWildsStage) end
     return true, "activated", tr(
       "BEYOND KANTO!\fDark and Steel rules\nnow apply.\fAll extended encounters,\nrewards and Legacy Bank\nwithdrawals are open.\fThis save can never\nreturn to pure Gen I.",
       "JENSEITS VON KANTO!\fUnlicht- und Stahlregeln\ngelten ab jetzt.\fAlle erweiterten Kämpfe,\nBelohnungen und Bank-\nEntnahmen sind offen.\fDieser Spielstand kehrt\nnie zu reinem Gen I\nzurück.")
@@ -590,7 +741,21 @@ return function(mod, opts)
     -- previously active bucket through a stale cached section.
     local function notifyCurrent(ev, reason)
       local game = ev and ev.game or B.game
-      if game then notify(B.isActive(game.save), game, reason) end
+      if game then
+        notify(B.isActive(game.save), game, reason)
+        -- game.ready still exposes CONTINUE's provisional/title save. The
+        -- selected slot is authoritative only at save.loaded; fresh YES is
+        -- handled atomically inside activate() and needs no lifecycle repair.
+        if reason == "save.loaded" then
+          local _, repairReason = B.repairLegacyWilds(game, reason)
+          if (repairReason == "save_failed"
+              or repairReason == "rollback_failed")
+              and mod.log and mod.log.error then
+            mod.log:error("Legacy Johto wild repair deferred: "
+              .. tostring(repairReason))
+          end
+        end
+      end
     end
     mod.events:on("save.created", function(ev)
       notifyCurrent(ev, "save.created")
