@@ -103,7 +103,7 @@ local archetype = wanderers.liveTrainerPool(game)[1]
 
 local earlyState = { wins = 0, rotation = {} }
 local _, early, earlyTier = wanderers.teamFor(
-  game, archetype, earlyState, 20, true)
+  game, archetype, earlyState, 3, true)
 eq(early[1].species, "RATTATA", "early Wanderer keeps the base family stage")
 eq(early[2].species, "PIDGEY", "early second slot remains unevolved")
 ok(not earlyTier.perfectMastery, "early Wanderer has no perfect mastery")
@@ -112,11 +112,11 @@ legacy.cycle, clock = 2, 3600
 game.save.party[1].level, game.save.party[2].level = 30, 30
 local middleState = { wins = 3, rotation = {} }
 local _, middle, middleTier = wanderers.teamFor(
-  game, archetype, middleState, 20, true)
+  game, archetype, middleState, 3, true)
 eq(middle[1].species, "RATICATE",
   "mid-game Wanderer reuses rematch evolution for the first family")
-eq(middle[2].species, "PIDGEOT",
-  "mid-game Wanderer reaches the registered later evolution")
+eq(middle[2].species, "PIDGEOTTO",
+  "fair mid-game edge keeps the second family at its legal middle stage")
 ok(middleTier.growthProgress > earlyTier.growthProgress,
   "Legacy cycle, wins and trainer clock increase roster progression")
 ok(middleState.recruitment.OPP_YOUNGSTER.rematchProgressionVersion >= 2,
@@ -126,12 +126,32 @@ legacy.cycle, legacy.pact, clock = 3, "ascendant", 14400
 game.save.party[1].level, game.save.party[2].level = 100, 100
 local lateState = { wins = 10, rotation = {} }
 local _, late, lateTier = wanderers.teamFor(
-  game, archetype, lateState, 20, true)
+  game, archetype, lateState, 3, true)
 eq(late[1].level, 100, "late Wanderer reaches the legal level-100 cap")
 eq(late[2].level, 100, "every level-100 baseline slot remains capped")
 ok(lateTier.perfectMastery,
   "level 100 plus sufficient cycle/wins enters the explicit perfect tier")
 eq(lateTier.pact, "ascendant", "battle economy retains the Legacy pact")
+
+local relievedState = { wins = 10, rotation = {}, lossRelief = 1 }
+local _, relieved, relievedTier = wanderers.teamFor(
+  game, archetype, relievedState, 3, false)
+ok(not relievedTier.perfectMastery,
+  "one persisted loss suspends perfect mastery even at level 100")
+eq(relievedTier.aiLayers, 2,
+  "one persisted loss removes one extra AI pressure layer")
+local relievedBattle = {
+  trainer = { id = "OPP_YOUNGSTER", name = "YOUNGSTER", baseMoney = 100 },
+  enemyParty = relieved,
+}
+wanderers.configureBattle(game, relievedBattle, {
+  token = "relieved-battle", expBonusPercent = 18,
+  tier = relievedTier,
+})
+eq(#relievedBattle.enemyAIMods, 2,
+  "relieved level-100 retry applies only two AI layers")
+eq(relievedBattle.ascendantLegacyHealItemCap, 0,
+  "relieved retry removes the opponent healing item")
 
 local mastery = assert(loadfile("rematch_mastery.lua"))().create({
   johtoUnlocked = function() return true end,

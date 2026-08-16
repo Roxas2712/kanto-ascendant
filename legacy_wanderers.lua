@@ -5,7 +5,7 @@ return function(mod, opts)
   local journey = assert(opts.journey, "legacy wanderers need legacy journey")
   local i18n = opts.i18n
   local W = {
-    STATE_VERSION = 4,
+    STATE_VERSION = 5,
     MIN_STEPS = 200,
     HARD_MAX_STEPS = 1800,
     MIN_MAP_CHANGES = 2,
@@ -16,8 +16,11 @@ return function(mod, opts)
     ENCORE_DENOMINATOR = 10,
     MAX_ENCOUNTERS_PER_MAP = 2,
     LARGE_MAP_AREA = 180,
-    MIN_SCALE_PERCENT = 15,
-    MAX_SCALE_PERCENT = 20,
+    MIN_LEVEL_BONUS = 1,
+    MAX_LEVEL_BONUS = 3,
+    MAX_BATTLE_TEAM = 4,
+    MAX_LOSS_RELIEF = 3,
+    LOSS_TEAM_REDUCTION_AT = 2,
     MIN_EXP_PERCENT = 15,
     MAX_EXP_PERCENT = 20,
     MASTER_BALL_DENOMINATOR = 32,
@@ -277,6 +280,7 @@ return function(mod, opts)
     s.eligibleSteps = integer(s.eligibleSteps or s.validSteps)
     s.wins = integer(s.wins)
     s.losses = integer(s.losses)
+    s.lossRelief = clamp(s.lossRelief, 0, W.MAX_LOSS_RELIEF)
     s.streak = integer(s.streak)
     s.marks = integer(s.marks)
     s.nextToken = math.max(1, integer(s.nextToken, 1))
@@ -335,11 +339,21 @@ return function(mod, opts)
     end
     local profile = W.FREQUENCY_PROFILES[s.frequency]
       or W.FREQUENCY_PROFILES.normal
-    if oldVersion < W.STATE_VERSION then
+    if oldVersion < 4 then
       -- Existing active NG+ saves migrate to NORMAL. The option value, when
       -- present, is reconciled by syncFrequency on the next real step.
       s.frequency = "normal"
       profile = W.FREQUENCY_PROFILES.normal
+    end
+    if oldVersion < 5 and type(s.encounter) == "table"
+        and not (type(s.encounter.tier) == "table"
+          and s.encounter.tier.scalingVersion == 2) then
+      -- Version 4 persisted the old mirror-the-whole-party +15-20% roster.
+      -- Never make an existing player fight that obsolete over-tuned team
+      -- after updating: keep the encounter due, but rebuild it once with the
+      -- fair v2 contract and a new exact token.
+      s.encounter = nil
+      s.due = true
     end
     if s.cadenceMode == "normal" then
       local minimum = s.forceMapChanges and 3 or (profile.minMaps or 2)
@@ -778,9 +792,13 @@ return function(mod, opts)
     for _, mon in ipairs(game and game.save and game.save.party or {}) do
       local species = type(mon) == "table" and mon.species or nil
       local level = type(mon) == "table" and tonumber(mon.level) or nil
-      -- Current HP is deliberately irrelevant: weakening or fainting a
-      -- reserve before the roll cannot reduce this challenge.
+      local hp = type(mon) == "table" and tonumber(mon.hp) or nil
+      -- Only monsters that can actually enter the battle form the baseline.
+      -- Boxed monsters never reach this list, and a fainted high-level reserve
+      -- can no longer make the surprise fight much harder than the usable
+      -- party. Older synthetic fixtures without an hp field remain usable.
       if species and level and level >= 1 and mon.isEgg ~= true
+          and (hp == nil or hp > 0)
           and (not pokemon or pokemon[species])
           and speciesAllowed(game, species) then
         viable[#viable + 1] = mon
@@ -789,26 +807,49 @@ return function(mod, opts)
     return viable
   end
 
-  function W.challengeTier(game, percent)
+  local function strongestMedian(viable)
+    local levels = {}
+    for _, mon in ipairs(viable or {}) do
+      levels[#levels + 1] = clamp(mon.level, 1, 100)
+    end
+    table.sort(levels, function(a, b) return a > b end)
+    while #levels > 3 do table.remove(levels) end
+    if #levels == 1 then return levels[1]
+    elseif #levels == 2 then
+      return math.floor((levels[1] + levels[2]) / 2 + 0.5)
+    end
+    return levels[2]
+  end
+
+  function W.challengeTier(game, bonus, s)
     local viable = W.viableParty(game)
     if #viable == 0 then return nil end
-    percent = configuredPercent(percent or opts.scalePercent,
-      W.MIN_SCALE_PERCENT, W.MAX_SCALE_PERCENT, "scale")
-    local targetLevels, total, targetTotal = {}, 0, 0
-    for index, mon in ipairs(viable) do
-      local level = clamp(mon.level, 1, 100)
-      local target = math.min(100,
-        math.ceil(level * (100 + percent) / 100))
-      targetLevels[index] = target
-      total, targetTotal = total + level, targetTotal + target
-    end
+    s = s or state()
+    bonus = clamp(bonus or rawRandom(W.MIN_LEVEL_BONUS,
+      W.MAX_LEVEL_BONUS, "challenge_level_bonus"),
+      W.MIN_LEVEL_BONUS, W.MAX_LEVEL_BONUS)
+    local relief = clamp(s.lossRelief, 0, W.MAX_LOSS_RELIEF)
+    local effectiveBonus = math.max(0, bonus - relief)
+    local baseline = strongestMedian(viable)
+    local teamSize = math.min(#viable, W.MAX_BATTLE_TEAM)
+    local teamReduction = relief >= W.LOSS_TEAM_REDUCTION_AT
+      and teamSize > 1 and 1 or 0
+    teamSize = teamSize - teamReduction
+    local target = math.min(100, baseline + effectiveBonus)
+    local targetLevels = {}
+    for index = 1, teamSize do targetLevels[index] = target end
     return {
-      scalePercent = percent,
-      teamSize = #viable,
-      playerAverage = total / #viable,
-      targetAverage = targetTotal / #viable,
-      targetLevel = math.min(100,
-        math.ceil((total / #viable) * (100 + percent) / 100)),
+      scalingVersion = 2,
+      baseLevelBonus = bonus,
+      effectiveLevelBonus = effectiveBonus,
+      lossRelief = relief,
+      aiLayers = math.max(0, 3 - relief),
+      teamReduction = teamReduction,
+      teamSize = teamSize,
+      playerAverage = baseline,
+      baselineLevel = baseline,
+      targetAverage = target,
+      targetLevel = target,
       targetLevels = targetLevels,
     }
   end
@@ -859,7 +900,7 @@ return function(mod, opts)
   -- Wanderer-only roster construction.  The authored Legacy path module
   -- continues to call progressTier above, so its fixed fights cannot drift
   -- when this live-party challenger changes.
-  function W.teamFor(game, archetype, s, percent, advance)
+  function W.teamFor(game, archetype, s, bonus, advance)
     local trainer = game and game.data and game.data.trainers
       and game.data.trainers[archetype and archetype.class]
     if not trainer then return nil end
@@ -873,7 +914,7 @@ return function(mod, opts)
     local position = cursor % #indexes + 1
     local partyIndex = indexes[position]
     local source = cleanSourceParty(game, trainer.parties[partyIndex])
-    local tier = W.challengeTier(game, percent)
+    local tier = W.challengeTier(game, bonus, s)
     if #source == 0 or not tier then return nil end
     local growth = W.growthProgress(game, s, tier)
     local recruitment = currentProvider(recruitmentProvider)
@@ -920,7 +961,10 @@ return function(mod, opts)
     tier.legacyCycle = growth.cycle
     tier.legacyWins = integer(s.wins)
     tier.trainerClock = growth.clock
-    tier.perfectMastery = growth.perfect
+    -- At level 100 a level reduction alone cannot make the retry easier.
+    -- Any active relief therefore also suspends the perfect mastery layer;
+    -- the next win removes one relief step and restores pressure gradually.
+    tier.perfectMastery = growth.perfect and tier.lossRelief == 0
     tier.pact = (journey.state(game.save) or {}).pact or "journey"
     return partyIndex, team, tier
   end
@@ -1639,6 +1683,22 @@ return function(mod, opts)
     return "normal"
   end
 
+  function W.lossText(relief)
+    relief = clamp(relief, 0, W.MAX_LOSS_RELIEF)
+    local nextLine
+    if relief >= W.LOSS_TEAM_REDUCTION_AT then
+      nextLine = tr("Next team is smaller.", "Nächstes Team ist kleiner.")
+    else
+      nextLine = tr("Their level edge shrinks.", "Ihr Levelvorteil sinkt.")
+    end
+    return tr("ROAD TRIAL: LOST.\nNo reward was earned.\f"
+        .. "Your money is safe.\nRelief: ",
+      "WEGPRÜFUNG: VERLOREN.\nKein Preis erhalten.\f"
+        .. "Dein Geld bleibt sicher.\nHilfe: ")
+      .. tostring(relief) .. "/" .. tostring(W.MAX_LOSS_RELIEF)
+      .. "\f" .. nextLine
+  end
+
   function W.resolveEncounter(game, s, encounter, result)
     s = s or state()
     encounter = encounter or s.encounter
@@ -1652,6 +1712,8 @@ return function(mod, opts)
       -- party in an involuntary rematch loop. No reward/win/mark is granted;
       -- a completely new encounter is scheduled behind the normal cadence.
       s.losses = integer(s.losses) + 1
+      s.lossRelief = math.min(W.MAX_LOSS_RELIEF,
+        integer(s.lossRelief) + 1)
       s.streak = 0
       s.encounter = nil
       W.scheduleNext(s, {
@@ -1675,6 +1737,9 @@ return function(mod, opts)
       end
     end
     s.wins, s.streak, s.marks = s.wins + 1, s.streak + 1, s.marks + 1
+    -- A recovery win restores the intended edge gradually instead of
+    -- snapping a struggling player straight back to maximum difficulty.
+    s.lossRelief = math.max(0, integer(s.lossRelief) - 1)
     s.encounter = nil
     scheduleAfterWin(game, s, encounter)
     persist(s)
@@ -1699,9 +1764,12 @@ return function(mod, opts)
     battle.ascendantLegacyTier = active.tier
     battle.ascendantLegacyToken = active.token
     battle.ascendantLegacyExpBonus = active.expBonusPercent
-    battle.enemyAIMods = { 1, 2, 3 }
+    battle.enemyAIMods = {}
+    for layer = 1, integer(active.tier.aiLayers) do
+      battle.enemyAIMods[#battle.enemyAIMods + 1] = layer
+    end
     battle.ascendantLegacyHealItemCap = active.tier.targetLevel >= 80
-      and 1 or 0
+      and active.tier.lossRelief == 0 and 1 or 0
     battle.ascendantLegacyHealItemUses = 0
     battle.introText = tr("The road trial\nbegins!",
       "Die Wegprüfung\nbeginnt!")
@@ -1755,6 +1823,10 @@ return function(mod, opts)
     battle.onFinish = function(result)
       ow:afterBattle(result, battle)
       if result == "lose" then game.save.money = active.moneyBefore end
+      if result == "lose" and active.lossText and game.stack then
+        game.stack:push(require("src.render.TextBox").new(
+          game, active.lossText))
+      end
       if result == "win" and active.rewardText and game.stack then
         game.stack:push(require("src.render.TextBox").new(
           game, active.rewardText))
@@ -1872,6 +1944,8 @@ return function(mod, opts)
     if ev.result == "win" and placement and placement ~= "no_reward" then
       active.rewardText = specialText or W.rewardText(active.game,
         encounter.reward, placement)
+    elseif ev.result ~= "win" and placement == "resolved_loss" then
+      active.lossText = W.lossText(s.lossRelief)
     end
     cleanup(active)
   end, 5000)

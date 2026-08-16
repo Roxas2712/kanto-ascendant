@@ -16,7 +16,7 @@ required = {
     "physical NPC": "spawn selected a collision-safe scripted approach",
     "physical battle": "NPC completes its real approach and pushes a trainer battle",
     "physical win": "real trainer lifecycle ends in a win",
-    "exact scaling": "team is exactly 15-20 percent over the actual viable party",
+    "exact scaling": "team is only one to three levels over the fair usable-party baseline",
     "exact EXP": "real battle EXP event applies the exact configured 15-20 percent",
     "frequency matrix": "NEVER/RARE/NORMAL/OFTEN exact floor and fail-safe profiles",
     "map matrix": "routes and towns qualify while caves, houses and HEVO never do",

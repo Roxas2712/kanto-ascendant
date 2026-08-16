@@ -650,13 +650,15 @@ return function(game)
   local sourceParty = trainer and trainer.parties
     and trainer.parties[active.partyIndex]
   local expectedLevel = math.min(100,
-    math.ceil(hero.level * (100 + active.tier.scalePercent) / 100))
+    hero.level + active.tier.effectiveLevelBonus)
   line("trainer_class", active.archetype.class)
   line("trainer_party_index", active.partyIndex)
   line("source_party", rosterString(sourceParty))
   line("player_party", rosterString(game.save.party))
   line("scaled_team", rosterString(active.team))
-  line("scale_percent", active.tier.scalePercent)
+  line("level_bonus", active.tier.effectiveLevelBonus)
+  line("loss_relief", active.tier.lossRelief)
+  line("ai_layers", active.tier.aiLayers)
   line("exp_bonus_percent", active.expBonusPercent)
   line("reward_token", token)
   line("reward_item", active.reward and active.reward.item)
@@ -675,8 +677,9 @@ return function(game)
   check("spawn selected a collision-safe scripted approach",
     #active.path >= 2 and #active.path <= 4
       and active.npcId ~= nil and liveNpc)
-  check("team is exactly 15-20 percent over the actual viable party",
-    active.tier.scalePercent >= 15 and active.tier.scalePercent <= 20
+  check("team is only one to three levels over the fair usable-party baseline",
+    active.tier.effectiveLevelBonus >= 1
+      and active.tier.effectiveLevelBonus <= 3
       and active.tier.teamSize == 1 and #active.team == 1
       and active.team[1].level == expectedLevel)
   check("encounter owns an exact 15-20 percent EXP bonus",
@@ -697,7 +700,7 @@ return function(game)
   legacyState.cycle, legacyState.pact = 3, "ascendant"
   cadence.wins = 10
   local lateIndex, lateTeam, lateTier = wanderers.teamFor(game,
-    active.archetype, cadence, 20, false)
+    active.archetype, cadence, 3, false)
   local lateBattle = require("src.battle.BattleState").newTrainer(
     game, active.archetype.class, lateIndex)
   -- This bounded second BattleState is explicitly staged from the exact
@@ -1127,8 +1130,15 @@ return function(game)
     retryResult == "resolved_loss" and retryState.due == false
       and retryState.encounter == nil
       and retryState.losses == lossesBefore + 1
+      and retryState.lossRelief == 1
       and retryState.forceMapChanges == true
       and retryState.targetMapChanges == wanderers.MAX_MAP_CHANGES)
+  local lossReceipt = wanderers.lossText(retryState.lossRelief)
+  check("loss receipt reports LOST and confirms money protection",
+    (lossReceipt:find("LOST", 1, true) ~= nil
+        or lossReceipt:find("VERLOREN", 1, true) ~= nil)
+      and (lossReceipt:find("money is safe", 1, true) ~= nil
+        or lossReceipt:find("Geld bleibt sicher", 1, true) ~= nil))
   check("native loss-save write succeeds", game:writeSave())
   local retrySave, retryRecovered = SaveData.load()
   check("native loss-save reload succeeds", retrySave ~= nil)
@@ -1138,6 +1148,7 @@ return function(game)
   check("reload preserves loss cooldown without reviving the trainer",
     recoveredRetry.due == false and recoveredRetry.encounter == nil
       and recoveredRetry.losses == lossesBefore + 1
+      and recoveredRetry.lossRelief == 1
       and recoveredRetry.forceMapChanges == true
       and recoveredRetry.targetMapChanges == wanderers.MAX_MAP_CHANGES
       and recoveredRetry.stepsRemaining > 0)

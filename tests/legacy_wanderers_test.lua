@@ -608,25 +608,62 @@ contains(wanderers.challengeText(scientist), "BATTLE FACTORY",
   "title-reactive introduction names the achievement naturally")
 titleId = nil
 
-local tier15 = wanderers.challengeTier(game, 15)
-eq(tier15.teamSize, 3, "only registered viable party members set team size")
-eq(tier15.targetLevels[1], 12,
-  "level 10 is scaled exactly 15 percent upward with safe rounding")
-eq(tier15.targetLevels[2], 58, "level 50 scales to 58 at 15 percent")
-eq(tier15.targetLevels[3], 100, "scaled teams cap at level 100")
-local tier20 = wanderers.challengeTier(game, 20)
-eq(tier20.targetLevels[2], 60, "configured upper scaling is exactly 20 percent")
+local tier1 = wanderers.challengeTier(game, 1, { lossRelief = 0 })
+eq(tier1.teamSize, 2,
+  "only healthy registered party members set the challenge size")
+eq(tier1.baselineLevel, 75,
+  "two strongest usable monsters use their rounded median baseline")
+eq(tier1.targetLevels[1], 76,
+  "minimum road edge is exactly one level above the fair baseline")
+eq(tier1.targetLevels[2], 76,
+  "the compact opponent team shares the same readable target level")
+local tier3 = wanderers.challengeTier(game, 3, { lossRelief = 0 })
+eq(tier3.targetLevels[2], 78,
+  "maximum road edge is exactly three levels above the fair baseline")
+eq(tier3.aiLayers, 3, "a fresh challenge retains all three AI layers")
 
 local rotation = { rotation = {} }
 local firstIndex, firstTeam = wanderers.teamFor(game,
-  liveByClass.OPP_YOUNGSTER, rotation, 15)
+  liveByClass.OPP_YOUNGSTER, rotation, 1)
 local secondIndex, secondTeam = wanderers.teamFor(game,
-  liveByClass.OPP_YOUNGSTER, rotation, 20)
+  liveByClass.OPP_YOUNGSTER, rotation, 3)
 eq(firstIndex, 1, "first challenge starts at the first valid live party")
 eq(secondIndex, 2, "next challenge rotates to the next rematch-like party")
-eq(firstTeam[1].level, 12, "rotated roster uses actual player level scaling")
-eq(secondTeam[2].level, 60, "second roster uses its configured scale")
-eq(#firstTeam, 3, "opponent roster matches viable player party size")
+eq(firstTeam[1].level, 76, "rotated roster uses the fair live-party baseline")
+eq(secondTeam[2].level, 78, "second roster uses its configured small edge")
+eq(#firstTeam, 2, "opponent roster matches usable player party size")
+
+local ordinaryScalingParty = save.party
+save.party = {
+  { species = "PLAYER_A", level = 60, hp = 1 },
+  { species = "PLAYER_B", level = 50, hp = 1 },
+  { species = "PLAYER_C", level = 40, hp = 1 },
+  { species = "RATTATA", level = 30, hp = 1 },
+  { species = "PIDGEY", level = 20, hp = 1 },
+  { species = "SPEAROW", level = 10, hp = 1 },
+}
+local fullTier = wanderers.challengeTier(game, 3, { lossRelief = 0 })
+eq(fullTier.baselineLevel, 50,
+  "six-mon parties scale from the median of their three strongest members")
+eq(fullTier.teamSize, 4,
+  "a surprise trainer can never bring more than four monsters")
+eq(fullTier.targetLevel, 53, "fresh maximum edge remains only three levels")
+local relief1 = wanderers.challengeTier(game, 3, { lossRelief = 1 })
+eq(relief1.targetLevel, 52, "one loss immediately reduces the level edge")
+eq(relief1.teamSize, 4, "first relief step keeps the compact team shape")
+eq(relief1.aiLayers, 2, "one loss also removes one AI pressure layer")
+ok(not relief1.perfectMastery,
+  "the challenge tier itself does not fabricate perfect mastery")
+local relief2 = wanderers.challengeTier(game, 3, { lossRelief = 2 })
+eq(relief2.targetLevel, 51, "second loss reduces the edge again")
+eq(relief2.teamSize, 3, "second loss makes the next enemy team smaller")
+eq(relief2.aiLayers, 1, "second loss leaves only one AI pressure layer")
+local relief3 = wanderers.challengeTier(game, 3, { lossRelief = 99 })
+eq(relief3.lossRelief, 3, "loss relief is capped at three persisted steps")
+eq(relief3.targetLevel, 50, "maximum relief removes the level edge")
+eq(relief3.teamSize, 3, "maximum relief keeps the one-slot reduction")
+eq(relief3.aiLayers, 0, "maximum relief removes extra AI pressure")
+save.party = ordinaryScalingParty
 
 eq(wanderers.applyExpBonus(100, 15), 115,
   "encounter EXP bonus is exactly 15 percent")
@@ -673,6 +710,12 @@ saveBucket.legacy_wanderers = {
   mapChanges = 1, targetMapChanges = 3, lastEligibleMap = "ROUTE_1",
   due = false, eligibleSteps = 42,
   wins = 0, streak = 0, marks = 0, nextToken = 7,
+  encounter = {
+    token = "legacy-wanderer:6", class = "OPP_SCIENTIST",
+    sprite = "SPRITE_SCIENTIST", partyIndex = 1,
+    team = { { species = "EKANS", level = 58 } },
+    tier = { scalePercent = 15, teamSize = 1 },
+  },
   rotation = {}, pendingRewards = {}, rewardedTokens = {},
 }
 local persisted = wanderers.state()
@@ -682,8 +725,12 @@ eq(persisted.mapChanges, 1,
   "save normalization preserves the exact outdoor transition count")
 eq(persisted.targetMapChanges, 3,
   "save normalization preserves the exact randomized map target")
-eq(persisted.stepsRemaining, 1023,
-  "derived fail-safe remainder matches the persisted cycle exactly")
+eq(persisted.stepsRemaining, 0,
+  "v4 replacement remains immediately due instead of adding a new cooldown")
+ok(persisted.encounter == nil and persisted.due,
+  "v4 over-tuned persisted encounter is discarded but remains due for a fair rebuild")
+eq(persisted.nextToken, 7,
+  "fair migration never reuses the obsolete encounter token")
 saveBucket.legacy_wanderers = Serializer.decode(Serializer.encode(persisted))
 local reloaded = makeWanderers(mod, {
   journey = journey, titles = titles, random = deterministic,
@@ -702,12 +749,17 @@ prepared.mapId = "ROUTE_1"
 eq(wanderers.resolveEncounter(game, persisted, prepared, "lose"),
   "resolved_loss", "loss resolves the surprise encounter without a rematch")
 ok(not persisted.due and persisted.encounter == nil
-    and persisted.losses == 1 and persisted.forceMapChanges,
+    and persisted.losses == 1 and persisted.lossRelief == 1
+    and persisted.forceMapChanges,
   "loss removes the trainer and schedules a fresh encounter behind map cadence")
+contains(wanderers.lossText(persisted.lossRelief), "ROAD TRIAL: LOST.",
+  "loss receipt visibly names the result")
+contains(wanderers.lossText(persisted.lossRelief), "Your money is safe.",
+  "loss receipt explicitly confirms no money penalty")
 saveBucket.legacy_wanderers = Serializer.decode(Serializer.encode(persisted))
 local afterLossReload = reloaded.state()
 ok(afterLossReload.encounter == nil and not afterLossReload.due
-    and afterLossReload.losses == 1,
+    and afterLossReload.losses == 1 and afterLossReload.lossRelief == 1,
   "loss resolution survives reload without reviving the same trainer")
 ok(afterLossReload.stepsRemaining > 0,
   "loss cannot respawn a surprise trainer on the next outdoor step")
@@ -720,6 +772,8 @@ wonEncounter.mapId = "ROUTE_1"
 wonEncounter.reward = { item = "POKE_BALL", qty = 1 }
 eq(reloaded.resolveEncounter(game, afterLossReload, wonEncounter, "win"),
   "bag", "winning grants the encounter reward once")
+eq(afterLossReload.lossRelief, 0,
+  "one recovery win removes exactly one persisted relief step")
 eq(save.inventory.POKE_BALL, 1, "win places one reward in the Bag")
 local stale, staleReason = reloaded.resolveEncounter(
   game, afterLossReload, wonEncounter, "win")
@@ -957,7 +1011,7 @@ local sealedPool = ids(reloaded.liveTrainerPool(game))
 ok(sealedPool.OPP_CUSTOM_SCOUT,
   "sealed mode preserves an ordinary Surprise trainer with Kanto slots")
 local _, sealedTeam = reloaded.teamFor(game,
-  sealedPool.OPP_CUSTOM_SCOUT, { rotation = {} }, 15, false)
+  sealedPool.OPP_CUSTOM_SCOUT, { rotation = {} }, 3, false)
 eq(#sealedTeam, 1, "sealed Surprise team remains playable")
 eq(sealedTeam[1].species, "PIDGEY",
   "sealed Surprise roster filters every species above #151")
@@ -974,7 +1028,7 @@ ok(sealedBalls.POKE_BALL and sealedBalls.GREAT_BALL
 beyondOn = true
 local activePool = ids(reloaded.liveTrainerPool(game))
 local _, activeTeam = reloaded.teamFor(game,
-  activePool.OPP_CUSTOM_SCOUT, { rotation = {} }, 15, false)
+  activePool.OPP_CUSTOM_SCOUT, { rotation = {} }, 3, false)
 eq(activeTeam[1].species, "HOUNDOUR",
   "activated Surprise restores the authored extended roster")
 ok(#reloaded.registeredTMs(game) >= 2,
@@ -986,5 +1040,22 @@ ok(not activePool.KA_JOHTO_SILVER and not activePool.KA_JOHTO_KRIS
     and not activePool.KA_JOHTO_GOLD,
   "Silver/Kris/Gold remain dedicated Masters, never random Surprise rows")
 save.party = originalParty
+
+local germanMod = {
+  id = mod.id, save = mod.save, options = mod.options,
+  hooks = { wrap = function() end }, events = { on = function() end },
+  world = { spawnNpc = function() end, removeNpc = function() end,
+    npc = function() end },
+}
+local germanWanderers = makeWanderers(germanMod, {
+  journey = journey, random = deterministic,
+  i18n = { text = function(_, de) return de end },
+})
+contains(germanWanderers.lossText(2), "WEGPRÜFUNG: VERLOREN.",
+  "German loss receipt visibly names the result")
+contains(germanWanderers.lossText(2), "Dein Geld bleibt sicher.",
+  "German loss receipt confirms that money is protected")
+contains(germanWanderers.lossText(2), "Nächstes Team ist kleiner.",
+  "German loss receipt explains the second-step team relief")
 
 print(("legacy wanderers scope: %d assertions"):format(assertions))
