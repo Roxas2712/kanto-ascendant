@@ -16,16 +16,16 @@ offline Hidden Evolution guide.
 
 - Fresh campaigns correctly begin the optional Johto Signals cadence after
   the starter and Pokédex milestones.
-- A confirmed Johto choice now activates its intended wild distribution in
-  eligible replay runs, including a repair path for already affected 6.5.3
-  saves.
+- A confirmed Johto choice now activates its intended wild distribution
+  wherever that choice is available, including a repair path for already
+  affected 6.5.3 saves.
 - When Johto becomes available during a normal randomized run, its saved
   deterministic pool expands from #001-151 to #001-251 without rerolling the
   existing seed.
 - Archive storage is available from every player PC in an eligible run.
   Multi-item withdrawals are quantity-aware and atomic.
 - The original Kanto starter families have their intended rare early
-  availability in eligible replays. Protected story encounters are not
+  availability. Protected story encounters are not
   randomized by this change.
 - Pre-name character selection keeps the name hidden as `???` until Oak's
   naming confirmation.

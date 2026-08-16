@@ -1559,10 +1559,10 @@ ordinary new games remain unchanged:
 - **Charmander:** Route 4 grass east of Mt. Moon, Lv. 7, 2%.
 - **Squirtle:** Route 24 grass north of Nugget Bridge, Lv. 9, 2%.
 
-Each species has its own guaranteed pity result after 50 eligible encounters.
-The later authored sources remain available as well: Safari Zone East for
-Bulbasaur, Seafoam Islands B2F for Squirtle and Victory Road 3F for
-Charmander.
+Each species is guaranteed by the 50th eligible encounter at the latest.
+In **KANTO 151 WILD** mode, the later authored sources remain available as
+well: Safari Zone East for Bulbasaur, Seafoam Islands B2F for Squirtle and
+Victory Road 3F for Charmander.
 
 </details>
 
@@ -1611,7 +1611,7 @@ the lab gift remains Pikachu.
 <details>
 <summary><strong>⚠️ SPOILER — What do the art options change?</strong></summary>
 
-- Exact path: **ASCENDANT OPTIONS → VISUALS → CHARACTERS / TRAINERS**.
+- Exact path: **START → ASCENDANT → OPTIONS → VISUALS → CHARACTERS / TRAINERS**.
 - **FIELD CHARACTERS:** changes only the overworld walking sheets.
 - **TRAINER PORTRAITS:** switches Red, Blue and Green between `CRYSTAL HD`
   and `ORIGINAL` across the selector, Trainer Card, normal 2D front/back,
