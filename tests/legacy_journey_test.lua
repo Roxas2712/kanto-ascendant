@@ -679,6 +679,33 @@ eq(activeHub.items[3].value, "legacy_bank",
 ok(hook["ui.pc.items"] == nil,
   "active Legacy bank is not duplicated in ordinary Player PCs")
 local _, _, styledHub, styledGame, styledStates = physicalLabHub(activeSave, 1)
+activeHub = { { label = "WITHDRAW ITEM" } }
+activeHandled = hook["ui.player_pc.items"](
+  function(_, rows) return rows end,
+  { save = { modData = { kanto_ascendant = {} } } }, activeHub)
+eq(#activeHandled, 1,
+  "inactive saves keep every ordinary Player PC completely stock")
+activePCOpens = hook["ui.player_pc.items"](
+  function(_, rows) return rows end, styledGame,
+  { { label = "WITHDRAW ITEM" } })
+eq(#activePCOpens, 2,
+  "every active Legacy Player PC gains exactly one Bank subcategory")
+eq(activePCOpens[2].value, "kasc_legacy_bank",
+  "the active Player PC row is a dedicated Legacy Bank action")
+eq(activePCOpens[2].label, "LEGACY BANK",
+  "the active English Player PC row fits the stock PC menu")
+ok(activePCOpens[2].keepOpen == true,
+  "closing the Bank returns to the still-open Player PC session")
+activeHub = hook["ui.player_pc.items"](
+  function(_, rows) return rows end, styledGame, activePCOpens)
+eq(#activeHub, 2,
+  "hot reload or cooperative wrappers cannot duplicate the Legacy row")
+activeHandled = #styledStates
+activePCOpens[2].onSelect()
+eq(#styledStates, activeHandled + 1,
+  "the Player PC Legacy subcategory opens the real Bank")
+eq(styledStates[#styledStates].opts.ascendantStyle, "firered-storage",
+  "the Player PC reaches the same modern KASC Bank presentation")
 styledHub.opts.onChoose(styledHub.items[3])
 local styledBank = styledStates[#styledStates]
 eq(styledBank.opts.ascendantStyle, "firered-storage",

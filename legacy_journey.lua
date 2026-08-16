@@ -2103,6 +2103,36 @@ return function(mod, opts)
       }))
   end
 
+  -- An active Legacy cycle owns a durable Bank, so its access belongs under
+  -- the player's PC on every map (bedroom, Pokémon Center, and equivalent
+  -- engine entry points).  Starting/configuring a new cycle deliberately
+  -- remains exclusive to Oak's KASC terminal: inactive saves receive no row
+  -- here and this hook never calls J.begin or the ASC-Run rules UI.
+  mod.hooks:wrap("ui.player_pc.items", function(nextItems, game, items)
+    local out = nextItems(game, items)
+    if type(out) ~= "table" then return out end
+    if type(legacyState(game and game.save)) ~= "table" then return out end
+
+    -- Fail safely across a hot reload or another cooperative wrapper: one
+    -- logical Legacy subcategory is enough, regardless of how the PC opened.
+    for _, item in ipairs(out) do
+      if item and item.value == "kasc_legacy_bank" then return out end
+    end
+    out[#out + 1] = {
+      label = tr("LEGACY BANK", "VERMÄCHTNIS"),
+      value = "kasc_legacy_bank",
+      keepOpen = true,
+      onSelect = function()
+        if J.bankAccess(game and game.save) then
+          J.openBank(game)
+        else
+          pushMessage(game, J.bankPolicyHint(game and game.save))
+        end
+      end,
+    }
+    return out
+  end, 40)
+
   local function pushOakIntro(game, onDone)
     local Screens = require("src.ui.Screens")
     local screenIds = game.data and game.data.field and game.data.field.boot
