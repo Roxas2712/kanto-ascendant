@@ -1,7 +1,7 @@
 {
   "id": "kanto_ascendant",
   "name": "Kanto Ascendant",
-  "version": "6.5.4",
+  "version": "6.5.5",
   "api": 2,
   "entry": "main.lua",
   "profile": "content",
@@ -23,7 +23,6 @@
       "deutsch",
       "deutsch-blau",
       "deutsch-gelb",
-      "all_pokemon_catchable_151_mod",
       "DRAMATIC_SHAPE",
       "TERRARIUM",
       "ds_fp_ceiling"
@@ -55,6 +54,8 @@
   "conflicts": [
     "overworld_wild_spawns",
     "trainer_rematch",
+    "all_pokemon_catchable_151_mod",
+    "modern_party_ui",
     "FOLLOWERS_EX",
     "PokePCFollowers_VoxelMerge",
     "pokepc_followers_rb",
@@ -105,6 +106,25 @@
       "resolution_en": "Disable Trainer Rematch before enabling Ascendant because Ascendant already includes the system.",
       "resolution_de": "Deaktiviere Trainer Rematch, bevor du Ascendant aktivierst, weil Ascendant das System bereits enthält.",
       "areas": ["rematches", "trainer progression", "save data"]
+    },
+    {
+      "policy": "replace",
+      "ids": ["all_pokemon_catchable_151_mod"],
+      "reason_en": "Ascendant already owns the complete Kanto-151 encounter plan, edition trade replacements, rewards and protected story encounters.",
+      "reason_de": "Ascendant steuert bereits den vollständigen Kanto-151-Begegnungsplan, Editions-/Tauschersatz, Belohnungen und geschützte Story-Begegnungen.",
+      "resolution_en": "Disable All Pokémon Catchable before enabling Ascendant; choose the KANTO 151 mode inside Ascendant.",
+      "resolution_de": "Deaktiviere All Pokémon Catchable, bevor du Ascendant aktivierst; wähle den KANTO-151-Modus in Ascendant.",
+      "areas": ["encounter tables", "edition replacements", "catch rewards", "story encounters"]
+    },
+    {
+      "policy": "replace",
+      "ids": ["modern_party_ui"],
+      "repositories": ["piftee/gen1recomp-modern-party-ui"],
+      "reason_en": "Both mods replace the party and Pokémon summary screens and compose the same icon, gender and animated-sprite hooks.",
+      "reason_de": "Beide Mods ersetzen Team- und Pokémon-Bericht-Menüs und kombinieren dieselben Icon-, Geschlechts- und Animations-Hooks.",
+      "resolution_en": "Disable Modern Party UI before enabling Ascendant; use Ascendant's integrated party, status and visual options.",
+      "resolution_de": "Deaktiviere Modern Party UI, bevor du Ascendant aktivierst; verwende Ascendants integrierte Team-, Status- und Grafikoptionen.",
+      "areas": ["party menu", "summary screen", "party icons", "gender display", "sprite animation"]
     },
     {
       "policy": "replace",

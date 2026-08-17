@@ -1,6 +1,6 @@
 # Kanto Ascendant FAQ and Spoiler Guide
 
-This is the public reference for **Kanto Ascendant 6.5.4**. It applies to Red,
+This is the public reference for **Kanto Ascendant 6.5.5**. It applies to Red,
 Blue and Yellow and is maintained from the current mod code, release
 documentation and confirmed support reports.
 
@@ -40,7 +40,7 @@ breeding, shinies, Mega Evolution, Gorochu and a large Hall-of-Fame post-game.
 <summary><strong>⚠️ SPOILER — How do I install or update it?</strong></summary>
 
 1. Download the release `.zip` from the
-   [6.5.4 GitHub release](https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.5.4).
+   [6.5.5 GitHub release](https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.5.5).
 2. Import it through the Gen 1 Recomp launcher.
 3. Use Gen 1 Recomp **0.1.90** or newer. Disable every package the manager reports as a
    conflict, then enable **Kanto Ascendant** and restart.
@@ -87,7 +87,7 @@ defect.
 
 Kanto Ascendant includes its own Gen-I Randomizer and works completely in 2D
 without a renderer mod. It is designed to coexist with the German language
-packages, the catchable-151 provider, or one official renderer in these
+packages or one official renderer in these
 best-effort ranges: Voxel Ascendant `>=0.1.0-rc.1 <3.0.0-0`, Dramaless
 `>=1.6.2-ST.190.1 <3.0.0-0`, PotatoVoxel `>=1.7.2 <3.0.0-0`, or Battle Art
 `>=1.9.0 <3.0.0-0`. Choose at most one Voxel renderer.
@@ -120,6 +120,9 @@ Important limits:
   before enabling Ascendant. The rule prevents simultaneous initialization;
   it does not claim that either mod is defective, and Reforged remains usable
   by itself.
+- **All Pokémon Catchable, Modern Party UI and standalone Trainer Rematch are
+  not supported beside Ascendant.** Ascendant already owns their encounter,
+  party/summary or rematch systems; enable only Ascendant's integrated version.
 - Kanto Ascendant's KANTO 151 option owns its overlapping encounter slots.
 - The Randomizer remains authoritative for randomized species and moves.
   Ascendant preserves boss team size, levels, rules, AI, rewards and
@@ -133,6 +136,10 @@ Important limits:
 - Ascendant's bundled Wilds 1.12.2 provider supplies visible Kanto and Johto
   encounters. Do not enable standalone Wilds of Kanto beside it. Use
   Ascendant's **LIVING WORLD** and **VISIBLE JOHTO** settings instead.
+- Unique Menu Icons and Dynamic Cries register expanded-species icon or cry
+  keys that Ascendant already owns. Keep them disabled beside Ascendant; 6.5.5
+  reports these overlaps as manager conflicts instead of allowing a late
+  duplicate-registration failure.
 - Wilds rolls a visible encounter when it appears. Fighting an entity that was
   already standing on the map does not roll it again. Changing the Johto
   current, scanning a trace or toggling **VISIBLE JOHTO** refreshes old visible
@@ -375,7 +382,7 @@ Mankey in every active KANTO 151 game.
 <details>
 <summary><strong>⚠️ SPOILER — Do I need to start a new game for Johto Signals?</strong></summary>
 
-No. Version 6.5.4 upgrades existing Red, Blue and Yellow saves in place.
+No. Version 6.5.5 upgrades existing Red, Blue and Yellow saves in place.
 
 The signal system does not count steps taken before 6.0 was installed. Once
 the updated save has a starter and the Pokédex, it begins its own hidden
@@ -1579,6 +1586,29 @@ Victory Road 3F for Charmander.
 - **ASCENDANT → MEGA STONES:** Stone Case status.
 - **Route 5 machine:** evolutions, TM queue, Move Deleter, Move Reminder and
   Frontier Exchange after unlock.
+
+</details>
+
+<details>
+<summary><strong>⚠️ SPOILER — How do SELECT, the Field Kit and Bag sorting work?</strong></summary>
+
+In the overworld, tap **SELECT** to use the saved favourite Field Kit tool, or
+hold **SELECT** for about 0.35 seconds to open the complete Field Kit. Inside
+the kit:
+
+- **A** uses the highlighted tool;
+- **SELECT** assigns it as the favourite quick action;
+- **B** closes the kit.
+
+Cut checks the tile in front of the player, Fly opens its map, Surf and
+Strength use their normal field checks, the Bicycle toggles normally, and the
+Itemfinder runs immediately. If the selected action cannot be used in the
+current position, the game gives a short explanation instead of silently
+switching to the Bicycle.
+
+Inside the Bag, **SELECT** keeps its classic sorting role: mark an item, move
+the cursor and press **SELECT** again to place it. **B** cancels an active move
+or exits when nothing is being moved. **START** opens the context help.
 
 </details>
 

@@ -12,6 +12,8 @@ Current conflicts:
 | --- | --- | --- |
 | Bundled living world / Wilds | `overworld_wild_spawns` | — |
 | Bundled trainer rematches | `trainer_rematch` | — |
+| Built-in Kanto-151 encounter plan | `all_pokemon_catchable_151_mod` | standalone All Pokémon Catchable |
+| Integrated party and summary UI | `modern_party_ui` | `piftee/gen1recomp-modern-party-ui` |
 | Followers EX | `FOLLOWERS_EX` | — |
 | PokéPC Followers | `PokePCFollowers_VoxelMerge` | `pokepc_followers_rb`, `pokepcfollowers`, `gamecorner-033/PokePCFollowers` |
 | External Quality of Life package | `quality_of_life` | `quality_of_life_pr9_test` |
@@ -48,7 +50,7 @@ To extend the guard, add the other package's exact manifest `id` to
 `manifest.json`, document it in the table above and add it to
 `tests/mod_conflicts_test.lua`. Never match display names or folder names.
 Use stable manifest IDs and canonical `owner/repository` slugs. Language packs
-and catchable-151 remain supported partners. Official Voxel Ascendant, Battle
+remain supported partners. Official Voxel Ascendant, Battle
 Art, Dramaless and PotatoVoxel packages are admitted from the table's baseline
 through 2.x on a best-effort basis. Every Dramaless 2.x build is renderer-native;
 only exact `2.0.2` receives the fixed camera control. Only exact Battle Art
@@ -69,8 +71,12 @@ is a hard conflict: it overlaps built-in presentation hooks and still uses
 APIs denied by the reviewed sandbox. Pre-baseline and 3.x renderer builds,
 unversioned packages, Dramatic Shape, Terrarium and First Person do not work in
 this compatibility set. Standalone Wilds is a hard conflict because
-Ascendant bundles the living-world core. Useful Bag and Quick Select are hard conflicts now that their complete
-replacement systems are configurable inside Ascendant.
+Ascendant bundles the living-world core. Useful Bag and Quick Select are hard
+conflicts now that their complete replacement systems are configurable inside
+Ascendant. All Pokémon Catchable is a hard conflict because Ascendant owns the
+complete Kanto-151 encounter/reward plan. Modern Party UI is a hard conflict
+because Ascendant owns the same party, summary, icon, gender and animation
+hooks.
 The standalone Nuzlocke is likewise a hard conflict because Ascendant now
 owns encounter limits, fainting and blackout handling. Its rules are kept out
 of the global options tree and ordinary Player PCs. Configure them through

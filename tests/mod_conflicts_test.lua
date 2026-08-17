@@ -26,7 +26,8 @@ assert(raw, "could not decode Ascendant manifest: " .. tostring(decodeError))
 local ascendant = Manifest.validate(raw, root .. "/manifest.json")
 
 local integrated = {
-  "trainer_rematch", "FOLLOWERS_EX", "PokePCFollowers_VoxelMerge",
+  "trainer_rematch", "all_pokemon_catchable_151_mod", "modern_party_ui",
+  "FOLLOWERS_EX", "PokePCFollowers_VoxelMerge",
   "pokepc_followers_rb", "pokepcfollowers", "quality_of_life",
   "quality_of_life_pr9_test", "crystal_animated_sprites_with_shiny_visuals",
   "shiny_indicators",
@@ -37,6 +38,7 @@ local integrated = {
 }
 local canonical = {
   trainer_rematch = true, PokePCFollowers_VoxelMerge = true,
+  all_pokemon_catchable_151_mod = true, modern_party_ui = true,
   quality_of_life = true, crystal_animated_sprites_with_shiny_visuals = true,
   shiny_indicators = true, gender_mod = true, useful_bag = true, jj_quick_select = true,
   nuzlocke = true, overworld_wild_spawns = true,
@@ -88,7 +90,6 @@ local approved = {
   { id = "deutsch", version = "1.0.0" },
   { id = "deutsch-blau", version = "1.0.0" },
   { id = "deutsch-gelb", version = "1.0.0" },
-  { id = "all_pokemon_catchable_151_mod", version = "1.0.0" },
   { id = "VOXEL_ASCENDANT", version = "0.1.0-rc.1",
     github = "Roxas2712/voxel-ascendant" },
   { id = "VOXEL_ASCENDANT", version = "0.1.1",
@@ -130,7 +131,7 @@ end
 for id in pairs(actualClassic) do
   assert(expectedClassic[id], "unexpected stock conflict: " .. id)
 end
-assert(#(raw.conflicts or {}) == 30 and #(raw.incompatible or {}) == 0,
+assert(#(raw.conflicts or {}) == 32 and #(raw.incompatible or {}) == 0,
   "stock 0.1.90 conflict boundary is not exact")
 
 local function external(id, version, github, dependencies, conflicts)
@@ -364,7 +365,7 @@ if not richPolicies then
   return
 end
 
-assert(ascendant.exclusive and #ascendant.compatibilityConflicts == 14,
+assert(ascendant.exclusive and #ascendant.compatibilityConflicts == 16,
   "newer-engine default-deny or replacement metadata missing")
 
 for _, id in ipairs(integrated) do
@@ -595,7 +596,7 @@ local files = {
 for _, item in ipairs({
   { id = "trainer_rematch" },
   { id = "unknown_runtime_mod" },
-  approved[5],
+  approved[4],
 }) do
   files["mods/" .. item.id .. "/manifest.json"] = encoded(item)
   files["mods/" .. item.id .. "/main.lua"] = "return function() end"

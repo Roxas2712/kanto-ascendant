@@ -20,8 +20,8 @@ import sys
 import zipfile
 
 
-RELEASE_VERSION = "6.5.4"
-CURRENT_RELEASE_NOTES = "RELEASE_NOTES_6.5.4.md"
+RELEASE_VERSION = "6.5.5"
+CURRENT_RELEASE_NOTES = "RELEASE_NOTES_6.5.5.md"
 
 REQUIRED_COMPONENTS = {
     "driftglass_prisms.lua",

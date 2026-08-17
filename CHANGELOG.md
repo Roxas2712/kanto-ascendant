@@ -4,6 +4,41 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+## [6.5.5] - 2026-08-17
+
+### Fixed
+
+- Wilds of Kanto can no longer place overworld Pokémon on starter/story
+  positions, doors, exits, warps, NPCs, items, signs, switches or critical
+  corridors. Oak's Lab stays Wilds-free until the starter has been received,
+  and unsafe persisted or targeted spawns are repaired deterministically for
+  the bundled and compatible external providers.
+- Rival dialogue again follows the selected identity throughout the original
+  story and postgame: Blue keeps the confident native voice, Red is calm and
+  considerate, and Green is friendly, funny and occasionally absent-minded.
+  English and German branches use the same identity contract.
+- A short SELECT press in the overworld now uses the saved favourite Field Kit
+  tool, while holding SELECT opens the full kit. Inside the kit, A uses a tool,
+  SELECT assigns the favourite and B closes it. In the Bag, SELECT performs
+  classic mark-and-place sorting, START opens help and B cancels or exits.
+- Trainer Card character art is rendered with temporary nearest-neighbour
+  filtering and restores the original graphics state, keeping pixel art crisp
+  instead of blurry at scaled resolutions.
+- Battle Art's retained staged-battle canvas now refreshes when an authored
+  Mega form advances to a new animation frame, instead of freezing on its
+  first frame. Battle Art remains the sole owner of its stage, camera and HUD.
+- Kanto Ascendant now declares explicit conflicts with Unique Menu Icons and
+  Dynamic Cries because those packages register the same expanded-species icon
+  and cry keys. This replaces the late duplicate-registration crash with a
+  clear manager conflict.
+- All Pokémon Catchable and Modern Party UI are explicit conflicts as well;
+  the existing Kanto Reforged and Trainer Rematch guards remain active. These
+  packages overlap Ascendant's encounter, registry, party/summary or rematch
+  ownership and must not initialize beside it.
+- The Pokémon battle-animation default remains enabled. Existing saves that
+  deliberately turned it off keep that choice rather than being overwritten
+  during the update.
+
 ## [6.5.4] - 2026-08-17
 
 ### Fixed

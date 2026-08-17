@@ -53,6 +53,24 @@ collapsed so players can reveal only the information they want.
 > [GitHub Issues](https://github.com/Roxas2712/kanto-ascendant/issues) and will
 > be considered for future updates.
 
+## What's new in 6.5.5
+
+- Prevents Wilds of Kanto from blocking Oak's starter choice, doors, warps,
+  NPCs, items, scripted positions and other critical paths, including repair
+  of unsafe saved spawns.
+- Restores distinct Red, Blue and Green rival voices across the main story and
+  postgame in English and German.
+- Makes SELECT context-aware: tap a favourite Field Kit tool, hold for the full
+  kit, or use classic mark-and-place sorting while the Bag is open.
+- Keeps Trainer Card pixel art crisp and refreshes Battle Art Mega animation
+  frames without taking ownership of the renderer's stage, camera or HUD.
+- Reports Unique Menu Icons, Dynamic Cries, All Pokémon Catchable and Modern
+  Party UI as explicit conflicts instead of allowing overlapping registries or
+  menu hooks to fail late. Existing Kanto Reforged and Trainer Rematch guards
+  remain active.
+
+See the full spoiler-light [6.5.5 release notes](RELEASE_NOTES_6.5.5.md).
+
 ## What's new in 6.5.4
 
 - Repairs Johto Signals and affected save-local wild distributions without asking
@@ -339,7 +357,7 @@ Mythic Signals path can surface it only after the separate three-echo and
 Resonance Seal sequence. The three birds and Mewtwo retain their separate
 APEX/VANILLA/OFF controls.
 
-If **All Pokémon Catchable 151 Mod** was previously enabled, it can now be
+If **All Pokémon Catchable 151 Mod** was previously enabled, it must now be
 disabled; Kanto Ascendant preserves compatibility during migration and its
 selected KANTO 151 mode takes precedence over overlapping encounter slots.
 
@@ -1523,8 +1541,8 @@ renderers.
 > launcher-compatible `.zip`. A matching `.modpkg` may be retained only as an
 > internal build or verification artifact.
 
-1. Download `kanto_ascendant-6.5.4.zip` from the
-   [6.5.4 release](https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.5.4)
+1. Download `kanto_ascendant-6.5.5.zip` from the
+   [6.5.5 release](https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.5.5)
    and import it through the launcher. Developers may alternatively install
    the checked-out mod directory.
    If you downloaded a complete bundle, extract it first and import the inner
