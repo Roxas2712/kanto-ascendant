@@ -22,11 +22,11 @@ Current conflicts:
 | Quick Select | `jj_quick_select` | `Roxas2712/pokemon-quick-select` |
 | Nuzlocke | `nuzlocke` | `bryanthaboi/nuzlocke` |
 | Kanto Reforged (unreviewed combination) | `Kanto-Reforged` | repository `1Jamie/Kanto-Reforged` is documentation only on stock 0.1.90 |
-| Other Voxel Ascendant builds | `VOXEL_ASCENDANT@<0.1.0-rc.1 \|\| >=3.0.0` | official baseline through 2.x is admitted best-effort |
-| Other Battle Art builds | `BATTLE_ART_VOXEL_FORK@<1.9.0 \|\| >=3.0.0` | official `absol89/DramaticShapeVoxelMod` baseline through 2.x is admitted best-effort |
-| Other PotatoVoxel builds | `potato_voxel@<1.7.2 \|\| >=3.0.0` | official baseline through 2.x is admitted best-effort; upstream `LOGS TO DEV` is ON by default |
+| Other Voxel Ascendant builds | `VOXEL_ASCENDANT@<0.1.0-rc.1 \|\| >=3.0.0-0` | official baseline through 2.x is admitted best-effort |
+| Other Battle Art builds | `BATTLE_ART_VOXEL_FORK@<1.9.0 \|\| >=3.0.0-0` | official `absol89/DramaticShapeVoxelMod` baseline through 2.x is admitted best-effort |
+| Other PotatoVoxel builds | `potato_voxel@<1.7.2 \|\| >=3.0.0-0` | official baseline through 2.x is admitted best-effort; upstream `LOGS TO DEV` is ON by default |
 | Renderer archives currently broken on 0.1.90 | `DRAMATIC_SHAPE` | `TERRARIUM`, `ds_fp_ceiling` |
-| Other Dramaless builds | `DRAMALESS_SHAPE@<1.6.2-ST.190.1 \|\| >=3.0.0` | official baseline through 2.x is admitted best-effort; all 2.x builds are native-only |
+| Other Dramaless builds | `DRAMALESS_SHAPE@<1.6.2-ST.190.1 \|\| >=3.0.0-0` | official baseline through 2.x is admitted best-effort; all 2.x builds are native-only |
 
 These packages overlap Ascendant's native follower, party, renderer and QoL
 hooks. Crystal/shiny presentation and Attack-DV gender/breeding are also fully

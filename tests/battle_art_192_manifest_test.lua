@@ -43,15 +43,15 @@ for _, row in ipairs(decoded.exclusive and decoded.exclusive.allow_packages or {
     packagePolicy = row
   end
 end
-ok(packagePolicy and packagePolicy.version == ">=1.9.0 <3.0.0",
+ok(packagePolicy and packagePolicy.version == ">=1.9.0 <3.0.0-0",
   "Battle Art canonical repository/range policy drifted")
-local expectedRange = "<1.9.0 || >=3.0.0"
+local expectedRange = "<1.9.0 || >=3.0.0-0"
 local conflict
 for _, row in ipairs(ascendant.conflictSpecs or {}) do
   if row.id == "BATTLE_ART_VOXEL_FORK" then conflict = row end
 end
 ok(conflict and conflict.range == expectedRange,
-  "Battle Art conflict fence is not the supported >=1.9.0 <3.0.0 series")
+  "Battle Art conflict fence is not the supported >=1.9.0 <3.0.0-0 series")
 for _, version in ipairs({ "1.9.0", "1.9.2", "1.9.3", "2.0.0", "2.9.9" }) do
   ok(not Semver.satisfies(version, expectedRange),
     "in-range Battle Art " .. version .. " is inside the conflict fence")
@@ -70,7 +70,9 @@ for _, version in ipairs({ "1.9.0", "1.9.2", "1.9.3", "2.0.0", "2.9.9" }) do
       and result.apply.BATTLE_ART_VOXEL_FORK == true,
     "manager blocks official in-range Battle Art " .. version)
 end
-for _, version in ipairs({ "1.8.3", "3.0.0", "3.1.0", "9.0.0" }) do
+for _, version in ipairs({
+    "1.8.3", "3.0.0-alpha.1", "3.0.0-rc.1", "3.0.0", "3.1.0", "9.0.0",
+}) do
   ok(Semver.satisfies(version, expectedRange),
     "out-of-range Battle Art " .. version .. " escaped the conflict fence")
   if richPolicies then

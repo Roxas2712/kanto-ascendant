@@ -47,23 +47,30 @@ local incompatibleRenderers = {
 local safeVoxelVersions = {
   "0.1.0-rc.1", "0.1.1", "0.2.0", "1.0.0", "2.9.9",
 }
-local unsafeVoxelVersions = { "0.0.9", "3.0.0", "3.1.0" }
+local unsafeVoxelVersions = {
+  "0.0.9", "3.0.0-alpha.1", "3.0.0-rc.1", "3.0.0", "3.1.0",
+}
 local voxelConflictSpec =
-  "VOXEL_ASCENDANT@<0.1.0-rc.1 || >=3.0.0"
+  "VOXEL_ASCENDANT@<0.1.0-rc.1 || >=3.0.0-0"
 local safePotatoVersion = "1.7.2"
 local safePotatoVersions = {
   safePotatoVersion, "1.7.3", "2.0.0", "2.9.9",
 }
-local unsafePotatoVersions = { "1.6.1", "1.6.9", "1.7.0", "1.7.1", "3.0.0" }
-local potatoConflictSpec = "potato_voxel@<1.7.2 || >=3.0.0"
+local unsafePotatoVersions = {
+  "1.6.1", "1.6.9", "1.7.0", "1.7.1", "3.0.0-alpha.1",
+  "3.0.0-rc.1", "3.0.0",
+}
+local potatoConflictSpec = "potato_voxel@<1.7.2 || >=3.0.0-0"
 local safeBattleArtVersion = "1.9.0"
 local safeBattleArt192Version = "1.9.2"
 local safeBattleArtVersions = {
   safeBattleArtVersion, safeBattleArt192Version, "1.9.3", "2.0.0", "2.9.9",
 }
-local unsafeBattleArtVersions = { "1.8.3", "3.0.0", "3.1.0" }
+local unsafeBattleArtVersions = {
+  "1.8.3", "3.0.0-alpha.1", "3.0.0-rc.1", "3.0.0", "3.1.0",
+}
 local battleArtConflictSpec =
-  "BATTLE_ART_VOXEL_FORK@<1.9.0 || >=3.0.0"
+  "BATTLE_ART_VOXEL_FORK@<1.9.0 || >=3.0.0-0"
 local safeDramalessVersion = "1.6.2-ST.190.1"
 local nativeDramalessVersion = "2.0.2"
 local safeDramalessVersions = {
@@ -71,10 +78,11 @@ local safeDramalessVersions = {
   nativeDramalessVersion, "2.0.3", "2.9.9",
 }
 local unsafeDramalessVersions = {
-  "1.6.2-ST.190", "1.6.1", "3.0.0", "3.1.0",
+  "1.6.2-ST.190", "1.6.1", "3.0.0-alpha.1", "3.0.0-rc.1",
+  "3.0.0", "3.1.0",
 }
 local dramalessConflictSpec =
-  "DRAMALESS_SHAPE@<1.6.2-ST.190.1 || >=3.0.0"
+  "DRAMALESS_SHAPE@<1.6.2-ST.190.1 || >=3.0.0-0"
 local approved = {
   { id = "deutsch", version = "1.0.0" },
   { id = "deutsch-blau", version = "1.0.0" },
@@ -147,7 +155,7 @@ for _, spec in ipairs(ascendant.conflictSpecs or {}) do
   if spec.id == "VOXEL_ASCENDANT" then parsedVoxelConflict = spec end
 end
 assert(parsedVoxelConflict
-    and parsedVoxelConflict.range == "<0.1.0-rc.1 || >=3.0.0",
+    and parsedVoxelConflict.range == "<0.1.0-rc.1 || >=3.0.0-0",
   "classic Voxel Ascendant supported-series fence did not parse")
 for _, version in ipairs(unsafeVoxelVersions) do
   assert(Semver.satisfies(version, parsedVoxelConflict.range),
@@ -182,7 +190,7 @@ for _, spec in ipairs(ascendant.conflictSpecs or {}) do
   if spec.id == "potato_voxel" then parsedPotatoConflict = spec end
 end
 assert(parsedPotatoConflict
-    and parsedPotatoConflict.range == "<1.7.2 || >=3.0.0",
+    and parsedPotatoConflict.range == "<1.7.2 || >=3.0.0-0",
   "classic PotatoVoxel supported-series fence did not parse")
 for _, version in ipairs(unsafePotatoVersions) do
   assert(Semver.satisfies(version, parsedPotatoConflict.range),
@@ -228,7 +236,7 @@ for _, spec in ipairs(ascendant.conflictSpecs or {}) do
 end
 assert(parsedBattleArtConflict
     and parsedBattleArtConflict.range ==
-      "<1.9.0 || >=3.0.0",
+      "<1.9.0 || >=3.0.0-0",
   "classic Battle Art supported-series fence did not parse")
 for _, version in ipairs(unsafeBattleArtVersions) do
   assert(Semver.satisfies(version, parsedBattleArtConflict.range),
@@ -278,7 +286,7 @@ for _, spec in ipairs(ascendant.conflictSpecs or {}) do
 end
 assert(parsedDramalessConflict
     and parsedDramalessConflict.range ==
-      "<1.6.2-ST.190.1 || >=3.0.0",
+      "<1.6.2-ST.190.1 || >=3.0.0-0",
   "classic DRAMALESS supported-series fence did not parse")
 local richPolicies = type(Manifest.replacement) == "function"
   and type(Manifest.exclusiveAllows) == "function"

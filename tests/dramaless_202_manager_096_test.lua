@@ -86,7 +86,10 @@ assert(loader.mods.kanto_ascendant.state == "loaded",
 assert(loader.mods.DRAMALESS_SHAPE.state == "loaded",
   "approved 2.0.2 itself did not load")
 
-for _, version in ipairs({ "1.6.2-ST.190", "1.6.1", "3.0.0", "3.1.0" }) do
+for _, version in ipairs({
+    "1.6.2-ST.190", "1.6.1", "3.0.0-alpha.1", "3.0.0-rc.1",
+    "3.0.0", "3.1.0",
+}) do
   local candidate = draml(version)
   result = ManagerState.resolveToggle({
     kanto_ascendant = ascendant, DRAMALESS_SHAPE = candidate,

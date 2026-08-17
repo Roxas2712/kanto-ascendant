@@ -32,19 +32,19 @@
     "allow_packages": [
       {
         "repositories": ["Roxas2712/voxel-ascendant"],
-        "version": ">=0.1.0-rc.1 <3.0.0"
+        "version": ">=0.1.0-rc.1 <3.0.0-0"
       },
       {
         "repositories": ["artyrambles/DRAMALESS_SHAPE"],
-        "version": ">=1.6.2-ST.190.1 <3.0.0"
+        "version": ">=1.6.2-ST.190.1 <3.0.0-0"
       },
       {
         "repositories": ["absol89/DramaticShapeVoxelMod"],
-        "version": ">=1.9.0 <3.0.0"
+        "version": ">=1.9.0 <3.0.0-0"
       },
       {
         "repositories": ["ShaneMcGovernIE/potato_voxel"],
-        "version": ">=1.7.2 <3.0.0"
+        "version": ">=1.7.2 <3.0.0-0"
       }
     ],
     "reason_en": "This runtime mod has not been explicitly approved for the Kanto Ascendant 6.5 stack.",
@@ -74,13 +74,13 @@
     "jj_quick_select",
     "nuzlocke",
     "Kanto-Reforged",
-    "VOXEL_ASCENDANT@<0.1.0-rc.1 || >=3.0.0",
-    "BATTLE_ART_VOXEL_FORK@<1.9.0 || >=3.0.0",
+    "VOXEL_ASCENDANT@<0.1.0-rc.1 || >=3.0.0-0",
+    "BATTLE_ART_VOXEL_FORK@<1.9.0 || >=3.0.0-0",
     "DRAMATIC_SHAPE",
-    "potato_voxel@<1.7.2 || >=3.0.0",
+    "potato_voxel@<1.7.2 || >=3.0.0-0",
     "TERRARIUM",
     "ds_fp_ceiling",
-    "DRAMALESS_SHAPE@<1.6.2-ST.190.1 || >=3.0.0"
+    "DRAMALESS_SHAPE@<1.6.2-ST.190.1 || >=3.0.0-0"
   ],
   "incompatible": [],
   "compatibility_conflicts": [

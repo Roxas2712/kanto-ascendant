@@ -54,10 +54,10 @@ offline Hidden Evolution guide.
 
 Official packages are admitted from their current baseline through 2.x:
 
-- Voxel Ascendant `>=0.1.0-rc.1 <3.0.0`
-- Battle Art `>=1.9.0 <3.0.0`
-- Dramaless `>=1.6.2-ST.190.1 <3.0.0`
-- PotatoVoxel `>=1.7.2 <3.0.0`
+- Voxel Ascendant `>=0.1.0-rc.1 <3.0.0-0`
+- Battle Art `>=1.9.0 <3.0.0-0`
+- Dramaless `>=1.6.2-ST.190.1 <3.0.0-0`
+- PotatoVoxel `>=1.7.2 <3.0.0-0`
 
 This is best-effort series admission, not a guarantee for every upstream
 release. If an update breaks rendering, roll the renderer back to the last

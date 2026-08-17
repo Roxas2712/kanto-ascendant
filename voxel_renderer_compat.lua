@@ -36,19 +36,19 @@ return function(ownerMod)
   -- exposes that metadata and always validates the common capability facade.
   R.approvedVersionRanges = {
     VOXEL_ASCENDANT = {
-      range = ">=0.1.0-rc.1 <3.0.0",
+      range = ">=0.1.0-rc.1 <3.0.0-0",
       provenance = "voxel-ascendant-supported-series-best-effort",
     },
     DRAMALESS_SHAPE = {
-      range = ">=1.6.2-ST.190.1 <3.0.0",
+      range = ">=1.6.2-ST.190.1 <3.0.0-0",
       provenance = "dramaless-supported-series-best-effort",
     },
     BATTLE_ART_VOXEL_FORK = {
-      range = ">=1.9.0 <3.0.0",
+      range = ">=1.9.0 <3.0.0-0",
       provenance = "battle-art-supported-series-best-effort",
     },
     potato_voxel = {
-      range = ">=1.7.2 <3.0.0",
+      range = ">=1.7.2 <3.0.0-0",
       provenance = "potato-voxel-supported-series-best-effort",
     },
   }
@@ -84,7 +84,7 @@ return function(ownerMod)
   }
   R.nativeRendererRanges = {
     DRAMALESS_SHAPE = {
-      range = ">=2.0.0 <3.0.0",
+      range = ">=2.0.0 <3.0.0-0",
       provenance = "dramaless-2.x-renderer-native-best-effort",
     },
   }

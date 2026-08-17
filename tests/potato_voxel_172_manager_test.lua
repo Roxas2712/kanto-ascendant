@@ -91,7 +91,8 @@ assert(loader.mods.potato_voxel.state == "loaded",
   "approved PotatoVoxel itself did not load")
 
 for _, version in ipairs({
-    "1.6.1", "1.6.9", "1.7.0", "1.7.1", "3.0.0", "3.1.0",
+    "1.6.1", "1.6.9", "1.7.0", "1.7.1", "3.0.0-alpha.1",
+    "3.0.0-rc.1", "3.0.0", "3.1.0",
 }) do
   local candidate = potato(version)
   result = ManagerState.resolveToggle({

@@ -88,9 +88,9 @@ defect.
 Kanto Ascendant includes its own Gen-I Randomizer and works completely in 2D
 without a renderer mod. It is designed to coexist with the German language
 packages, the catchable-151 provider, or one official renderer in these
-best-effort ranges: Voxel Ascendant `>=0.1.0-rc.1 <3.0.0`, Dramaless
-`>=1.6.2-ST.190.1 <3.0.0`, PotatoVoxel `>=1.7.2 <3.0.0`, or Battle Art
-`>=1.9.0 <3.0.0`. Choose at most one Voxel renderer.
+best-effort ranges: Voxel Ascendant `>=0.1.0-rc.1 <3.0.0-0`, Dramaless
+`>=1.6.2-ST.190.1 <3.0.0-0`, PotatoVoxel `>=1.7.2 <3.0.0-0`, or Battle Art
+`>=1.9.0 <3.0.0-0`. Choose at most one Voxel renderer.
 
 Every Dramaless 2.x build is renderer-native. Only exact `2.0.2` receives the
 narrow fixed camera control; every other 2.x build keeps complete native

@@ -190,7 +190,7 @@ eq(module, modules.OverworldBattle,
 eq(receipt.provenance, "voxel-ascendant-supported-series-best-effort",
   "future Voxel receipt does not claim an exact-version review")
 
-for _, version in ipairs({ "3.0.0", "latest" }) do
+for _, version in ipairs({ "3.0.0-alpha.1", "3.0.0-rc.1", "3.0.0", "latest" }) do
   voxelGame(version)
   package, id, reason = resolver.resolve()
   eq(package, nil, "out-of-range/malformed Voxel fails closed: " .. version)
@@ -647,7 +647,9 @@ eq(package, nil, "repository-spoofed PotatoVoxel fails closed")
 eq(reason, "unsupported-repository:potato_voxel",
   "Potato repository mismatch is diagnosed precisely")
 
-for _, version in ipairs({ "1.6.1", "1.6.9", "1.7.0", "1.7.1", "3.0.0" }) do
+for _, version in ipairs({
+    "1.6.1", "1.6.9", "1.7.0", "1.7.1", "3.0.0-rc.1", "3.0.0",
+}) do
   local candidate = potatoExport()
   gameFor("potato_voxel", version, nil, candidate,
     "ShaneMcGovernIE/potato_voxel")
@@ -705,7 +707,9 @@ eq(reason, "unsafe-export:DRAMALESS_SHAPE",
 
 -- Malformed, pre-baseline and 3.x builds fail closed even if their public
 -- export shape looks compatible.
-for _, version in ipairs({ "1.6.2.ST", "1.6.1", "3.0.0" }) do
+for _, version in ipairs({
+    "1.6.2.ST", "1.6.1", "3.0.0-alpha.1", "3.0.0-rc.1", "3.0.0",
+}) do
   game(version)
   package, id, reason = resolver.resolve()
   eq(package, nil, "unreviewed DRAMALESS " .. version .. " is rejected")

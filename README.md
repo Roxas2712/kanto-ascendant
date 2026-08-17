@@ -1254,9 +1254,9 @@ art remains authentic.
 Kanto Ascendant does not require a Voxel renderer: the complete campaign,
 including the fissures, remains available through the engine's native 2D
 renderer. Official packages from their current baselines through 2.x are
-admitted on a best-effort basis: Voxel Ascendant `>=0.1.0-rc.1 <3.0.0`,
-Dramaless `>=1.6.2-ST.190.1 <3.0.0`, Battle Art `>=1.9.0 <3.0.0`, and
-PotatoVoxel `>=1.7.2 <3.0.0`. Use only one renderer. Unversioned packages, 3.x
+admitted on a best-effort basis: Voxel Ascendant `>=0.1.0-rc.1 <3.0.0-0`,
+Dramaless `>=1.6.2-ST.190.1 <3.0.0-0`, Battle Art `>=1.9.0 <3.0.0-0`, and
+PotatoVoxel `>=1.7.2 <3.0.0-0`. Use only one renderer. Unversioned packages, 3.x
 builds and multi-renderer setups fail closed. Canonical repositories are the
 support contract; rich managers and runtime metadata reject explicit mismatches,
 while older managers primarily enforce the ID/version fence.
