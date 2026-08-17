@@ -148,6 +148,8 @@ jobs:
             ../kanto-ascendant
           python3 ../kanto-ascendant/tests/crystal_character_assets_test.py
           python3 ../kanto-ascendant/tools/character_asset_tool.py validate
+          python3 ../kanto-ascendant/tests/kanto_shiny_follower_assets_test.py
+          luajit ../kanto-ascendant/tests/kanto_shiny_follower_routing_test.lua
 
       - name: Verify the real-data Johto Move Reminder merge
         working-directory: gen1recomp
@@ -245,7 +247,7 @@ jobs:
           GEN1RECOMP_DIR=. luajit ../kanto-ascendant/tests/legacy_journey_test.lua
           GEN1RECOMP_DIR=. luajit ../kanto-ascendant/tests/legacy_locker_quantity_test.lua
 
-      - name: Audit the 6.0 release boundary
+      - name: Audit the 6.5.6 release boundary
         working-directory: kanto-ascendant
         run: python3 tools/johto_signals_release_audit.py .
 
@@ -255,20 +257,21 @@ jobs:
           MODKIT_LUAJIT: luajit
         run: |
           python3 tools/modkit.py pack ../kanto-ascendant \
-            -o ../kanto_ascendant-6.5.5.zip
-          unzip -tq ../kanto_ascendant-6.5.5.zip
+            -o ../kanto_ascendant-6.5.6.zip
+          unzip -tq ../kanto_ascendant-6.5.6.zip
           (
             cd ..
-            sha256sum kanto_ascendant-6.5.5.zip \
-              > SHA256SUMS-6.5.5.txt
+            sha256sum kanto_ascendant-6.5.6.zip \
+              > SHA256SUMS-6.5.6.txt
           )
           python3 ../kanto-ascendant/tools/johto_signals_release_audit.py \
-            ../kanto_ascendant-6.5.5.zip
+            ../kanto_ascendant-6.5.6.zip
           python3 - <<'PY'
+          import hashlib
           import json
           import zipfile
 
-          package = "../kanto_ascendant-6.5.5.zip"
+          package = "../kanto_ascendant-6.5.6.zip"
           forbidden_prefixes = (
               "art_review/",
               "artifacts/",
@@ -334,7 +337,18 @@ jobs:
               "assets/crystal_animated/back/grayscale/151/001.png",
               "assets/crystal_v15/trainers/normal/red.png",
               "assets/crystal_v15/trainers/grayscale/red.png",
+              "assets/followers_kanto/shiny/palette_contract.json",
           }
+
+          expected_kanto_normal = {
+              f"assets/followers_kanto/follower_{dex_number:03d}.png"
+              for dex_number in range(1, 152)
+          }
+          expected_kanto_shiny = {
+              f"assets/followers_kanto/shiny/follower_{dex_number:03d}.png"
+              for dex_number in range(1, 152)
+          }
+          required_files |= expected_kanto_normal | expected_kanto_shiny
 
           with zipfile.ZipFile(package) as archive:
               names = set(archive.namelist())
@@ -356,14 +370,55 @@ jobs:
               missing = sorted(required_files - names)
               if missing:
                   raise SystemExit(
-                      "Required Gorochu runtime files are missing:\n"
+                      "Required runtime files are missing:\n"
                       + "\n".join(missing)
                   )
 
+              actual_kanto_normal = {
+                  name for name in names
+                  if name.startswith("assets/followers_kanto/follower_")
+                  and name.endswith(".png")
+              }
+              actual_kanto_shiny = {
+                  name for name in names
+                  if name.startswith("assets/followers_kanto/shiny/follower_")
+                  and name.endswith(".png")
+              }
+              if actual_kanto_normal != expected_kanto_normal:
+                  raise SystemExit("Kanto normal follower catalogue is not exactly #001-151")
+              if actual_kanto_shiny != expected_kanto_shiny:
+                  raise SystemExit("Kanto Shiny follower catalogue is not exactly #001-151")
+
+              contract = json.loads(archive.read(
+                  "assets/followers_kanto/shiny/palette_contract.json"
+              ))
+              entries = contract.get("entries") or []
+              if [entry.get("dex") for entry in entries] != list(range(1, 152)):
+                  raise SystemExit("Kanto Shiny palette contract Dex order is not #001-151")
+              for entry in entries:
+                  dex_number = entry["dex"]
+                  normal_name = (
+                      f"assets/followers_kanto/follower_{dex_number:03d}.png"
+                  )
+                  shiny_name = (
+                      "assets/followers_kanto/shiny/"
+                      f"follower_{dex_number:03d}.png"
+                  )
+                  normal_hash = hashlib.sha256(
+                      archive.read(normal_name)
+                  ).hexdigest()
+                  shiny_hash = hashlib.sha256(
+                      archive.read(shiny_name)
+                  ).hexdigest()
+                  if normal_hash != entry.get("normalSha256"):
+                      raise SystemExit(f"Kanto normal follower hash drift: #{dex_number:03d}")
+                  if shiny_hash != entry.get("shinySha256"):
+                      raise SystemExit(f"Kanto Shiny follower hash drift: #{dex_number:03d}")
+
               manifest = json.loads(archive.read("manifest.json"))
-              if manifest.get("version") != "6.5.5":
+              if manifest.get("version") != "6.5.6":
                   raise SystemExit(
-                      "Expected manifest version 6.5.5, got "
+                      "Expected manifest version 6.5.6, got "
                       + repr(manifest.get("version"))
                   )
 
@@ -373,8 +428,8 @@ jobs:
       - name: Upload the verified release
         uses: actions/upload-artifact@v4
         with:
-          name: kanto-ascendant-6.5.5-release
+          name: kanto-ascendant-6.5.6-release
           if-no-files-found: error
           path: |
-            kanto_ascendant-6.5.5.zip
-            SHA256SUMS-6.5.5.txt
+            kanto_ascendant-6.5.6.zip
+            SHA256SUMS-6.5.6.txt
