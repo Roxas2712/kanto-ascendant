@@ -57,6 +57,17 @@ return function(data, helpers)
   local legendaryAvailable = helpers.legendaryAvailable
   local caught = helpers.caught
   local phaseFor = helpers.phaseFor
+  local rivalIdentity = helpers.rivalIdentity
+
+  local function currentRivalIdentity()
+    if type(rivalIdentity) == "function" then
+      local ok, identity = pcall(rivalIdentity)
+      if ok and (identity == "RED" or identity == "GREEN") then
+        return identity
+      end
+    end
+    return "BLUE"
+  end
 
   local function display(species)
     return DISPLAY[species] or species
@@ -222,7 +233,9 @@ return function(data, helpers)
 
   function E.huntRivalDialogue(key)
     local row = data.dialogue and data.dialogue.huntRival
-    return row and localized(row[key]) or nil
+    local identityRow = row and row[currentRivalIdentity()]
+    return row and localized((identityRow and identityRow[key]) or row[key])
+      or nil
   end
 
   function E.huntRivalAvailable(s, save)

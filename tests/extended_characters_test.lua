@@ -748,7 +748,7 @@ characters.select("BLUE")
 characters.refreshVisuals(storyGame)
 T.check(labText._OaksLabRivalGrampsText:find("Grandpa", 1, true) ~= nil,
   "Green rival keeps her family role and playful voice")
-T.check(labText._CeruleanCityRivalPreBattleText:find("compare teams", 1, true) ~= nil,
+T.check(labText._CeruleanCityRivalPreBattleText:find("team check", 1, true) ~= nil,
   "Green personality reaches rival battles outside Oak's Lab")
 characters.select("RED")
 characters.refreshVisuals(storyGame)
@@ -899,8 +899,8 @@ introStep("ask_rival_name").run({
   end,
 }, function() end)
 T.eq(blueRivalLine,
-  "This is my grand-\ndaughter.\fShe's your cousin.\f...What was her\nname again?",
-  "Blue route introduces Green as Oak's granddaughter and cousin")
+  "This is my grand-\ndaughter.\fShe's your cousin.\fShe has a good heart\nand several plans.\f...What was her\nname again?",
+  "Blue route introduces Green with Oak's family-aware personality cue")
 
 local greenRivalLine, greenRivalDone = nil, 0
 characters.select("GREEN")
@@ -916,8 +916,8 @@ for _, step in ipairs(steps) do
   end
 end
 T.eq(greenRivalLine,
-  "This boy is from\nPALLET TOWN.\f...I seem to have\nforgotten his name.",
-  "Green's route introduces Red as a non-grandchild Pallet boy")
+  "This boy is from\nPALLET TOWN.\fHe says little, but\nlistens closely.\f...What was his\nname again?",
+  "Green's route introduces Red as a quiet non-grandchild Pallet boy")
 T.eq(greenRivalDone, 1,
   "the Green rival introduction advances exactly once")
 

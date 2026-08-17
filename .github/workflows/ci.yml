@@ -59,6 +59,7 @@ jobs:
           luajit ../kanto-ascendant/tests/crystal_v15_test.lua
           python3 ../kanto-ascendant/tests/crystal_v15_assets_test.py
           luajit ../kanto-ascendant/tests/extended_characters_test.lua
+          luajit ../kanto-ascendant/tests/rival_personality_dialogue_test.lua
           luajit ../kanto-ascendant/tests/prename_placeholder_654_test.lua
           luajit ../kanto-ascendant/tests/extended_characters_yellow_test.lua
           luajit ../kanto-ascendant/tests/rival_teams_test.lua

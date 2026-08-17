@@ -536,6 +536,34 @@ return {
     after = text(
       "{RIVAL}: Take the data.\fThe birds answer sky\nand sea. The beasts\nnever stay put.\fThis is still a race,\n{PLAYER}!",
       "{RIVAL}: Nimm die Daten.\fDie Vögel folgen\nHimmel und Meer. Die\nBestien bleiben nie.\fEs ist noch immer ein\nRennen, {PLAYER}!"),
+    RED = {
+      before = text(
+        "{RIVAL}: The trail is\nfresh.\fIf we stay calm,\nwe will find it.\fWin, and I will\nshare my readings.\fLegend Hunter battle.\nAccept?",
+        "{RIVAL}: Die Spur ist\nfrisch.\fWenn wir ruhig bleiben,\nfinden wir sie.\fGewinn, dann teile ich\nmeine Messwerte.\fLegendenjäger-Kampf.\nAnnehmen?"),
+      decline = text(
+        "Understood.\fThe legends can wait\nuntil you're ready.",
+        "Verstanden.\fDie Legenden können\nwarten, bis du bereit\nbist."),
+      win = text(
+        "You won.\fI learned where my\nhunting team still\nneeds work.",
+        "Du hast gewonnen.\fNun weiß ich, woran\nmein Jagdteam noch\narbeiten muss."),
+      after = text(
+        "{RIVAL}: Take the data.\fWe follow different\npaths, {PLAYER}.\fNot opposing ones.",
+        "{RIVAL}: Nimm die Daten.\fWir gehen verschiedene\nWege, {PLAYER}.\fNicht gegeneinander."),
+    },
+    GREEN = {
+      before = text(
+        "{RIVAL}: I found three\ntrails!\fTwo were mine.\fThe third is real.\nProbably.\fWin, and I'll share\nmy notes.\fLegend Hunter battle.\nAccept?",
+        "{RIVAL}: Ich fand drei\nSpuren!\fZwei waren von mir.\fDie dritte ist echt.\nHoffentlich.\fGewinn, dann teile ich\nmeine Notizen.\fLegendenjäger-Kampf.\nAnnehmen?"),
+      decline = text(
+        "Okay!\fI'll organize my\nnotes.\fFirst I have to find\nthem.",
+        "Okay!\fIch sortiere meine\nNotizen.\fZuerst muss ich sie\nfinden."),
+      win = text(
+        "You got me!\fMy plan worked until\nthe part where it\ndidn't.",
+        "Du hast mich!\fMein Plan klappte bis\nzu dem Teil, an dem er\nnicht mehr klappte."),
+      after = text(
+        "{RIVAL}: Take the data.\fThe birds love sky\nand sea. The beasts\nhate schedules.\fRace you, {PLAYER}!",
+        "{RIVAL}: Nimm die Daten.\fDie Vögel lieben Himmel\nund Meer. Die Bestien\nhassen Zeitpläne.\fWettrennen, {PLAYER}!"),
+    },
   },
 
   elite = {
@@ -720,6 +748,60 @@ return {
         after = text(
           "{RIVAL}: Fine. No more\nexcuses.\fYou're not just Kanto's\nChampion.\fYou're the Trainer\neven legends could\nnot surpass.",
           "{RIVAL}: Gut. Keine\nAusreden mehr.\fDu bist nicht nur\nKantos Champ.\fDu bist der Trainer,\nden selbst Legenden\nnicht übertreffen."),
+      },
+      RED = {
+        apex = {
+          before = text(
+            "{RIVAL}: You made it,\n{PLAYER}.\fAPEX rewards patience.\fI prepared for you.\fLet us give this battle\neverything.",
+            "{RIVAL}: Du bist da,\n{PLAYER}.\fAPEX belohnt Geduld.\fIch habe mich auf dich\nvorbereitet.\fGeben wir in diesem\nKampf alles."),
+          win = text(
+            "You won.\fYour plan was better.\fI will learn from it.",
+            "Du hast gewonnen.\fDein Plan war besser.\fIch werde daraus lernen."),
+          after = text(
+            "{RIVAL}: You are the\nAPEX Champion now.\fYou earned it.\fSomething ancient has\nnoticed.",
+            "{RIVAL}: Du bist jetzt\nAPEX-Champ.\fDu hast es verdient.\fEtwas Uraltes hat es\nbemerkt."),
+        },
+        crown = {
+          before = text(
+            "{RIVAL}: A crown proves\nnothing by itself.\fHow we carry it does.\fLet us decide this with\nour strongest teams.",
+            "{RIVAL}: Eine Krone\nbeweist allein nichts.\fEntscheidend ist, wie\nwir sie tragen.\fKlären wir es mit\nunseren stärksten Teams."),
+          beforeNoLegend = text(
+            "{RIVAL}: The rules\nchanged. Fine.\fStrength was never\nonly about legends.\fLet us decide this with\nour strongest teams.",
+            "{RIVAL}: Die Regeln\nänderten sich. Gut.\fStärke beruhte nie nur\nauf Legenden.\fKlären wir es mit\nunseren stärksten Teams."),
+          win = text(
+            "You won again.\fNo title could say it\nbetter.",
+            "Du hast erneut gewonnen.\fKein Titel könnte es\nbesser sagen."),
+          after = text(
+            "{RIVAL}: No excuses.\fYou carry Kanto's crown\nwith honor.\fCongratulations,\n{PLAYER}.",
+            "{RIVAL}: Keine Ausreden.\fDu trägst Kantos Krone\nmit Ehre.\fGlückwunsch, {PLAYER}."),
+        },
+      },
+      GREEN = {
+        apex = {
+          before = text(
+            "{RIVAL}: You made it,\n{PLAYER}!\fI planned the perfect\nteam.\fMost of it on purpose.\fReady for the APEX\ntitle?",
+            "{RIVAL}: Du bist da,\n{PLAYER}!\fIch plante das perfekte\nTeam.\fDas meiste mit Absicht.\fBereit für den\nAPEX-Titel?"),
+          win = text(
+            "So close!\fIn a very generous\nsense.",
+            "So knapp!\fWenn man sehr großzügig\nurteilt."),
+          after = text(
+            "{RIVAL}: You're APEX\nChampion!\fGood. I wanted the\nlegends to notice us.\fMostly you, apparently.",
+            "{RIVAL}: Du bist\nAPEX-Champ!\fGut. Die Legenden\nsollten uns bemerken.\fOffenbar vor allem dich."),
+        },
+        crown = {
+          before = text(
+            "{RIVAL}: You caught the\nlegends!\fI tried the crown on\nwhile waiting.\fIt looked worryingly\ngood.\fWant it back?",
+            "{RIVAL}: Du hast die\nLegenden gefangen!\fBeim Warten probierte\nich die Krone an.\fSie stand mir bedenklich\ngut.\fWillst du sie zurück?"),
+          beforeNoLegend = text(
+            "{RIVAL}: New legend\nrules?\fGood thing my backup\nplan has a backup plan.\fCrown battle?",
+            "{RIVAL}: Neue Regeln\nfür Legenden?\fGut, dass mein Ersatzplan\neinen Ersatzplan hat.\fKronenkampf?"),
+          win = text(
+            "Again?\fOkay, it also looks\ngood on you.",
+            "Schon wieder?\fOkay, sie steht dir\nauch gut."),
+          after = text(
+            "{RIVAL}: No excuses!\fYou're the Trainer\nlegends follow.\fAnd I almost had you.\fAlmost.",
+            "{RIVAL}: Keine Ausreden!\fDu bist der Trainer,\ndem Legenden folgen.\fUnd fast hatte ich dich.\fFast."),
+        },
       },
     },
   },

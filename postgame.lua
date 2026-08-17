@@ -101,6 +101,16 @@ return function(mod, data, opts)
   local kantoCompletion = opts.kantoCompletion
   local gorochu = opts.gorochu
   local rematchRewards = opts.rematchRewards
+  local rivalIdentity = opts.rivalIdentity
+  local function currentRivalIdentity()
+    if type(rivalIdentity) == "function" then
+      local ok, identity = pcall(rivalIdentity)
+      if ok and (identity == "RED" or identity == "GREEN") then
+        return identity
+      end
+    end
+    return "BLUE"
+  end
   local function tr(english, german)
     return i18n and i18n.text(english, german) or english
   end
@@ -133,7 +143,9 @@ return function(mod, data, opts)
   local function eliteDialogue(class, tier, key)
     local root = data.dialogue and data.dialogue.elite
       and data.dialogue.elite[class]
-    local row = root and root[tier]
+    local identityRows = class == "OPP_RIVAL3" and root
+      and root[currentRivalIdentity()] or nil
+    local row = identityRows and identityRows[tier] or root and root[tier]
     if tier == "crown" and key == "before" and row
         and row.beforeNoLegend and legendSetting then
       for _, species in ipairs(ELITE_CROWN_LEGENDS[class] or {}) do
@@ -645,6 +657,7 @@ return function(mod, data, opts)
     legendaryAvailable = legendaryAvailable,
     caught = caught,
     phaseFor = phaseFor,
+    rivalIdentity = currentRivalIdentity,
   })
 
   -- The first clear adds Oak's one-time legendary-sighting story bridge.
@@ -1597,6 +1610,7 @@ return function(mod, data, opts)
   controller.gymDialogue = gymDialogue
   controller.gymRestDialogue = gymRestDialogue
   controller.eliteDialogue = eliteDialogue
+  controller.currentRivalIdentity = currentRivalIdentity
   controller.applyStoryOakDialogue = applyStoryOakDialogue
   controller.applyEliteDialogue = applyEliteDialogue
   controller.events = events

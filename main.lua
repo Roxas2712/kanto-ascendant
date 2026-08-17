@@ -1205,6 +1205,9 @@ return function(mod)
     gorochu = gorochu,
     rematchRewards = rematchRewards,
     beyondKanto = mod.exports.beyondKanto,
+    rivalIdentity = function()
+      return extendedCharacters.getRivalCharacter()
+    end,
   })
   mod.exports.postgame = postgame
   mod.exports.postgameData = postgameData
