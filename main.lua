@@ -382,6 +382,8 @@ return function(mod)
     -- monochrome modes all produce their own coherent Voxel spectrum.
     paletteSource = "ROM:SpriteSheetPointerTable[21]",
   })
+  local crystalWalkAssets = loadSibling(mod, "crystal_walk_assets.lua")(mod)
+  mod.exports.crystalWalkAssets = crystalWalkAssets
   -- Optional cohesive Gen-I field set. Every identity owns native 16x16 walk,
   -- bicycle and fishing frames; no state silently falls back to Red. The
   -- larger reviewed designs are used only for battle/selection portraits.
@@ -395,8 +397,9 @@ return function(mod)
       local id = "SPRITE_KA_CRYSTAL_" .. character .. "_" .. state.suffix
       mod.content.sprites:register(id, {
         id = id,
-        image = mod.path .. "/assets/characters/crystal_chars/" .. stem
-          .. "_" .. state.file .. ".png",
+        image = state.file == "walk" and crystalWalkAssets.resolve(stem)
+          or (mod.path .. "/assets/characters/crystal_chars/" .. stem
+            .. "_" .. state.file .. ".png"),
         frames = 6, walker = true, trueColor = true,
       })
     end

@@ -1,6 +1,6 @@
 {
   "schema": "kanto-ascendant.character-walk.v1",
-  "checkpoint": "2026-08-10-user-reviewed",
+  "checkpoint": "2026-08-17-user-supplied-walk-v2",
   "status": "approved-master",
   "runtime_format": {
     "image": "RGBA PNG",
@@ -21,41 +21,49 @@
   "characters": {
     "red": {
       "file": "red_walk.png",
-      "sha256": "9610ec76545c3e4483a99037719ec28d2b13df3e671534e745a047a6ef693116",
+      "sha256": "301321946b885e9bd978ae239f5b67fb318e035118ce6f04c628d657a04b3c86",
+      "provenance": "maintainer-supplied original artwork, 2026-08-17",
       "design": [
-        "FireRed-shaped red cap",
-        "small centered white Pokeball badge with red core in front frames",
-        "white cap panel only at the forward edge in side frames",
-        "no white cap band in rear frames",
-        "black shirt between red vest panels",
-        "white center line on the front of the vest",
-        "yellow backpack in rear frames"
+        "user-supplied 2026-08-17 Crystal walking master",
+        "red-and-white cap and red jacket",
+        "blue trousers and yellow backpack",
+        "native 16x16 geometry in all six frames"
       ]
     },
     "green": {
       "file": "green_walk.png",
-      "sha256": "6bd2e838436af982ea031e59463f956904c68e9cd7a6b1d8f333e20e97440727",
+      "sha256": "c4f44ce40df9d30372a881cd3af6c25060ec48c4ad610fc7f4bd9f804397aa72",
+      "provenance": "maintainer-supplied original artwork, 2026-08-17",
       "display_name": "Casey / Green",
       "design": [
-        "long brown hair without a dark forehead shadow or rear hump",
-        "soft brown facial ink instead of harsh black facial pixels",
-        "green-and-white earrings in front and side frames",
-        "white shirt stripe in readable directions",
-        "small dark-green side handbag",
-        "skin-coloured hands",
-        "no skin-coloured pixels inside the hair mass"
+        "user-supplied 2026-08-17 Crystal walking master",
+        "long brown hair and dark outfit",
+        "green accent at the neckline",
+        "native 16x16 geometry in all six frames"
       ]
     },
     "blue": {
       "file": "blue_walk.png",
-      "sha256": "69a71acb78d5137204e40298cbeee3d82a5012576ed278b860797ada96fabb3c",
+      "sha256": "6ecc6fe6a55549950b69fb25f42d9ce81b148b8231e8f6a3140ab09e7edd18dd",
+      "provenance": "maintainer-supplied original artwork, 2026-08-17",
       "design": [
-        "approved existing Blue silhouette",
+        "user-supplied 2026-08-17 Crystal walking master",
         "orange-brown hair",
         "black shirt and purple trousers",
-        "no geometry changes in the 2026-08-10 checkpoint"
+        "native 16x16 geometry in all six frames"
       ]
     }
+  },
+  "fallback": {
+    "checkpoint": "2026-08-10-user-reviewed-walk-v1",
+    "source_directory": "fallback_walk_v1",
+    "runtime_directory": "assets/characters/crystal_chars/fallback_walk_v1",
+    "sha256": {
+      "red": "9610ec76545c3e4483a99037719ec28d2b13df3e671534e745a047a6ef693116",
+      "green": "6bd2e838436af982ea031e59463f956904c68e9cd7a6b1d8f333e20e97440727",
+      "blue": "69a71acb78d5137204e40298cbeee3d82a5012576ed278b860797ada96fabb3c"
+    },
+    "activation": "decode, dimensions, hard-alpha, frame, corner or baseline validation failure only"
   },
   "invariants": [
     "Walking art is field-only and must never be replaced by a battle sprite.",

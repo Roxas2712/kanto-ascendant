@@ -1,11 +1,20 @@
 # Charakter-Assets: verbindlicher Stand und Authoring-Regeln
 
-Stand: 10. August 2026. Dieses Dokument hält den gemeinsam visuell
-abgenommenen Stand von Red, Blue und Green/Casey fest. Für Walking-Sprites
+Stand: 17. August 2026. Dieses Dokument hält den vom Maintainer gelieferten
+Stand von Red, Blue und Green/Casey fest. Für Walking-Sprites
 sind die Dateien unter
 `assets/sources/characters/crystal_chars/approved_walk/` die verbindlichen
 Master. Der Builder darf sie nur pixelgenau kopieren und nicht erneut aus
 großen Bildern reduzieren oder automatisch umfärben.
+
+Die bis zum 10. August ausgelieferten Walking-Master bleiben unverändert als
+`fallback_walk_v1/` erhalten. Dieselben drei Dateien werden unter
+`assets/characters/crystal_chars/fallback_walk_v1/` mit ausgeliefert. Der
+Runtime-Resolver nutzt sie ausschließlich, wenn das neue Sheet nicht
+dekodiert werden kann oder Maße, harte Alpha-Kanten, Frames, transparente
+Ecken beziehungsweise Grundlinie den Walking-Vertrag verletzen. Dieser
+Fallback greift nicht auf Bike-, Angel-, Kampf-, Wurf-, Profil- oder
+Voxel-Grafiken über.
 
 ## Warum diese Trennung zwingend ist
 
@@ -45,32 +54,21 @@ versehen. Vorschauen verwenden ausschließlich Nearest-Neighbour-Skalierung.
 
 ### Red
 
-- Feuerrot-Silhouette mit roter Kappe.
-- Vorne sitzt nur mittig ein kleines weißes Pokéball-Emblem mit rotem Kern;
-  kein weißes Stirnband über die gesamte Kappenbreite.
-- Seitlich ist nur der vordere Kappenteil weiß. Der übrige seitliche und der
-  gesamte hintere Kappenbereich bleiben rot.
-- Schwarzes Shirt zwischen roten Westenteilen; vorne eine weiße Mittelleiste.
-- Blaue Hose und gelber Rucksack in den Rückansichten.
-- Keine hautfarbenen Pixel innerhalb von Kappe oder Haaren.
+- Vom Maintainer am 17. August gelieferter Crystal-Walking-Master.
+- Rot-weiße Kappe, rote Jacke, blaue Hose und gelber Rucksack.
+- Eigene native 16×16-Geometrie in allen sechs Frames.
 
 ### Green / Casey
 
-- Lange braune Haare mit zusammenhängender Silhouette, ohne Stirnschatten,
-  Toupet-Eindruck oder Buckel in der Rückansicht.
-- Gesichtspixel in weicherem Braun statt beißendem Schwarz.
-- Grün-weiße Ohrringe vorne und seitlich; seitlich vier Pixel als zwei obere
-  und zwei untere Pixel.
-- Weißer Shirtstreifen in den lesbaren Ansichten, hautfarbene Hände und eine
-  kleine dunkelgrüne Handtasche an der Seite.
-- Gesicht bleibt hautfarben; in der Haarmasse stehen keine hautfarbenen
-  Fehlpixel.
+- Vom Maintainer am 17. August gelieferter Crystal-Walking-Master.
+- Lange braune Haare, dunkles Outfit und grüner Akzent am Ausschnitt.
+- Eigene native 16×16-Geometrie in allen sechs Frames.
 
 ### Blue
 
-- Die bestehende abgenommene Walking-Silhouette bleibt unverändert.
+- Vom Maintainer am 17. August gelieferter Crystal-Walking-Master.
 - Orangebraune Haare, schwarzes Oberteil und violette Hose.
-- Änderungen für Red oder Casey werden nicht auf Blue übertragen.
+- Eigene native 16×16-Geometrie in allen sechs Frames.
 
 ## Reproduzierbarer Arbeitsablauf
 
@@ -84,7 +82,8 @@ versehen. Vorschauen verwenden ausschließlich Nearest-Neighbour-Skalierung.
    bleiben; Weiß oder Pink ist kein Ersatz für Alpha.
 6. Prüfen, dass nur die beabsichtigte Figur und Oberfläche verändert wurden.
 7. Den freigegebenen Sheet nach `approved_walk/` kopieren, Prüfsumme im
-   `manifest.json` aktualisieren und erst dann in die Runtime übernehmen.
+   `manifest.json` aktualisieren und erst dann in die Runtime übernehmen. Der
+   eingefrorene `fallback_walk_v1/`-Stand wird dabei nicht überschrieben.
 8. Einen Ingame-Test in normaler Oberwelt und Voxel-Oberwelt ausführen. Battle-
    Ansichten werden separat getestet und gelten nicht als Walking-Beleg.
 

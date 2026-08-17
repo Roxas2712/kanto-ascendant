@@ -21,11 +21,18 @@ EXPECTED = {
     "fish": (16, 96),
 }
 
-# User-approved RC17 character family. Any byte change is intentional artwork
+# Maintainer-approved 2026-08-17 character family. Any byte change is intentional artwork
 # work and must update this fingerprint explicitly; ordinary feature/bugfix
 # work is not allowed to silently alter a selected, intro, battle, walking,
 # bike, fishing or throw sprite.
-FROZEN_TREE_SHA256 = "aa8f3bc9109da1c68d217a192796f3b1ceee5aa6d0374558278aae242e8f8a34"
+FROZEN_TREE_SHA256 = "cbb5f332a62c811356de645023ab8394e32c870ae601d3efebc442ddd3216068"
+
+FALLBACK_WALK = ASSETS / "fallback_walk_v1"
+FALLBACK_SHA256 = {
+    "red": "9610ec76545c3e4483a99037719ec28d2b13df3e671534e745a047a6ef693116",
+    "green": "6bd2e838436af982ea031e59463f956904c68e9cd7a6b1d8f333e20e97440727",
+    "blue": "69a71acb78d5137204e40298cbeee3d82a5012576ed278b860797ada96fabb3c",
+}
 
 
 def check(condition: bool, message: str) -> None:
@@ -40,12 +47,19 @@ for frozen_path in sorted(ASSETS.glob("*.png")):
     frozen.update(b"\0")
     frozen.update(frozen_path.read_bytes())
 check(frozen.hexdigest() == FROZEN_TREE_SHA256,
-      "approved RC17 character sprites changed without explicit re-approval")
+      "approved character sprites changed without explicit re-approval")
 checks += 1
 
 for character in ("red", "green", "blue"):
     for state, dimensions in EXPECTED.items():
         path = ASSETS / f"{character}_{state}.png"
+        # Red's compact 2D front is intentionally ROM-derived at runtime;
+        # unlike Blue and Green it has no redistributed PNG in this family.
+        if character == "red" and state == "front":
+            check(not path.exists(),
+                  "Red unexpectedly bundled a non-walking 2D front asset")
+            checks += 1
+            continue
         check(path.is_file(), f"missing {path}")
         image = Image.open(path).convert("RGBA")
         check(image.size == dimensions, f"{path.name}: {image.size} != {dimensions}")
@@ -116,5 +130,17 @@ for character in ("red", "green", "blue"):
         ASSETS / f"{character}_back.png").convert("RGBA").tobytes(),
         f"{character}: neutral back must equal throw frame one")
     checks += 2
+
+    fallback_path = FALLBACK_WALK / f"{character}_walk.png"
+    check(fallback_path.is_file(), f"missing {fallback_path}")
+    check(hashlib.sha256(fallback_path.read_bytes()).hexdigest()
+          == FALLBACK_SHA256[character],
+          f"{character}: approved walking fallback changed")
+    fallback_image = Image.open(fallback_path).convert("RGBA")
+    check(fallback_image.size == (16, 96),
+          f"{character}: walking fallback must remain 16x96")
+    check(set(fallback_image.getchannel("A").getdata()) <= {0, 255},
+          f"{character}: walking fallback alpha is not hard-edged")
+    checks += 4
 
 print(f"CRYSTAL CHARACTER ASSETS PASS: {checks} checks")

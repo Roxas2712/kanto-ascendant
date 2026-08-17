@@ -12,6 +12,7 @@ from __future__ import annotations
 from collections import deque
 import os
 from pathlib import Path
+import shutil
 
 from PIL import Image, ImageEnhance, ImageFilter
 
@@ -23,6 +24,7 @@ OUT = ROOT / "assets" / "characters" / "crystal_chars"
 CHARACTERS = ("red", "green", "blue")
 GEN1 = SOURCE / "gen1"
 APPROVED_WALK = SOURCE / "approved_walk"
+FALLBACK_WALK = APPROVED_WALK / "fallback_walk_v1"
 ENGINE_ROOT = Path(os.environ.get(
     "KANTO_GEN1RECOMP",
     str(ROOT.parents[1] / "gen1recomp"),
@@ -489,6 +491,16 @@ def rider_frames(character: str, walk_frames: list[Image.Image],
 
 def build() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
+    fallback_out = OUT / "fallback_walk_v1"
+    fallback_out.mkdir(parents=True, exist_ok=True)
+    for character in CHARACTERS:
+        source = FALLBACK_WALK / f"{character}_walk.png"
+        if not source.is_file():
+            raise FileNotFoundError(
+                f"missing approved walking fallback: {source}")
+        # Preserve the frozen v1 PNG bytes exactly; do not pass fallback art
+        # through Pillow or any of the current-primary authoring transforms.
+        shutil.copyfile(source, fallback_out / source.name)
     green_front = chroma_alpha(Image.open(
         SOURCE / "casey_front_frlg_chroma.png"))
     throw_sources = {

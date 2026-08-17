@@ -17,6 +17,8 @@ local titleIntro = assert(run.loader.exports.kanto_ascendant.titleIntro)
 local frlgTrainerPack = assert(run.loader.exports.kanto_ascendant.frlgTrainerPack)
 local trainerVoxelPortraits = assert(
   run.loader.exports.kanto_ascendant.trainerVoxelPortraits)
+local crystalWalkAssets = assert(
+  run.loader.exports.kanto_ascendant.crystalWalkAssets)
 local freshStyleDefault, freshTrainerDefault, freshTrainerChoices
 for _, row in ipairs(run.loader.optionSchemas.kanto_ascendant or {}) do
   if row.key == "pokemon_sprite_style" then freshStyleDefault = row.default end
@@ -135,6 +137,11 @@ for _, id in ipairs({ "RED", "GREEN", "BLUE" }) do
   local fishDef = assert(run.data.sprites[prefix .. "FISH"])
   T.eq(walkDef.frameWidth, nil, id .. " walking uses native 16x16 geometry")
   T.eq(walkDef.frameHeight, nil, id .. " walking needs no renderer extension")
+  T.check(walkDef.image:find("/crystal_chars/" .. id:lower()
+      .. "_walk.png", 1, true) ~= nil,
+    id .. " walking registration does not use the 2026-08-17 primary")
+  T.check(crystalWalkAssets.receipts[id:lower()].lane ~= "fallback-v1",
+    id .. " unexpectedly selected the packaged v1 fallback")
   T.eq(bikeDef.frameWidth, nil, id .. " bicycle uses native 16x16 geometry")
   T.eq(fishDef.frameHeight, nil, id .. " fishing uses native 16x16 geometry")
   T.eq(walkDef.trueColor, true, id .. " custom colors bypass map recoloring")
