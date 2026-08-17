@@ -28,12 +28,16 @@ local function imageData(mode)
   return data
 end
 
-local function api(primaryMode, fallbackMode, calls)
+local function api(primaryMode, fallbackV2Mode, fallbackV1Mode, calls)
   return {
     newImageData = function(path)
       calls[#calls + 1] = path
-      local mode = path:find("fallback_walk_v1", 1, true)
-        and fallbackMode or primaryMode
+      local mode = primaryMode
+      if path:find("fallback_walk_v2", 1, true) then
+        mode = fallbackV2Mode
+      elseif path:find("fallback_walk_v1", 1, true) then
+        mode = fallbackV1Mode
+      end
       if mode == "decode" then error("synthetic decode failure") end
       return imageData(mode)
     end,
@@ -42,7 +46,9 @@ end
 
 local mod = { path = "/mod/kanto_ascendant" }
 local calls = {}
-local resolver = factory(mod, { imageApi = api("valid", "valid", calls) })
+local resolver = factory(mod, {
+  imageApi = api("valid", "valid", "valid", calls),
+})
 check(resolver.resolve("RED")
     == "/mod/kanto_ascendant/assets/characters/crystal_chars/red_walk.png",
   "valid Red does not use the new primary walking sheet")
@@ -52,7 +58,9 @@ check(#calls == 1, "valid primary unnecessarily decoded the fallback")
 resolver.resolve("red")
 check(#calls == 1, "walking resolution is not cached per identity")
 
-resolver = factory(mod, { imageApi = api("legacy-alpha", "valid", {}) })
+resolver = factory(mod, {
+  imageApi = api("legacy-alpha", "valid", "valid", {}),
+})
 check(resolver.resolve("blue"):match("/blue_walk%.png$") ~= nil
     and resolver.receipts.blue.lane == "primary",
   "legacy 0..255 alpha data rejected a hard-edged primary")
@@ -67,17 +75,43 @@ for _, row in ipairs({
   { "decode", "decode_failed" },
 }) do
   calls = {}
-  resolver = factory(mod, { imageApi = api(row[1], "valid", calls) })
+  resolver = factory(mod, {
+    imageApi = api(row[1], "valid", "valid", calls),
+  })
   local resolved = resolver.resolve("green")
   check(resolved == "/mod/kanto_ascendant/assets/characters/crystal_chars/"
-      .. "fallback_walk_v1/green_walk.png",
-    row[1] .. " primary does not route to the packaged fallback")
-  check(resolver.receipts.green.lane == "fallback-v1",
+      .. "fallback_walk_v2/green_walk.png",
+    row[1] .. " primary does not route to the 6.5.5 Green fallback")
+  check(resolver.receipts.green.lane == "fallback-v2",
     row[1] .. " fallback lane is not inspectable")
   check(resolver.receipts.green.reason == row[2],
     row[1] .. " primary failure reason was lost")
   check(#calls == 2, row[1] .. " did not validate both primary and fallback")
 end
+
+calls = {}
+resolver = factory(mod, {
+  imageApi = api("dimensions", "decode", "valid", calls),
+})
+check(resolver.resolve("green")
+    == "/mod/kanto_ascendant/assets/characters/crystal_chars/"
+      .. "fallback_walk_v1/green_walk.png",
+  "broken Green primary and 6.5.5 fallback do not reach fallback v1")
+check(resolver.receipts.green.lane == "fallback-v1",
+  "Green fallback-v1 lane is not inspectable")
+check(#calls == 3,
+  "Green three-stage recovery did not validate every preceding lane")
+
+calls = {}
+resolver = factory(mod, {
+  imageApi = api("dimensions", "valid", "valid", calls),
+})
+check(resolver.resolve("red")
+    == "/mod/kanto_ascendant/assets/characters/crystal_chars/"
+      .. "fallback_walk_v1/red_walk.png",
+  "unchanged Red incorrectly entered Green's fallback-v2 lane")
+check(#calls == 2,
+  "unchanged Red probed Green's private fallback-v2 lane")
 
 resolver = factory(mod, { imageApi = {} })
 check(resolver.resolve("blue")
@@ -100,15 +134,26 @@ check(resolver.receipts.red.lane == "primary-unverified"
 love = previousLove
 
 resolver = factory(mod, {
-  imageApi = api("dimensions", "soft-alpha", {}),
+  imageApi = api("dimensions", "soft-alpha", "legacy-soft-alpha", {}),
 })
 local ok, err = pcall(resolver.resolve, "red")
 check(not ok and tostring(err):find("bad_dimensions_32x96", 1, true)
+    and tostring(err):find("legacy%-soft%-alpha") == nil
     and tostring(err):find("soft_alpha", 1, true),
   "a broken primary and broken fallback did not fail with both reasons")
 
+resolver = factory(mod, {
+  imageApi = api("dimensions", "soft-alpha", "legacy-soft-alpha", {}),
+})
+ok, err = pcall(resolver.resolve, "green")
+check(not ok and tostring(err):find("fallback%-v2=soft_alpha")
+    and tostring(err):find("fallback%-v1=soft_alpha"),
+  "a fully broken Green three-stage chain omitted a failure reason")
+
 ok, err = pcall(function()
-  factory(mod, { imageApi = api("valid", "valid", {}) }).resolve("yellow")
+  factory(mod, {
+    imageApi = api("valid", "valid", "valid", {}),
+  }).resolve("yellow")
 end)
 check(not ok and tostring(err):find("unknown Crystal walking identity", 1, true),
   "unknown identities can enter the three-character walking resolver")

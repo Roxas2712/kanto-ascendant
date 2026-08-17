@@ -99,19 +99,42 @@ return function(mod, deps)
     end
 
     local primary = root .. character .. "_walk.png"
-    local fallback = root .. "fallback_walk_v1/" .. character .. "_walk.png"
+    local fallbacks = {}
+    -- Green received a narrow post-6.5.5 pixel correction. Keep the exact
+    -- shipped 6.5.5 sheet as the first recovery lane, then retain the older
+    -- reviewed v1 sheet as the final fallback. Red/Blue were not changed and
+    -- therefore continue to use their single v1 recovery lane.
+    if character == "green" then
+      fallbacks[#fallbacks + 1] = {
+        path = root .. "fallback_walk_v2/green_walk.png",
+        lane = "fallback-v2",
+      }
+    end
+    fallbacks[#fallbacks + 1] = {
+      path = root .. "fallback_walk_v1/" .. character .. "_walk.png",
+      lane = "fallback-v1",
+    }
     local valid, reason = inspect(primary)
     local receipt
     if valid == false then
-      local fallbackValid, fallbackReason = inspect(fallback)
-      assert(fallbackValid == true,
-        ("invalid Crystal %s walking primary (%s) and fallback (%s)")
-          :format(character, tostring(reason), tostring(fallbackReason)))
-      receipt = {
-        path = fallback,
-        lane = "fallback-v1",
-        reason = reason,
-      }
+      local failures = { "primary=" .. tostring(reason) }
+      for _, fallback in ipairs(fallbacks) do
+        local fallbackValid, fallbackReason = inspect(fallback.path)
+        if fallbackValid == true then
+          receipt = {
+            path = fallback.path,
+            lane = fallback.lane,
+            reason = reason,
+            fallbackFailures = failures,
+          }
+          break
+        end
+        failures[#failures + 1] = fallback.lane .. "="
+          .. tostring(fallbackReason)
+      end
+      assert(receipt ~= nil,
+        ("invalid Crystal %s walking chain (%s)")
+          :format(character, table.concat(failures, ", ")))
     else
       receipt = {
         path = primary,

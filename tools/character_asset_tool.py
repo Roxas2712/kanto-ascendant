@@ -78,27 +78,29 @@ def validate() -> None:
                     f"{character}: frame {frame} needs transparent corners")
             checks += 2
 
-    fallback = manifest["fallback"]
-    fallback_master_dir = MASTER_DIR / fallback["source_directory"]
-    fallback_runtime_dir = ROOT / fallback["runtime_directory"]
-    for character, expected_hash in fallback["sha256"].items():
-        master = fallback_master_dir / f"{character}_walk.png"
-        runtime = fallback_runtime_dir / f"{character}_walk.png"
-        if not master.is_file() or not runtime.is_file():
-            raise FileNotFoundError(f"missing fallback master/runtime for {character}")
-        if digest(master) != expected_hash:
-            raise AssertionError(f"{character}: fallback hash drift")
-        if master.read_bytes() != runtime.read_bytes():
-            raise AssertionError(
-                f"{character}: runtime fallback differs from source fallback")
-        image = Image.open(master).convert("RGBA")
-        if image.size != expected_size:
-            raise AssertionError(
-                f"{character}: fallback {image.size} != {expected_size}")
-        if not set(image.getchannel("A").getdata()) <= {0, 255}:
-            raise AssertionError(
-                f"{character}: fallback alpha is not hard-edged")
-        checks += 6
+    for fallback in manifest["fallbacks"]:
+        fallback_master_dir = MASTER_DIR / fallback["source_directory"]
+        fallback_runtime_dir = ROOT / fallback["runtime_directory"]
+        for character, expected_hash in fallback["sha256"].items():
+            master = fallback_master_dir / f"{character}_walk.png"
+            runtime = fallback_runtime_dir / f"{character}_walk.png"
+            if not master.is_file() or not runtime.is_file():
+                raise FileNotFoundError(
+                    f"missing {fallback['lane']} master/runtime for {character}")
+            if digest(master) != expected_hash:
+                raise AssertionError(
+                    f"{character}: {fallback['lane']} hash drift")
+            if master.read_bytes() != runtime.read_bytes():
+                raise AssertionError(
+                    f"{character}: runtime {fallback['lane']} differs from source")
+            image = Image.open(master).convert("RGBA")
+            if image.size != expected_size:
+                raise AssertionError(
+                    f"{character}: {fallback['lane']} {image.size} != {expected_size}")
+            if not set(image.getchannel("A").getdata()) <= {0, 255}:
+                raise AssertionError(
+                    f"{character}: {fallback['lane']} alpha is not hard-edged")
+            checks += 6
 
     print(f"CHARACTER ASSET TOOL PASS: {checks} checks")
 

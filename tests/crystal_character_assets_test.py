@@ -25,9 +25,10 @@ EXPECTED = {
 # work and must update this fingerprint explicitly; ordinary feature/bugfix
 # work is not allowed to silently alter a selected, intro, battle, walking,
 # bike, fishing or throw sprite.
-FROZEN_TREE_SHA256 = "cbb5f332a62c811356de645023ab8394e32c870ae601d3efebc442ddd3216068"
+FROZEN_TREE_SHA256 = "cbc52d41c5a0a8e27926c964ef46c8e58e0b1fc1615a030753b0d73088159188"
 
 FALLBACK_WALK = ASSETS / "fallback_walk_v1"
+FALLBACK_WALK_V2 = ASSETS / "fallback_walk_v2"
 FALLBACK_SHA256 = {
     "red": "9610ec76545c3e4483a99037719ec28d2b13df3e671534e745a047a6ef693116",
     "green": "6bd2e838436af982ea031e59463f956904c68e9cd7a6b1d8f333e20e97440727",
@@ -142,5 +143,23 @@ for character in ("red", "green", "blue"):
     check(set(fallback_image.getchannel("A").getdata()) <= {0, 255},
           f"{character}: walking fallback alpha is not hard-edged")
     checks += 4
+
+    if character == "green":
+        fallback_v2_path = FALLBACK_WALK_V2 / "green_walk.png"
+        check(fallback_v2_path.is_file(), f"missing {fallback_v2_path}")
+        check(hashlib.sha256(fallback_v2_path.read_bytes()).hexdigest()
+              == "c4f44ce40df9d30372a881cd3af6c25060ec48c4ad610fc7f4bd9f804397aa72",
+              "Green: public 6.5.5 walking fallback changed")
+        fallback_v2_image = Image.open(fallback_v2_path).convert("RGBA")
+        check(fallback_v2_image.size == (16, 96),
+              "Green: walking fallback v2 must remain 16x96")
+        check(set(fallback_v2_image.getchannel("A").getdata()) <= {0, 255},
+              "Green: walking fallback v2 alpha is not hard-edged")
+        checks += 4
+
+check(not (FALLBACK_WALK_V2 / "red_walk.png").exists()
+      and not (FALLBACK_WALK_V2 / "blue_walk.png").exists(),
+      "Green-only hotfix fallback must not replace Red or Blue")
+checks += 1
 
 print(f"CRYSTAL CHARACTER ASSETS PASS: {checks} checks")

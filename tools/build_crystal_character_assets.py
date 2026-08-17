@@ -25,6 +25,7 @@ CHARACTERS = ("red", "green", "blue")
 GEN1 = SOURCE / "gen1"
 APPROVED_WALK = SOURCE / "approved_walk"
 FALLBACK_WALK = APPROVED_WALK / "fallback_walk_v1"
+FALLBACK_WALK_V2 = APPROVED_WALK / "fallback_walk_v2"
 ENGINE_ROOT = Path(os.environ.get(
     "KANTO_GEN1RECOMP",
     str(ROOT.parents[1] / "gen1recomp"),
@@ -501,6 +502,15 @@ def build() -> None:
         # Preserve the frozen v1 PNG bytes exactly; do not pass fallback art
         # through Pillow or any of the current-primary authoring transforms.
         shutil.copyfile(source, fallback_out / source.name)
+    fallback_v2_out = OUT / "fallback_walk_v2"
+    fallback_v2_out.mkdir(parents=True, exist_ok=True)
+    green_v2 = FALLBACK_WALK_V2 / "green_walk.png"
+    if not green_v2.is_file():
+        raise FileNotFoundError(
+            f"missing approved Green 6.5.5 walking fallback: {green_v2}")
+    # This is the exact public 6.5.5 Green sheet. Preserve its PNG bytes so a
+    # corrupt hotfix primary can recover without rebuilding/re-encoding it.
+    shutil.copyfile(green_v2, fallback_v2_out / green_v2.name)
     green_front = chroma_alpha(Image.open(
         SOURCE / "casey_front_frlg_chroma.png"))
     throw_sources = {

@@ -1,6 +1,6 @@
 {
   "schema": "kanto-ascendant.character-walk.v1",
-  "checkpoint": "2026-08-17-user-supplied-walk-v2",
+  "checkpoint": "2026-08-17-green-walk-hotfix-v3",
   "status": "approved-master",
   "runtime_format": {
     "image": "RGBA PNG",
@@ -32,11 +32,11 @@
     },
     "green": {
       "file": "green_walk.png",
-      "sha256": "c4f44ce40df9d30372a881cd3af6c25060ec48c4ad610fc7f4bd9f804397aa72",
+      "sha256": "bdfb9f19f57da47cb32d6f5d82c94a507ee86eb6eae4e38bc715469f6d00e6d4",
       "provenance": "maintainer-supplied original artwork, 2026-08-17",
       "display_name": "Casey / Green",
       "design": [
-        "user-supplied 2026-08-17 Crystal walking master",
+        "user-supplied 2026-08-17 corrected Crystal walking master",
         "long brown hair and dark outfit",
         "green accent at the neckline",
         "native 16x16 geometry in all six frames"
@@ -54,17 +54,30 @@
       ]
     }
   },
-  "fallback": {
-    "checkpoint": "2026-08-10-user-reviewed-walk-v1",
-    "source_directory": "fallback_walk_v1",
-    "runtime_directory": "assets/characters/crystal_chars/fallback_walk_v1",
-    "sha256": {
-      "red": "9610ec76545c3e4483a99037719ec28d2b13df3e671534e745a047a6ef693116",
-      "green": "6bd2e838436af982ea031e59463f956904c68e9cd7a6b1d8f333e20e97440727",
-      "blue": "69a71acb78d5137204e40298cbeee3d82a5012576ed278b860797ada96fabb3c"
+  "fallbacks": [
+    {
+      "lane": "fallback-v2",
+      "checkpoint": "2026-08-17-public-6.5.5-green-walk",
+      "source_directory": "fallback_walk_v2",
+      "runtime_directory": "assets/characters/crystal_chars/fallback_walk_v2",
+      "sha256": {
+        "green": "c4f44ce40df9d30372a881cd3af6c25060ec48c4ad610fc7f4bd9f804397aa72"
+      },
+      "activation": "Green primary validation failure"
     },
-    "activation": "decode, dimensions, hard-alpha, frame, corner or baseline validation failure only"
-  },
+    {
+      "lane": "fallback-v1",
+      "checkpoint": "2026-08-10-user-reviewed-walk-v1",
+      "source_directory": "fallback_walk_v1",
+      "runtime_directory": "assets/characters/crystal_chars/fallback_walk_v1",
+      "sha256": {
+        "red": "9610ec76545c3e4483a99037719ec28d2b13df3e671534e745a047a6ef693116",
+        "green": "6bd2e838436af982ea031e59463f956904c68e9cd7a6b1d8f333e20e97440727",
+        "blue": "69a71acb78d5137204e40298cbeee3d82a5012576ed278b860797ada96fabb3c"
+      },
+      "activation": "primary and any identity-specific newer fallback validation failure"
+    }
+  ],
   "invariants": [
     "Walking art is field-only and must never be replaced by a battle sprite.",
     "Battle backs, battle fronts, Voxel fronts, bike sheets and fishing sheets are separate surfaces.",
