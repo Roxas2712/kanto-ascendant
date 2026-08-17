@@ -86,6 +86,19 @@ check(resolver.resolve("blue")
 check(resolver.receipts.blue.lane == "primary-unverified",
   "headless validation status is not explicit")
 
+local previousLove = love
+love = { image = { newImageData = function()
+  return imageData("dimensions")
+end } }
+resolver = factory(mod)
+check(resolver.resolve("red")
+    == "/mod/kanto_ascendant/assets/characters/crystal_chars/red_walk.png",
+  "the engine's generic table ImageData stub rejected a packaged primary")
+check(resolver.receipts.red.lane == "primary-unverified"
+    and resolver.receipts.red.reason == "validation_unavailable",
+  "the engine ImageData stub was mistaken for a real decoder")
+love = previousLove
+
 resolver = factory(mod, {
   imageApi = api("dimensions", "soft-alpha", {}),
 })

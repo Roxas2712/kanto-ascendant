@@ -70,6 +70,7 @@ end
 
 return function(mod, deps)
   deps = deps or {}
+  local injectedImageApi = deps.imageApi ~= nil
   local imageApi = deps.imageApi or (love and love.image)
   local root = mod.path .. "/assets/characters/crystal_chars/"
   local resolver = { receipts = {} }
@@ -80,6 +81,13 @@ return function(mod, deps)
     end
     local ok, data = pcall(imageApi.newImageData, path)
     if not ok then return false, "decode_failed" end
+    -- Real LÖVE ImageData is userdata. The engine's ROM-free love_stub returns
+    -- a generic 8x8 Lua table for every path and therefore cannot validate a
+    -- packaged PNG. Keep that headless path explicit/unverified; injected
+    -- table decoders remain available to the focused corruption tests.
+    if not injectedImageApi and type(data) ~= "userdata" then
+      return nil, "validation_unavailable"
+    end
     return validateImageData(data)
   end
 

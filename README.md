@@ -55,6 +55,8 @@ collapsed so players can reveal only the information they want.
 
 ## What's new in 6.5.5
 
+- Uses the new authored Red, Green and Blue Crystal walking sheets while
+  retaining the previous sheets as validated fallbacks.
 - Prevents Wilds of Kanto from blocking Oak's starter choice, doors, warps,
   NPCs, items, scripted positions and other critical paths, including repair
   of unsafe saved spawns.

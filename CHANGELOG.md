@@ -8,6 +8,10 @@ All notable changes to this project are documented in this file.
 
 ### Fixed
 
+- Replaced the Red, Green and Blue Crystal walking sheets with their new
+  authored six-frame versions. The previous sheets remain byte-exact runtime
+  fallbacks, and the resolver rejects damaged geometry, alpha or frame data
+  without changing bicycle, fishing, battle, profile, throw or Voxel art.
 - Wilds of Kanto can no longer place overworld Pokémon on starter/story
   positions, doors, exits, warps, NPCs, items, signs, switches or critical
   corridors. Oak's Lab stays Wilds-free until the starter has been received,

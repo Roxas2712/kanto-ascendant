@@ -26,6 +26,30 @@ jobs:
       - name: Install LuaJIT
         run: sudo apt-get update && sudo apt-get install -y luajit
 
+      - name: Prepare the minimum 0.1.90 source fixture
+        working-directory: gen1recomp
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          version = Path("src/core/Version.lua")
+          source = version.read_text(encoding="utf-8")
+          placeholder = 'engine = "0.0.0-dev"'
+          if source.count(placeholder) != 1:
+              raise SystemExit("unexpected Gen1 Recomp Version.lua fixture")
+          version.write_text(
+              source.replace(placeholder, 'engine = "0.1.90"', 1),
+              encoding="utf-8",
+          )
+
+          fixture = Path("tests/fixture_data/constants.lua")
+          generated = Path("data/generated/constants.lua")
+          if not fixture.is_file():
+              raise SystemExit("missing Gen1 Recomp fixture constants")
+          generated.parent.mkdir(parents=True, exist_ok=True)
+          generated.write_bytes(fixture.read_bytes())
+          PY
+
       - name: Reject whitespace errors
         working-directory: kanto-ascendant
         run: |
@@ -38,7 +62,61 @@ jobs:
         working-directory: gen1recomp
         env:
           MODKIT_LUAJIT: luajit
-        run: python3 tools/modkit.py validate ../kanto-ascendant --base fixture --strict
+        run: |
+          ignore_file="../kanto-ascendant/.modkitignore"
+          ignore_backup="$(mktemp)"
+          cp "$ignore_file" "$ignore_backup"
+          restore_ignore() {
+            cp "$ignore_backup" "$ignore_file"
+            rm -f "$ignore_backup"
+          }
+          trap restore_ignore EXIT
+
+          # The pinned minimum-version ModKit understands exact ignore paths,
+          # but not the later directory-prefix form. Expand those prefixes in
+          # this disposable CI checkout only; the trap restores the authored
+          # package boundary before any tests or release packing run.
+          python3 - "$ignore_file" <<'PY'
+          from pathlib import Path
+          import sys
+
+          ignore = Path(sys.argv[1])
+          root = ignore.parent
+          original = ignore.read_text(encoding="utf-8")
+          additions = []
+          known = {
+              line.strip()
+              for line in original.splitlines()
+              if line.strip() and not line.lstrip().startswith("#")
+          }
+
+          for raw in original.splitlines():
+              entry = raw.strip()
+              if not entry or entry.startswith("#") or not entry.endswith("/"):
+                  continue
+              directory = root / entry[:-1]
+              if not directory.is_dir():
+                  continue
+              for path in sorted(directory.rglob("*")):
+                  if not path.is_file():
+                      continue
+                  relative = path.relative_to(root).as_posix()
+                  if relative not in known:
+                      known.add(relative)
+                      additions.append(relative)
+
+          if additions:
+              ignore.write_text(
+                  original.rstrip("\n")
+                  + "\n\n# Expanded temporarily for the pinned CI ModKit.\n"
+                  + "\n".join(additions)
+                  + "\n",
+                  encoding="utf-8",
+              )
+          PY
+
+          python3 tools/modkit.py validate \
+            ../kanto-ascendant --base fixture --strict
 
       - name: Run the ROM-free regression suite
         working-directory: gen1recomp
@@ -65,6 +143,8 @@ jobs:
           luajit ../kanto-ascendant/tests/rival_teams_test.lua
           luajit ../kanto-ascendant/tests/pokemon_gender_test.lua
           luajit ../kanto-ascendant/tests/breeding_phase7_test.lua
+          luajit ../kanto-ascendant/tests/crystal_walk_assets_test.lua \
+            ../kanto-ascendant
           python3 ../kanto-ascendant/tests/crystal_character_assets_test.py
           python3 ../kanto-ascendant/tools/character_asset_tool.py validate
 

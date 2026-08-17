@@ -40,6 +40,10 @@ stay in the collapsed sections of [FAQ.md](FAQ.md).
 
 ## Characters and presentation
 
+- The new authored Red, Green and Blue Crystal walking sheets are now the
+  primary overworld sprites. Their previous six-frame sheets remain packaged
+  as validated fallbacks; bicycle, fishing, battle, profile, throw and Voxel
+  art are unchanged.
 - Rival writing once again follows the selected identity across the original
   story, Legend Hunter and Champion rematches. Blue keeps the confident native
   voice; Red is calm, analytical and polite; Green is friendly, humorous and
