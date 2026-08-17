@@ -4,6 +4,26 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+## [6.5.6] - 2026-08-17
+
+### Fixed
+
+- Red and Green now retain their complete English and German identities in
+  every Oak's Lab starter branch. Only Blue uses the native grandson dialogue;
+  Red addresses Professor Oak respectfully, while Green acknowledges and
+  apologizes when she absent-mindedly takes the intended starter.
+- Professor Oak and the Viridian old man remain the visible presenters during
+  their scripted catching tutorials. Supported staged renderers no longer
+  replace them with the selected Red, Blue or Green player identity.
+- Green's corrected six-frame Crystal walking sheet is now primary. The exact
+  public 6.5.5 sheet remains the first validated fallback and the older sheet
+  remains the second fallback; no battle, profile, bicycle, fishing, throwing,
+  HD or Voxel art is replaced.
+- All Kanto species #001-151 now have separate Crystal-palette normal and Shiny
+  follower sheets. The owned Pokémon's real DV-based Shiny state selects the
+  matching sheet, while a missing or invalid Shiny asset fails safely to the
+  normal follower.
+
 ## [6.5.5] - 2026-08-17
 
 ### Fixed

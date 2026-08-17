@@ -1,4 +1,4 @@
--- Rival identity contract for 6.5.5.
+-- Rival identity contract for 6.5.6.
 -- Blue remains the loaded cartridge/translation voice. Red and Green own
 -- complete bilingual overlays for every supported story and post-game scene.
 

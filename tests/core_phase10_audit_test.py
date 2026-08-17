@@ -22,7 +22,7 @@ def require(condition: bool, message: str) -> None:
 manifest = json.loads((ROOT / "manifest.json").read_text(encoding="utf-8"))
 require(manifest["id"] == "kanto_ascendant", "released save/mod id drifted")
 require(manifest["name"] == "Kanto Ascendant", "public name drifted")
-require(manifest["version"] == "6.5.5", "6.5 integration version drifted")
+require(manifest["version"] == "6.5.6", "6.5 integration version drifted")
 require(manifest.get("dependencies") == [], "an external runtime became required")
 require(manifest.get("entry") == "main.lua", "unexpected runtime entry point")
 

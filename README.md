@@ -53,6 +53,19 @@ collapsed so players can reveal only the information they want.
 > [GitHub Issues](https://github.com/Roxas2712/kanto-ascendant/issues) and will
 > be considered for future updates.
 
+## What's new in 6.5.6
+
+- Restores the complete Red and Green Oak's Lab dialogue contract in English
+  and German. Blue alone keeps the native grandson dialogue.
+- Keeps Professor Oak and the Viridian old man visible during their catching
+  tutorials in native 2D and supported staged renderers.
+- Uses Green's corrected Crystal walking sheet with the public 6.5.5 sheet and
+  the older sheet retained as validated fallback generations.
+- Adds separate Crystal-palette Shiny follower sheets for all Kanto species
+  #001-151. The normal sheet remains the safe fallback.
+
+See the full spoiler-light [6.5.6 release notes](RELEASE_NOTES_6.5.6.md).
+
 ## What's new in 6.5.5
 
 - Uses the new authored Red, Green and Blue Crystal walking sheets while
@@ -1543,8 +1556,8 @@ renderers.
 > launcher-compatible `.zip`. A matching `.modpkg` may be retained only as an
 > internal build or verification artifact.
 
-1. Download `kanto_ascendant-6.5.5.zip` from the
-   [6.5.5 release](https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.5.5)
+1. Download `kanto_ascendant-6.5.6.zip` from the
+   [6.5.6 release](https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.5.6)
    and import it through the launcher. Developers may alternatively install
    the checked-out mod directory.
    If you downloaded a complete bundle, extract it first and import the inner

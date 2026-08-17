@@ -1,6 +1,6 @@
 # Kanto Ascendant FAQ and Spoiler Guide
 
-This is the public reference for **Kanto Ascendant 6.5.5**. It applies to Red,
+This is the public reference for **Kanto Ascendant 6.5.6**. It applies to Red,
 Blue and Yellow and is maintained from the current mod code, release
 documentation and confirmed support reports.
 
@@ -40,7 +40,7 @@ breeding, shinies, Mega Evolution, Gorochu and a large Hall-of-Fame post-game.
 <summary><strong>⚠️ SPOILER — How do I install or update it?</strong></summary>
 
 1. Download the release `.zip` from the
-   [6.5.5 GitHub release](https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.5.5).
+   [6.5.6 GitHub release](https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.5.6).
 2. Import it through the Gen 1 Recomp launcher.
 3. Use Gen 1 Recomp **0.1.90** or newer. Disable every package the manager reports as a
    conflict, then enable **Kanto Ascendant** and restart.
@@ -137,7 +137,7 @@ Important limits:
   encounters. Do not enable standalone Wilds of Kanto beside it. Use
   Ascendant's **LIVING WORLD** and **VISIBLE JOHTO** settings instead.
 - Unique Menu Icons and Dynamic Cries register expanded-species icon or cry
-  keys that Ascendant already owns. Keep them disabled beside Ascendant; 6.5.5
+  keys that Ascendant already owns. Keep them disabled beside Ascendant; since 6.5.5
   reports these overlaps as manager conflicts instead of allowing a late
   duplicate-registration failure.
 - Wilds rolls a visible encounter when it appears. Fighting an entity that was
@@ -382,7 +382,7 @@ Mankey in every active KANTO 151 game.
 <details>
 <summary><strong>⚠️ SPOILER — Do I need to start a new game for Johto Signals?</strong></summary>
 
-No. Version 6.5.5 upgrades existing Red, Blue and Yellow saves in place.
+No. Version 6.5.6 upgrades existing Red, Blue and Yellow saves in place.
 
 The signal system does not count steps taken before 6.0 was installed. Once
 the updated save has a starter and the Pokédex, it begins its own hidden
@@ -1620,9 +1620,15 @@ Ascendant's integrated system supports up to six party followers. Do not
 enable PokéPC Followers, Followers EX or their Voxel merge beside Ascendant;
 the reviewed 0.1.90 loader blocks that combination before both can initialize.
 
-Ascendant bundles normal and shiny six-pose follower sheets for every Johto
-species plus Gorochu. Missing or damaged individual sheets use a safe Kanto
-silhouette instead of crashing.
+Ascendant bundles normal and Shiny six-pose follower sheets for every Kanto
+species #001-151, every Johto species and Gorochu. An owned Pokémon's actual
+DV-based Shiny state selects its matching follower sheet. A missing or damaged
+Kanto Shiny sheet falls back to the normal sheet of that same species instead
+of changing identity or crashing.
+
+This applies to Pokémon that already belong to the player. Free-roaming Wilds
+on engines 0.1.96 and 0.1.98 do not know the later battle Pokémon's DVs yet, so
+Ascendant does not pre-roll or advertise a Shiny colour in the overworld.
 
 In Yellow, the native partner Pikachu remains follower one with its original
 mood and dialogue. Other selected party members remain separately

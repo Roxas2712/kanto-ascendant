@@ -1,7 +1,7 @@
 {
   "id": "kanto_ascendant",
   "name": "Kanto Ascendant",
-  "version": "6.5.5",
+  "version": "6.5.6",
   "api": 2,
   "entry": "main.lua",
   "profile": "content",
