@@ -1,8 +1,9 @@
 -- Installs the shared FireRed Bag presentation without taking ownership of
 -- Bag behaviour.  The engine keeps USE/TOSS and battle use; this wrapper
--- supplies the shared bilingual SELECT-info action for every Gen-I item list
--- (Bag, Player PC, mart BUY/SELL).  Player-PC ordering moves to START so
--- SELECT can mean the same readable action everywhere.
+-- supplies bilingual item help and stable ordering for every Gen-I item list
+-- (Bag, Player PC, mart BUY/SELL). The field Bag keeps the original SELECT
+-- mark/place gesture and opens help on START; PC and mart lists retain their
+-- established storage-specific controls.
 
 return function(mod, opts)
   opts = opts or {}
@@ -219,8 +220,8 @@ return function(mod, opts)
       -- Keeping it on the list avoids guessing the active language from
       -- wrapper order or from engine-global state.
       list.__ascendantTr = policy.ui.tr
-      -- SELECT is the explicit readable item-info action in Ascendant's Bag.
-      -- Useful Bag exposes ITEM ACTIONS on START/R3; PC ordering uses START.
+      -- START is the explicit readable item-info action in Ascendant's Bag.
+      -- Useful Bag consumes the same seam after projecting its pockets.
       list.__ascendantShowItemInfo = function(item)
         if not item then return false end
         local title = item.label or (game.data.items[item.value]
@@ -228,18 +229,29 @@ return function(mod, opts)
         return policy.ui.showHelp(game, title,
           policy.itemHelp.describe(game, item.value))
       end
-      -- The plain/expanded Bag used SELECT for manual ordering.  Preserve
-      -- that action on START while reserving SELECT for the same help popup
-      -- as pockets, PC storage and marts. Useful Bag replaces START with its
-      -- full START/R3 action screen when the pocket mode is active.
+      -- Preserve the engine's classic SELECT mark/place callback. START owns
+      -- help, so the two actions never compete for the same edge.
       local reorder = list.onSelectKey
       list.onSelectKey = function(item, current)
-        return list.__ascendantShowItemInfo(item)
-      end
-      list.onStartKey = function(item, current)
         if reorder then return reorder(item, current) end
       end
+      list.onStartKey = function(item, current)
+        return list.__ascendantShowItemInfo(item)
+      end
       installStartDispatcher(list)
+
+      -- A marked row is a pending transaction. B cancels it without closing;
+      -- with no marker the normal ListMenu B path still exits the Bag.
+      local previousUpdate = list.update
+      list.update = function(current, dt)
+        local input = current.game and current.game.input
+        if current.swapIndex and input and input.wasPressed
+            and input:wasPressed("b") then
+          current.swapIndex = nil
+          return
+        end
+        return previousUpdate(current, dt)
+      end
       list.__ascendantBagSecondary = "move"
       return list
     end

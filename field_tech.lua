@@ -756,25 +756,34 @@ return function(mod, opts)
 
   local function useFieldMove(game, moveId, menu)
     local ow = game.overworld
-    if not ow then return fieldFailure(game) end
+    if not ow then
+      fieldFailure(game, "restricted")
+      return false, "restricted"
+    end
     if moveId == "FLY" then
       local outside = require("src.world.Map").isOutside(ow.map.def,
         game.data.field.outsideTilesets)
       if not outside and not mapPolicy(game, moveId).allowFlyInside then
-        return fieldFailure(game, "restricted")
+        fieldFailure(game, "restricted")
+        return false, "restricted"
       end
       menu:close()
       require("src.ui.Screens").push(game, "TownMap", {
         fly = true,
         onFly = function(mapId) if ow then ow:flyTo(mapId) end end,
       })
-      return
+      return true
     end
     if moveId == "FLASH" then
       local policy = mapPolicy(game, moveId)
       if policy.blockFlash then
         menu:close()
-        return resistedFlash(game, policy.flashBlockReason)
+        resistedFlash(game, policy.flashBlockReason)
+        return false, "restricted"
+      end
+      if not ow.dark then
+        fieldFailure(game, "restricted")
+        return false, "restricted"
       end
       menu:close()
       game.save.flashLit = true
@@ -783,7 +792,7 @@ return function(mod, opts)
         game.stack:push(require("src.render.Transition").whiteFlash(
           game, nil, function() ow:setDark(false) end))
       end)
-      return
+      return true
     end
     if moveId == "STRENGTH" then
       menu:close()
@@ -793,15 +802,18 @@ return function(mod, opts)
         "Das FELD-KIT aktiviert\nSTÄRKE!\fFelsen können nun\nbewegt werden."), function()
         game.stack:push(require("src.render.Transition").whiteFlash(game))
       end)
-      return
+      return true
     end
     if moveId == "CUT" then
       local reason = ow:useCutFieldMove()
-      if reason ~= "ok" then return fieldFailure(game, reason) end
+      if reason ~= "ok" then
+        fieldFailure(game, reason)
+        return false, reason
+      end
       local fx, fy = ow.player:facingCell()
       menu:close()
       ow:tryCut(fx, fy)
-      return
+      return true
     end
     if moveId == "SURF" then
       local reason = ow:useSurfFieldMove()
@@ -809,7 +821,7 @@ return function(mod, opts)
         local fx, fy = ow.player:facingCell()
         menu:close()
         ow:trySurf(fx, fy)
-        return
+        return true
       elseif reason == "dismount" then
         menu:close()
         ow.player.surfing = false
@@ -818,28 +830,42 @@ return function(mod, opts)
           game, nil, function()
             ow:stepForwardOrCrossEdge(ow.player.facing)
           end))
-        return
+        return true
       end
-      return fieldFailure(game, reason)
+      fieldFailure(game, reason)
+      return false, reason
     end
+    fieldFailure(game, "restricted")
+    return false, "restricted"
   end
 
   local function fieldRows(game)
     local rows = {}
-    local ow = game.overworld
-    local outside = false
-    if ow then
-      outside = require("src.world.Map").isOutside(ow.map.def,
-        game.data.field.outsideTilesets)
-    end
     for _, moveId in ipairs({ "CUT", "FLY", "SURF", "STRENGTH", "FLASH" }) do
-      local policy = mapPolicy(game, moveId)
-      if available(game.save, moveId)
-          and (moveId ~= "FLY" or outside or policy.allowFlyInside)
-          and (moveId ~= "FLASH" or (ow and ow.dark) or policy.blockFlash) then
+      -- The held-SELECT surface is the full unlocked Field Kit, not a list of
+      -- only context-valid actions. This lets a player assign FLY indoors or
+      -- SURF away from water; A still runs the canonical context checks and
+      -- explains why the highlighted module cannot be used here.
+      if available(game.save, moveId) then
         rows[#rows + 1] = {
           label = game.data.moves[moveId].name, value = moveId,
+          toolId = "FIELD:" .. moveId,
         }
+      end
+    end
+    local quickSelect = mod.exports and mod.exports.quickSelect
+    if quickSelect and type(quickSelect.activateTool) == "function" then
+      local inventory = game and game.save and game.save.inventory or {}
+      for _, itemId in ipairs({ "BICYCLE", "ITEMFINDER" }) do
+        if (tonumber(inventory[itemId]) or 0) > 0 then
+          local item = game.data.items and game.data.items[itemId]
+          rows[#rows + 1] = {
+            label = item and item.name or itemId,
+            value = itemId,
+            itemId = itemId,
+            toolId = "ITEM:" .. itemId,
+          }
+        end
       end
     end
     return rows
@@ -886,17 +912,54 @@ return function(mod, opts)
     local rows = fieldRows(game)
     if #rows == 0 then
       message(game, tr(
-        "No FIELD KIT module\ncan be used here.\fCollect an HM and its\nmatching BADGE first.",
-        "Kein FELD-KIT-Modul\nist hier nutzbar.\fFinde zuerst VM und\nden passenden ORDEN."), done)
+        "No FIELD KIT module\nis unlocked yet.\fCollect an HM and its\nmatching BADGE first.",
+        "Noch kein FELD-KIT-\nModul ist freigeschaltet.\fFinde zuerst VM und\nden passenden ORDEN."), done)
       return
     end
-    game.stack:push((mod.ui.KantoListMenu or mod.ui.ListMenu).new(game, tr("FIELD KIT", "FELD-KIT"),
-      rows, {
+    local quickSelect = mod.exports and mod.exports.quickSelect
+    local favoriteEnabled = quickSelect
+      and type(quickSelect.favorite) == "function"
+      and type(quickSelect.setFavorite) == "function"
+    local function refreshFavorite()
+      local favorite = quickSelect and quickSelect.favorite
+        and quickSelect.favorite(game) or nil
+      for _, row in ipairs(rows) do
+        row.right = row.toolId == favorite and tr("FAV.", "FAV.") or nil
+      end
+    end
+    refreshFavorite()
+    game.stack:push((mod.ui.KantoListMenu or mod.ui.ListMenu).new(game,
+      tr("FIELD KIT", "FELD-KIT"), rows, {
+        footer = favoriteEnabled
+          and tr("A:USE SEL:FAV B:BACK", "A:NUTZ SEL:FAV B:ZUR")
+          or tr("A:USE B:BACK", "A:NUTZ B:ZUR"),
         onCancel = done,
         onChoose = function(item, menu)
+          if item.itemId and quickSelect and quickSelect.activateTool then
+            menu:close()
+            quickSelect.activateTool(game, item.toolId)
+            return
+          end
           useFieldMove(game, item.value, menu)
         end,
+        onSelectKey = favoriteEnabled and function(item)
+          if not (item and item.toolId and quickSelect
+              and quickSelect.setFavorite
+              and quickSelect.setFavorite(item.toolId)) then return end
+          refreshFavorite()
+          message(game, tr(
+            ("%s is your favorite.\nTap SELECT to use it."):format(item.label),
+            ("%s ist dein Favorit.\nSELECT nutzt es."):format(item.label)))
+        end or nil,
       }))
+  end
+
+  function F.activate(game, moveId)
+    if not available(game and game.save, moveId) then
+      fieldFailure(game, "no_badge")
+      return false, "locked"
+    end
+    return useFieldMove(game, moveId, { close = function() end })
   end
 
   local function recordRememberedMove(mon, moveId)

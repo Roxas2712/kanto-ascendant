@@ -1,9 +1,10 @@
--- Quick Select: Generation-II-style registered items for the overworld.
+-- Quick Select: one touch/controller-safe favorite tool for the overworld.
 --
--- Tap SELECT for the BICYCLE. Hold SELECT and press a direction for one of
--- four player-assigned Bag items. Standalone Quick Select keeps registration
--- on SELECT inside the Bag; Kanto Ascendant consumes the explicit metadata
--- seam below and exposes it from START > ITEM ACTIONS while SELECT stays help.
+-- Tap SELECT to use the assigned favorite. Hold SELECT to open the Field Kit;
+-- A uses its highlighted tool and SELECT assigns it as the new favorite. The
+-- old directional slot data remains readable for save compatibility, while
+-- the integrated Bag exposes one explicit R3 registration action and keeps
+-- classic SELECT mark/place ordering.
 --
 -- Item activation deliberately drives BagMenu's real USE path instead of
 -- duplicating ItemEffects. That keeps target pickers, consumption, fishing,
@@ -14,6 +15,9 @@
 return function(mod)
   local BagMenu = require("src.ui.BagMenu")
   local Menu = require("src.ui.Menu")
+  local Q = {}
+  local HOLD_SECONDS = 0.35
+  local FAVORITE_VERSION = 1
 
   local DIRECTIONS = { "up", "down", "left", "right" }
   local DIRECTION_LABELS = {
@@ -64,6 +68,34 @@ return function(mod)
 
   local function message(game, text, done)
     game.stack:push(mod.ui.TextBox.new(game, text, done))
+  end
+
+  local function favoriteTool(game, create)
+    local value = mod.save:get("favorite_tool")
+    local version = tonumber(mod.save:get("favorite_tool_version")) or 0
+    if version < FAVORITE_VERSION and create ~= false then
+      -- Preserve the old tap preference exactly once. New profiles therefore
+      -- retain the familiar bicycle tap, FIELD KIT users retain their menu
+      -- shortcut until they assign a module, and CLASSIC/NONE stays empty.
+      local tap = option(game, "quick_select_tap") or "bicycle"
+      if option(game, "ride_control") == "classic" or tap == "none" then
+        value = false
+      elseif tap == "field_kit" then
+        value = "FIELD_KIT"
+      else
+        value = "ITEM:BICYCLE"
+      end
+      mod.save:set("favorite_tool", value)
+      mod.save:set("favorite_tool_version", FAVORITE_VERSION)
+    end
+    return type(value) == "string" and value or nil
+  end
+
+  local function setFavorite(toolId)
+    if type(toolId) ~= "string" or toolId == "" then return false end
+    mod.save:set("favorite_tool", toolId)
+    mod.save:set("favorite_tool_version", FAVORITE_VERSION)
+    return true
   end
 
   local function assign(direction, itemId)
@@ -142,6 +174,69 @@ return function(mod)
       top.items[1].onSelect()
     end
     return true
+  end
+
+  local function toolLabel(game, toolId)
+    local moveId = type(toolId) == "string"
+      and toolId:match("^FIELD:(.+)$") or nil
+    if moveId then
+      local move = game and game.data and game.data.moves
+        and game.data.moves[moveId]
+      return move and move.name or moveId
+    end
+    local itemId = type(toolId) == "string"
+      and toolId:match("^ITEM:(.+)$") or nil
+    if itemId then return itemName(game, itemId) end
+    if toolId == "FIELD_KIT" then return tr("FIELD KIT", "FELD-KIT") end
+    return itemName(game, toolId)
+  end
+
+  local function openFieldKit(game)
+    local inventory = game and game.save and game.save.inventory or {}
+    if (tonumber(inventory.FIELD_KIT) or 0) <= 0 then
+      message(game, tr(
+        "You don't have the\nFIELD KIT yet.",
+        "Du hast das FELD-KIT\nnoch nicht."))
+      return false, "missing"
+    end
+    local fieldTech = mod.exports and mod.exports.fieldTech
+    if fieldTech and type(fieldTech.open) == "function" then
+      fieldTech.open(game)
+      return true
+    end
+    return useBagItem(game, "FIELD_KIT")
+  end
+
+  local function activateTool(game, toolId)
+    if toolId == "FIELD_KIT" then return openFieldKit(game) end
+    local moveId = type(toolId) == "string"
+      and toolId:match("^FIELD:(.+)$") or nil
+    if moveId then
+      local fieldTech = mod.exports and mod.exports.fieldTech
+      if fieldTech and type(fieldTech.activate) == "function" then
+        return fieldTech.activate(game, moveId)
+      end
+      message(game, tr(
+        "That FIELD KIT module\ncannot be used now.",
+        "Dieses FELD-KIT-Modul\nist jetzt nicht nutzbar."))
+      return false, "no_field_tech"
+    end
+    local itemId = type(toolId) == "string"
+      and toolId:match("^ITEM:(.+)$") or toolId
+    return useBagItem(game, itemId)
+  end
+
+  local function activateFavorite(game)
+    local toolId = favoriteTool(game, true)
+    if not toolId then
+      if option(game, "quick_select_empty_notice") ~= false then
+        message(game, tr(
+          "No favorite tool is\nassigned.\fHold SELECT and choose\none in the FIELD KIT.",
+          "Kein Lieblingswerkzeug\nist festgelegt.\fHalte SELECT und wähle\neins im FELD-KIT."))
+      end
+      return false, "empty"
+    end
+    return activateTool(game, toolId)
   end
 
   local function registrationRows(game, selectedId, includeMove)
@@ -231,48 +326,38 @@ return function(mod)
       local list = originalNew(game, opts)
       if opts and opts.battle then return list end
       local originalSelect = list.onSelectKey
-      -- Explicit integration seam for Ascendant's START action menu.  It is
+      -- Explicit integration seam for Ascendant's optional R3 action menu. It
       -- intentionally metadata/callback based instead of relying on wrapper
-      -- capture order: SELECT remains item help, while the Bag owner can
-      -- offer registration as one named action.  The registration picker
-      -- opened through this seam omits its legacy duplicate MOVE ITEM row.
+      -- capture order: SELECT remains the Bag's mark/place key, while the Bag
+      -- owner can offer favorite assignment as one named action.
       list.__ascendantCanQuickSelectRegister = function()
         local bridge = BagMenu._quickSelectBridge
         return bridge and bridge.canRegister
           and bridge.canRegister(game) or false
       end
       list.__ascendantOpenQuickSelectRegister = function(item, liveList)
-        local bridge = BagMenu._quickSelectBridge
-        if not (bridge and bridge.openRegistration
+        if not (item and type(item.value) == "string"
             and list.__ascendantCanQuickSelectRegister()) then
           return false
         end
-        bridge.openRegistration(game, item, liveList or list, nil, {
-          includeMove = false,
-        })
+        setFavorite("ITEM:" .. item.value)
+        message(game, tr(
+          ("%s is your favorite.\nTap SELECT to use it."):format(
+            itemName(game, item.value)),
+          ("%s ist dein Favorit.\nSELECT nutzt es."):format(
+            itemName(game, item.value))))
         return true
       end
-      list.onSelectKey = function(item, liveList)
-        if not enabled(game)
-            or option(game, "quick_select_registration") == false then
-          return originalSelect(item, liveList)
-        end
-        -- Once MOVE ITEM has armed the vanilla swap, SELECT on the target
-        -- must finish it instead of opening the registration picker again.
-        if liveList.swapIndex then
-          return originalSelect(item, liveList)
-        end
-        local bridge = BagMenu._quickSelectBridge
-        if bridge and bridge.openRegistration then
-          return bridge.openRegistration(game, item, liveList, originalSelect)
-        end
-      end
+      -- Never replace the Bag's SELECT callback. The Bag is the sole owner of
+      -- mark/place ordering; favorite registration uses the named R3 action.
+      list.onSelectKey = originalSelect
       return list
     end
   end
 
   local armed = false
-  local chordUsed = false
+  local holdSeconds = 0
+  local suppressUntilRelease = false
 
   local function queued(input, button)
     for _, value in ipairs(input.pressQueue or {}) do
@@ -311,16 +396,6 @@ return function(mod)
     return true
   end
 
-  local function directionFor(input, selectPressed)
-    for _, direction in ipairs(DIRECTIONS) do
-      if queued(input, direction)
-          or (selectPressed and input.state and input.state[direction]) then
-        return direction
-      end
-    end
-    return nil
-  end
-
   mod.hooks:wrap("input.step", function(nextFn, game, dt)
     -- Let sibling tool/input wrappers enqueue their edges first. This hook
     -- still runs before Input:step promotes anything to gameplay.
@@ -330,55 +405,44 @@ return function(mod)
 
     local selectDown = input.state and input.state.select == true
     if not enabled(game) then
-      armed, chordUsed = false, false
+      armed, holdSeconds, suppressUntilRelease = false, 0, false
+      return
+    end
+    if suppressUntilRelease then
+      consumeQueued(input, { "select" })
+      if not selectDown then suppressUntilRelease = false end
       return
     end
     if not freeRoam(game) then
-      if not selectDown then armed, chordUsed = false, false end
+      if not selectDown then armed, holdSeconds = false, 0 end
       return
     end
 
     local selectPressed = queued(input, "select")
-    if chordUsed then
-      consumeQueued(input, { "select" })
-      if not selectDown then chordUsed = false end
-      return
-    end
-
     if selectPressed then
-      armed = true
+      if not armed then
+        armed = true
+        holdSeconds = 0
+      end
       consumeQueued(input, { "select" })
     end
     if not armed then return end
 
-    local direction = directionFor(input, selectPressed)
-    if direction and (selectDown or selectPressed) then
-      consumeQueued(input, { "select", direction })
-      armed, chordUsed = false, true
-      local id = (slots(false) or {})[direction]
-      if id then
-        useBagItem(game, id)
-      elseif option(game, "quick_select_empty_notice") ~= false then
-        message(game, tr(
-          "That shortcut is\nstill empty.",
-          "Dieser Platz ist\nnoch leer."))
+    if selectDown then
+      holdSeconds = holdSeconds + math.max(0, tonumber(dt) or 0)
+      if holdSeconds >= HOLD_SECONDS then
+        armed, holdSeconds, suppressUntilRelease = false, 0, true
+        consumeQueued(input, { "select" })
+        openFieldKit(game)
       end
       return
     end
 
-    -- A tap can be pressed and released between two fixed steps; in that
-    -- case selectPressed is queued while selectDown is already false.
-    if not selectDown then
-      armed = false
-      consumeQueued(input, { "select" })
-      local tap = option(game, "quick_select_tap") or "bicycle"
-      if option(game, "ride_control") == "classic" then tap = "none" end
-      if tap == "bicycle" then
-        useBagItem(game, "BICYCLE")
-      elseif tap == "field_kit" then
-        useBagItem(game, "FIELD_KIT")
-      end
-    end
+    -- A touch tap may be pressed and released between fixed steps. Its queued
+    -- edge arrives with selectDown=false and takes this same one-shot path.
+    armed, holdSeconds = false, 0
+    consumeQueued(input, { "select" })
+    activateFavorite(game)
   end, 500)
 
   mod.exports.assign = assign
@@ -390,9 +454,20 @@ return function(mod)
   end
   mod.exports.activate = function(game, shortcut)
     if not enabled(game) then return false, "disabled" end
-    local id = shortcut == "select" and "BICYCLE"
-      or (slots(false) or {})[shortcut]
+    if shortcut == "select" then return activateFavorite(game) end
+    local id = (slots(false) or {})[shortcut]
     if not id then return false, "empty" end
     return useBagItem(game, id)
   end
+  Q.assign = assign
+  Q.clear = clear
+  Q.slots = mod.exports.slots
+  Q.setFavorite = setFavorite
+  Q.favorite = function(game) return favoriteTool(game, true) end
+  Q.toolLabel = toolLabel
+  Q.activateTool = activateTool
+  Q.activateFavorite = activateFavorite
+  Q.openFieldKit = openFieldKit
+  Q.holdSeconds = HOLD_SECONDS
+  return Q
 end

@@ -1,6 +1,5 @@
--- RC28-MANUAL-010 focused pocket-mode receipt: SELECT remains help, while
--- START/R3 reach the named action screen. This fixture has no Quick Select
--- provider, so it exposes MOVE plus the two deterministic sorts.
+-- 6.5.5 focused pocket-mode receipt: SELECT marks/places, START opens help,
+-- and the optional R3 action screen retains deterministic bulk sorts.
 
 local engine = assert(os.getenv("GEN1RECOMP_DIR"),
   "GEN1RECOMP_DIR is required")
@@ -78,8 +77,8 @@ ready({ game = game })
 
 local bag = screen.new(game, {})
 states[#states + 1] = bag
-T.eq(bag.__ascendantBagSecondary, "actions",
-  "pocket mode advertises its START action screen")
+T.eq(bag.__ascendantBagSecondary, "move",
+  "pocket mode advertises SELECT move and START info")
 T.eq(bag.title, "MEDICINE", "first non-empty pocket is visible")
 
 local beforeInventory = game.save.inventory.POTION
@@ -87,36 +86,35 @@ local beforeOrder = table.concat(game.save.bagOrder, ",")
 edge = "select"
 bag:update(0)
 edge = nil
-T.eq(helpCount, 1, "SELECT opens item help in pocket mode")
-T.check(game.stack:top().__help, "SELECT pushed the help state")
-game.stack:pop()
+T.eq(bag.swapIndex, 1, "first SELECT marks a pocket row")
+edge = "down"
+bag:update(0)
+edge = nil
+edge = "select"
+bag:update(0)
+edge = nil
+T.eq(bag.swapIndex, nil, "second SELECT places a pocket row")
 T.eq(game.save.inventory.POTION, beforeInventory,
-  "pocket help does not consume an item")
-T.eq(table.concat(game.save.bagOrder, ","), beforeOrder,
-  "pocket help does not reorder the bag")
+  "pocket move does not consume an item")
+T.check(table.concat(game.save.bagOrder, ",") ~= beforeOrder,
+  "pocket move persists in bagOrder")
 
--- START is an abstract action available to keyboard and controller.
+-- START is the item-help action available to keyboard and controller.
 edge = "start"
 bag:update(0)
 edge = nil
-bag:update(0) -- deferred owner-safe open after ListMenu handled START
-local prompt = game.stack:top()
-T.check(prompt ~= bag and prompt.__ascendantBagActions
-    and prompt.title == "ITEM ACTIONS" and #prompt.items == 3,
-  "START opens MOVE plus two sort actions")
-T.eq(prompt.items[1].value, "move", "manual move stays reachable")
-prompt.onChoose(prompt.items[2], prompt)
-T.eq(table.concat(game.save.bagOrder, ","), "ANTIDOTE,POTION",
-  "START sort rewrites persistent bagOrder")
+T.eq(helpCount, 1, "START opens item help in pocket mode")
+T.check(game.stack:top().__help, "START pushed the help state")
+game.stack:pop()
 
--- R3 remains an optional controller shortcut to the identical action screen.
+-- R3 remains an optional controller shortcut to the extended action screen.
 local Input = require("src.core.Input")
 Input.gamepadpressed(Input, nil, "rightstick")
 bag:update(0)
-prompt = game.stack:top()
+local prompt = game.stack:top()
 T.check(prompt ~= bag and prompt.__ascendantBagActions
     and #prompt.items == 3,
-  "controller R3 opens the same action screen")
+  "controller R3 opens the extended action screen")
 prompt.onChoose(prompt.items[3], prompt)
 T.eq(table.concat(game.save.bagOrder, ","), "POTION,ANTIDOTE",
   "R3 count sort persists without item mutation")

@@ -154,7 +154,7 @@ return function(game)
   check("exactly one integrated Bag surface owns the live screen",
     bag and bag.__ascendantModernBag == true
       and type(bag.__ascendantShowItemInfo) == "function"
-      and bag.__ascendantBagSecondary == "actions"
+      and bag.__ascendantBagSecondary == "move"
       and bag.externalUsefulBagTestDouble ~= true
       and ka.externalUsefulBag == false)
   check("integrated hooks screenshot",

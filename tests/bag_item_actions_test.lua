@@ -1,8 +1,8 @@
 -- RC28-MANUAL-010: focused Bag action contract.
 --
--- Runs on the real v0.1.79 ListMenu/BagMenu modules, but never starts a
--- campaign. It proves SELECT help, explicit START actions, pocket-safe
--- move/cancel/place semantics, Quick Select registration, DE/EN labels,
+-- Runs on the real ListMenu/BagMenu modules, but never starts a campaign.
+-- It proves SELECT move, START help, optional R3 actions, pocket-safe
+-- cancel/place semantics, Quick Select registration, DE/EN labels,
 -- empty/single pockets, battle isolation and persisted reopen order.
 
 local engine = assert(os.getenv("GEN1RECOMP_DIR"),
@@ -94,7 +94,7 @@ local mod = {
 }
 
 -- Install in production order: Quick Select supplies explicit Bag metadata,
--- Ascendant reserves SELECT for help, then Useful Bag owns the pocket screen.
+-- Ascendant preserves SELECT move, then Useful Bag owns the pocket screen.
 assert(loadfile(modDir .. "/quick_select.lua"))()(mod)
 check(type(inputHook) == "function", "Quick Select installed its field hook")
 
@@ -173,11 +173,13 @@ local function tap(state, action)
 end
 
 local function openActions(bag)
-  tap(bag, "start")
+  require("src.core.Input").gamepadpressed(
+    require("src.core.Input"), nil, "rightstick")
+  bag:update(0)
   if bag.game.stack:top() == bag then bag:update(0) end
   local menu = bag.game.stack:top()
   check(menu ~= bag and menu.__ascendantBagActions,
-    "START opens the explicit Bag action screen")
+    "R3 opens the explicit Bag action screen")
   return menu
 end
 
@@ -198,19 +200,30 @@ local bag = pushBag(fieldGame)
 eq(bag.title, "ITEMS", "field Bag opens on the first non-empty pocket")
 eq(joined(bag.__pocketIds), "Z_ITEM,A_ITEM,M_ITEM",
   "generic pocket is a projection of interleaved hidden order")
-eq(bag.__ascendantBagSecondary, "actions",
-  "Bag footer advertises actions")
+eq(bag.__ascendantBagSecondary, "move",
+  "Bag footer advertises SELECT move and START info")
 
 local untouched = inventorySnapshot(fieldGame.save.inventory)
 local beforeHelpOrder = joined(fieldGame.save.bagOrder)
-tap(bag, "select")
+tap(bag, "start")
 check(fieldGame.stack:top().__help and helpCount == 1,
-  "SELECT directly opens item help")
+  "START directly opens item help")
 fieldGame.stack:pop()
 eq(joined(fieldGame.save.bagOrder), beforeHelpOrder,
-  "SELECT help never reorders items")
+  "START help never reorders items")
 sameInventory(fieldGame.save.inventory, untouched,
-  "SELECT help preserves item counts")
+  "START help preserves item counts")
+
+-- SELECT alone provides the classic mark/place gesture.
+tap(bag, "select")
+eq(bag.swapIndex, 1, "first SELECT marks the current pocket row")
+tap(bag, "down")
+tap(bag, "down")
+tap(bag, "select")
+eq(bag.swapIndex, nil, "second SELECT places the marked row")
+eq(joined(fieldGame.save.bagOrder),
+  "M_ITEM,POTION,A_ITEM,POKE_BALL,Z_ITEM,X_ATTACK,X_DEFEND",
+  "SELECT swaps only the two projected pocket rows")
 
 local actions = openActions(bag)
 eq(actions.title, "ITEM ACTIONS", "English action title is localized")
@@ -220,13 +233,9 @@ eq(row(actions, "move").fullLabel, "MOVE ITEM",
 eq(row(actions, "quick_select").fullLabel, "QUICK SELECT",
   "Quick Select action is explicit")
 choose(actions, "move")
-eq(bag.swapIndex, 1, "MOVE ITEM marks the current pocket row")
-tap(bag, "down")
-tap(bag, "down")
-tap(bag, "a")
-eq(joined(fieldGame.save.bagOrder),
-  "M_ITEM,POTION,A_ITEM,POKE_BALL,Z_ITEM,X_ATTACK,X_DEFEND",
-  "A places by swapping only the two projected pocket rows")
+eq(bag.swapIndex, bag.index, "MOVE ITEM marks the current pocket row")
+tap(bag, "b")
+eq(bag.swapIndex, nil, "B cancels an action-menu move marker")
 sameInventory(fieldGame.save.inventory, untouched,
   "manual move preserves item counts")
 
@@ -252,27 +261,23 @@ for _, cancelKey in ipairs({ "b", "left", "right" }) do
   eq(fieldGame.stack:top(), bag, cancelKey .. " keeps the Bag open")
 end
 
--- START is also an explicit place key after marking.
+-- A second SELECT is the explicit place key after marking.
 actions = openActions(bag)
 choose(actions, "move")
 tap(bag, "down")
-tap(bag, "start")
+tap(bag, "select")
 eq(joined(bag.__pocketIds), "A_ITEM,M_ITEM,Z_ITEM",
-  "START places the marked row")
+  "second SELECT places the marked row")
 
--- Registration is reached through the action, not through SELECT. Its
--- subordinate direction picker no longer repeats MOVE ITEM.
+-- Favorite assignment is reached through the optional action, not through
+-- SELECT. It is immediate: the 6.5.5 overworld has one favorite tool rather
+-- than exposing the legacy four-direction picker.
 actions = openActions(bag)
 choose(actions, "quick_select")
-local registration = fieldGame.stack:top()
-eq(registration.title, "QUICK SELECT", "English registration picker opens")
-check(row(registration, "move") == nil,
-  "action-based registration omits duplicate MOVE ITEM")
-registration.onChoose(row(registration, "up"), registration)
-eq(mod.exports.slots().up, bag.items[bag.index].value,
-  "chosen item persists in Quick Select slot")
+eq(quickSave.favorite_tool, "ITEM:" .. bag.items[bag.index].value,
+  "chosen item persists as the single favorite tool")
 check(fieldGame.stack:top().__text,
-  "registration confirmation uses the normal Quick Select message")
+  "favorite confirmation uses the normal Quick Select message")
 fieldGame.stack:pop()
 
 -- Both sorts are persistent and cannot mutate counts.
@@ -343,6 +348,13 @@ eq(joined(singleGame.save.bagOrder), "ONLY_ITEM",
 sameInventory(singleGame.save.inventory, { ONLY_ITEM = 1 },
   "single-row move preserves count")
 
+-- With no pending mark, B keeps the normal ListMenu ownership and exits.
+local exitGame = makeGame({ ONLY_ITEM = 1 }, { "ONLY_ITEM" })
+local exitBag = pushBag(exitGame)
+eq(exitGame.stack:top(), exitBag, "exit witness starts in the Bag")
+tap(exitBag, "b")
+eq(exitGame.stack:top(), nil, "B exits the Bag when no move is pending")
+
 -- German uses the exact requested title/full action labels and the same
 -- functional registration bridge.
 language = "de"
@@ -361,8 +373,11 @@ eq(row(actions, "sort_name").fullLabel, "NACH NAME SORTIEREN",
 eq(row(actions, "sort_count").fullLabel, "NACH ANZAHL SORTIEREN",
   "German count sort is localized")
 choose(actions, "quick_select")
-eq(germanGame.stack:top().title, "SCHNELLWAHL",
-  "German registration picker opens")
+eq(quickSave.favorite_tool, "ITEM:" .. germanBag.items[germanBag.index].value,
+  "German action assigns the same favorite contract")
+check(germanGame.stack:top().__text
+    and germanGame.stack:top().text:find("Favorit", 1, true),
+  "German favorite confirmation is localized")
 germanGame.stack:pop()
 language = "en"
 

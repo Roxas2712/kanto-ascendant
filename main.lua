@@ -461,7 +461,9 @@ return function(mod)
   -- Register content-backed QoL screens before the loader freezes registries.
   if not installedMod("jj_quick_select") then
     local installQuickSelect = loadSibling(mod, "quick_select.lua")
-    if type(installQuickSelect) == "function" then installQuickSelect(mod) end
+    if type(installQuickSelect) == "function" then
+      mod.exports.quickSelect = installQuickSelect(mod)
+    end
   else
     mod.exports.externalQuickSelect = true
   end
@@ -836,14 +838,14 @@ return function(mod)
         { menuLabel("SLOW", "LANGSAM"), "slow" },
       } },
     { key = "ride_control",
-      label = menuLabel("BICYCLE SHORTCUT", "FAHRRAD-KÜRZEL"),
+      label = menuLabel("LEGACY BICYCLE KEY", "ALTE FAHRRAD-TASTE"),
       type = "choice", default = "select",
       choices = {
         { menuLabel("SELECT USES BICYCLE", "SELECT NUTZT FAHRRAD"), "select" },
         { menuLabel("CLASSIC BAG ONLY", "NUR KLASSISCHER BEUTEL"), "classic" },
       } },
     { key = "quick_select_tap",
-      label = menuLabel("SELECT TAP", "SELECT-TIPPEN"),
+      label = menuLabel("DEFAULT FAVORITE", "START-FAVORIT"),
       type = "choice", default = "bicycle",
       choices = {
         { menuLabel("BICYCLE", "FAHRRAD"), "bicycle" },
@@ -851,7 +853,7 @@ return function(mod)
         { menuLabel("NOTHING", "NICHTS"), "none" },
       } },
     { key = "quick_select_registration",
-      label = menuLabel("BAG REGISTRATION", "BEUTEL-REGISTRIERUNG"),
+      label = menuLabel("BAG FAVORITE", "BEUTEL-FAVORIT"),
       type = "toggle", default = true },
     { key = "quick_select_empty_notice",
       label = menuLabel("EMPTY SLOT NOTICE", "LEERER-PLATZ-HINWEIS"),

@@ -2,7 +2,9 @@
 -- the German translation package:
 --   QA_ITEM_HELP_LANGUAGE=en|de SHOT_DIR=... POKEPORT_DRIVER=...
 -- It drives abstract SELECT/START actions, which are fed by both keyboard and
--- controller bindings in the engine, over real Bag/PlayerPC/Shop screens.
+-- controller bindings in the engine, over real Bag/PlayerPC/Shop screens. The
+-- Bag uses SELECT for mark/place and START for help; PC/shop retain their
+-- storage-specific SELECT-help contracts.
 
 return function(game)
   assert(os.getenv("KA_PACKAGE_GATE") == "1",
@@ -84,18 +86,25 @@ return function(game)
   Screens.push(game, "BagMenu")
   local bag = game.stack:top()
   U.wait(3)
-  check("Bag footer exposes SELECT help and secondary ordering",
-    bag.__ascendantBagSecondary == "move"
-      or bag.__ascendantBagSecondary == "sort"
-      or bag.__ascendantBagSecondary == "actions")
+  check("Bag footer exposes SELECT move and START help",
+    bag.__ascendantBagSecondary == "move")
   check("Bag control screenshot",
     U.shot(game, dir .. "/01_bag_controls_" .. suffix .. ".png"))
-  check("Bag keyboard SELECT reaches the live help callback",
-    physicalKey("select", "tab", bag))
+  check("Bag keyboard SELECT marks without leaving the Bag",
+    not physicalKey("select", "tab", bag) and bag.swapIndex == 1)
+  U.tap(game, "down")
+  check("Bag controller SELECT completes the same move",
+    not physicalPad("select", "back", bag) and bag.swapIndex == nil)
+  check("Bag SELECT move persists without changing counts",
+    table.concat(game.save.bagOrder or {}, ",")
+      == "ANTIDOTE,POTION,POKE_BALL"
+      and sameCounts(beforeBag, game.save.inventory))
+  check("Bag keyboard START reaches the live help callback",
+    physicalKey("start", "escape", bag))
   U.wait(2)
   local bagHelp = game.stack:top()
-  check("Bag SELECT opens localized Potion help", helpLanguageOkay(bagHelp))
-  check("Bag SELECT help screenshot",
+  check("Bag START opens localized Potion help", helpLanguageOkay(bagHelp))
+  check("Bag START help screenshot",
     U.shot(game, dir .. "/02_bag_help_" .. suffix .. ".png"))
   U.tap(game, "b")
   U.wait(2)
@@ -105,10 +114,13 @@ return function(game)
   Screens.push(game, "BagMenu")
   local padBag = game.stack:top()
   U.wait(2)
-  check("Bag controller SELECT reaches the identical live help callback",
-    physicalPad("select", "back", padBag))
+  for index, item in ipairs(padBag.items or {}) do
+    if item.value == "POTION" then padBag.index = index break end
+  end
+  check("Bag controller START reaches the identical live help callback",
+    physicalPad("start", "start", padBag))
   local padHelp = game.stack:top()
-  check("controller Bag help uses the requested language",
+  check("controller START Bag help uses the requested language",
     helpLanguageOkay(padHelp))
   U.tap(game, "b")
   U.wait(1)
@@ -191,8 +203,8 @@ return function(game)
   check("all help paths preserve PC counts",
     sameCounts(beforePc, game.save.pcItems))
   check("all help paths preserve money", game.save.money == beforeMoney)
-  check("keyboard/controller matrix exercised seven physical inputs",
-    physicalInputChecks == 7)
+  check("keyboard/controller matrix exercised nine physical inputs",
+    physicalInputChecks == 9)
 
   U.log(("RESULT language=%s pass=%d fail=%d"):format(
     suffix, pass, fail))

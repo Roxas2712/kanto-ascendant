@@ -31,14 +31,13 @@
 -- openers -- the start menu and the battle bag -- get the pocketed list.
 -- The factory builds the vanilla bag (all its USE/TOSS/quantity/learn
 -- flows stay engine-owned) and then decorates the returned ListMenu:
--- L/R pocket switching, explicit SELECT item information in Ascendant's
--- decorated Bag (external/plain bags retain pocket-safe row reordering), a
+-- L/R pocket switching, classic SELECT mark/place ordering, START item
+-- information, a
 -- self-healing projection that re-applies
 -- the pocket whenever an engine rebuild (e.g. after a toss) resets the rows
--- to the full bag, and the START/R3 action prompt. SELECT is never stolen from
--- Ascendant's bilingual item information.  The same game.ready wrapper
+-- to the full bag, and the optional R3 action prompt. The same game.ready wrapper
 -- catches the PC's WITHDRAW / DEPOSIT / TOSS lists to add full TM/HM labels;
--- Ascendant's shared item-list layer owns SELECT info and START reordering
+-- Ascendant's shared item-list layer owns the storage-specific controls
 -- there (save.pcOrder for storage, save.bagOrder for deposit).
 --
 -- Both the bag pockets and the PC lists label machine items with their
@@ -147,7 +146,7 @@ end
 
 -- The ids in `order` (an array of item ids, e.g. Bag.order(save)) that
 -- belong to a pocket.  Keeps the incoming order, so pockets follow the
--- bag's current sort (acquisition order, or the START/R3 action sorts).
+-- bag's current sort (acquisition order, or the optional R3 action sorts).
 local function pocketItems(order, data, pocketId)
   local out = {}
   for _, id in ipairs(order) do
@@ -363,7 +362,7 @@ local function bagTr(list, en, de)
   return en
 end
 
--- START/R3 opens a full, named action screen instead of hiding move and
+-- R3 opens a full, named action screen instead of hiding extra sorting and
 -- Quick Select behind competing callback wrappers.  Rows carry stable value
 -- ids and fullLabel metadata so the runtime action never depends on a
 -- localized display string.  The shorter German Quick Select row fits the
@@ -494,10 +493,11 @@ local function decorateTickers(list)
   end
 end
 
--- Decorate a vanilla bag ListMenu with pockets, L/R navigation, explicit
--- SELECT help and a pocket-safe START action menu. `session` is the
+-- Decorate a vanilla bag ListMenu with pockets, L/R navigation, classic
+-- SELECT mark/place ordering and START item help. R3 remains an optional
+-- extended action menu. `session` is the
 -- shared bag-session state (one bag open at a time) that the game.ready
--- Input wraps write their START/R3 edges into. `opts` is the bag's open
+-- Input wrapper writes its R3 edge into. `opts` is the bag's open
 -- opts: a truthy `opts.battle` (BattleState) marks a battle bag, which
 -- opens on BATTLE ITEMS and skips the unusable pockets when cycling.
 local function decorate(list, game, session, opts)
@@ -590,24 +590,13 @@ local function decorate(list, game, session, opts)
 
   list.onSelectKey = function(item, l)
     if not item then return end
-    if type(l.__ascendantShowItemInfo) == "function" then
-      return l.__ascendantShowItemInfo(item)
-    end
-    if not l.swapIndex then
-      l.swapIndex = l.index
-      return
-    end
-    swapRows(l.swapIndex, l.index)
-    l.swapIndex = nil
-    require("src.core.Sound").play(game.data, "Swap")
-    project()
+    if l.__ascendantMoveMode then return finishMove() end
+    return beginMove()
   end
 
   list.onStartKey = function(item, l)
-    if l.__ascendantMoveMode then
-      finishMove()
-    elseif not session.actionsOpen then
-      session.wantActions = true
+    if item and type(l.__ascendantShowItemInfo) == "function" then
+      return l.__ascendantShowItemInfo(item)
     end
   end
 
@@ -665,21 +654,15 @@ local function decorate(list, game, session, opts)
         -- non-transactional.
         cancelMove()
         return
-      elseif self.__ascendantMoveMode and start then
-        finishMove()
-        return
       elseif left or right then
         switchPocket(self, left and -1 or 1)
         require("src.core.Sound").play(game.data, "Press_AB")
-      elseif start and not session.actionsOpen then
-        -- v0.1.79 ListMenu has no native START callback.  Route the edge in
-        -- the owning Bag wrapper for both populated and empty pockets;
-        -- otherwise `onStartKey` is merely metadata and the advertised
-        -- ITEM ACTIONS screen is unreachable on the shipped runtime.
-        session.wantActions = true
+      elseif start then
+        self.onStartKey(self.items[self.index], self)
+        return
       end
     end
-    -- the START/R3 action edge waits for the bag's own update (a stale edge
+    -- the R3 action edge waits for the bag's own update (a stale edge
     -- from a press while another screen was on top is dropped)
     if session.wantActions and session.active == self
        and not session.actionsOpen
@@ -714,7 +697,7 @@ local function decorate(list, game, session, opts)
   decorateTickers(list)
 
   session.active = list
-  list.__ascendantBagSecondary = "actions"
+  list.__ascendantBagSecondary = "move"
   session.wantActions = false -- presses before the bag opened do not carry over
   -- a battle bag opens on the BATTLE ITEMS pocket (falling back to the
   -- first non-empty usable pocket), not the generic ITEMS; cycling skips
@@ -745,8 +728,8 @@ end
 -- The PC's three item lists are plain engine ListMenus (PlayerPC.lua) that
 -- expose compact machine names. Decorate WITHDRAW / DEPOSIT / TOSS with full
 -- TM/HM labels and persistent ordering. Ascendant's shared item-list layer
--- reserves SELECT for help and uses START (or A after marking) for moving;
--- a standalone/plain list keeps the older SELECT reorder fallback.
+-- keeps each PC screen's established SELECT-help / START-move contract; a
+-- standalone/plain list keeps the older SELECT reorder fallback.
 -- Withdraw and Toss reorder the PC storage (save.pcOrder); Deposit reorders
 -- the bag (save.bagOrder) because that list shows the bag, matching the
 -- original.  The list opens in the stored order (not the engine's
@@ -807,7 +790,7 @@ end
 return function(mod)
   -- Each open Bag is an independent interaction session (the field and battle
   -- bags can coexist briefly in harnesses/compat flows). R3 targets the most
-  -- recently opened list; START itself writes only that list's own session.
+  -- recently opened list; START is handled by that list as item help.
   local actionSurface = mod.ui
     and (mod.ui.KantoListMenu or mod.ui.ListMenu)
   local currentSession

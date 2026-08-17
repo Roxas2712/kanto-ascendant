@@ -8,6 +8,19 @@ return function(mod, opts)
   local function tr(en, de)
     return opts.i18n and opts.i18n.text(en, de) or en
   end
+  local function option(game, key)
+    local bucket = game and game.save and game.save.options
+      and game.save.options.modOptions
+      and game.save.options.modOptions[mod.id]
+    local value = bucket and bucket[key]
+    if value == nil and mod.options and mod.options.get then
+      value = mod.options:get(key)
+    end
+    return value
+  end
+  local function integratedSelectOwnsInput(game)
+    return option(game, "ascendant_quick_select") ~= false
+  end
   local function hasBike(game)
     return ((game.save.inventory or {}).BICYCLE or 0) > 0
       or ((game.save.pcItems or {}).BICYCLE or 0) > 0
@@ -37,7 +50,13 @@ return function(mod, opts)
   mod.hooks:wrap("input.step", function(nextStep, game, dt)
     local queue = game and game.input and game.input.pressQueue
     local top = game and game.stack and game.stack:top()
-    if queue and top and top == game.overworld then
+    -- The integrated short/hold dispatcher is the sole SELECT owner while
+    -- Quick Select is enabled.  The legacy bicycle seam remains available
+    -- only when that dispatcher is explicitly disabled, so it can never
+    -- pre-empt a Field Kit or favorite-tool action again.
+    if queue and top and top == game.overworld
+        and not integratedSelectOwnsInput(game)
+        and option(game, "ride_control") ~= "classic" then
       for index = #queue, 1, -1 do
         if queue[index] == "select" then
           table.remove(queue, index)

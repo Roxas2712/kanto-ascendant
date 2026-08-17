@@ -116,13 +116,13 @@ assert(type(list.onChoose) == "function" and type(list.onSelectKey) == "function
   "Bag USE or SELECT callback was lost")
 assert(list.rows == 4 and list.provider(list.items[1]):find("20 KP"),
   "Bag description panel provider not connected")
-assert(list.onSelectKey(list.items[1], list) == true
-    and shown.title == "TRANK" and shown.body:find("20 KP"),
-  "SELECT item-info action is not connected to the bilingual description")
-assert(reorderCalls == 0 and type(list.onStartKey) == "function",
-  "Bag SELECT still mutates order or START fallback is missing")
+list.onSelectKey(list.items[1], list)
+assert(reorderCalls == 1 and shown == nil,
+  "Bag SELECT must keep the classic mark/place reorder action")
+assert(type(list.onStartKey) == "function",
+  "Bag START item-help callback is missing")
 list.onStartKey(list.items[1], list)
-assert(reorderCalls == 1,
-  "plain Bag manual reorder was not preserved on START")
+assert(shown.title == "TRANK" and shown.body:find("20 KP"),
+  "START item-info action is not connected to the bilingual description")
 
-print("PASS help and Bag: bilingual option help, item effects, SELECT info")
+print("PASS help and Bag: bilingual option help, SELECT move, START info")

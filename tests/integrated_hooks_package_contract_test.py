@@ -31,7 +31,7 @@ required = {
     "follower wrapper": "__kantoAscendantNativeSingleFollower",
     "integrated bag": "bag.__ascendantModernBag == true",
     "bag item help": 'type(bag.__ascendantShowItemInfo) == "function"',
-    "bag sort owner": 'bag.__ascendantBagSecondary == "sort"',
+    "bag SELECT move owner": 'bag.__ascendantBagSecondary == "move"',
     "qol singleton": "handlerCount == 1",
     "qol owner": "handlers.kanto_ascendant ~= nil",
     "qol overlay": "__qolLocationBannerOverlay",

@@ -21,7 +21,8 @@ required = {
     "controller select": 'physicalPad("select", "back"',
     "keyboard start": 'physicalKey("start", "escape"',
     "controller start": 'physicalPad("start", "start"',
-    "bag help": "Bag keyboard SELECT reaches",
+    "bag SELECT mark/place": "Bag keyboard SELECT marks",
+    "bag help": "Bag keyboard START reaches",
     "pc help": "PC controller SELECT reaches",
     "shop buy": "BUY keyboard SELECT reaches",
     "shop sell": "SELL controller SELECT reaches",
@@ -29,7 +30,7 @@ required = {
     "read-only pc": "sameCounts(beforePc",
     "read-only money": "game.save.money == beforeMoney",
     "screenshots": '"/01_bag_controls_"',
-    "matrix receipt": "physicalInputChecks == 7",
+    "matrix receipt": "physicalInputChecks == 9",
 }
 missing = [name for name, needle in required.items() if needle not in driver]
 

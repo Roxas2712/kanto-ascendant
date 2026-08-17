@@ -1,7 +1,6 @@
--- UI-001: real v0.1.79 ListMenu / PlayerPC / ShopMenu contract.
--- SELECT must be read-only bilingual item help everywhere. START remains the
--- explicit, persistent Player-PC order control; the plain Bag keeps its old
--- manual reorder on START (pocket mode promotes that key to its sort prompt).
+-- UI-001: real ListMenu / PlayerPC / ShopMenu contract.
+-- The Bag keeps classic SELECT mark/place ordering and moves help to START.
+-- PC and shop lists retain their established storage-specific controls.
 
 local engine = assert(os.getenv("GEN1RECOMP_DIR"),
   "GEN1RECOMP_DIR is required")
@@ -113,18 +112,23 @@ local function snapshot()
 end
 local before = snapshot()
 
--- Plain Ascendant Bag: SELECT info, START retains the old reorder callback.
+-- Plain Ascendant Bag: SELECT marks/places, START opens item help.
 local bag = require("src.ui.BagMenu").new(game, {})
 states[#states + 1] = bag
 eq(bag.kind, "bag", "Bag exposes its stable kind")
 check(type(bag.onSelectKey) == "function", "Bag SELECT callback exists")
-check(type(bag.onStartKey) == "function", "Bag START reorder callback exists")
+check(type(bag.onStartKey) == "function", "Bag START help callback exists")
 tap(bag, "select")
+eq(bag.swapIndex, 1, "first SELECT marks the current Bag row")
+bag.index = 2
+tap(bag, "select")
+eq(bag.swapIndex, nil, "second SELECT completes the Bag move")
+eq(table.concat(game.save.bagOrder, ","), "ANTIDOTE,POTION,POKE_BALL",
+  "Bag SELECT move persists in bagOrder")
+tap(bag, "start")
 check(stack:top().__itemHelp and stack:top().body:find("20 HP", 1, true),
-  "Bag SELECT opens English item help")
+  "Bag START opens English item help")
 stack:pop()
-eq(table.concat(game.save.bagOrder, ","), "POTION,ANTIDOTE,POKE_BALL",
-  "Bag help does not reorder inventory")
 
 -- Player PC: every list gets help; START marks/moves and survives reopening.
 states = {}
@@ -180,7 +184,7 @@ deposit.index = 1
 tap(deposit, "start")
 deposit.index = 2
 tap(deposit, "start")
-eq(table.concat(game.save.bagOrder, ","), "ANTIDOTE,POTION,POKE_BALL",
+eq(table.concat(game.save.bagOrder, ","), "POTION,ANTIDOTE,POKE_BALL",
   "deposit reorder persists through save.bagOrder")
 
 -- Shop BUY and SELL both expose the same read-only SELECT action.

@@ -125,17 +125,18 @@ return function(mod, opts)
       rows = {
         { key = "ascendant_quick_select", en = "QUICK SELECT",
           de = "SCHNELLWAHL", values = toggle },
-        { key = "quick_select_tap", en = "SELECT TAP",
-          de = "SELECT-TIPPEN", values = {
+        { key = "quick_select_tap", en = "DEFAULT FAVORITE",
+          de = "START-FAVORIT", values = {
             { "bicycle", "BICYCLE", "FAHRRAD" },
             { "field_kit", "FIELD KIT", "FELD-KIT" },
             { "none", "NOTHING", "NICHTS" },
           } },
-        { key = "quick_select_registration", en = "BAG REGISTER",
-          de = "BEUTEL-REGISTR.", values = toggle },
+        { key = "quick_select_registration", en = "BAG FAVORITE",
+          de = "BEUTEL-FAVORIT", values = toggle },
         { key = "quick_select_empty_notice", en = "EMPTY NOTICE",
           de = "LEER-HINWEIS", values = toggle },
-        { key = "ride_control", en = "BICYCLE KEY", de = "FAHRRAD-TASTE",
+        { key = "ride_control", en = "LEGACY BIKE KEY",
+          de = "ALTE RAD-TASTE",
           values = {
             { "select", "SELECT", "SELECT" },
             { "classic", "BAG ONLY", "NUR BEUTEL" },

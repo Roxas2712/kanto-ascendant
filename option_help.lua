@@ -156,8 +156,8 @@ return function(i18n)
       "Chooses vanilla capacity, FireRed skin, expanded capacity or categorized pockets. OFF hands the Bag back to an external compatible owner.",
       "Wählt Standardgröße, Feuerrot-Skin, mehr Platz oder sortierte Fächer. AUS übergibt den Beutel an einen kompatiblen externen Besitzer.", true },
     ascendant_quick_select = {
-      "Enables Ascendant's configurable SELECT shortcuts. Its tap action and Bag registration are configured separately.",
-      "Aktiviert Ascendants konfigurierbare SELECT-Kürzel. Tippaktion und Beutelregistrierung werden getrennt eingestellt." },
+      "Enables the Field Kit shortcut. Tap SELECT to use the assigned favorite tool; hold SELECT to open the full Field Kit. In the Field Kit, A uses a tool, SELECT makes it the favorite and B closes the menu.",
+      "Aktiviert das Feld-Kit-Kürzel. SELECT kurz nutzt das festgelegte Lieblingswerkzeug; SELECT halten öffnet das ganze Feld-Kit. Im Feld-Kit nutzt A ein Werkzeug, SELECT macht es zum Favoriten und B schließt das Menü." },
     ascendant_qol = {
       "Master switch for Ascendant's convenience bundle. The individual helpers below remain independently configurable.",
       "Hauptschalter für Ascendants Komfortpaket. Die einzelnen Hilfen darunter bleiben separat einstellbar." },
@@ -189,17 +189,17 @@ return function(i18n)
       "Overrides the engine text speed with a fixed slow, normal or fast preset. ENGINE OPTION follows the regular game setting.",
       "Überschreibt die Textgeschwindigkeit mit Langsam, Normal oder Schnell. ENGINE-EINSTELLUNG folgt der normalen Spieloption." },
     ride_control = {
-      "Chooses whether SELECT can mount or dismount the bicycle, or whether the bicycle is used only from the Bag.",
-      "Bestimmt, ob SELECT das Fahrrad auf- oder absteigen lässt oder ob es nur über den Beutel genutzt wird." },
+      "Legacy fallback used only while QUICK SELECT is OFF: SELECT mounts or dismounts the bicycle, or the bicycle remains Bag-only. With QUICK SELECT on, the assigned favorite owns a short SELECT press.",
+      "Alte Rückfalleinstellung nur bei ausgeschalteter SCHNELLWAHL: SELECT steigt aufs Fahrrad oder ab, alternativ bleibt es nur im Beutel. Mit SCHNELLWAHL gehört kurzes SELECT dem festgelegten Favoriten." },
     quick_select_tap = {
-      "Chooses the action triggered by a short SELECT press: bicycle, Field Kit or no tap action.",
-      "Wählt die Aktion eines kurzen SELECT-Drucks: Fahrrad, Feld-Kit oder keine Tippaktion." },
+      "Seeds the first favorite when an old or new profile has none: bicycle, Field Kit or empty. Once a favorite is assigned in the Field Kit or Bag, that saved choice wins.",
+      "Legt den ersten Favoriten fest, wenn ein alter oder neuer Spielstand noch keinen hat: Fahrrad, Feld-Kit oder leer. Sobald im Feld-Kit oder Beutel ein Favorit gewählt wurde, gilt diese gespeicherte Wahl." },
     quick_select_registration = {
-      "Allows suitable Bag items to be registered for Ascendant's quick-selection overlay.",
-      "Erlaubt, geeignete Beutel-Items für Ascendants Schnellwahl-Overlay zu registrieren." },
+      "Adds favorite assignment to the Bag's optional R3 item-actions menu. Bag SELECT remains mark/place, START shows item help, and B cancels a pending move or exits.",
+      "Fügt die Favoritenwahl zum optionalen R3-Item-Aktionsmenü des Beutels hinzu. Im Beutel markiert/tauscht SELECT, START zeigt Hilfe und B bricht einen Tausch ab oder verlässt das Menü." },
     quick_select_empty_notice = {
-      "Shows a short explanation when SELECT is pressed but no usable shortcut is configured.",
-      "Zeigt einen kurzen Hinweis, wenn SELECT gedrückt wird, aber kein nutzbares Kürzel eingerichtet ist." },
+      "Shows a short explanation after tapping SELECT when no favorite tool is assigned.",
+      "Zeigt nach kurzem SELECT einen Hinweis, wenn kein Lieblingswerkzeug festgelegt ist." },
     catch_box_notice = {
       "Always announces the destination Box after a caught Pokémon is transferred, including automatic transfers and the next Box when one is full.",
       "Nennt nach der Übertragung immer die Zielbox, auch bei automatischem Transfer und beim Wechsel, wenn eine Box voll ist." },

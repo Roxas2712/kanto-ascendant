@@ -468,7 +468,7 @@ return function(mod, opts)
     elseif menu.__ascendantBagSecondary == "sort" then
       hint = tr("SEL:I ST/R3:SORT", "SEL:I ST/R3:ORDN")
     else
-      hint = tr("SEL:I START:MOVE", "SEL:I START:TAUSCH")
+      hint = tr("SEL:MOVE START:INFO", "SEL:TAUSCH START:INFO")
     end
     Font.draw(truncate(hint, 146), 7, 131)
     color(C.white)
