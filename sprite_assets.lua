@@ -12,6 +12,7 @@
 return function(mod)
   local A = {}
   local extendedRuntime
+  local kantoDexBySpecies = {}
   local prepared = {}
 
   -- Engine 0.1.86 deliberately withholds love.filesystem from mod code; even
@@ -32,6 +33,20 @@ return function(mod)
     if not relative or type(mod.read) ~= "function" then return nil end
     local ok, bytes = pcall(mod.read, mod, relative)
     return ok and bytes ~= nil and { type = "file" } or nil
+  end
+
+  local function validWalker(relative)
+    if type(relative) ~= "string" or relative == ""
+        or type(mod.read) ~= "function" then return false end
+    local ok, bytes = pcall(mod.read, mod, relative)
+    if not ok or type(bytes) ~= "string" or #bytes < 24
+        or bytes:sub(1, 8) ~= "\137PNG\r\n\26\n"
+        or bytes:sub(13, 16) ~= "IHDR" then return false end
+    local function u32(at)
+      local a, b, c, d = bytes:byte(at, at + 3)
+      return a * 16777216 + b * 65536 + c * 256 + d
+    end
+    return u32(17) == 16 and u32(21) == 96
   end
 
   local function available()
@@ -119,13 +134,18 @@ return function(mod)
   local FOLLOWER_ORDER = { 4, 2, 0, 5, 3, 1 }
   A.followerOrder = FOLLOWER_ORDER
 
-  function A.kantoFollower(dex)
+  function A.kantoFollower(dex, shiny)
     dex = tonumber(dex)
     if not dex then return nil end
-    local relative = ("assets/followers_kanto/follower_%03d.png")
-      :format(math.floor(dex))
-    local path = mod.path .. "/" .. relative
-    return info(path) and path or nil
+    dex = math.floor(dex)
+    if dex < 1 or dex > 151 then return nil end
+    local normal = ("assets/followers_kanto/follower_%03d.png"):format(dex)
+    if shiny then
+      local exact = ("assets/followers_kanto/shiny/follower_%03d.png")
+        :format(dex)
+      if validWalker(exact) then return mod.path .. "/" .. exact end
+    end
+    return validWalker(normal) and (mod.path .. "/" .. normal) or nil
   end
 
   local function iconFollower(source)
@@ -214,6 +234,8 @@ return function(mod)
 
   function A.follower(species, shiny)
     if type(species) ~= "string" or species == "" then return nil end
+    local kantoDex = kantoDexBySpecies[species]
+    if kantoDex then return A.kantoFollower(kantoDex, shiny) end
     if extendedRuntime and extendedRuntime.identity(species) then
       local exact = extendedRuntime.followerPath(species, shiny)
       if exact and info(exact) then return exact end
@@ -249,6 +271,16 @@ return function(mod)
 
   function A.setExtendedSpeciesRuntime(runtime)
     extendedRuntime = runtime
+    A.invalidate()
+  end
+
+  function A.setKantoSpecies(order)
+    kantoDexBySpecies = {}
+    for dex, species in ipairs(order or {}) do
+      if dex <= 151 and type(species) == "string" and species ~= "" then
+        kantoDexBySpecies[species] = dex
+      end
+    end
     A.invalidate()
   end
 

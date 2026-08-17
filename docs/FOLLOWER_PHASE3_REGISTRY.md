@@ -13,8 +13,11 @@ multi-follower/options work.
 definition contains a concrete normal/shiny resource, six frames, 16×96 sheet
 geometry, walker/true-colour flags, provenance and an explicit failure policy.
 
-- Kanto #001-151 resolves by canonical dex number to
-  `assets/followers_kanto/follower_XXX.png`.
+- Kanto #001-151 resolves by canonical dex number to distinct normal and
+  shiny walkers under `assets/followers_kanto/`. Every shiny walker preserves
+  the authored PokéPC geometry and maps its two colour roles to the matching
+  indices of that species' exact Crystal shiny palette. A missing or corrupt
+  shiny sheet safely falls back to that same species' normal walker.
 - Johto #152-251 is registered eagerly from `johto_data.lua` to its concrete
   normal and shiny runtime sheets.
 - Raichu uses the regular Kanto #026 definition in every edition; the registry
@@ -33,9 +36,10 @@ Crystal/Follower-EX pipeline.
 
 ## Assets and attribution
 
-- Kanto: 151/151 authored 16×96 walkers adapted from PokéPC Followers; that
-  project's Crystal Clear/ShockSlayer attribution and its no-separate-license
-  status are recorded in `THIRD_PARTY_NOTICES.md`.
+- Kanto: 151/151 authored normal plus 151/151 palette-derived shiny 16×96
+  walkers adapted from PokéPC Followers. The index mapping is reproducible
+  through `tools/build_kanto_shiny_followers.py` and recorded per species in
+  `assets/followers_kanto/shiny/palette_contract.json`.
 - Johto: 100/100 normal plus 100/100 shiny 16×96 walkers from PokeWilds,
   likewise documented in `THIRD_PARTY_NOTICES.md`.
 - Gorochu: dedicated normal/shiny Ascendant adaptations of the bundled Raichu
@@ -49,7 +53,12 @@ ROM-free gates:
 
 - `tests/follower_phase1_assets_test.lua`: Johto 100/100 normal+shiny and
   Gorochu normal+shiny sheet geometry.
-- `tests/follower_phase2_assets_test.lua`: Kanto 151/151 sheet geometry.
+- `tests/follower_phase2_assets_test.lua`: Kanto normal sheet geometry.
+- `tests/kanto_shiny_follower_assets_test.py`: 151 normal+shiny sheets, exact
+  Crystal palette-index mapping, pixel-identical geometry/alpha/black and
+  protected Johto/extended/Gorochu source hashes.
+- `tests/kanto_shiny_follower_routing_test.lua`: runtime variant selection and
+  missing/corrupt-shiny fallback to the same species' normal walker.
 - `tests/follower_phase2_test.lua`: native selection/lifecycle/movement and
   external-follower precedence regression.
 - `tests/follower_phase3_registry_test.lua`: all 252 current definitions

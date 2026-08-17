@@ -1523,6 +1523,9 @@ return function(mod)
     extendedRuntime = mod.exports.extendedSpeciesRuntime,
   })
   local kantoSpecies = loadSibling(mod, "kanto_species.lua")
+  if spriteAssets and type(spriteAssets.setKantoSpecies) == "function" then
+    spriteAssets.setKantoSpecies(kantoSpecies)
+  end
   local makePartyIcons = loadSibling(mod, "party_icons.lua")
   local partyIcons = makePartyIcons(mod, {
     sprites = followerSprites,

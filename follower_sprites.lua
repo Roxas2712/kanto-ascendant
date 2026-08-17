@@ -28,6 +28,10 @@ return function(mod, opts)
     return ("assets/followers_kanto/follower_%03d.png"):format(dex)
   end
 
+  local function kantoShinyRelative(dex)
+    return ("assets/followers_kanto/shiny/follower_%03d.png"):format(dex)
+  end
+
   local function runtimeRelative(species, shiny)
     return ("assets/followers_runtime/%s/follower_%s.png")
       :format(shiny and "shiny" or "normal", species)
@@ -37,10 +41,19 @@ return function(mod, opts)
     return mod.path .. "/" .. relative
   end
 
-  local function readable(relative)
+  local function walkerReadable(relative)
     if type(mod.read) ~= "function" then return true end
     local bytes = mod:read(relative)
-    return type(bytes) == "string" and #bytes > 0
+    if type(bytes) ~= "string" or #bytes < 24
+        or bytes:sub(1, 8) ~= "\137PNG\r\n\26\n"
+        or bytes:sub(13, 16) ~= "IHDR" then
+      return false
+    end
+    local function u32(at)
+      local a, b, c, d = bytes:byte(at, at + 3)
+      return a * 16777216 + b * 65536 + c * 256 + d
+    end
+    return u32(17) == 16 and u32(21) == 96
   end
 
   local function clone(def)
@@ -96,10 +109,8 @@ return function(mod, opts)
     return {
       species = species,
       normalRelative = relative,
-      -- Kanto currently ships one authored PokePCFollowers walker per
-      -- species.  A shiny still uses that same species-authentic sheet; it
-      -- is deliberately not substituted with a different monster.
-      shinyRelative = relative,
+      shinyRelative = kantoShinyRelative(dex),
+      shinyFallbackToNormal = true,
       frames = 6, width = 16, height = 96, walker = true, trueColor = true,
       source = R.families.kanto.source,
     }
@@ -168,7 +179,11 @@ return function(mod, opts)
 
   local function resource(def, isShiny)
     local relative = isShiny and def.shinyRelative or def.normalRelative
-    if relative and readable(relative) then return absolute(relative) end
+    if relative and walkerReadable(relative) then return absolute(relative) end
+    if isShiny and def.shinyFallbackToNormal
+        and def.normalRelative and walkerReadable(def.normalRelative) then
+      return absolute(def.normalRelative)
+    end
     if type(def.fallback) == "function" then
       return def.fallback(def.species, isShiny)
     end
@@ -209,7 +224,7 @@ return function(mod, opts)
         species = species,
         definition = def,
         relative = relative,
-        readable = relative and readable(relative) or false,
+        readable = relative and walkerReadable(relative) or false,
       }
     end
     return report

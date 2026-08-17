@@ -86,10 +86,17 @@ for dex = 1, 151 do
     species .. " definition has incomplete renderer metadata")
   assert(def.normalRelative == ("assets/followers_kanto/follower_%03d.png")
       :format(dex), species .. " points at the wrong Kanto sheet")
+  assert(def.shinyRelative ==
+      ("assets/followers_kanto/shiny/follower_%03d.png"):format(dex),
+    species .. " points at the wrong Kanto shiny sheet")
   assertSheet(def.normalRelative, species)
+  assertSheet(def.shinyRelative, species .. " shiny")
   assert(sprites.resolve(game, { species = species }):match(
     ("follower_%03d%%.png$"):format(dex)),
     species .. " did not resolve its own Kanto sheet")
+  assert(sprites.resolve(game, { species = species, shiny = true }):match(
+    ("followers_kanto/shiny/follower_%03d%%.png$"):format(dex)),
+    species .. " did not resolve its own Kanto shiny sheet")
 end
 
 local definitionCount = 0
@@ -148,5 +155,12 @@ for _, entry in ipairs(report) do
   assert(entry.definition and entry.relative and entry.readable,
     "coverage gap for " .. entry.species)
 end
+local shinyReport = sprites.coverage(game, all, true)
+assert(#shinyReport == 252,
+  "shiny coverage report did not include Kanto, Johto and Gorochu")
+for _, entry in ipairs(shinyReport) do
+  assert(entry.definition and entry.relative and entry.readable,
+    "shiny coverage gap for " .. entry.species)
+end
 
-print("PASS follower Phase-3 registry: Kanto 151, Johto 100, Raichu, Gorochu, custom registration")
+print("PASS follower Phase-3 registry: Kanto 151 normal+shiny, Johto 100, Raichu, Gorochu, custom registration")

@@ -217,6 +217,15 @@ separate software or art license; Kanto Ascendant therefore records the exact
 provenance and uses the sheets only in this unofficial, non-commercial fan
 mod. No PokéPC code or runtime dependency is bundled.
 
+The #001-151 shiny follower variants retain those exact six-pose silhouettes
+and are deterministic palette derivatives. Their two authored colour roles are
+matched to the corresponding normal palette indices from Pokémon Crystal and
+replaced with the same species' shiny indices from `pret/pokecrystal`, pinned
+to commit `7a7881d0d62e0ddbd82dcf10e7116807487ac651`. Transparency, black pixels,
+geometry and animation frames remain unchanged; the complete per-species
+mapping and input/output hashes ship in
+`assets/followers_kanto/shiny/palette_contract.json`.
+
 Follower EX was evaluated as an integration/reference target, but no
 Followers EX source code, package or artwork is bundled. Kanto Ascendant's
 native follower controller and registry work without that mod, and the two

@@ -1,0 +1,3341 @@
+{
+  "schema": 1,
+  "source": {
+    "repository": "https://github.com/pret/pokecrystal",
+    "commit": "7a7881d0d62e0ddbd82dcf10e7116807487ac651",
+    "normalIndexSource": "gfx/pokemon/<species>/front.png palette entries 1 and 2",
+    "shinySource": "gfx/pokemon/<species>/shiny.pal",
+    "expansion": "5-bit channel << 3",
+    "mapping": "minimum-distance bijection to normal indices; never luminance",
+    "auditAliases": {
+      "nidoranf": "nidoran_f",
+      "nidoranm": "nidoran_m",
+      "farfetchd": "farfetch_d",
+      "mr.mime": "mr__mime"
+    }
+  },
+  "entries": [
+    {
+      "dex": 1,
+      "stem": "bulbasaur",
+      "normalFollowerColours": [
+        "#1FDAB9",
+        "#FF4A39"
+      ],
+      "crystalNormal": [
+        "#63FF5A",
+        "#FF5231"
+      ],
+      "crystalShiny": [
+        "#A0E058",
+        "#F85030"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#1FDAB9": 1,
+        "#FF4A39": 2
+      },
+      "normalSha256": "e356b973d9ab3f11fcf3c024989fb1eda14c786f614a023c0b9691583d31bd0f",
+      "shinySha256": "a9a9ccc78a5efd63fbf9b57a3de66714041609a0f7c8ff3620a43f25fb323fb7"
+    },
+    {
+      "dex": 2,
+      "stem": "ivysaur",
+      "normalFollowerColours": [
+        "#4AB8CE",
+        "#E6385A"
+      ],
+      "crystalNormal": [
+        "#63FF5A",
+        "#FF5284"
+      ],
+      "crystalShiny": [
+        "#A0E058",
+        "#F8C048"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#4AB8CE": 1,
+        "#E6385A": 2
+      },
+      "normalSha256": "77354291c6cb435e0458f8394f784b4a77156a18a5c3e95c3db329ec162e291e",
+      "shinySha256": "e5d8fa0c8302688c1e86dc4e36fbd4a5fc35dd8a64c77e72432546cb9348c219"
+    },
+    {
+      "dex": 3,
+      "stem": "venusaur",
+      "normalFollowerColours": [
+        "#00D2B1",
+        "#FF7D73"
+      ],
+      "crystalNormal": [
+        "#42CE5A",
+        "#EF3973"
+      ],
+      "crystalShiny": [
+        "#90C858",
+        "#F8B018"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#00D2B1": 1,
+        "#FF7D73": 2
+      },
+      "normalSha256": "f4ba3b516356dab0964d829462e0fcb2481edab3be5c9a4e18d57a3a06ecdbfe",
+      "shinySha256": "3c15d9654a95247983e2a68b31e01a32e01fb695294f7de992a78c5a1255daf1"
+    },
+    {
+      "dex": 4,
+      "stem": "charmander",
+      "normalFollowerColours": [
+        "#BC202C",
+        "#FF6531"
+      ],
+      "crystalNormal": [
+        "#FF6B21",
+        "#B52929"
+      ],
+      "crystalShiny": [
+        "#F8C030",
+        "#F88010"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#BC202C": 2,
+        "#FF6531": 1
+      },
+      "normalSha256": "5de1285ddb38b32a628bde66d0d893bd069600ca2f5d7da8417a6721a7d00a86",
+      "shinySha256": "c48761f976839ff7d4e790fd65cfa8201356efb23939c3eeb7536faaaca7239b"
+    },
+    {
+      "dex": 5,
+      "stem": "charmeleon",
+      "normalFollowerColours": [
+        "#9A0D39",
+        "#FF3838"
+      ],
+      "crystalNormal": [
+        "#F74231",
+        "#941839"
+      ],
+      "crystalShiny": [
+        "#F8A878",
+        "#B84868"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#9A0D39": 2,
+        "#FF3838": 1
+      },
+      "normalSha256": "4e9cadc0ed7426d91454c9e35790f30f2e2fe16b77a9318aa18ef6716bba1ee5",
+      "shinySha256": "c957878c3b4b56f77c141295bcc58e6b83beff4804ff5a66cb15279b695aca29"
+    },
+    {
+      "dex": 6,
+      "stem": "charizard",
+      "normalFollowerColours": [
+        "#324676",
+        "#FF5420"
+      ],
+      "crystalNormal": [
+        "#FF5A00",
+        "#314A7B"
+      ],
+      "crystalShiny": [
+        "#A078A8",
+        "#40A870"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#324676": 2,
+        "#FF5420": 1
+      },
+      "normalSha256": "c91faec6382de284afb1ec0c2846494f001aa5f2e03f5a77c952ae2ddc27102b",
+      "shinySha256": "78bc0ae094b4b553dc3a530bb032a0f45fef832b087158574e4f29ba370cfb9a"
+    },
+    {
+      "dex": 7,
+      "stem": "squirtle",
+      "normalFollowerColours": [
+        "#5D71F2",
+        "#B29149"
+      ],
+      "crystalNormal": [
+        "#B59442",
+        "#527BFF"
+      ],
+      "crystalShiny": [
+        "#68B840",
+        "#88C8F0"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#5D71F2": 2,
+        "#B29149": 1
+      },
+      "normalSha256": "6ddeb66317f6a0302645916ef0bfc12968e7aa469ff04a42b591ac29d3492174",
+      "shinySha256": "bcf7618fcab67a420847c6206a7304312b74891f667558610c4876687850e563"
+    },
+    {
+      "dex": 8,
+      "stem": "wartortle",
+      "normalFollowerColours": [
+        "#5F68F2",
+        "#B29149"
+      ],
+      "crystalNormal": [
+        "#B59442",
+        "#5273FF"
+      ],
+      "crystalShiny": [
+        "#68B840",
+        "#9098F8"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#5F68F2": 2,
+        "#B29149": 1
+      },
+      "normalSha256": "f21aef5e85cdbb95f757d7e347435404375515a433769812a118fb41e43d6e40",
+      "shinySha256": "8be9763a329d622da7ae180516aa38b2e3d633436ed6fc7abeaa6e3f82e16412"
+    },
+    {
+      "dex": 9,
+      "stem": "blastoise",
+      "normalFollowerColours": [
+        "#574BF2",
+        "#C1A232"
+      ],
+      "crystalNormal": [
+        "#C6A518",
+        "#425AFF"
+      ],
+      "crystalShiny": [
+        "#70A838",
+        "#8080A0"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#574BF2": 2,
+        "#C1A232": 1
+      },
+      "normalSha256": "67e2adbece5313752ef65df4963195542d53df7a3b2b4cda7ee2d8a4b82fcaf9",
+      "shinySha256": "cdf11a0f874f72a723e5b652bc845dc31877ce2f509682376e656b1eaacea703"
+    },
+    {
+      "dex": 10,
+      "stem": "caterpie",
+      "normalFollowerColours": [
+        "#39B340",
+        "#FF3D78"
+      ],
+      "crystalNormal": [
+        "#63B531",
+        "#FF4A7B"
+      ],
+      "crystalShiny": [
+        "#D8C030",
+        "#F86088"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#39B340": 1,
+        "#FF3D78": 2
+      },
+      "normalSha256": "d1996dce84b89279f10f56cfe36b97138a1b683b27c1f8ec0d58ec90e36adce6",
+      "shinySha256": "8f7ec42295a5c6e668835997870762dc84023c765253d9862ac5a2a2dc384df9"
+    },
+    {
+      "dex": 11,
+      "stem": "metapod",
+      "normalFollowerColours": [
+        "#1AFD40",
+        "#38721C"
+      ],
+      "crystalNormal": [
+        "#7BFF00",
+        "#4A7308"
+      ],
+      "crystalShiny": [
+        "#E09868",
+        "#C07000"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#1AFD40": 1,
+        "#38721C": 2
+      },
+      "normalSha256": "5cfe6d1be2ff442bd85a21dc877c1ee9c0cce438c738d472c186e88a7033bb73",
+      "shinySha256": "9e94b8d6715ee6446ad913bde16be3b171cf42b93ebf1330b79e0c0d58760b18"
+    },
+    {
+      "dex": 12,
+      "stem": "butterfree",
+      "normalFollowerColours": [
+        "#8AC7F5",
+        "#DF1668"
+      ],
+      "crystalNormal": [
+        "#94CEFF",
+        "#D6296B"
+      ],
+      "crystalShiny": [
+        "#F878B8",
+        "#78F800"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#8AC7F5": 1,
+        "#DF1668": 2
+      },
+      "normalSha256": "13a6c303ec0003525e584b3ca2192e55ba367b572f1313d719e1f121267532c7",
+      "shinySha256": "82dde50a5dabab4aaef4eee68e470f8dc373072b9d5aef9605866f16e83d1b8b"
+    },
+    {
+      "dex": 13,
+      "stem": "weedle",
+      "normalFollowerColours": [
+        "#D51E21",
+        "#D78838"
+      ],
+      "crystalNormal": [
+        "#D68C29",
+        "#CE2918"
+      ],
+      "crystalShiny": [
+        "#B8D828",
+        "#D038E8"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#D51E21": 2,
+        "#D78838": 1
+      },
+      "normalSha256": "906b95b015858ed2e3b181af873706358524342edf44eb64a32984bf020e325b",
+      "shinySha256": "ec3f95f37b2ead594cd592f245dbd5feaa4a22f960696be68294f923d8fd102e"
+    },
+    {
+      "dex": 14,
+      "stem": "kakuna",
+      "normalFollowerColours": [
+        "#A57045",
+        "#CCCB3C"
+      ],
+      "crystalNormal": [
+        "#D6CE18",
+        "#A57342"
+      ],
+      "crystalShiny": [
+        "#A0D820",
+        "#688838"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#A57045": 2,
+        "#CCCB3C": 1
+      },
+      "normalSha256": "bb66234c461ca1a57e8dcad32b0602fa7afedcc7d2ffa6e1cb6f405093bb219f",
+      "shinySha256": "9c698466ee23cc3188a872e49b2719392c65042af67441dcf3d8477b469e1037"
+    },
+    {
+      "dex": 15,
+      "stem": "beedrill",
+      "normalFollowerColours": [
+        "#FF051C",
+        "#FF9838"
+      ],
+      "crystalNormal": [
+        "#FF9C21",
+        "#F72108"
+      ],
+      "crystalShiny": [
+        "#88A068",
+        "#4038D8"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#FF051C": 2,
+        "#FF9838": 1
+      },
+      "normalSha256": "4562b577f75d678e02559c0f2c58357345b46a3ec2b9e55625580b840b436a26",
+      "shinySha256": "73866191e0fc77211ea51af81bb4db7a847445ffe184348408341a17d33fb34c"
+    },
+    {
+      "dex": 16,
+      "stem": "pidgey",
+      "normalFollowerColours": [
+        "#A03E1B",
+        "#EFDA74"
+      ],
+      "crystalNormal": [
+        "#F7DE6B",
+        "#9C4210"
+      ],
+      "crystalShiny": [
+        "#F0E060",
+        "#A09840"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#A03E1B": 2,
+        "#EFDA74": 1
+      },
+      "normalSha256": "ee180e88135d99c244689f22860d46380bb0e528ce75b2bf5a4ce4c9c5f42903",
+      "shinySha256": "7e4e0c5258fa4f1c949d251a4c17533dba5b87c5d1d4c7e16ae704f400c3fc72"
+    },
+    {
+      "dex": 17,
+      "stem": "pidgeotto",
+      "normalFollowerColours": [
+        "#A03E1B",
+        "#FF4863"
+      ],
+      "crystalNormal": [
+        "#FF5263",
+        "#9C4210"
+      ],
+      "crystalShiny": [
+        "#A89828",
+        "#987028"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#A03E1B": 2,
+        "#FF4863": 1
+      },
+      "normalSha256": "0af724cda52598d1bed07fe717c22136f0f0ba286438111d90f45ca66dc8b0ac",
+      "shinySha256": "a3bf7f41a0ff798ee014ae18e92e844d32f11459a105b4c0dac440f00f1c0546"
+    },
+    {
+      "dex": 18,
+      "stem": "pidgeot",
+      "normalFollowerColours": [
+        "#A03E1B",
+        "#FF4863"
+      ],
+      "crystalNormal": [
+        "#FF5263",
+        "#9C4210"
+      ],
+      "crystalShiny": [
+        "#F8A070",
+        "#788810"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#A03E1B": 2,
+        "#FF4863": 1
+      },
+      "normalSha256": "c96b1e4f016fed2fa1015b3a411a39da9ef60ef427f064c9549daa9b901e2060",
+      "shinySha256": "e6bb233065e20776b96f98bf8a11d4a16794872efa83111821f6933213a8d051"
+    },
+    {
+      "dex": 19,
+      "stem": "rattata",
+      "normalFollowerColours": [
+        "#8C0085",
+        "#C324EA"
+      ],
+      "crystalNormal": [
+        "#B542F7",
+        "#84188C"
+      ],
+      "crystalShiny": [
+        "#B0B898",
+        "#A08868"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#8C0085": 2,
+        "#C324EA": 1
+      },
+      "normalSha256": "f44a36c504da0b0277038adb570fde92bb9d49d56e33dfcd93a02d1c571de1fd",
+      "shinySha256": "6cd2abb62da694389ca608aa892711beff87dafcda949eaf962c2212da685d82"
+    },
+    {
+      "dex": 20,
+      "stem": "raticate",
+      "normalFollowerColours": [
+        "#8D5013",
+        "#EBB95D"
+      ],
+      "crystalNormal": [
+        "#EFBD52",
+        "#8C5200"
+      ],
+      "crystalShiny": [
+        "#B8C878",
+        "#D08018"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#8D5013": 2,
+        "#EBB95D": 1
+      },
+      "normalSha256": "c34748887e4db39380048dd1951fad4080d521310a4594b2b1cfb9b4966f75ca",
+      "shinySha256": "ca970a8f72eaab4586367641eb8e88a3662093c52324427a9c6bb00c1859a998"
+    },
+    {
+      "dex": 21,
+      "stem": "spearow",
+      "normalFollowerColours": [
+        "#9F5019",
+        "#FF4962"
+      ],
+      "crystalNormal": [
+        "#9C5208",
+        "#F75263"
+      ],
+      "crystalShiny": [
+        "#F0D000",
+        "#C06808"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#9F5019": 1,
+        "#FF4962": 2
+      },
+      "normalSha256": "fa70737c662762049d72a83fdd1b70f7028b79b41f90c7e5164e02a671e7648d",
+      "shinySha256": "a0ab5902078e613f1048cb9bfaf2ccc791b94f9346562c55a556ab55b4b36c27"
+    },
+    {
+      "dex": 22,
+      "stem": "fearow",
+      "normalFollowerColours": [
+        "#B9572A",
+        "#FF187F"
+      ],
+      "crystalNormal": [
+        "#B55A21",
+        "#FF3184"
+      ],
+      "crystalShiny": [
+        "#808050",
+        "#C08838"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#B9572A": 1,
+        "#FF187F": 2
+      },
+      "normalSha256": "d553d49bb347a4dd6e49fba94f9042400ed8bb461d5d5617e98b7b8de20d40a9",
+      "shinySha256": "e8373fad7a2d4e3d09e561e0b204dd36edf762443cac67876db11bd2695a8387"
+    },
+    {
+      "dex": 23,
+      "stem": "ekans",
+      "normalFollowerColours": [
+        "#AE35A4",
+        "#B40039"
+      ],
+      "crystalNormal": [
+        "#A542AD",
+        "#AD0039"
+      ],
+      "crystalShiny": [
+        "#A0B868",
+        "#485828"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#AE35A4": 1,
+        "#B40039": 2
+      },
+      "normalSha256": "0c60a3f021aaf8c3d917dcfba15d371dec46295d7a1edf49698062a3a9ac80a4",
+      "shinySha256": "f7b58548f78432a1e1954555edf7502eebd3b6b3be11019ff4c54113f04963ab"
+    },
+    {
+      "dex": 24,
+      "stem": "arbok",
+      "normalFollowerColours": [
+        "#9C3895",
+        "#BC1249"
+      ],
+      "crystalNormal": [
+        "#94429C",
+        "#B5214A"
+      ],
+      "crystalShiny": [
+        "#909858",
+        "#A050F0"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#9C3895": 1,
+        "#BC1249": 2
+      },
+      "normalSha256": "0bb7111608d5ba725709529b62872f5a82be1b8985f833e207d3ef395b025d85",
+      "shinySha256": "8e4c989306177932776eaa85cd6f8fc9206b1a6d14cfb271bf7dbe64b21642de"
+    },
+    {
+      "dex": 25,
+      "stem": "pikachu",
+      "normalFollowerColours": [
+        "#DD2816",
+        "#E7D346"
+      ],
+      "crystalNormal": [
+        "#EFD629",
+        "#D63100"
+      ],
+      "crystalShiny": [
+        "#F88800",
+        "#A01058"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#DD2816": 2,
+        "#E7D346": 1
+      },
+      "normalSha256": "3672cefa17a4e15c204d4c87b20ebdaca4cf7ad3a63879a3d8bf34919da8b37d",
+      "shinySha256": "780acd45fa3154ccb16730448ddfd220554704a9a650bffcc143e4eeb992c42a"
+    },
+    {
+      "dex": 26,
+      "stem": "raichu",
+      "normalFollowerColours": [
+        "#EA773C",
+        "#F7E268"
+      ],
+      "crystalNormal": [
+        "#FFD639",
+        "#FF6300"
+      ],
+      "crystalShiny": [
+        "#A898A0",
+        "#C09810"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#EA773C": 2,
+        "#F7E268": 1
+      },
+      "normalSha256": "e3e52e0efa9c1b09658ebd1488edb7fadede62d1e42e7ddfab98c46f82bdfbfa",
+      "shinySha256": "d0d63d64e53d3412be0dc0bd5caebdc0c5a7edb085f2a62bf4e589a0c2fd9b22"
+    },
+    {
+      "dex": 27,
+      "stem": "sandshrew",
+      "normalFollowerColours": [
+        "#643811",
+        "#B2913D"
+      ],
+      "crystalNormal": [
+        "#B59431",
+        "#633908"
+      ],
+      "crystalShiny": [
+        "#808050",
+        "#584078"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#643811": 2,
+        "#B2913D": 1
+      },
+      "normalSha256": "56ab310b5c1f2183964263ee708b3b5974a9c83d10891ce6870120e211c3a0cd",
+      "shinySha256": "9f02752dcd0f62d0f86694c55ad67ddcaef0fb3482c4abf122c68e5da5a37382"
+    },
+    {
+      "dex": 28,
+      "stem": "sandslash",
+      "normalFollowerColours": [
+        "#6D380B",
+        "#BB9126"
+      ],
+      "crystalNormal": [
+        "#BD9400",
+        "#6B3900"
+      ],
+      "crystalShiny": [
+        "#809020",
+        "#A83008"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#6D380B": 2,
+        "#BB9126": 1
+      },
+      "normalSha256": "fc4641ed0eebad71b0204f519e993ee0151b7c1ee1316a6bd658c816145a18ba",
+      "shinySha256": "0b09638421bbf96279df90ebe356693e045f18a67d747b79c8c1cb7f1dc1fcb8"
+    },
+    {
+      "dex": 29,
+      "stem": "nidoranf",
+      "normalFollowerColours": [
+        "#682B6E",
+        "#93A5EC"
+      ],
+      "crystalNormal": [
+        "#94ADF7",
+        "#633173"
+      ],
+      "crystalShiny": [
+        "#D888E0",
+        "#288808"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#682B6E": 2,
+        "#93A5EC": 1
+      },
+      "normalSha256": "3e709ba3a1b17626338cefe218fbd244dcc2d911ef12e4341881878700121bdb",
+      "shinySha256": "4d396f1a51d407bf0dd017c3b415af1108c3ced65ebbd09e18156ce5e9ddae6b"
+    },
+    {
+      "dex": 30,
+      "stem": "nidorina",
+      "normalFollowerColours": [
+        "#30606F",
+        "#699DF3"
+      ],
+      "crystalNormal": [
+        "#6BA5FF",
+        "#396373"
+      ],
+      "crystalShiny": [
+        "#F888F0",
+        "#307850"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#30606F": 2,
+        "#699DF3": 1
+      },
+      "normalSha256": "360cf44a6d5ba6423773aae30bdc7e6d35868dd452f05f514a94ba707e6f5582",
+      "shinySha256": "c2ad6da55a166effdb1d1508207c055702228ac9fed55567ccf44ca8b0cf1c49"
+    },
+    {
+      "dex": 31,
+      "stem": "nidoqueen",
+      "normalFollowerColours": [
+        "#4B7CD4",
+        "#DE9946"
+      ],
+      "crystalNormal": [
+        "#DE9C39",
+        "#4A84DE"
+      ],
+      "crystalShiny": [
+        "#F880F8",
+        "#586840"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#4B7CD4": 2,
+        "#DE9946": 1
+      },
+      "normalSha256": "41c776c6fa7b6b6ab4b844c67f94a74f8529807157bbf7d349e67b3df3538f53",
+      "shinySha256": "3716bfa1f97eae02e51596a15cdda8f9c4d3fb5992ad9ce3db6b46b50dd19ca3"
+    },
+    {
+      "dex": 32,
+      "stem": "nidoranm",
+      "normalFollowerColours": [
+        "#94007D",
+        "#E830A5"
+      ],
+      "crystalNormal": [
+        "#DE42AD",
+        "#8C1084"
+      ],
+      "crystalShiny": [
+        "#90A8F8",
+        "#884078"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#94007D": 2,
+        "#E830A5": 1
+      },
+      "normalSha256": "4af0e69e4eb3192d0d20a067bc935b0cc7bb08c12acbca9f76b198fba00c08fe",
+      "shinySha256": "60aa9a9c78a5bd2741ee8452655ef9675f5283d75eef06350dbb6d4038dab811"
+    },
+    {
+      "dex": 33,
+      "stem": "nidorino",
+      "normalFollowerColours": [
+        "#5A1F7D",
+        "#BF32AC"
+      ],
+      "crystalNormal": [
+        "#B542B5",
+        "#522984"
+      ],
+      "crystalShiny": [
+        "#A0B8F8",
+        "#B820C8"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#5A1F7D": 2,
+        "#BF32AC": 1
+      },
+      "normalSha256": "b4261d2aeb8ef7dcb14635c91193afd668f7104b56a2a5d145a4714a5f665217",
+      "shinySha256": "aae49b7ad09bafa4b24c1d11903569cd7f8bbc87feead4969cf2e2e95e7a1fdc"
+    },
+    {
+      "dex": 34,
+      "stem": "nidoking",
+      "normalFollowerColours": [
+        "#601A56",
+        "#9D219C"
+      ],
+      "crystalNormal": [
+        "#9431A5",
+        "#5A215A"
+      ],
+      "crystalShiny": [
+        "#6888F8",
+        "#7848B8"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#601A56": 2,
+        "#9D219C": 1
+      },
+      "normalSha256": "82f61f30a4f11f710fb391d887c224cd5a0958af4444a565a526ae200496e055",
+      "shinySha256": "52464accdbf59c966e7b66dbd31e109806f81f91856d694d175a30c08f78ce49"
+    },
+    {
+      "dex": 35,
+      "stem": "clefairy",
+      "normalFollowerColours": [
+        "#6D380B",
+        "#FF6B90"
+      ],
+      "crystalNormal": [
+        "#FF7394",
+        "#6B3900"
+      ],
+      "crystalShiny": [
+        "#F868C8",
+        "#409000"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#6D380B": 2,
+        "#FF6B90": 1
+      },
+      "normalSha256": "2bc2615af693d1af0667a96c9648b3f5e5f822590dde3a97eaf3a3d589012e37",
+      "shinySha256": "3d28d0fcc4de7583b806dda28a72a4421332be57017fc07436db13a050a0aa35"
+    },
+    {
+      "dex": 36,
+      "stem": "clefable",
+      "normalFollowerColours": [
+        "#6D380B",
+        "#FF6B90"
+      ],
+      "crystalNormal": [
+        "#FF7394",
+        "#6B3900"
+      ],
+      "crystalShiny": [
+        "#F868C8",
+        "#409000"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#6D380B": 2,
+        "#FF6B90": 1
+      },
+      "normalSha256": "a9bd37a501d907a4dcbc26dbecf61ffb2e829df1d084893b68189d661bd5bce9",
+      "shinySha256": "a8488281aebf5e4a760cc9d051b3add99fca501e39166fda458252764dc6e7cf"
+    },
+    {
+      "dex": 37,
+      "stem": "vulpix",
+      "normalFollowerColours": [
+        "#B32041",
+        "#FF5C41"
+      ],
+      "crystalNormal": [
+        "#FF6339",
+        "#AD2942"
+      ],
+      "crystalShiny": [
+        "#F8C008",
+        "#B08008"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#B32041": 2,
+        "#FF5C41": 1
+      },
+      "normalSha256": "39d50e15966c4f9f5db03d44b90b4f853fd48eccf10bbe76adc71fde93ecaf57",
+      "shinySha256": "2be1cb228f63ceae4edc64f7e1c81393b2ea84848aa24aae10aab7fd03b5763f"
+    },
+    {
+      "dex": 38,
+      "stem": "ninetales",
+      "normalFollowerColours": [
+        "#91791D",
+        "#F1FB53"
+      ],
+      "crystalNormal": [
+        "#FFFF31",
+        "#947B00"
+      ],
+      "crystalShiny": [
+        "#D8B0C8",
+        "#8888B8"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#91791D": 2,
+        "#F1FB53": 1
+      },
+      "normalSha256": "40085226c32da78bb159028d169972a30a793bbbb5cf5945ce947f16db8c6c1c",
+      "shinySha256": "30568f26cc5f86e877bfe03a542a41bc7fb581d5a1cb5eda10662462cde2b03b"
+    },
+    {
+      "dex": 39,
+      "stem": "jigglypuff",
+      "normalFollowerColours": [
+        "#3C7AF3",
+        "#FF69A7"
+      ],
+      "crystalNormal": [
+        "#FF73AD",
+        "#3184FF"
+      ],
+      "crystalShiny": [
+        "#F888F8",
+        "#48C018"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#3C7AF3": 2,
+        "#FF69A7": 1
+      },
+      "normalSha256": "8965eed2c8ab99ababe72ea27b4a8af368cb031345373221771bf99431fdd3b7",
+      "shinySha256": "57dff7b8c649ba92d919a09fa57a20b45b614579d33d20c7cac800f8d145a12a"
+    },
+    {
+      "dex": 40,
+      "stem": "wigglytuff",
+      "normalFollowerColours": [
+        "#3C7AF3",
+        "#FF69A7"
+      ],
+      "crystalNormal": [
+        "#FF73AD",
+        "#3184FF"
+      ],
+      "crystalShiny": [
+        "#F888F8",
+        "#48C018"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#3C7AF3": 2,
+        "#FF69A7": 1
+      },
+      "normalSha256": "a9cc80096f6ff6b890dc2a649c0aa70243128add1df2be8a4c9a207d3f58f31d",
+      "shinySha256": "5cb7c0bca3da3e2a3a0e8bbdaa04cb52ec2f5711927335d63792168682bef236"
+    },
+    {
+      "dex": 41,
+      "stem": "zubat",
+      "normalFollowerColours": [
+        "#2F3C85",
+        "#5F7796"
+      ],
+      "crystalNormal": [
+        "#637B9C",
+        "#29428C"
+      ],
+      "crystalShiny": [
+        "#D878F0",
+        "#508830"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#2F3C85": 2,
+        "#5F7796": 1
+      },
+      "normalSha256": "38d568ca2fb1f4b34fa3a95df33c1ebeeecfef34bb6c8cca2088c73f04f301a9",
+      "shinySha256": "6d897319002af707c72d7d1b23dd1b4b112b6502b11d41c0dfa111e08fac7342"
+    },
+    {
+      "dex": 42,
+      "stem": "golbat",
+      "normalFollowerColours": [
+        "#2F3C85",
+        "#5F7796"
+      ],
+      "crystalNormal": [
+        "#637B9C",
+        "#29428C"
+      ],
+      "crystalShiny": [
+        "#E86098",
+        "#387800"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#2F3C85": 2,
+        "#5F7796": 1
+      },
+      "normalSha256": "67a42fb1cad76ec9d2ff45398945b8b5e1535e559af70b9482fffe7bca1dcc28",
+      "shinySha256": "59f8a624421a43afa0e87d58bf80ea178ca3c1e172663cc74df30bcb5a708938"
+    },
+    {
+      "dex": 43,
+      "stem": "oddish",
+      "normalFollowerColours": [
+        "#15BC34",
+        "#2B4848"
+      ],
+      "crystalNormal": [
+        "#5ABD18",
+        "#314A4A"
+      ],
+      "crystalShiny": [
+        "#F8D020",
+        "#409058"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#15BC34": 1,
+        "#2B4848": 2
+      },
+      "normalSha256": "d324b3e4eedcbbf42ace1c08aceadcb7b6d96a4b8baf026e3524fb66add27ed6",
+      "shinySha256": "516c67aeb91b63f3dfe3d4abdf4d178c1e479bd398a55c0ebe7bb828ed00b57f"
+    },
+    {
+      "dex": 44,
+      "stem": "gloom",
+      "normalFollowerColours": [
+        "#424766",
+        "#FF5C22"
+      ],
+      "crystalNormal": [
+        "#FF6300",
+        "#424A6B"
+      ],
+      "crystalShiny": [
+        "#F8A828",
+        "#688860"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#424766": 2,
+        "#FF5C22": 1
+      },
+      "normalSha256": "2baeabacae10b881c5b3338650991a1b7b00c7441b601afafac42ab305f91f51",
+      "shinySha256": "4e8923cf7dd7190e897a3b283321605d68d05aa76fbf4e6e0deaba3be2959287"
+    },
+    {
+      "dex": 45,
+      "stem": "vileplume",
+      "normalFollowerColours": [
+        "#424766",
+        "#FF2226"
+      ],
+      "crystalNormal": [
+        "#FF3118",
+        "#424A6B"
+      ],
+      "crystalShiny": [
+        "#F8A818",
+        "#407868"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#424766": 2,
+        "#FF2226": 1
+      },
+      "normalSha256": "c428ecd841566a5484bbcb5d6542168d93322ee6230afa332cf68ca1ab06de94",
+      "shinySha256": "1ca24c752d6927224d4b27ef9b02e8f7924314afe1f1348366be85f6655cb00c"
+    },
+    {
+      "dex": 46,
+      "stem": "paras",
+      "normalFollowerColours": [
+        "#C40710",
+        "#FF5C2B"
+      ],
+      "crystalNormal": [
+        "#FF6318",
+        "#BD1800"
+      ],
+      "crystalShiny": [
+        "#D89818",
+        "#706808"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#C40710": 2,
+        "#FF5C2B": 1
+      },
+      "normalSha256": "651a0adc2af0eba195fff0f5f211d569004302d792ab5d55852b2b7d408e7da8",
+      "shinySha256": "eb07d6063c3e385bd4b550d0bd522070192b395a1e0455c479fc5f315956ce10"
+    },
+    {
+      "dex": 47,
+      "stem": "parasect",
+      "normalFollowerColours": [
+        "#772610",
+        "#FF412D"
+      ],
+      "crystalNormal": [
+        "#FF4A21",
+        "#732908"
+      ],
+      "crystalShiny": [
+        "#F8A848",
+        "#908028"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#772610": 2,
+        "#FF412D": 1
+      },
+      "normalSha256": "5014583d7650cfc2198e305ea618e8876747f75fda77d005c73b4371e7854989",
+      "shinySha256": "3c4f6dc647d2f6b606d7a9ee3eaaa7c2ffe1d7fac820f5dccf0fe1e6bdb25278"
+    },
+    {
+      "dex": 48,
+      "stem": "venonat",
+      "normalFollowerColours": [
+        "#62006D",
+        "#EF1A1F"
+      ],
+      "crystalNormal": [
+        "#E72910",
+        "#5A0073"
+      ],
+      "crystalShiny": [
+        "#7088F8",
+        "#5828B0"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#62006D": 2,
+        "#EF1A1F": 1
+      },
+      "normalSha256": "65fb6de29816f2b7ce040b63de84cf22ec652422b28a8a2b641b17da699bb850",
+      "shinySha256": "e204bf9ec37d215536478d3474004758d14ca18302bf2a5eca4f6e823c81d3f6"
+    },
+    {
+      "dex": 49,
+      "stem": "venomoth",
+      "normalFollowerColours": [
+        "#69216D",
+        "#E943BC"
+      ],
+      "crystalNormal": [
+        "#DE52C6",
+        "#632973"
+      ],
+      "crystalShiny": [
+        "#8078F8",
+        "#8830A8"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#69216D": 2,
+        "#E943BC": 1
+      },
+      "normalSha256": "14e11ba0b70eecfce3c6445ad38efe101739c011bdf27e42dd5f8f303ceaca43",
+      "shinySha256": "f0a232655236c421740755bb599a623a277562cc1be0837d5a62ebbf66b9f742"
+    },
+    {
+      "dex": 50,
+      "stem": "diglett",
+      "normalFollowerColours": [
+        "#9E5829",
+        "#CC2927"
+      ],
+      "crystalNormal": [
+        "#9C5A21",
+        "#C63121"
+      ],
+      "crystalShiny": [
+        "#985820",
+        "#6030D8"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#9E5829": 1,
+        "#CC2927": 2
+      },
+      "normalSha256": "27cb721d3210072bc1b4445a29f810b7b52a78678f4d5ff23d39e3ba59693228",
+      "shinySha256": "72daa93082ec36c907ef3558435801048316066beb755ff2efaa0624cb9134cb"
+    },
+    {
+      "dex": 51,
+      "stem": "dugtrio",
+      "normalFollowerColours": [
+        "#9E5829",
+        "#CC2927"
+      ],
+      "crystalNormal": [
+        "#9C5A21",
+        "#C63121"
+      ],
+      "crystalShiny": [
+        "#985820",
+        "#6030D8"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#9E5829": 1,
+        "#CC2927": 2
+      },
+      "normalSha256": "ab9b1f0b46216e43c83ad6a31c001cb9c42302dadd0d1e2feabba26d2c1c23c0",
+      "shinySha256": "6a143910e8548f91d8503b5dcf7ae39b118a162d609feda8643bcac4b7c1a420"
+    },
+    {
+      "dex": 52,
+      "stem": "meowth",
+      "normalFollowerColours": [
+        "#A93E20",
+        "#F9DA74"
+      ],
+      "crystalNormal": [
+        "#FFDE6B",
+        "#A54218"
+      ],
+      "crystalShiny": [
+        "#F8B060",
+        "#D01090"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#A93E20": 2,
+        "#F9DA74": 1
+      },
+      "normalSha256": "6932199d67bf4dfaa2b1db64bcba9aef6390713e32384ac33ee1091cc9bffa3d",
+      "shinySha256": "40fea2d46a83dfa379a8750ce2561d144b2ecdd6fc9eef1cceb1c6d42a11c067"
+    },
+    {
+      "dex": 53,
+      "stem": "persian",
+      "normalFollowerColours": [
+        "#624825",
+        "#F7E363"
+      ],
+      "crystalNormal": [
+        "#FFE752",
+        "#634A21"
+      ],
+      "crystalShiny": [
+        "#F8E050",
+        "#E048D8"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#624825": 2,
+        "#F7E363": 1
+      },
+      "normalSha256": "bc6cdd45d7700798a8ce079dc7e8aba8b9cc361780e7612a790d2491b44ce92a",
+      "shinySha256": "b622e68fe91b6902a60f05eee90594999690e7f3f7bfb05bc6968db1bba3d46a"
+    },
+    {
+      "dex": 54,
+      "stem": "psyduck",
+      "normalFollowerColours": [
+        "#9A793F",
+        "#F1FC44"
+      ],
+      "crystalNormal": [
+        "#FFFF00",
+        "#9C7B39"
+      ],
+      "crystalShiny": [
+        "#A898F8",
+        "#5058A0"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#9A793F": 2,
+        "#F1FC44": 1
+      },
+      "normalSha256": "24e2bdffe8c40f34859d4dcc38efc54ce58d536b374a86c56f47889129e57ac8",
+      "shinySha256": "b3a0cf58bab27a073b1e872878227b4fdafdada724a1299455c5fe6d445201d2"
+    },
+    {
+      "dex": 55,
+      "stem": "golduck",
+      "normalFollowerColours": [
+        "#4B52BC",
+        "#B4A6CE"
+      ],
+      "crystalNormal": [
+        "#B5ADD6",
+        "#425AC6"
+      ],
+      "crystalShiny": [
+        "#E05068",
+        "#3888F0"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#4B52BC": 2,
+        "#B4A6CE": 1
+      },
+      "normalSha256": "c53e6687f18c17d923c4353f074838a3747f6af13eac1d211c0882483318d5d9",
+      "shinySha256": "43a0e4619456746b2f1bf007e60a351730e8ab04822d5c034be38921a8150419"
+    },
+    {
+      "dex": 56,
+      "stem": "mankey",
+      "normalFollowerColours": [
+        "#A0463B",
+        "#EFA060"
+      ],
+      "crystalNormal": [
+        "#EFA55A",
+        "#9C4A39"
+      ],
+      "crystalShiny": [
+        "#98B058",
+        "#A08038"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#A0463B": 2,
+        "#EFA060": 1
+      },
+      "normalSha256": "2b46b19a582b184e0aa827e9a78ce3bf569d4292f5f35eed2aa5c97f7a658619",
+      "shinySha256": "ae015ca7357687b7b549c9962855713542bf7574c5bb0ff25c6ef1ee25753f26"
+    },
+    {
+      "dex": 57,
+      "stem": "primeape",
+      "normalFollowerColours": [
+        "#863F2C",
+        "#FF8F66"
+      ],
+      "crystalNormal": [
+        "#FF9463",
+        "#844229"
+      ],
+      "crystalShiny": [
+        "#B88830",
+        "#808030"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#863F2C": 2,
+        "#FF8F66": 1
+      },
+      "normalSha256": "3c827b6d361103ef46f1335dab8c1f806af70ed9ee5b84a7ebfa17eab6ba992c",
+      "shinySha256": "c5c7925d022dfc197ac1a0767ffd675ccd1d5f71ffc2f6a6563c3a412972a07a"
+    },
+    {
+      "dex": 58,
+      "stem": "growlithe",
+      "normalFollowerColours": [
+        "#CB3C16",
+        "#DE9946"
+      ],
+      "crystalNormal": [
+        "#DE9C39",
+        "#C64200"
+      ],
+      "crystalShiny": [
+        "#B8A038",
+        "#A86800"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#CB3C16": 2,
+        "#DE9946": 1
+      },
+      "normalSha256": "8ac7d281f2d0cbf14ead10af716dc4aaa5c68b130eceeb76c946a9f3fb4304a2",
+      "shinySha256": "5063fbb8b51476325ff245165051aab9402c5de0e32ecd76caf44fa8daed8bbf"
+    },
+    {
+      "dex": 59,
+      "stem": "arcanine",
+      "normalFollowerColours": [
+        "#CC2921",
+        "#FDB94C"
+      ],
+      "crystalNormal": [
+        "#FFBD39",
+        "#C63118"
+      ],
+      "crystalShiny": [
+        "#C08878",
+        "#988808"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#CC2921": 2,
+        "#FDB94C": 1
+      },
+      "normalSha256": "4f04f84c93e855ff000ead7febb8784861d851911438274f2cc7eb0193a95a40",
+      "shinySha256": "0869ee03311ff8ca9af77a97675e30d81701607ea103298d226f4c301199ce09"
+    },
+    {
+      "dex": 60,
+      "stem": "poliwag",
+      "normalFollowerColours": [
+        "#383F4F",
+        "#DD3B30"
+      ],
+      "crystalNormal": [
+        "#D64229",
+        "#394252"
+      ],
+      "crystalShiny": [
+        "#D04088",
+        "#4040E8"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#383F4F": 2,
+        "#DD3B30": 1
+      },
+      "normalSha256": "fc95fe05b7a04128bb4b98041e32c964621c6724d232b430e8ea5db26d0ce26b",
+      "shinySha256": "fce92ca47892460634e1347e27a468e1f1244c77eae2299a24b194b5f6adfaf7"
+    },
+    {
+      "dex": 61,
+      "stem": "poliwhirl",
+      "normalFollowerColours": [
+        "#31374F",
+        "#41707F"
+      ],
+      "crystalNormal": [
+        "#4A7384",
+        "#313952"
+      ],
+      "crystalShiny": [
+        "#4880D0",
+        "#4050F8"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#31374F": 2,
+        "#41707F": 1
+      },
+      "normalSha256": "c09721546958b498adcaabbabd2941c8add20eac309ed29ec1c4b480f7b51589",
+      "shinySha256": "f86f8d439e39f3fbde8dbd92010a20c611e224989f2e446c772971d140570776"
+    },
+    {
+      "dex": 62,
+      "stem": "poliwrath",
+      "normalFollowerColours": [
+        "#382B75",
+        "#877CCC"
+      ],
+      "crystalNormal": [
+        "#8484D6",
+        "#31317B"
+      ],
+      "crystalShiny": [
+        "#58C0D0",
+        "#408878"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#382B75": 2,
+        "#877CCC": 1
+      },
+      "normalSha256": "b3d24ef89bc049356384d09ff7f5240096a0b325e9f702036388905893ae70c8",
+      "shinySha256": "eaf3f62b6f747e4bfd47d9f6b0f266f3a925229d1d5f876e8f9cbbd59cdf36e6"
+    },
+    {
+      "dex": 63,
+      "stem": "abra",
+      "normalFollowerColours": [
+        "#653F4F",
+        "#E79932"
+      ],
+      "crystalNormal": [
+        "#E79C18",
+        "#634252"
+      ],
+      "crystalShiny": [
+        "#E0C050",
+        "#A04898"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#653F4F": 2,
+        "#E79932": 1
+      },
+      "normalSha256": "714b15374378411c6203e3fa29ff9f2e8a0eab95822bd370ab720c20f455fff5",
+      "shinySha256": "9e4d867ecb526c2156c5170127abcba2705fabfe92938b4cecfde5ee39a8eb87"
+    },
+    {
+      "dex": 64,
+      "stem": "kadabra",
+      "normalFollowerColours": [
+        "#653F4F",
+        "#E79932"
+      ],
+      "crystalNormal": [
+        "#E79C18",
+        "#634252"
+      ],
+      "crystalShiny": [
+        "#E0C050",
+        "#A04898"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#653F4F": 2,
+        "#E79932": 1
+      },
+      "normalSha256": "df0b091c2d212ce9cbef41c47fe5d83425e292e75ab55f368f1b3aee24d29243",
+      "shinySha256": "7d1cadfbc806ca7491e927015aae02f8eb6efe305c22237b83085a4fee8e0cad"
+    },
+    {
+      "dex": 65,
+      "stem": "alakazam",
+      "normalFollowerColours": [
+        "#653F4F",
+        "#E79932"
+      ],
+      "crystalNormal": [
+        "#E79C18",
+        "#634252"
+      ],
+      "crystalShiny": [
+        "#989818",
+        "#A810A8"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#653F4F": 2,
+        "#E79932": 1
+      },
+      "normalSha256": "22e64ea0f544822559615302eee4720f747f8d2dda555a7247dc22689b9345a2",
+      "shinySha256": "11b90f982bded598c6451d824ccd365e61f0755bf1f2a2a5f65eacfc6567059c"
+    },
+    {
+      "dex": 66,
+      "stem": "machop",
+      "normalFollowerColours": [
+        "#507969",
+        "#90C1C0"
+      ],
+      "crystalNormal": [
+        "#A58C5A",
+        "#4A5A21"
+      ],
+      "crystalShiny": [
+        "#787058",
+        "#304048"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#507969": 2,
+        "#90C1C0": 1
+      },
+      "normalSha256": "7ea6ed038789decf5b703e931508cd2bd83405470b36e61499858038b7d24720",
+      "shinySha256": "f176ca86599989316680ee79f163f33a39ea1362e308e4e6f1b190cdc931a261"
+    },
+    {
+      "dex": 67,
+      "stem": "machoke",
+      "normalFollowerColours": [
+        "#906CB5",
+        "#D60012"
+      ],
+      "crystalNormal": [
+        "#848C5A",
+        "#B52121"
+      ],
+      "crystalShiny": [
+        "#708058",
+        "#3830C8"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#906CB5": 1,
+        "#D60012": 2
+      },
+      "normalSha256": "5e81a0f847885707d1c86f30c37d21a32a3e76883a0eb3f4f38457dad6d09c32",
+      "shinySha256": "557b35237a22f3845bce487efad808f6668df27dee29803dd6aad242dc59914e"
+    },
+    {
+      "dex": 68,
+      "stem": "machamp",
+      "normalFollowerColours": [
+        "#4A475F",
+        "#A5B8B8"
+      ],
+      "crystalNormal": [
+        "#AD945A",
+        "#4A5A21"
+      ],
+      "crystalShiny": [
+        "#708858",
+        "#486020"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#4A475F": 2,
+        "#A5B8B8": 1
+      },
+      "normalSha256": "191b9298e32c9a698554d0a7687ca1487baa234ecdd6e96b022161cf5611943e",
+      "shinySha256": "0209b93df5b25080f982c5b0fa07d8d6edf3580ffcc7cdda53f9801702b235f8"
+    },
+    {
+      "dex": 69,
+      "stem": "bellsprout",
+      "normalFollowerColours": [
+        "#7CFC54",
+        "#E54C4C"
+      ],
+      "crystalNormal": [
+        "#A5FF39",
+        "#DE524A"
+      ],
+      "crystalShiny": [
+        "#A0A038",
+        "#A050A8"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#7CFC54": 1,
+        "#E54C4C": 2
+      },
+      "normalSha256": "47d93db255d18d5dd131ed8e6ad02bbb5bc6fcb72f860f3d7ae7ec4327d1d51d",
+      "shinySha256": "d47ce17e95dcaa5dba7834bd5f993ecfc9f732fceb845e3efc29b9a268e3ac24"
+    },
+    {
+      "dex": 70,
+      "stem": "weepinbell",
+      "normalFollowerColours": [
+        "#00FD53",
+        "#F6414C"
+      ],
+      "crystalNormal": [
+        "#6BFF39",
+        "#EF4A4A"
+      ],
+      "crystalShiny": [
+        "#B0E038",
+        "#984898"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#00FD53": 1,
+        "#F6414C": 2
+      },
+      "normalSha256": "cca58f8de862cf22421f9b37fc4616071ba447215941312fc407380e5c5b98f6",
+      "shinySha256": "ca21d0e4dc24f721e8263cfe9955d2eccce30ab5bd56f662df8a56445c183ede"
+    },
+    {
+      "dex": 71,
+      "stem": "victreebel",
+      "normalFollowerColours": [
+        "#4FD43B",
+        "#FF486A"
+      ],
+      "crystalNormal": [
+        "#7BD618",
+        "#FF526B"
+      ],
+      "crystalShiny": [
+        "#A0B818",
+        "#7060F8"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#4FD43B": 1,
+        "#FF486A": 2
+      },
+      "normalSha256": "1e16a5368c3bcf341da75d4566e0d14debbaac6dae76b646d0aa5dd6ba056932",
+      "shinySha256": "3fdd05360be7880b4af4c2af6decf98dd62b4ca492240c8e864ef57d22504848"
+    },
+    {
+      "dex": 72,
+      "stem": "tentacool",
+      "normalFollowerColours": [
+        "#569DF3",
+        "#FF2053"
+      ],
+      "crystalNormal": [
+        "#5AA5FF",
+        "#F73152"
+      ],
+      "crystalShiny": [
+        "#9898F8",
+        "#409868"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#569DF3": 1,
+        "#FF2053": 2
+      },
+      "normalSha256": "f5a2f8a35391a473e19f78958b0f84908d73d39f146da0038808e02f47e97c75",
+      "shinySha256": "8ae555672559e54b71e8c467683c634fb0cf02ebc6f7f7d9c57ccd0666ed6cce"
+    },
+    {
+      "dex": 73,
+      "stem": "tentacruel",
+      "normalFollowerColours": [
+        "#569DF3",
+        "#DE001C"
+      ],
+      "crystalNormal": [
+        "#5AA5FF",
+        "#D61010"
+      ],
+      "crystalShiny": [
+        "#88A0F8",
+        "#28A000"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#569DF3": 1,
+        "#DE001C": 2
+      },
+      "normalSha256": "35f8a60a46fe8974a3f33965257a980856d73531712cdd6923b61c74bdab4680",
+      "shinySha256": "58b81c49422ac3560811fdfbf1310271aff095d80e127ec8ee0c019a97189e8c"
+    },
+    {
+      "dex": 74,
+      "stem": "geodude",
+      "normalFollowerColours": [
+        "#39593A",
+        "#908879"
+      ],
+      "crystalNormal": [
+        "#948C7B",
+        "#425A39"
+      ],
+      "crystalShiny": [
+        "#C08878",
+        "#786838"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#39593A": 2,
+        "#908879": 1
+      },
+      "normalSha256": "f32cbf6efabb703e27f5b1d608bf6153f07264a2cbdd1943de81d40b7f321c24",
+      "shinySha256": "78e1c237fad9eea63abca5666a49901610e4c0ebae60197be7b538e645b640f9"
+    },
+    {
+      "dex": 75,
+      "stem": "graveler",
+      "normalFollowerColours": [
+        "#39593A",
+        "#898890"
+      ],
+      "crystalNormal": [
+        "#8C8C94",
+        "#425A39"
+      ],
+      "crystalShiny": [
+        "#B87060",
+        "#805838"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#39593A": 2,
+        "#898890": 1
+      },
+      "normalSha256": "1265f19c6fb20e22cff4b04dbc1c439cf8fcebd3d0963fd54e18afcfa6fae013",
+      "shinySha256": "4e5f6a7b1f68701bc8cca9faf8d4aa4afb1a6e6a2687a18f325b6218b410c71f"
+    },
+    {
+      "dex": 76,
+      "stem": "golem",
+      "normalFollowerColours": [
+        "#39593A",
+        "#908147"
+      ],
+      "crystalNormal": [
+        "#948442",
+        "#425A39"
+      ],
+      "crystalShiny": [
+        "#C87860",
+        "#983818"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#39593A": 2,
+        "#908147": 1
+      },
+      "normalSha256": "54e335a98f5ed7ba36abfe213b6f073ea41a59ac33bc2b0713d2b883fa0c85ad",
+      "shinySha256": "af47958dd0520ee6b45841d15055dd861d03a97a64be32a6f14669152baab809"
+    },
+    {
+      "dex": 77,
+      "stem": "ponyta",
+      "normalFollowerColours": [
+        "#C8DB43",
+        "#FF1526"
+      ],
+      "crystalNormal": [
+        "#D6DE21",
+        "#FF2918"
+      ],
+      "crystalShiny": [
+        "#B89880",
+        "#986860"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#C8DB43": 1,
+        "#FF1526": 2
+      },
+      "normalSha256": "94dd9e9ab6a05a7aa120d1272bcff130df6989502cccfaaa60b991e1a86370ab",
+      "shinySha256": "c1d1087f4968e4708c2164d7f22d2098edbf786f98d337cba0b9b41e19143ad9"
+    },
+    {
+      "dex": 78,
+      "stem": "rapidash",
+      "normalFollowerColours": [
+        "#C8DB43",
+        "#FF1526"
+      ],
+      "crystalNormal": [
+        "#D6DE21",
+        "#FF2918"
+      ],
+      "crystalShiny": [
+        "#B098A0",
+        "#8850D8"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#C8DB43": 1,
+        "#FF1526": 2
+      },
+      "normalSha256": "093d839cfdcbb3db89d6b00b62d21a66f343f52563a27cd79a1a8bbe04a45cd3",
+      "shinySha256": "1e05563405f0d9eaaeed4476021d54234b6bafe440fc7732119643b1ed80991c"
+    },
+    {
+      "dex": 79,
+      "stem": "slowpoke",
+      "normalFollowerColours": [
+        "#B32041",
+        "#FF4688"
+      ],
+      "crystalNormal": [
+        "#FF528C",
+        "#AD2942"
+      ],
+      "crystalShiny": [
+        "#B058D0",
+        "#8800F8"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#B32041": 2,
+        "#FF4688": 1
+      },
+      "normalSha256": "0a2e49ae632e1ed9104860252b769243d39781e21b2feb64bb7d7ae002700da2",
+      "shinySha256": "b1c36bb550996be3cb4d18399bff81de3cd407c7585ece54f416e32cca51b25e"
+    },
+    {
+      "dex": 80,
+      "stem": "slowbro",
+      "normalFollowerColours": [
+        "#538A5B",
+        "#FF4688"
+      ],
+      "crystalNormal": [
+        "#FF528C",
+        "#638C5A"
+      ],
+      "crystalShiny": [
+        "#A850F8",
+        "#909000"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#538A5B": 2,
+        "#FF4688": 1
+      },
+      "normalSha256": "da0fa3be41f198a252d4176b9792a903d768c6067a4b22ed35201e8b61cb4c2f",
+      "shinySha256": "aaadefdb61d573998a494134b836e668559e561f9640ae236be29c14ee86cbb6"
+    },
+    {
+      "dex": 81,
+      "stem": "magnemite",
+      "normalFollowerColours": [
+        "#7A86BD",
+        "#FF2222"
+      ],
+      "crystalNormal": [
+        "#7B8CC6",
+        "#FF3110"
+      ],
+      "crystalShiny": [
+        "#98A098",
+        "#A03838"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#7A86BD": 1,
+        "#FF2222": 2
+      },
+      "normalSha256": "f313732cecb9a2a481c108f276aa01a9c65633099e28b026111428339d800b26",
+      "shinySha256": "0f190c1b8ef2b2871ecd09a36e78029273d5ebcf1df09c69d002f4a3de404859"
+    },
+    {
+      "dex": 82,
+      "stem": "magneton",
+      "normalFollowerColours": [
+        "#7A86BD",
+        "#FF2222"
+      ],
+      "crystalNormal": [
+        "#7B8CC6",
+        "#FF3110"
+      ],
+      "crystalShiny": [
+        "#788090",
+        "#905858"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#7A86BD": 1,
+        "#FF2222": 2
+      },
+      "normalSha256": "407d7598e76eb39b4ed835d1bfea5b0e0ae4e5cac08ea516b5974caa3fcc1f71",
+      "shinySha256": "46ce6f7762294e44a92c11ae202d9cc897550c430a5b614422b359ff4f3e2865"
+    },
+    {
+      "dex": 83,
+      "stem": "farfetchd",
+      "normalFollowerColours": [
+        "#00D435",
+        "#C15F45"
+      ],
+      "crystalNormal": [
+        "#BD6342",
+        "#31D608"
+      ],
+      "crystalShiny": [
+        "#A08070",
+        "#60A008"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#00D435": 2,
+        "#C15F45": 1
+      },
+      "normalSha256": "000cd15c95ee769a3162d1d73a0af6c8777d9c897dacc4f7fa5be4f61543dd9e",
+      "shinySha256": "4139e19a4b794d97ae97bbde1ba2d1cf892f3f3252f043781667bb627204b78c"
+    },
+    {
+      "dex": 84,
+      "stem": "doduo",
+      "normalFollowerColours": [
+        "#644032",
+        "#AF674C"
+      ],
+      "crystalNormal": [
+        "#AD6B4A",
+        "#634231"
+      ],
+      "crystalShiny": [
+        "#E0B800",
+        "#908000"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#644032": 2,
+        "#AF674C": 1
+      },
+      "normalSha256": "f6884d1aba01a3875ed12822dad747d88e9cb31b20e3151ef1d773a0cd532672",
+      "shinySha256": "ca60056e84ea18b6a4afc9ca1eb51f33a2261c9cb57651f7ccc848660a44e17b"
+    },
+    {
+      "dex": 85,
+      "stem": "dodrio",
+      "normalFollowerColours": [
+        "#983E33",
+        "#D88049"
+      ],
+      "crystalNormal": [
+        "#D68442",
+        "#944231"
+      ],
+      "crystalShiny": [
+        "#F8C008",
+        "#908000"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#983E33": 2,
+        "#D88049": 1
+      },
+      "normalSha256": "b35713b06b30703b689396eac207d88197b5042c6aaa47d81f71b082edef3d9f",
+      "shinySha256": "4cd08971a7b066e29051ecbc5905545b5692ed1ce60e4ea3f87b0ad06f2694ab"
+    },
+    {
+      "dex": 86,
+      "stem": "seel",
+      "normalFollowerColours": [
+        "#9DA5F4",
+        "#F74069"
+      ],
+      "crystalNormal": [
+        "#9CADFF",
+        "#EF4A6B"
+      ],
+      "crystalShiny": [
+        "#A098B0",
+        "#E83828"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#9DA5F4": 1,
+        "#F74069": 2
+      },
+      "normalSha256": "062e27bd8150c22603e6ee4216375b3087d521bb41a1c68df59615d064016dd3",
+      "shinySha256": "ec1217e5de27378c019737e08d02023f3ffde6a160d9fd28d373eaf7c004d475"
+    },
+    {
+      "dex": 87,
+      "stem": "dewgong",
+      "normalFollowerColours": [
+        "#42568D",
+        "#9DA5F4"
+      ],
+      "crystalNormal": [
+        "#9CADFF",
+        "#425A94"
+      ],
+      "crystalShiny": [
+        "#A098A0",
+        "#905870"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#42568D": 2,
+        "#9DA5F4": 1
+      },
+      "normalSha256": "de5c1769473826d491f06a6f3671047518017f3c3bf86b74723d639a459bf748",
+      "shinySha256": "5fa3593a0109fa47e535fb04a3a36f8c22221ac53f36d6dcdd4855820a9e75b7"
+    },
+    {
+      "dex": 88,
+      "stem": "grimer",
+      "normalFollowerColours": [
+        "#80447E",
+        "#C185B6"
+      ],
+      "crystalNormal": [
+        "#EF10A5",
+        "#630863"
+      ],
+      "crystalShiny": [
+        "#809808",
+        "#585050"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#80447E": 2,
+        "#C185B6": 1
+      },
+      "normalSha256": "8791eb3a745cdb6929727ff7ba6a8b55cf7ddc25b0d6b7955896ddecd524cadb",
+      "shinySha256": "f04b071008bdac4a9c5b6c3a55cb206d00a40a2e7b7008824e218765aba48577"
+    },
+    {
+      "dex": 89,
+      "stem": "muk",
+      "normalFollowerColours": [
+        "#80447E",
+        "#C185B6"
+      ],
+      "crystalNormal": [
+        "#EF10A5",
+        "#630863"
+      ],
+      "crystalShiny": [
+        "#78A048",
+        "#506818"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#80447E": 2,
+        "#C185B6": 1
+      },
+      "normalSha256": "fa7730701a8e23b14fbb448736aa73277de8c391727e2ce69b0c4dfcce2821cf",
+      "shinySha256": "454f9d73551039f6f9913d023222dde734f09cbedf04c9c19d1d3d4213ea6291"
+    },
+    {
+      "dex": 90,
+      "stem": "shellder",
+      "normalFollowerColours": [
+        "#883C67",
+        "#B23517"
+      ],
+      "crystalNormal": [
+        "#84426B",
+        "#AD3908"
+      ],
+      "crystalShiny": [
+        "#C08838",
+        "#A84820"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#883C67": 1,
+        "#B23517": 2
+      },
+      "normalSha256": "b37d20425243c7a781aa023605187e561e47f0f0d899251188e3933c08c57ade",
+      "shinySha256": "760335e0500aca2687b8fa289b34065e19ceac0496f5afe5188b61d982ea1aae"
+    },
+    {
+      "dex": 91,
+      "stem": "cloyster",
+      "normalFollowerColours": [
+        "#691766",
+        "#B547AD"
+      ],
+      "crystalNormal": [
+        "#AD52B5",
+        "#63216B"
+      ],
+      "crystalShiny": [
+        "#A060E0",
+        "#5820F8"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#691766": 2,
+        "#B547AD": 1
+      },
+      "normalSha256": "20a0ec87acde01dd3d098a831af3f67e3ecb026591bfd0ed6640045763f7886c",
+      "shinySha256": "b4aedb5c884d7774d2e9009d075b7391ee4efa6478c6fa2be0896e5d799fcf3c"
+    },
+    {
+      "dex": 92,
+      "stem": "gastly",
+      "normalFollowerColours": [
+        "#9800B3",
+        "#FF1BEB"
+      ],
+      "crystalNormal": [
+        "#F742F7",
+        "#8C00BD"
+      ],
+      "crystalShiny": [
+        "#8088F0",
+        "#283858"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#9800B3": 2,
+        "#FF1BEB": 1
+      },
+      "normalSha256": "8203b6ac7621c634921d3198519996e7cb709d5f4a0c90e1b827e921035e14e6",
+      "shinySha256": "b99f8d0ec55271852aa98a3ba5265ff16e11855619663493e3ff6d69cb54d1f9"
+    },
+    {
+      "dex": 93,
+      "stem": "haunter",
+      "normalFollowerColours": [
+        "#7E0094",
+        "#D53235"
+      ],
+      "crystalNormal": [
+        "#CE3931",
+        "#73009C"
+      ],
+      "crystalShiny": [
+        "#5048D8",
+        "#400098"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#7E0094": 2,
+        "#D53235": 1
+      },
+      "normalSha256": "ba107faf9b6719bfbdba69dde044a57a65b3e014f3be5a99e1534c1c93a06bde",
+      "shinySha256": "e65f9331bbfa6b472d2f987bd24f60194f2ad7827e7ab3b670a4795d7e3cd1d8"
+    },
+    {
+      "dex": 94,
+      "stem": "gengar",
+      "normalFollowerColours": [
+        "#54007C",
+        "#FF1521"
+      ],
+      "crystalNormal": [
+        "#FF2910",
+        "#4A0084"
+      ],
+      "crystalShiny": [
+        "#F800E8",
+        "#7860B8"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#54007C": 2,
+        "#FF1521": 1
+      },
+      "normalSha256": "98e381d332627f6ec2b031ad44918c7fa829502c1bb422f5dcefe5ed56f6e417",
+      "shinySha256": "7aed52a577958f77925ffd6d8afe8fe4a3a70627637916a6fa3bd7b13cc65503"
+    },
+    {
+      "dex": 95,
+      "stem": "onix",
+      "normalFollowerColours": [
+        "#4D2D56",
+        "#8D769E"
+      ],
+      "crystalNormal": [
+        "#8C7BA5",
+        "#4A315A"
+      ],
+      "crystalShiny": [
+        "#78A820",
+        "#705838"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#4D2D56": 2,
+        "#8D769E": 1
+      },
+      "normalSha256": "123ee8d44fc693c1ca4c3230de6a8c1bea40884e5c29507a30d20cde0ee50c9d",
+      "shinySha256": "e4cc4a16b0ef0c80e36c875a02b84ac8db41bf374ec3252fca1686bd4a7849a5"
+    },
+    {
+      "dex": 96,
+      "stem": "drowzee",
+      "normalFollowerColours": [
+        "#984E60",
+        "#FDB93E"
+      ],
+      "crystalNormal": [
+        "#FFBD21",
+        "#945263"
+      ],
+      "crystalShiny": [
+        "#C068D8",
+        "#900050"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#984E60": 2,
+        "#FDB93E": 1
+      },
+      "normalSha256": "7e72d60636e8cd60044bfba1ec5e1b2a7e703ad374b72ff233fa5b08ede0b3d8",
+      "shinySha256": "29562a4db7e10e4db83c0a0f1361c58f206d485235ec8218d9ccbda158a46b61"
+    },
+    {
+      "dex": 97,
+      "stem": "hypno",
+      "normalFollowerColours": [
+        "#AF601A",
+        "#FBCA38"
+      ],
+      "crystalNormal": [
+        "#FFCE00",
+        "#AD6300"
+      ],
+      "crystalShiny": [
+        "#F048C8",
+        "#905068"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#AF601A": 2,
+        "#FBCA38": 1
+      },
+      "normalSha256": "2849eb032f73c212c2a7f7002f723ffcfac5b885d8511bcaa0fb17a3680457d7",
+      "shinySha256": "646b51800e882249057d1f2b5a13a2588d199ba3330453e7526f5af3209b64b1"
+    },
+    {
+      "dex": 98,
+      "stem": "krabby",
+      "normalFollowerColours": [
+        "#F28751",
+        "#F7182A"
+      ],
+      "crystalNormal": [
+        "#EF8C4A",
+        "#EF2921"
+      ],
+      "crystalShiny": [
+        "#A8A0B0",
+        "#907820"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#F28751": 1,
+        "#F7182A": 2
+      },
+      "normalSha256": "b9267b8a0b27487ff29e02bcb4184acfa7e9694ac95abad8f5e940e1acd6a2a1",
+      "shinySha256": "38f1673e4637bbbcd2442af03af730e8454c2336261ccb1efe436325a0270462"
+    },
+    {
+      "dex": 99,
+      "stem": "kingler",
+      "normalFollowerColours": [
+        "#F28751",
+        "#F7182A"
+      ],
+      "crystalNormal": [
+        "#EF8C4A",
+        "#EF2921"
+      ],
+      "crystalShiny": [
+        "#A8B048",
+        "#606858"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#F28751": 1,
+        "#F7182A": 2
+      },
+      "normalSha256": "33fb0fc734d5ca34da4039bc808fdab61eb13d734ca447da2660529fd5f0f55c",
+      "shinySha256": "b8dcdbd9730615e9eaf2aa48d7406bcec5c6665de51ba863e3164cc7a4a964ec"
+    },
+    {
+      "dex": 100,
+      "stem": "voltorb",
+      "normalFollowerColours": [
+        "#9FA18A",
+        "#CD1F2D"
+      ],
+      "crystalNormal": [
+        "#A5A58C",
+        "#C62929"
+      ],
+      "crystalShiny": [
+        "#A0A088",
+        "#4810E0"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#9FA18A": 1,
+        "#CD1F2D": 2
+      },
+      "normalSha256": "b3ca03475877b4004744e5ee7db5bb5bcecb00f0c384d6aec743ed74301f528b",
+      "shinySha256": "2756eba0c989da456db2ca0f672163a6d805579c9c9ccb6749710c78e66da2bf"
+    },
+    {
+      "dex": 101,
+      "stem": "electrode",
+      "normalFollowerColours": [
+        "#9FA18A",
+        "#CD1F2D"
+      ],
+      "crystalNormal": [
+        "#A5A58C",
+        "#C62929"
+      ],
+      "crystalShiny": [
+        "#A0A088",
+        "#4810E0"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#9FA18A": 1,
+        "#CD1F2D": 2
+      },
+      "normalSha256": "e774714a1d40bff780a614e5b3dce9d20ddc09adc81232cb6fa55c67488c42e0",
+      "shinySha256": "d34cb6e657e3f041ddadb6ff16499f643afb22b4a86509b1a0f64718740236fe"
+    },
+    {
+      "dex": 102,
+      "stem": "exeggcute",
+      "normalFollowerColours": [
+        "#A22148",
+        "#FF7489"
+      ],
+      "crystalNormal": [
+        "#FF7B8C",
+        "#9C294A"
+      ],
+      "crystalShiny": [
+        "#B8C830",
+        "#986048"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#A22148": 2,
+        "#FF7489": 1
+      },
+      "normalSha256": "57a4dc79bca2c37716a416bc380715d9803d6889d0278e35c13c504d97fe76df",
+      "shinySha256": "b9e5d023e2ceeaf7b3c7771f7edd4dbe0f264bcad061416de4de81d9691da9d7"
+    },
+    {
+      "dex": 103,
+      "stem": "exeggutor",
+      "normalFollowerColours": [
+        "#00823E",
+        "#A66837"
+      ],
+      "crystalNormal": [
+        "#A56B31",
+        "#298439"
+      ],
+      "crystalShiny": [
+        "#988840",
+        "#C07048"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#00823E": 2,
+        "#A66837": 1
+      },
+      "normalSha256": "7d5bce83fadc3b646efdbccb53ec33c0359d66c6fb50604856720eaa2f563485",
+      "shinySha256": "56141cc388f1c7e738411dfac409424f4e3f7c6b345e28e7fccae0a8ad6fa2d0"
+    },
+    {
+      "dex": 104,
+      "stem": "cubone",
+      "normalFollowerColours": [
+        "#855027",
+        "#9F9965"
+      ],
+      "crystalNormal": [
+        "#A59C63",
+        "#845221"
+      ],
+      "crystalShiny": [
+        "#B0B0B8",
+        "#587848"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#855027": 2,
+        "#9F9965": 1
+      },
+      "normalSha256": "69615b68da02029d95b8b151224c742095d3c6c7b33911627cf149227cee2eb5",
+      "shinySha256": "a8a6df0c9338118fcf5c6d3fad8ef8180e2098bb67aea4d4e7c741782695ca3a"
+    },
+    {
+      "dex": 105,
+      "stem": "marowak",
+      "normalFollowerColours": [
+        "#855027",
+        "#9F9965"
+      ],
+      "crystalNormal": [
+        "#A59C63",
+        "#845221"
+      ],
+      "crystalShiny": [
+        "#90A878",
+        "#707820"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#855027": 2,
+        "#9F9965": 1
+      },
+      "normalSha256": "b069f3a8d41c23104000bcd2082c799c36867d6c8c0744de2ba10d01d0b98316",
+      "shinySha256": "1fac554a1c2830327ec99d5e88f8d271e074a0c3530765516172614a4e4d0b2b"
+    },
+    {
+      "dex": 106,
+      "stem": "hitmonlee",
+      "normalFollowerColours": [
+        "#768078",
+        "#B67033"
+      ],
+      "crystalNormal": [
+        "#B57329",
+        "#7B847B"
+      ],
+      "crystalShiny": [
+        "#88A828",
+        "#684068"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#768078": 2,
+        "#B67033": 1
+      },
+      "normalSha256": "42f505fbedda7316ddfbfea431f2cf93675979424000c1026d5269f0d0a9a6aa",
+      "shinySha256": "428cb5746f1d44bc51954172861117ed04c9604af7f5eec97509ce33eb45fa26"
+    },
+    {
+      "dex": 107,
+      "stem": "hitmonchan",
+      "normalFollowerColours": [
+        "#AD7863",
+        "#E9008E"
+      ],
+      "crystalNormal": [
+        "#AD7B63",
+        "#DE1894"
+      ],
+      "crystalShiny": [
+        "#808860",
+        "#4018F8"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#AD7863": 1,
+        "#E9008E": 2
+      },
+      "normalSha256": "aa3055975cf48eb1a1e655b62f8d4759801b1f9b443c87872f871f0616464fa4",
+      "shinySha256": "793ca1a84e344c705ac351278488d1cc7b270b926dfee00e2b87cd1f03149c65"
+    },
+    {
+      "dex": 108,
+      "stem": "lickitung",
+      "normalFollowerColours": [
+        "#DD272E",
+        "#FF458F"
+      ],
+      "crystalNormal": [
+        "#FF5294",
+        "#D63129"
+      ],
+      "crystalShiny": [
+        "#C0B048",
+        "#E04870"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#DD272E": 2,
+        "#FF458F": 1
+      },
+      "normalSha256": "2aa70eb58292a4aa32918dac7f105023260d613bc8becc861f3e7f88e5e6f819",
+      "shinySha256": "a36aa6a2eb611daedc9854818395476808f64a7f74c7ab79460ddded43d39662"
+    },
+    {
+      "dex": 109,
+      "stem": "koffing",
+      "normalFollowerColours": [
+        "#9C248D",
+        "#D843C4"
+      ],
+      "crystalNormal": [
+        "#CE52CE",
+        "#943194"
+      ],
+      "crystalShiny": [
+        "#80A0C8",
+        "#4860B8"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#9C248D": 2,
+        "#D843C4": 1
+      },
+      "normalSha256": "905dc3f23087a2a67ee764ca1e5bd9afd9d65edad26248010cbe353c558ac59d",
+      "shinySha256": "809a4d2554735669380b270952c6777654600065eb014d4caf9013e43abbd586"
+    },
+    {
+      "dex": 110,
+      "stem": "weezing",
+      "normalFollowerColours": [
+        "#61216D",
+        "#D843C4"
+      ],
+      "crystalNormal": [
+        "#CE52CE",
+        "#5A2973"
+      ],
+      "crystalShiny": [
+        "#80A0C8",
+        "#4860B8"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#61216D": 2,
+        "#D843C4": 1
+      },
+      "normalSha256": "cb19fb4063e9b2bd49305ad63f0d4ed19ee21495b466b195aa47f4d54c559687",
+      "shinySha256": "2419dccf444f4242e6d58ab40d7f6b927b443dd52e8efaa00f0a95e29d890154"
+    },
+    {
+      "dex": 111,
+      "stem": "rhyhorn",
+      "normalFollowerColours": [
+        "#324924",
+        "#7F5586"
+      ],
+      "crystalNormal": [
+        "#7B5A8C",
+        "#394A21"
+      ],
+      "crystalShiny": [
+        "#B07888",
+        "#785868"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#324924": 2,
+        "#7F5586": 1
+      },
+      "normalSha256": "7d52c225b2e31932d9c53f57c01a8e49b4dc47235fd39b020181ec189a992124",
+      "shinySha256": "e5060c9c0dbc639302c7f47e65174125beb62b112870decc020a47596dbd8864"
+    },
+    {
+      "dex": 112,
+      "stem": "rhydon",
+      "normalFollowerColours": [
+        "#324924",
+        "#7F5586"
+      ],
+      "crystalNormal": [
+        "#7B5A8C",
+        "#394A21"
+      ],
+      "crystalShiny": [
+        "#B0A8A8",
+        "#606088"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#324924": 2,
+        "#7F5586": 1
+      },
+      "normalSha256": "3e64b4fbd90ac5b5d1284d49831a45accbf6b3a910be91d6beb137575887255f",
+      "shinySha256": "af07818e4710b1fc89d03235d16d5984d83acb67cfe21ed6eb920a6c99c581f3"
+    },
+    {
+      "dex": 113,
+      "stem": "chansey",
+      "normalFollowerColours": [
+        "#EC7CA7",
+        "#FF3A97"
+      ],
+      "crystalNormal": [
+        "#E784AD",
+        "#FF4A9C"
+      ],
+      "crystalShiny": [
+        "#D8C898",
+        "#689808"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#EC7CA7": 1,
+        "#FF3A97": 2
+      },
+      "normalSha256": "57285c840ea12304f0ca4a9e911aaa819b09610e4decb542c3e47c9133f2662f",
+      "shinySha256": "2dcfe80878672b7cb0c1a1fc22e7fc5925506315f9a79230c5d646ea765d2729"
+    },
+    {
+      "dex": 114,
+      "stem": "tangela",
+      "normalFollowerColours": [
+        "#4D64B4",
+        "#902D32"
+      ],
+      "crystalNormal": [
+        "#4A6BBD",
+        "#8C3131"
+      ],
+      "crystalShiny": [
+        "#90F000",
+        "#883030"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#4D64B4": 1,
+        "#902D32": 2
+      },
+      "normalSha256": "abecac293b79ea53d5ef7d3a549b20073927c4d34e8835205f32b7b85effc57f",
+      "shinySha256": "700100cb8eae92003942c6eb2355b9c5df31849566dffdbcd124a9c5db602816"
+    },
+    {
+      "dex": 115,
+      "stem": "kangaskhan",
+      "normalFollowerColours": [
+        "#3E4116",
+        "#9B712C"
+      ],
+      "crystalNormal": [
+        "#9C7321",
+        "#424210"
+      ],
+      "crystalShiny": [
+        "#808098",
+        "#185818"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#3E4116": 2,
+        "#9B712C": 1
+      },
+      "normalSha256": "e20ae4dd605119cb55c451c1d4e297bb992919e43ec854e003ca2fab12300045",
+      "shinySha256": "88aee9c4179b9f0fcd8477da7a24b2a66c262720c19e02cb794d9be5fe5df203"
+    },
+    {
+      "dex": 116,
+      "stem": "horsea",
+      "normalFollowerColours": [
+        "#6083F3",
+        "#DDDB6D"
+      ],
+      "crystalNormal": [
+        "#E7DE63",
+        "#5A8CFF"
+      ],
+      "crystalShiny": [
+        "#F860C0",
+        "#6078F8"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#6083F3": 2,
+        "#DDDB6D": 1
+      },
+      "normalSha256": "4162bfb14acb66a27cd42832acd7f6dcfad189aebb1280c0231afe75637aa16a",
+      "shinySha256": "2b55b261c7a02c15ce9fb8f1bc73fd273852b1b4a3d736cff143531725ef9e74"
+    },
+    {
+      "dex": 117,
+      "stem": "seadra",
+      "normalFollowerColours": [
+        "#537AF3",
+        "#E5B084"
+      ],
+      "crystalNormal": [
+        "#E7B584",
+        "#4A84FF"
+      ],
+      "crystalShiny": [
+        "#F858D8",
+        "#5020E8"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#537AF3": 2,
+        "#E5B084": 1
+      },
+      "normalSha256": "012ca6d8376e31e03d8bae3040e1288538451f9eed4b3cd0069a11242c50228d",
+      "shinySha256": "2ee31378653d04fc1c12d6e45946985a81b814da7fb5ecdad68652b2419e68c6"
+    },
+    {
+      "dex": 118,
+      "stem": "goldeen",
+      "normalFollowerColours": [
+        "#FF4B25",
+        "#FF5897"
+      ],
+      "crystalNormal": [
+        "#FF639C",
+        "#FF5210"
+      ],
+      "crystalShiny": [
+        "#E89800",
+        "#F07000"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#FF4B25": 2,
+        "#FF5897": 1
+      },
+      "normalSha256": "cf150a0cf194e91786b1308c907807b59f252c726cef8ae75444b85256902c04",
+      "shinySha256": "dcab33addb53167181dbc51ef4e0fe83cdf44d4ec158795a08ebebd9940e04c4"
+    },
+    {
+      "dex": 119,
+      "stem": "seaking",
+      "normalFollowerColours": [
+        "#9AAEED",
+        "#FF4B25"
+      ],
+      "crystalNormal": [
+        "#9CB5F7",
+        "#FF5210"
+      ],
+      "crystalShiny": [
+        "#A8D890",
+        "#D0B010"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#9AAEED": 1,
+        "#FF4B25": 2
+      },
+      "normalSha256": "bfd28503ce44b89f1b0dfa30d380f8f6ec87056e42a22218283ca47cb568f68f",
+      "shinySha256": "5f80c1ce5ea88c037ba5d17b4f62c1770ff86979dd0b2b0320dba3180e01ff87"
+    },
+    {
+      "dex": 120,
+      "stem": "staryu",
+      "normalFollowerColours": [
+        "#BD885D",
+        "#FF1526"
+      ],
+      "crystalNormal": [
+        "#BD8C5A",
+        "#FF2918"
+      ],
+      "crystalShiny": [
+        "#908098",
+        "#4068F0"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#BD885D": 1,
+        "#FF1526": 2
+      },
+      "normalSha256": "8db11ecbb57eaf87e208511a6e2a7e487fd265b8242f7a819b920b0c40b8209e",
+      "shinySha256": "df6f24c424eff0543625e274a2c750040604415fecba4d3b22570589df5f27b1"
+    },
+    {
+      "dex": 121,
+      "stem": "starmie",
+      "normalFollowerColours": [
+        "#A42E8D",
+        "#D1B22F"
+      ],
+      "crystalNormal": [
+        "#D6B500",
+        "#9C3994"
+      ],
+      "crystalShiny": [
+        "#E84858",
+        "#5858F8"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#A42E8D": 2,
+        "#D1B22F": 1
+      },
+      "normalSha256": "51bec4ff01af5df1c6fe585f2905fe1a255ec1c7a91190e6d03348fdae3e6c60",
+      "shinySha256": "3fa18aecbbed84859c549516d3d6bcfa02cba9da397e3581139e5f0d76fba0b3"
+    },
+    {
+      "dex": 122,
+      "stem": "mr.mime",
+      "normalFollowerColours": [
+        "#EF2C68",
+        "#FF43F3"
+      ],
+      "crystalNormal": [
+        "#FF5AFF",
+        "#E7396B"
+      ],
+      "crystalShiny": [
+        "#F858F8",
+        "#889800"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#EF2C68": 2,
+        "#FF43F3": 1
+      },
+      "normalSha256": "2592862db34c8c854dcb936b35c808900db6e891c77b3eee340be8aee7c86435",
+      "shinySha256": "1e86df124d712d44874c7b72f2502b5661f62c6c22384d1cbed3702972cb9a2a"
+    },
+    {
+      "dex": 123,
+      "stem": "scyther",
+      "normalFollowerColours": [
+        "#4FD434",
+        "#AFCB34"
+      ],
+      "crystalNormal": [
+        "#7BD600",
+        "#BDCE00"
+      ],
+      "crystalShiny": [
+        "#88C000",
+        "#E04800"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#4FD434": 1,
+        "#AFCB34": 2
+      },
+      "normalSha256": "05db95ae3e1e564b3328b019cc05096db6b760a519d6e91c625ac8ab7c7e950f",
+      "shinySha256": "eb866dfcaadd84766d09e18168098437f7d5f64710c9bf3ae79ae315ca367256"
+    },
+    {
+      "dex": 124,
+      "stem": "jynx",
+      "normalFollowerColours": [
+        "#7B0075",
+        "#F91696"
+      ],
+      "crystalNormal": [
+        "#73107B",
+        "#EF319C"
+      ],
+      "crystalShiny": [
+        "#701078",
+        "#F848D8"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#7B0075": 1,
+        "#F91696": 2
+      },
+      "normalSha256": "aa44afe6ef8c477f8c8d22a4deb1630f5292654c75b53e105a321ad26286287d",
+      "shinySha256": "fbc6599046bf0d406614e8f19f7bfba870d21b7dc53def41ac9ed33bde59deed"
+    },
+    {
+      "dex": 125,
+      "stem": "electabuzz",
+      "normalFollowerColours": [
+        "#C68036",
+        "#F1FC4F"
+      ],
+      "crystalNormal": [
+        "#FFFF29",
+        "#C68429"
+      ],
+      "crystalShiny": [
+        "#F8C800",
+        "#90A000"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#C68036": 2,
+        "#F1FC4F": 1
+      },
+      "normalSha256": "98ea9423d25902eeb83cff7add8228e2e85c0af16c2bab7318876245089741b6",
+      "shinySha256": "ad04e9e9bdb6b5833d9589d024aac5f886637aa58c45f31052d92414dbe8328c"
+    },
+    {
+      "dex": 126,
+      "stem": "magmar",
+      "normalFollowerColours": [
+        "#C43334",
+        "#FFA12E"
+      ],
+      "crystalNormal": [
+        "#FFA500",
+        "#BD3931"
+      ],
+      "crystalShiny": [
+        "#F870F0",
+        "#C02070"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#C43334": 2,
+        "#FFA12E": 1
+      },
+      "normalSha256": "8c0390c0458d916b4976a8e5f63a264a7783e35a57e401d116bcd25a688e3e32",
+      "shinySha256": "84107ae4d8a40ce7b375d41015ce979b10736e39b57396ed64a61e85082fb25d"
+    },
+    {
+      "dex": 127,
+      "stem": "pinsir",
+      "normalFollowerColours": [
+        "#8E4F3B",
+        "#9EA174"
+      ],
+      "crystalNormal": [
+        "#A5A573",
+        "#8C5239"
+      ],
+      "crystalShiny": [
+        "#B8B848",
+        "#585878"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#8E4F3B": 2,
+        "#9EA174": 1
+      },
+      "normalSha256": "b6601589c30f5faae7a5c51f9488b7aeb0dba7097f07a72a414fa0f3799357ba",
+      "shinySha256": "55321671877bb299970c489b2fe7ebe408f5db84d85441e90354007dc8559c48"
+    },
+    {
+      "dex": 128,
+      "stem": "tauros",
+      "normalFollowerColours": [
+        "#523823",
+        "#D07835"
+      ],
+      "crystalNormal": [
+        "#CE7B29",
+        "#523921"
+      ],
+      "crystalShiny": [
+        "#F0D870",
+        "#487050"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#523823": 2,
+        "#D07835": 1
+      },
+      "normalSha256": "bba18a87a3fcb0427d52b4080486c31cd3407f43985831477e2cca33f95a6319",
+      "shinySha256": "8509915f3105bf52b80c8550caf3f9841969715241d6e43368cbbc08a18958db"
+    },
+    {
+      "dex": 129,
+      "stem": "magikarp",
+      "normalFollowerColours": [
+        "#9A0A48",
+        "#F64B38"
+      ],
+      "crystalNormal": [
+        "#EF5231",
+        "#94184A"
+      ],
+      "crystalShiny": [
+        "#C8C000",
+        "#808000"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#9A0A48": 2,
+        "#F64B38": 1
+      },
+      "normalSha256": "201b9041072e98b785e10599abd5dadd0915b256dd18ac6c0f22636448da1e9f",
+      "shinySha256": "8fb1931f849438957e1416e9d5147cf452c1dc16068d3d0a92913ad533fada43"
+    },
+    {
+      "dex": 130,
+      "stem": "gyarados",
+      "normalFollowerColours": [
+        "#4F6BCC",
+        "#D6CB4D"
+      ],
+      "crystalNormal": [
+        "#DECE39",
+        "#4A73D6"
+      ],
+      "crystalShiny": [
+        "#C8A040",
+        "#D85028"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#4F6BCC": 2,
+        "#D6CB4D": 1
+      },
+      "normalSha256": "0ea6935f94158363c42810a5d070ae4d6cb2219b893f91a872786cc8b4c4d01a",
+      "shinySha256": "54e90dccfc792391470b516145a72da1605702e32b932b513a76118bde19d6fc"
+    },
+    {
+      "dex": 131,
+      "stem": "lapras",
+      "normalFollowerColours": [
+        "#447CDB",
+        "#E5A96F"
+      ],
+      "crystalNormal": [
+        "#E7AD6B",
+        "#4284E7"
+      ],
+      "crystalShiny": [
+        "#F868F8",
+        "#8058F8"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#447CDB": 2,
+        "#E5A96F": 1
+      },
+      "normalSha256": "1fbe4764f365c9a998e2d1f4b865a5749c82c6d624189438ff13e67d78bd9df3",
+      "shinySha256": "d54b9ca280840cdb717aa1ee9c50dc5b41aaf214f461e89b51ed7ea0c00cfdfa"
+    },
+    {
+      "dex": 132,
+      "stem": "ditto",
+      "normalFollowerColours": [
+        "#71327D",
+        "#C855DB"
+      ],
+      "crystalNormal": [
+        "#BD63E7",
+        "#6B3984"
+      ],
+      "crystalShiny": [
+        "#88B0E0",
+        "#4860D8"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#71327D": 2,
+        "#C855DB": 1
+      },
+      "normalSha256": "e3a3c5ab615eb19f3d357212f1d4c8b1c2b702f998b65570c0adf5dd518d4fec",
+      "shinySha256": "53692bbdfa7d6b87897f09428e031fc5296989d9649f438273ed5c660ad7ff06"
+    },
+    {
+      "dex": 133,
+      "stem": "eevee",
+      "normalFollowerColours": [
+        "#8F3F1A",
+        "#C6803B"
+      ],
+      "crystalNormal": [
+        "#C68431",
+        "#8C4210"
+      ],
+      "crystalShiny": [
+        "#9898A8",
+        "#607068"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#8F3F1A": 2,
+        "#C6803B": 1
+      },
+      "normalSha256": "53af220f826df2490d7187694ab77eadcc839887d88120d84d964c3337710a29",
+      "shinySha256": "e478d4210fd751fadf216f971141b04ec26cac084ee2876c15f618332a8471ba"
+    },
+    {
+      "dex": 134,
+      "stem": "vaporeon",
+      "normalFollowerColours": [
+        "#5E4BF2",
+        "#7FAEF4"
+      ],
+      "crystalNormal": [
+        "#84B5FF",
+        "#4A5AFF"
+      ],
+      "crystalShiny": [
+        "#D8A8F8",
+        "#7850C0"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#5E4BF2": 2,
+        "#7FAEF4": 1
+      },
+      "normalSha256": "341f14c53120e7db1ada990950b7eebde72c94ed17e333b4a7f2ddc7accf091a",
+      "shinySha256": "a7308c7b791e5b6503eb76679a4eb256b111ba46e39680ed8c1b5b52d19c62c7"
+    },
+    {
+      "dex": 135,
+      "stem": "jolteon",
+      "normalFollowerColours": [
+        "#ED5521",
+        "#F1FC49"
+      ],
+      "crystalNormal": [
+        "#FFFF18",
+        "#E75A08"
+      ],
+      "crystalShiny": [
+        "#C8B000",
+        "#787830"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#ED5521": 2,
+        "#F1FC49": 1
+      },
+      "normalSha256": "79a5c5bfbbdeb540a24657d5c56c6296eaed9f3c3bad0a2797fc216130348af1",
+      "shinySha256": "fd0904dada729995b3a46aff648c12aa5a2a39dcab048b679aa373dd4cb580f6"
+    },
+    {
+      "dex": 136,
+      "stem": "flareon",
+      "normalFollowerColours": [
+        "#B32219",
+        "#FF4B22"
+      ],
+      "crystalNormal": [
+        "#FF5208",
+        "#AD2910"
+      ],
+      "crystalShiny": [
+        "#F08808",
+        "#C04800"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#B32219": 2,
+        "#FF4B22": 1
+      },
+      "normalSha256": "13968b374327bb6b24e876c22dd8df0b0fea34f5fea42f66c7689c2d91bd37b5",
+      "shinySha256": "6ce35f50bd9f006596a25db6ccb1b0cafeac592b1959a07092e6c6aa43fba13c"
+    },
+    {
+      "dex": 137,
+      "stem": "porygon",
+      "normalFollowerColours": [
+        "#38779E",
+        "#CB4529"
+      ],
+      "crystalNormal": [
+        "#C64A21",
+        "#427BA5"
+      ],
+      "crystalShiny": [
+        "#7018D8",
+        "#6058C8"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#38779E": 2,
+        "#CB4529": 1
+      },
+      "normalSha256": "b39266080c418724d337d6a843a8d47fe30feec39ee2017e6b8c42feeb6b4d1d",
+      "shinySha256": "f5800ee70d6e1af55307bacd1753379f362f05e2073ff8be2bc3668d7596d530"
+    },
+    {
+      "dex": 138,
+      "stem": "omanyte",
+      "normalFollowerColours": [
+        "#346EA5",
+        "#A2895C"
+      ],
+      "crystalNormal": [
+        "#A58C5A",
+        "#3973AD"
+      ],
+      "crystalShiny": [
+        "#B89850",
+        "#605858"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#346EA5": 2,
+        "#A2895C": 1
+      },
+      "normalSha256": "dc066edafdf8ebcf198e30077910aa786014ac4e5d76a830274cb30cf72876b5",
+      "shinySha256": "0ab5289a416f6697c42f91e6d38fd6421d5ec765736662cb4bf20691ba2abe1d"
+    },
+    {
+      "dex": 139,
+      "stem": "omastar",
+      "normalFollowerColours": [
+        "#346EA5",
+        "#A2895C"
+      ],
+      "crystalNormal": [
+        "#A58C5A",
+        "#3973AD"
+      ],
+      "crystalShiny": [
+        "#C8E010",
+        "#605878"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#346EA5": 2,
+        "#A2895C": 1
+      },
+      "normalSha256": "65552be2f35c7e1328d64b36e596edfa73e01e3214ee9c53631a3896a5f8da30",
+      "shinySha256": "aaa69ad35ba6e705af45872b2052fd357f05c1ab45bfec32339b2a987742fa5f"
+    },
+    {
+      "dex": 140,
+      "stem": "kabuto",
+      "normalFollowerColours": [
+        "#624832",
+        "#A4711D"
+      ],
+      "crystalNormal": [
+        "#A57300",
+        "#634A31"
+      ],
+      "crystalShiny": [
+        "#B8C0A0",
+        "#709050"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#624832": 2,
+        "#A4711D": 1
+      },
+      "normalSha256": "0d507c62b714080c1ab0c5da7528157ea8ebbd9aafc604ddafe33a25332bb123",
+      "shinySha256": "7fbd140c4b4dfa37601e325efc41cd0614730f8df54929f27e7779df8c6883a8"
+    },
+    {
+      "dex": 141,
+      "stem": "kabutops",
+      "normalFollowerColours": [
+        "#624832",
+        "#A4711D"
+      ],
+      "crystalNormal": [
+        "#A57300",
+        "#634A31"
+      ],
+      "crystalShiny": [
+        "#98A058",
+        "#507850"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#624832": 2,
+        "#A4711D": 1
+      },
+      "normalSha256": "c82aaafd9e6fc9266b8055c2e6840b7c7349ad05566c382facd793e99dc05aac",
+      "shinySha256": "225e4b8609c5ff540ce371ace9ac8296b6e5e67b3e283305cd6e747fe30705a5"
+    },
+    {
+      "dex": 142,
+      "stem": "aerodactyl",
+      "normalFollowerColours": [
+        "#615858",
+        "#96997A"
+      ],
+      "crystalNormal": [
+        "#9C9C7B",
+        "#635A5A"
+      ],
+      "crystalShiny": [
+        "#B048B8",
+        "#6048A8"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#615858": 2,
+        "#96997A": 1
+      },
+      "normalSha256": "c870eb51a0a62ef9d5d0c27ba28badd454a55b932cb059f919d80e7865a7535d",
+      "shinySha256": "92fe10088a5739ba1483aec946cbdff490159ffb34012a794b8efce751e457c6"
+    },
+    {
+      "dex": 143,
+      "stem": "snorlax",
+      "normalFollowerColours": [
+        "#6C4748",
+        "#E08F74"
+      ],
+      "crystalNormal": [
+        "#DE9473",
+        "#6B4A4A"
+      ],
+      "crystalShiny": [
+        "#D8B058",
+        "#4838F8"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#6C4748": 2,
+        "#E08F74": 1
+      },
+      "normalSha256": "e41391efd5cde1860e7682cd94187f3b15e985576cf59b608514fd608ddf9e0b",
+      "shinySha256": "6b5021c63986def03a672fac12ecdbe71feec29e1c62b3ad5d86e6dd10a7a69d"
+    },
+    {
+      "dex": 144,
+      "stem": "articuno",
+      "normalFollowerColours": [
+        "#40577E",
+        "#52A5F4"
+      ],
+      "crystalNormal": [
+        "#5AADFF",
+        "#425A84"
+      ],
+      "crystalShiny": [
+        "#98D0F8",
+        "#6868B0"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#40577E": 2,
+        "#52A5F4": 1
+      },
+      "normalSha256": "34cd9b602494025bd75c27b99e6d72aa3d54eba4b6438bcf85737d15e0e05bbf",
+      "shinySha256": "c10af0bc141130c53cf86e817a5da4b03103aff871dcfba0c7e3eab49247ff04"
+    },
+    {
+      "dex": 145,
+      "stem": "zapdos",
+      "normalFollowerColours": [
+        "#BD8122",
+        "#F6E33E"
+      ],
+      "crystalNormal": [
+        "#FFE700",
+        "#BD8400"
+      ],
+      "crystalShiny": [
+        "#F89800",
+        "#F82000"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#BD8122": 2,
+        "#F6E33E": 1
+      },
+      "normalSha256": "00dd2b798aa2c10e4d8e3b75357acbc1a149a5ccab252b666c13b21ca5358928",
+      "shinySha256": "48576d29a1cfd0aedb73e4272d91bf638e03b375f1d00998f61bd28ed5548069"
+    },
+    {
+      "dex": 146,
+      "stem": "moltres",
+      "normalFollowerColours": [
+        "#FEB132",
+        "#FF5C2B"
+      ],
+      "crystalNormal": [
+        "#FFB500",
+        "#FF6318"
+      ],
+      "crystalShiny": [
+        "#F85870",
+        "#A80800"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#FEB132": 1,
+        "#FF5C2B": 2
+      },
+      "normalSha256": "475f179a48d592c540aaf05aeb10f0398d1765d23f707dbdfb0cf87add5c544a",
+      "shinySha256": "c9a4babd09fe659e8823ddf6ff99253e1ac65543e9a3bf7a58c205492ae4fe16"
+    },
+    {
+      "dex": 147,
+      "stem": "dratini",
+      "normalFollowerColours": [
+        "#436DBC",
+        "#DED34F"
+      ],
+      "crystalNormal": [
+        "#E7D639",
+        "#4273C6"
+      ],
+      "crystalShiny": [
+        "#A898C0",
+        "#7058C0"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#436DBC": 2,
+        "#DED34F": 1
+      },
+      "normalSha256": "fccd0581f0625d2985fa4e85e6c4fc8449dec434cf8c9fb2bcfef1e7b2acfa4b",
+      "shinySha256": "775f97920631761cec525e9cebbf9cdff1418517338383353c971646e6e12ce3"
+    },
+    {
+      "dex": 148,
+      "stem": "dragonair",
+      "normalFollowerColours": [
+        "#256DB4",
+        "#8F94F3"
+      ],
+      "crystalNormal": [
+        "#8C9CFF",
+        "#2973BD"
+      ],
+      "crystalShiny": [
+        "#A898F8",
+        "#A078F8"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#256DB4": 2,
+        "#8F94F3": 1
+      },
+      "normalSha256": "6a73bbfc6820df28dc37bfa91fc117d3a853b12906171128ef996e386b325280",
+      "shinySha256": "e15bf70d7bef5f1f56da7c584bd239fc6b5aa69d1c7285009dc98e0bc92055b5"
+    },
+    {
+      "dex": 149,
+      "stem": "dragonite",
+      "normalFollowerColours": [
+        "#5D4D85",
+        "#C58932"
+      ],
+      "crystalNormal": [
+        "#C68C21",
+        "#5A528C"
+      ],
+      "crystalShiny": [
+        "#889870",
+        "#980070"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#5D4D85": 2,
+        "#C58932": 1
+      },
+      "normalSha256": "7b6c823804339d37aea0ac0958cb74399d7b369f93a387656547a0f241f1adc0",
+      "shinySha256": "618a30ff218cd71d2789ea87e95496ac6e5ff2522b0a66e0111ad80b06ad66e1"
+    },
+    {
+      "dex": 150,
+      "stem": "mewtwo",
+      "normalFollowerColours": [
+        "#8D149C",
+        "#B59EC6"
+      ],
+      "crystalNormal": [
+        "#B5A5CE",
+        "#8429A5"
+      ],
+      "crystalShiny": [
+        "#98A8B0",
+        "#787800"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#8D149C": 2,
+        "#B59EC6": 1
+      },
+      "normalSha256": "39e937e3e647f9e54c50201773b7a068ccbb5be5a3a2c6bd5b0994524c8f6259",
+      "shinySha256": "be90d81a111e53fe229695b28716a6b12af4c763eca0a98eca81c0ebafd89e34"
+    },
+    {
+      "dex": 151,
+      "stem": "mew",
+      "normalFollowerColours": [
+        "#4750CB",
+        "#FF6CF3"
+      ],
+      "crystalNormal": [
+        "#FF7BFF",
+        "#395AD6"
+      ],
+      "crystalShiny": [
+        "#90C0F8",
+        "#3858D0"
+      ],
+      "crystalIndexByFollowerColour": {
+        "#4750CB": 2,
+        "#FF6CF3": 1
+      },
+      "normalSha256": "817362bbe88379785a00c8fe935094abca452f6c50c08143befd641c24e86e37",
+      "shinySha256": "140087676895e644a43dde6ab41f8378003b6934d09ebad0692fe1e38b2a5c27"
+    }
+  ]
+}
