@@ -52,26 +52,27 @@ All notable changes to this project are documented in this file.
   staged 3D battle uses that character's standing front card. The ORIGINAL
   and CRYSTAL HD presets now switch the complete 2D identity family for Red,
   Blue and Green, including selector, profile, scene, rival and battle art.
-- The manager now admits only the exact upstream
-  `ShaneMcGovernIE/potato_voxel 1.7.2` release. Ascendant exposes a closed,
+- The manager now admits official Voxel Ascendant, Battle Art, Dramaless and
+  PotatoVoxel builds from their hardened baselines through 2.x on a best-effort
+  basis. Ascendant exposes a closed,
   allowlisted renderer facade while PotatoVoxel retains its native camera, HUD,
-  quality controls and cache. Other repositories, adjacent versions and
-  multi-renderer combinations remain blocked. Documentation also calls out the
+  quality controls and cache. Out-of-range versions and multi-renderer
+  combinations remain blocked; canonical repositories remain the support
+  contract. Documentation also calls out the
   upstream `LOGS TO DEV` option, which is ON by default and can be disabled.
-- The manager now admits only the exact upstream
-  `artyrambles/DRAMALESS_SHAPE 2.0.2` package on the 0.1.96 stack instead of
-  displaying a false conflict. This modern Dramaless line is deliberately
-  renderer-native: it owns its own voxel world, battle cards and battle HUD.
-  The exact reviewed package exposes only a narrow fixed camera-preset control;
+- Dramaless is admitted from `1.6.2-ST.190.1` through 2.x on the 0.1.96 stack
+  instead of displaying a false conflict. Every Dramaless 2.x build is
+  renderer-native and owns its voxel world, battle cards and battle HUD.
+  Exact `2.0.2` exposes only a narrow fixed camera-preset control;
   its private loader, renderer modules, raw camera table and HUD authority stay
-  private. All
-  unreviewed Dramaless versions, repositories and multi-renderer combinations
-  remain blocked.
-- The manager now admits the exact upstream Battle Art 1.9.2 package alongside
-  reviewed 1.9.0. Its optional mesh cache no longer discards a completed live
+  private. Dramaless 3.x and multi-renderer combinations remain blocked; other
+  in-range builds never inherit that exact adapter.
+- Battle Art is admitted from 1.9.0 through 2.x. Exact 1.9.2's optional mesh
+  cache no longer discards a completed live
   mesh merely because persistent cache storage is unavailable or the current
   map is ineligible; genuine eligible read, encoding and write failures remain
-  fatal, and adjacent versions or repositories still fail closed.
+  fatal. Other in-range builds receive no exact cache repair; 3.x versions
+  still fail closed.
 
 ## [6.5.3] - 2026-08-16
 

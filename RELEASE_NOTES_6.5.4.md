@@ -2,7 +2,7 @@
 
 Kanto Ascendant 6.5.4 is a save-compatible hotfix for Pokémon Red, Blue and
 Yellow. It focuses on progression repairs, safer storage, battle and trainer
-presentation, and the exact renderer versions reviewed for this release.
+presentation, and a lower-maintenance official renderer compatibility policy.
 
 No restart is required. Existing Kanto Ascendant saves upgrade in place, and
 the Johto repairs are designed to be idempotent when an affected 6.5.3 save is
@@ -50,19 +50,24 @@ offline Hidden Evolution guide.
 - Visual settings are inspectable again and grouped into Pokémon-sprite and
   character/trainer sections.
 
-## Reviewed renderer versions
+## Renderer compatibility policy
 
-The 6.5.4 compatibility work is pinned to these exact upstream packages:
+Official packages are admitted from their current baseline through 2.x:
 
-- Battle Art `1.9.2`
-- Dramaless `2.0.2`
-- PotatoVoxel `1.7.2`
+- Voxel Ascendant `>=0.1.0-rc.1 <3.0.0`
+- Battle Art `>=1.9.0 <3.0.0`
+- Dramaless `>=1.6.2-ST.190.1 <3.0.0`
+- PotatoVoxel `>=1.7.2 <3.0.0`
 
-These are exact package/version contracts, not a blanket compatibility claim
-for adjacent releases, forks, every platform or multi-renderer combinations.
-Use only one voxel renderer at a time. Other previously reviewed paths remain
-listed in the [FAQ compatibility section](FAQ.md#installation-and-compatibility);
-unreviewed combinations continue to fail closed.
+This is best-effort series admission, not a guarantee for every upstream
+release. If an update breaks rendering, roll the renderer back to the last
+working version. Exact repairs remain pinned: Battle Art's cache repair stays
+on `1.9.2`, Dramaless' fixed native camera control stays on `2.0.2`, and all
+other Dramaless 2.x builds remain native-only. Unversioned/out-of-range
+packages and multi-renderer combinations fail closed. Canonical repositories
+are the support contract; rich managers and runtime metadata reject an
+explicit mismatch. Use only one renderer. See the
+[FAQ compatibility section](FAQ.md#installation-and-compatibility).
 
 ## Install or update
 

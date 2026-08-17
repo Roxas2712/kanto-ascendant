@@ -78,7 +78,7 @@ return function(mod, opts)
     if not (voxelRenderer and type(voxelRenderer.resolve) == "function") then
       return nil
     end
-    local _, rendererId = voxelRenderer.resolve(currentGame)
+    local _, rendererId, _, _, receipt = voxelRenderer.resolve(currentGame)
     -- Every renderer's battle cards are pinned against its own lens.  This
     -- compatibility row was authored for the reviewed Dramaless camera only.
     -- Applying its x3 frame height to Voxel Ascendant pulls both projected
@@ -87,16 +87,24 @@ return function(mod, opts)
     -- Ascendant and Battle Art therefore retain complete ownership of their
     -- authored rigs and options.
     if rendererId ~= "DRAMALESS_SHAPE" then return nil end
-    return rendererId
+    return rendererId, receipt
   end
 
   local function battleCam(currentGame)
-    if not cameraRenderer(currentGame) then return nil end
+    local activeRenderer, resolverReceipt = cameraRenderer(currentGame)
+    if not activeRenderer then return nil end
     local camera, rendererId, cameraReason, receipt
     if type(voxelRenderer.cameraModule) == "function" then
       camera, rendererId, cameraReason, receipt =
         voxelRenderer.cameraModule(currentGame)
       if type(camera) == "table" then return camera, receipt end
+    end
+    -- The legacy three-times-taller rig is an exact adapter for the hardened
+    -- 1.6.2-ST.190.1 baseline. Other admitted 1.x/2.x releases receive only
+    -- their generic/common resolver surface; never inherit this preset.
+    if not resolverReceipt
+        or resolverReceipt.rendererVersion ~= "1.6.2-ST.190.1" then
+      return nil, resolverReceipt
     end
     camera, rendererId, cameraReason, receipt =
       voxelRenderer.module(currentGame, "BattleCam")

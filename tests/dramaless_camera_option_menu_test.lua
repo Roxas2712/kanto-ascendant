@@ -120,6 +120,25 @@ eq(voxelRows[2].id, "VOXEL_ASCENDANT:battles",
   "Voxel Ascendant keeps ownership of its own battle controls")
 
 handles.VOXEL_ASCENDANT = nil
+handles.DRAMALESS_SHAPE = {
+  id = "DRAMALESS_SHAPE", version = "1.6.4",
+  exports = {
+    version = "1.6.4",
+    lib = { require = function(name)
+      if name == "__KA_PRIVATE_PROBE__" then return nil end
+      if name == "BattleCam" then return {} end
+      return nil
+    end },
+  },
+}
+local futureDramalessRows = hook(function() return {
+  { id = "pipeline:voxel" },
+  { id = "DRAMALESS_SHAPE:overworld_battle" },
+} end, game, {})
+eq(#futureDramalessRows, 2,
+  "best-effort Dramaless 1.x does not get the exact camera option")
+
+handles.DRAMALESS_SHAPE = nil
 local noRenderer = hook(function() return { { id = "pipeline:voxel" } } end,
   { mods = {} }, {})
 eq(#noRenderer, 1, "camera row stays hidden when the renderer is unavailable")

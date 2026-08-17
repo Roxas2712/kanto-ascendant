@@ -1,5 +1,7 @@
--- One fail-closed authority accepts only the Voxel packages whose exact
--- 0.1.90 sandbox, renderer and companion contracts have been verified.
+-- One fail-closed authority admits the official renderer families from their
+-- hardened baselines through 2.x on a best-effort basis. Exact adapters stay
+-- exact-version-only; repository spoofs, malformed/out-of-range versions,
+-- broken capability shapes and multiple simultaneous renderers remain closed.
 
 local root = assert(os.getenv("TRAINER_REMATCH_MOD_DIR"),
   "TRAINER_REMATCH_MOD_DIR is required")
@@ -176,11 +178,25 @@ eq(receipt.rendererVersion, "0.1.0-rc.1",
 eq(receipt.provenance, "roxas2712-voxel-ascendant-mit-v161-rc1",
   "legacy RC provenance is explicit")
 
-voxelGame("0.1.2")
+local futureVoxel = voxelGame("2.9.9")
 package, id, reason = resolver.resolve()
-eq(package, nil, "an unreviewed future Voxel Ascendant build fails closed")
-eq(reason, "unsupported-version:VOXEL_ASCENDANT:0.1.2",
-  "future renderer diagnostic names its exact version")
+ok(package ~= nil, "official Voxel Ascendant 2.x is admitted best-effort")
+eq(id, "VOXEL_ASCENDANT", "future Voxel keeps canonical identity")
+eq(reason, nil, "in-range Voxel has no admission error")
+module, moduleId, moduleError, receipt = resolver.module(
+  futureVoxel, "OverworldBattle")
+eq(module, modules.OverworldBattle,
+  "future Voxel receives only the common capability surface")
+eq(receipt.provenance, "voxel-ascendant-supported-series-best-effort",
+  "future Voxel receipt does not claim an exact-version review")
+
+for _, version in ipairs({ "3.0.0", "latest" }) do
+  voxelGame(version)
+  package, id, reason = resolver.resolve()
+  eq(package, nil, "out-of-range/malformed Voxel fails closed: " .. version)
+  eq(reason, "unsupported-version:VOXEL_ASCENDANT:" .. version,
+    "Voxel rejection names the supplied version")
+end
 
 local badCapability = voxelExport("0.1.1")
 badCapability.capabilities.wallDecals = nil
@@ -358,6 +374,34 @@ eq(moduleError, "renderer-native-owned:DRAMALESS_SHAPE",
 eq(nativeCalls, 2,
   "generic lookup after camera admission does not touch the owner loader")
 
+-- Every other official Dramaless 2.x build remains renderer-native only and
+-- cannot inherit the exact 2.0.2 camera adapter.
+local futureNativeCalls = 0
+local futureNative = {
+  version = "2.0.3",
+  lib = { require = function()
+    futureNativeCalls = futureNativeCalls + 1
+    return nativeCamera
+  end },
+  voxelArenaProvider = {}, voxelCardProvider = {}, voxel2DBattleHost = {},
+}
+gameFor("DRAMALESS_SHAPE", "2.0.3", nil, futureNative,
+  "artyrambles/DRAMALESS_SHAPE")
+package, id, reason, nativeHandle, receipt = resolver.resolve()
+eq(package, nil, "Dramaless 2.0.3 remains renderer-native only")
+eq(reason, "renderer-native-owned:DRAMALESS_SHAPE",
+  "future Dramaless 2.x preserves native ownership")
+eq(receipt.provenance, "dramaless-2.x-renderer-native-best-effort",
+  "future Dramaless receipt does not claim exact 2.0.2 review")
+local futureCamera, futureCameraId, futureCameraError = resolver.cameraModule()
+eq(futureCamera, nil, "Dramaless 2.0.3 gets no 2.0.2 camera adapter")
+eq(futureCameraId, "DRAMALESS_SHAPE",
+  "future native camera rejection keeps renderer identity")
+eq(futureCameraError, "unsupported-native-camera",
+  "future native camera rejection is explicit")
+eq(futureNativeCalls, 0,
+  "future Dramaless private loader is never probed for the exact adapter")
+
 local badCameraCalls = 0
 local badCameraMod = {
   find = function(id)
@@ -413,7 +457,7 @@ local staleExportResolver = assert(loadfile(
 local staleCamera, _, staleCameraError = staleExportResolver.cameraModule()
 eq(staleCamera, nil,
   "manifest 2.0.2 with stale runtime export 2.0.0 fails closed")
-eq(staleCameraError, "invalid-native-camera-export:DRAMALESS_SHAPE",
+eq(staleCameraError, "invalid-native-export:DRAMALESS_SHAPE",
   "runtime-version mismatch has a precise camera diagnostic")
 eq(staleExportCalls, 0,
   "runtime-version mismatch is rejected before owner-loader access")
@@ -516,6 +560,27 @@ eq(moduleId, "BATTLE_ART_VOXEL_FORK",
   "Battle Art module receipt retains its identity")
 eq(moduleError, nil, "Battle Art side-texture seam is valid")
 
+local futureBattleArt, futureBattleCalls = battleArtExport("2.9.9")
+gameFor("BATTLE_ART_VOXEL_FORK", "2.9.9", nil, futureBattleArt,
+  "absol89/DramaticShapeVoxelMod")
+package, id, reason, safeHandle, receipt = resolver.resolve()
+ok(package ~= nil, "official Battle Art 2.x is admitted best-effort")
+eq(receipt.provenance, "battle-art-supported-series-best-effort",
+  "future Battle Art does not claim an exact-version review")
+eq(receipt.cacheRepair, nil,
+  "future Battle Art does not inherit the exact 1.9.2 cache adapter")
+eq(#futureBattleCalls, 11,
+  "future Battle Art must still pass the closed capability preflight")
+
+local mismatchedBattleArt = battleArtExport("2.9.9")
+gameFor("BATTLE_ART_VOXEL_FORK", "1.9.2", nil, mismatchedBattleArt,
+  "absol89/DramaticShapeVoxelMod")
+package, id, reason = resolver.resolve()
+eq(package, nil,
+  "Battle Art manifest/export mismatch cannot acquire the 1.9.2 repair")
+eq(reason, "invalid-renderer-version:BATTLE_ART_VOXEL_FORK",
+  "Battle Art version mismatch fails before exact adapter installation")
+
 -- PotatoVoxel 1.7.2 keeps its historical owner loader, just like Battle Art.
 -- KASC binds the exact manifest/repository pair and exposes only the reviewed
 -- rendering modules needed by KASC and bundled Wilds. The stale exported
@@ -564,6 +629,16 @@ eq(potatoAlias and potatoAlias.id, "potato_voxel",
 eq(potatoAlias and potatoAlias.exports, package,
   "bundled Wilds receives only the safe PotatoVoxel facade")
 
+local futurePotato, futurePotatoCalls = potatoExport()
+gameFor("potato_voxel", "2.9.9", nil, futurePotato,
+  "ShaneMcGovernIE/potato_voxel")
+package, id, reason, safeHandle, receipt = resolver.resolve()
+ok(package ~= nil, "official PotatoVoxel 2.x is admitted best-effort")
+eq(receipt.provenance, "potato-voxel-supported-series-best-effort",
+  "future PotatoVoxel does not claim an exact-version review")
+eq(#futurePotatoCalls, 10,
+  "future PotatoVoxel must still pass the closed capability preflight")
+
 local potatoWrongRepo = potatoExport()
 gameFor("potato_voxel", "1.7.2", nil, potatoWrongRepo,
   "someone-else/potato_voxel")
@@ -572,9 +647,7 @@ eq(package, nil, "repository-spoofed PotatoVoxel fails closed")
 eq(reason, "unsupported-repository:potato_voxel",
   "Potato repository mismatch is diagnosed precisely")
 
-for _, version in ipairs({
-    "1.6.1", "1.6.9", "1.7.0", "1.7.1", "1.7.3", "2.0.0",
-}) do
+for _, version in ipairs({ "1.6.1", "1.6.9", "1.7.0", "1.7.1", "3.0.0" }) do
   local candidate = potatoExport()
   gameFor("potato_voxel", version, nil, candidate,
     "ShaneMcGovernIE/potato_voxel")
@@ -630,9 +703,9 @@ eq(package, nil, "generic DRAMALESS module access fails closed")
 eq(reason, "unsafe-export:DRAMALESS_SHAPE",
   "the generic DRAMALESS resolver is diagnosed precisely")
 
--- Unreviewed upstream builds fail closed even if their public export shape
--- looks compatible.
-for _, version in ipairs({ "1.6.2.ST", "1.6.4", "1.6.5", "2.0.0" }) do
+-- Malformed, pre-baseline and 3.x builds fail closed even if their public
+-- export shape looks compatible.
+for _, version in ipairs({ "1.6.2.ST", "1.6.1", "3.0.0" }) do
   game(version)
   package, id, reason = resolver.resolve()
   eq(package, nil, "unreviewed DRAMALESS " .. version .. " is rejected")
@@ -640,6 +713,22 @@ for _, version in ipairs({ "1.6.2.ST", "1.6.4", "1.6.5", "2.0.0" }) do
   eq(reason, "unsupported-version:DRAMALESS_SHAPE:" .. version,
     "the unsupported DRAMALESS version is named precisely")
 end
+
+local futureClassic = game("1.6.4")
+package, id, reason = resolver.resolve()
+ok(package ~= nil, "official Dramaless 1.x after baseline is best-effort")
+module, moduleId, moduleError, receipt = resolver.module(
+  futureClassic, "OverworldBattle")
+eq(module, modules.OverworldBattle,
+  "future Dramaless 1.x receives only the common capability surface")
+eq(receipt.provenance, "dramaless-supported-series-best-effort",
+  "future Dramaless 1.x does not claim an exact-version review")
+local futureClassicCamera, _, futureClassicCameraError =
+  resolver.cameraModule(futureClassic)
+eq(futureClassicCamera, nil,
+  "future Dramaless 1.x does not inherit the exact camera adapter")
+eq(futureClassicCameraError, "not-native-camera",
+  "future Dramaless 1.x stays on the common renderer path")
 
 -- Packages that have not passed the exact 0.1.90 sandbox are not aliases for
 -- the reviewed renderer and cannot create ambiguity or option ownership.
@@ -707,14 +796,14 @@ eq(reason,
 eq(resolver.findAlias(fakeMod, "DRAMATIC_SHAPE"), nil,
   "bundled Wilds never chooses between Battle Art and DRAMALESS")
 
-game("1.6.4")
+game("3.0.0")
 handles.DRAMATIC_SHAPE = {
   id = "DRAMATIC_SHAPE", version = "1.7.2", exports = export("1.7.2"),
 }
 eq(resolver.findAlias(fakeMod, "DRAMATIC_SHAPE"), nil,
-  "the historical request rejects an unreviewed DRAMALESS target")
-eq(resolver.lastError, "unsupported-version:DRAMALESS_SHAPE:1.6.4",
-  "the rejected alias reports the actual unreviewed target")
+  "the historical request rejects an out-of-range DRAMALESS target")
+eq(resolver.lastError, "unsupported-version:DRAMALESS_SHAPE:3.0.0",
+  "the rejected alias reports the actual out-of-range target")
 
 handles = { DRAMALESS_SHAPE = {
   id = "DRAMALESS_SHAPE", version = "1.6.2-ST.190.1",

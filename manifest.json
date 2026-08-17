@@ -32,31 +32,19 @@
     "allow_packages": [
       {
         "repositories": ["Roxas2712/voxel-ascendant"],
-        "version": "=0.1.0-rc.1"
-      },
-      {
-        "repositories": ["Roxas2712/voxel-ascendant"],
-        "version": "=0.1.1"
+        "version": ">=0.1.0-rc.1 <3.0.0"
       },
       {
         "repositories": ["artyrambles/DRAMALESS_SHAPE"],
-        "version": "=1.6.2-ST.190.1"
-      },
-      {
-        "repositories": ["artyrambles/DRAMALESS_SHAPE"],
-        "version": "=2.0.2"
+        "version": ">=1.6.2-ST.190.1 <3.0.0"
       },
       {
         "repositories": ["absol89/DramaticShapeVoxelMod"],
-        "version": "=1.9.0"
-      },
-      {
-        "repositories": ["absol89/DramaticShapeVoxelMod"],
-        "version": "=1.9.2"
+        "version": ">=1.9.0 <3.0.0"
       },
       {
         "repositories": ["ShaneMcGovernIE/potato_voxel"],
-        "version": "=1.7.2"
+        "version": ">=1.7.2 <3.0.0"
       }
     ],
     "reason_en": "This runtime mod has not been explicitly approved for the Kanto Ascendant 6.5 stack.",
@@ -86,12 +74,13 @@
     "jj_quick_select",
     "nuzlocke",
     "Kanto-Reforged",
-    "BATTLE_ART_VOXEL_FORK@<1.9.0 || >1.9.0 <1.9.2 || >1.9.2",
+    "VOXEL_ASCENDANT@<0.1.0-rc.1 || >=3.0.0",
+    "BATTLE_ART_VOXEL_FORK@<1.9.0 || >=3.0.0",
     "DRAMATIC_SHAPE",
-    "potato_voxel@<1.7.2 || >1.7.2",
+    "potato_voxel@<1.7.2 || >=3.0.0",
     "TERRARIUM",
     "ds_fp_ceiling",
-    "DRAMALESS_SHAPE@<1.6.2-ST.190.1 || >1.6.2-ST.190.1 <2.0.2 || >2.0.2"
+    "DRAMALESS_SHAPE@<1.6.2-ST.190.1 || >=3.0.0"
   ],
   "incompatible": [],
   "compatibility_conflicts": [
@@ -213,8 +202,8 @@
       "ids": ["DRAMATIC_SHAPE", "TERRARIUM", "ds_fp_ceiling"],
       "reason_en": "This renderer currently does not work with Gen1 Recomp 0.1.90.",
       "reason_de": "Dieser Renderer funktioniert derzeit nicht mit Gen1 Recomp 0.1.90.",
-      "resolution_en": "Use Voxel Ascendant, PotatoVoxel 1.7.2, Battle Art 1.9.0/1.9.2, a reviewed DRAMALESS build, or native 2D.",
-      "resolution_de": "Verwende Voxel Ascendant, PotatoVoxel 1.7.2, Battle Art 1.9.0/1.9.2, einen geprüften DRAMALESS-Build oder die native 2D-Darstellung.",
+      "resolution_en": "Use one official supported-series Voxel renderer or native 2D.",
+      "resolution_de": "Verwende genau einen offiziellen Voxel-Renderer aus einer zugelassenen Versionsreihe oder die native 2D-Darstellung.",
       "areas": ["render pipeline", "sandbox APIs", "battle presentation"]
     }
   ],

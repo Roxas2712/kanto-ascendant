@@ -47,11 +47,13 @@ return function(mod, labels)
     if not (voxelRenderer and type(voxelRenderer.resolve) == "function") then
       return false
     end
-    local _, rendererId = voxelRenderer.resolve(game)
+    local _, rendererId, _, _, receipt = voxelRenderer.resolve(game)
     -- The row controls the reviewed Dramaless lens only.  Voxel Ascendant's
     -- native cards are solved against its own camera and must never be
     -- rescaled by this compatibility option.
+    local version = receipt and receipt.rendererVersion
     return rendererId == "DRAMALESS_SHAPE"
+      and (version == "1.6.2-ST.190.1" or version == "2.0.2")
   end
 
   local function set(value, game)

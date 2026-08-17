@@ -22,10 +22,11 @@ Current conflicts:
 | Quick Select | `jj_quick_select` | `Roxas2712/pokemon-quick-select` |
 | Nuzlocke | `nuzlocke` | `bryanthaboi/nuzlocke` |
 | Kanto Reforged (unreviewed combination) | `Kanto-Reforged` | repository `1Jamie/Kanto-Reforged` is documentation only on stock 0.1.90 |
-| Other Battle Art builds | `BATTLE_ART_VOXEL_FORK@<1.9.0 \|\| >1.9.0 <1.9.2 \|\| >1.9.2` | only separate upstream `1.9.0` and exact reviewed `1.9.2` from `absol89/DramaticShapeVoxelMod` are admitted |
-| Exact PotatoVoxel release | `potato_voxel@<1.7.2 \|\| >1.7.2` | only `ShaneMcGovernIE/potato_voxel` 1.7.2 is admitted; upstream `LOGS TO DEV` is ON by default |
+| Other Voxel Ascendant builds | `VOXEL_ASCENDANT@<0.1.0-rc.1 \|\| >=3.0.0` | official baseline through 2.x is admitted best-effort |
+| Other Battle Art builds | `BATTLE_ART_VOXEL_FORK@<1.9.0 \|\| >=3.0.0` | official `absol89/DramaticShapeVoxelMod` baseline through 2.x is admitted best-effort |
+| Other PotatoVoxel builds | `potato_voxel@<1.7.2 \|\| >=3.0.0` | official baseline through 2.x is admitted best-effort; upstream `LOGS TO DEV` is ON by default |
 | Renderer archives currently broken on 0.1.90 | `DRAMATIC_SHAPE` | `TERRARIUM`, `ds_fp_ceiling` |
-| Other Dramaless builds | `DRAMALESS_SHAPE@<1.6.2-ST.190.1 \|\| >1.6.2-ST.190.1 <2.0.2 \|\| >2.0.2` | only the hardened `1.6.2-ST.190.1` transition build and exact official `2.0.2` release are admitted |
+| Other Dramaless builds | `DRAMALESS_SHAPE@<1.6.2-ST.190.1 \|\| >=3.0.0` | official baseline through 2.x is admitted best-effort; all 2.x builds are native-only |
 
 These packages overlap Ascendant's native follower, party, renderer and QoL
 hooks. Crystal/shiny presentation and Attack-DV gender/breeding are also fully
@@ -46,37 +47,28 @@ manifest ID does not match this release's hard gate.
 To extend the guard, add the other package's exact manifest `id` to
 `manifest.json`, document it in the table above and add it to
 `tests/mod_conflicts_test.lua`. Never match display names or folder names.
-Use stable manifest IDs and canonical `owner/repository` slugs. Language packs,
-the recommended `VOXEL_ASCENDANT 0.1.1` package, its already reviewed
-`0.1.0-rc.1` predecessor for existing installations, the exact reviewed
-`DRAMALESS_SHAPE 1.6.2-ST.190.1` transition build, and catchable-151 remain
-supported partners. Exact upstream `DRAMALESS_SHAPE 2.0.2` is also supported
-in renderer-native mode: its world, battle cards and HUD remain native-owned,
-while an exact-shape resolver exposes only the reviewed camera-preset control.
-Its official release ZIP SHA-256 is
-`85e2f866bd7badce4c5d97ccbf1f8b88b2a9fd30ec0659454c187d7398b808a7`.
-Exact upstream `BATTLE_ART_VOXEL_FORK 1.9.0` and `1.9.2` are also supported,
-separately installed renderers. Exact `1.9.2` adds only a bounded lifecycle
-repair: an unavailable or ineligible optional raw-mesh cache may not discard a
-live GPU mesh that was already built. Eligible cache-write failures remain
-errors and are never reported as successful writes. Kanto Ascendant neither
-bundles nor mutates Battle Art assets, camera or options and consumes only a
-local allowlisted facade.
-Exact upstream `potato_voxel 1.7.2` is supported through the same closed-facade
-rule while retaining its own camera, HUD, quality settings and cache. It requests
-network access and sends diagnostic logs when its upstream `LOGS TO DEV` option
-is ON (the default); users can turn that option OFF. Renderer packages conflict
-with each other, so install only one. Voxel Ascendant, PotatoVoxel, Battle Art
-and Dramaless are alternatives and must never be enabled together.
+Use stable manifest IDs and canonical `owner/repository` slugs. Language packs
+and catchable-151 remain supported partners. Official Voxel Ascendant, Battle
+Art, Dramaless and PotatoVoxel packages are admitted from the table's baseline
+through 2.x on a best-effort basis. Every Dramaless 2.x build is renderer-native;
+only exact `2.0.2` receives the fixed camera control. Only exact Battle Art
+`1.9.2` receives its bounded optional-cache repair. Other in-range releases
+receive the common closed capability surface and never inherit an exact
+adapter. PotatoVoxel retains its camera, HUD, quality settings and cache; its
+upstream `LOGS TO DEV` option is ON by default and can be disabled.
+
+Supported-series admission avoids a KASC update for every renderer release,
+but is not a guarantee for every upstream change. Roll the external renderer
+back if an update breaks compatibility. Canonical repositories are the support
+contract; rich managers and runtime metadata reject explicit mismatches, while
+stock 0.1.90 primarily enforces the ID/version fence. Renderer packages
+conflict with each other, so install exactly one.
 The current
 standalone shiny-indicator release
 is a hard conflict: it overlaps built-in presentation hooks and still uses
-APIs denied by the reviewed sandbox. Battle Art 1.8.3, unreviewed future Battle
-Art releases, Dramatic Shape, unreviewed PotatoVoxel versions, Terrarium and First Person do not
-work in this exact compatibility set. Stock 0.1.90 blocks them through classic
-ID/version rules; exact Battle Art 1.9.0 and 1.9.2 are exempt. Other Dramaless versions are
-rejected while `1.6.2-ST.190.1` and exact official `2.0.2` remain explicitly
-safe. Standalone Wilds is a hard conflict because
+APIs denied by the reviewed sandbox. Pre-baseline and 3.x renderer builds,
+unversioned packages, Dramatic Shape, Terrarium and First Person do not work in
+this compatibility set. Standalone Wilds is a hard conflict because
 Ascendant bundles the living-world core. Useful Bag and Quick Select are hard conflicts now that their complete
 replacement systems are configurable inside Ascendant.
 The standalone Nuzlocke is likewise a hard conflict because Ascendant now

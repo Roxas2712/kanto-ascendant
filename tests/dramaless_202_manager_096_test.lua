@@ -1,7 +1,6 @@
 -- Exercise the real 0.1.96-era manager/loader implementation, not a copied
--- semver parser. DRAMALESS 2.0.2 may be toggled beside KASC only as its
--- renderer-native package; every adjacent or unknown version must remain
--- blocked before the KASC entry can start.
+-- semver parser. Official DRAMALESS releases from the hardened baseline
+-- through 2.x may be toggled beside KASC best-effort; 2.x stays native-owned.
 
 package.path = "./?.lua;./?/init.lua;" .. package.path
 
@@ -53,6 +52,13 @@ assert(not has(result.conflicts, "DRAMALESS_SHAPE"),
   "0.1.96 manager still blocks exact DRAMALESS 2.0.2")
 assert(result.apply.DRAMALESS_SHAPE ~= false,
   "0.1.96 manager disabled the exact approved renderer")
+local future = draml("2.9.9")
+result = ManagerState.resolveToggle({
+  kanto_ascendant = ascendant, DRAMALESS_SHAPE = future,
+}, "kanto_ascendant", true, { DRAMALESS_SHAPE = true })
+assert(not has(result.conflicts, "DRAMALESS_SHAPE")
+    and result.apply.DRAMALESS_SHAPE ~= false,
+  "0.1.96 manager blocked an in-range DRAMALESS release")
 
 -- Production Loader check: the accepted version passes the actual static
 -- conflict gate and both stub entries can initialize. The real KASC entry is
@@ -80,13 +86,13 @@ assert(loader.mods.kanto_ascendant.state == "loaded",
 assert(loader.mods.DRAMALESS_SHAPE.state == "loaded",
   "approved 2.0.2 itself did not load")
 
-for _, version in ipairs({ "1.6.4", "2.0.0", "2.0.1", "2.0.3", "3.0.0" }) do
+for _, version in ipairs({ "1.6.2-ST.190", "1.6.1", "3.0.0", "3.1.0" }) do
   local candidate = draml(version)
   result = ManagerState.resolveToggle({
     kanto_ascendant = ascendant, DRAMALESS_SHAPE = candidate,
   }, "kanto_ascendant", true, { DRAMALESS_SHAPE = true })
   assert(#(result.conflicts or {}) > 0,
-    "0.1.96 manager allowed unreviewed DRAMALESS " .. version)
+    "0.1.96 manager allowed out-of-range DRAMALESS " .. version)
 end
 
 -- Engine 0.1.96 does not expose the later rich allow-package policy to this

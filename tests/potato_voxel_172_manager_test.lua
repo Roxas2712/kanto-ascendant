@@ -1,6 +1,6 @@
 -- Exercise the real 0.1.96-era manager/loader implementation, not a copied
--- semver parser. PotatoVoxel 1.7.2 is admitted only as the exact reviewed
--- package; adjacent versions and repository spoofs remain blocked.
+-- semver parser. Official PotatoVoxel releases from the 1.7.2 baseline
+-- through 2.x are admitted best-effort; older/3.x versions remain blocked.
 
 package.path = "./?.lua;./?/init.lua;" .. package.path
 
@@ -54,6 +54,13 @@ assert(not has(result.conflicts, "potato_voxel"),
   "0.1.96 manager still blocks exact PotatoVoxel 1.7.2")
 assert(result.apply.potato_voxel ~= false,
   "0.1.96 manager disabled the exact approved renderer")
+local future = potato("2.9.9")
+result = ManagerState.resolveToggle({
+  kanto_ascendant = ascendant, potato_voxel = future,
+}, "kanto_ascendant", true, { potato_voxel = true })
+assert(not has(result.conflicts, "potato_voxel")
+    and result.apply.potato_voxel ~= false,
+  "0.1.96 manager blocked an in-range PotatoVoxel release")
 
 -- Production Loader check: the accepted package passes the actual static
 -- conflict gate and both entries initialize. The real package/API contract
@@ -84,7 +91,7 @@ assert(loader.mods.potato_voxel.state == "loaded",
   "approved PotatoVoxel itself did not load")
 
 for _, version in ipairs({
-    "1.6.1", "1.6.9", "1.7.0", "1.7.1", "1.7.3", "2.0.0",
+    "1.6.1", "1.6.9", "1.7.0", "1.7.1", "3.0.0", "3.1.0",
 }) do
   local candidate = potato(version)
   result = ManagerState.resolveToggle({
@@ -94,7 +101,7 @@ for _, version in ipairs({
   -- its UI refuses to apply that unresolved result. It does not yet rewrite
   -- the conflicting mod to `false` (newer ManagerState builds may do so).
   assert(#(result.conflicts or {}) > 0,
-    "0.1.96 manager missed unreviewed PotatoVoxel " .. version)
+    "0.1.96 manager missed out-of-range PotatoVoxel " .. version)
 end
 
 local wrongRepo = potato("1.7.2", "someone-else/potato_voxel")

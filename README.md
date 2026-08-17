@@ -28,8 +28,8 @@ shadow for RC9.
 > blocks Ascendant while one of those conflicts remains enabled; it does not
 > silently modify or disable the other package. Reforged remains usable on its
 > own. It also blocks renderer archives that currently do not work with 0.1.90
-> and points to Voxel Ascendant, exact upstream Battle Art 1.9.0/1.9.2, hardened
-> Dramaless or native 2D instead. No
+> and points to one official supported-series Voxel renderer or native 2D
+> instead. No
 > compatibility or defect claim about Reforged is implied.
 
 > [!IMPORTANT]
@@ -64,8 +64,9 @@ collapsed so players can reveal only the information they want.
 - Restores Yellow follower/partner presentation and keeps Red, Blue and Green
   trainer identity consistent in normal battles, tutorials and Trainer Cards.
   The complete party can now be shown as up to six followers.
-- Reviews exact Battle Art 1.9.2, Dramaless 2.0.2 and PotatoVoxel 1.7.2 package
-  contracts. Adjacent versions and unreviewed combinations remain unsupported.
+- Admits official Voxel Ascendant, Battle Art, Dramaless and PotatoVoxel builds
+  from their current baselines through 2.x on a best-effort basis. Exact
+  adapters stay pinned, and only one renderer may run at a time.
 
 See the full spoiler-light [6.5.4 release notes](RELEASE_NOTES_6.5.4.md).
 
@@ -1252,58 +1253,37 @@ art remains authentic.
 
 Kanto Ascendant does not require a Voxel renderer: the complete campaign,
 including the fissures, remains available through the engine's native 2D
-renderer. For engine 0.1.90, the recommended optional renderer is the standalone
-`VOXEL_ASCENDANT 0.1.1` package. It provides a sandbox-native voxel
-world, native-card MAP/DISCS battles and a public wall-decal API. The dedicated
-`0.1.0-rc.1` package remains accepted for existing installations and receives
-the same Kanto Ascendant sprite anchoring and scaling adapter; `0.1.1` is the
-recommended update. The dedicated
-`DRAMALESS_SHAPE 1.6.2-ST.190.1` compatibility build remains a reviewed,
-hardened alternative. The exact upstream
-`DRAMALESS_SHAPE 2.0.2` release from
-[`artyrambles/DRAMALESS_SHAPE`](https://github.com/artyrambles/DRAMALESS_SHAPE/releases/tag/v2.0.2)
-is also reviewed in renderer-native mode: it owns its own voxel world and
-native battle cards and HUD. After exact version, repository, export and
-camera-shape validation, Ascendant may request only the literal `BattleCam`
-module inside its resolver and expose a narrow camera-preset control; the raw
-camera table, private loader, renderer modules and HUD authority never escape
-that boundary. The reviewed official `2.0.2` release ZIP has SHA-256
-`85e2f866bd7badce4c5d97ccbf1f8b88b2a9fd30ec0659454c187d7398b808a7`.
-The exact upstream `potato_voxel 1.7.2` release from
-[`ShaneMcGovernIE/potato_voxel`](https://github.com/ShaneMcGovernIE/potato_voxel/releases/tag/v1.7.2)
-is a reviewed performance-first alternative for constrained devices. PotatoVoxel
-keeps its native camera, HUD, quality controls and cache; Ascendant exposes only
-an allowlisted renderer facade and never applies the Dramaless camera preset.
-Its official release ZIP has SHA-256
-`200153d7623db14e08925d1b51f99f8ccbfa5e32db134922f51c8179bd64fd33`.
-PotatoVoxel 1.7.2 requests network access and its upstream `LOGS TO DEV` option
-is ON by default; switch it OFF in Voxel Settings or the mod manager if you do
-not want diagnostic logs sent to its developer.
-The separately installed upstream
-`BATTLE_ART_VOXEL_FORK 1.9.0` and exact official `1.9.2` are the third reviewed
-choice. They retain complete ownership of their sprites, trainers, animations,
-camera, menus and options; Kanto Ascendant only builds a local closed module
-facade and adapts HUD overlays plus map-authored wall decals. For exact `1.9.2`,
-Ascendant also repairs an upstream lifecycle edge where an unavailable or
-ineligible optional raw-mesh cache could discard an already completed live 3D
-mesh; genuine eligible storage errors stay fatal. No Battle Art file or asset
-is copied, rewritten or included in the Kanto Ascendant ZIP. Battle Art 1.8.3
-and every unreviewed Battle Art version remain blocked by an exact version
-rule. Dramatic Shape, unreviewed PotatoVoxel versions, Terrarium and First
-Person remain blocked; every other Dramaless version is
-blocked while only `.190.1` and the exact upstream `2.0.2` release remain
-supported. Install only one Voxel renderer; Voxel Ascendant, PotatoVoxel,
-Battle Art and Dramaless are alternatives and must not be enabled together.
+renderer. Official packages from their current baselines through 2.x are
+admitted on a best-effort basis: Voxel Ascendant `>=0.1.0-rc.1 <3.0.0`,
+Dramaless `>=1.6.2-ST.190.1 <3.0.0`, Battle Art `>=1.9.0 <3.0.0`, and
+PotatoVoxel `>=1.7.2 <3.0.0`. Use only one renderer. Unversioned packages, 3.x
+builds and multi-renderer setups fail closed. Canonical repositories are the
+support contract; rich managers and runtime metadata reject explicit mismatches,
+while older managers primarily enforce the ID/version fence.
 
-The reviewed Battle Art packages are the upstream 1.9.0 and 1.9.2 release assets
-from [`absol89/DramaticShapeVoxelMod`](https://github.com/absol89/DramaticShapeVoxelMod/releases).
-Their SHA-256 values are
-`3ba60ad7dc8443f2a337c147ca8be31ce3661fd549cf9b4e4e000206c3d780c8`
-(1.9.0) and
-`144e53200a06b6652433804bd89f18d1d378a15a63fefedaa4da22401c313f24`
-(1.9.2). They must be installed separately. Kanto Ascendant does not mirror
-either archive; the artwork inside is not covered by Kanto Ascendant's
-distribution terms.
+The known baselines keep their exact reviewed adapters. Exact Dramaless
+`2.0.2` is renderer-native and alone receives the narrow fixed `BattleCam`
+control; every other Dramaless 2.x build remains completely native-owned.
+Exact Battle Art `1.9.2` alone receives the optional mesh-cache lifecycle
+repair. Future in-range releases receive only the common closed capability
+surface and never inherit those exact adapters. PotatoVoxel keeps its own
+camera, HUD, quality controls and cache; its upstream `LOGS TO DEV` option is
+ON by default and can be disabled in Voxel Settings or the mod manager.
+
+Series admission is not a promise that an untested upstream release cannot
+change its API or visuals. If a renderer update breaks Kanto Ascendant, roll
+that renderer back to the last working release and report it; a separate KASC
+allowlist update is not required for each 1.x/2.x release. Dramatic Shape,
+Terrarium and First Person remain blocked. External renderer assets are never
+included in the Kanto Ascendant ZIP.
+
+For reproducibility, the exact reviewed Dramaless 2.0.2 and PotatoVoxel 1.7.2
+release ZIP hashes are respectively
+`85e2f866bd7badce4c5d97ccbf1f8b88b2a9fd30ec0659454c187d7398b808a7` and
+`200153d7623db14e08925d1b51f99f8ccbfa5e32db134922f51c8179bd64fd33`.
+The reviewed Battle Art 1.9.0/1.9.2 hashes are
+`3ba60ad7dc8443f2a337c147ca8be31ce3661fd549cf9b4e4e000206c3d780c8` and
+`144e53200a06b6652433804bd89f18d1d378a15a63fefedaa4da22401c313f24`.
 
 Species-accurate normal and shiny 16x16 Gen-2-style walking sprites are also
 bundled for every Johto Pokémon. The repair utility can refresh them:

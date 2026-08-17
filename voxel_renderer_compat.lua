@@ -1,18 +1,20 @@
 -- Single authority for optional Voxel-renderer discovery.
 --
--- Engine 0.1.90 sandboxes every mod. Voxel Ascendant is the standalone,
--- sandbox-native renderer; the dedicated DRAMALESS 1.6.2-ST.190.1 build,
--- upstream Battle Art 1.9.0/1.9.2 and PotatoVoxel 1.7.2 are exact reviewed
--- packages. DRAMALESS 2.0.2 is
+-- Engine 0.1.90 sandboxes every mod. Official Voxel Ascendant, DRAMALESS,
+-- Battle Art and PotatoVoxel releases in the declared compatible series may
+-- use this authority on a best-effort basis when they still expose the common
+-- closed capability surface below. DRAMALESS 2.0.2 is
 -- separately admitted as a renderer-native stack: it owns its modern world,
 -- native-card battle path and HUD. Its exact 2.0.2 release has one deliberately
 -- narrow exception: this resolver may inspect the literal reviewed BattleCam
 -- module and expose only fixed camera-preset control in order to preserve the
 -- user-facing Classic/Wide option. The raw table, generic modules, HUD and
--- owner authority never escape that exception. Older upstream
--- DRAMALESS, DRAMATIC_SHAPE, Battle Art and First Person builds touch APIs that
--- the reviewed sandbox removes, so this authority must reject them instead of
--- advertising a partial bridge.
+-- owner authority never escape that exception. Exact-version repairs remain
+-- exact; future releases never inherit a private adapter merely because their
+-- version falls inside an admitted series. Older releases, repository spoofs,
+-- malformed versions and incompatible capability shapes fail closed.
+
+local Semver = require("src.mods.Semver")
 
 return function(ownerMod)
   local R = {}
@@ -28,6 +30,31 @@ return function(ownerMod)
     BATTLE_ART_VOXEL_FORK = "1.9.2",
     potato_voxel = "1.7.2",
   }
+  -- These are admission ranges, not tested-version guarantees. The rich
+  -- package policy also binds each row to its canonical GitHub repository;
+  -- this runtime repeats an explicit repository check whenever the loader
+  -- exposes that metadata and always validates the common capability facade.
+  R.approvedVersionRanges = {
+    VOXEL_ASCENDANT = {
+      range = ">=0.1.0-rc.1 <3.0.0",
+      provenance = "voxel-ascendant-supported-series-best-effort",
+    },
+    DRAMALESS_SHAPE = {
+      range = ">=1.6.2-ST.190.1 <3.0.0",
+      provenance = "dramaless-supported-series-best-effort",
+    },
+    BATTLE_ART_VOXEL_FORK = {
+      range = ">=1.9.0 <3.0.0",
+      provenance = "battle-art-supported-series-best-effort",
+    },
+    potato_voxel = {
+      range = ">=1.7.2 <3.0.0",
+      provenance = "potato-voxel-supported-series-best-effort",
+    },
+  }
+  -- Exact known releases retain precise provenance and only the explicitly
+  -- version-gated adapters below. Other in-range releases use the generic
+  -- best-effort provenance above.
   R.approvedVersions = {
     VOXEL_ASCENDANT = {
       ["0.1.0-rc.1"] = "roxas2712-voxel-ascendant-mit-v161-rc1",
@@ -55,7 +82,15 @@ return function(ownerMod)
       ["2.0.2"] = "artyrambles-dramaless-2.0.2-native-card-provider",
     },
   }
+  R.nativeRendererRanges = {
+    DRAMALESS_SHAPE = {
+      range = ">=2.0.0 <3.0.0",
+      provenance = "dramaless-2.x-renderer-native-best-effort",
+    },
+  }
   R.approvedRepositories = {
+    VOXEL_ASCENDANT = "roxas2712/voxel-ascendant",
+    DRAMALESS_SHAPE = "artyrambles/dramaless_shape",
     BATTLE_ART_VOXEL_FORK = "absol89/dramaticshapevoxelmod",
     potato_voxel = "shanemcgovernie/potato_voxel",
   }
@@ -136,6 +171,25 @@ return function(ownerMod)
       or type(exported) == "table" and exported.github
       or nil
     return type(repository) == "string" and repository:lower() or nil
+  end
+
+  local function admittedVersion(id, exported, handle)
+    local policy = R.approvedVersionRanges[id]
+    if not policy then return nil, "unsupported-renderer:" .. tostring(id) end
+    local value = versionOf(handle, exported)
+    if value == nil then return nil, "missing-version:" .. tostring(id) end
+    local version = tostring(value)
+    if not Semver.parse(version)
+        or not Semver.satisfies(version, policy.range) then
+      return nil, ("unsupported-version:%s:%s"):format(
+        tostring(id), version)
+    end
+    local expectedRepository = R.approvedRepositories[id]
+    local runtimeRepository = repositoryOf(handle, exported)
+    if runtimeRepository ~= nil and runtimeRepository ~= expectedRepository then
+      return nil, "unsupported-repository:" .. tostring(id)
+    end
+    return version, policy
   end
 
   local function readonly(values)
@@ -346,6 +400,9 @@ return function(ownerMod)
     if runtimeRepository ~= nil and runtimeRepository ~= expectedRepository then
       return nil, "unsupported-repository:" .. tostring(id)
     end
+    if tostring(exported.version) ~= version then
+      return nil, "invalid-renderer-version:" .. tostring(id)
+    end
     if type(exported.battleStage) ~= "table"
         or exported.battleStage.apiVersion ~= 1
         or exported.battleStage.sourceModId ~= id
@@ -493,15 +550,12 @@ return function(ownerMod)
         or type(exported.lib.require) ~= "function" then
       return false, "invalid-export:" .. tostring(id)
     end
-    local version = versionOf(handle, exported)
+    local version, policyOrReason = admittedVersion(id, exported, handle)
+    if not version then return false, policyOrReason end
     local approved = R.approvedVersions[id]
-    if approved and version == nil then
-      return false, "missing-version:" .. tostring(id)
-    end
-    version = version and tostring(version) or nil
-    if approved and not approved[version] then
-      return false, ("unsupported-version:%s:%s"):format(
-        tostring(id), tostring(version))
+    local policy = policyOrReason
+    if id == "DRAMALESS_SHAPE" and tostring(exported.version) ~= version then
+      return false, "invalid-renderer-version:" .. tostring(id)
     end
     local safeHandle, cacheRepair
     if id == "BATTLE_ART_VOXEL_FORK" then
@@ -563,7 +617,7 @@ return function(ownerMod)
       schema = "ka-voxel-renderer-capability/v1",
       rendererId = id,
       rendererVersion = version,
-      provenance = approved and approved[version] or "unversioned",
+      provenance = approved and approved[version] or policy.provenance,
       export = (id == "BATTLE_ART_VOXEL_FORK" or id == "potato_voxel")
         and "kasc-local-allowlist/v1" or "lib.require",
       -- Usually nil on 0.1.90: mod.find() does not expose manifest metadata.
@@ -579,6 +633,20 @@ return function(ownerMod)
     return true, nil, receipt, exported
   end
 
+  local function validateNativeDramalessShape(row, version)
+    local exported = row and row.exported
+    if type(exported) ~= "table"
+        or tostring(exported.version) ~= version
+        or type(exported.voxelArenaProvider) ~= "table"
+        or type(exported.voxelCardProvider) ~= "table"
+        or type(exported.voxel2DBattleHost) ~= "table"
+        or type(exported.lib) ~= "table"
+        or type(exported.lib.require) ~= "function" then
+      return false, "invalid-native-export:DRAMALESS_SHAPE"
+    end
+    return true
+  end
+
   local function choose(candidates)
     lastChoice = nil
     if #candidates == 0 then return nil, nil, "renderer-absent" end
@@ -590,14 +658,24 @@ return function(ownerMod)
     end
     local row = candidates[1]
     lastChoice = row
+    local version, admissionOrReason = admittedVersion(
+      row.id, row.exported, row.handle)
+    if not version then return nil, nil, admissionOrReason end
     local nativeVersions = R.nativeRendererVersions[row.id]
     local nativeProvenance = nativeVersions
-      and nativeVersions[tostring(versionOf(row.handle, row.exported))]
+      and nativeVersions[version]
+    local nativeRange = R.nativeRendererRanges[row.id]
+    if not nativeProvenance and nativeRange
+        and Semver.satisfies(version, nativeRange.range) then
+      nativeProvenance = nativeRange.provenance
+    end
     if nativeProvenance then
-      -- Do not probe or forward `exports.lib`: DRAMALESS 2.0.2's legacy V
-      -- table retains its renderer owner's mod/path/data authority. The one
-      -- fixed BattleCam request lives in cameraModule() below; its built-in
-      -- arena/card host and native HUD remain fully renderer-owned.
+      local nativeOk, nativeReason = validateNativeDramalessShape(row, version)
+      if not nativeOk then return nil, nil, nativeReason end
+      -- Do not probe or forward `exports.lib`: DRAMALESS 2.x retains its
+      -- renderer owner's mod/path/data authority. The one fixed BattleCam
+      -- request remains exact to 2.0.2 in cameraModule() below; every 2.x
+      -- arena/card host and native HUD remains fully renderer-owned.
       return nil, row.id, "renderer-native-owned:" .. row.id,
         nil, {
           schema = "ka-voxel-renderer-capability/v1",
