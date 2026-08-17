@@ -148,7 +148,7 @@ with tempfile.TemporaryDirectory(prefix="ka-sandbox-0186-") as temp_name:
           "postgame.lua", "truecolor_world_compat.lua", "sprite_assets.lua",
           "shiny_system.lua", "legacy_archive.lua", "single_follower.lua",
           "identity_migration.lua", "frlg_trainer_pack.lua", "internal_wilds.lua",
-          "title_intro.lua",
+          "wilds_spawn_safety.lua", "title_intro.lua",
         }) do
           local value = loadSibling(mod, file)
           assert(type(value) == (expected[file] or "function"),

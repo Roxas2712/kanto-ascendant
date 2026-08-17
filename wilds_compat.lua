@@ -16,6 +16,7 @@ return function(mod, opts)
   local spriteAssets = opts.spriteAssets
   local extendedRuntime = opts.extendedRuntime
   local voxelRenderer = opts.voxelRenderer
+  local spawnSafety = opts.spawnSafety
   local encounterLevels = opts.encounterLevels
     or johtoResearch.encounterLevels or {
       routeAverage = function() return nil end,
@@ -514,6 +515,9 @@ return function(mod, opts)
     local logic = type(wilds) == "table" and wilds.logic or nil
     if type(logic) ~= "table" or type(logic.trySpawn) ~= "function" then
       return false, "Wilds of Kanto is not active"
+    end
+    if spawnSafety and type(spawnSafety.install) == "function" then
+      spawnSafety.install(wilds, game)
     end
     W.wildsVersion = wilds.version
     syncLivingWorldOptions(game)

@@ -1713,6 +1713,15 @@ return function(mod)
   mod.exports.signalsHub = signalsHub
   mod.exports.signalsWilds = signalsWilds
 
+  local wildsSpawnSafety = loadSibling(mod, "wilds_spawn_safety.lua")(mod)
+  -- Ascendant-owned script cells that are not represented by vanilla ROM
+  -- object events.  Future scripted content uses the same explicit seam.
+  wildsSpawnSafety.reserveCells("OAKS_LAB", {
+    { x = 0, y = 1, approaches = true }, -- Legacy terminal + use cell
+    { x = 1, y = 1, approaches = true }, -- Legacy terminal + use cell
+    { x = 5, y = 5 },                    -- fresh-run scripted landing
+  }, "Ascendant Oak's Lab scripted position")
+  mod.exports.wildsSpawnSafety = wildsSpawnSafety
   local makeWildsCompat = loadSibling(mod, "wilds_compat.lua")
   local wildsCompat = makeWildsCompat(mod, {
     johtoResearch = johtoResearch,
@@ -1724,6 +1733,7 @@ return function(mod)
     contentEnabled = contentEnabled,
     encounterLevels = johtoEncounterLevels,
     voxelRenderer = mod.exports.voxelRendererCompat,
+    spawnSafety = wildsSpawnSafety,
   })
   mod.exports.wildsCompat = wildsCompat
   -- A clean Ascendant install must own a working visible-spawn provider.
@@ -1733,6 +1743,7 @@ return function(mod)
   local internalWilds = loadSibling(mod, "internal_wilds.lua")(mod, {
     extendedRuntime = mod.exports.extendedSpeciesRuntime,
     voxelRenderer = mod.exports.voxelRendererCompat,
+    spawnSafety = wildsSpawnSafety,
   })
   mod.exports.internalWilds = internalWilds
   local ascendantData = loadSibling(mod, "ascendant_data.lua")

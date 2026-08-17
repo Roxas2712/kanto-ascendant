@@ -159,6 +159,7 @@ jobs:
           luajit ../kanto-ascendant/tests/dramaless_camera_compat_test.lua
           luajit ../kanto-ascendant/tests/dramaless_camera_option_menu_test.lua
           luajit ../kanto-ascendant/tests/dramaless_wall_decals_compat_test.lua
+          luajit ../kanto-ascendant/tests/wilds_spawn_safety_655_test.lua
           GEN1RECOMP_DIR=. luajit ../kanto-ascendant/tests/legacy_archive_test.lua
           GEN1RECOMP_DIR=. luajit ../kanto-ascendant/tests/legacy_journey_test.lua
           GEN1RECOMP_DIR=. luajit ../kanto-ascendant/tests/legacy_locker_quantity_test.lua

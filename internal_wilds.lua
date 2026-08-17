@@ -185,6 +185,9 @@ return function(mod, opts)
   local external = mod.find and mod.find("overworld_wild_spawns")
   if external and type(external.exports) == "table" then
     installAuthoredJohtoMapExclusion(external.exports)
+    if opts.spawnSafety and type(opts.spawnSafety.install) == "function" then
+      opts.spawnSafety.install(external.exports)
+    end
     return {
       bundled = false,
       version = external.version,
@@ -560,6 +563,9 @@ return function(mod, opts)
   end
   E.occupancy = function() return logic.occupancy end
   installAuthoredJohtoMapExclusion(E)
+  if opts.spawnSafety and type(opts.spawnSafety.install) == "function" then
+    opts.spawnSafety.install(E)
+  end
 
   proxy.log:info("spawn core ready (followers/menu ownership: Ascendant)")
   return {
