@@ -170,7 +170,7 @@ return function(game)
   check("Green family line keeps Green's player portrait",
     speech.pic == speech.playerPic)
   check("Green granddaughter capture",
-    U.shot(game, dir .. "/12_green_granddaughter_relation.png"))
+    U.shot(game, dir .. "/12_green_pallet_relation.png"))
 
   speech = newSpeech("GREEN")
   game.save.player.rival = "RAY"

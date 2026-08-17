@@ -20,10 +20,18 @@ local storyKeys = {
   "_OaksLabRivalWhatAboutMeText",
   "_OaksLabRivalWhatDidYouCallMeForText",
   "_OaksLabRivalGoAheadAndChooseText",
+  "_OaksLabRivalIllGetABetterPokemonThanYou",
   "_OaksLabRivalIllTakeThisOneText",
+  "_OaksLabRivalReceivedMonText",
+  "_OaksLabRivalTakesText1",
+  "_OaksLabRivalTakesText2",
+  "_OaksLabRivalTakesText3",
+  "_OaksLabRivalTakesText4",
+  "_OaksLabRivalTakesText5",
   "_OaksLabRivalIllTakeYouOnText",
   "_OaksLabRivalLeaveItAllToMeText",
   "_OaksLabRivalSmellYouLaterText",
+  "_OaksLabRivalMyPokemonHasGrownStrongerText",
   "_OaksLabRivalMyPokemonLooksStrongerText",
   "_OaksLabRivalIPickedTheWrongPokemonText",
   "_OaksLabRivalAmIGreatOrWhatText",
@@ -65,7 +73,7 @@ end
 
 local storyKeySet = {}
 for _, key in ipairs(storyKeys) do storyKeySet[key] = true end
-check(#storyKeys == 34, "story contract no longer contains 34 keys")
+check(#storyKeys == 42, "story contract no longer contains 42 keys")
 check(dialogue.rival.BLUE == nil,
   "Blue gained an overlay instead of preserving native R/B/Y dialogue")
 for _, identity in ipairs({ "RED", "GREEN" }) do
@@ -74,7 +82,7 @@ for _, identity in ipairs({ "RED", "GREEN" }) do
     count = count + 1
     check(storyKeySet[key], identity .. " has an unsupported story key " .. key)
   end
-  check(count == #storyKeys, identity .. " does not own exactly 34 story keys")
+  check(count == #storyKeys, identity .. " does not own exactly 42 story keys")
   for _, key in ipairs(storyKeys) do
     local pair = rows[key]
     check(type(pair) == "table" and type(pair[1]) == "string"

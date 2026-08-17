@@ -572,8 +572,8 @@ return function(mod, opts)
       return text("Ah, my grandson!\fYour journey begins\ntoday.",
         "Ah, mein Enkel!\fDeine Reise beginnt\nheute.")
     elseif state.player_character == "GREEN" then
-      return text("Ah, my grand-\ndaughter!\fYour journey begins\ntoday.",
-        "Ah, meine Enkelin!\fDeine Reise beginnt\nheute.")
+      return text("Ah, {PLAYER}!\fYour journey begins\ntoday.",
+        "Ah, {PLAYER}!\fDeine Reise beginnt\nheute.")
     end
     return nil
   end

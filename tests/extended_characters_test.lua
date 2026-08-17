@@ -753,8 +753,10 @@ T.check(not labText._OaksLabRivalWhatAboutMeText:find("Gramps", 1, true),
   "all Lab rival lines lose the inherited grandson wording")
 characters.select("BLUE")
 characters.refreshVisuals(storyGame)
-T.check(labText._OaksLabRivalGrampsText:find("Grandpa", 1, true) ~= nil,
-  "Green rival keeps her family role and playful voice")
+T.check(labText._OaksLabRivalGrampsText:find("Professor", 1, true) ~= nil,
+  "Green rival keeps her playful voice without an invented family role")
+T.check(not labText._OaksLabRivalGrampsText:find("Grandpa", 1, true),
+  "Green rival never inherits Blue's grandson wording")
 T.check(labText._CeruleanCityRivalPreBattleText:find("team check", 1, true) ~= nil,
   "Green personality reaches rival battles outside Oak's Lab")
 characters.select("RED")
@@ -780,7 +782,7 @@ local steps = run.loader.hooks:call("intro.oak_speech.build",
 T.eq(steps[2].id, "extended_character_selection",
   "New Game opens the default selector before player naming")
 T.eq(steps[4].id, "extended_character_relation",
-  "Blue/Green receive a concise family introduction")
+  "Blue receives his family cue and Green her Pallet introduction")
 T.eq(steps[7].id, "extended_rival_confirmation",
   "Oak confirms the chosen rival name after the naming screen")
 for _, step in ipairs(steps) do
@@ -906,8 +908,32 @@ introStep("ask_rival_name").run({
   end,
 }, function() end)
 T.eq(blueRivalLine,
-  "This is my grand-\ndaughter.\fShe's your cousin.\fShe has a good heart\nand several plans.\f...What was her\nname again?",
-  "Blue route introduces Green with Oak's family-aware personality cue")
+  "This girl is from\nPALLET TOWN.\fShe's friendly, quick,\nand full of plans.\f...What was her\nname again?",
+  "Blue route introduces Green without inventing an Oak relationship")
+
+local relationLine, relationDone = nil, 0
+characters.select("GREEN")
+introStep("extended_character_relation").run({
+  sayText = function(_, line, next)
+    relationLine = line
+    if next then next() end
+  end,
+}, function() relationDone = relationDone + 1 end)
+T.eq(relationLine, "Ah, {PLAYER}!\fYour journey begins\ntoday.",
+  "Oak welcomes Green without calling her his granddaughter")
+T.check(not relationLine:find("grand", 1, true),
+  "Green's player introduction has no family claim")
+T.eq(relationDone, 1, "Green's player introduction advances exactly once")
+
+characters.select("BLUE")
+introStep("extended_character_relation").run({
+  sayText = function(_, line, next)
+    relationLine = line
+    if next then next() end
+  end,
+}, function() end)
+T.check(relationLine:find("my grandson", 1, true) ~= nil,
+  "Blue remains Professor Oak's canonical grandson")
 
 local greenRivalLine, greenRivalDone = nil, 0
 characters.select("GREEN")

@@ -41,7 +41,7 @@ T.eq(text._PalletTownRivalsHouseSignText, "HAUS DER FAMILIE\nEICH",
   "German family-house sign is role-neutral")
 T.check(text._BluesHouseDaisyRivalAtLabText:find("{RIVAL}", 1, true) ~= nil,
   "German Daisy dialogue uses the selected rival name")
-T.check(text._OaksLabRivalIllTakeYouOnText:find("Sehen wir", 1, true) ~= nil,
+T.check(text._OaksLabRivalIllTakeYouOnText:find("Warte", 1, true) ~= nil,
   "quiet Red receives his German personality dialogue")
 T.check(not text._OaksLabRivalIllTakeYouOnText:find("Let's", 1, true),
   "German custom dialogue contains no English fragment")
@@ -55,6 +55,15 @@ local steps = run.loader.hooks:call("intro.oak_speech.build",
   }, {})
 local byId = {}
 for _, step in ipairs(steps) do byId[step.id] = step end
+
+local relationLine
+byId.extended_character_relation.run({
+  sayText = function(_, line, done) relationLine = line; done() end,
+}, function() end)
+T.eq(relationLine, "Ah, {PLAYER}!\fDeine Reise beginnt\nheute.",
+  "German Oak welcomes Green without calling her his granddaughter")
+T.check(not relationLine:find("Enkel", 1, true),
+  "German Green introduction has no invented family claim")
 
 local Screens = require("src.ui.Screens")
 local originalPush, pushed = Screens.push, nil
@@ -82,7 +91,7 @@ byId.ask_rival_name.run({
   sayText = function(_, line, done) askLine = line; done() end,
 }, function() end)
 T.eq(askLine,
-  "Dieser Junge ist\naus ALABASTIA.\f...Seinen Namen habe\nich wohl vergessen.",
+  "Dieser Junge ist\naus ALABASTIA.\fEr sagt wenig, hört\naber genau zu.\f...Wie hieß er\nnoch gleich?",
   "German Red introduction asks for the forgotten Pallet trainer name")
 T.check(not askLine:find("PALLET", 1, true),
   "German introduction never leaks the English town name")

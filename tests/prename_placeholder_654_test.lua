@@ -77,11 +77,11 @@ local expectedIdentity = {
 }
 local expectedRelation = {
   en = {
-    GREEN = "MY GRANDDAUGHTER", BLUE = "MY GRANDSON",
+    GREEN = "A GIRL FROM\nPALLET TOWN", BLUE = "MY GRANDSON",
     RED = "A BOY FROM\nPALLET TOWN",
   },
   de = {
-    GREEN = "MEINE ENKELIN", BLUE = "MEIN ENKEL",
+    GREEN = "EIN MÄDCHEN AUS\nALABASTIA", BLUE = "MEIN ENKEL",
     RED = "EIN JUNGE AUS\nALABASTIA",
   },
 }
