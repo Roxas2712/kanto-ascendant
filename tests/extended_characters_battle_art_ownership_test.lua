@@ -51,12 +51,38 @@ g.newImage = function(path)
   }
 end
 
-local pairs = {
+local identityPairs = {
   { player = "RED", rival = "BLUE" },
   { player = "BLUE", rival = "GREEN" },
   { player = "GREEN", rival = "RED" },
 }
-for _, pair in ipairs(pairs) do
+
+-- Scripted catching tutorials are not player identities. The engine has
+-- already selected Yellow's Professor Oak back or Red/Blue's old-man back
+-- before Battle Art asks for its staged side texture, so KASC must delegate
+-- this texture verbatim rather than replacing it with the selected avatar.
+for _, tutorial in ipairs({
+  { label = "oakDemo", flags = { demo = true, oakDemo = true },
+    identity = "PROFESSOR_OAK" },
+  { label = "demo", flags = { demo = true }, identity = "OLD_MAN" },
+}) do
+  for _, identity in ipairs({ "RED", "BLUE", "GREEN" }) do
+    characters.select(identity)
+    local battle = { game = game, showPlayerBack = true }
+    for flag, value in pairs(tutorial.flags) do battle[flag] = value end
+    local texture = overworld.sideTexture(battle, "player")
+    T.eq(texture.sourceOwner, "ENGINE_SCRIPTED_TUTORIAL",
+      tutorial.label .. "/" .. identity .. " stays renderer-owned")
+    T.eq(texture.sourceIdentity, tutorial.identity,
+      tutorial.label .. "/" .. identity .. " keeps its scripted actor")
+    T.eq(texture.ascendantStandingTrainer, nil,
+      tutorial.label .. "/" .. identity .. " never advertises player identity")
+    T.eq(texture.trainer, true,
+      tutorial.label .. "/" .. identity .. " keeps trainer-card geometry")
+  end
+end
+
+for _, pair in ipairs(identityPairs) do
   characters.select(pair.player)
   local player = overworld.sideTexture({
     game = game, showPlayerBack = true,

@@ -44,7 +44,10 @@ local function checkMatrix(edition, language)
     run.loader.modOptions.kanto_ascendant.trainer_portrait_style = portraitStyle
     for _, identity in ipairs({ "RED", "BLUE", "GREEN" }) do
       characters.select(identity)
-      for _, renderer in ipairs({ "native", "voxel" }) do
+      for _, renderer in ipairs({
+        "native_2d", "VOXEL_ASCENDANT", "DRAMALESS_SHAPE",
+        "BATTLE_ART_VOXEL_FORK", "potato_voxel",
+      }) do
         for _, tutorial in ipairs({
           { flag = "demo", path = "engine/oldman-demo-back.png" },
           { flag = "oakDemo", path = "engine/oak-demo-back.png" },
@@ -64,6 +67,16 @@ local function checkMatrix(edition, language)
             label .. " preserves the engine-selected tutorial owner")
           T.eq(ctx.trueColor, false,
             label .. " preserves the tutorial owner's palette contract")
+
+          -- FULL/staged renderers do not ask `player.sprite` for their
+          -- trainer standee. They share KASC's source-side identity resolver,
+          -- which must delegate scripted catching tutorials to the renderer
+          -- instead of treating them as the selected protagonist.
+          local stagedBattle = { showPlayerBack = true }
+          stagedBattle[tutorial.flag] = true
+          T.eq(characters.voxelStandingTrainerCharacter(
+              stagedBattle, "player"), nil,
+            label .. " delegates the scripted tutorial owner at sideTexture")
         end
       end
 

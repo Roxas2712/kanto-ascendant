@@ -6,6 +6,22 @@
 return function(mod)
   local function sideTexture(battle, side)
     if side == "player" and battle and battle.showPlayerBack then
+      if battle.oakDemo then
+        return {
+          sourceOwner = "ENGINE_SCRIPTED_TUTORIAL",
+          sourceAsset = "/engine/professor-oak-demo-back.png",
+          sourceIdentity = "PROFESSOR_OAK",
+          trainer = true,
+        }
+      end
+      if battle.demo then
+        return {
+          sourceOwner = "ENGINE_SCRIPTED_TUTORIAL",
+          sourceAsset = "/engine/old-man-demo-back.png",
+          sourceIdentity = "OLD_MAN",
+          trainer = true,
+        }
+      end
       return {
         sourceOwner = "BATTLE_ART_PLAYER_ART",
         sourceAsset = "/separate-battle-art/player-option.png",

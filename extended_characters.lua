@@ -1687,6 +1687,13 @@ return function(mod, opts)
   -- Inspectable contract used by focused compatibility tests.  A nil result
   -- means "keep DRAMALESS' registered trainerPic card", not "no portrait".
   function M.voxelStandingTrainerCharacter(battle, side)
+    -- Catching demonstrations borrow the player-side slot for a scripted
+    -- actor. The engine has already resolved Viridian's old man (`demo`) or
+    -- Yellow's Professor Oak (`oakDemo`) into playerBackPic; neither is the
+    -- selected Red/Blue/Green protagonist.
+    if side == "player" and battle and (battle.demo or battle.oakDemo) then
+      return nil
+    end
     if side == "player" and battle and battle.showPlayerBack then
       local state = M.getState()
       if not state.enabled and GameVersion.get() == "yellow" then return nil end
@@ -1753,6 +1760,13 @@ return function(mod, opts)
     local originalSideTexture = overworldBattle.sideTexture
     if type(originalSideTexture) ~= "function" then return false end
     overworldBattle.sideTexture = function(battle, side)
+      -- FULL/staged renderers bypass `player.sprite` when choosing a trainer
+      -- source. Delegate catch-tutorial cards before any selected-identity
+      -- substitution or metadata rewrite so Oak/the old man remain exactly
+      -- the actor already chosen by the engine.
+      if side == "player" and battle and (battle.demo or battle.oakDemo) then
+        return originalSideTexture(battle, side)
+      end
       local player = M.getPlayerCharacter()
       -- Battle Art calls this source boundary only for its staged renderer.
       -- It may not register the engine's `voxel` world pipeline, so its exact
