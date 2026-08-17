@@ -13,6 +13,7 @@ local modDir = assert(os.getenv("TRAINER_REMATCH_MOD_DIR"),
   "TRAINER_REMATCH_MOD_DIR is required")
 
 local saved, wrapped, externalMods = {}, {}, {}
+local crystalArt, crystalAnimation = false, true
 local fakeMod = {
   path = "/fake/kanto-ascendant",
   save = {
@@ -22,7 +23,8 @@ local fakeMod = {
   options = {
     get = function(_, key)
       if key == "mega_evolution" then return true end
-      if key == "kanto_crystal_art" then return false end
+      if key == "kanto_crystal_art" then return crystalArt end
+      if key == "crystal_animation" then return crystalAnimation end
       return nil
     end,
   },
@@ -42,9 +44,11 @@ local fakeMod = {
 local voxelRenderer = assert(dofile(modDir .. "/voxel_renderer_compat.lua")(fakeMod))
 local mega = assert(dofile(modDir .. "/mega_evolution.lua")(fakeMod, {
   voxelRenderer = voxelRenderer,
+  animationData = assert(dofile(modDir .. "/mega_animation_data.lua")),
 }))
 local apiCalls = 0
 local front = true
+local sideTextureCalls = 0
 local nativeCanvas = {
   getWidth = function() return 160 end,
   getHeight = function() return 144 end,
@@ -53,6 +57,7 @@ local overworldBattle = {
   wantsFront = function() return front end,
   backPinned = function() return false end,
   sideTexture = function(_, side)
+    sideTextureCalls = sideTextureCalls + 1
     return {
       side = side, canvas = nativeCanvas, ax = 80, ay = 96,
       sourceOwner = "BATTLE_ART_MODDED",
@@ -83,9 +88,9 @@ local battleStage = {
 }
 externalMods.BATTLE_ART_VOXEL_FORK = {
   id = "BATTLE_ART_VOXEL_FORK",
-  version = "1.9.0",
+  version = "1.9.3",
   exports = {
-    version = "1.9.0",
+    version = "1.9.3",
     lib = rawBattleLib,
     battleStage = battleStage,
     battlePresentation = {
@@ -95,7 +100,15 @@ externalMods.BATTLE_ART_VOXEL_FORK = {
   },
 }
 local game = { data = { pokemon = {} } }
-local battleState = { update = function() end, finish = function() end }
+local originalBattleStateModule = package.loaded["src.battle.BattleState"]
+local battleState = {
+  update = function() end,
+  finish = function() end,
+  makeBattler = function(_, mon)
+    return { sprite = { frame = mon._ascMegaAnimationFrame } }
+  end,
+}
+package.loaded["src.battle.BattleState"] = battleState
 
 -- Product code intentionally gives a prepared DRAMALESS shot no ownership
 -- while the Voxel display pipeline is OFF.  Install the same minimal active
@@ -211,7 +224,31 @@ eq(back.kantoAscendantMegaSource,
   "assets/mega_gen1_runtime/mega_raichu_x_back.png",
   "world-space BACK SPRITES uses Kanto's dedicated rear Mega master")
 
+-- Battle Art may retain the canvas returned by sideTexture instead of asking
+-- for a new texture every frame. Advancing a Mega animation must therefore
+-- repaint that retained renderer-owned canvas at the public sideTexture seam.
+crystalArt = true
+front = true
+local animatedBattle = {
+  data = {}, game = { data = {}, save = {} },
+  enemy = {
+    isPlayer = false,
+    sprite = {},
+    mon = { species = "CHARIZARD", _ascMegaForm = "CHARIZARD_X" },
+  },
+  showEnemyTrainer = false,
+  enemySendingOut = false,
+}
+overworldBattle.sideTexture(animatedBattle, "enemy")
+local callsBeforeAnimation = sideTextureCalls
+mega.updateAnimations(animatedBattle, 1.0)
+check(tonumber(animatedBattle.enemy.mon._ascMegaAnimationFrame) ~= nil,
+  "Battle Art 1.9.3 Mega animation advances its authored frame")
+check(sideTextureCalls > callsBeforeAnimation,
+  "Battle Art 1.9.3 retained Mega canvas is repainted after frame advance")
+
 _G.love = oldLove
+package.loaded["src.battle.BattleState"] = originalBattleStateModule
 Pipelines.install()
 
 S.finish()

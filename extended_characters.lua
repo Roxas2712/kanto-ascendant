@@ -1483,8 +1483,35 @@ return function(mod, opts)
       graphics.draw = function(drawable, ...)
         if not profileDrawn and drawable == picture then
           profileDrawn = true
-          return nativeDraw(drawable, fit.x, fit.y, 0,
-            fit.scaleX, fit.scaleY)
+          -- Trainer portraits are pixel art. The stock image may inherit
+          -- LÖVE's linear filter, which visibly blurs the 56/64px sources
+          -- when they are aspect-fitted into the card's 48px safe area.
+          -- Apply nearest filtering only for this one draw and restore the
+          -- image's original filter even if a third-party draw hook throws.
+          local canFilter = type(drawable.getFilter) == "function"
+            and type(drawable.setFilter) == "function"
+          local oldMin, oldMag, oldAnisotropy
+          if canFilter then
+            local measured, minFilter, magFilter, anisotropy =
+              pcall(drawable.getFilter, drawable)
+            if measured then
+              oldMin, oldMag, oldAnisotropy =
+                minFilter, magFilter, anisotropy
+              local filtered = pcall(drawable.setFilter, drawable,
+                "nearest", "nearest")
+              if not filtered then canFilter = false end
+            else
+              canFilter = false
+            end
+          end
+          local drawn, problem = pcall(nativeDraw, drawable,
+            fit.x, fit.y, 0, fit.scaleX, fit.scaleY)
+          if canFilter then
+            pcall(drawable.setFilter, drawable,
+              oldMin, oldMag, oldAnisotropy)
+          end
+          if not drawn then error(problem, 0) end
+          return problem
         end
         return nativeDraw(drawable, ...)
       end

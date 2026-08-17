@@ -512,11 +512,25 @@ for _, identity in ipairs({ "RED", "BLUE", "GREEN" }) do
       and fit.y + fit.height <= fit.safe.y + fit.safe.h,
     identity .. " fitted pixel canvas is wholly inside the frame")
 
-  local picture = { identity = identity }
+  local picture = {
+    identity = identity,
+    minFilter = "linear",
+    magFilter = "linear",
+  }
   function picture:getDimensions() return 56, 56 end
+  function picture:getFilter() return self.minFilter, self.magFilter end
+  function picture:setFilter(minFilter, magFilter)
+    self.minFilter, self.magFilter = minFilter, magFilter
+  end
   local pictureDraw
   local recorder = function(drawable, ...)
-    if drawable == picture then pictureDraw = { ... } end
+    if drawable == picture then
+      pictureDraw = { ... }
+      T.eq(drawable.minFilter, "nearest",
+        identity .. " profile uses crisp pixel filtering while scaled")
+      T.eq(drawable.magFilter, "nearest",
+        identity .. " profile magnification filter remains pixel-exact")
+    end
   end
   love.graphics.draw = recorder
   TrainerCard.draw({
@@ -531,6 +545,10 @@ for _, identity in ipairs({ "RED", "BLUE", "GREEN" }) do
   })
   T.eq(love.graphics.draw, recorder,
     identity .. " card draw restores the engine graphics function")
+  T.eq(picture.minFilter, "linear",
+    identity .. " card draw restores the profile minimum filter")
+  T.eq(picture.magFilter, "linear",
+    identity .. " card draw restores the profile magnification filter")
   T.check(pictureDraw ~= nil, identity .. " profile is drawn exactly once")
   T.check(pictureDraw and math.abs(pictureDraw[1] - 104) < 0.000001
       and math.abs(pictureDraw[2] - 8) < 0.000001,
@@ -541,6 +559,41 @@ for _, identity in ipairs({ "RED", "BLUE", "GREEN" }) do
     identity .. " live profile draw preserves aspect ratio")
   love.graphics.draw = graphicsDraw
 end
+
+-- A renderer failure during the fitted draw must not leak nearest filtering
+-- into later screens or leave the global draw seam replaced.
+local brokenPicture = { minFilter = "linear", magFilter = "linear" }
+function brokenPicture:getDimensions() return 56, 56 end
+function brokenPicture:getFilter() return self.minFilter, self.magFilter end
+function brokenPicture:setFilter(minFilter, magFilter)
+  self.minFilter, self.magFilter = minFilter, magFilter
+end
+local failingDraw = function(drawable)
+  if drawable == brokenPicture then error("trainer-card-profile-failure") end
+end
+love.graphics.draw = failingDraw
+local cardDrawn, cardProblem = pcall(TrainerCard.draw, {
+  pic = brokenPicture,
+  game = {
+    data = Data,
+    save = {
+      player = { name = "GREEN" }, inventory = {}, money = 0, playTime = 0,
+    },
+  },
+  frameBox = function() end,
+})
+T.eq(cardDrawn, false, "profile renderer failures still propagate")
+T.check(tostring(cardProblem):find("trainer-card-profile-failure", 1, true)
+    ~= nil,
+  "profile renderer retains the original failure detail")
+T.eq(love.graphics.draw, failingDraw,
+  "failed profile draw restores the engine graphics function")
+T.eq(brokenPicture.minFilter, "linear",
+  "failed profile draw restores the minimum filter")
+T.eq(brokenPicture.magFilter, "linear",
+  "failed profile draw restores the magnification filter")
+love.graphics.draw = graphicsDraw
+
 run.loader.modOptions.kanto_ascendant.trainer_portrait_style = "crystal_hd"
 run.loader.modOptions.kanto_ascendant.character_sprite_style = "ascendant"
 characters.select("BLUE")

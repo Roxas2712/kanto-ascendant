@@ -193,6 +193,7 @@ return function(mod, opts)
   }
   local refreshSprite
   local voxelWantsFront = function() return false end
+  local refreshVoxelTexture = function() return false end
 
   local function isShiny(mon)
     if type(mon) ~= "table" then return false end
@@ -291,6 +292,14 @@ return function(mod, opts)
       mon._ascMegaAnimationFrame = state.frame
       refreshSprite(battle, battler)
       state.image = battler.sprite
+      -- Battle Art and compatible renderer families may retain the canvas
+      -- returned by sideTexture instead of resolving a new texture every
+      -- frame. Repaint that public renderer-owned canvas when the authored
+      -- Mega frame changes; otherwise the normal form animates but the Mega
+      -- form remains frozen on its first projected frame.
+      local renderSide = battle and battle.player == battler
+        and "player" or "enemy"
+      refreshVoxelTexture(battle, renderSide)
     end
   end
 
@@ -974,6 +983,11 @@ return function(mod, opts)
         return texture
       end
       overworldBattle.kantoAscendantMegaAnchorHook = true
+      refreshVoxelTexture = function(activeBattle, side)
+        local refreshed = pcall(overworldBattle.sideTexture,
+          activeBattle, side)
+        return refreshed
+      end
     end
   end
 

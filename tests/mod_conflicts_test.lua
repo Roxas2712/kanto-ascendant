@@ -33,13 +33,14 @@ local integrated = {
   "gender_mod", "pokemon_gender", "pokemon_genders",
   "pokemon_gender_system", "gen2_pokemon_gender", "pokemon_breeding",
   "gen2_breeding", "useful_bag", "jj_quick_select", "nuzlocke",
-  "overworld_wild_spawns",
+  "overworld_wild_spawns", "unique_menu_icons", "Dynamic_Cries",
 }
 local canonical = {
   trainer_rematch = true, PokePCFollowers_VoxelMerge = true,
   quality_of_life = true, crystal_animated_sprites_with_shiny_visuals = true,
   shiny_indicators = true, gender_mod = true, useful_bag = true, jj_quick_select = true,
   nuzlocke = true, overworld_wild_spawns = true,
+  unique_menu_icons = true, Dynamic_Cries = true,
 }
 local incompatibleRenderers = {
   "DRAMATIC_SHAPE", "TERRARIUM", "ds_fp_ceiling",
@@ -129,7 +130,7 @@ end
 for id in pairs(actualClassic) do
   assert(expectedClassic[id], "unexpected stock conflict: " .. id)
 end
-assert(#(raw.conflicts or {}) == 28 and #(raw.incompatible or {}) == 0,
+assert(#(raw.conflicts or {}) == 30 and #(raw.incompatible or {}) == 0,
   "stock 0.1.90 conflict boundary is not exact")
 
 local function external(id, version, github, dependencies, conflicts)
@@ -363,7 +364,7 @@ if not richPolicies then
   return
 end
 
-assert(ascendant.exclusive and #ascendant.compatibilityConflicts == 12,
+assert(ascendant.exclusive and #ascendant.compatibilityConflicts == 14,
   "newer-engine default-deny or replacement metadata missing")
 
 for _, id in ipairs(integrated) do

@@ -63,6 +63,8 @@
     "quality_of_life_pr9_test",
     "crystal_animated_sprites_with_shiny_visuals",
     "shiny_indicators",
+    "unique_menu_icons",
+    "Dynamic_Cries",
     "gender_mod",
     "pokemon_gender",
     "pokemon_genders",
@@ -146,6 +148,25 @@
       "resolution_en": "Disable the standalone shiny-indicator mod before enabling Ascendant; use Ascendant's built-in presentation on engine 0.1.90.",
       "resolution_de": "Deaktiviere die eigenständige Shiny-Indikator-Mod, bevor du Ascendant aktivierst; verwende unter Engine 0.1.90 Ascendants integrierte Darstellung.",
       "areas": ["shiny effects", "status markers", "generated sprites", "battle hooks"]
+    },
+    {
+      "policy": "replace",
+      "ids": ["unique_menu_icons"],
+      "repositories": ["menyas/unique-menu-icons"],
+      "reason_en": "Both mods register menu and party icon records for expanded species, which can abort loading with an already-registered icon error.",
+      "reason_de": "Beide Mods registrieren Menü- und Teamicon-Einträge für zusätzliche Pokémon; dadurch kann der Ladevorgang mit einem Bereits-registriert-Fehler abbrechen.",
+      "resolution_en": "Disable Unique Menu Icons before enabling Ascendant; Ascendant supplies its own expanded-species icon set.",
+      "resolution_de": "Deaktiviere Unique Menu Icons, bevor du Ascendant aktivierst; Ascendant liefert ein eigenes Icon-Set für zusätzliche Pokémon.",
+      "areas": ["menu icons", "party icons", "species registry"]
+    },
+    {
+      "policy": "replace",
+      "ids": ["Dynamic_Cries"],
+      "reason_en": "Both mods register expanded-species cry records and cannot safely share that registry.",
+      "reason_de": "Beide Mods registrieren Ruf-Einträge für zusätzliche Pokémon und können dieses Register nicht sicher gemeinsam verwenden.",
+      "resolution_en": "Disable Dynamic Cries before enabling Ascendant; Ascendant already supplies and preserves expanded-species cries.",
+      "resolution_de": "Deaktiviere Dynamic Cries, bevor du Ascendant aktivierst; Ascendant liefert und erhält bereits die Rufe zusätzlicher Pokémon.",
+      "areas": ["Pokemon cries", "species audio", "cry registry"]
     },
     {
       "policy": "replace",
