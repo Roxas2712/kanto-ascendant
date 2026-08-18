@@ -604,7 +604,8 @@ return function(mod, opts)
 
   local CATEGORY = {
     language = "system",
-    difficulty = "core", kanto_151 = "core", ascendant_rules = "core",
+    difficulty = "core", wild_level_scaling = "core",
+    kanto_151 = "core", ascendant_rules = "core",
     rare_item_lock = "capture",
     rest_min = "rematch", rest_max = "rematch", level_gain = "rematch",
     team_growth = "rematch", loot_mode = "rematch",

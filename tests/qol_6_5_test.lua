@@ -19,6 +19,7 @@ local manifest = read("manifest.json")
 local featureHub = read("ascendant_features.lua")
 local gorochu = read("gorochu.lua")
 local mainKeys = {
+  "wild_level_scaling",
   "johto_level_bonus", "ascendant_useful_bag", "ascendant_quick_select",
   "ascendant_qol", "modern_storage_ui", "catch_destination",
   "pokedex_filter", "box_filter", "text_speed", "ride_control",

@@ -59,8 +59,17 @@ return function(mod, opts)
     return math.max(0, math.min(8, Badges.count(game.data, game.save)))
   end
 
+  function D.wildScalingEnabled()
+    return mod.options:get("wild_level_scaling") == true
+  end
+
   function D.adjustLevel(level, kind, badges)
     local base = math.max(1, math.floor(tonumber(level) or 1))
+    -- The encounter hook runs after native tables, Randomizer mappings and
+    -- authored KASC encounter providers have resolved their candidate. OFF
+    -- therefore means exactly "keep that resolved level": it does not alter
+    -- species, tables, RNG, Nuzlocke state or any trainer-level policy.
+    if kind == "wild" and not D.wildScalingEnabled() then return base, 0 end
     local extra = D.progressionBonus(kind, badges)
     local raised = base + extra
     return math.min(100, raised), math.max(0, raised - 100)

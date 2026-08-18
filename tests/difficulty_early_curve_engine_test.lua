@@ -23,7 +23,8 @@ package.preload["src.ui.BagMenu"] = function()
   return { new = function() return { onChoose = function() end } end }
 end
 
-local values = { difficulty = "standard" }
+-- Exercise the historical curve explicitly; the new schema default is OFF.
+local values = { difficulty = "standard", wild_level_scaling = true }
 local hooks, events = {}, {}
 local mod = {
   options = { get = function(_, key) return values[key] end },

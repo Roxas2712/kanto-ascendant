@@ -12,8 +12,11 @@ return function(i18n)
       "Selects Ascendant's text language. AUTO follows the game language.",
       "Wählt die Ascendant-Textsprache. AUTO folgt der Spielsprache.", true },
     difficulty = {
-      "Raises trainer and wild levels. Bonuses begin smaller and reach full strength as you earn badges. EXTREME also blocks items in trainer battles.",
-      "Erhöht Trainer- und Wildlevel. Die Boni starten kleiner und erreichen mit Deinen Orden ihre volle Stärke. EXTREM sperrt zusätzlich Items in Trainerkämpfen." },
+      "Raises trainer levels. Bonuses begin smaller and reach full strength as you earn badges. Wild levels follow this curve only when WILD LEVEL SCALING is ON. EXTREME also blocks items in trainer battles.",
+      "Erhöht Trainerlevel. Die Boni starten kleiner und erreichen mit Deinen Orden ihre volle Stärke. Wildlevel folgen dieser Kurve nur mit WILD-LEVEL-SKALIERUNG AN. EXTREM sperrt zusätzlich Items in Trainerkämpfen." },
+    wild_level_scaling = {
+      "OFF preserves every native or authored Wild level. ON adds the selected difficulty's badge-phased Wild-level bonus. Species, encounter odds, Randomizer, Nuzlocke and trainer levels are unchanged.",
+      "AUS bewahrt jedes native oder festgelegte Wildlevel. AN addiert den ordenabhängigen Wildlevel-Bonus der gewählten Schwierigkeit. Arten, Chancen, Randomizer, Nuzlocke und Trainerlevel bleiben unverändert." },
     rare_item_lock = {
       "Prevents rare, unique and progression items from being discarded accidentally.",
       "Verhindert, dass seltene, einzigartige und wichtige Items versehentlich weggeworfen werden." },

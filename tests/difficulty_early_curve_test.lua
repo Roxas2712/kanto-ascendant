@@ -7,7 +7,9 @@ package.preload["src.ui.BagMenu"] = function()
   return { new = function() return { onChoose = function() end } end }
 end
 
-local values = { difficulty = "standard" }
+-- This regression owns the historical opt-in curve. Fresh/migrated OFF
+-- semantics are covered separately by wild_level_scaling_option_test.lua.
+local values = { difficulty = "standard", wild_level_scaling = true }
 local hooks, events = {}, {}
 local mod = {
   options = { get = function(_, key) return values[key] end },

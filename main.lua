@@ -520,6 +520,12 @@ return function(mod)
         { menuLabel("VERY HARD", "SEHR SCHWER"), "very_hard" },
         { menuLabel("EXTREME", "EXTREM"), "extreme" },
       } },
+    { key = "wild_level_scaling",
+      label = menuLabel("WILD LEVEL SCALING", "WILD-LEVEL-SKALIERUNG"),
+      -- Difficulty must never raise a fresh or migrated save's Wild levels
+      -- unless the player explicitly opts in. The upstream encounter remains
+      -- authoritative while OFF; trainer difficulty is a separate contract.
+      type = "toggle", default = false },
     { key = "rare_item_lock",
       label = menuLabel("RARE ITEM LOCK", "SELTENE ITEMS SCHÜTZEN"),
       type = "toggle", default = true },

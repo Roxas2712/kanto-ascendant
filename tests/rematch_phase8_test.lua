@@ -165,6 +165,8 @@ local rewards = assert(loadfile(modPath .. "/rematch_rewards.lua"))()(mod, {
         { "STANDARD", "standard" }, { "HARD", "hard" },
         { "VERY HARD", "very_hard" },
       } },
+    { key = "wild_level_scaling", label = "WILD LEVEL SCALING",
+      type = "toggle", default = false },
     { key = "rare_item_lock", label = "RARE ITEM LOCK", type = "toggle",
       default = true },
     { key = "kanto_151", label = "KANTO 151", type = "choice",
@@ -357,10 +359,13 @@ end
 local core = screens.AscendantCoreOptions.new(game, {})
 eq(core.footer, "L/R:CHG SEL:HELP",
   "setting pages visibly reserve Left/Right for values and SELECT for help")
-eq(#core.items, 3, "core rules retain difficulty, Kanto 151 and challenge rules")
+eq(#core.items, 4,
+  "core rules expose difficulty, opt-in Wild scaling, Kanto 151 and challenge rules")
 eq(core.items[1].value, "difficulty", "difficulty is first in CORE RULES")
-eq(core.items[2].value, "kanto_151", "Kanto 151 remains in CORE RULES")
-eq(core.items[3].value, "ascendant_rules", "challenge rules remain in CORE RULES")
+eq(core.items[2].value, "wild_level_scaling",
+  "Wild level scaling is the explicit second CORE RULE")
+eq(core.items[3].value, "kanto_151", "Kanto 151 remains in CORE RULES")
+eq(core.items[4].value, "ascendant_rules", "challenge rules remain in CORE RULES")
 eq(game.mods.modOptions.kanto_ascendant, nil,
   "opening an option page never mutates values")
 core.onChoose(core.items[1])

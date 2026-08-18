@@ -68,6 +68,31 @@ do
     "unproven legacy options do not alter canonical defaults")
 end
 
+-- Wild scaling did not exist in accepted 6.x saves. Identity migration must
+-- not infer it from the old difficulty tier: absence keeps the new explicit
+-- opt-in OFF, while a later canonical choice remains stored independently.
+do
+  local migrated = {
+    { key = "difficulty", default = "standard" },
+    { key = "wild_level_scaling", default = false },
+  }
+  T.eq(migration.applyOptionDefaults(migrated, legacyOptions), true,
+    "legacy difficulty still migrates through the accepted KA signature")
+  T.eq(migrated[1].default, "hard", "legacy trainer difficulty is retained")
+  T.eq(migrated[2].default, false,
+    "a migrated save cannot infer Wild scaling from trainer difficulty")
+
+  local canonical = {
+    { key = "wild_level_scaling", default = false },
+  }
+  T.eq(migration.applyOptionDefaults(canonical, { modOptions = {
+    trainer_rematch = { kanto_151 = "wild" },
+    kanto_ascendant = { wild_level_scaling = true },
+  } }), false, "canonical Wild-scaling choice is never overwritten")
+  T.eq(canonical[1].default, false,
+    "schema default remains OFF beside a stored canonical opt-in")
+end
+
 -- The 6.5 Living World default changes only the absence case. A profile
 -- without the key receives the new `true` schema default; a historical
 -- explicit OFF value remains OFF through either identity-migration path.

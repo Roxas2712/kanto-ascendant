@@ -78,6 +78,8 @@ end
 
 T.eq(schemaDefault("difficulty"), "standard",
   "fresh profile selects standard difficulty")
+T.eq(schemaDefault("wild_level_scaling"), false,
+  "fresh or migrated profile keeps Wild level scaling disabled")
 T.eq(difficulty.adjustLevel(9, "trainer"), 9,
   "standard difficulty leaves trainer levels unchanged")
 T.eq(difficulty.adjustLevel(5, "wild"), 5,

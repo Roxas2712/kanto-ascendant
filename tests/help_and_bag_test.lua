@@ -10,11 +10,15 @@ assert(team:find("#001%-251") and team:find("Neustart"),
 assert(optionHelp.text("difficulty", "EXTREM"):find("Items")
     and optionHelp.text("difficulty", "EXTREM"):find("Orden"),
   "difficulty help must explain badge phase-in and the Extreme item rule")
+assert(optionHelp.text("wild_level_scaling", "AUS"):find("festgelegte Wildlevel")
+    and optionHelp.text("wild_level_scaling", "AN"):find("Randomizer"),
+  "Wild-level help must explain OFF authority and isolated ON scope")
 assert(optionHelp.text("legend_lugia", "AN"):find("Lugia"),
   "dynamic legendary help missing")
 assert(optionHelp.text("event_flying_pikachu", "AN"):find("Flying Pikachu"),
   "dynamic event help missing")
 local detailed = {
+  "wild_level_scaling",
   "pokemon_sprite_style", "character_sprite_style", "trainer_portrait_style",
   "sprite_style_battle",
   "sprite_style_summary", "sprite_style_dex", "sprite_style_box",

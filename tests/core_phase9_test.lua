@@ -9,7 +9,8 @@ local function eq(a, b, message)
   assert(a == b, (message or "different") .. ": " .. tostring(a) .. " ~= " .. tostring(b))
 end
 
-local values = { difficulty = "standard", rare_item_lock = true,
+local values = { difficulty = "standard", wild_level_scaling = true,
+  rare_item_lock = true,
   vision_encounters = true }
 local hooks, events, saves = {}, {}, {}
 local fake = {
