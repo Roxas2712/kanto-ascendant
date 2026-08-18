@@ -48,6 +48,14 @@ assertSafe("dynamic German/token text", safe)
 check(safe:find("\f", 1, true) ~= nil,
   "unsafe dialogue gained no explicit page break")
 
+-- A normal Gen-I text box has two visible rows.  The safety guard must fill
+-- both rows before asking for another button press; the old one-row-per-page
+-- policy made every ordinary two-line sentence require an extra click.
+local twoRows = pagination.gateText(game, "FIRST ROW\nSECOND ROW")
+local twoRowPages = TextBox.paginate(twoRows, 18)
+check(#twoRowPages == 1 and #twoRowPages[1] == 2,
+  "safe two-row dialogue was split into unnecessary click pages")
+
 -- Existing cartridge CONT waits remain CONT, while any later ungated third
 -- row is split. This is the only deliberate non-formfeed exception.
 local continued = pagination.gateText(game,
@@ -92,8 +100,9 @@ local kascCaller = assert(loadstring(
   "return function(TextBox, game, text) local box = TextBox.new(game, text); return box end",
   "@" .. root .. "/dynamic_dialogue_fixture.lua"))()
 local directBox = kascCaller(TextBox, game, "DYNAMIC\nDIRECT\nDIALOGUE")
-check(#directBox.pages == 3 and #directBox.pages[1] == 1,
-  "direct KASC caller did not receive A-gated pages")
+check(#directBox.pages == 2 and #directBox.pages[1] == 2
+    and #directBox.pages[2] == 1,
+  "direct KASC caller did not fill two rows before its A-gated page")
 local vanillaCaller = assert(loadstring(
   "return function(TextBox, game, text) local box = TextBox.new(game, text); return box end",
   "@engine/vanilla_dialogue.lua"))()
@@ -159,8 +168,9 @@ check(scopedTextBox.paginate == TextBox.paginate
   "TextBox proxy did not preserve the native public API")
 
 local prodDirect = scopedTextBox.new(game, "DIRECT\nKASC\nPLAYER")
-check(#prodDirect.pages == 3 and #prodDirect.pages[1] == 1,
-  "direct production KASC dialogue was not A-gated")
+check(#prodDirect.pages == 2 and #prodDirect.pages[1] == 2
+    and #prodDirect.pages[2] == 1,
+  "direct production KASC dialogue did not use two-row pages")
 check(getmetatable(prodDirect) == TextBox and prodDirect.isTextBox == true,
   "scoped constructor changed native TextBox instance identity")
 
@@ -208,8 +218,9 @@ check(#rawVanilla.pages == 1 and #rawVanilla.pages[1] == 3,
 
 prodRegistry:register("TEXT_KA_PRODUCTION", "OWNED\nCONTENT\nLATER")
 local rawOwned = TextBox.new(game, prodRegistered.TEXT_KA_PRODUCTION)
-check(#rawOwned.pages == 3 and #rawOwned.pages[1] == 1,
-  "exact registered KASC content was not gated when opened by the engine")
+check(#rawOwned.pages == 2 and #rawOwned.pages[1] == 2
+    and #rawOwned.pages[2] == 1,
+  "exact registered KASC content was not safely packed into two-row pages")
 
 -- Native token expansion remains exactly once. A handler that deliberately
 -- returns token-shaped text must stay literal, matching TextBox's one-pass

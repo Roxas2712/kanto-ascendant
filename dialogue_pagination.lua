@@ -122,33 +122,66 @@ return function(mod, opts)
     return depth > 0
   end
 
-  local function gatedRaw(text, rowWait, delimiterWait)
+  local function gatedRaw(text, rowWait, delimiterWait, visibleLimit)
     if type(text) ~= "string" then return text end
+    visibleLimit = visibleLimit or 1
     local out, pos = {}, 1
+    local visibleRows = 0
+    local pendingWait = nil
     while true do
       local controlAt = text:find("[\n\v\f]", pos)
       local line = controlAt and text:sub(pos, controlAt - 1)
         or text:sub(pos)
       local rows, consumed = rawRows(line), 0
       for index, row in ipairs(rows) do
-        if index > 1 and not tokenOpenAt(line, consumed) then
-          out[#out + 1] = rowWait
+        -- A raw slice inside an unexpanded {TOKEN} is not a rendered-row
+        -- boundary. Rejoin it byte-exactly and let native substitution be
+        -- the single authority that measures the eventual replacement.
+        local renderedBoundary = index == 1
+          or not tokenOpenAt(line, consumed)
+        if renderedBoundary then
+          local waitBefore = pendingWait
+          if visibleRows >= visibleLimit and not waitBefore then
+            out[#out + 1] = rowWait
+            waitBefore = rowWait
+          end
+
+          if waitBefore == "\f" then
+            -- A page break clears both rows before this row is rendered.
+            visibleRows = 1
+          elseif waitBefore == "\v" then
+            -- CONT waits before scrolling the incoming row. The box stays
+            -- full when it already had two rows; otherwise one row is added.
+            visibleRows = math.min(visibleLimit, visibleRows + 1)
+          else
+            visibleRows = math.min(visibleLimit, visibleRows + 1)
+          end
+          pendingWait = nil
         end
         out[#out + 1] = row
         consumed = consumed + #row
       end
       if not controlAt then break end
       local delimiter = text:sub(controlAt, controlAt)
-      out[#out + 1] = delimiterWait[delimiter] or delimiter
+      local emitted = delimiterWait[delimiter] or delimiter
+      out[#out + 1] = emitted
+      if emitted == "\f" then
+        visibleRows = 0
+        pendingWait = nil
+      elseif emitted == "\v" then
+        pendingWait = "\v"
+      end
       pos = controlAt + 1
     end
     return table.concat(out)
   end
 
-  -- One raw rendered row per clear page is deliberately conservative. It
-  -- also catches a single long authored row without knowing token values.
+  -- Fill the two rows the native Gen-I box actually exposes, then insert a
+  -- page wait before a third row could auto-scroll. This keeps the safety
+  -- guarantee without making every ordinary two-line sentence need an extra
+  -- click. A single long authored row is still wrapped safely.
   function controller.gateText(_, text)
-    return gatedRaw(text, "\f", { ["\n"] = "\f" })
+    return gatedRaw(text, "\f", {}, 2)
   end
 
   -- BattleState has its own parser and never calls TextBox.new. CONT is its
@@ -156,7 +189,7 @@ return function(mod, opts)
   function controller.gateBattleText(text)
     return gatedRaw(text, "\v", {
       ["\n"] = "\v", ["\f"] = "\v",
-    })
+    }, 1)
   end
 
   local function timingOwned(boxOpts)
