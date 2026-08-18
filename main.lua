@@ -270,8 +270,7 @@ return function(mod)
     end
   end, 10000)
 
-  local makeLocalization = loadSibling(mod, "localization.lua")
-  local i18n = makeLocalization(mod)
+  local i18n = loadSibling(mod, "localization.lua")(mod)
   local restProfiles = loadSibling(mod, "rematch_break_profiles.lua")
   mod.exports.rematchBreakProfiles = restProfiles
   -- KASC dialogue must never auto-scroll a third visible Gen-I text row.
@@ -300,17 +299,16 @@ return function(mod)
     mod, "renderer_battle_hud.lua")(mod, {
       voxelRenderer = mod.exports.voxelRendererCompat,
     })
-  local makeAscendantUi = loadSibling(mod, "ascendant_ui.lua")
-  local ascendantUi = makeAscendantUi(mod, { i18n = i18n })
+  local ascendantUi = loadSibling(mod, "ascendant_ui.lua")(
+    mod, { i18n = i18n })
   -- A separate widget facade keeps vanilla/third-party lists untouched.
   -- Every Kanto Ascendant feature explicitly asks for this presentation.
   mod.ui.KantoListMenu = ascendantUi.ListMenu
   mod.exports.ascendantUi = ascendantUi
   -- KA-INTERNAL: LEGACY-JOURNEY-001
-  local makeLegacyArchive = loadSibling(mod, "legacy_archive.lua")
-  local makeLegacyJourney = loadSibling(mod, "legacy_journey.lua")
-  local legacyJourney = makeLegacyJourney(mod, {
-    i18n = i18n, makeArchive = makeLegacyArchive,
+  local legacyJourney = loadSibling(mod, "legacy_journey.lua")(mod, {
+    i18n = i18n,
+    makeArchive = loadSibling(mod, "legacy_archive.lua"),
     -- The Signals hub is constructed later, but the callback runs only after
     -- gameplay starts.  This keeps the HEVO unlock on the same real Oak-call
     -- presentation seam as Johto while retaining a TextBox fallback inside
@@ -323,8 +321,7 @@ return function(mod)
     end,
   })
   mod.exports.legacyJourney = legacyJourney
-  local makeLegacyWanderers = loadSibling(mod, "legacy_wanderers.lua")
-  local legacyWanderers = makeLegacyWanderers(mod, {
+  local legacyWanderers = loadSibling(mod, "legacy_wanderers.lua")(mod, {
     i18n = i18n, journey = legacyJourney,
     -- Rematch rewards is constructed later because its UI depends on the
     -- complete option schema. Resolve it lazily when a Wanderer reward rolls.
