@@ -2,9 +2,15 @@ local root = assert(os.getenv("TRAINER_REMATCH_MOD_DIR"),
   "TRAINER_REMATCH_MOD_DIR is required")
 local Y = assert(loadfile(root .. "/yellow_gym_move_fidelity.lua"))()
 
-local cache = assert(os.getenv("KA_ENGINE_CACHE_ROOT"),
-  "KA_ENGINE_CACHE_ROOT is required")
-local trainers = assert(loadfile(cache .. "/yellow/data/generated/trainers.lua"))()
+local cache = os.getenv("KA_ENGINE_CACHE_ROOT")
+local fixture = os.getenv("KA_STORY_GYM_FIXTURE")
+assert(cache or fixture,
+  "KA_ENGINE_CACHE_ROOT or KA_STORY_GYM_FIXTURE is required")
+local contract = fixture and assert(loadfile(fixture))() or nil
+local trainers = cache
+  and assert(loadfile(cache .. "/yellow/data/generated/trainers.lua"))()
+  or assert(contract.trainers.yellow,
+    "story Gym fixture is missing Yellow trainer rows")
 local partyIndex = { OPP_GIOVANNI = 3 }
 local count = 0
 for class, expected in pairs(Y.moves) do
@@ -24,7 +30,10 @@ for class, expected in pairs(Y.moves) do
 end
 assert(count == 8, "repair must own exactly eight story Gym classes")
 
-local red = assert(loadfile(cache .. "/red/data/generated/trainers.lua"))()
+local red = cache
+  and assert(loadfile(cache .. "/red/data/generated/trainers.lua"))()
+  or assert(contract.trainers.red,
+    "story Gym fixture is missing Red trainer rows")
 local untouched = red.OPP_BROCK.parties[1]
 assert(Y.apply("OPP_YOUNGSTER", untouched) == untouched,
   "non-Gym trainer must remain untouched")

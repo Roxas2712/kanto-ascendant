@@ -1,8 +1,16 @@
 local root = assert(os.getenv("TRAINER_REMATCH_MOD_DIR"),
   "TRAINER_REMATCH_MOD_DIR is required")
-local cache = assert(os.getenv("KA_ENGINE_CACHE_ROOT"),
-  "KA_ENGINE_CACHE_ROOT is required")
-local trainers = assert(loadfile(cache .. "/red/data/generated/trainers.lua"))()
+local cache = os.getenv("KA_ENGINE_CACHE_ROOT")
+local fixture = os.getenv("KA_STORY_GYM_FIXTURE")
+assert(cache or fixture,
+  "KA_ENGINE_CACHE_ROOT or KA_STORY_GYM_FIXTURE is required")
+local trainers
+if cache then
+  trainers = assert(loadfile(cache .. "/red/data/generated/trainers.lua"))()
+else
+  trainers = assert(assert(loadfile(fixture))().trainers.red,
+    "story Gym fixture is missing Red trainer rows")
+end
 
 local function run(boundaryActive, receiverRepaired, rules, available)
   local hooks, events = {}, {}

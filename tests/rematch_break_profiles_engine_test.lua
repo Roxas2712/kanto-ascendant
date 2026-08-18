@@ -1,4 +1,5 @@
--- Exact 0.1.96/0.1.98 lifecycle proof for save-local rematch profiles.
+-- Exact-engine lifecycle proof for save-local rematch profiles. Release QA
+-- runs 0.1.96/0.1.98; public ROM-free CI also covers the 0.1.90 minimum.
 
 local engineRoot = assert(os.getenv("KA_ENGINE_ROOT"),
   "KA_ENGINE_ROOT is required")

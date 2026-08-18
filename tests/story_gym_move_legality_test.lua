@@ -2,8 +2,17 @@
 
 local root = assert(os.getenv("TRAINER_REMATCH_MOD_DIR"),
   "TRAINER_REMATCH_MOD_DIR is required")
-local cache = assert(os.getenv("KA_ENGINE_CACHE_ROOT"),
-  "KA_ENGINE_CACHE_ROOT is required")
+local cache = os.getenv("KA_ENGINE_CACHE_ROOT")
+local fixture = os.getenv("KA_STORY_GYM_FIXTURE")
+assert(cache or fixture,
+  "KA_ENGINE_CACHE_ROOT or KA_STORY_GYM_FIXTURE is required")
+local contract = not cache and fixture and assert(loadfile(fixture))() or nil
+local fixtureMoves = {}
+if contract then
+  for _, sources in pairs(contract.moveSources or {}) do
+    for move in pairs(sources) do fixtureMoves[move] = true end
+  end
+end
 
 local values = { difficulty = "standard" }
 local mod = {
@@ -24,20 +33,35 @@ local retained = {}
 local illegal = {}
 
 for _, edition in ipairs({ "red", "blue", "yellow" }) do
-  local pokemon = assert(loadfile(cache .. "/" .. edition
-    .. "/data/generated/pokemon.lua"))()
-  local moves = assert(loadfile(cache .. "/" .. edition
-    .. "/data/generated/moves.lua"))()
-  local trainers = assert(loadfile(cache .. "/" .. edition
-    .. "/data/generated/trainers.lua"))()
+  local pokemon, moves, trainers
+  if cache then
+    pokemon = assert(loadfile(cache .. "/" .. edition
+      .. "/data/generated/pokemon.lua"))()
+    moves = assert(loadfile(cache .. "/" .. edition
+      .. "/data/generated/moves.lua"))()
+    trainers = assert(loadfile(cache .. "/" .. edition
+      .. "/data/generated/trainers.lua"))()
+  else
+    pokemon = assert(contract.moveSources,
+      "story Gym fixture is missing the legality catalogue")
+    moves = fixtureMoves
+    trainers = assert(contract.trainers[edition],
+      "story Gym fixture is missing " .. edition .. " trainer rows")
+  end
   local parent = {}
-  for species, def in pairs(pokemon) do
-    for _, evolution in ipairs(def.evolutions or {}) do
-      if evolution.species then parent[evolution.species] = species end
+  if cache then
+    for species, def in pairs(pokemon) do
+      for _, evolution in ipairs(def.evolutions or {}) do
+        if evolution.species then parent[evolution.species] = species end
+      end
     end
   end
 
   local function sourceFor(species, level, move)
+    if contract then
+      local sources = contract.moveSources[species]
+      return sources and sources[move] or nil
+    end
     local direct = true
     while species do
       local def = assert(pokemon[species], "missing species " .. species)

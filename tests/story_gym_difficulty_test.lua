@@ -1,5 +1,6 @@
 -- Story Gym difficulty contract regression.
--- Run with TRAINER_REMATCH_MOD_DIR=/abs/mod luajit tests/story_gym_difficulty_test.lua
+-- Run with TRAINER_REMATCH_MOD_DIR=/abs/mod and either a complete
+-- KA_ENGINE_CACHE_ROOT or the ROM-free KA_STORY_GYM_FIXTURE contract.
 
 package.path = "./?.lua;./?/init.lua;" .. package.path
 
@@ -157,13 +158,21 @@ local badges = {
   OPP_BLAINE = "VOLCANOBADGE", OPP_GIOVANNI = "EARTHBADGE",
 }
 
-local cache = assert(os.getenv("KA_ENGINE_CACHE_ROOT"),
-  "KA_ENGINE_CACHE_ROOT is required")
-local source = {
-  red = assert(loadfile(cache .. "/red/data/generated/trainers.lua"))(),
-  blue = assert(loadfile(cache .. "/blue/data/generated/trainers.lua"))(),
-  yellow = assert(loadfile(cache .. "/yellow/data/generated/trainers.lua"))(),
-}
+local cache = os.getenv("KA_ENGINE_CACHE_ROOT")
+local fixture = os.getenv("KA_STORY_GYM_FIXTURE")
+assert(cache or fixture,
+  "KA_ENGINE_CACHE_ROOT or KA_STORY_GYM_FIXTURE is required")
+local source
+if cache then
+  source = {
+    red = assert(loadfile(cache .. "/red/data/generated/trainers.lua"))(),
+    blue = assert(loadfile(cache .. "/blue/data/generated/trainers.lua"))(),
+    yellow = assert(loadfile(cache .. "/yellow/data/generated/trainers.lua"))(),
+  }
+else
+  source = assert(assert(loadfile(fixture))().trainers,
+    "story Gym fixture is missing trainer rows")
+end
 
 local function partyIndex(class) return class == "OPP_GIOVANNI" and 3 or 1 end
 local function species(party)
