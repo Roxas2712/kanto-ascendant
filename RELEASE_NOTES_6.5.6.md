@@ -45,6 +45,16 @@ reroll them merely for an overworld colour preview.
   that habitat is genuinely active under the save's research and migration
   current. Inactive or undiscovered habitats remain hidden.
 
+## Gameplay and text
+
+- **Wild Level Scaling** is now a separate option and defaults to **OFF**.
+  Trainer difficulty is unchanged. Turning the option on restores the previous
+  badge-phased difficulty bonus for wild Pokémon; leaving it off preserves the
+  level supplied by the game, Randomizer or encounter author.
+- Dialogue now uses both visible text rows before asking for another button
+  press. Authored pauses and page breaks remain intact, while long English and
+  German lines still paginate safely instead of scrolling past unread.
+
 ## Install or update
 
 1. Close the game and launcher.

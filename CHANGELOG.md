@@ -29,6 +29,12 @@ All notable changes to this project are documented in this file.
   #001-251 after the National Dex upgrade; private runtime catalogue slots
   #252-279 no longer leak into that list. Seen Johto species also show an AREA
   marker when their authored Kanto habitat is genuinely active for this save.
+- Wild-level scaling is now controlled by its own option and defaults to off.
+  Trainer difficulty remains unchanged; enabling the option restores the
+  previous badge-phased wild-level bonus exactly.
+- Dialogue fills both visible text rows before inserting another required
+  button press, while preserving authored pauses, page breaks and safe wrapping
+  for English and German text.
 
 ## [6.5.5] - 2026-08-17
 

@@ -67,6 +67,10 @@ collapsed so players can reveal only the information they want.
 - Keeps the ordinary Pokédex at #151 before Driftglass and #251 after the
   National Dex upgrade, while active authored Johto habitats become visible
   on the AREA page without exposing inactive locations.
+- Adds an independent Wild Level Scaling option that defaults to off; trainer
+  difficulty is unaffected.
+- Uses both visible dialogue rows before requiring another button press while
+  preserving authored pauses and safe English/German pagination.
 
 See the full spoiler-light [6.5.6 release notes](RELEASE_NOTES_6.5.6.md).
 
