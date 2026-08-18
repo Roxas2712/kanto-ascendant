@@ -71,6 +71,10 @@ collapsed so players can reveal only the information they want.
   on the AREA page without exposing inactive locations.
 - Adds an independent Wild Level Scaling option that defaults to off; trainer
   difficulty is unaffected.
+- Moves only Ascendant-owned enemy Crystal fronts slightly up and left in
+  native 2D battles so large animated, Shiny and Mega frames no longer cover
+  the player's Pokémon name. Other sprite styles and staged renderers keep
+  their own placement.
 - Uses both visible dialogue rows before requiring another button press while
   preserving authored pauses and safe English/German pagination.
 

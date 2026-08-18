@@ -56,6 +56,10 @@ reroll them merely for an overworld colour preview.
   Trainer difficulty is unchanged. Turning the option on restores the previous
   badge-phased difficulty bonus for wild Pokémon; leaving it off preserves the
   level supplied by the game, Randomizer or encounter author.
+- In native 2D battles, Ascendant-owned enemy Crystal fronts sit eight pixels
+  higher and farther left. Large animated, Shiny, Mega and Gorochu frames no
+  longer cover the player's Pokémon name; Gen-I sprites, trainer art, player
+  backs and staged renderers keep their existing placement.
 - Dialogue now uses both visible text rows before asking for another button
   press. Authored pauses and page breaks remain intact, while long English and
   German lines still paginate safely instead of scrolling past unread.

@@ -4,7 +4,7 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
-## [6.5.6] - 2026-08-17
+## [6.5.6] - 2026-08-18
 
 ### Fixed
 
@@ -39,6 +39,11 @@ All notable changes to this project are documented in this file.
   authored partner is fainted or stored. Pikachu's logical first slot and
   story interaction remain reserved; up to five extras continue behind the
   player, and Pikachu returns to the front without duplicates or reordering.
+- Ascendant-owned enemy Crystal fronts in native 2D battles are positioned
+  eight pixels up and left so oversized animated, Shiny, Mega and Gorochu
+  frames no longer overlap the player's Pokémon name. Gen-I sprites, trainer
+  art, player backs and staged renderers retain their existing ownership and
+  placement.
 
 ## [6.5.5] - 2026-08-17
 
