@@ -159,6 +159,8 @@ jobs:
 
       - name: Run the Johto Signals regression suite
         working-directory: kanto-ascendant
+        env:
+          GEN1RECOMP_ROOT: ../gen1recomp
         run: |
           luajit tests/johto_encounter_levels_test.lua
           luajit tests/johto_signals_test.lua
