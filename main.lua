@@ -483,6 +483,11 @@ return function(mod)
   -- higher-priority content layer restores the original visible text; the
   -- runtime constructor guard lives in follower_compat.lua.
   local GameVersion = require("src.core.GameVersion")
+  local yellowMtMoonFossilDialogue = loadSibling(
+    mod, "yellow_mtmoon_fossil_dialogue.lua")({
+      gameVersion = GameVersion,
+    })
+  mod.exports.yellowMtMoonFossilDialogue = yellowMtMoonFossilDialogue
   if GameVersion.isYellow() then
     mod.content.strings:override("PIKACHU", "PIKACHU")
     mod.content.text:override(
@@ -2997,6 +3002,11 @@ return function(mod)
     local TextBox = deps.textBox or require("src.render.TextBox")
     local Runtime = deps.runtime or require("src.mods.Runtime")
     local mapScripts = deps.mapScripts or require("data.scripts.init")
+
+    -- Engine 0.1.96/0.1.98 omit only Yellow's Mt. Moon fossil Super Nerd
+    -- trainer header. Repair the exact imported data shape before any talk,
+    -- battle or rematch wrapper can observe it; R/B are a cold no-op.
+    yellowMtMoonFossilDialogue.install(game)
 
     -- Run only after every enabled mod has merged its audio registry. Existing
     -- Gen-II cries therefore always win; Ascendant supplies its bundled
