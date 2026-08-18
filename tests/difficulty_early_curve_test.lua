@@ -98,4 +98,38 @@ assert(difficulty.itemsAllowed({ kind = "trainer" }) == false,
 assert(difficulty.itemsAllowed({ kind = "wild" }) == true,
   "Extreme wild item policy changed")
 
+-- Provenance is keyed, not FIFO: a preview may construct and abandon one
+-- trainer before another battle actually starts. Adaptive must receive only
+-- the matching frozen Difficulty row, and a later same-key constructor must
+-- supersede the abandoned one without contaminating a new battle.
+events["game.ready"]({ game = gameAt(0) })
+values.difficulty = "high"
+local abandoned = hooks["trainer.party"](
+  function(_, _, rows) return rows end,
+  "OPP_A", 1, { { species = "A", level = 10 } })
+values.difficulty = "extreme"
+local other = hooks["trainer.party"](
+  function(_, _, rows) return rows end,
+  "OPP_B", 2, { { species = "B", level = 20 } })
+local otherBattle = { kind = "trainer", oppClass = "OPP_B", partyIndex = 2,
+  game = gameAt(0), enemyParty = other }
+events["battle.started"]({ battle = otherBattle })
+assert(otherBattle.ascendantDifficultyContext.difficulty == "extreme",
+  "out-of-order battle consumed an unrelated pending Difficulty row")
+assert(difficulty.pendingDifficultyCount("OPP_A", 1) == 1,
+  "unrelated abandoned constructor was discarded prematurely")
+values.difficulty = "hard"
+local replacement = hooks["trainer.party"](
+  function(_, _, rows) return rows end,
+  "OPP_A", 1, { { species = "A", level = 10 } })
+local replacementBattle = { kind = "trainer", oppClass = "OPP_A", partyIndex = 1,
+  game = gameAt(0), enemyParty = replacement }
+events["battle.started"]({ battle = replacementBattle })
+assert(replacementBattle.ascendantDifficultyContext.difficulty == "hard",
+  "new same-key constructor inherited the abandoned Difficulty context")
+assert(difficulty.pendingDifficultyCount("OPP_A", 1) == 0,
+  "matched battle did not clean stale same-key constructor records")
+assert(abandoned[1].level ~= replacement[1].level,
+  "test setup did not create distinct frozen Difficulty rows")
+
 print("difficulty_early_curve_test: PASS")

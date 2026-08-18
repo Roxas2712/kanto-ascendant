@@ -115,6 +115,7 @@ local bucket, hooks, screens, events = {}, {}, {}, {}
 local mode = "balanced"
 local mod = {
   id = "kanto_ascendant",
+  exports = {},
   save = {
     get = function(_, key, default)
       local value = bucket[key]
@@ -164,6 +165,12 @@ local rewards = assert(loadfile(modPath .. "/rematch_rewards.lua"))()(mod, {
       default = "standard", choices = {
         { "STANDARD", "standard" }, { "HARD", "hard" },
         { "VERY HARD", "very_hard" },
+      } },
+    { key = "adaptive_trainer_levels", label = "ADAPTIVE TRAINER-LV",
+      type = "choice", default = "auto", choices = {
+        { "AUTO", "auto" }, { "OFF", "off" }, { "-2", "-2" },
+        { "MATCH", "0" }, { "+2", "2" }, { "+4", "4" },
+        { "+6", "6" }, { "+8", "8" },
       } },
     { key = "wild_level_scaling", label = "WILD LEVEL SCALING",
       type = "toggle", default = false },
@@ -359,13 +366,17 @@ end
 local core = screens.AscendantCoreOptions.new(game, {})
 eq(core.footer, "L/R:CHG SEL:HELP",
   "setting pages visibly reserve Left/Right for values and SELECT for help")
-eq(#core.items, 4,
-  "core rules expose difficulty, opt-in Wild scaling, Kanto 151 and challenge rules")
+eq(#core.items, 5,
+  "core rules expose difficulty, adaptive levels, Wild scaling, Kanto 151 and challenge rules")
 eq(core.items[1].value, "difficulty", "difficulty is first in CORE RULES")
-eq(core.items[2].value, "wild_level_scaling",
-  "Wild level scaling is the explicit second CORE RULE")
-eq(core.items[3].value, "kanto_151", "Kanto 151 remains in CORE RULES")
-eq(core.items[4].value, "ascendant_rules", "challenge rules remain in CORE RULES")
+eq(core.items[2].value, "adaptive_trainer_levels",
+  "adaptive trainer levels is the independent second CORE RULE")
+eq(core.items[2].right, "AUTO:OFF",
+  "Standard visibly resolves AUTO to classic")
+eq(core.items[3].value, "wild_level_scaling",
+  "Wild level scaling remains an independent CORE RULE")
+eq(core.items[4].value, "kanto_151", "Kanto 151 remains in CORE RULES")
+eq(core.items[5].value, "ascendant_rules", "challenge rules remain in CORE RULES")
 eq(game.mods.modOptions.kanto_ascendant, nil,
   "opening an option page never mutates values")
 core.onChoose(core.items[1])
@@ -377,6 +388,17 @@ eq(game.mods.modOptions.kanto_ascendant.difficulty, "hard",
   "Right advances only the highlighted setting")
 eq(game.save.options.modOptions.kanto_ascendant.difficulty, "hard",
   "Right persists the selected value")
+eq(core.items[2].right, "AUTO:+2",
+  "Difficulty change refreshes the visible AUTO target immediately")
+mod.exports.adaptiveTrainerLevels = {
+  currentSelection = function() return "off" end,
+}
+local heldCore = screens.AscendantCoreOptions.new(game, {})
+eq(heldCore.items[2].right, "AUTO:OFF",
+  "legacy save hold never falsely advertises an active AUTO gap")
+mod.exports.adaptiveTrainerLevels.currentSelection = function()
+  return "auto"
+end
 eq(emitted.name, "mod.options_changed",
   "value change emits the standard option event")
 eq(emitted.payload.game, game,
@@ -385,6 +407,8 @@ pressed = "left"
 core:update()
 eq(game.mods.modOptions.kanto_ascendant.difficulty, "standard",
   "Left walks the selected setting backward")
+eq(core.items[2].right, "AUTO:OFF",
+  "returning to Standard visibly restores classic AUTO")
 pressed = "select"
 core:update()
 eq(game.lastHelp.label, "DIFFICULTY",

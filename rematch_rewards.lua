@@ -604,7 +604,8 @@ return function(mod, opts)
 
   local CATEGORY = {
     language = "system",
-    difficulty = "core", wild_level_scaling = "core",
+    difficulty = "core", adaptive_trainer_levels = "core",
+    wild_level_scaling = "core",
     kanto_151 = "core", ascendant_rules = "core",
     rare_item_lock = "capture",
     rest_min = "rematch", rest_max = "rematch", level_gain = "rematch",
@@ -691,7 +692,18 @@ return function(mod, opts)
         { game = game, mod = mod.id, key = key, value = value })
     end
   end
-  local function schemaValueLabel(row, value)
+  local function schemaValueLabel(game, row, value)
+    if row.key == "adaptive_trainer_levels"
+        and (value == "auto" or value == nil and row.default == "auto") then
+      local policy = mod.exports and mod.exports.adaptiveTrainerLevels
+      if policy and type(policy.currentSelection) == "function"
+          and policy.currentSelection() == "off" then
+        return tr("AUTO:OFF", "AUTO:AUS")
+      end
+      local gap = ({ high = 1, hard = 2, very_hard = 3, extreme = 4 })[
+        optionValue(game, "difficulty") or "standard"]
+      return gap and ("AUTO:+" .. tostring(gap)) or tr("AUTO:OFF", "AUTO:AUS")
+    end
     if row.type == "toggle" then return value == false and tr("OFF", "AUS") or tr("ON", "AN") end
     for _, choice in ipairs(row.choices or {}) do
       if choice[2] == value then return choice[1] end
@@ -730,7 +742,7 @@ return function(mod, opts)
         direction)
     end
     setOption(game, row.key, value)
-    return schemaValueLabel(row, value)
+    return schemaValueLabel(game, row, value)
   end
   local function optionRows(game, category)
     local rows = {}
@@ -742,7 +754,7 @@ return function(mod, opts)
           and legacyWanderers.legacyRunEnabled(game))
       if bucket == category and visible then
         local value = optionValue(game, schema.key)
-        local valueLabel = schemaValueLabel(schema, value)
+        local valueLabel = schemaValueLabel(game, schema, value)
         rows[#rows + 1] = { value = schema.key, label = schema.label,
           right = valueLabel, schema = schema,
           help = optionHelp and optionHelp.text(schema.key, valueLabel) }
@@ -816,7 +828,19 @@ return function(mod, opts)
     list.pageJump = false
     local baseUpdate = list.update
     function list:ascendantStep(direction)
-      return stepRow(game, self.items[self.index], category, direction)
+      local changed = self.items[self.index]
+      local result = stepRow(game, changed, category, direction)
+      if result and changed and changed.value == "difficulty" then
+        for _, row in ipairs(self.items) do
+          if row.value == "adaptive_trainer_levels" and row.schema then
+            local value = optionValue(game, row.value)
+            row.right = schemaValueLabel(game, row.schema, value)
+            row.help = optionHelp
+              and optionHelp.text(row.schema.key, row.right) or row.help
+          end
+        end
+      end
+      return result
     end
     function list:update(dt)
       local input = self.game and self.game.input

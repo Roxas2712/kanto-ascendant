@@ -520,6 +520,20 @@ return function(mod)
         { menuLabel("VERY HARD", "SEHR SCHWER"), "very_hard" },
         { menuLabel("EXTREME", "EXTREM"), "extreme" },
       } },
+    { key = "adaptive_trainer_levels",
+      label = menuLabel("ADAPTIVE TRAINER-LV", "ADAPTIVE TRAINER-LV"),
+      -- AUTO is classic on Standard and follows the documented target gaps
+      -- on higher difficulties. Existing slots receive a save-local classic
+      -- hold until the player deliberately revisits this row or Difficulty.
+      type = "choice", default = "auto",
+      choices = {
+        { "AUTO", "auto" },
+        { menuLabel("OFF", "AUS"), "off" },
+        { "-2", "-2" },
+        { menuLabel("MATCH", "GLEICH"), "0" },
+        { "+2", "2" }, { "+4", "4" },
+        { "+6", "6" }, { "+8", "8" },
+      } },
     { key = "wild_level_scaling",
       label = menuLabel("WILD LEVEL SCALING", "WILD-LEVEL-SKALIERUNG"),
       -- Difficulty must never raise a fresh or migrated save's Wild levels
@@ -1691,6 +1705,10 @@ return function(mod)
     mastery = rematchMastery,
   })
   mod.exports.difficulty = difficulty
+  mod.exports.adaptiveTrainerLevels = loadSibling(
+    mod, "adaptive_trainer_levels.lua")(mod, {
+      difficulty = difficulty,
+    })
   local bicycleSelect = loadSibling(mod, "bicycle_select.lua")(mod, {
     i18n = i18n,
   })
@@ -2628,10 +2646,23 @@ return function(mod)
       local newLevel = math.min(MAX_POKEMON_LEVEL, oldLevel + boost)
       if newLevel > oldLevel then
         local species = game.data.pokemon[mon.species]
+        local previousMoves = {}
+        for index, move in ipairs(mon.moves or {}) do
+          previousMoves[index] = {}
+          for key, value in pairs(move) do previousMoves[index][key] = value end
+        end
         -- Growing between rematches can teach normal level-up moves while
         -- preserving any special trainer moves already applied by the
         -- battle constructor.
         Pokemon.learnMovesFromDayCare(game.data, mon, species, oldLevel, newLevel)
+        local adaptive = mod.exports.adaptiveTrainerLevels
+        if adaptive and type(adaptive.ensureDamagingMove) == "function" then
+          -- Day Care replacement may otherwise shift out the last damaging
+          -- move (notably Butterfree's CONFUSION across the powder levels).
+          -- This guard runs only for an actually raised trainer Pokémon.
+          pcall(adaptive.ensureDamagingMove,
+            game.data, mon, species, previousMoves, newLevel)
+        end
         mon.level = newLevel
         mon.exp = Growth.expForLevel(species.growthRate, newLevel,
                                       game.data.growth_rates)
@@ -2798,7 +2829,28 @@ return function(mod)
           random = deps.rematchRandom or randomSource(deps),
           deferCommit = true,
         })
-      local previewTeam = boostedTeam(rematchTeam, boost)
+      -- Freeze one pure level plan before showing a warning. The exact same
+      -- targets are later applied to the battle. In adaptive mode numeric B
+      -- is suppressed, while the progress value above still owns ranks,
+      -- evolutions, recruits, AI and rewards. OFF/AUTO-on-Standard keeps the
+      -- classic constructor path byte-for-byte (including appended recruits).
+      local adaptive = mod.exports.adaptiveTrainerLevels
+      local frozenTeam, frozenReport
+      if adaptive and type(adaptive.planRematch) == "function" then
+        local plannedOk, plannedTeam, plannedReport = pcall(
+          adaptive.planRematch,
+          rematchTeam, game.save.party, {
+            selection = adaptive.currentSelection(),
+            difficultyName = mod.options:get("difficulty") or "standard",
+            badges = difficulty.progressBadges(game),
+            classicBoost = boost, originalCount = #team,
+            pokemon = game.data and game.data.pokemon,
+          })
+        if plannedOk and plannedReport and plannedReport.mode == "adaptive" then
+          frozenTeam, frozenReport = plannedTeam, plannedReport
+        end
+      end
+      local previewTeam = frozenTeam or boostedTeam(rematchTeam, boost)
 
       local function battle()
         Runtime.emit("world.trainer_engaged", { npc = npc,
@@ -2830,7 +2882,24 @@ return function(mod)
               rematchTeam[i].species
           end
         end
-        strengthenBattle(game, b, boost)
+        local adaptiveApplied = false
+        if frozenTeam and frozenReport and frozenReport.mode == "adaptive"
+            and adaptive and type(adaptive.applyBattleTargets) == "function" then
+          adaptiveApplied = adaptive.applyBattleTargets(game, b, frozenTeam, {
+            -- A cooperative Randomizer may change species while retaining
+            -- slot structure. The frozen slot levels remain authoritative;
+            -- level-incompatible rewrites still fail closed to classic.
+            allowSpeciesRemap = true,
+          })
+          if adaptiveApplied then
+            -- Preserve B as inspectable progression metadata without applying
+            -- it numerically a second time.
+            b.rematchLevelBoost = boost
+            b.rematchNumericBoostSuppressed = boost
+            b.ascendantAdaptiveTrainerLevels = frozenReport
+          end
+        end
+        if not adaptiveApplied then strengthenBattle(game, b, boost) end
         b.rematchMasteryReport = rematchMastery.apply(game, b, {
           kind = "field", key = key, progress = progress,
           rematches = state.rematches, masteryWins = state.masteryWins,
@@ -2876,7 +2945,10 @@ return function(mod)
 
       -- when the rematch team averages more than 10 levels above the
       -- player's party, the class warns in its own voice and asks again
-      local gap = levelGap(game.save.party, previewTeam)
+      local gap = frozenTeam and adaptive
+        and adaptive.previewGap(previewTeam, game.save.party,
+          game.data and game.data.pokemon)
+        or levelGap(game.save.party, previewTeam)
       if gap and gap > 10 then
         game.stack:push(TextBox.new(game, localizedWarning(d.trainerClass), nil, {
           choice = function(yes)

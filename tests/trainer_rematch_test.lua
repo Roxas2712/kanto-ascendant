@@ -3630,7 +3630,11 @@ local game = {
   save = { money = 3000, inventory = {}, bagOrder = {},
            defeatedTrainers = {}, flags = {}, modData = {},
            player = { name = "RED" },
-           party = { { level = 5 }, { level = 6 }, { level = 7 } } },
+           party = {
+             { species = "FIXMON_A", level = 5 },
+             { species = "FIXMON_B", level = 6 },
+             { species = "FIXMON_C", level = 7 },
+           } },
   stack = { push = function(_, s) table.insert(pushed, s) end },
 }
 game.save.modData.kanto_ascendant = {
@@ -3809,14 +3813,23 @@ local Pokemon = require("src.pokemon.Pokemon")
 local battleStateStub = {
   newTrainer = function(g, cls, party)
     local record = g.data.trainers[cls]
+    local partyDef = RealRuntime.call("trainer.party",
+      function(_, _, rows) return rows end,
+      cls, party, record.parties[party])
     local enemyParty = {}
-    for _, slot in ipairs(record.parties[party]) do
+    for _, slot in ipairs(partyDef) do
       local species = g.data.pokemon[slot.species] and slot.species or "FIXMON_A"
       enemyParty[#enemyParty + 1] =
         Pokemon.new(g.data, species, slot.level, function() return 8 end)
     end
     local lead = enemyParty[1]
-    local b = { game = g, trainer = record, enemyParty = enemyParty,
+    local b = { game = g, kind = "trainer", oppClass = cls,
+                partyIndex = party, trainer = record, enemyParty = enemyParty,
+                _testConstructedSpecies = {
+                  enemyParty[1] and enemyParty[1].species,
+                  enemyParty[2] and enemyParty[2].species,
+                },
+                _testConstructedParty = { enemyParty[1], enemyParty[2] },
                 enemy = { mon = lead, curStats = lead.stats,
                           curMoves = lead.moves, shownHP = lead.hp },
                 queue = {} }
@@ -4249,6 +4262,112 @@ T.eq(savedState.rematches, 1,
   "a lost rematch does not increment the persistent trainer win count")
 T.eq(savedState.rematchProgressionVersion, 3,
   "the attempted rematch preserves Phase-6 history and adds mastery state")
+
+-- B3: Adaptive freezes one slot-level plan for preview and battle, suppresses
+-- numeric rematch growth B, and composes with a cooperative species-only
+-- Randomizer without replacing the Randomizer's species.
+do
+  local previousOptions = run.loader.modOptions.kanto_ascendant
+  local previousParty = game.save.party
+  run.loader.modOptions.kanto_ascendant = {
+    difficulty = "hard", adaptive_trainer_levels = "2",
+    level_gain = 20, team_growth = false,
+  }
+  game.save.party = {
+    { species = "FIXMON_A", level = 30 },
+    { species = "FIXMON_B", level = 30 },
+    { species = "FIXMON_C", level = 30 },
+  }
+  local randomizerCalls = 0
+  local removeRandomizer = RealRuntime.hooks:wrap("trainer.party",
+    function(nextParty, class, partyIndex, rows)
+      randomizerCalls = randomizerCalls + 1
+      local out = nextParty(class, partyIndex, rows)
+      if class == "OPP_FIX_YOUNGSTER" then
+        local copied = {}
+        for index, row in ipairs(out) do
+          copied[index] = {}
+          for key, value in pairs(row) do copied[index][key] = value end
+        end
+        out = copied
+        out[1].species, out[2].species = "FIXMON_C", "FIXMON_B"
+      end
+      return out
+    end, -100, "adaptive-species-randomizer")
+  pushed = {}
+  local adaptiveNpc = freshNpc("FIX_ROUTE_obj_adaptive")
+  overworldStub.talkTo(ow, adaptiveNpc)
+  pushed[#pushed].opts.choice(true)
+  removeRandomizer()
+  local adaptiveBattle = calls.battles[#calls.battles].battle
+  T.eq(randomizerCalls > 0, true,
+    "adaptive rematch construction traverses the real Randomizer hook")
+  T.eq(adaptiveBattle._testConstructedSpecies[1], "FIXMON_C",
+    "species-only Randomizer reaches the battle constructor lead")
+  T.eq(adaptiveBattle.rematchOriginalEvolutions, 0,
+    "species-only Randomizer is not mistaken for authored evolution")
+  T.eq(adaptiveBattle.enemyParty[1]
+      == adaptiveBattle._testConstructedParty[1], true,
+    "adaptive keeps the Randomizer lead object instead of rebuilding it")
+  T.eq(adaptiveBattle.ascendantAdaptiveTrainerLevels.mode, "adaptive",
+    "manual Adaptive produces an inspectable frozen rematch plan")
+  T.eq(adaptiveBattle.rematchLevelBoost, 20,
+    "progress B remains visible as rank/training metadata")
+  T.eq(adaptiveBattle.rematchNumericBoostSuppressed, 20,
+    "Adaptive suppresses the unbounded numeric rematch stack")
+  T.eq(adaptiveBattle.enemyParty[1].species, "FIXMON_C",
+    "Adaptive preserves the Randomizer lead species")
+  T.eq(adaptiveBattle.enemyParty[2].species, "FIXMON_B",
+    "Adaptive preserves the Randomizer second species")
+  T.same({ adaptiveBattle.enemyParty[1].level,
+           adaptiveBattle.enemyParty[2].level }, { 32, 32 },
+    "real battle receives the exact party-average plus-two preview levels")
+  T.eq(adaptiveBattle.ascendantAdaptiveTrainerLevels.teamMean, 32,
+    "frozen preview mean equals the realized randomized battle mean")
+  run.loader.modOptions.kanto_ascendant = previousOptions
+  game.save.party = previousParty
+end
+
+-- B4: the same move fail-safe protects classic rematch growth. Butterfree's
+-- real powder sequence is represented by four status moves that would shift
+-- the only damaging move out under Gen-I Day Care learning.
+do
+  local previousOptions = run.loader.modOptions.kanto_ascendant
+  local previousLearnset = Data.pokemon.FIXMON_A.learnset
+  for index = 1, 4 do
+    local id = "FIX_REMATCH_STATUS_" .. index
+    Data.moves[id] = { id = id, index = 300 + index, name = id,
+      type = "NORMAL", power = 0, accuracy = 100, pp = 20,
+      effect = "NO_ADDITIONAL_EFFECT" }
+  end
+  Data.pokemon.FIXMON_A.learnset = {
+    { level = 6, move = "FIX_REMATCH_STATUS_1" },
+    { level = 7, move = "FIX_REMATCH_STATUS_2" },
+    { level = 8, move = "FIX_REMATCH_STATUS_3" },
+    { level = 9, move = "FIX_REMATCH_STATUS_4" },
+  }
+  run.loader.modOptions.kanto_ascendant = {
+    difficulty = "standard", adaptive_trainer_levels = "off",
+    level_gain = 4, team_growth = false,
+  }
+  pushed = {}
+  local classicMoveNpc = freshNpc("FIX_ROUTE_obj_classic_move_guard")
+  overworldStub.talkTo(ow, classicMoveNpc)
+  pushed[#pushed].opts.choice(true)
+  local classicMoveBattle = calls.battles[#calls.battles].battle
+  local hasDamage = false
+  for _, move in ipairs(classicMoveBattle.enemyParty[1].moves) do
+    if (tonumber(Data.moves[move.id] and Data.moves[move.id].power) or 0) > 0 then
+      hasDamage = true
+    end
+  end
+  T.eq(hasDamage, true,
+    "classic scaled trainer retains its legal pre-growth damaging move")
+  T.eq(classicMoveBattle.enemyParty[1].level, 9,
+    "classic damaging-move guard does not alter numeric rematch growth")
+  Data.pokemon.FIXMON_A.learnset = previousLearnset
+  run.loader.modOptions.kanto_ascendant = previousOptions
+end
 
 -- C: NO -> the class reacts, then the vanilla post-battle line as a page
 pushed = {}

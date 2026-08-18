@@ -13,12 +13,16 @@ assert(optionHelp.text("difficulty", "EXTREM"):find("Items")
 assert(optionHelp.text("wild_level_scaling", "AUS"):find("festgelegte Wildlevel")
     and optionHelp.text("wild_level_scaling", "AN"):find("Randomizer"),
   "Wild-level help must explain OFF authority and isolated ON scope")
+assert(optionHelp.text("adaptive_trainer_levels", "AUS"):find("AUS = KLASSISCH", 1, true)
+    and optionHelp.text("adaptive_trainer_levels", "AUTO"):find("Teamdurchschnitt")
+    and optionHelp.text("adaptive_trainer_levels", "+4"):find("Box%-Pokémon"),
+  "adaptive help must explain classic fallback, party mean and exclusions")
 assert(optionHelp.text("legend_lugia", "AN"):find("Lugia"),
   "dynamic legendary help missing")
 assert(optionHelp.text("event_flying_pikachu", "AN"):find("Flying Pikachu"),
   "dynamic event help missing")
 local detailed = {
-  "wild_level_scaling",
+  "adaptive_trainer_levels", "wild_level_scaling",
   "pokemon_sprite_style", "character_sprite_style", "trainer_portrait_style",
   "sprite_style_battle",
   "sprite_style_summary", "sprite_style_dex", "sprite_style_box",

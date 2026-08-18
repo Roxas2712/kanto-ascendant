@@ -91,12 +91,29 @@ return function(mod, opts)
   mod.events:on("save.loaded", rememberGame, 160)
 
   local pending = {}
+  local function partySignature(party)
+    if type(party) ~= "table" or #party < 1 then return nil end
+    local out = {}
+    for index, mon in ipairs(party) do
+      local level = type(mon) == "table" and tonumber(mon.level)
+      local species = type(mon) == "table" and mon.species
+      if type(species) ~= "string" or not level
+          or level ~= math.floor(level) then return nil end
+      out[index] = species .. "@" .. tostring(level)
+    end
+    return table.concat(out, "|")
+  end
+
   mod.hooks:wrap("trainer.party", function(nextParty, oppClass, partyIndex, party)
     local resolved = nextParty(oppClass, partyIndex, party)
-    local adjusted, overflow = D.adjustParty(resolved, D.progressBadges())
+    local badges = D.progressBadges()
+    local difficultyName = mod.options:get("difficulty") or "standard"
+    local adjusted, overflow = D.adjustParty(resolved, badges)
     if #pending >= 8 then table.remove(pending, 1) end
     pending[#pending + 1] = { class = oppClass, party = partyIndex,
-      overflow = overflow }
+      overflow = overflow, authoredParty = clone(resolved),
+      adjustedParty = clone(adjusted), badges = badges,
+      difficulty = difficultyName, signature = partySignature(adjusted) }
     return adjusted
   end, 150)
 
@@ -115,13 +132,60 @@ return function(mod, opts)
     local battle = ev and ev.battle
     local game = battle and battle.game
     if not (battle and game and battle.kind == "trainer") then return end
-    local row = table.remove(pending, 1)
+    -- Battle constructors need not be pushed immediately and some preview
+    -- paths intentionally abandon a constructed battle. Resolve provenance
+    -- by the actual class/party/signature instead of consuming an unrelated
+    -- FIFO row. The newest exact row wins; older rows for that same trainer
+    -- key are stale and are discarded together.
+    local row, matchedIndex
+    local signature = partySignature(battle.enemyParty)
+    for index = #pending, 1, -1 do
+      local candidate = pending[index]
+      if candidate.class == battle.oppClass
+          and candidate.party == battle.partyIndex
+          and candidate.signature == signature then
+        row, matchedIndex = candidate, index
+        break
+      end
+    end
+    if matchedIndex then
+      for index = #pending, 1, -1 do
+        local candidate = pending[index]
+        if index == matchedIndex or (candidate.class == row.class
+            and candidate.party == row.party) then
+          table.remove(pending, index)
+        end
+      end
+    else
+      -- A later hook may have changed the roster after Difficulty resolved
+      -- it. Consume only records for this exact trainer key; other pending
+      -- constructors remain available and Adaptive safely stays classic.
+      for index = #pending, 1, -1 do
+        local candidate = pending[index]
+        if candidate.class == battle.oppClass
+            and candidate.party == battle.partyIndex then
+          table.remove(pending, index)
+        end
+      end
+    end
     local excess = 0
     for _, value in ipairs(row and row.overflow or {}) do
       excess = math.max(excess, tonumber(value) or 0)
     end
     battle.ascendantDifficulty = mod.options:get("difficulty") or "standard"
     battle.ascendantDifficultyOverflow = excess
+    -- Frozen, read-only provenance for the lower-priority adaptive story
+    -- policy. The consumer verifies the entire species/level signature before
+    -- changing anything, so a queue mismatch or another trainer hook falls
+    -- back to the exact classic battle.
+    if row then
+      battle.ascendantDifficultyContext = {
+        class = row.class, party = row.party,
+        authoredParty = clone(row.authoredParty),
+        adjustedParty = clone(row.adjustedParty),
+        badges = row.badges, difficulty = row.difficulty,
+      }
+    end
     if excess > 0 and opts.mastery and opts.mastery.apply then
       battle.difficultyMastery = opts.mastery.apply(game, battle, {
         kind = "difficulty", key = "difficulty:" .. battle.ascendantDifficulty,
@@ -129,6 +193,20 @@ return function(mod, opts)
       })
     end
   end, 170)
+
+  -- Read-only diagnostics used by the deterministic abandoned-constructor
+  -- regression. Gameplay code never depends on the queue size.
+  function D.pendingDifficultyCount(oppClass, partyIndex)
+    if oppClass == nil then return #pending end
+    local count = 0
+    for _, row in ipairs(pending) do
+      if row.class == oppClass
+          and (partyIndex == nil or row.party == partyIndex) then
+        count = count + 1
+      end
+    end
+    return count
+  end
 
   function D.itemsAllowed(battle)
     return not (battle and battle.kind == "trainer" and preset().items == false)
