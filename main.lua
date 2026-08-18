@@ -2474,6 +2474,20 @@ return function(mod)
   mod.exports.legacyHall = legacyHall
   legacyWanderers.setTitleProvider(legacyHall)
 
+  -- The native Trainer Card is authored on the fixed 160x144 UI canvas.
+  -- Keep it as the input/error fallback, but present the standard card at
+  -- window resolution so the already-bundled 128px portraits and leader art
+  -- remain genuinely high resolution.  Collection/unlock/matchup cards stay
+  -- outside this bounded 6.5.7 replacement.
+  local makeTrainerCardHDStandard = loadSibling(
+    mod, "trainer_card_hd_standard.lua")
+  local trainerCardHDStandard = makeTrainerCardHDStandard(mod, {
+    i18n = i18n,
+    extendedCharacters = extendedCharacters,
+    legacyHall = legacyHall,
+  })
+  mod.exports.trainerCardHDStandard = trainerCardHDStandard
+
   local function trainerKey(overworld, npc)
     if npc and npc.id then return tostring(npc.id) end
     local mapId = overworld and overworld.map and overworld.map.id or "UNKNOWN"
@@ -3085,6 +3099,7 @@ return function(mod)
     if questTracker then questTracker.install(game, deps) end
     if onboarding then onboarding.install(game, deps) end
     if legacyHall then legacyHall.install(game, deps) end
+    if trainerCardHDStandard then trainerCardHDStandard.install(game) end
     if followerCompat then followerCompat.install(game) end
     if yellowPartner then yellowPartner.install(game, deps) end
     if followerConfig then followerConfig.install(game, singleFollower) end
