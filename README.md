@@ -53,6 +53,29 @@ collapsed so players can reveal only the information they want.
 > [GitHub Issues](https://github.com/Roxas2712/kanto-ascendant/issues) and will
 > be considered for future updates.
 
+## What's new in 6.5.7
+
+- Replaces the low-resolution Trainer Card with the approved 640×400 HD
+  standard card. It keeps the KANTO ASCENDANT brand, selected identity, active
+  title, money, play time and all eight Kanto Leader/badge slots on one screen.
+  Giovanni stays a black silhouette until a genuine Giovanni victory flag is
+  present; merely owning an Earth Badge cannot reveal him.
+- Restores Yellow's native partner-emotion window by marking the exact
+  level-5 Pikachu that Oak gives through the original three-argument Lab
+  command. Other Pikachu remain ordinary, while the partner identity survives
+  storage, fainting and later evolution into Raichu or Gorochu.
+- Corrects Yellow's German Oak's Lab exchange to use grammatical, deliberately
+  paginated text without changing the adjacent English dialogue.
+- Adds a default-off **BOX ICONS → HGSS WALKERS** choice for the right-hand
+  5×4 storage grid. It reuses the already bundled Wilds walking sheets, keeps
+  the large left preview unchanged and falls back to the current icon for
+  missing species or unsupported forms. No new third-party art is added.
+
+This hotfix contains one fixed standard Trainer Card. Unlockable card designs,
+title expansion and pre-battle card overlays remain outside 6.5.7.
+
+See the full spoiler-light [6.5.7 release notes](RELEASE_NOTES_6.5.7.md).
+
 ## What's new in 6.5.6
 
 - Restores the complete Red and Green Oak's Lab dialogue contract in English
@@ -1699,8 +1722,8 @@ ledger prevents duplicate delivery.
 > launcher-compatible `.zip`. A matching `.modpkg` may be retained only as an
 > internal build or verification artifact.
 
-1. Download `kanto_ascendant-6.5.6.zip` from the
-   [6.5.6 release](https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.5.6)
+1. Download `kanto_ascendant-6.5.7.zip` from the
+   [6.5.7 release](https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.5.7)
    and import it through the launcher. Developers may alternatively install
    the checked-out mod directory.
    If you downloaded a complete bundle, extract it first and import the inner

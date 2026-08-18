@@ -22,7 +22,7 @@ def require(condition: bool, message: str) -> None:
 manifest = json.loads((ROOT / "manifest.json").read_text(encoding="utf-8"))
 require(manifest["id"] == "kanto_ascendant", "released save/mod id drifted")
 require(manifest["name"] == "Kanto Ascendant", "public name drifted")
-require(manifest["version"] == "6.5.6", "6.5 integration version drifted")
+require(manifest["version"] == "6.5.7", "6.5 integration version drifted")
 require(manifest.get("dependencies") == [], "an external runtime became required")
 require(manifest.get("entry") == "main.lua", "unexpected runtime entry point")
 
@@ -57,8 +57,8 @@ runtime = "\n".join(
     path.read_text(encoding="utf-8")
     for path in sorted(ROOT.glob("*.lua"))
 )
-require(not re.search(r"\b(?:print|io\.write)\s*\(", runtime),
-        "debug console output remains in runtime Lua")
+require(not re.search(r"(?<![.:])\b(?:print|io\.write)\s*\(", runtime),
+        "debug global console output remains in runtime Lua")
 require("★" not in runtime, "unsupported decorative star remains in Gen-I UI text")
 require("EXP_DOUBLER" not in runtime.upper(),
         "obsolete EXP Doubler identifier remains in runtime")

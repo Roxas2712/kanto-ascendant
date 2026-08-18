@@ -1,6 +1,6 @@
 # Kanto Ascendant FAQ and Spoiler Guide
 
-This is the public reference for **Kanto Ascendant 6.5.6**. It applies to Red,
+This is the public reference for **Kanto Ascendant 6.5.7**. It applies to Red,
 Blue and Yellow and is maintained from the current mod code, release
 documentation and confirmed support reports.
 
@@ -40,7 +40,7 @@ breeding, shinies, Mega Evolution, Gorochu and a large Hall-of-Fame post-game.
 <summary><strong>⚠️ SPOILER — How do I install or update it?</strong></summary>
 
 1. Download the release `.zip` from the
-   [6.5.6 GitHub release](https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.5.6).
+   [6.5.7 GitHub release](https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.5.7).
 2. Import it through the Gen 1 Recomp launcher.
 3. Use Gen 1 Recomp **0.1.90** or newer. Disable every package the manager reports as a
    conflict, then enable **Kanto Ascendant** and restart.
@@ -536,7 +536,7 @@ Mankey in every active KANTO 151 game.
 <details>
 <summary><strong>⚠️ SPOILER — Do I need to start a new game for Johto Signals?</strong></summary>
 
-No. Version 6.5.6 upgrades existing Red, Blue and Yellow saves in place.
+No. Version 6.5.7 upgrades existing Red, Blue and Yellow saves in place.
 
 The signal system does not count steps taken before 6.0 was installed. Once
 the updated save has a starter and the Pokédex, it begins its own hidden
@@ -1767,6 +1767,25 @@ or exits when nothing is being moved. **START** opens the context help.
 </details>
 
 <details>
+<summary><strong>⚠️ SPOILER — What changed on the Trainer Card in 6.5.7?</strong></summary>
+
+The native Trainer Card entry now opens one approved 640×400 HD standard card
+instead of enlarging the old low-resolution layout. It shows the fixed
+**KANTO ASCENDANT** brand, selected Red/Green/Blue identity, active earned
+title, money, play time and all eight Kanto Leader/badge slots on one screen.
+The player and Leader portraits use their existing 128-pixel masters.
+
+Giovanni remains a completely black silhouette until the save contains a real
+Giovanni victory flag. Adding or obtaining an Earth Badge by itself does not
+reveal him. This applies to every edition and New Game Plus cycle.
+
+Version 6.5.7 contains only this fixed standard card. Unlockable card designs,
+the larger title expansion and cards shown around scheduled battles remain
+future work and are not silently enabled by this hotfix.
+
+</details>
+
+<details>
 <summary><strong>⚠️ SPOILER — How do followers work?</strong></summary>
 
 Open **Start → Pokémon**, select a party member and choose **Follower**.
@@ -1797,6 +1816,14 @@ Pikachu prepends it as follower one again without duplicating or reordering
 the saved extras. Professor Oak still catches the canonical level-5 Pikachu
 and the lab gift remains Pikachu.
 
+Version 6.5.7 restores the missing emotion window by marking exactly the
+level-5 Pikachu given by Oak's original three-argument Lab command. Another
+Pikachu does not gain partner emotions. The marker remains on the same Pokémon
+while it is fainted, stored or later evolves into Raichu or Gorochu. An
+affected older save with exactly one eligible self-owned Pikachu, Raichu or
+Gorochu is repaired automatically; when several candidates make the identity
+ambiguous, Ascendant does not guess.
+
 </details>
 
 <details>
@@ -1815,6 +1842,13 @@ and the lab gift remains Pikachu.
   frame one. Johto uses its species-authentic bundled Crystal portrait because
   Red/Blue/Yellow have no native #152-251 art.
 - **CRYSTAL ANIMATION:** animates normal/shiny #001-251 battle fronts.
+- **BAG / STORAGE → BOX ICONS:** `CURRENT` keeps the established icons in the
+  right-hand 5×4 Box grid. The default-off `HGSS WALKERS` choice uses frame
+  zero of the already bundled 16×96 Wilds walking sheet when an exact
+  normal/Shiny species asset exists. The large selected-Pokémon preview on the
+  left never changes; Gorochu, unsupported forms and missing sheets fall back
+  to the current icon. No new art files are added by 6.5.7, and the existing
+  Wilds/follower attribution in `THIRD_PARTY_NOTICES.md` remains authoritative.
 - Reviewed voxel renderers use their dedicated staged-3D assets. Gorochu and
   all official Mega forms have separate sharp 96×96 masters.
 

@@ -64,18 +64,11 @@ jobs:
           MODKIT_LUAJIT: luajit
         run: |
           ignore_file="../kanto-ascendant/.modkitignore"
-          ignore_backup="$(mktemp)"
-          cp "$ignore_file" "$ignore_backup"
-          restore_ignore() {
-            cp "$ignore_backup" "$ignore_file"
-            rm -f "$ignore_backup"
-          }
-          trap restore_ignore EXIT
 
           # The pinned minimum-version ModKit understands exact ignore paths,
           # but not the later directory-prefix form. Expand those prefixes in
-          # this disposable CI checkout only; the trap restores the authored
-          # package boundary before any tests or release packing run.
+          # this disposable CI checkout and retain the expansion for the later
+          # release pack step. The authored checkout is never committed.
           python3 - "$ignore_file" <<'PY'
           from pathlib import Path
           import sys
@@ -140,6 +133,7 @@ jobs:
           luajit ../kanto-ascendant/tests/extended_characters_test.lua
           luajit ../kanto-ascendant/tests/rival_personality_dialogue_test.lua
           luajit ../kanto-ascendant/tests/oak_lab_identity_dialogue_test.lua
+          luajit ../kanto-ascendant/tests/yellow_german_oak_dialogue_test.lua
           luajit ../kanto-ascendant/tests/prename_placeholder_654_test.lua
           luajit ../kanto-ascendant/tests/extended_characters_yellow_test.lua
           luajit ../kanto-ascendant/tests/rival_teams_test.lua
@@ -211,6 +205,7 @@ jobs:
           python3 tests/gorochu_follower_quality_test.py
           python3 tests/gorochu_crystal_animation_test.py
           python3 tests/gorochu_voxel_animation_test.py
+          luajit tests/hgss_box_grid_icons_test.lua
 
       - name: Run the engine-backed 6.5 systems suite
         working-directory: gen1recomp
@@ -264,7 +259,7 @@ jobs:
           GEN1RECOMP_DIR=. luajit ../kanto-ascendant/tests/legacy_journey_test.lua
           GEN1RECOMP_DIR=. luajit ../kanto-ascendant/tests/legacy_locker_quantity_test.lua
 
-      - name: Audit the 6.5.6 release boundary
+      - name: Audit the 6.5.7 release boundary
         working-directory: kanto-ascendant
         run: python3 tools/johto_signals_release_audit.py .
 
@@ -274,21 +269,21 @@ jobs:
           MODKIT_LUAJIT: luajit
         run: |
           python3 tools/modkit.py pack ../kanto-ascendant \
-            -o ../kanto_ascendant-6.5.6.zip
-          unzip -tq ../kanto_ascendant-6.5.6.zip
+            -o ../kanto_ascendant-6.5.7.zip
+          unzip -tq ../kanto_ascendant-6.5.7.zip
           (
             cd ..
-            sha256sum kanto_ascendant-6.5.6.zip \
-              > SHA256SUMS-6.5.6.txt
+            sha256sum kanto_ascendant-6.5.7.zip \
+              > SHA256SUMS-6.5.7.txt
           )
           python3 ../kanto-ascendant/tools/johto_signals_release_audit.py \
-            ../kanto_ascendant-6.5.6.zip
+            ../kanto_ascendant-6.5.7.zip
           python3 - <<'PY'
           import hashlib
           import json
           import zipfile
 
-          package = "../kanto_ascendant-6.5.6.zip"
+          package = "../kanto_ascendant-6.5.7.zip"
           forbidden_prefixes = (
               "art_review/",
               "artifacts/",
@@ -341,6 +336,18 @@ jobs:
               "assets/crystal_animated/back/shiny/279/001.png",
               "modern_ball_skins.lua",
               "modern_storage_ui.lua",
+              "trainer_card_hd_standard.lua",
+              "assets/characters/crystal_chars/red_voxel_front_hd.png",
+              "assets/characters/crystal_chars/green_voxel_front_hd.png",
+              "assets/characters/crystal_chars/blue_voxel_front_hd.png",
+              "assets/characters/frlg_trainers/leader_brock_voxel_front_hd_v2.png",
+              "assets/characters/frlg_trainers/leader_misty_voxel_front_hd_v2.png",
+              "assets/characters/frlg_trainers/leader_lt_surge_voxel_front_hd_v2.png",
+              "assets/characters/frlg_trainers/leader_erika_voxel_front_hd_v2.png",
+              "assets/characters/frlg_trainers/leader_koga_voxel_front_hd_v2.png",
+              "assets/characters/frlg_trainers/leader_sabrina_voxel_front_hd_v2.png",
+              "assets/characters/frlg_trainers/leader_blaine_voxel_front_hd_v2.png",
+              "assets/characters/frlg_trainers/leader_giovanni_voxel_front_hd_v2.png",
               "useful_bag.lua",
               "catch_destination.lua",
               "party_icons.lua",
@@ -380,7 +387,18 @@ jobs:
               f"assets/followers_kanto/shiny/follower_{dex_number:03d}.png"
               for dex_number in range(1, 152)
           }
-          required_files |= expected_kanto_normal | expected_kanto_shiny
+          expected_box_grid_walkers = {
+              "vendor/wilds_1_12_2/assets/bundled_runtime/"
+              "followsprites_runtime/"
+              f"{dex_number:03d}-{variant}.png"
+              for dex_number in range(1, 650)
+              for variant in ("normal", "shiny")
+          }
+          required_files |= (
+              expected_kanto_normal
+              | expected_kanto_shiny
+              | expected_box_grid_walkers
+          )
 
           with zipfile.ZipFile(package) as archive:
               names = set(archive.namelist())
@@ -421,6 +439,19 @@ jobs:
               if actual_kanto_shiny != expected_kanto_shiny:
                   raise SystemExit("Kanto Shiny follower catalogue is not exactly #001-151")
 
+              actual_box_grid_walkers = {
+                  name for name in names
+                  if name.startswith(
+                      "vendor/wilds_1_12_2/assets/bundled_runtime/"
+                      "followsprites_runtime/"
+                  ) and name.endswith(".png")
+              }
+              if actual_box_grid_walkers != expected_box_grid_walkers:
+                  raise SystemExit(
+                      "Bundled Box-grid walker catalogue is not exactly "
+                      "#001-649 normal/Shiny"
+                  )
+
               contract = json.loads(archive.read(
                   "assets/followers_kanto/shiny/palette_contract.json"
               ))
@@ -448,9 +479,9 @@ jobs:
                       raise SystemExit(f"Kanto Shiny follower hash drift: #{dex_number:03d}")
 
               manifest = json.loads(archive.read("manifest.json"))
-              if manifest.get("version") != "6.5.6":
+              if manifest.get("version") != "6.5.7":
                   raise SystemExit(
-                      "Expected manifest version 6.5.6, got "
+                      "Expected manifest version 6.5.7, got "
                       + repr(manifest.get("version"))
                   )
 
@@ -460,8 +491,8 @@ jobs:
       - name: Upload the verified release
         uses: actions/upload-artifact@v4
         with:
-          name: kanto-ascendant-6.5.6-release
+          name: kanto-ascendant-6.5.7-release
           if-no-files-found: error
           path: |
-            kanto_ascendant-6.5.6.zip
-            SHA256SUMS-6.5.6.txt
+            kanto_ascendant-6.5.7.zip
+            SHA256SUMS-6.5.7.txt

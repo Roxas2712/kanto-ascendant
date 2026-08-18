@@ -4,6 +4,35 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+## [6.5.7] - 2026-08-18
+
+### Fixed
+
+- The native Trainer Card now renders the approved 640×400 HD standard layout
+  with fixed KANTO ASCENDANT branding, the selected identity and active title,
+  money, play time and eight Leader/badge cells. Existing 128-pixel player and
+  Leader masters stay sharp, and Giovanni remains a black silhouette until a
+  genuine Giovanni victory flag is present; an Earth Badge alone is not an
+  identity reveal. No unlockable card collection, title expansion or
+  pre-battle card overlay from the later roadmap is included.
+- Yellow's exact level-5 Oak gift now receives its persistent partner marker
+  when the original three-argument Lab command creates it. Unrelated Pikachu
+  remain ordinary; storage, fainting and evolution into Raichu or Gorochu do
+  not erase the marked partner or its native mood/emotion behavior. Existing
+  saves adopt only one unambiguous eligible self-owned candidate.
+- Yellow's German Oak's Lab exchange now reads naturally and preserves its
+  intentional two-page, two-line layout. The adjacent English dialogue and
+  the broader Red/Green/Blue character scripts are unchanged.
+
+### Added
+
+- A default-off **BOX ICONS → HGSS WALKERS** setting can use frame zero of the
+  already bundled Wilds 16×96 normal/Shiny walking sheets in only the right-hand
+  5×4 storage grid. The large left preview stays on its existing renderer, and
+  missing species, Gorochu and unsupported forms fail closed to the current
+  grid icon. No new art bytes are shipped; the existing third-party attribution
+  remains unchanged.
+
 ## [6.5.6] - 2026-08-18
 
 ### Fixed
