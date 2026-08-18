@@ -89,7 +89,7 @@ return {
       _OaksLabRivalIllGetABetterPokemonThanYou = p("{RIVAL}: I'll choose\ncarefully too!\fAs soon as I remember\nwhich one I liked.", "{RIVAL}: Ich wähle\nauch ganz sorgfältig!\fSobald mir einfällt,\nwelches mir gefiel."),
       _OaksLabRivalIllTakeThisOneText = p("{RIVAL}: This one!\fWe made eye contact.\fI think.", "{RIVAL}: Dieses hier!\fWir hatten Blickkontakt.\fGlaube ich."),
       _OaksLabRivalReceivedMonText = p("{RIVAL} received\na {RAM:wNameBuffer}!", "{RIVAL} erhält\n{RAM:wNameBuffer}!"),
-      _OaksLabRivalTakesText1 = p("{RIVAL}: {PLAYER},\nI picked this one!\f...Wait. Was this yours?", "{RIVAL}: {PLAYER},\nich nahm dieses!\f...Moment. War das deins?"),
+      _OaksLabRivalTakesText1 = p("{RIVAL}: {PLAYER},\nI picked this one!\f...Wait. Was this yours?", "{RIVAL}: Ich nehme\ndieses POKéMON!\fMoment, {PLAYER}!\nWar das für dich?"),
       _OaksLabRivalTakesText2 = p("{RIVAL} grabbed the\nPOKéMON by mistake!", "{RIVAL} griff aus\nVersehen zum POKéMON!"),
       _OaksLabRivalTakesText3 = p("OAK: {RIVAL}!\nThat one was for--", "EICH: {RIVAL}!\nDas war doch für--"),
       _OaksLabRivalTakesText4 = p("{RIVAL}: Oh!\nProfessor, I thought\nyou pointed here.\fSorry!", "{RIVAL}: Oh!\nProfessor, ich dachte,\nSie zeigten hierher.\fEntschuldigung!"),
