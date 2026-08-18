@@ -4,6 +4,12 @@
 -- identities while Battle Art retains its stage, HUD and ordinary art.
 
 return function(mod)
+  local stage = {
+    beginCalls = 0,
+    ensureCalls = 0,
+    finishCalls = 0,
+    active = false,
+  }
   local function sideTexture(battle, side)
     if side == "player" and battle and battle.showPlayerBack then
       if battle.oakDemo then
@@ -41,9 +47,27 @@ return function(mod)
     }
   end
 
+  local overworldBattle = { sideTexture = sideTexture }
+  function overworldBattle.begin(_, battle)
+    stage.beginCalls = stage.beginCalls + 1
+    stage.active = true
+    stage.battle = battle
+    return true
+  end
+  function overworldBattle.ensure(battle)
+    stage.ensureCalls = stage.ensureCalls + 1
+    if not stage.active then return overworldBattle.begin(nil, battle) end
+    return true
+  end
+  function overworldBattle.finish()
+    stage.finishCalls = stage.finishCalls + 1
+    stage.active = false
+    stage.battle = nil
+  end
+
   local modules = {
     AntiAlias = {}, BattleCam = {}, FirstPerson = {}, Mat4 = {},
-    OverworldBattle = { sideTexture = sideTexture },
+    OverworldBattle = overworldBattle,
     ShadowMap = {}, SpriteBillboards = {}, TerrainAtlas = {},
     Voxel3D = {}, VoxelScene = {}, VoxelState = {},
     VoxelMeshDisk = {
@@ -58,7 +82,8 @@ return function(mod)
 
   mod.exports.version = "1.9.2"
   mod.exports.originalSideTexture = sideTexture
-  mod.exports.overworldBattle = modules.OverworldBattle
+  mod.exports.overworldBattle = overworldBattle
+  mod.exports.stage = stage
   mod.exports.lib = lib
   mod.exports.battleStage = {
     apiVersion = 1,

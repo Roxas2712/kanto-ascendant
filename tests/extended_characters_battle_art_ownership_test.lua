@@ -57,29 +57,41 @@ local identityPairs = {
   { player = "GREEN", rival = "RED" },
 }
 
--- Scripted catching tutorials are not player identities. The engine has
--- already selected Yellow's Professor Oak back or Red/Blue's old-man back
--- before Battle Art asks for its staged side texture, so KASC must delegate
--- this texture verbatim rather than replacing it with the selected avatar.
-for _, tutorial in ipairs({
-  { label = "oakDemo", flags = { demo = true, oakDemo = true },
-    identity = "PROFESSOR_OAK" },
-  { label = "demo", flags = { demo = true }, identity = "OLD_MAN" },
-}) do
-  for _, identity in ipairs({ "RED", "BLUE", "GREEN" }) do
-    characters.select(identity)
-    local battle = { game = game, showPlayerBack = true }
-    for flag, value in pairs(tutorial.flags) do battle[flag] = value end
-    local texture = overworld.sideTexture(battle, "player")
-    T.eq(texture.sourceOwner, "ENGINE_SCRIPTED_TUTORIAL",
-      tutorial.label .. "/" .. identity .. " stays renderer-owned")
-    T.eq(texture.sourceIdentity, tutorial.identity,
-      tutorial.label .. "/" .. identity .. " keeps its scripted actor")
-    T.eq(texture.ascendantStandingTrainer, nil,
-      tutorial.label .. "/" .. identity .. " never advertises player identity")
-    T.eq(texture.trainer, true,
-      tutorial.label .. "/" .. identity .. " keeps trainer-card geometry")
-  end
+-- Yellow's staged catching tutorial must use the existing approved Oak
+-- standee. It is neither the selected player nor Battle Art's 2D fallback.
+for _, identity in ipairs({ "RED", "BLUE", "GREEN" }) do
+  characters.select(identity)
+  local battle = {
+    game = game, showPlayerBack = true, demo = true, oakDemo = true,
+  }
+  T.eq(overworld.begin({}, battle), true,
+    "Oak tutorial remains eligible for the staged renderer")
+  local texture = overworld.sideTexture(battle, "player")
+  T.eq(texture.ascendantStandingTrainer, "KANTO_PROFESSOR_OAK",
+    "oakDemo uses the approved Oak identity independent of the player")
+  T.check(texture.ascendantHighResSource:match(
+      "/professor_oak_voxel_front_hd_v1%.png$") ~= nil,
+    "oakDemo uses the approved 128px Oak source")
+  T.eq(texture.trainer, true,
+    "Oak tutorial keeps trainer-card billboard geometry")
+  T.eq(texture.ascendantApprovedTrainerResolver.role, "tutorial_presenter",
+    "Oak tutorial exposes a narrow presenter receipt")
+end
+
+-- No approved old-man standee exists. Only his scripted demonstration is
+-- forced through the native 2D battle path; normal battles and Oak remain
+-- staged. Calling both renderer entry points models direct and scripted
+-- starts used by supported engine versions.
+for _, entry in ipairs({ "begin", "ensure" }) do
+  local battle = { game = game, showPlayerBack = true, demo = true }
+  local accepted = entry == "begin"
+    and overworld.begin({}, battle) or overworld.ensure(battle)
+  T.eq(accepted, false,
+    "old-man tutorial declines staged renderer via " .. entry)
+  T.eq(battle.kascTutorialBattleMode, "native_2d",
+    "old-man tutorial records its bounded native fallback")
+  T.eq(battle.kascTutorialPresenter, "OLD_MAN",
+    "old-man fallback preserves the scripted actor")
 end
 
 for _, pair in ipairs(identityPairs) do

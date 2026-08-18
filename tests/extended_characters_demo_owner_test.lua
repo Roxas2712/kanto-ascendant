@@ -3,7 +3,9 @@
 -- `player.sprite` normally means the selected RED/BLUE/GREEN identity, but
 -- the engine deliberately passes an already-resolved scripted NPC back pic
 -- for the Viridian old-man tutorial (`demo`) and Yellow's Oak tutorial
--- (`oakDemo`). Kanto Ascendant must not replace either tutorial owner.
+-- (`oakDemo`). Native 2D keeps those paths verbatim. Supported staged
+-- renderers use the approved Oak standee for Yellow and decline only the
+-- old-man tutorial because no approved staged old-man asset exists.
 
 package.path = "./?.lua;./?/init.lua;" .. package.path
 
@@ -69,14 +71,29 @@ local function checkMatrix(edition, language)
             label .. " preserves the tutorial owner's palette contract")
 
           -- FULL/staged renderers do not ask `player.sprite` for their
-          -- trainer standee. They share KASC's source-side identity resolver,
-          -- which must delegate scripted catching tutorials to the renderer
-          -- instead of treating them as the selected protagonist.
+          -- trainer standee. Neither tutorial may be mistaken for the
+          -- selected protagonist. Oak has a dedicated approved presenter
+          -- spec; the old man has a bounded native-2D mode instead.
           local stagedBattle = { showPlayerBack = true }
           stagedBattle[tutorial.flag] = true
           T.eq(characters.voxelStandingTrainerCharacter(
               stagedBattle, "player"), nil,
-            label .. " delegates the scripted tutorial owner at sideTexture")
+            label .. " never resolves the selected player as presenter")
+          local expectedMode = tutorial.flag == "oakDemo"
+            and "staged_oak" or "native_2d"
+          T.eq(characters.voxelTutorialBattleMode(stagedBattle), expectedMode,
+            label .. " exposes its explicit renderer policy")
+          local presenter = characters.voxelTutorialPresenterSpec(
+            stagedBattle, "player")
+          if tutorial.flag == "oakDemo" then
+            T.eq(presenter and presenter.id, "KANTO_PROFESSOR_OAK",
+              label .. " resolves the approved Oak standee")
+            T.eq(presenter and presenter.class, "OPP_PROF_OAK",
+              label .. " keeps Oak's trainer class")
+          else
+            T.eq(presenter, nil,
+              label .. " does not invent an old-man staged asset")
+          end
         end
       end
 

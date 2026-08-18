@@ -1600,6 +1600,29 @@ return function(mod, opts)
     return trainerVoxelPortraits.spec(battle and battle.oppClass)
   end
 
+  -- Catching demonstrations occupy the player-side trainer slot but are not
+  -- player identities. Yellow already has an approved authored Oak standee,
+  -- while Red/Blue's Viridian old man has no approved staged asset. Keep the
+  -- two policies explicit so `demo=true` on Yellow never accidentally sends
+  -- Oak through the old-man fallback.
+  function M.voxelTutorialPresenterSpec(battle, side)
+    if side ~= "player" or not battle then return nil end
+    if battle.oakDemo == true then
+      local spec = ordinaryVoxelSpec({ oppClass = "OPP_PROF_OAK" })
+      if not spec then return nil end
+      spec.tutorialPresenter = "PROFESSOR_OAK"
+      return spec
+    end
+    return nil
+  end
+
+  function M.voxelTutorialBattleMode(battle)
+    if not battle then return nil end
+    if battle.oakDemo == true then return "staged_oak" end
+    if battle.demo == true then return "native_2d" end
+    return nil
+  end
+
   local highResTrainerTextures = {}
   local voxelFallbackReceipts, voxelFallbackKeys = {}, {}
 
@@ -1736,6 +1759,67 @@ return function(mod, opts)
       }
       return false
     end
+
+    -- All reviewed staged renderers enter through OverworldBattle.begin and
+    -- use ensure for battles pushed outside the overworld controller. Decline
+    -- only the Red/Blue old-man demonstration at both entry points. Returning
+    -- false is the renderers' native "no arena" contract: the engine keeps
+    -- drawing its ordinary 2D battle, with the original old-man back picture.
+    -- No renderer option or save value is changed, so the next battle stages
+    -- normally. Oak is deliberately excluded and receives his authored card
+    -- below.
+    local function installTutorialStageGuard()
+      local current = overworldBattle.__kantoAscendantTutorialStageGuard
+      if type(current) == "table" and current.schema
+          == "ka-tutorial-stage-guard/v1" then
+        M.voxelTutorialStageStatus = current
+        return true
+      end
+      local originalBegin = overworldBattle.begin
+      local originalEnsure = overworldBattle.ensure
+      if type(originalBegin) ~= "function"
+          or type(originalEnsure) ~= "function" then
+        M.voxelTutorialStageStatus = {
+          schema = "ka-tutorial-stage-guard/v1",
+          installed = false,
+          rendererId = rendererId,
+          reason = "missing-begin-or-ensure",
+        }
+        return false
+      end
+      local guard = {
+        schema = "ka-tutorial-stage-guard/v1",
+        installed = true,
+        rendererId = rendererId,
+        originalBegin = originalBegin,
+        originalEnsure = originalEnsure,
+      }
+      local function declineOldMan(battle)
+        if M.voxelTutorialBattleMode(battle) ~= "native_2d" then
+          return false
+        end
+        battle.kascTutorialBattleMode = "native_2d"
+        battle.kascTutorialPresenter = "OLD_MAN"
+        battle.kascTutorialRendererId = rendererId
+        if type(overworldBattle.finish) == "function" then
+          pcall(overworldBattle.finish)
+        end
+        guard.declines = (guard.declines or 0) + 1
+        return true
+      end
+      overworldBattle.begin = function(state, battle, ...)
+        if declineOldMan(battle) then return false end
+        return originalBegin(state, battle, ...)
+      end
+      overworldBattle.ensure = function(battle, ...)
+        if declineOldMan(battle) then return false end
+        return originalEnsure(battle, ...)
+      end
+      overworldBattle.__kantoAscendantTutorialStageGuard = guard
+      M.voxelTutorialStageStatus = guard
+      return true
+    end
+    installTutorialStageGuard()
     local battleArtIdentityOnly = rendererId == "BATTLE_ART_VOXEL_FORK"
     local resolverSentinel = {
       schema = "ka-approved-trainer-resolver/v1",
@@ -1761,10 +1845,42 @@ return function(mod, opts)
     if type(originalSideTexture) ~= "function" then return false end
     overworldBattle.sideTexture = function(battle, side)
       -- FULL/staged renderers bypass `player.sprite` when choosing a trainer
-      -- source. Delegate catch-tutorial cards before any selected-identity
-      -- substitution or metadata rewrite so Oak/the old man remain exactly
-      -- the actor already chosen by the engine.
-      if side == "player" and battle and (battle.demo or battle.oakDemo) then
+      -- source. Yellow's tutorial gets the existing approved Oak standee.
+      -- Red/Blue's old man has no approved staged asset and should have been
+      -- declined by the stage guard; if a renderer nevertheless asks for a
+      -- texture, preserve its native actor rather than inventing art.
+      local tutorialSpec = M.voxelTutorialPresenterSpec(battle, side)
+      if tutorialSpec then
+        local highRes, problem = highResVoxelTrainerTexture(side,
+          tutorialSpec.id, tutorialSpec.path, tutorialSpec.fallback, true)
+        if highRes then
+          highRes.trainer = true
+          highRes.ascendantStandingTrainer = tutorialSpec.id
+          highRes.kantoTrainerClass = tutorialSpec.class
+          highRes.kascTutorialPresenter = tutorialSpec.tutorialPresenter
+          highRes.ascendantApprovedTrainerResolver = {
+            schema = "ka-approved-trainer-texture/v1",
+            role = "tutorial_presenter",
+            identity = tutorialSpec.tutorialPresenter,
+            class = tutorialSpec.class,
+            approvedVersion = tutorialSpec.approvedVersion or "CURRENT",
+            source = highRes.ascendantHighResSource,
+            rendererId = rendererId,
+            rendererVersion = resolverSentinel.rendererVersion,
+            rendererProvenance = resolverSentinel.rendererProvenance,
+          }
+          return highRes
+        end
+        recordVoxelFallback({
+          schema = "ka-approved-trainer-fallback/v1",
+          rendererId = rendererId,
+          rendererVersion = resolverSentinel.rendererVersion,
+          side = side, class = tutorialSpec.class,
+          source = tutorialSpec.path, reason = problem,
+        })
+        return originalSideTexture(battle, side)
+      end
+      if side == "player" and battle and battle.demo then
         return originalSideTexture(battle, side)
       end
       local player = M.getPlayerCharacter()
