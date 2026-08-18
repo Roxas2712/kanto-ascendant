@@ -18,7 +18,11 @@ if Version.engine == "0.0.0-dev" then
   Version.engine = os.getenv("KASC_TEST_ENGINE_VERSION") or "0.1.96"
 end
 local Data = T.fixtures.load()
-local run = T.sdk.loadMod(modPath, { data = Data, root = "/" })
+local sdkOpts = { data = Data }
+-- The SDK resolves relative mod paths from the engine checkout; only a real
+-- absolute path needs the filesystem adapter rooted at the host filesystem.
+if modPath:sub(1, 1) == "/" then sdkOpts.root = "/" end
+local run = T.sdk.loadMod(modPath, sdkOpts)
 Version.engine = savedEngine
 
 local unexpectedLoadErrors = {}
