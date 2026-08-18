@@ -1,20 +1,24 @@
 # Charakter-Assets: verbindlicher Stand und Authoring-Regeln
 
-Stand: 17. August 2026. Dieses Dokument hält den vom Maintainer gelieferten
+Stand: 18. August 2026. Dieses Dokument hält den vom Maintainer gelieferten
 Stand von Red, Blue und Green/Casey fest. Für Walking-Sprites
 sind die Dateien unter
 `assets/sources/characters/crystal_chars/approved_walk/` die verbindlichen
 Master. Der Builder darf sie nur pixelgenau kopieren und nicht erneut aus
 großen Bildern reduzieren oder automatisch umfärben.
 
-Die bis zum 10. August ausgelieferten Walking-Master bleiben unverändert als
-`fallback_walk_v1/` erhalten. Dieselben drei Dateien werden unter
-`assets/characters/crystal_chars/fallback_walk_v1/` mit ausgeliefert. Der
-Runtime-Resolver nutzt sie ausschließlich, wenn das neue Sheet nicht
-dekodiert werden kann oder Maße, harte Alpha-Kanten, Frames, transparente
-Ecken beziehungsweise Grundlinie den Walking-Vertrag verletzen. Dieser
-Fallback greift nicht auf Bike-, Angel-, Kampf-, Wurf-, Profil- oder
-Voxel-Grafiken über.
+Die unmittelbar vor dieser Freigabe aktiven Walking-Master vom 17. August
+bleiben unverändert erhalten und bilden jeweils die erste Rückfallebene:
+Red und Blue liegen in `fallback_walk_v2/`, Greens späterer Hotfix liegt in
+`fallback_walk_v3/`. Greens öffentliches 6.5.5-Sheet bleibt zusätzlich in
+`fallback_walk_v2/`; die bis zum 10. August ausgelieferten drei Master bleiben
+in `fallback_walk_v1/`. Dieselben Dateien werden unter
+`assets/characters/crystal_chars/` in den entsprechenden Fallback-Ordnern
+mit ausgeliefert. Der Runtime-Resolver nutzt die Kette ausschließlich, wenn
+ein neueres Sheet nicht dekodiert werden kann oder Maße, harte Alpha-Kanten,
+Frames, transparente Ecken beziehungsweise Grundlinie den Walking-Vertrag
+verletzen. Die Fallbacks greifen nicht auf Bike-, Angel-, Kampf-, Wurf-,
+Profil- oder Voxel-Grafiken über.
 
 ## Warum diese Trennung zwingend ist
 
@@ -54,19 +58,19 @@ versehen. Vorschauen verwenden ausschließlich Nearest-Neighbour-Skalierung.
 
 ### Red
 
-- Vom Maintainer am 17. August gelieferter Crystal-Walking-Master.
+- Vom Maintainer am 18. August gelieferter Crystal-Walking-Master.
 - Rot-weiße Kappe, rote Jacke, blaue Hose und gelber Rucksack.
 - Eigene native 16×16-Geometrie in allen sechs Frames.
 
 ### Green / Casey
 
-- Vom Maintainer am 17. August gelieferter Crystal-Walking-Master.
+- Vom Maintainer am 18. August gelieferter Crystal-Walking-Master.
 - Lange braune Haare, dunkles Outfit und grüner Akzent am Ausschnitt.
 - Eigene native 16×16-Geometrie in allen sechs Frames.
 
 ### Blue
 
-- Vom Maintainer am 17. August gelieferter Crystal-Walking-Master.
+- Vom Maintainer am 18. August gelieferter Crystal-Walking-Master.
 - Orangebraune Haare, schwarzes Oberteil und violette Hose.
 - Eigene native 16×16-Geometrie in allen sechs Frames.
 
@@ -82,8 +86,9 @@ versehen. Vorschauen verwenden ausschließlich Nearest-Neighbour-Skalierung.
    bleiben; Weiß oder Pink ist kein Ersatz für Alpha.
 6. Prüfen, dass nur die beabsichtigte Figur und Oberfläche verändert wurden.
 7. Den freigegebenen Sheet nach `approved_walk/` kopieren, Prüfsumme im
-   `manifest.json` aktualisieren und erst dann in die Runtime übernehmen. Der
-   eingefrorene `fallback_walk_v1/`-Stand wird dabei nicht überschrieben.
+   `manifest.json` aktualisieren und erst dann in die Runtime übernehmen. Kein
+   eingefrorener Stand unter `fallback_walk_v1/`, `fallback_walk_v2/` oder
+   `fallback_walk_v3/` wird dabei überschrieben.
 8. Einen Ingame-Test in normaler Oberwelt und Voxel-Oberwelt ausführen. Battle-
    Ansichten werden separat getestet und gelten nicht als Walking-Beleg.
 

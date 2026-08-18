@@ -360,6 +360,16 @@ jobs:
               "assets/crystal_v15/trainers/normal/red.png",
               "assets/crystal_v15/trainers/grayscale/red.png",
               "assets/followers_kanto/shiny/palette_contract.json",
+              "assets/characters/crystal_chars/red_walk.png",
+              "assets/characters/crystal_chars/green_walk.png",
+              "assets/characters/crystal_chars/blue_walk.png",
+              "assets/characters/crystal_chars/fallback_walk_v3/green_walk.png",
+              "assets/characters/crystal_chars/fallback_walk_v2/red_walk.png",
+              "assets/characters/crystal_chars/fallback_walk_v2/green_walk.png",
+              "assets/characters/crystal_chars/fallback_walk_v2/blue_walk.png",
+              "assets/characters/crystal_chars/fallback_walk_v1/red_walk.png",
+              "assets/characters/crystal_chars/fallback_walk_v1/green_walk.png",
+              "assets/characters/crystal_chars/fallback_walk_v1/blue_walk.png",
           }
 
           expected_kanto_normal = {

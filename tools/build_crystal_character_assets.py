@@ -26,6 +26,7 @@ GEN1 = SOURCE / "gen1"
 APPROVED_WALK = SOURCE / "approved_walk"
 FALLBACK_WALK = APPROVED_WALK / "fallback_walk_v1"
 FALLBACK_WALK_V2 = APPROVED_WALK / "fallback_walk_v2"
+FALLBACK_WALK_V3 = APPROVED_WALK / "fallback_walk_v3"
 ENGINE_ROOT = Path(os.environ.get(
     "KANTO_GEN1RECOMP",
     str(ROOT.parents[1] / "gen1recomp"),
@@ -504,13 +505,21 @@ def build() -> None:
         shutil.copyfile(source, fallback_out / source.name)
     fallback_v2_out = OUT / "fallback_walk_v2"
     fallback_v2_out.mkdir(parents=True, exist_ok=True)
-    green_v2 = FALLBACK_WALK_V2 / "green_walk.png"
-    if not green_v2.is_file():
+    for character in CHARACTERS:
+        source = FALLBACK_WALK_V2 / f"{character}_walk.png"
+        if not source.is_file():
+            raise FileNotFoundError(
+                f"missing approved walking fallback v2: {source}")
+        # V2 is the preceding Red/Blue primary and Green's public 6.5.5 sheet.
+        # Preserve every PNG byte rather than rebuilding or re-encoding it.
+        shutil.copyfile(source, fallback_v2_out / source.name)
+    fallback_v3_out = OUT / "fallback_walk_v3"
+    fallback_v3_out.mkdir(parents=True, exist_ok=True)
+    green_v3 = FALLBACK_WALK_V3 / "green_walk.png"
+    if not green_v3.is_file():
         raise FileNotFoundError(
-            f"missing approved Green 6.5.5 walking fallback: {green_v2}")
-    # This is the exact public 6.5.5 Green sheet. Preserve its PNG bytes so a
-    # corrupt hotfix primary can recover without rebuilding/re-encoding it.
-    shutil.copyfile(green_v2, fallback_v2_out / green_v2.name)
+            f"missing immediately preceding Green walking fallback: {green_v3}")
+    shutil.copyfile(green_v3, fallback_v3_out / green_v3.name)
     green_front = chroma_alpha(Image.open(
         SOURCE / "casey_front_frlg_chroma.png"))
     throw_sources = {
@@ -579,8 +588,7 @@ def build() -> None:
         if not approved_walk.is_file():
             raise FileNotFoundError(
                 f"missing approved walking master: {approved_walk}")
-        walk_frames = split_gen1_sheet(approved_walk)
-        build_vertical(walk_frames, OUT / f"{character}_walk.png")
+        shutil.copyfile(approved_walk, OUT / f"{character}_walk.png")
 
         native_riders = rider_frames(character, walk_base, bike_base)
         bike_frames = [colour_gen1_frame(character, "bike", frame, index)

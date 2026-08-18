@@ -100,16 +100,21 @@ return function(mod, deps)
 
     local primary = root .. character .. "_walk.png"
     local fallbacks = {}
-    -- Green received a narrow post-6.5.5 pixel correction. Keep the exact
-    -- shipped 6.5.5 sheet as the first recovery lane, then retain the older
-    -- reviewed v1 sheet as the final fallback. Red/Blue were not changed and
-    -- therefore continue to use their single v1 recovery lane.
+    -- The 2026-08-18 Red/Green/Blue set supersedes all three walking masters.
+    -- Green's immediately preceding hotfix is its v3 recovery lane; Red and
+    -- Blue enter v2 directly. The per-identity v2 lane then preserves either
+    -- the preceding Red/Blue primary or Green's public-6.5.5 sheet before all
+    -- identities reach the original reviewed v1 fallback.
     if character == "green" then
       fallbacks[#fallbacks + 1] = {
-        path = root .. "fallback_walk_v2/green_walk.png",
-        lane = "fallback-v2",
+        path = root .. "fallback_walk_v3/green_walk.png",
+        lane = "fallback-v3",
       }
     end
+    fallbacks[#fallbacks + 1] = {
+      path = root .. "fallback_walk_v2/" .. character .. "_walk.png",
+      lane = "fallback-v2",
+    }
     fallbacks[#fallbacks + 1] = {
       path = root .. "fallback_walk_v1/" .. character .. "_walk.png",
       lane = "fallback-v1",

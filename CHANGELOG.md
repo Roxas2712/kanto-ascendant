@@ -17,10 +17,11 @@ All notable changes to this project are documented in this file.
   Because no approved staged old-man model exists, only Red/Blue's old-man
   tutorial delegates to native 2D; later battles return to the configured
   renderer. Neither presenter is replaced by the selected player identity.
-- Green's corrected six-frame Crystal walking sheet is now primary. The exact
-  public 6.5.5 sheet remains the first validated fallback and the older sheet
-  remains the second fallback; no battle, profile, bicycle, fishing, throwing,
-  HD or Voxel art is replaced.
+- Red, Green and Blue's newly supplied six-frame Crystal walking sheets are
+  now primary. Their immediately preceding 6.5.6 sheets remain byte-exact as
+  the first validated fallback; Green's public 6.5.5 sheet and every older
+  per-character fallback remain behind that lane. No battle, profile, bicycle,
+  fishing, throwing, HD or Voxel art is replaced.
 - All Kanto species #001-151 now have separate Crystal-palette normal and Shiny
   follower sheets. The owned Pokémon's real DV-based Shiny state selects the
   matching sheet, while a missing or invalid Shiny asset fails safely to the

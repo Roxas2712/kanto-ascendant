@@ -17,10 +17,11 @@ Yellow. No new save or story reset is required.
   the Red/Blue old-man tutorial temporarily delegates to the native 2D battle;
   the next battle uses the configured renderer normally. The selected player
   character replaces neither presenter.
-- Green uses the corrected six-frame Crystal walking sheet. The public 6.5.5
-  sheet remains the first validated fallback and the older sheet remains the
-  second fallback. Battle, profile, bicycle, fishing, throwing, HD and Voxel
-  artwork are unchanged.
+- Red, Green and Blue use their newly supplied six-frame Crystal walking
+  sheets. Each immediately preceding sheet remains the first validated
+  fallback; Green also retains its public 6.5.5 sheet before the original v1
+  fallback. Battle, profile, bicycle, fishing, throwing, HD and Voxel artwork
+  are unchanged.
 
 ## Kanto Shiny followers
 

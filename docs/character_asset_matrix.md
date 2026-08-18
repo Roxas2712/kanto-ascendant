@@ -34,10 +34,12 @@ replaces or mutates either asset set.
 
 ### Default CRYSTAL CHARS family
 
-The maintainer-supplied 2026-08-17 native Walking masters and their frame contract are frozen
+The maintainer-supplied 2026-08-18 native Walking masters and their frame contract are frozen
 under `assets/sources/characters/crystal_chars/approved_walk/`. See
 `CHARACTER_ASSET_AUTHORING_DE.md` for the exact Red, Blue and Green/Casey
-design decisions, packaged 2026-08-10 `fallback_walk_v1` safety lane and the
+design decisions, immediately preceding Red/Blue `fallback_walk_v2` masters,
+Green's later `fallback_walk_v3` plus public-6.5.5 `fallback_walk_v2`, the
+packaged 2026-08-10 `fallback_walk_v1` safety lane and the
 proposed safe Character Tool workflow. The asset
 builder copies these masters byte-for-byte; it must not recreate them through
 automatic reduction or broad palette replacement.

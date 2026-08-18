@@ -21,14 +21,21 @@ EXPECTED = {
     "fish": (16, 96),
 }
 
-# Maintainer-approved 2026-08-17 character family. Any byte change is intentional artwork
+# Maintainer-approved 2026-08-18 character family. Any byte change is intentional artwork
 # work and must update this fingerprint explicitly; ordinary feature/bugfix
 # work is not allowed to silently alter a selected, intro, battle, walking,
 # bike, fishing or throw sprite.
-FROZEN_TREE_SHA256 = "cbc52d41c5a0a8e27926c964ef46c8e58e0b1fc1615a030753b0d73088159188"
+FROZEN_TREE_SHA256 = "d3f2868ec9815d7f65b35b0591a8cf75028dddf5d11ff2eb6865b54d6d37340b"
+
+PRIMARY_SHA256 = {
+    "red": "7695f40c70e7895d58b2d578b440ca441bacd5b082c9ef666be50a0e1bd0d108",
+    "green": "240a48a253dbff69ac30129d9e601a3eac84b25f63dbd7457ebe5001aec7677e",
+    "blue": "fdc8590438df553d7c231c3869bc1933c705d35f6a1ca84ee7d4a1931e402466",
+}
 
 FALLBACK_WALK = ASSETS / "fallback_walk_v1"
 FALLBACK_WALK_V2 = ASSETS / "fallback_walk_v2"
+FALLBACK_WALK_V3 = ASSETS / "fallback_walk_v3"
 FALLBACK_SHA256 = {
     "red": "9610ec76545c3e4483a99037719ec28d2b13df3e671534e745a047a6ef693116",
     "green": "6bd2e838436af982ea031e59463f956904c68e9cd7a6b1d8f333e20e97440727",
@@ -110,7 +117,9 @@ for character in ("red", "green", "blue"):
     walk_master = (APPROVED_WALK / f"{character}_walk.png").read_bytes()
     check(walk_runtime == walk_master,
           f"{character}: runtime walk differs from approved master")
-    checks += 1
+    check(hashlib.sha256(walk_runtime).hexdigest() == PRIMARY_SHA256[character],
+          f"{character}: approved 2026-08-18 primary hash drift")
+    checks += 2
 
     throw_frames = []
     for frame in range(1, 6):
@@ -144,22 +153,36 @@ for character in ("red", "green", "blue"):
           f"{character}: walking fallback alpha is not hard-edged")
     checks += 4
 
+    fallback_v2_path = FALLBACK_WALK_V2 / f"{character}_walk.png"
+    check(fallback_v2_path.is_file(), f"missing {fallback_v2_path}")
+    check(hashlib.sha256(fallback_v2_path.read_bytes()).hexdigest() == {
+        "red": "301321946b885e9bd978ae239f5b67fb318e035118ce6f04c628d657a04b3c86",
+        "green": "c4f44ce40df9d30372a881cd3af6c25060ec48c4ad610fc7f4bd9f804397aa72",
+        "blue": "6ecc6fe6a55549950b69fb25f42d9ce81b148b8231e8f6a3140ab09e7edd18dd",
+    }[character], f"{character}: walking fallback v2 changed")
+    fallback_v2_image = Image.open(fallback_v2_path).convert("RGBA")
+    check(fallback_v2_image.size == (16, 96),
+          f"{character}: walking fallback v2 must remain 16x96")
+    check(set(fallback_v2_image.getchannel("A").getdata()) <= {0, 255},
+          f"{character}: walking fallback v2 alpha is not hard-edged")
+    checks += 4
+
     if character == "green":
-        fallback_v2_path = FALLBACK_WALK_V2 / "green_walk.png"
-        check(fallback_v2_path.is_file(), f"missing {fallback_v2_path}")
-        check(hashlib.sha256(fallback_v2_path.read_bytes()).hexdigest()
-              == "c4f44ce40df9d30372a881cd3af6c25060ec48c4ad610fc7f4bd9f804397aa72",
-              "Green: public 6.5.5 walking fallback changed")
-        fallback_v2_image = Image.open(fallback_v2_path).convert("RGBA")
-        check(fallback_v2_image.size == (16, 96),
-              "Green: walking fallback v2 must remain 16x96")
-        check(set(fallback_v2_image.getchannel("A").getdata()) <= {0, 255},
-              "Green: walking fallback v2 alpha is not hard-edged")
+        fallback_v3_path = FALLBACK_WALK_V3 / "green_walk.png"
+        check(fallback_v3_path.is_file(), f"missing {fallback_v3_path}")
+        check(hashlib.sha256(fallback_v3_path.read_bytes()).hexdigest()
+              == "bdfb9f19f57da47cb32d6f5d82c94a507ee86eb6eae4e38bc715469f6d00e6d4",
+              "Green: preceding primary fallback changed")
+        fallback_v3_image = Image.open(fallback_v3_path).convert("RGBA")
+        check(fallback_v3_image.size == (16, 96),
+              "Green: walking fallback v3 must remain 16x96")
+        check(set(fallback_v3_image.getchannel("A").getdata()) <= {0, 255},
+              "Green: walking fallback v3 alpha is not hard-edged")
         checks += 4
 
-check(not (FALLBACK_WALK_V2 / "red_walk.png").exists()
-      and not (FALLBACK_WALK_V2 / "blue_walk.png").exists(),
-      "Green-only hotfix fallback must not replace Red or Blue")
+check(not (FALLBACK_WALK_V3 / "red_walk.png").exists()
+      and not (FALLBACK_WALK_V3 / "blue_walk.png").exists(),
+      "Green-only hotfix fallback v3 must not replace Red or Blue")
 checks += 1
 
 print(f"CRYSTAL CHARACTER ASSETS PASS: {checks} checks")

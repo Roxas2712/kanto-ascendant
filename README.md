@@ -60,8 +60,9 @@ collapsed so players can reveal only the information they want.
 - Uses the existing approved Professor Oak standee for Yellow's catching
   tutorial in supported staged renderers. Because no approved old-man 3D art
   exists, Red/Blue delegate only that tutorial to the native 2D battle.
-- Uses Green's corrected Crystal walking sheet with the public 6.5.5 sheet and
-  the older sheet retained as validated fallback generations.
+- Uses the newly supplied Red, Green and Blue Crystal walking sheets. Their
+  immediately preceding sheets remain the first validated fallbacks, with all
+  older per-character fallback generations retained behind them.
 - Adds separate Crystal-palette Shiny follower sheets for all Kanto species
   #001-151. The normal sheet remains the safe fallback. In Yellow, selected
   extras keep following while the authored partner is fainted or stored; the

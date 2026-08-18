@@ -1,6 +1,6 @@
 {
   "schema": "kanto-ascendant.character-walk.v1",
-  "checkpoint": "2026-08-17-green-walk-hotfix-v3",
+  "checkpoint": "2026-08-18-red-green-blue-walk-refresh",
   "status": "approved-master",
   "runtime_format": {
     "image": "RGBA PNG",
@@ -21,10 +21,10 @@
   "characters": {
     "red": {
       "file": "red_walk.png",
-      "sha256": "301321946b885e9bd978ae239f5b67fb318e035118ce6f04c628d657a04b3c86",
-      "provenance": "maintainer-supplied original artwork, 2026-08-17",
+      "sha256": "7695f40c70e7895d58b2d578b440ca441bacd5b082c9ef666be50a0e1bd0d108",
+      "provenance": "maintainer-supplied original artwork, 2026-08-18 (crystal_red_walk 2.png)",
       "design": [
-        "user-supplied 2026-08-17 Crystal walking master",
+        "user-supplied 2026-08-18 Crystal walking master",
         "red-and-white cap and red jacket",
         "blue trousers and yellow backpack",
         "native 16x16 geometry in all six frames"
@@ -32,11 +32,11 @@
     },
     "green": {
       "file": "green_walk.png",
-      "sha256": "bdfb9f19f57da47cb32d6f5d82c94a507ee86eb6eae4e38bc715469f6d00e6d4",
-      "provenance": "maintainer-supplied original artwork, 2026-08-17",
+      "sha256": "240a48a253dbff69ac30129d9e601a3eac84b25f63dbd7457ebe5001aec7677e",
+      "provenance": "maintainer-supplied original artwork, 2026-08-18 (custom_custom_msyhykaz_walk 2.png)",
       "display_name": "Casey / Green",
       "design": [
-        "user-supplied 2026-08-17 corrected Crystal walking master",
+        "user-supplied 2026-08-18 corrected Crystal walking master",
         "long brown hair and dark outfit",
         "green accent at the neckline",
         "native 16x16 geometry in all six frames"
@@ -44,10 +44,10 @@
     },
     "blue": {
       "file": "blue_walk.png",
-      "sha256": "6ecc6fe6a55549950b69fb25f42d9ce81b148b8231e8f6a3140ab09e7edd18dd",
-      "provenance": "maintainer-supplied original artwork, 2026-08-17",
+      "sha256": "fdc8590438df553d7c231c3869bc1933c705d35f6a1ca84ee7d4a1931e402466",
+      "provenance": "maintainer-supplied original artwork, 2026-08-18 (crystal_blue_walk 25.png)",
       "design": [
-        "user-supplied 2026-08-17 Crystal walking master",
+        "user-supplied 2026-08-18 Crystal walking master",
         "orange-brown hair",
         "black shirt and purple trousers",
         "native 16x16 geometry in all six frames"
@@ -56,14 +56,26 @@
   },
   "fallbacks": [
     {
+      "lane": "fallback-v3",
+      "checkpoint": "2026-08-17-final-6.5.6-walk-set",
+      "source_directory": "fallback_walk_v3",
+      "runtime_directory": "assets/characters/crystal_chars/fallback_walk_v3",
+      "sha256": {
+        "green": "bdfb9f19f57da47cb32d6f5d82c94a507ee86eb6eae4e38bc715469f6d00e6d4"
+      },
+      "activation": "Green primary validation failure"
+    },
+    {
       "lane": "fallback-v2",
-      "checkpoint": "2026-08-17-public-6.5.5-green-walk",
+      "checkpoint": "2026-08-17-per-identity-walk-v2",
       "source_directory": "fallback_walk_v2",
       "runtime_directory": "assets/characters/crystal_chars/fallback_walk_v2",
       "sha256": {
-        "green": "c4f44ce40df9d30372a881cd3af6c25060ec48c4ad610fc7f4bd9f804397aa72"
+        "red": "301321946b885e9bd978ae239f5b67fb318e035118ce6f04c628d657a04b3c86",
+        "green": "c4f44ce40df9d30372a881cd3af6c25060ec48c4ad610fc7f4bd9f804397aa72",
+        "blue": "6ecc6fe6a55549950b69fb25f42d9ce81b148b8231e8f6a3140ab09e7edd18dd"
       },
-      "activation": "Green primary validation failure"
+      "activation": "Red/Blue primary validation failure, or Green primary and fallback-v3 validation failure"
     },
     {
       "lane": "fallback-v1",
