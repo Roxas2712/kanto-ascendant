@@ -101,6 +101,7 @@ return function(mod, data, opts)
   local kantoCompletion = opts.kantoCompletion
   local gorochu = opts.gorochu
   local rematchRewards = opts.rematchRewards
+  local restProfiles = opts.restProfiles
   local rivalIdentity = opts.rivalIdentity
   local function currentRivalIdentity()
     if type(rivalIdentity) == "function" then
@@ -958,14 +959,17 @@ return function(mod, data, opts)
   end
 
   local function scheduleBossRest(key)
-    local rawLo = tonumber(mod.options:get("rest_min"))
-    local rawHi = tonumber(mod.options:get("rest_max"))
-    if rawLo == 128 and rawHi == 256 then rawLo, rawHi = 151, 2510 end
-    local lo = math.min(2510, math.max(151,
-      math.floor(rawLo or 151)))
-    local hi = math.min(2510, math.max(151,
-      math.floor(rawHi or 2510)))
-    if lo > hi then lo, hi = hi, lo end
+    local lo, hi
+    if restProfiles and type(restProfiles.range) == "function" then
+      lo, hi = restProfiles.range(mod.options:get("rest_profile"),
+        mod.options:get("rest_min"), mod.options:get("rest_max"))
+    else
+      lo = math.min(2510, math.max(1,
+        math.floor(tonumber(mod.options:get("rest_min")) or 151)))
+      hi = math.min(2510, math.max(1,
+        math.floor(tonumber(mod.options:get("rest_max")) or 2510)))
+      if lo > hi then lo, hi = hi, lo end
+    end
     local s = state()
     s.bossRest[key] = (tonumber(mod.save:get("step_clock", 0)) or 0)
       + randomInt(lo, hi)
@@ -1609,6 +1613,8 @@ return function(mod, data, opts)
   controller.eliteTier = eliteTier
   controller.gymDialogue = gymDialogue
   controller.gymRestDialogue = gymRestDialogue
+  controller.scheduleBossRest = scheduleBossRest
+  controller.bossRestRemaining = bossRestRemaining
   controller.eliteDialogue = eliteDialogue
   controller.currentRivalIdentity = currentRivalIdentity
   controller.applyStoryOakDialogue = applyStoryOakDialogue

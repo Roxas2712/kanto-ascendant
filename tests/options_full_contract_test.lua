@@ -191,6 +191,52 @@ for _, screenId in ipairs(leafScreens) do
   end
 end
 
+-- CUSTOM is intentionally the only state that exposes its two numeric rows.
+-- Exercise that conditional branch separately so the exhaustive contract
+-- still proves every schema key and both persistence directions.
+run.loader.modOptions[modId].rest_profile = "custom"
+savedOptions.rest_profile = "custom"
+local customList = assert(Data.screens.AscendantRematchOptions.new(game, {}),
+  "CUSTOM rematch options did not open")
+for index, item in ipairs(customList.items) do
+  local row = item.schema
+  if row and (row.key == "rest_min" or row.key == "rest_max") then
+    T.check(reachable[row.key] == nil,
+      "conditional CUSTOM leaf appears in only one category: " .. row.key)
+    reachable[row.key] = "AscendantRematchOptions"
+    customList.index = index
+    run.loader.modOptions[modId][row.key] = row.default
+    savedOptions[row.key] = row.default
+
+    pressed = "a"
+    customList:update(0)
+    T.eq(savedOptions[row.key], row.default,
+      "CUSTOM A leaves saved option untouched: " .. row.key)
+
+    pressed = "right"
+    customList:update(0)
+    local expectedRight = adjacent(row, 1)
+    T.eq(run.loader.modOptions[modId][row.key], expectedRight,
+      "CUSTOM Right advances live option: " .. row.key)
+    T.eq(savedOptions[row.key], expectedRight,
+      "CUSTOM Right persists option: " .. row.key)
+
+    pressed = "left"
+    customList:update(0)
+    T.eq(run.loader.modOptions[modId][row.key], row.default,
+      "CUSTOM Left reverses live option: " .. row.key)
+    T.eq(savedOptions[row.key], row.default,
+      "CUSTOM Left reverses saved option: " .. row.key)
+
+    local beforeHelp = #stack.states
+    pressed = "select"
+    customList:update(0)
+    T.eq(#stack.states, beforeHelp + 1,
+      "CUSTOM SELECT opens option help: " .. row.key)
+    stack:pop()
+  end
+end
+
 for _, row in ipairs(schema) do
   if row.key ~= "legacy_wanderer_frequency" then
     T.check(reachable[row.key] ~= nil,

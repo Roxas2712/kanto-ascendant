@@ -125,6 +125,9 @@ local mod = {
   },
   options = { get = function(_, key)
     if key == "loot_mode" then return mode end
+    if key == "rest_profile" then return "normal" end
+    if key == "rest_min" then return 151 end
+    if key == "rest_max" then return 2510 end
   end },
   content = {
     items = { register = function(_, id, def) Data.items[id] = def end },
@@ -184,10 +187,16 @@ local rewards = assert(loadfile(modPath .. "/rematch_rewards.lua"))()(mod, {
       type = "choice", default = "crystal_hd", choices = {
         { "CRYSTAL HD", "crystal_hd" }, { "ORIGINAL", "original" },
       } },
-    { key = "rest_min", label = "MIN REST", type = "number", default = 151,
-      min = 151, max = 2510, presets = { 151, 302, 604, 1255, 2510 } },
-    { key = "rest_max", label = "MAX REST", type = "number", default = 2510,
-      min = 151, max = 2510, presets = { 151, 302, 604, 1255, 2510 } },
+    { key = "rest_profile", label = "REMATCH BREAK", type = "choice",
+      default = "normal", choices = {
+        { "VERY SHORT", "very_short" }, { "SHORT", "short" },
+        { "NORMAL", "normal" }, { "LONG", "long" },
+        { "VERY LONG", "very_long" }, { "CUSTOM", "custom" },
+      } },
+    { key = "rest_min", label = "CUSTOM MIN", type = "number", default = 151,
+      min = 151, max = 2510, step = 1 },
+    { key = "rest_max", label = "CUSTOM MAX", type = "number", default = 2510,
+      min = 151, max = 2510, step = 1 },
     { key = "level_gain", label = "LEVEL GAIN", type = "number",
       default = 2, min = 0, max = 20, step = 1 },
     { key = "team_growth", label = "TEAM GROWTH", type = "toggle",
@@ -417,20 +426,41 @@ eq(optionWrites, 2,
   "only the two L/R changes write options")
 
 local rematch = screens.AscendantRematchOptions.new(game, {})
-eq(#rematch.items, 6,
-  "active Legacy NG+ adds its frequency row to rematch tuning")
-eq(rematch.items[1].value, "rest_min", "minimum rest is first in REMATCH")
-eq(rematch.items[1].schema.presets[1], 151,
-  "rematch recovery presets retain the 151-step floor")
-eq(rematch.items[1].schema.presets[5], 2510,
-  "rematch recovery presets retain the 2510-step ceiling")
-eq(rematch.items[6].value, "legacy_wanderer_frequency",
+eq(#rematch.items, 5,
+  "named recovery plus active Legacy frequency fit the compact menu")
+eq(rematch.items[1].value, "rest_profile",
+  "the named recovery profile is first in REMATCH")
+eq(rematch.items[1].right, "NORMAL",
+  "a fresh menu shows the NORMAL profile")
+eq(rematch.items[5].value, "legacy_wanderer_frequency",
   "Legacy NG+ menu exposes the stable Wanderer frequency option")
-eq(#rematch.items[6].schema.choices, 4,
+eq(#rematch.items[5].schema.choices, 4,
   "Wanderer frequency offers NEVER/RARE/NORMAL/OFTEN")
+rematch:ascendantStep(1)
+eq(rematch.items[1].right, "LONG",
+  "Right advances the named profile without exposing numeric rows")
+rematch:ascendantStep(1)
+rematch:ascendantStep(1)
+eq(rematch.items[1].right, "CUSTOM",
+  "CUSTOM is reachable through the same profile control")
+eq(#rematch.items, 7,
+  "CUSTOM immediately exposes its two numeric controls")
+eq(rematch.items[2].value, "rest_min", "CUSTOM exposes its minimum")
+eq(rematch.items[3].value, "rest_max", "CUSTOM exposes its maximum")
+rematch.index = 2
+rematch:ascendantStep(1)
+eq(game.mods.modOptions.kanto_ascendant.rest_min, 152,
+  "CUSTOM minimum remains exactly editable")
+rematch.index = 1
+rematch:ascendantStep(-1)
+eq(#rematch.items, 5, "leaving CUSTOM hides both numeric rows")
+rematch:ascendantStep(1)
+eq(#rematch.items, 7, "returning to CUSTOM restores both rows")
+eq(rematch.items[2].right, "152",
+  "switching profiles preserves the custom minimum")
 legacyRunActive = false
 local ordinaryRematch = screens.AscendantRematchOptions.new(game, {})
-eq(#ordinaryRematch.items, 5,
+eq(#ordinaryRematch.items, 6,
   "fresh normal campaign hides the Wanderer frequency row in-game")
 for _, row in ipairs(ordinaryRematch.items) do
   ok(row.value ~= "legacy_wanderer_frequency",

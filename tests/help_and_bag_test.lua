@@ -17,6 +17,17 @@ assert(optionHelp.text("adaptive_trainer_levels", "AUS"):find("AUS = KLASSISCH",
     and optionHelp.text("adaptive_trainer_levels", "AUTO"):find("Teamdurchschnitt")
     and optionHelp.text("adaptive_trainer_levels", "+4"):find("Box%-Pokémon"),
   "adaptive help must explain classic fallback, party mean and exclusions")
+local breakHelp = optionHelp.text("rest_profile", "NORMAL")
+assert(breakHelp:find("SEHR KURZ 151%-302")
+    and breakHelp:find("NORMAL 605%-1255")
+    and breakHelp:find("SEHR LANG 1883%-2510"),
+  "rematch break help must expose the exact preset ranges")
+assert(breakHelp:find("Bereits geplante Pausen ändern sich nie")
+    and breakHelp:find("Legacy%-Wanderer"),
+  "rematch break help must explain timer stability and Wanderer isolation")
+assert(optionHelp.text("rest_min", "700"):find("Profilwechsel bewahrt")
+    and optionHelp.text("rest_max", "900"):find("Profilwechsel bewahrt"),
+  "CUSTOM help must promise that both stored values survive profile changes")
 assert(optionHelp.text("legend_lugia", "AN"):find("Lugia"),
   "dynamic legendary help missing")
 assert(optionHelp.text("event_flying_pikachu", "AN"):find("Flying Pikachu"),

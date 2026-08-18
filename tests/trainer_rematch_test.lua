@@ -1143,14 +1143,23 @@ T.same(optionRows.legacy_wanderer_frequency.choices, {
 }, "English frequency labels map to stable saved ids")
 T.eq(optionRows.dramaless_battle_camera, nil,
   "the Voxel camera choice is not duplicated in Kanto Ascendant's mod page")
+T.eq(optionRows.rest_profile.type, "choice",
+  "rematch recovery uses one named profile control")
+T.eq(optionRows.rest_profile.default, "normal",
+  "fresh saves start with the bounded NORMAL recovery profile")
+T.same(optionRows.rest_profile.choices, {
+  { "VERY SHORT", "very_short" }, { "SHORT", "short" },
+  { "NORMAL", "normal" }, { "LONG", "long" },
+  { "VERY LONG", "very_long" }, { "CUSTOM", "custom" },
+}, "English recovery labels map to stable saved ids")
 T.eq(optionRows.rest_min.min, 151,
-  "the configurable rematch range starts at Kanto's full Pokédex count")
+  "CUSTOM recovery starts at Kanto's full Pokédex count")
 T.eq(optionRows.rest_max.max, 2510,
-  "the configurable rematch range reaches the complete 251 roster times ten")
-T.same(optionRows.rest_min.presets, { 151, 302, 604, 1255, 2510 },
-  "rematch rest controls use useful presets instead of 2359 single steps")
-T.same(optionRows.rest_max.presets, { 151, 302, 604, 1255, 2510 },
-  "minimum and maximum rest controls expose the same predictable presets")
+  "CUSTOM recovery reaches the complete 251 roster times ten")
+T.eq(optionRows.rest_min.presets, nil,
+  "CUSTOM minimum retains exact numeric control")
+T.eq(optionRows.rest_max.presets, nil,
+  "CUSTOM maximum retains exact numeric control")
 T.eq(optionRows.kanto_151.type, "choice",
   "all 151 Kanto species support reward, wild and off modes")
 T.eq(optionRows.kanto_151.default, "ascendant",
@@ -3092,8 +3101,8 @@ T.eq(ex.rollRestSteps(function(_, hi) return hi end, 151, 2510), 2510,
   "rest roll includes the upper bound")
 T.eq(ex.rollRestSteps(function(lo) return lo end, 2510, 151), 151,
   "an inverted option range is normalized")
-T.eq(ex.rollRestSteps(function(_, hi) return hi end, 128, 256), 2510,
-  "untouched legacy defaults migrate to the expanded range")
+T.eq(ex.rollRestSteps(function(_, hi) return hi end, 128, 256), 256,
+  "the untouched historical pair remains exact until the player edits it")
 T.eq(ex.restLine(1):find("1 more step.", 1, true) ~= nil, true,
   "one remaining step uses singular dialogue")
 T.eq(ex.restLine(2510):find("2510 more steps.", 1, true) ~= nil, true,
@@ -3892,6 +3901,12 @@ local installDeps = {
   lootRandom = function() return 10000 end,
   wildsRandom = function(lo) return lo end,
 }
+run.loader.modOptions.kanto_ascendant = {
+  rest_profile = "custom", rest_min = 151, rest_max = 151,
+}
+game.save.options = { modOptions = { kanto_ascendant = {
+  rest_profile = "custom", rest_min = 151, rest_max = 151,
+} } }
 ex.install(game, installDeps)
 T.neq(ex.wildsCompat, nil,
   "Wilds of Kanto compatibility is exported")
@@ -4060,7 +4075,9 @@ T.eq(pushed[#pushed].text:find("42", 1, true) ~= nil, true,
 T.eq(pushed[#pushed].text:find("Schritten", 1, true) ~= nil, true,
   "Master Leader cooldown dialogue follows the selected language")
 setTestGerman(false)
-run.loader.modOptions.kanto_ascendant = nil
+run.loader.modOptions.kanto_ascendant = {
+  rest_profile = "custom", rest_min = 151, rest_max = 151,
+}
 
 pushed = {}
 local labScientist = {
@@ -4217,6 +4234,10 @@ T.eq(npc.frozen, false, "npc unfrozen after the reward")
 local savedState = game.save.modData.kanto_ascendant.trainers[npc.id]
 T.eq(savedState.rematches, 1, "completed rematch count persists per trainer")
 T.eq(ex.remainingSteps(npc.id), 151, "trainer starts the configured rest")
+T.eq(savedState.lastRest, 151,
+  "the visible cooldown resolves the active CUSTOM profile")
+T.eq(savedState.lastTraining, 151,
+  "silent training resolves the same profile range")
 
 -- B2: the same trainer refuses until enough real world steps pass
 pushed = {}
@@ -4469,6 +4490,7 @@ T.eq(idleBattle.rematchLevelBoost, 4,
 local oldTimerSave = {
   kanto_ascendant = {
     step_clock = 100,
+    postgame = { bossRest = { ["master:brock"] = 777 } },
     trainers = {
       OLD_TIMER = {
         rematches = 1, trainingCycles = 0,
@@ -4481,10 +4503,45 @@ local oldTimerSave = {
 run.loader.modSave = oldTimerSave
 ex.migrateRestTimers({ random = function(_, hi) return hi end })
 local migratedTimer = oldTimerSave.kanto_ascendant.trainers.OLD_TIMER
-T.eq(migratedTimer.readyAt, 2610,
-  "an active legacy cooldown rerolls once into the expanded range")
-T.eq(migratedTimer.nextTrainingAt, 5120,
-  "the following silent cycle adopts the expanded range too")
+T.eq(migratedTimer.readyAt, 228,
+  "an active legacy cooldown is never rerolled during profile migration")
+T.eq(migratedTimer.nextTrainingAt, 356,
+  "an already scheduled silent interval remains byte-for-byte stable")
+T.eq(oldTimerSave.kanto_ascendant.postgame.bossRest["master:brock"], 777,
+  "profile migration never changes an existing post-game Gym timer")
+
+-- E3b: every future rematch timer resolves the same named range. Legacy
+-- Wanderers remain outside this resolver and are covered by their own suite.
+do
+run.loader.modSave = game.save.modData
+run.loader.modOptions.kanto_ascendant = {
+  rest_profile = "long", rest_min = 700, rest_max = 900,
+}
+local rangeLo, rangeHi = ex.configuredRematchRestRange()
+T.eq(rangeLo, 1256, "LONG resolves its fixed lower bound")
+T.eq(rangeHi, 1882, "LONG resolves its fixed upper bound")
+local namedNpc = freshNpc("FIX_ROUTE_obj_named_profile")
+game.save.modData.kanto_ascendant.trainers[namedNpc.id] = nil
+game.save.defeatedTrainers[namedNpc.id] = false
+overworldStub.engageTrainer(owOriginal, namedNpc)
+local namedState = game.save.modData.kanto_ascendant.trainers[namedNpc.id]
+T.eq(namedState.lastRest, 1256,
+  "a visible field cooldown rolls from LONG")
+T.eq(namedState.lastTraining, 1256,
+  "its silent interval rolls from the identical LONG range")
+T.eq(namedState.nextTrainingAt - namedState.readyAt, 1256,
+  "the silent clock begins after exactly one shared-profile interval")
+local oldLoveRandom = love.math.random
+love.math.random = function(lo) return lo end
+pg.scheduleBossRest("master:profile_test")
+love.math.random = oldLoveRandom
+local playerClock = tonumber(game.save.modData.kanto_ascendant.step_clock) or 0
+T.eq(livePostgame.bossRest["master:profile_test"] - playerClock, 1256,
+  "post-game Gym recovery rolls from the identical LONG range")
+run.loader.modOptions.kanto_ascendant = {
+  rest_profile = "custom", rest_min = 151, rest_max = 151,
+}
+end
 
 local legacySave = {
   defeatedTrainers = { LEGACY_ROUTE_obj_3 = true },

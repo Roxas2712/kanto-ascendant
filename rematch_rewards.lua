@@ -8,6 +8,7 @@ return function(mod, opts)
   local optionHelp = opts.optionHelp
   local ascendantUi = opts.ascendantUi
   local legacyWanderers = opts.legacyWanderers
+  local restProfiles = opts.restProfiles
   local R = {
     MULTIPLIER_ITEM = "ASCENDANT_EXP_MULTIPLIER",
     STATE_VERSION = 2,
@@ -608,7 +609,8 @@ return function(mod, opts)
     wild_level_scaling = "core",
     kanto_151 = "core", ascendant_rules = "core",
     rare_item_lock = "capture",
-    rest_min = "rematch", rest_max = "rematch", level_gain = "rematch",
+    rest_profile = "rematch", rest_min = "rematch",
+    rest_max = "rematch", level_gain = "rematch",
     team_growth = "rematch", loot_mode = "rematch",
     legacy_wanderer_frequency = "rematch",
     vision_encounters = "adventure", shiny_hunts = "adventure",
@@ -752,6 +754,11 @@ return function(mod, opts)
         or (legacyWanderers
           and type(legacyWanderers.legacyRunEnabled) == "function"
           and legacyWanderers.legacyRunEnabled(game))
+      if schema.key == "rest_min" or schema.key == "rest_max" then
+        local customProfile = restProfiles and restProfiles.CUSTOM or "custom"
+        visible = visible
+          and optionValue(game, "rest_profile") == customProfile
+      end
       if bucket == category and visible then
         local value = optionValue(game, schema.key)
         local valueLabel = schemaValueLabel(game, schema, value)
@@ -828,9 +835,9 @@ return function(mod, opts)
     list.pageJump = false
     local baseUpdate = list.update
     function list:ascendantStep(direction)
-      local changed = self.items[self.index]
-      local result = stepRow(game, changed, category, direction)
-      if result and changed and changed.value == "difficulty" then
+      local selected = self.items[self.index]
+      local changed = stepRow(game, selected, category, direction)
+      if changed and selected and selected.value == "difficulty" then
         for _, row in ipairs(self.items) do
           if row.value == "adaptive_trainer_levels" and row.schema then
             local value = optionValue(game, row.value)
@@ -839,8 +846,15 @@ return function(mod, opts)
               and optionHelp.text(row.schema.key, row.right) or row.help
           end
         end
+      elseif changed and selected and selected.value == "rest_profile" then
+        local refreshed = optionRows(game, category)
+        self.items = refreshed
+        self.index = 1
+        for index, row in ipairs(refreshed) do
+          if row.value == "rest_profile" then self.index = index; break end
+        end
       end
-      return result
+      return changed
     end
     function list:update(dt)
       local input = self.game and self.game.input

@@ -26,12 +26,15 @@ return function(i18n)
     vision_encounters = {
       "Allows the rare one-time unknown Ho-Oh vision on southern Route 2. Lugia remains a regular catch encounter.",
       "Erlaubt die seltene, einmalige unbekannte Ho-Oh-Vision auf der südlichen Route 2. Lugia bleibt regulär fangbar." },
+    rest_profile = {
+      "Sets future field-rematch, silent-training and post-game Gym breaks: VERY SHORT 151-302, SHORT 303-604, NORMAL 605-1255, LONG 1256-1882 or VERY LONG 1883-2510. CUSTOM exposes its two saved values. Already scheduled breaks never change; Legacy Wanderers use their own frequency.",
+      "Legt künftige Pausen für Feldrevanchen, stilles Training und Postgame-Arenen fest: SEHR KURZ 151-302, KURZ 303-604, NORMAL 605-1255, LANG 1256-1882 oder SEHR LANG 1883-2510. EIGEN zeigt seine zwei gespeicherten Werte. Bereits geplante Pausen ändern sich nie; Legacy-Wanderer haben eine eigene Häufigkeit." },
     rest_min = {
-      "Minimum number of steps before rematch trainers and bosses can be ready again.",
-      "Minimale Schrittzahl, bevor Revanche-Trainer und Bosse wieder bereit sein können." },
+      "CUSTOM only: minimum steps used for future rematch breaks. Switching profiles preserves this value.",
+      "Nur EIGEN: minimale Schritte für künftige Revanchenpausen. Ein Profilwechsel bewahrt diesen Wert." },
     rest_max = {
-      "Maximum number of steps used when a new rematch recovery time is rolled.",
-      "Maximale Schrittzahl, die für eine neue Revanche-Pause ausgewürfelt wird." },
+      "CUSTOM only: maximum steps used for future rematch breaks. Switching profiles preserves this value.",
+      "Nur EIGEN: maximale Schritte für künftige Revanchenpausen. Ein Profilwechsel bewahrt diesen Wert." },
     level_gain = {
       "Adds this many levels for every completed rematch, up to level 100.",
       "Addiert pro abgeschlossener Revanche diese Level, höchstens bis Level 100." },

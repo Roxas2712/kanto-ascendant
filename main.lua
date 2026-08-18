@@ -35,14 +35,11 @@ local function clampedInteger(value, fallback, minimum, maximum)
 end
 
 local function normalizedRestRange(minSteps, maxSteps)
-  -- Existing profiles from <=4.2.0 stored the old defaults explicitly.
-  -- Treat that exact untouched pair as the new default instead of leaving
-  -- upgraded players on the legacy 128-256 range forever.
-  if tonumber(minSteps) == 128 and tonumber(maxSteps) == 256 then
-    minSteps, maxSteps = DEFAULT_MIN_REST_STEPS, DEFAULT_MAX_REST_STEPS
-  end
-  minSteps = clampedInteger(minSteps, DEFAULT_MIN_REST_STEPS, 151, 2510)
-  maxSteps = clampedInteger(maxSteps, DEFAULT_MAX_REST_STEPS, 151, 2510)
+  -- Never rewrite a historical saved pair. The supported editor starts at
+  -- 151, but an untouched 128-256 save keeps that exact future cadence until
+  -- its owner edits the CUSTOM range.
+  minSteps = clampedInteger(minSteps, DEFAULT_MIN_REST_STEPS, 1, 2510)
+  maxSteps = clampedInteger(maxSteps, DEFAULT_MAX_REST_STEPS, 1, 2510)
   if minSteps > maxSteps then minSteps, maxSteps = maxSteps, minSteps end
   return minSteps, maxSteps
 end
@@ -275,6 +272,8 @@ return function(mod)
 
   local makeLocalization = loadSibling(mod, "localization.lua")
   local i18n = makeLocalization(mod)
+  local restProfiles = loadSibling(mod, "rematch_break_profiles.lua")
+  mod.exports.rematchBreakProfiles = restProfiles
   -- KASC dialogue must never auto-scroll a third visible Gen-I text row.
   -- Install the ownership-aware guard before any sibling registers text, and
   -- track both localized results and content-backed map dialogue.
@@ -546,14 +545,25 @@ return function(mod)
     { key = "vision_encounters",
       label = menuLabel("HO-OH VISION", "HO-OH-VISION"),
       type = "toggle", default = true },
-    { key = "rest_min", label = menuLabel("MIN REST STEPS", "MIN PAUSE"),
+    { key = "rest_profile",
+      label = menuLabel("REMATCH BREAK", "REVANCHENPAUSE"),
+      type = "choice", default = restProfiles.DEFAULT,
+      choices = {
+        { menuLabel("VERY SHORT", "SEHR KURZ"), "very_short" },
+        { menuLabel("SHORT", "KURZ"), "short" },
+        { menuLabel("NORMAL", "NORMAL"), "normal" },
+        { menuLabel("LONG", "LANG"), "long" },
+        { menuLabel("VERY LONG", "SEHR LANG"), "very_long" },
+        { menuLabel("CUSTOM", "EIGEN"), "custom" },
+      } },
+    { key = "rest_min",
+      label = menuLabel("CUSTOM MIN STEPS", "EIGENE MIN-SCHRITTE"),
       type = "number",
-      default = DEFAULT_MIN_REST_STEPS, min = 151, max = 2510, step = 1,
-      presets = { 151, 302, 604, 1255, 2510 } },
-    { key = "rest_max", label = menuLabel("MAX REST STEPS", "MAX PAUSE"),
+      default = DEFAULT_MIN_REST_STEPS, min = 151, max = 2510, step = 1 },
+    { key = "rest_max",
+      label = menuLabel("CUSTOM MAX STEPS", "EIGENE MAX-SCHRITTE"),
       type = "number",
-      default = DEFAULT_MAX_REST_STEPS, min = 151, max = 2510, step = 1,
-      presets = { 151, 302, 604, 1255, 2510 } },
+      default = DEFAULT_MAX_REST_STEPS, min = 151, max = 2510, step = 1 },
     { key = "level_gain", label = menuLabel("LEVELS / REMATCH", "LEVEL / REVANCHE"),
       type = "number",
       default = DEFAULT_LEVEL_GAIN, min = 0, max = MAX_LEVEL_GAIN, step = 1 },
@@ -995,6 +1005,10 @@ return function(mod)
   end
   idMigration.applyOptionDefaults(ascendantOptionSchema)
   mod.options:define(ascendantOptionSchema)
+  assert(restProfiles.install(mod))
+  mod.exports.migrateRestProfileOptions = function(game, fresh)
+    return restProfiles.migrateGameOptions(mod.id, game, fresh)
+  end
 
   local makeOptionHelp = loadSibling(mod, "option_help.lua")
   local optionHelp = makeOptionHelp(i18n)
@@ -1006,6 +1020,7 @@ return function(mod)
     optionHelp = optionHelp,
     ascendantUi = ascendantUi,
     legacyWanderers = legacyWanderers,
+    restProfiles = restProfiles,
   })
   mod.exports.rematchRewards = rematchRewards
   mod.exports.optionHelp = optionHelp
@@ -1234,6 +1249,7 @@ return function(mod)
     kantoCompletion = kantoCompletion,
     gorochu = gorochu,
     rematchRewards = rematchRewards,
+    restProfiles = restProfiles,
     beyondKanto = mod.exports.beyondKanto,
     rivalIdentity = function()
       return extendedCharacters.getRivalCharacter()
@@ -2528,9 +2544,15 @@ return function(mod)
     return math.random
   end
 
-  local function rollConfiguredRest(deps)
-    local minSteps, maxSteps = normalizedRestRange(
+  local function configuredRestRange()
+    return restProfiles.range(
+      mod.options:get("rest_profile"),
       mod.options:get("rest_min"), mod.options:get("rest_max"))
+  end
+  mod.exports.configuredRematchRestRange = configuredRestRange
+
+  local function rollConfiguredRest(deps)
+    local minSteps, maxSteps = configuredRestRange()
     return rollRestSteps(randomSource(deps), minSteps, maxSteps)
   end
 
@@ -2583,23 +2605,11 @@ return function(mod)
   end
 
   local function migrateRestTimers(deps)
-    if tonumber(mod.save:get("rest_range_version", 0)) >= 2 then return end
-    local clock = stepClock()
-    for _, state in pairs(trainerStates()) do
-      local lastRest = tonumber(state.lastRest)
-      if state.readyAt and state.readyAt > clock
-          and lastRest and lastRest >= 1 and lastRest <= 256 then
-        local duration = rollConfiguredRest(deps)
-        state.readyAt = clock + duration
-        state.lastRest = duration
-        scheduleNextTraining(state, state.readyAt, deps)
-      elseif state.readyAt and state.readyAt <= clock
-          and tonumber(state.lastTraining)
-          and tonumber(state.lastTraining) <= 256 then
-        scheduleNextTraining(state, clock, deps)
-      end
-    end
-    mod.save:set("rest_range_version", 2)
+    if tonumber(mod.save:get("rest_range_version", 0)) >= 3 then return end
+    -- Profiles govern only intervals rolled after this point. Existing
+    -- readyAt/nextTrainingAt/bossRest timestamps are authoritative and must
+    -- never jump merely because the menu representation changed.
+    mod.save:set("rest_range_version", 3)
   end
   mod.exports.migrateRestTimers = migrateRestTimers
 
@@ -2983,6 +2993,7 @@ return function(mod)
   local activeGame
   local function install(game, deps)
     activeGame = game
+    restProfiles.bindGame(game)
     deps = deps or {}
     local Overworld = deps.overworld or require("src.world.OverworldController")
     local BattleState = deps.battleState or require("src.battle.BattleState")
@@ -3190,8 +3201,9 @@ return function(mod)
     if worldEvents then worldEvents.onStep(nil, realClock) end
   end)
 
-  -- game.ready runs before CONTINUE adopts the selected slot.  Seed old
-  -- victories again after that slot becomes the live mod.save backing.
+  -- game.ready runs before CONTINUE adopts the selected slot. The profile
+  -- module's priority-5000 save.loaded handler resolves the selected slot's
+  -- exact pair before this missing-timer seeding handler runs.
   mod.events:on("save.loaded", function(ev)
     -- Reassert late-bound Johto audio after the selected Red/Blue/Yellow
     -- slot becomes live. This is idempotent and also clears any negative
