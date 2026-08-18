@@ -2,7 +2,8 @@
 --
 -- The engine's public fixture is deliberately tiny.  seedFixture() expands
 -- that fixture with a factual, compact snapshot of Pokemon Red's encounter
--- slots and with schema-correct placeholders for the canonical Kanto roster.
+-- slots and with schema-correct placeholders for the canonical Kanto roster
+-- and for content authorities needed while the complete mod registers.
 -- The mod is then loaded normally, so its real patches, Johto registrations
 -- and evolution rows are what audit() inspects.
 
@@ -201,11 +202,83 @@ local function parseSlots(encoded)
   return slots
 end
 
+local function uniformTileset(id, count, tile)
+  local blocks = {}
+  for block = 1, count do
+    local row = {}
+    for cell = 1, 16 do row[cell] = tile end
+    blocks[block] = row
+  end
+  return {
+    id = id,
+    image = "tests/fixture_data/assets/fix_out.png",
+    blocks = blocks,
+    walkable = {},
+    counterTiles = {}, doorTiles = {}, warpTiles = {}, grassTile = nil,
+  }
+end
+
+local function contentTilesetFixtures()
+  -- Reachability never renders or audits maps, but the normal mod load must
+  -- still exercise every registration path.  These deliberately synthetic
+  -- authorities match only the native table shapes and collision contracts
+  -- that registration checks.  The real-data Workshop/Hidden-Evolution
+  -- suites remain authoritative for native block composition and rendering.
+  local facility = uniformTileset("FACILITY", 128, 1)
+  facility.walkable = { 1, 17 }
+
+  local cavern = uniformTileset("CAVERN", 128, 0)
+
+  local forest = uniformTileset("FOREST", 100, 0)
+  forest.walkable = { 1, 58 }
+  local collisionIndexes = { 5, 7, 13, 15 }
+  local function collision(blockId, cells)
+    local row = forest.blocks[blockId + 1]
+    for index, tileId in ipairs(cells) do
+      row[collisionIndexes[index]] = tileId
+    end
+  end
+  for _, blockId in ipairs({ 27, 46, 47 }) do
+    collision(blockId, { 1, 1, 1, 1 })
+  end
+  for blockId, mask in pairs({
+    [77] = 1, [76] = 2, [53] = 3, [73] = 4, [59] = 5, [52] = 7,
+    [72] = 8, [55] = 10, [54] = 11, [57] = 12, [56] = 13,
+    [58] = 14,
+  }) do
+    local cells = {}
+    for bit = 0, 3 do
+      cells[bit + 1] = math.floor(mask / (2 ^ bit)) % 2 == 1 and 1 or 0
+    end
+    collision(blockId, cells)
+  end
+  collision(45, { 20, 20, 20, 20 })
+  collision(25, { 0, 0, 0, 58 })
+  forest.warpTiles = { 58 }
+
+  return {
+    FACILITY = facility,
+    CAVERN = cavern,
+    FOREST = forest,
+    GYM = uniformTileset("GYM", 128, 0),
+    CEMETERY = uniformTileset("CEMETERY", 128, 0),
+  }
+end
+
 function A.seedFixture(data)
   assert(type(data) == "table", "fixture data table required")
   data.pokemon = data.pokemon or {}
   data.moves = data.moves or {}
   data.items = data.items or {}
+  data.audio = data.audio or {}
+  data.audio.songs = data.audio.songs or {}
+  data.audio.mapSongs = data.audio.mapSongs or {}
+  data.audio.songs.Music_Celadon = data.audio.songs.Music_Celadon
+    or { address = 0, bank = 0 }
+  data.tilesets = data.tilesets or {}
+  for id, fixture in pairs(contentTilesetFixtures()) do
+    data.tilesets[id] = data.tilesets[id] or fixture
+  end
 
   -- Keep the fixture-only species available to any preloaded fixture
   -- trainer rows, but move them outside the audited national-dex namespace.
@@ -331,6 +404,22 @@ function A.audit(data, exports, extraData)
       guestSpecies[#guestSpecies + 1] = id
     else
       addError(report, "Registered Gorochu controller has no species data")
+    end
+  end
+  local hevo = exports.hevoSpecies
+  if hevo and hevo.enabled then
+    for index, id in ipairs(hevo.order or {}) do
+      local def = data.pokemon and data.pokemon[id]
+      if not def then
+        addError(report, "HEVO catalogue species is not registered: " .. id)
+      else
+        validSpecies[id] = true
+        local expectedDex = index + 260
+        if tonumber(def.dex) ~= expectedDex then
+          addError(report, ("HEVO species %s has Dex %s, expected #%03d")
+            :format(id, tostring(def.dex), expectedDex))
+        end
+      end
     end
   end
   for id, def in pairs(data.pokemon or {}) do
