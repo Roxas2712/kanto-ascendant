@@ -57,8 +57,9 @@ collapsed so players can reveal only the information they want.
 
 - Restores the complete Red and Green Oak's Lab dialogue contract in English
   and German. Blue alone keeps the native grandson dialogue.
-- Keeps Professor Oak and the Viridian old man visible during their catching
-  tutorials in native 2D and supported staged renderers.
+- Uses the existing approved Professor Oak standee for Yellow's catching
+  tutorial in supported staged renderers. Because no approved old-man 3D art
+  exists, Red/Blue delegate only that tutorial to the native 2D battle.
 - Uses Green's corrected Crystal walking sheet with the public 6.5.5 sheet and
   the older sheet retained as validated fallback generations.
 - Adds separate Crystal-palette Shiny follower sheets for all Kanto species

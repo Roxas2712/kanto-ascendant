@@ -11,9 +11,12 @@ Yellow. No new save or story reset is required.
 - Red addresses Professor Oak respectfully. Green remains friendly and
   absent-minded, and now acknowledges and apologizes when she takes the
   starter that was intended for the player.
-- Professor Oak and the Viridian old man remain the visible presenters during
-  their scripted catching tutorials. The selected player character no longer
-  replaces them in native 2D or supported staged renderer paths.
+- Yellow's scripted catching tutorial uses the existing approved Professor
+  Oak standee in supported staged renderers instead of their small 2D
+  fallback. No approved staged model exists for Viridian's old man, so only
+  the Red/Blue old-man tutorial temporarily delegates to the native 2D battle;
+  the next battle uses the configured renderer normally. The selected player
+  character replaces neither presenter.
 - Green uses the corrected six-frame Crystal walking sheet. The public 6.5.5
   sheet remains the first validated fallback and the older sheet remains the
   second fallback. Battle, profile, bicycle, fishing, throwing, HD and Voxel

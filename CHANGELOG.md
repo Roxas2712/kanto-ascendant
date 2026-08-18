@@ -12,9 +12,11 @@ All notable changes to this project are documented in this file.
   every Oak's Lab starter branch. Only Blue uses the native grandson dialogue;
   Red addresses Professor Oak respectfully, while Green acknowledges and
   apologizes when she absent-mindedly takes the intended starter.
-- Professor Oak and the Viridian old man remain the visible presenters during
-  their scripted catching tutorials. Supported staged renderers no longer
-  replace them with the selected Red, Blue or Green player identity.
+- Yellow's catching tutorial now uses the existing approved Professor Oak
+  standee in supported staged renderers instead of their small 2D fallback.
+  Because no approved staged old-man model exists, only Red/Blue's old-man
+  tutorial delegates to native 2D; later battles return to the configured
+  renderer. Neither presenter is replaced by the selected player identity.
 - Green's corrected six-frame Crystal walking sheet is now primary. The exact
   public 6.5.5 sheet remains the first validated fallback and the older sheet
   remains the second fallback; no battle, profile, bicycle, fishing, throwing,
