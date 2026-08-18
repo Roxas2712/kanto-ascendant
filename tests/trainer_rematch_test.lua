@@ -4704,6 +4704,71 @@ pushed[#pushed].opts.choice(true)
 T.eq(#calls.battles, lvlBattles + 1, "a close team battles straight away")
 T.eq(calls.battles[#calls.battles].party, 1, "it uses the trainer's own party")
 
+-- M2: classic OFF must preview the same Difficulty-adjusted levels that the
+-- real battle constructor receives. At six badges HIGH raises this level-18
+-- trainer by three: against a level-10 party the real gap is 11 and must warn,
+-- even though the authored+rematch-only preview gap would be 8.
+do
+  local previousOptions = run.loader.modOptions.kanto_ascendant
+  local previousParty = game.save.party
+  local previousInventory = game.save.inventory
+  local previousBadges = Data.constants.badges
+  local warningInventory = {}
+  for key, value in pairs(previousInventory or {}) do
+    warningInventory[key] = value
+  end
+  local badgeIds = { "BOULDERBADGE", "CASCADEBADGE", "THUNDERBADGE",
+    "RAINBOWBADGE", "SOULBADGE", "MARSHBADGE", "VOLCANOBADGE",
+    "EARTHBADGE" }
+  Data.constants.badges = {}
+  for index, badge in ipairs(badgeIds) do
+    Data.constants.badges[index] = { id = badge }
+    if index <= 6 then warningInventory[badge] = true end
+  end
+  Data.trainers.OPP_FIX_CLASSIC_WARNING = {
+    id = "OPP_FIX_CLASSIC_WARNING", name = "WARNING TEST", index = 91,
+    baseMoney = 20,
+    parties = { { { level = 18, species = "FIXMON_A" } } },
+  }
+  run.loader.modOptions.kanto_ascendant = {
+    difficulty = "high", adaptive_trainer_levels = "off",
+    level_gain = 0, team_growth = false,
+  }
+  game.save.party = { { species = "FIXMON_A", level = 10 } }
+  game.save.inventory = warningInventory
+  local adaptivePolicy = assert(ex.adaptiveTrainerLevels)
+  local originalPlanRematch = adaptivePolicy.planRematch
+  local capturedPlan
+  adaptivePolicy.planRematch = function(...)
+    local rows, report = originalPlanRematch(...)
+    capturedPlan = { rows = rows, report = report }
+    return rows, report
+  end
+  local warningBattles = #calls.battles
+  local warningBoxes = #pushed
+  local warningNpc = freshNpc("FIX_ROUTE_obj_classic_difficulty_warning")
+  warningNpc.def.trainerClass = "OPP_FIX_CLASSIC_WARNING"
+  overworldStub.talkTo(ow, warningNpc)
+  pushed[#pushed].opts.choice(true)
+  adaptivePolicy.planRematch = originalPlanRematch
+  T.eq(capturedPlan and capturedPlan.report.mode, "classic",
+    "classic warning uses the pure Difficulty/rematch planner")
+  T.eq(capturedPlan and capturedPlan.rows[1].level, 21,
+    "classic warning planner includes the fixed High bonus")
+  T.eq(#calls.battles, warningBattles,
+    "classic Difficulty preview warns before constructing the battle")
+  T.eq(#pushed, warningBoxes + 2,
+    "classic preview includes the fixed Difficulty bonus")
+  pushed[#pushed].opts.choice(true)
+  local warningBattle = calls.battles[#calls.battles].battle
+  T.eq(warningBattle.enemyParty[1].level, 21,
+    "classic warning preview and actual High battle share level 21")
+  run.loader.modOptions.kanto_ascendant = previousOptions
+  game.save.party = previousParty
+  game.save.inventory = previousInventory
+  Data.constants.badges = previousBadges
+end
+
 -- N: the level-gap math behind the warning
 T.eq(ex.levelGap({ { level = 5 }, { level = 7 } },
   { { level = 64 }, { level = 65 } }), 58.5, "the gap is team average minus party average")

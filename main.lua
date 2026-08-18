@@ -2847,7 +2847,7 @@ return function(mod)
       -- evolutions, recruits, AI and rewards. OFF/AUTO-on-Standard keeps the
       -- classic constructor path byte-for-byte (including appended recruits).
       local adaptive = mod.exports.adaptiveTrainerLevels
-      local frozenTeam, frozenReport
+      local frozenTeam, frozenReport, plannedPreview
       if adaptive and type(adaptive.planRematch) == "function" then
         local plannedOk, plannedTeam, plannedReport = pcall(
           adaptive.planRematch,
@@ -2855,14 +2855,26 @@ return function(mod)
             selection = adaptive.currentSelection(),
             difficultyName = mod.options:get("difficulty") or "standard",
             badges = difficulty.progressBadges(game),
+            difficultyBonus = difficulty.progressionBonus(
+              "trainer", difficulty.progressBadges(game),
+              mod.options:get("difficulty") or "standard"),
             classicBoost = boost, originalCount = #team,
             pokemon = game.data and game.data.pokemon,
           })
-        if plannedOk and plannedReport and plannedReport.mode == "adaptive" then
-          frozenTeam, frozenReport = plannedTeam, plannedReport
+        if plannedOk and type(plannedTeam) == "table"
+            and plannedReport and (plannedReport.mode == "classic"
+              or plannedReport.mode == "adaptive") then
+          -- Both modes use the pure planner for the warning preview so the
+          -- displayed gap includes the same fixed Difficulty floor as the
+          -- eventual constructor. Only Adaptive freezes/applies slot targets;
+          -- Classic still follows its byte-compatible battle path below.
+          plannedPreview = plannedTeam
+          if plannedReport.mode == "adaptive" then
+            frozenTeam, frozenReport = plannedTeam, plannedReport
+          end
         end
       end
-      local previewTeam = frozenTeam or boostedTeam(rematchTeam, boost)
+      local previewTeam = plannedPreview or boostedTeam(rematchTeam, boost)
 
       local function battle()
         Runtime.emit("world.trainer_engaged", { npc = npc,
