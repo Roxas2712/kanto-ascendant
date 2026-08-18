@@ -10,7 +10,7 @@
 -- restored on both success and error, and every non-AREA Town Map path remains
 -- byte-for-byte under the engine's own constructor.
 
-local function copySlotGroups(encounters)
+local function copySlotGroups(encounters, game, species, habitatsFor)
   if type(encounters) ~= "table" then return encounters end
 
   local projected = {}
@@ -35,6 +35,33 @@ local function copySlotGroups(encounters)
     end
     projected[mapId] = groups
   end
+
+  -- Johto habitats are transactional replacements layered over a successful
+  -- native encounter roll, so they deliberately do not live in the ROM's
+  -- encounter registry. AREA is a read-only map query: project only habitats
+  -- which the active save's progression/current says can really produce the
+  -- already-selected species. Never pre-fill the Pokédex or mutate the live
+  -- encounter table.
+  if type(habitatsFor) == "function" and type(species) == "string" then
+    local ok, rows = pcall(habitatsFor, game, species)
+    if ok and type(rows) == "table" then
+      local seenMaps = {}
+      for _, row in ipairs(rows) do
+        local mapId = type(row) == "table" and row.map or row
+        if type(mapId) == "string" and mapId ~= "" and not seenMaps[mapId] then
+          seenMaps[mapId] = true
+          projected[mapId] = projected[mapId] or {}
+          projected[mapId].__kaAreaHabitat = {
+            rate = 0,
+            slots = { {
+              species = species,
+              level = type(row) == "table" and row.level or nil,
+            } },
+          }
+        end
+      end
+    end
+  end
   return projected
 end
 
@@ -48,26 +75,41 @@ return function(deps)
   if type(TownMap) ~= "table" or type(TownMap.new) ~= "function" then
     return false, "TownMap unavailable"
   end
-  if TownMap.__ascendantSafeAreaReader then
+  local installed = TownMap.__ascendantSafeAreaReader
+  if type(installed) == "table" then
+    if deps.habitatsFor ~= nil then
+      installed.habitatsFor = deps.habitatsFor
+    end
     return true, "already installed"
   end
 
-  local baseNew = TownMap.new
+  -- Upgrade an already-running 6.5.4/6.5.5 AREA wrapper in place instead of
+  -- stacking another projection around it during dev hot reload.
+  local baseNew = installed == true
+      and TownMap.__ascendantAreaBaseNew or TownMap.new
+  if type(baseNew) ~= "function" then
+    return false, "TownMap base constructor unavailable"
+  end
+  local state = {
+    baseNew = baseNew,
+    habitatsFor = deps.habitatsFor,
+  }
   TownMap.new = function(game, opts)
     if type(opts) ~= "table" or not opts.nestSpecies
         or type(game) ~= "table" or type(game.data) ~= "table" then
-      return baseNew(game, opts)
+      return state.baseNew(game, opts)
     end
 
     local original = game.data.encounters
-    game.data.encounters = copySlotGroups(original)
-    local result = pack(pcall(baseNew, game, opts))
+    game.data.encounters = copySlotGroups(
+      original, game, opts.nestSpecies, state.habitatsFor)
+    local result = pack(pcall(state.baseNew, game, opts))
     game.data.encounters = original
     if not result[1] then error(result[2], 0) end
     return unpack(result, 2, result.n)
   end
 
-  TownMap.__ascendantSafeAreaReader = true
+  TownMap.__ascendantSafeAreaReader = state
   TownMap.__ascendantAreaBaseNew = baseNew
   return true
 end

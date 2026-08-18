@@ -1,13 +1,21 @@
--- Optional exact-engine regression.  Point KA_ENGINE_0196_ROOT at an unpacked
--- official Gen1 Recomp 0.1.96 `.love`; the test first proves the released
+-- Optional exact-engine regression. Point KA_ENGINE_ROOT (or the historical
+-- KA_ENGINE_0196_ROOT alias) at an unpacked official Gen1 Recomp `.love` and
+-- KA_EXPECT_ENGINE at its exact version; the test first proves the released
 -- TownMap constructor crashes on Ascendant's HEVO metadata, then installs the
 -- mod compatibility reader and exercises the same constructor successfully.
 
-local root = os.getenv("KA_ENGINE_0196_ROOT")
+local root = os.getenv("KA_ENGINE_ROOT") or os.getenv("KA_ENGINE_0196_ROOT")
 if not root or root == "" then
-  print("POKEDEX AREA ENGINE 0.1.96 SKIP: KA_ENGINE_0196_ROOT not set")
+  print("POKEDEX AREA ENGINE SKIP: KA_ENGINE_ROOT not set")
   return
 end
+local expectedEngine = os.getenv("KA_EXPECT_ENGINE")
+  or (os.getenv("KA_ENGINE_0196_ROOT") and "0.1.96")
+assert(expectedEngine and expectedEngine ~= "",
+  "KA_EXPECT_ENGINE is required")
+local version = assert(loadfile(root .. "/src/core/Version.lua"))()
+assert(version.engine == expectedEngine,
+  "wrong exact engine: " .. tostring(version.engine))
 
 package.preload["src.render.Font"] = function()
   return { draw = function() end, drawBox = function() end,
@@ -82,24 +90,41 @@ local game = {
     encounters = encounters,
     pokemon = {
       PIKACHU = { id = "PIKACHU", name = "PIKACHU", dex = 25 },
+      CHIKORITA = { id = "CHIKORITA", name = "CHIKORITA", dex = 152 },
     },
     constants = { dexSize = 151, dexDigits = 3 },
     field = { townMap = { locations = {
       ROUTE_1 = { name = "ROUTE 1", x = 2, y = 2 },
+      ROUTE_24 = { name = "ROUTE 24", x = 4, y = 4 },
       KA_HEVO_RED_UPPER = { name = "HEVO", x = 3, y = 3 },
     } } },
   },
-  save = { pokedex = { seen = { PIKACHU = true }, owned = {} } },
+  save = {
+    pokedex = { seen = { PIKACHU = true, CHIKORITA = true }, owned = {} },
+  },
 }
 
 local reproduced, releasedError = pcall(TownMap.new, game,
   { nestSpecies = "PIKACHU" })
 assert(not reproduced,
-  "official 0.1.96 reader unexpectedly accepted scalar encounter metadata")
+  "official reader unexpectedly accepted scalar encounter metadata")
 assert(tostring(releasedError):find("attempt to index", 1, true), releasedError)
-print("POKEDEX AREA ENGINE 0.1.96 REPRO: " .. tostring(releasedError))
+print(("POKEDEX AREA ENGINE %s REPRO: %s"):format(
+  expectedEngine, tostring(releasedError)))
 
-assert(install({ townMap = TownMap }))
+assert(install({
+  townMap = TownMap,
+  -- Johto's authored habitats are runtime encounter replacements rather
+  -- than literal ROM encounter slots. The compatibility layer may project
+  -- only currently active, already selectable species into AREA's read-only
+  -- view; it must never mutate the canonical encounter registry.
+  habitatsFor = function(_, species)
+    if species == "CHIKORITA" then
+      return { { map = "ROUTE_24", terrain = "grass" } }
+    end
+    return {}
+  end,
+}))
 for _, edition in ipairs({ "red", "blue", "yellow" }) do
   game.edition = edition
   local screen = assert(TownMap.new(game, { nestSpecies = "PIKACHU" }))
@@ -110,6 +135,12 @@ for _, edition in ipairs({ "red", "blue", "yellow" }) do
   local extended = assert(TownMap.new(game, { nestSpecies = "MAGMAR" }))
   assert(#extended.nests == 1 and extended.nests[1].name == "HEVO")
   assert(game.data.encounters == encounters)
+
+  local johto = assert(TownMap.new(game, { nestSpecies = "CHIKORITA" }))
+  assert(#johto.nests == 1 and johto.nests[1].name == "ROUTE 24",
+    edition .. " authored Johto habitat missing from AREA")
+  assert(game.data.encounters == encounters,
+    edition .. " Johto AREA projection mutated encounter data")
 end
 
 -- Drive the exact public Pokédex module through its list and DATA/CRY/AREA
@@ -147,4 +178,5 @@ for _, edition in ipairs({ "red", "blue", "yellow" }) do
   end
 end
 
-print("POKEDEX AREA ENGINE 0.1.96 PASS: released crash reproduced, 6 direct and 6 full menu paths fixed")
+print(("POKEDEX AREA ENGINE %s PASS: released crash reproduced, 9 direct and 6 full menu paths fixed")
+  :format(expectedEngine))

@@ -91,6 +91,28 @@ T.eq(run.mod.manifest.id, "kanto_ascendant",
   "the permanent internal id no longer collides with Trainer Rematch")
 local ex = run.loader.exports.kanto_ascendant
 T.neq(ex, nil, "exports reachable")
+do
+  local habitatGame = {
+    save = { pokedex = { seen = {}, owned = {} } },
+  }
+  local oldAllows = ex.johtoSignals.allowsHabitatSpecies
+  ex.johtoSignals.allowsHabitatSpecies = function(species, ctx)
+    return species == "CHIKORITA" and ctx.mapId == "ROUTE_24"
+      and ctx.terrain == "grass"
+  end
+  T.eq(#ex.pokedexAreaHabitats(habitatGame, "CHIKORITA"), 0,
+    "AREA never reveals an unseen runtime-only Johto habitat")
+  habitatGame.save.pokedex.seen.CHIKORITA = true
+  local activeHabitats = ex.pokedexAreaHabitats(habitatGame, "CHIKORITA")
+  T.eq(#activeHabitats, 1,
+    "a seen Johto species exposes its genuinely active authored habitat")
+  T.eq(activeHabitats[1].map, "ROUTE_24",
+    "the Johto AREA projection uses the exact authored Kanto map")
+  ex.johtoSignals.allowsHabitatSpecies = function() return false end
+  T.eq(#ex.pokedexAreaHabitats(habitatGame, "CHIKORITA"), 0,
+    "an inactive migration current hides the authored Johto habitat")
+  ex.johtoSignals.allowsHabitatSpecies = oldAllows
+end
 -- This long-running historical suite exercises the authored extended content
 -- unless a case explicitly says otherwise. Pin its synthetic slot ON; the
 -- dedicated beyond_kanto_* suites own fresh-save/OFF coverage.
@@ -5561,7 +5583,10 @@ run.__priorNationalDexSave = run.loader.modSave
 run.loader.modSave = {}
 ;(function()
 local pokemon, seen, owned = {}, {}, {}
-for dex = 1, 251 do
+-- KASC also registers private save-stable catalogue slots #252-279 for
+-- later-generation forms. They are runtime species, not a second expansion
+-- of the ordinary National Dex, which must still stop at Celebi (#251).
+for dex = 1, 279 do
   local id = ("NATIONAL_%03d"):format(dex)
   pokemon[id] = { id = id, dex = dex, name = id }
 end
@@ -5569,7 +5594,7 @@ seen.NATIONAL_161 = true
 local nationalGame = {
   data = {
     pokemon = pokemon,
-    constants = { dexSize = 251, dexDigits = 3 },
+    constants = { dexSize = 279, dexDigits = 3 },
   },
   save = {
     player = { name = "RED" },
@@ -5589,8 +5614,8 @@ local PokedexMenu = require("src.ui.PokedexMenu")
 local lockedDex = PokedexMenu.new(nationalGame)
 T.eq(#lockedDex.items, 151,
   "the ordinary Pokédex remains Kanto-only before Driftglass")
-T.eq(nationalGame.data.constants.dexSize, 251,
-  "the menu gate restores the registered 251-species data immediately")
+T.eq(nationalGame.data.constants.dexSize, 279,
+  "the menu gate restores all registered runtime species immediately")
 signals.startPolicy = "quest"
 local unlocked, reason = dexProgress.reconcileNationalDex(nationalGame)
 T.eq(unlocked, true,
@@ -5599,7 +5624,7 @@ T.eq(reason, "unlocked",
   "the National Dex migration reports its explicit result")
 local nationalDex = PokedexMenu.new(nationalGame)
 T.eq(#nationalDex.items, 251,
-  "the upgraded National Dex exposes all 251 registered slots")
+  "the upgraded National Dex stops at Celebi despite private slots #252-279")
 T.eq(nationalDex.items[161].value, "NATIONAL_161",
   "a seen Johto species reveals its retained name after the upgrade")
 T.eq(nationalDex.items[161].ball, nil,

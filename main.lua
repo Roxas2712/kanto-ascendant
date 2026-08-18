@@ -1056,7 +1056,12 @@ return function(mod)
     local installPokedexAreaCompat = loadSibling(mod,
       "pokedex_area_compat.lua")
     if type(installPokedexAreaCompat) == "function" then
-      local ok, why = installPokedexAreaCompat()
+      local makeAreaHabitats = loadSibling(mod,
+        "pokedex_area_habitats.lua")
+      mod.exports.pokedexAreaHabitats = makeAreaHabitats(mod)
+      local ok, why = installPokedexAreaCompat({
+        habitatsFor = mod.exports.pokedexAreaHabitats,
+      })
       assert(ok, why)
     end
     local installTextSpeed = loadSibling(mod, "text_speed.lua")

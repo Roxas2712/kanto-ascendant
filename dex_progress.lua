@@ -8,6 +8,7 @@ return function(mod, opts)
   local beyondKanto = opts.beyondKanto or opts.johtoBoundary
   local D = { game = nil }
   local KANTO_DEX_SIZE = 151
+  local NATIONAL_DEX_SIZE = 251
 
   local CERTIFICATES = {
     {
@@ -169,8 +170,12 @@ return function(mod, opts)
 
   function D.dexLimit(game)
     local constants = game and game.data and game.data.constants or {}
-    local registered = math.max(KANTO_DEX_SIZE,
-      math.floor(tonumber(constants.dexSize) or KANTO_DEX_SIZE))
+    -- #252-279 are private save-stable catalogue slots used by optional
+    -- later-generation families. They must remain registered for battles,
+    -- storage and authored encounters, but the ordinary National Dex ends at
+    -- Celebi exactly as its unlock text and completion contract promise.
+    local registered = math.min(NATIONAL_DEX_SIZE, math.max(KANTO_DEX_SIZE,
+      math.floor(tonumber(constants.dexSize) or KANTO_DEX_SIZE)))
     return D.hasNationalDex(game) and registered or KANTO_DEX_SIZE
   end
 

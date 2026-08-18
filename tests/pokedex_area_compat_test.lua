@@ -88,7 +88,15 @@ check(not okBefore, "unpatched 0.1.96-style AREA reader should reproduce crash")
 check(tostring(errBefore):find("index", 1, true) ~= nil,
   "reproduction should be the scalar-group indexing failure")
 
-local installed, why = install({ townMap = TownMap })
+local providerCalls = 0
+local installed, why = install({
+  townMap = TownMap,
+  habitatsFor = function(_, species)
+    providerCalls = providerCalls + 1
+    return species == "CHIKORITA" and { { map = "ROUTE_24", level = 18 } }
+      or {}
+  end,
+})
 check(installed, why)
 local installedAgain, againWhy = install({ townMap = TownMap })
 check(installedAgain and againWhy == "already installed",
@@ -111,6 +119,15 @@ for _, edition in ipairs({ "red", "blue", "yellow" }) do
   check(game.data.encounters == encounters,
     edition .. " canonical encounter registry must be restored")
 end
+
+local projected = TownMap.new(game, { nestSpecies = "CHIKORITA" })
+equal(#projected.nests, 1,
+  "runtime-only authored habitat should appear in AREA")
+equal(projected.nests[1], "ROUTE_24",
+  "runtime-only authored habitat uses its real map")
+check(providerCalls > 0, "AREA did not consult the habitat provider")
+check(game.data.encounters == encounters,
+  "runtime habitat projection must restore canonical encounter data")
 
 local unknown = TownMap.new(game, { nestSpecies = "CELEBI" })
 equal(#unknown.nests, 0, "species without native slots should show unknown area")
