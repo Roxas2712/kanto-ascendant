@@ -218,7 +218,11 @@ return function(mod, legends, johto, i18n)
     IRON_TAIL = { "IRON TAIL", "STEEL", 100, 75, 15, "physical" },
     SHADOW_BALL = { "SHADOW BALL", "GHOST", 80, 100, 15, "physical" },
     FLAME_WHEEL = { "FLAME WHEEL", "FIRE", 60, 100, 25, "special" },
-    GIGA_DRAIN = { "GIGA DRAIN", "GRASS", 60, 100, 10, "special" },
+    -- Gen II keeps the Gen-I drain contract: restore half the HP actually
+    -- removed from the target.  The engine already owns the exact capped
+    -- recovery and battle text through DRAIN_HP_EFFECT.
+    GIGA_DRAIN = { "GIGA DRAIN", "GRASS", 60, 100, 10, "special",
+                   "DRAIN_HP_EFFECT" },
     -- Canonical Mt. Silver Red coverage. These definitions keep his exact
     -- Gold/Crystal move lists valid even without a separate Gen-II move mod.
     -- Weather field bonuses are not invented here; the moves still retain

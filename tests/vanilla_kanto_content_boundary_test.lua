@@ -190,6 +190,10 @@ assert(content.pokemon:get("CHIKORITA") and content.pokemon:get("CELEBI"),
   "additive Johto species missing")
 assert(content.moves:get("CRUNCH") and content.moves:get("METAL_CLAW"),
   "additive Johto moves missing")
+local gigaDrain = assert(content.moves:get("GIGA_DRAIN"),
+  "additive Giga Drain move missing")
+assert(gigaDrain.power == 60 and gigaDrain.effect == "DRAIN_HP_EFFECT",
+  "Giga Drain must keep its Gen-II 60 BP half-damage recovery effect")
 
 for _, id in ipairs({ "MAGNEMITE", "MAGNETON" }) do
   local ok, err = deepEqual(beforePokemon[id].types,
