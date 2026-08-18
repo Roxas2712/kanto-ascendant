@@ -23,6 +23,10 @@ All notable changes to this project are documented in this file.
   follower sheets. The owned Pokémon's real DV-based Shiny state selects the
   matching sheet, while a missing or invalid Shiny asset fails safely to the
   normal follower.
+- The ordinary Pokédex now remains exactly #001-151 before Driftglass and
+  #001-251 after the National Dex upgrade; private runtime catalogue slots
+  #252-279 no longer leak into that list. Seen Johto species also show an AREA
+  marker when their authored Kanto habitat is genuinely active for this save.
 
 ## [6.5.5] - 2026-08-17
 

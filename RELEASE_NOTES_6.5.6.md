@@ -33,6 +33,15 @@ Shiny state of a later battle encounter. Engines 0.1.96 and 0.1.98 generate
 that Pokémon's DVs only when the battle starts; Ascendant does not pre-roll or
 reroll them merely for an overworld colour preview.
 
+## Pokédex boundary and areas
+
+- A fresh Pokédex stops at #151. After its real Driftglass National Dex
+  upgrade it stops at Celebi (#251), even though private runtime species slots
+  #252-279 remain registered for their own systems.
+- A seen Johto species shows its authored Kanto habitat on **AREA** only while
+  that habitat is genuinely active under the save's research and migration
+  current. Inactive or undiscovered habitats remain hidden.
+
 ## Install or update
 
 1. Close the game and launcher.

@@ -63,6 +63,9 @@ collapsed so players can reveal only the information they want.
   the older sheet retained as validated fallback generations.
 - Adds separate Crystal-palette Shiny follower sheets for all Kanto species
   #001-151. The normal sheet remains the safe fallback.
+- Keeps the ordinary Pokédex at #151 before Driftglass and #251 after the
+  National Dex upgrade, while active authored Johto habitats become visible
+  on the AREA page without exposing inactive locations.
 
 See the full spoiler-light [6.5.6 release notes](RELEASE_NOTES_6.5.6.md).
 
