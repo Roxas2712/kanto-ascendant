@@ -212,9 +212,28 @@ without replacing any original Kanto evolution.
 <details>
 <summary><strong>⚠️ SPOILER — How do field-trainer rematches work?</strong></summary>
 
-After a trainer is defeated, they train for a configurable **151-2510 completed
-player steps**. Talking early shows the exact remaining count. When ready,
-talk again to accept a class-specific rematch.
+After a trainer is defeated, they train for a configurable number of completed
+player steps. Fresh saves use NORMAL. The same selected range governs visible
+field recovery, silent training and post-game Gym recovery:
+
+| Profile | Future interval |
+|---|---:|
+| VERY SHORT | 151-302 |
+| SHORT | 303-604 |
+| NORMAL | 605-1255 |
+| LONG | 1256-1882 |
+| VERY LONG | 1883-2510 |
+| CUSTOM | Saved minimum and maximum, editable from 151 through 2510 |
+
+Only exact preset pairs acquire a preset name during migration. The existing
+151-2510 pair, the historical 128-256 pair and every other hand-tuned pair
+become CUSTOM without rewriting either value. CUSTOM values survive a
+temporary preset selection. A change affects only intervals rolled afterward;
+every already scheduled `readyAt`, `nextTrainingAt` and `bossRest` timestamp
+is preserved. Legacy Wanderers use their own independent frequency.
+
+Talking early shows the exact remaining count. When ready, talk again to
+accept a class-specific rematch.
 
 By default, every completed training cycle adds two levels, capped at 100.
 Ignored ready trainers continue silent training, so their next team can grow
@@ -231,28 +250,127 @@ Ranks are based on completed rematches and silent growth:
 | Master | 10 |
 | Legend | 20 |
 
-Master and Legend field trainers receive an overworld sparkle. Rematches give
-no prize money and Pay Day payouts are disabled.
+Master and Legend field trainers receive an overworld sparkle. The engine's
+ordinary trainer prize and Pay Day paths remain intact; Ascendant's reward is
+an additional post-win layer.
 
 </details>
 
 <details>
 <summary><strong>⚠️ SPOILER — What can field rematches drop?</strong></summary>
 
-Only one reward band is rolled per victory. An ineligible band becomes no
-drop; it is not rerolled.
+The old six fixed item bands are no longer the implementation. A victory uses
+three layers in this order:
 
-| Item | Balanced | Generous | Requirement |
-|---|---:|---:|---|
-| Nugget | 15% | 15% | None |
-| Rare Candy | 5% | 5% | Enemy average level 20 |
-| PP Up | 10% | 15% | Enemy average level 35 |
-| EXP.ALL | 5% | 5% | Average level 40; unique |
-| Max Revive | 8% | 12% | Enemy average level 50 |
-| Master Ball | 1% | 2% | Average level 80 and Apex Champion defeated |
+1. Independent one-time EXP-helper catchups.
+2. If loot is enabled, a post-Hall-of-Fame Master Ball check.
+3. If no Master Ball was awarded, one ordinary item check followed by an
+   extra-money roll on an item miss.
 
-At full eligibility the total item chance is 44% in Balanced and 54% in
-Generous. A full Bag never destroys a reward: that trainer reserves it.
+The helper checks can stack with each other and with layer 2 or 3:
+
+| Missing helper | Check per eligible win |
+|---|---:|
+| EXP Share / EXP.ALL | 225/10000 = **2.25%** |
+| EXP Multiplier x2 | **1/300** |
+| Next x3 stage | **1/250** after x2 |
+| Next x5 stage | **1/250** after x3 |
+
+OFF disables only the Master Ball and ordinary
+item/extra-money layers. It does not disable native trainer prize money, Pay
+Day, helper catchups, Field Kit/TM progress, Johto research or the shiny
+streak.
+
+With BALANCED or GENEROUS active, a registered Master Ball has a separate
+**1/50 (2%)** chance after the Hall of Fame. A hit suppresses the ordinary
+item/money roll. Enemy average level and Apex completion are not gates.
+
+| Enemy team | BALANCED / GENEROUS ordinary-item chance |
+|---|---:|
+| Not entirely level 100 | **65% / 80%** |
+| All level 100, 0 mastery wins | **72% / 87%** |
+| All level 100, 12+ mastery wins | **75% / 90%** |
+
+For an all-level-100 team, each mastery win adds 0.25 percentage point up to
++3 points. An item miss reaches one of these conditional money tables:
+
+| Enemy team | Amounts and conditional chances |
+|---|---|
+| Below all-100 | ¥0 / ¥100 / ¥250 / ¥500 / ¥750 / ¥1000 / ¥1250 / ¥1500 / ¥1750 / ¥2000 = 5 / 20 / 20 / 20 / 12 / 10 / 6 / 4 / 2 / 1% |
+| All level 100 | ¥1000 / ¥1500 / ¥2000 / ¥2500 / ¥3000 / ¥4000 / ¥5000 / ¥6000 / ¥7000 / ¥8000 = 25 / 20 / 18 / 12 / 10 / 6 / 4 / 2.5 / 1.5 / 1% |
+
+After the Hall of Fame, a below-100 BALANCED result is 2% Master Ball, 63.7%
+ordinary item, 32.585% positive extra money and 1.715% nothing extra. GENEROUS
+is 2%, 78.4%, 18.62% and 0.98%. At all level 100 with no mastery, BALANCED is
+2% / 70.56% / 27.44% and GENEROUS is 2% / 85.26% / 12.74%; that money table
+has no zero result. At 12+ mastery wins those item/money pairs become
+73.5% / 24.5% and 88.2% / 9.8%. Before the Hall of Fame, below-100 totals are
+65% item, 33.25% positive money, 1.75% nothing in BALANCED and 80% / 19% / 1%
+in GENEROUS.
+
+The current ordinary pool has 120.5 base weight:
+
+| Group | Results (base weights) |
+|---|---|
+| Balls | Poké Ball x3/x5/x10 (8/5/1), Great Ball x2/x3/x5 (7/4/1), Ultra Ball x1/x2/x3 (5/3/1) |
+| Healing | Potion x2 (6), Super Potion x2 (6), Hyper Potion (5), Max Potion (2), Full Heal x2 (5), Revive (4), Max Revive (1) |
+| PP | Ether (5), Max Ether (2), Elixir (3), Max Elixir (1) |
+| Training | PP Up, Rare Candy, HP Up, Protein, Iron, Calcium, Carbos (2 each) |
+| Evolution | Five Kanto Stones (2 each); Sun Stone, King's Rock, Metal Coat, Dragon Scale, Upgrade (1.5 each) |
+| Apricorn Balls | Fast, Friend, Heavy, Level, Love, Lure, Moon (2 each) |
+
+Premium results receive x1.6 effective weight against an all-level-100 team
+and up to another x1.25 from mastery. Master Ball, Safari Ball and HEVO
+progression relics are excluded from this pool. The one-time Thunder Tear is
+progression-locked and excluded too.
+
+No result is destroyed by capacity. A rematch Master Ball uses
+`Bag -> PC -> pending`; a field EXP helper or ordinary item uses Bag then its
+corresponding persistent pending record until space is available.
+
+</details>
+
+<details>
+<summary><strong>⚠️ FULL SPOILER — How do Legacy Wanderers and their rewards work?</strong></summary>
+
+Legacy Wanderers are not field rematches. They exist only during an active
+true Legacy Journey from cycle 2 onward, use their own state and ignore the
+REMATCH BREAK profile. Only eligible outdoor Kanto route/town/city steps and
+genuine outdoor map changes count. Interiors, caves, Safari and HEVO maps do
+not. There is no repeated per-step probability: once due, the reserved
+encounter retries only when the field state is safe.
+
+| Frequency | Earliest steps | Target map changes | Hard due |
+|---|---:|---:|---:|
+| RARE | 600 | 4-6 | 5000 steps, or 7 changes after the floor |
+| NORMAL | 200 | 2-3 | 1800 steps, or 4 changes after the floor |
+| OFTEN | 200 | 1-2 | 900 steps, or 3 changes after the floor |
+| NEVER | Disabled | - | Reserved rewards still deliver |
+
+After a win, a 240-480-step same-map encore is possible at 3% on RARE, 10% on
+NORMAL and 20% on OFTEN. At most two wins may occur on the same map; the next
+cycle then requires three genuine outdoor changes. Moving to a different
+outdoor map cancels an encore into that three-map cycle. A loss gives no
+reward, restores pre-battle money, adds one relief level (maximum three) and
+starts a fresh three-map cycle; each later win removes one relief level.
+
+One exact-once reward token is reserved before the battle. On a win it checks,
+in priority order: registered Master Ball **1/32**; missing EXP Share **1/4**;
+missing x2 Multiplier **1/6**; next x3 **1/12**; next x5 **1/24**; otherwise
+the ordinary pool. The catch-up odds are conditional checks and disappear as
+soon as their unlock exists.
+
+Before Beyond Kanto, the ordinary pool is Poké Ball stacks (12 weight), Great
+Ball stacks (12), Ultra Ball stacks (9) and Safari Ball (1), total 34. Beyond
+Kanto adds the seven Apricorn Balls at 5 weight each plus twenty validated,
+teachable Generation-II/III TMs at 1 each. The current ordinary pool total is
+89. The twenty are Toxic, Ice Beam, Blizzard, Hyper Beam, SolarBeam, Iron
+Tail, Thunderbolt, Thunder, Earthquake, Dig, Psychic, Double Team, Reflect,
+Fire Blast, Swift, Dream Eater, Rest, Frenzy Plant, Blast Burn and Hydro
+Cannon. Invalid, placeholder, incompatible and HM records never enter it.
+
+Every Wanderer item uses `Bag -> PC -> pending`; the persistent token ledger
+prevents replay or duplicate delivery.
 
 </details>
 

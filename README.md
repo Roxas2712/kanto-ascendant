@@ -253,22 +253,25 @@ See the historical spoiler-light [6.5.3 release notes](RELEASE_NOTES_6.5.3.md).
   use an edition-fitting Gen-I chip cry. External Gorochu audio remains first
   priority.
 
-Every rematch is fought for pride. Trainer prize money and Pay Day payouts are
-disabled in all rematch, Master, Apex and Crown battles.
+The engine's normal trainer prize money and Pay Day paths remain intact.
+Ascendant's rematch controller adds a separate item-or-money bonus after a
+win; it does not replace those native payouts. Legacy Wanderer losses are the
+separate exception documented below: their pre-battle money is restored.
 
 ## Field trainer rematches
 
 1. Beat a trainer.
-2. They rest and train for **151-2510 completed player steps** by default.
+2. On a fresh save they rest and train for the **NORMAL 605-1255 completed
+   player-step** profile.
 3. Talk to them too early to see the exact number of steps remaining, followed
    by their normal post-battle dialogue as a second page.
 4. Return when they are ready for a class-specific YES/NO challenge.
 5. When first ready, their next rematch is +2 levels stronger. Each completed
    rematch adds another +2 until each Pokémon reaches level 100.
-6. A ready trainer keeps training even when ignored. Another invisible
-   151-2510-step cycle begins in the background; every completed silent cycle
-   adds the same +2 growth tier to the next battle while the trainer remains
-   continuously available.
+6. A ready trainer keeps training even when ignored. Another invisible cycle
+   from the same selected profile begins in the background; every completed
+   silent cycle adds the same +2 growth tier to the next battle while the
+   trainer remains continuously available.
 7. At the default growth rate, reaching +4, +8, +12 and later strength tiers
    recruits another class-appropriate Pokémon until the party reaches six.
    The chosen evolutionary families stay deterministic for that trainer and
@@ -276,6 +279,27 @@ disabled in all rematch, Master, Apex and Crown battles.
    Elm's research exposes a Johto family, recruitment remains Kanto-only;
    afterward suitable classes can add that family without rerolling recruits
    they already trained.
+
+The shared break profile controls ordinary visible field rematches, their
+silent-training intervals and post-game Gym recovery:
+
+| Profile | Future interval |
+|---|---:|
+| VERY SHORT | 151-302 |
+| SHORT | 303-604 |
+| NORMAL | 605-1255 |
+| LONG | 1256-1882 |
+| VERY LONG | 1883-2510 |
+| CUSTOM | Saved minimum and maximum, editable from 151 through 2510 |
+
+Fresh saves start on NORMAL. During migration, only an exact named pair maps
+to that preset. The existing 151-2510 pair, the historical 128-256 pair and
+every other hand-tuned pair become CUSTOM without changing either number.
+Switching away from CUSTOM preserves both values. A profile change affects
+only intervals rolled later:
+every already scheduled `readyAt`, `nextTrainingAt` and post-game `bossRest`
+timestamp remains unchanged. Legacy Wanderers use their independent frequency
+system and never consume this range.
 
 Every field trainer now has a persistent rank based on completed rematches and
 silent training:
@@ -289,8 +313,9 @@ silent training:
 | Legend | 20 | Full battle AI and enhanced marker |
 
 Master and Legend trainers display a small sparkle above their overworld
-sprite. Rank never changes item probability: the selected BALANCED or GENEROUS
-table below is the complete and authoritative reward distribution.
+sprite. Rank itself does not alter loot. A fully level-100 enemy team and its
+separate mastery-win counter can improve the ordinary item roll as documented
+below.
 
 All 47 trainer classes have their own opening and rejection dialogue. Cocky
 classes mock a refusal; wise and polite classes understand. If a rematch team
@@ -309,44 +334,84 @@ The Gen-I Randomizer remains authoritative for ordinary rematch species and
 moves. Ascendant then appends only earned recruit slots and finally applies
 the persistent rematch/background-training levels, clamped at level 100.
 
-### Rare rematch loot
+### Field-rematch rewards (authoritative 6.5.6 audit)
 
-Winning a field-trainer rematch can award an item instead of money. Each mode
-uses fixed independent bands:
+The reward controller resolves a win in three independent layers. EXP helpers
+are checked first, then a post-Hall-of-Fame Master Ball check, then the ordinary
+item-or-extra-money layer. The EXP checks can therefore stack with each other
+and with the main result on the same victory.
 
-| Item | BALANCED / NORMAL | GENEROUS / VIEL | Additional requirement |
-|---|---:|---:|---|
-| Nugget | 15% | 15% | None |
-| Rare Candy | 5% | 5% | Enemy team average level 20 |
-| PP Up | 10% | 15% | Enemy team average level 35 |
-| EXP.ALL / EP-Teiler | 5% | 5% | Average level 40; unique |
-| Max Revive | 8% | 12% | Enemy team average level 50 |
-| Master Ball | 1% | 2% | Average level 80 and Apex Champion defeated |
+| One-time helper still missing | Check on each eligible win |
+|---|---:|
+| EXP Share / EXP.ALL | 225/10000 = **2.25%** |
+| EXP Multiplier x2 | **1/300** |
+| Next x3 stage, after x2 | **1/250** |
+| Next x5 stage, after x3 | **1/250** |
 
-**OFF** disables loot. Only one band is rolled per victory. At full eligibility,
-BALANCED has a 44% total item chance and GENEROUS has 54%. The removed
-probability remains no drop instead of increasing another item's chance. An
-ineligible result also becomes no drop rather than being rerolled.
+OFF disables only the Master Ball check and the ordinary
+item/extra-money layer. It does **not** disable the native trainer prize or Pay
+Day, EXP-helper catchups, the first Field Kit, renewable-TM progress, Johto
+research rewards or shiny-streak progress.
 
-At full eligibility, BALANCED is exactly **1% Master Ball, 5% EXP.ALL, 5%
-Rare Candy, 10% PP Up, 8% Max Revive, 15% Nugget and 56% no drop**. GENEROUS
-is exactly the percentages in the table and totals 54%, leaving 46% no drop.
-Level, Apex and one-time EXP.ALL requirements still apply to their individual
-bands in both modes. If a requirement is not met, that exact band is a no-drop
-result rather than being rerolled.
+With BALANCED or GENEROUS selected, a registered Master Ball receives a
+separate **1/50 (2%)** check after the Hall of Fame. A hit awards the Ball and
+suppresses the ordinary item/money roll for that transaction. There is no
+enemy-average-level or Apex requirement.
 
-The EP-Teiler is the original, fully functional Gen-1 `EXP_ALL`: while carried,
-it distributes part of battle experience to the other non-fainted party
-members. Once obtained as loot it leaves the table, and Oak's Aide will not
-give a duplicate. Afterwards its old band becomes a no-drop result, reducing
-the total chance to 39% in BALANCED or 49% in GENEROUS. The Master Ball remains
-repeatable but is the rarest reward and cannot drop before the legendary hunt
-has opened. Once eligible, it takes about 100 BALANCED or 50 GENEROUS wins on
-average to see one; this is an average, not a guarantee.
+After a Master miss, or before the Hall of Fame, the ordinary item chance is:
 
-If the Bag is full, the reward is never destroyed. That individual trainer
-keeps it, reminds the player on the next conversation and hands it over as soon
-as one Bag slot is available.
+| Enemy team | BALANCED / GENEROUS |
+|---|---:|
+| Not entirely level 100 | **65% / 80%** |
+| Entire team level 100, 0 mastery wins | **72% / 87%** |
+| Entire team level 100, 12+ mastery wins | **75% / 90%** |
+
+At level 100 each mastery win adds 0.25 percentage point, capped at +3 points.
+If the item roll misses, the extra-money table is rolled. These percentages
+are conditional on reaching that table:
+
+| Enemy team | Amounts and conditional weights |
+|---|---|
+| Below the all-100 condition | ¥0 / ¥100 / ¥250 / ¥500 / ¥750 / ¥1000 / ¥1250 / ¥1500 / ¥1750 / ¥2000 = 5 / 20 / 20 / 20 / 12 / 10 / 6 / 4 / 2 / 1% |
+| Entire team level 100 | ¥1000 / ¥1500 / ¥2000 / ¥2500 / ¥3000 / ¥4000 / ¥5000 / ¥6000 / ¥7000 / ¥8000 = 25 / 20 / 18 / 12 / 10 / 6 / 4 / 2.5 / 1.5 / 1% |
+
+Useful combined examples, including the post-Hall-of-Fame Master check:
+
+| State | Master | Ordinary item | Positive extra money | Nothing extra |
+|---|---:|---:|---:|---:|
+| Below 100, BALANCED | 2% | 63.7% | 32.585% | 1.715% |
+| Below 100, GENEROUS | 2% | 78.4% | 18.62% | 0.98% |
+| All 100, 0 mastery, BALANCED | 2% | 70.56% | 27.44% | 0% |
+| All 100, 0 mastery, GENEROUS | 2% | 85.26% | 12.74% | 0% |
+| All 100, 12+ mastery, BALANCED | 2% | 73.5% | 24.5% | 0% |
+| All 100, 12+ mastery, GENEROUS | 2% | 88.2% | 9.8% | 0% |
+
+Before the Hall of Fame, the below-100 totals are 65% item, 33.25% positive
+money and 1.75% nothing in BALANCED, or 80%, 19% and 1% in GENEROUS.
+
+The current ordinary item pool uses weighted stacks, not the obsolete fixed
+Nugget bands. Its complete base pool is 120.5 weight before level-100 and
+mastery premium modifiers:
+
+| Group | Results (base weights) |
+|---|---|
+| Balls | Poké Ball x3/x5/x10 (8/5/1), Great Ball x2/x3/x5 (7/4/1), Ultra Ball x1/x2/x3 (5/3/1) |
+| Healing | Potion x2 (6), Super Potion x2 (6), Hyper Potion (5), Max Potion (2), Full Heal x2 (5), Revive (4), Max Revive (1) |
+| PP recovery | Ether (5), Max Ether (2), Elixir (3), Max Elixir (1) |
+| Training | PP Up, Rare Candy, HP Up, Protein, Iron, Calcium and Carbos (2 each) |
+| Evolution | Fire, Water, Thunder, Leaf and Moon Stones (2 each); Sun Stone, King's Rock, Metal Coat, Dragon Scale and Upgrade (1.5 each) |
+| Apricorn Balls | Fast, Friend, Heavy, Level, Love, Lure and Moon Balls (2 each) |
+
+Ultra Ball stacks, Max Potion/Revive/Ether, Elixirs and the Training group are
+premium. An all-level-100 team multiplies their effective weight by 1.6;
+mastery multiplies it by up to another 1.25. Master Ball, Safari Ball and HEVO
+progression relics never enter this ordinary pool. The one-time Thunder Tear
+is progression-locked and excluded too.
+
+No earned item is destroyed by capacity. A rematch Master Ball uses
+`Bag -> PC -> pending`; a field EXP helper or ordinary field item uses Bag
+then its corresponding persistent pending record and is delivered when space
+becomes available.
 
 ## All 151 Kanto Pokémon in one save
 
@@ -1401,10 +1466,11 @@ CHARACTERS / TRAINERS**. **FIELD CHARACTERS** changes only overworld sheets.
 tutorial and other 2D identity surfaces. Staged 3D and throw art remains owned
 by the active reviewed renderer.
 
-- **MIN REST STEPS** — lower end of the training period (default and minimum
-  151).
-- **MAX REST STEPS** — upper end (default and maximum 2510). Reversed values
-  are normalized.
+- **REMATCH BREAK** — `VERY SHORT` 151-302, `SHORT` 303-604, `NORMAL`
+  605-1255, `LONG` 1256-1882, `VERY LONG` 1883-2510 or `CUSTOM`. Fresh saves
+  start on NORMAL. In Ascendant's in-game menu the numeric minimum/maximum
+  rows appear only for CUSTOM; switching profiles preserves those values and
+  changes only intervals scheduled afterward.
 - **LEVELS / REMATCH** — field-trainer strength gained per completed rematch
   or silent training cycle (default 2; set to 0 to disable level scaling).
 - **TEAM GROWTH** — allow thematic party recruitment as trainers gain
@@ -1568,6 +1634,45 @@ These normal/shiny fronts animate in enemy battles, Title, Pokédex, Summary
 and stay static; no artificial jitter is used. Followers, visible Wilds and
 Voxel keep the actual walking/pose animation owned by their respective
 renderers.
+
+#### Legacy Wanderers: separate cadence and rewards
+
+Legacy Wanderers exist only in an active true Legacy Journey (cycle 2 or
+later). They do not use `REMATCH BREAK`, field-rematch loot or the ordinary
+trainer state. Only eligible steps on Kanto routes and outdoor town/city maps
+count; interiors, caves, Safari and HEVO maps do not. There is no per-step
+spawn roll. Once due, the transaction waits for a safe eligible field state.
+
+| Frequency | Earliest eligible steps | Normal map-change target | Hard due |
+|---|---:|---:|---:|
+| RARE | 600 | 4-6 | 5000 steps, or 7 map changes after the floor |
+| NORMAL | 200 | 2-3 | 1800 steps, or 4 map changes after the floor |
+| OFTEN | 200 | 1-2 | 900 steps, or 3 map changes after the floor |
+| NEVER | Disabled | - | Already reserved rewards still deliver |
+
+After a win, a same-map encore has a 3% / 10% / 20% chance on RARE / NORMAL /
+OFTEN and becomes due after 240-480 eligible steps. At most two Wanderers can
+be won on one map; afterward three genuine outdoor map changes are required.
+A loss grants no reward, restores the player's pre-battle money, adds one of
+three relief levels and schedules a new three-map cycle. A later win removes
+one relief level.
+
+Each win reserves exactly one reward token. Resolution order is a registered
+Master Ball at **1/32**, then a still-missing EXP Share at **1/4**, then the
+next missing EXP Multiplier stage (x2 **1/6**, x3 **1/12**, x5 **1/24**), then
+the ordinary Wanderer pool. These are conditional priority checks, not slices
+of one flat table.
+
+Before Beyond Kanto, the ordinary pool is Poké Ball stacks (12 weight), Great
+Ball stacks (12), Ultra Ball stacks (9) and Safari Ball (1), total 34. After
+Beyond Kanto it also contains all seven Apricorn Balls at 5 weight each and
+twenty live, teachable Generation-II/III TMs at 1 each. The current ordinary
+pool total is 89. Those TMs are Toxic, Ice Beam, Blizzard, Hyper Beam,
+SolarBeam, Iron Tail, Thunderbolt, Thunder, Earthquake, Dig, Psychic, Double
+Team, Reflect, Fire Blast, Swift, Dream Eater, Rest, Frenzy Plant, Blast Burn
+and Hydro Cannon. Invalid, placeholder, incompatible and HM records are
+excluded. Wanderer placement is always `Bag -> PC -> pending`, and its token
+ledger prevents duplicate delivery.
 
 </details>
 
