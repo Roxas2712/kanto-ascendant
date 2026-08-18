@@ -146,23 +146,13 @@ jobs:
           python3 ../kanto-ascendant/tests/kanto_shiny_follower_assets_test.py
           luajit ../kanto-ascendant/tests/kanto_shiny_follower_routing_test.lua
 
-      - name: Verify the real-data Johto Move Reminder merge
-        working-directory: gen1recomp
-        env:
-          TRAINER_REMATCH_MOD_DIR: ../kanto-ascendant
-        run: luajit ../kanto-ascendant/tests/johto_move_reminder_engine_test.lua
-
-      - name: Verify private-Dex data and move mechanics
-        working-directory: gen1recomp
-        env:
-          TRAINER_REMATCH_MOD_DIR: ../kanto-ascendant
-        run: luajit ../kanto-ascendant/tests/legacy_252_279_data_engine_test.lua
-
-      - name: Verify the real-data NG+ rival partner curve
-        working-directory: gen1recomp
-        env:
-          TRAINER_REMATCH_MOD_DIR: ../kanto-ascendant
-        run: luajit ../kanto-ascendant/tests/legacy_rival_partner_engine_test.lua
+      # The public engine checkout deliberately contains no ROM-derived data.
+      # These existing tests remain mandatory private release gates against a
+      # locally imported engine and must not be presented as ROM-free checks:
+      #   tests/johto_move_reminder_engine_test.lua
+      #   tests/legacy_252_279_data_engine_test.lua
+      #   tests/legacy_rival_partner_engine_test.lua
+      #   tests/vanilla_kanto_content_boundary_test.lua
 
       - name: Run the Johto Signals regression suite
         working-directory: kanto-ascendant
@@ -207,6 +197,15 @@ jobs:
           python3 tests/gorochu_voxel_animation_test.py
           luajit tests/hgss_box_grid_icons_test.lua
 
+      - name: Run the ROM-free legacy fixture suites
+        working-directory: kanto-ascendant
+        env:
+          GEN1RECOMP_DIR: ../gen1recomp
+        run: |
+          luajit tests/legacy_archive_test.lua
+          luajit tests/legacy_journey_test.lua
+          luajit tests/legacy_locker_quantity_test.lua
+
       - name: Run the engine-backed 6.5 systems suite
         working-directory: gen1recomp
         env:
@@ -236,7 +235,6 @@ jobs:
           luajit ../kanto-ascendant/tests/story_gym_move_legality_test.lua
           luajit ../kanto-ascendant/tests/story_gym_johto_moves_test.lua
           luajit ../kanto-ascendant/tests/yellow_gym_move_fidelity_test.lua
-          luajit ../kanto-ascendant/tests/vanilla_kanto_content_boundary_test.lua
           luajit ../kanto-ascendant/tests/yellow_mtmoon_fossil_dialogue_test.lua \
             ../kanto-ascendant
           luajit ../kanto-ascendant/tests/gorochu_rematch_loot_test.lua
@@ -255,9 +253,6 @@ jobs:
           luajit ../kanto-ascendant/tests/dramaless_camera_option_menu_test.lua
           luajit ../kanto-ascendant/tests/dramaless_wall_decals_compat_test.lua
           luajit ../kanto-ascendant/tests/wilds_spawn_safety_655_test.lua
-          GEN1RECOMP_DIR=. luajit ../kanto-ascendant/tests/legacy_archive_test.lua
-          GEN1RECOMP_DIR=. luajit ../kanto-ascendant/tests/legacy_journey_test.lua
-          GEN1RECOMP_DIR=. luajit ../kanto-ascendant/tests/legacy_locker_quantity_test.lua
 
       - name: Audit the 6.5.7 release boundary
         working-directory: kanto-ascendant

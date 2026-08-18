@@ -365,7 +365,11 @@ do
     exports = {},
   }
   assert(loadfile("modern_ball_skins.lua"))()(ballMod)
-  local data = assert(loadfile(engine .. "/data/generated/battle_anims.lua"))()
+  -- This contract exercises Kanto Ascendant's bridge against the engine's
+  -- real AnimPlayer, but it must not require ROM-derived generated data in
+  -- public CI. Keep the focused animation input in the test tree instead.
+  local data = assert(loadfile(
+    "tests/fixtures/modern_ball_skins_battle_anims.lua"))()
   local player = AnimPlayer.new(data)
   local draws, ids = 0, {}
   AnimPlayer._ascendantBallBridge.draw = function(id)
