@@ -207,6 +207,56 @@ local partnerCount = 0
 for _, row in ipairs(yellowRows) do if row.mon == yellow then partnerCount = partnerCount + 1 end end
 assert(partnerCount == 1, "Yellow partner was duplicated in CUSTOM")
 
+-- The configured count keeps Yellow's logical partner reservation even while
+-- that partner cannot follow. CUSTOM identity/order survives fainting,
+-- boxing, party reorder and a fresh selector instance; the returning partner
+-- is prepended exactly once without consuming a sixth extra slot.
+local firstExtra = yellowRows[2].mon
+yellow.hp = 0
+assert(#yellowSelection.activeMany(game2, 1) == 0,
+  "Yellow Count=1 exposed an extra through the reserved partner slot")
+local absentRows = yellowSelection.activeMany(game2, 2)
+assert(#absentRows == 1 and absentRows[1].mon == firstExtra
+    and absentRows[1].source == "yellow_custom",
+  "Yellow Count=2 did not expose the first CUSTOM extra")
+absentRows = yellowSelection.activeMany(game2, 6)
+assert(#absentRows == 5 and absentRows[1].mon == firstExtra,
+  "fainted Yellow partner did not preserve five CUSTOM extras")
+
+local reordered = {}
+for index = #game2.save.party, 1, -1 do
+  reordered[#reordered + 1] = game2.save.party[index]
+end
+game2.save.party = reordered
+absentRows = yellowSelection.activeMany(game2, 6)
+assert(#absentRows == 5 and absentRows[1].mon == firstExtra,
+  "party reorder changed absent-partner CUSTOM priority")
+
+for index, candidate in ipairs(game2.save.party) do
+  if candidate == yellow then table.remove(game2.save.party, index) break end
+end
+yellow.hp = 30
+game2.save.boxes = { { yellow } }
+absentRows = yellowSelection.activeMany(game2, 6)
+assert(#absentRows == 5 and absentRows[1].mon == firstExtra,
+  "boxed Yellow partner hid or reordered CUSTOM extras")
+local reloadedYellowSelection = factory("follower_selection.lua")({
+  gameVersion = gameVersion, config = config2, yellowPartner = yellowPartner,
+})
+absentRows = reloadedYellowSelection.activeMany(game2, 6)
+assert(#absentRows == 5 and absentRows[1].mon == firstExtra,
+  "reload lost absent-partner CUSTOM visibility/order")
+
+game2.save.party[#game2.save.party + 1] = table.remove(game2.save.boxes[1], 1)
+yellowRows = reloadedYellowSelection.activeMany(game2, 6)
+partnerCount = 0
+for _, row in ipairs(yellowRows) do
+  if row.mon == yellow then partnerCount = partnerCount + 1 end
+end
+assert(#yellowRows == 6 and yellowRows[1].mon == yellow
+    and yellowRows[2].mon == firstExtra and partnerCount == 1,
+  "returning Yellow partner did not prepend/dedupe after reload")
+
 listeners["mod.options_changed"]({
   mod = "kanto_ascendant", key = "yellow_partner_presentation",
   value = "yellow_center",

@@ -2,8 +2,8 @@
 --
 -- Yellow keeps its authored partner in follower slot 1, but the menu action
 -- must still make another selected party member visible immediately. A boxed
--- or fainted partner keeps the chain hidden (native Yellow story contract),
--- so that state needs explicit feedback instead of looking like a no-op.
+-- or fainted partner reserves logical slot 1 but must not hide independently
+-- selected extras; the first extra temporarily owns the physical transport.
 
 local root = os.getenv("TRAINER_REMATCH_MOD_DIR") or "."
 local function factory(name) return assert(loadfile(root .. "/" .. name))() end
@@ -141,20 +141,26 @@ assert(#rows == 2 and rows[1].mon == healthy.pikachu
   "healthy Yellow partner did not stay #1 with selected follower #2")
 
 local fainted = scenario(0, false)
-assert(#fainted.selection.activeMany(fainted.game, fainted.config.count()) == 0,
-  "fainted Yellow partner was silently replaced by another follower")
-assert(fainted.message:find("fit", 1, true),
-  "fainted Yellow partner did not explain why the chain stays hidden")
+rows = fainted.selection.activeMany(fainted.game, fainted.config.count())
+assert(#rows == 1 and rows[1].mon == fainted.togepi
+    and rows[1].source == "yellow_custom",
+  "fainted Yellow partner hid its independently selected extra")
+assert(fainted.message:find("FOLLOWER #2", 1, true)
+    and fainted.message:find("leads the chain", 1, true),
+  "fainted Yellow result did not explain temporary chain leadership")
 fainted.pikachu.hp = 20
 rows = fainted.selection.activeMany(fainted.game, fainted.config.count())
 assert(#rows == 2 and rows[2].mon == fainted.togepi,
   "reviving Yellow partner did not reveal the saved extra follower")
 
 local boxed = scenario(20, true)
-assert(#boxed.selection.activeMany(boxed.game, boxed.config.count()) == 0,
-  "boxed Yellow partner was silently replaced by another follower")
-assert(boxed.message:find("in your party", 1, true),
-  "boxed Yellow partner did not explain why the chain stays hidden")
+rows = boxed.selection.activeMany(boxed.game, boxed.config.count())
+assert(#rows == 1 and rows[1].mon == boxed.togepi
+    and rows[1].source == "yellow_custom",
+  "boxed Yellow partner hid its independently selected extra")
+assert(boxed.message:find("FOLLOWER #2", 1, true)
+    and boxed.message:find("leads the chain", 1, true),
+  "boxed Yellow result did not explain temporary chain leadership")
 table.insert(boxed.game.save.party, 1, table.remove(boxed.game.save.boxes[1], 1))
 rows = boxed.selection.activeMany(boxed.game, boxed.config.count())
 assert(#rows == 2 and rows[1].mon == boxed.pikachu
@@ -180,4 +186,9 @@ assert(german.message:find("TOGEPI folgt dir\njetzt!", 1, true)
     and german.message:find("BEGLEITER #1", 1, true),
   "German Yellow result lacks natural confirmation/both follower slots")
 
-print("PASS Yellow ADD FOLLOWER: visible #2, EN/DE partner gate, saved recovery")
+local germanAbsent = scenario(0, false, "de")
+assert(germanAbsent.message:find("BEGLEITER #2", 1, true)
+    and germanAbsent.message:find("führt es die Reihe an", 1, true),
+  "German absent-partner result lacks temporary chain-lead feedback")
+
+print("PASS Yellow ADD FOLLOWER: independent #2, EN/DE absence, saved recovery")

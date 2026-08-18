@@ -63,7 +63,9 @@ collapsed so players can reveal only the information they want.
 - Uses Green's corrected Crystal walking sheet with the public 6.5.5 sheet and
   the older sheet retained as validated fallback generations.
 - Adds separate Crystal-palette Shiny follower sheets for all Kanto species
-  #001-151. The normal sheet remains the safe fallback.
+  #001-151. The normal sheet remains the safe fallback. In Yellow, selected
+  extras keep following while the authored partner is fainted or stored; the
+  partner safely returns to follower one when available again.
 - Keeps the ordinary Pokédex at #151 before Driftglass and #251 after the
   National Dex upgrade, while active authored Johto habitats become visible
   on the AREA page without exposing inactive locations.

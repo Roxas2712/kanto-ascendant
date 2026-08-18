@@ -1636,9 +1636,12 @@ another species, open **Start → Pokémon**, choose that party member, then
 **Follower → Custom Add/Add Follower**. The action automatically increases the
 visible count to follower two; alternatively choose a count from two through
 six in Ascendant's follower options. If partner Pikachu is boxed or fainted,
-Yellow intentionally hides the complete chain; withdraw or heal the partner
-and the saved extra followers reappear. Professor Oak still catches the
-canonical level-5 Pikachu and the lab gift remains Pikachu.
+its authored first slot stays reserved but the independently selected extras
+continue following: count two shows one extra, and count six shows up to five.
+The first extra temporarily leads the visible chain. Healing or withdrawing
+Pikachu prepends it as follower one again without duplicating or reordering
+the saved extras. Professor Oak still catches the canonical level-5 Pikachu
+and the lab gift remains Pikachu.
 
 </details>
 

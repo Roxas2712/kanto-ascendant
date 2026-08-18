@@ -30,6 +30,11 @@ Yellow. No new save or story reset is required.
 - If a Shiny sheet is absent or invalid, the normal sheet remains the safe
   fallback instead of breaking the follower.
 - Existing Johto and Gorochu normal/Shiny routing remains unchanged.
+- In Yellow, fainting or storing the authored partner no longer hides the
+  independently selected extras. Its logical first slot remains reserved, so
+  a configured count of two shows one extra and six shows up to five; when
+  Pikachu returns, it is prepended exactly once and keeps its native story and
+  mood interaction.
 
 This follower update does not claim that free-roaming Wilds can preview the
 Shiny state of a later battle encounter. Engines 0.1.96 and 0.1.98 generate

@@ -75,13 +75,19 @@ return function(opts)
     count = clampedCount(count)
     local version = edition()
     local rows, seen = {}, {}
+    local visibleLimit = count
     if version == "yellow" then
       local mon, slot, source = yellowSelection(game)
       -- Preserve Yellow semantics: an unavailable special/Journey partner
-      -- does not silently promote an unrelated party member into its place.
-      if not mon then return rows end
-      rows[1] = { mon = mon, slot = slot, source = source }
-      seen[mon] = true
+      -- still owns logical slot 1. Independently selected extras remain
+      -- visible, but may consume only the remaining Count-1 slots until the
+      -- partner returns and is prepended again.
+      if mon then
+        rows[1] = { mon = mon, slot = slot, source = source }
+        seen[mon] = true
+      else
+        visibleLimit = count - 1
+      end
     elseif version ~= "red" and version ~= "blue" then
       return rows
     end
@@ -97,7 +103,7 @@ return function(opts)
     end
 
     for _, candidate in ipairs(candidates) do
-      if #rows >= count then break end
+      if #rows >= visibleLimit then break end
       local mon, index = candidate.mon, candidate.slot
       if S.healthy(mon) and not seen[mon] then
         rows[#rows + 1] = {

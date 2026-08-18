@@ -55,8 +55,15 @@ local partnerCount = 0
 for _, row in ipairs(selected) do if row.mon == partner then partnerCount = partnerCount + 1 end end
 assert(partnerCount == 1, "Yellow partner was duplicated")
 partner = nil
-assert(#selection.activeMany(game, 6) == 0,
-  "Yellow must not promote an unrelated party member over a missing partner")
+selected = selection.activeMany(game, 6)
+assert(#selected == 5 and selected[1].mon == raichu
+    and selected[5].mon == lapras,
+  "missing Yellow partner hid the five independently visible extras")
+assert(#selection.activeMany(game, 1) == 0,
+  "Yellow Count=1 did not preserve the reserved partner-only contract")
+assert(#selection.activeMany(game, 2) == 1
+    and selection.activeMany(game, 2)[1].mon == raichu,
+  "Yellow Count=2 did not expose exactly one extra without its partner")
 edition, partner = "red", nil
 
 -- Minimal engine-shaped transport. The controller patches this exact
@@ -686,17 +693,44 @@ for _, evolved in ipairs({ "RAICHU", "GOROCHU" }) do
     evolved .. " portrait talk reset friendship data")
 end
 raichu.hp = 0
-assert(#selection.activeMany(game, 6) == 0,
-  "fainted evolved Yellow partner was replaced by a generic follower")
+selected = selection.activeMany(game, 6)
+assert(#selected == 5 and selected[1].mon == espeon,
+  "fainted evolved Yellow partner hid its five extras")
+yellowController.refresh(game)
+chain = yellowController.entities(game)
+assert(#chain == 5 and chain[1].followerMon == espeon
+    and chain[1].followerSelectionSource == "yellow_party",
+  "fainted Yellow partner did not hand physical transport to follower #2")
+local absentSpecialBefore = originalTalkCalls
+genericTalkCry, genericTalkText = nil, nil
+Follower.talk(game, game.overworld, chain[1], function() end)
+assert(originalTalkCalls == absentSpecialBefore
+    and genericTalkCry == espeon.species,
+  ("temporary Yellow chain leader inherited partner-only story interaction "
+    .. "(special %d->%d, cry %s)"):format(absentSpecialBefore,
+      originalTalkCalls, tostring(genericTalkCry)))
 raichu.hp = 30
 game.save.party = { espeon, scizor, tyranitar, lapras, charizard }
-assert(#selection.activeMany(game, 6) == 0,
-  "boxed evolved Yellow partner was replaced by a generic follower")
+selected = selection.activeMany(game, 6)
+assert(#selected == 5 and selected[1].mon == espeon,
+  "boxed evolved Yellow partner hid its five extras")
+yellowController.refresh(game)
+chain = yellowController.entities(game)
+assert(#chain == 5 and chain[1].followerMon == espeon,
+  "boxed Yellow partner did not leave its extras visible")
 game.save.party = { raichu, espeon, scizor, tyranitar, lapras, charizard }
 assert(#selection.activeMany(game, 6) == 6
     and selection.activeMany(game, 6)[1].mon == raichu
     and raichu.johtoBond == 137,
   "withdrawing evolved Yellow partner lost identity/friendship")
+yellowController.refresh(game)
+chain = yellowController.entities(game)
+partnerCount = 0
+for _, npc in ipairs(chain) do
+  if npc.followerMon == raichu then partnerCount = partnerCount + 1 end
+end
+assert(#chain == 6 and chain[1].followerMon == raichu and partnerCount == 1,
+  "returning Yellow partner was not prepended exactly once")
 raichu.species = "RAICHU"
 partner = scizor
 scizor.species, scizor.johtoBond = "TOGEPI", 100

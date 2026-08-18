@@ -109,6 +109,10 @@ return function(mod, opts)
     return mon and { { mon = mon, slot = slot, source = source } } or {}
   end
 
+  local function firstRow(game)
+    return rows(game)[1]
+  end
+
   local function contains(list, wanted)
     for _, value in ipairs(list or {}) do if value == wanted then return true end end
     return false
@@ -579,7 +583,8 @@ return function(mod, opts)
     -- for entity #1/no entity; an incomplete extra must never impersonate #1.
     if not mon and (not npc or not npc._ascendantChainIndex
         or npc._ascendantChainIndex == 1) then
-      mon = selection.active(game)
+      local row = firstRow(game)
+      mon = row and row.mon
     end
     if not mon then if done then done() end return end
     if npc and npc.moving then
@@ -649,8 +654,8 @@ return function(mod, opts)
       local save = activeGame and activeGame.save
       if not (save and ow and ow.player) then return false end
       if save.onBike or ow.player.surfing then return false end
-      local mon = selection.active(activeGame)
-      return mon ~= nil and sprites.resolve(activeGame, mon) ~= nil
+      local row = firstRow(activeGame)
+      return row ~= nil and sprites.resolve(activeGame, row.mon) ~= nil
     end
 
     patch = replaceUpvalue(spawnOwner, "shouldSpawn", shouldSpawn)
@@ -973,7 +978,11 @@ return function(mod, opts)
   end
 
   function N.getCount() return N.count end
-  function N.activeMon(game) return selection.active(game or N.game) end
+  function N.activeMon(game)
+    local row = firstRow(game or N.game)
+    if row then return row.mon, row.slot, row.source end
+    return nil
+  end
   function N.activeMons(game) return rows(game or N.game) end
   function N.entity(game)
     game = game or N.game

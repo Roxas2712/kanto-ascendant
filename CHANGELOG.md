@@ -35,6 +35,10 @@ All notable changes to this project are documented in this file.
 - Dialogue fills both visible text rows before inserting another required
   button press, while preserving authored pauses, page breaks and safe wrapping
   for English and German text.
+- Yellow's independently selected followers no longer disappear when its
+  authored partner is fainted or stored. Pikachu's logical first slot and
+  story interaction remain reserved; up to five extras continue behind the
+  player, and Pikachu returns to the front without duplicates or reordering.
 
 ## [6.5.5] - 2026-08-17
 

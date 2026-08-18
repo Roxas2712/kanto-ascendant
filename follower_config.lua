@@ -333,13 +333,6 @@ return function(mod, opts)
     local following = tr(
       name .. " is now\nfollowing you!",
       name .. " folgt dir\njetzt!")
-    if C.isYellow() then
-      local lead = yellowLead(game)
-      if not (lead and inParty(game, lead) and (tonumber(lead.hp) or 0) > 0) then
-        return tr(name .. " was added.\fPartner must be fit\nand in your party.",
-          name .. " wurde gewählt.\fPartner muss fit\nund im Team sein.")
-      end
-    end
     if (tonumber(mon and mon.hp) or 0) <= 0 then
       return tr(name .. " was added.\fIt must be healthy\nto follow you.",
         name .. " wurde gewählt.\fEs muss fit sein,\num dir zu folgen.")
@@ -347,6 +340,16 @@ return function(mod, opts)
     if not position or position > MAX_FOLLOWERS then
       return tr(name .. " was saved.\fOnly first 6\nfollowers appear.",
         name .. " wurde gespeichert.\fNur die ersten 6\nBegleiter erscheinen.")
+    end
+    if C.isYellow() then
+      local lead = yellowLead(game)
+      if not (lead and inParty(game, lead) and (tonumber(lead.hp) or 0) > 0) then
+        return following .. tr(
+          ("\fIt stays FOLLOWER #%d.\fUntil your partner returns,\nit leads the chain.")
+            :format(position),
+          ("\fEs bleibt BEGLEITER #%d.\fBis dein Partner zurück ist,\nführt es die Reihe an.")
+            :format(position))
+      end
     end
     if C.isYellow() and position > 1 then
       return following .. tr(
