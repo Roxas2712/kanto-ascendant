@@ -210,6 +210,39 @@ without replacing any original Kanto evolution.
 </details>
 
 <details>
+<summary><strong>How do Difficulty and Adaptive Trainer Levels interact?</strong></summary>
+
+They are separate controls. Difficulty owns its badge-phased fixed level
+adjustment and, in 6.5.6, the first canonical pre-Hall-of-Fame battle against
+each story Gym Leader:
+
+| Difficulty | First story Gym contract |
+|---|---|
+| Standard | Exact Red/Blue/Yellow edition team and behavior, including Yellow's official special moves |
+| High | Same edition roster with three useful, legal moves |
+| Hard | One themed addition, stronger AI and one battle-wide Leader heal |
+| Very Hard | One or two themed additions, four useful legal moves, advanced AI and at most two heals; Brock and Misty keep one |
+| Extreme | A progressive early cap of four/five and later cap of six, the advanced move/AI policy, limited healing and the existing player-item lock |
+
+This contract does not rewrite rematches, forced encounters, Randomizer
+results after its documented composition seam, or postgame Master, Apex and
+Crown battles. Generation-II moves can enter a higher-tier story Gym set only
+when that save has both activated **BEYOND KANTO** and repaired its Driftglass
+receiver. The complete boundaries and roster ceilings are in the
+[story Gym difficulty contract](docs/STORY_GYM_DIFFICULTY_6_5_6.md).
+
+Adaptive Trainer Levels runs later. AUTO is classic/off on Standard and aims
+at the rounded active-party average +1 on High, +2 on Hard, +3 on Very Hard
+and +4 on Extreme. Manual -2, Match, +2, +4, +6 and +8 targets and exact
+classic OFF are also available. It does not pull an authored team below its
+Difficulty floor, duplicate the fixed Difficulty bonus or replace curated
+moves. Existing saves retain classic behavior until Adaptive or Difficulty is
+deliberately revisited. See the
+[bilingual Adaptive contract](docs/adaptive-trainer-levels.md).
+
+</details>
+
+<details>
 <summary><strong>⚠️ SPOILER — How do field-trainer rematches work?</strong></summary>
 
 After a trainer is defeated, they train for a configurable number of completed
@@ -233,7 +266,10 @@ every already scheduled `readyAt`, `nextTrainingAt` and `bossRest` timestamp
 is preserved. Legacy Wanderers use their own independent frequency.
 
 Talking early shows the exact remaining count. When ready, talk again to
-accept a class-specific rematch.
+accept a class-specific rematch. If its projected team averages more than ten
+levels above the active party, a second warning appears first. That preview
+uses the same fixed Difficulty adjustment as the actual battle even when
+Adaptive Trainer Levels is OFF.
 
 By default, every completed training cycle adds two levels, capped at 100.
 Ignored ready trainers continue silent training, so their next team can grow

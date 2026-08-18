@@ -32,9 +32,48 @@ All notable changes to this project are documented in this file.
 - Wild-level scaling is now controlled by its own option and defaults to off.
   Trainer difficulty remains unchanged; enabling the option restores the
   previous badge-phased wild-level bonus exactly.
+- Adaptive Trainer Levels is now independent from Difficulty's authored floor.
+  AUTO is classic on Standard and targets the rounded active-party average
+  +1/+2/+3/+4 on High through Extreme; manual -2, Match, +2, +4, +6, +8 and
+  exact classic OFF remain available. Existing saves retain classic behavior
+  until Adaptive or Difficulty is deliberately revisited. With Adaptive
+  active, rematch ranks, evolution, recruits, AI and rewards progress without
+  stacking the old unbounded numeric rematch bonus.
+- The first canonical pre-Hall-of-Fame battle against each story Gym Leader
+  now has authored Difficulty tiers. Standard passes through the exact
+  Red/Blue team and restores Yellow's official special-move tables; High keeps
+  the edition roster with three legal useful moves; Hard adds one themed
+  member, stronger AI and one battle-wide heal; Very Hard and Extreme expand
+  legal four-move teams and advanced AI within their documented roster and
+  healing caps. Randomizer composition remains authoritative at its seam, and
+  postgame, forced, Master, Apex and Crown battles fail closed. A legal
+  Generation-II move can enter only after Beyond Kanto and the repaired
+  Driftglass receiver are both active for that save.
+- Rematch Break now offers Very Short 151-302, Short 303-604, Normal 605-1255,
+  Long 1256-1882, Very Long 1883-2510 and Custom profiles. Fresh saves use
+  Normal. Existing 151-2510, historical 128-256 and other hand-tuned pairs
+  migrate to Custom without rewriting their values; switching profiles affects
+  only future intervals and preserves every scheduled field `readyAt`, silent
+  `nextTrainingAt` and postgame Gym `bossRest` timestamp.
+- The classic Adaptive-OFF rematch strength preview now includes the same
+  badge-phased Difficulty level adjustment as the constructed battle, so the
+  greater-than-ten-level warning cannot understate the actual opponent.
+- Actually upscaled ordinary trainer Pokémon retain at least one legal
+  damaging or fixed-damage move instead of learning themselves into an
+  attackless status set. Curated and unscaled authored parties remain intact.
+- Giga Drain now uses its Generation-II 60-power half-damage recovery effect
+  instead of dealing damage without healing.
+- The one-time Thunder Tear is explicitly progression-locked and excluded from
+  the ordinary rematch reward pool. The published field-rematch and Legacy
+  Wanderer probabilities, weighted pools, OFF scope and capacity-safe delivery
+  order were re-audited against the current implementation; native prize money
+  and Pay Day remain unchanged.
 - Dialogue fills both visible text rows before inserting another required
   button press, while preserving authored pauses, page breaks and safe wrapping
   for English and German text.
+- Yellow's Mt. Moon fossil Super Nerd now receives his own challenge, victory
+  and post-battle text instead of the generic Shorts fallback. Red/Blue, the
+  fossil choice and Jessie/James scripting are unchanged.
 - Yellow's independently selected followers no longer disappear when its
   authored partner is fainted or stored. Pikachu's logical first slot and
   story interaction remain reserved; up to five extras continue behind the

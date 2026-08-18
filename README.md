@@ -76,15 +76,30 @@ collapsed so players can reveal only the information they want.
   four higher Difficulty settings; manual gaps and exact classic OFF remain
   available. Existing saves keep classic behavior until the setting is
   deliberately revisited. See the [bilingual contract](docs/adaptive-trainer-levels.md).
+- Makes the selected Difficulty shape the first canonical story Gym battles:
+  Standard keeps the exact edition team and moves, including Yellow's special
+  move tables; higher tiers progressively add legal moves, themed teammates,
+  AI and limited healing without changing postgame, Master, Apex or Crown
+  fights. See the [story Gym contract](docs/STORY_GYM_DIFFICULTY_6_5_6.md).
+- Adds named Rematch Break profiles. Fresh saves use NORMAL 605-1255; existing
+  custom ranges keep their values, and already scheduled field, silent-training
+  and postgame Gym timers never reroll when the profile changes.
+- Makes the classic Adaptive-OFF rematch warning include the same fixed
+  Difficulty level adjustment as the battle it previews.
 - Prevents actually upscaled ordinary trainer Pokémon from losing their last
   legal damaging move while learning several status moves. Unscaled authored
   parties and curated story movesets remain untouched.
+- Restores Giga Drain's half-damage healing and excludes the one-time Thunder
+  Tear from ordinary rematch loot. The current reward odds, weighted pool and
+  OFF behavior are audited in the rematch sections below and in the FAQ.
 - Moves only Ascendant-owned enemy Crystal fronts slightly up and left in
   native 2D battles so large animated, Shiny and Mega frames no longer cover
   the player's Pokémon name. Other sprite styles and staged renderers keep
   their own placement.
 - Uses both visible dialogue rows before requiring another button press while
   preserving authored pauses and safe English/German pagination.
+- Gives Yellow's Mt. Moon fossil Super Nerd his own challenge, victory and
+  post-battle dialogue instead of the unrelated generic Shorts text.
 
 See the full spoiler-light [6.5.6 release notes](RELEASE_NOTES_6.5.6.md).
 

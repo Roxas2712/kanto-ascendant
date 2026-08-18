@@ -1,4 +1,4 @@
-# Kanto Ascendant 6.5.6 — Character and Follower Hotfix
+# Kanto Ascendant 6.5.6 — Gameplay, Character and Follower Hotfix
 
 Kanto Ascendant 6.5.6 is a save-compatible hotfix for Pokémon Red, Blue and
 Yellow. No new save or story reset is required.
@@ -50,7 +50,7 @@ reroll them merely for an overworld colour preview.
   that habitat is genuinely active under the save's research and migration
   current. Inactive or undiscovered habitats remain hidden.
 
-## Gameplay and text
+## Difficulty, Gyms and rematches
 
 - **Wild Level Scaling** is now a separate option and defaults to **OFF**.
   Trainer difficulty is unchanged. Turning the option on restores the previous
@@ -63,10 +63,39 @@ reroll them merely for an overworld colour preview.
   player deliberately revisits Adaptive or Difficulty. Generic rematch rank,
   evolution, recruits, AI and rewards still progress without stacking their
   formerly unbounded numeric level bonus while Adaptive is active.
+- The first canonical battle against each story Gym Leader now follows the
+  selected Difficulty beyond levels alone. Standard preserves the exact
+  Red/Blue/Yellow team and edition behavior, including Yellow's official
+  special moves. High keeps that roster and assigns useful legal moves; Hard,
+  Very Hard and Extreme add progressively broader themed teams, move coverage,
+  AI and limited Leader healing. Postgame, Master, Apex and Crown battles are
+  outside this contract. Generation-II moves remain sealed unless Beyond Kanto
+  is active and that save's Driftglass receiver has been repaired.
+- **Rematch Break** now offers Very Short, Short, Normal, Long, Very Long and
+  Custom profiles. Fresh saves start at Normal (605-1255 completed player
+  steps). Existing exact or hand-tuned ranges migrate without changing their
+  values, and changing a profile affects only future rolls: already scheduled
+  field recovery, silent training and postgame Gym recovery remain intact.
+- With Adaptive set to OFF, the pre-battle rematch strength warning now previews
+  the same Difficulty-adjusted levels used by the real battle. It no longer
+  understates the opponent and then silently starts a stronger team.
+
+The complete mechanics are documented in the
+[Adaptive Trainer Levels contract](docs/adaptive-trainer-levels.md) and the
+[story Gym difficulty contract](docs/STORY_GYM_DIFFICULTY_6_5_6.md).
+
+## Battles, rewards and text
+
 - Actually upscaled ordinary trainers retain at least one legal damaging or
   fixed-damage move after level-up learning. This fixes status-heavy species
   such as Butterfree losing their only attack; unscaled authored teams and
   curated story movesets are unchanged.
+- Giga Drain keeps its Generation-II 60 power and now restores half the damage
+  dealt instead of behaving as a damage-only attack.
+- The one-time Thunder Tear is explicitly excluded from ordinary rematch loot.
+  The current weighted reward pool, probabilities, OFF behavior and safe
+  delivery order were audited and are now documented in the README and FAQ;
+  native trainer prize money and Pay Day remain untouched.
 - In native 2D battles, Ascendant-owned enemy Crystal fronts sit eight pixels
   higher and farther left. Large animated, Shiny, Mega and Gorochu frames no
   longer cover the player's Pokémon name; Gen-I sprites, trainer art, player
@@ -74,6 +103,9 @@ reroll them merely for an overworld colour preview.
 - Dialogue now uses both visible text rows before asking for another button
   press. Authored pauses and page breaks remain intact, while long English and
   German lines still paginate safely instead of scrolling past unread.
+- Yellow's Mt. Moon fossil Super Nerd now uses his own challenge, victory and
+  post-battle dialogue instead of inheriting the generic Shorts text. The
+  fossil choice and the Jessie/James event remain unchanged.
 
 ## Install or update
 
