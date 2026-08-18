@@ -55,8 +55,11 @@ return function(mod)
       for _, item in ipairs(list.items or {}) do
         local mon = box and box[item.value]
         local def = mon and game.data.pokemon[mon.species]
-        local isJohto = def and tonumber(def.dex) and def.dex > 151
-        if (mode == "johto" and isJohto) or (mode == "kanto" and not isJohto) then
+        local number = def and tonumber(def.dex)
+        local isKanto = number and number >= 1 and number <= 151
+        local isJohto = number and number >= 152 and number <= 251
+        if (mode == "johto" and isJohto)
+            or (mode == "kanto" and isKanto) then
           filtered[#filtered + 1] = item
         end
       end
