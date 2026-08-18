@@ -56,6 +56,17 @@ reroll them merely for an overworld colour preview.
   Trainer difficulty is unchanged. Turning the option on restores the previous
   badge-phased difficulty bonus for wild Pokémon; leaving it off preserves the
   level supplied by the game, Randomizer or encounter author.
+- **Adaptive Trainer Levels** is a separate Core Rule. AUTO remains classic on
+  Standard and targets the rounded active-party average +1/+2/+3/+4 on High,
+  Hard, Very Hard and Extreme. Manual `-2`, Match, `+2`, `+4`, `+6`, `+8` and
+  exact classic OFF are available. Existing saves stay classic until the
+  player deliberately revisits Adaptive or Difficulty. Generic rematch rank,
+  evolution, recruits, AI and rewards still progress without stacking their
+  formerly unbounded numeric level bonus while Adaptive is active.
+- Actually upscaled ordinary trainers retain at least one legal damaging or
+  fixed-damage move after level-up learning. This fixes status-heavy species
+  such as Butterfree losing their only attack; unscaled authored teams and
+  curated story movesets are unchanged.
 - In native 2D battles, Ascendant-owned enemy Crystal fronts sit eight pixels
   higher and farther left. Large animated, Shiny, Mega and Gorochu frames no
   longer cover the player's Pokémon name; Gen-I sprites, trainer art, player

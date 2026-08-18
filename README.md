@@ -71,6 +71,14 @@ collapsed so players can reveal only the information they want.
   on the AREA page without exposing inactive locations.
 - Adds an independent Wild Level Scaling option that defaults to off; trainer
   difficulty is unaffected.
+- Adds Adaptive Trainer Levels as a separate Core Rule. AUTO stays classic on
+  Standard and targets the rounded active-party average +1/+2/+3/+4 on the
+  four higher Difficulty settings; manual gaps and exact classic OFF remain
+  available. Existing saves keep classic behavior until the setting is
+  deliberately revisited. See the [bilingual contract](docs/adaptive-trainer-levels.md).
+- Prevents actually upscaled ordinary trainer Pokémon from losing their last
+  legal damaging move while learning several status moves. Unscaled authored
+  parties and curated story movesets remain untouched.
 - Moves only Ascendant-owned enemy Crystal fronts slightly up and left in
   native 2D battles so large animated, Shiny and Mega frames no longer cover
   the player's Pokémon name. Other sprite styles and staged renderers keep
