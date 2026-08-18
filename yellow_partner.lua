@@ -821,9 +821,12 @@ return function(mod, opts)
       local save = ctx and ctx.save
       local mapId = ctx and ctx.overworld and ctx.overworld.map
         and ctx.overworld.map.id
+      -- Yellow's Oak script uses the vanilla three-argument command
+      -- (`give_pokemon PIKACHU,5`).  No vanilla script supplies the optional
+      -- skip-nickname flag, so nil is part of this gift's exact signature.
       local exactGift = holder.controller and isYellow()
         and species == "PIKACHU" and tonumber(level) == 5
-        and skipNickname == true and mapId == "OAKS_LAB"
+        and skipNickname == nil and mapId == "OAKS_LAB"
         and save and not (save.flags and save.flags.EVENT_GOT_STARTER)
       local before = {}
       if exactGift then eachPokemon(save, function(mon) before[mon] = true end) end
