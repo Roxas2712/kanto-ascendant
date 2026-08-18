@@ -52,6 +52,11 @@ return function(mod, opts)
             { "all", "ALL", "ALLE" }, { "kanto", "KANTO", "KANTO" },
             { "johto", "JOHTO", "JOHTO" },
           } },
+        { key = "box_grid_icon_style", en = "BOX ICONS",
+          de = "BOX-ICONS", values = {
+            { "current", "CURRENT", "AKTUELL" },
+            { "hgss_walker", "HGSS WALKERS", "HGSS-BEGLEITER" },
+          } },
         { key = "fast_box_switch", en = "FAST BOX SWITCH",
           de = "BOX-SCHNELLWECHSEL", values = toggle },
       },

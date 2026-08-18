@@ -659,6 +659,13 @@ return function(mod)
     { key = "sprite_style_box",
       label = menuLabel("SPRITES IN BOXES", "SPRITES IN BOXEN"),
       type = "toggle", default = true },
+    { key = "box_grid_icon_style",
+      label = menuLabel("BOX ICONS", "BOX-ICONS"),
+      type = "choice", default = "current",
+      choices = {
+        { menuLabel("CURRENT", "AKTUELL"), "current" },
+        { menuLabel("HGSS WALKERS", "HGSS-BEGLEITER"), "hgss_walker" },
+      } },
     { key = "sprite_style_scenes",
       label = menuLabel("SPRITES IN OTHER SCENES", "SPRITES IN SZENEN"),
       type = "toggle", default = true },

@@ -267,6 +267,131 @@ return function(mod)
     return true
   end
 
+  -- Optional right-hand Box-grid art. These sheets already ship inside the
+  -- vendored Wilds runtime; no asset is copied or transformed here. Keep this
+  -- resolver independent from monSprite() so the large left preview continues
+  -- to use the exact existing Box/front-sprite path.
+  local boxGridSheetCache = {}
+  local BOX_GRID_SHEET_ROOT =
+    "vendor/wilds_1_12_2/assets/bundled_runtime/followsprites_runtime"
+
+  local function boxGridSourceDex(game, mon)
+    if not (game and game.data and game.data.pokemon and mon and mon.species) then
+      return nil, "missing species"
+    end
+    -- Gorochu has dedicated Ascendant art but no HGSS source identity. It must
+    -- stay on the established Box renderer rather than borrow another species.
+    if mon.species == "GOROCHU" then return nil, "gorochu" end
+    if mon.form ~= nil and mon.form ~= false and mon.form ~= 0
+        and mon.form ~= ""
+        and mon.form ~= "base" and mon.form ~= "default" then
+      return nil, "unsupported form"
+    end
+
+    local runtime = mod.exports and mod.exports.extendedSpeciesRuntime
+    if runtime and type(runtime.sourceDex) == "function" then
+      local ok, value = pcall(runtime.sourceDex, mon, game.data)
+      value = ok and tonumber(value) or nil
+      if value and value >= 1 then return math.floor(value), "runtime" end
+    end
+
+    local def = game.data.pokemon[mon.species]
+    local source = def and tonumber(def.sourceDex)
+    if source and source >= 1 then return math.floor(source), "definition" end
+    -- A private catalogue slot is never a National-Dex art identity. If the
+    -- source mapping is unavailable, fail closed to the existing grid icon.
+    if def and def.internalRuntimeDex ~= nil then
+      return nil, "private sourceDex missing"
+    end
+    local ordinaryDex = def and tonumber(def.dex)
+    if ordinaryDex and ordinaryDex >= 1 then
+      return math.floor(ordinaryDex), "ordinary dex"
+    end
+    return nil, "sourceDex missing"
+  end
+
+  local function boxGridWalkerRelative(game, mon)
+    local dex, identity = boxGridSourceDex(game, mon)
+    if not dex then return nil, identity end
+    local isShiny = mon.shiny == true
+    local shiny = mod.exports and mod.exports.shinySystem
+    if shiny and type(shiny.isShiny) == "function" then
+      local ok, value = pcall(shiny.isShiny, mon)
+      if ok then isShiny = value == true end
+    end
+    local variant = isShiny and "shiny" or "normal"
+    return ("%s/%03d-%s.png"):format(BOX_GRID_SHEET_ROOT, dex, variant),
+      variant, dex, identity
+  end
+
+  local function readableAsset(relative)
+    if type(relative) ~= "string" or type(mod.read) ~= "function" then
+      return false
+    end
+    local ok, bytes = pcall(mod.read, mod, relative)
+    return ok and bytes ~= nil
+  end
+
+  local function boxGridWalkerAsset(game, mon)
+    local relative, variant, dex, identity = boxGridWalkerRelative(game, mon)
+    if not relative then return nil, variant end
+    local key = tostring(dex) .. ":" .. variant
+    local cached = boxGridSheetCache[key]
+    if cached ~= nil then
+      return cached or nil, cached and identity or "missing asset"
+    end
+    if not readableAsset(relative) or not (love.graphics.newImage
+        and love.graphics.newQuad and love.graphics.draw) then
+      boxGridSheetCache[key] = false
+      return nil, "missing asset"
+    end
+
+    local loadPath = relative
+    if mod.assets and type(mod.assets.path) == "function" then
+      local ok, resolved = pcall(mod.assets.path, mod.assets, relative)
+      if ok and type(resolved) == "string" and resolved ~= "" then
+        loadPath = resolved
+      end
+    end
+    local made, image = pcall(love.graphics.newImage, loadPath)
+    if not made or not image then
+      boxGridSheetCache[key] = false
+      return nil, "image load failed"
+    end
+    local okW, width = pcall(image.getWidth, image)
+    local okH, height = pcall(image.getHeight, image)
+    if not okW or not okH or width ~= 16 or height ~= 96 then
+      boxGridSheetCache[key] = false
+      return nil, "invalid sheet dimensions"
+    end
+    local madeQuad, quad = pcall(love.graphics.newQuad,
+      0, 0, 16, 16, width, height)
+    if not madeQuad or not quad then
+      boxGridSheetCache[key] = false
+      return nil, "quad creation failed"
+    end
+    local asset = {
+      image = image,
+      quad = quad,
+      relative = relative,
+      variant = variant,
+      sourceDex = dex,
+    }
+    boxGridSheetCache[key] = asset
+    return asset, identity
+  end
+
+  local function drawBoxGridWalker(game, mon, x, y)
+    if option(game, "box_grid_icon_style") ~= "hgss_walker" then
+      return false
+    end
+    local asset = boxGridWalkerAsset(game, mon)
+    if not asset then return false end
+    color(C.white)
+    love.graphics.draw(asset.image, asset.quad, x - 8, y - 8)
+    return true
+  end
+
   local function drawWrapped(text, x, y, width)
     text = tostring(text or "")
     local whole = Font.split(text)
@@ -373,7 +498,8 @@ return function(mod)
         color(C.gold)
         love.graphics.rectangle("line", x - 7.5, y - 10.5, 16, 22)
       end
-      if not drawMonImage(game, slotMon, x - 7, y - 8, 14, 16) then
+      if not drawBoxGridWalker(game, slotMon, x, y)
+          and not drawMonImage(game, slotMon, x - 7, y - 8, 14, 16) then
         drawBall(x, y, selected)
       end
     end
@@ -602,5 +728,8 @@ return function(mod)
     genderSymbol = storageGenderSymbol,
     drawBag = drawBag,
     drawBoxGrid = drawBoxGrid,
+    boxGridSourceDex = boxGridSourceDex,
+    boxGridWalkerRelative = boxGridWalkerRelative,
+    boxGridWalkerAsset = boxGridWalkerAsset,
   }
 end

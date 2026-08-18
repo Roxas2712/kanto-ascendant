@@ -185,6 +185,9 @@ return function(i18n)
     modern_storage_ui = {
       "Uses Ascendant's FireRed-inspired Bag, Box and Pokémon information layout instead of the plain Gen-I menus.",
       "Verwendet Ascendants von Feuerrot inspirierte Beutel-, Box- und Pokémon-Ansicht statt der schlichten Gen-I-Menüs.", true },
+    box_grid_icon_style = {
+      "Chooses the small icons in the right-hand 5 by 4 storage grid. CURRENT keeps the existing Box art; HGSS WALKERS uses the bundled 16-pixel walking sprites when an exact species asset is available. The large preview on the left never changes.",
+      "Wählt die kleinen Icons im rechten 5-mal-4-Boxraster. AKTUELL behält die bisherige Boxgrafik; HGSS-BEGLEITER nutzt die enthaltenen 16-Pixel-Laufsprites, wenn für die genaue Art eine Grafik vorhanden ist. Die große Vorschau links bleibt immer unverändert." },
     catch_destination = {
       "ASK lets you choose party or Box after every catch. PARTY FIRST and BOX FIRST automate the preferred destination when space exists.",
       "FRAGEN lässt nach jedem Fang Team oder Box wählen. ZUERST TEAM und ZUERST BOX automatisieren das bevorzugte Ziel, wenn Platz vorhanden ist." },
