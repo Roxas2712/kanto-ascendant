@@ -493,7 +493,10 @@ return function(mod, opts)
     local mon = battler and battler.mon
     if not mon or mon._ascMegaForm or mon.ascMegaForm then
       if battler then battler.__ascendantCrystalAnimation = nil end
-      if mon then A.activeBackSpecies[mon.species] = nil end
+      if mon then
+        A.activeBackSpecies[mon.species] = nil
+        A.activeFrontMons[mon] = nil
+      end
       return nil
     end
     local transformed = battler.__ascendantCrystalTransformed
@@ -556,7 +559,10 @@ return function(mod, opts)
     local mon = battler and battler.mon
     if not mon or mon._ascMegaForm or mon.ascMegaForm then
       if battler then battler.__ascendantCrystalAnimation = nil end
-      if mon then A.activeBackSpecies[mon.species] = nil end
+      if mon then
+        A.activeBackSpecies[mon.species] = nil
+        A.activeFrontMons[mon] = nil
+      end
       return
     end
     local transformed = battler.__ascendantCrystalTransformed
@@ -591,6 +597,7 @@ return function(mod, opts)
       if not (ready and type(timing) == "table" and #timing > 0) then
         battler.__ascendantCrystalAnimation = nil
         clearSelection(mon)
+        A.activeFrontMons[mon] = nil
         if selected.side == "back" then
           A.activeBackSpecies[mon.species] = nil
         end
@@ -615,6 +622,7 @@ return function(mod, opts)
       battler.__ascendantCrystalAnimation = nil
       clearSelection(mon)
       A.activeBackSpecies[mon.species] = nil
+      A.activeFrontMons[mon] = nil
       return
     end
     if not (state and state.animated and state.durations) then return end

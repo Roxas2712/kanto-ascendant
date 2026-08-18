@@ -134,6 +134,17 @@ local yieldedDx, yieldedDy = controller.enemyFrontOffset(
 eq(yieldedDx, 0, "external front is never repositioned")
 eq(yieldedDy, 0, "external front keeps its exact vertical placement")
 
+local lateOwner = { species = "BULBASAUR" }
+check(selectFront(lateOwner) ~= nil,
+  "Crystal owns the front before a late live-renderer handoff")
+local lateBattle = battleFor(lateOwner, "blue")
+controller.updateBattle(lateBattle, 0)
+lateBattle.enemy.sprite = { external = true }
+controller.updateBattle(lateBattle, 0)
+local lateDx, lateDy = controller.enemyFrontOffset(lateBattle)
+eq(lateDx, 0, "late live-renderer handoff clears Crystal x ownership")
+eq(lateDy, 0, "late live-renderer handoff clears Crystal y ownership")
+
 values.pokemon_sprite_style = "legacy"
 values.kanto_crystal_art = false
 local native = { species = "BULBASAUR" }
