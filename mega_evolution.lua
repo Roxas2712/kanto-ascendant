@@ -1430,5 +1430,10 @@ return function(mod, opts)
   M.caseLabel = caseLabel
   M.animationData = animationData
   M.updateAnimations = updateMegaAnimations
+  function M.usesCrystalBattleFront(mon)
+    local profile = type(mon) == "table"
+      and FORMS_BY_ID[mon._ascMegaForm or mon.ascMegaForm] or nil
+    return profile ~= nil and crystalMegaArtEnabled(profile)
+  end
   return M
 end

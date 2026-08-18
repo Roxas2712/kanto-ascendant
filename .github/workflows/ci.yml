@@ -135,6 +135,7 @@ jobs:
           luajit ../kanto-ascendant/tests/reachability_test.lua
           luajit ../kanto-ascendant/tests/upgrade_matrix_test.lua
           luajit ../kanto-ascendant/tests/crystal_v15_test.lua
+          luajit ../kanto-ascendant/tests/crystal_2d_enemy_layout_test.lua
           python3 ../kanto-ascendant/tests/crystal_v15_assets_test.py
           luajit ../kanto-ascendant/tests/extended_characters_test.lua
           luajit ../kanto-ascendant/tests/rival_personality_dialogue_test.lua

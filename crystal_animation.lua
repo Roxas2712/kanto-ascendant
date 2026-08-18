@@ -9,11 +9,13 @@ return function(mod, opts)
   opts = opts or {}
   local animationData = opts.animationData or {}
   local shinySystem = opts.shinySystem
+  local megaEvolution = opts.megaEvolution
   local speciesOrder = opts.speciesOrder or {}
   local guestDexes = opts.guestDexes or {}
   local classicGuestDexes = opts.classicGuestDexes or {}
   local A = {
     selected = setmetatable({}, { __mode = "k" }),
+    activeFrontMons = setmetatable({}, { __mode = "k" }),
     available = {},
     shinyAvailable = {},
     backAvailable = {},
@@ -295,6 +297,12 @@ return function(mod, opts)
   function A.select(ctx, selectedSide, externalOverride)
     if not (ctx and ctx.kind == "battle") then return nil end
     local mon = ctx and ctx.mon
+    if mon and selectedSide == "front" then
+      -- Recomputed on every battle-front resolution. A later visual provider,
+      -- legacy style, or Mega route must be able to withdraw ownership
+      -- without leaving a stale native-2D placement adjustment behind.
+      A.activeFrontMons[mon] = nil
+    end
     local dex = resolveDex(ctx)
     local supportedSide = selectedSide == "front"
       or (selectedSide == "back" and dex and (
@@ -319,11 +327,9 @@ return function(mod, opts)
     else
       if which == "grayscale" then
         ready = A.grayscaleAvailable[dex]
-          and type(animationData.grayscale) == "table"
-          and type(animationData.grayscale[tostring(dex)]) == "table"
       else
         ready = which == "shiny"
-          and A.shinyAvailable[dex] or A.available[dex]
+          and A.staticShinyAvailable[dex] or A.staticAvailable[dex]
       end
     end
     if not ready then
@@ -345,6 +351,11 @@ return function(mod, opts)
       }
     else
       clearSelection(mon)
+    end
+    if selectedSide == "front" then
+      -- This marker is deliberately independent from animation state: a
+      -- static Crystal frame needs the same 2D clearance as a moving one.
+      A.activeFrontMons[mon] = true
     end
     ctx.trueColor = authoredTrueColor(dex, which)
     return fullPath(dex, which, 1, selectedSide), ctx.trueColor
@@ -662,6 +673,40 @@ return function(mod, opts)
       end
     end
     A.activeBackSpecies = {}
+    A.activeFrontMons = setmetatable({}, { __mode = "k" })
+  end
+
+  local function native2DActive()
+    local ok, Pipelines = pcall(require, "src.render.Pipelines")
+    if not (ok and Pipelines and type(Pipelines.level) == "function") then
+      return true
+    end
+    return Pipelines.level("voxel") <= 0
+  end
+
+  -- Exact Gen1Recomp 0.1.96/0.1.98 place a 56px enemy front through row 55,
+  -- immediately adjacent to the player's name at row 56. Larger authored
+  -- fronts cross that boundary because the engine caps placement math at a
+  -- 7-tile slot but still draws the complete image. One tile left/up restores
+  -- the intended field separation without changing assets or native fronts.
+  function A.enemyFrontOffset(battle)
+    local enemy = battle and battle.enemy
+    local mon = enemy and enemy.mon
+    if not (mon and enemy.sprite) or battle.showEnemyTrainer
+        or not native2DActive() then
+      return 0, 0
+    end
+    local owned = A.activeFrontMons[mon] == true
+    local animation = enemy.__ascendantCrystalAnimation
+    if not owned and animation and animation.side == "front" then
+      owned = true
+    end
+    if not owned and megaEvolution
+        and type(megaEvolution.usesCrystalBattleFront) == "function" then
+      local ok, result = pcall(megaEvolution.usesCrystalBattleFront, mon)
+      owned = ok and result == true
+    end
+    return owned and -8 or 0, owned and -8 or 0
   end
 
   function A.presentationAnimation(species, mon, side, surface, opts)
@@ -770,6 +815,36 @@ return function(mod, opts)
         return resolveBattleScale(data, side, path, species)
       end
       BattleState._kantoAscendantCrystalScaleWrapped = true
+    end
+    -- Keep this seam at the engine's side-composition boundary. Passing the
+    -- offset through drawPicsLayer's own sx/sy inputs covers stills, authored
+    -- animation frames and send-out grow frames alike. Splitting the ordinary
+    -- two-side call preserves enemy-before-player ordering while ensuring the
+    -- player back, trainer pictures and every native front remain untouched.
+    BattleState._kantoAscendantCrystalLayoutPolicy = A
+    if type(BattleState.drawPicsLayer) == "function"
+        and not BattleState._kantoAscendantCrystalLayoutWrapped then
+      local drawPicsLayer = BattleState.drawPicsLayer
+      BattleState.drawPicsLayer = function(battle, slide, sx, sy, onlySide,
+          skipMenuClip)
+        local policy = BattleState._kantoAscendantCrystalLayoutPolicy
+        local dx, dy = 0, 0
+        if policy and type(policy.enemyFrontOffset) == "function" then
+          dx, dy = policy.enemyFrontOffset(battle)
+        end
+        if dx == 0 and dy == 0 or onlySide == "player" then
+          return drawPicsLayer(battle, slide, sx, sy, onlySide, skipMenuClip)
+        end
+        local enemyX, enemyY = (tonumber(sx) or 0) + dx,
+          (tonumber(sy) or 0) + dy
+        if onlySide == "enemy" then
+          return drawPicsLayer(battle, slide, enemyX, enemyY, onlySide,
+            skipMenuClip)
+        end
+        drawPicsLayer(battle, slide, enemyX, enemyY, "enemy", skipMenuClip)
+        return drawPicsLayer(battle, slide, sx, sy, "player", skipMenuClip)
+      end
+      BattleState._kantoAscendantCrystalLayoutWrapped = true
     end
     if not BattleState._ascendantCrystalAnimationWrapped then
       BattleState._ascendantCrystalAnimationWrapped = true

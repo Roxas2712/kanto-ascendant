@@ -1377,6 +1377,7 @@ return function(mod)
   local crystalAnimation = makeCrystalAnimation(mod, {
     animationData = crystalAnimationData,
     shinySystem = shinySystem,
+    megaEvolution = megaEvolution,
     speciesOrder = johtoData.order,
     guestDexes = {
       [gorochu.dex] = true,
