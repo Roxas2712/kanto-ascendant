@@ -233,6 +233,7 @@ jobs:
           luajit ../kanto-ascendant/tests/adaptive_trainer_levels_test.lua
           KA_EXPECT_ENGINE=broad luajit ../kanto-ascendant/tests/adaptive_trainer_levels_engine_test.lua
           luajit ../kanto-ascendant/tests/difficulty_early_curve_test.lua
+          luajit ../kanto-ascendant/tests/gorochu_rematch_loot_test.lua
           luajit ../kanto-ascendant/tests/rematch_ai_test.lua
           luajit ../kanto-ascendant/tests/core_phase9_test.lua
           luajit ../kanto-ascendant/tests/mythic_safety_test.lua

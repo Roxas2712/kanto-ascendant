@@ -249,6 +249,8 @@ return function(mod, opts)
     keyItem = true,
     tossable = false,
     needsTarget = true,
+    lootExcluded = true,
+    progressionItem = true,
   })
 
   local raichu = mod.content.pokemon:get("RAICHU")
