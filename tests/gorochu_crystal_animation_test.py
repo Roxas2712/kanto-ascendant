@@ -76,6 +76,7 @@ def sha256(path: Path) -> str:
 
 def rgba(path: Path) -> Image.Image:
     with Image.open(path) as opened:
+        require(opened.format == "PNG", f"not a PNG: {path}")
         return opened.convert("RGBA")
 
 
@@ -149,7 +150,13 @@ with tempfile.TemporaryDirectory(prefix="ka-gorochu-64-") as temporary:
     require(all(path.is_file() for path in actual_paths), "actual 64 px matrix is incomplete")
     require(all(path.is_file() for path in generated_paths), "temporary 64 px matrix is incomplete")
     for actual, generated in zip(actual_paths, generated_paths):
-        require(sha256(actual) == sha256(generated), f"actual tree is stale: {actual.relative_to(ROOT)}")
+        actual_image = rgba(actual)
+        generated_image = rgba(generated)
+        require(
+            actual_image.size == generated_image.size
+            and actual_image.tobytes() == generated_image.tobytes(),
+            f"actual pixel tree is stale: {actual.relative_to(ROOT)}",
+        )
 
     for side in ("front", "back"):
         by_variant = {}
