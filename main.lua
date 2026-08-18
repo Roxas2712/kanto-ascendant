@@ -1657,22 +1657,34 @@ return function(mod)
     fieldTech = fieldTech,
   })
   driftglassPrisms.register()
+  local function johtoTrainerMovesUnlocked()
+    if not mod.exports.beyondKanto.isActive() then return false end
+    local root = signalsState.root(false)
+    return root and root.earlyJohto
+      and root.earlyJohto.receiverRepaired == true or false
+  end
   local masteryModule = loadSibling(mod, "rematch_mastery.lua")
   local rematchMastery = masteryModule.create({
     resonanceRules = driftglassPrisms.resonanceRules,
     -- Driftglass is the existing legal seam for Generation-II moves on
     -- Kanto species.  Trainers may use those moves only after the receiver
     -- has actually been repaired in this save.
-    johtoUnlocked = function()
-      if not mod.exports.beyondKanto.isActive() then return false end
-      local root = signalsState.root(false)
-      return root and root.earlyJohto
-        and root.earlyJohto.receiverRepaired == true or false
-    end,
+    johtoUnlocked = johtoTrainerMovesUnlocked,
   })
   mod.exports.rematchMastery = rematchMastery
   local rematchAI = loadSibling(mod, "rematch_ai.lua")(mod)
   mod.exports.rematchAI = rematchAI
+  local yellowGymMoveFidelity = loadSibling(mod,
+    "yellow_gym_move_fidelity.lua")
+  local storyGymDifficulty = loadSibling(mod,
+    "story_gym_difficulty.lua")(mod, {
+      gameVersion = GameVersion,
+      usefulLayerId = rematchAI.layerId,
+      yellowFidelity = yellowGymMoveFidelity,
+      johtoUnlocked = johtoTrainerMovesUnlocked,
+      resonanceRules = driftglassPrisms.resonanceRules,
+    })
+  mod.exports.storyGymDifficulty = storyGymDifficulty
   legacyWanderers.setMasteryProvider(rematchMastery)
   local difficulty = loadSibling(mod, "difficulty.lua")(mod, {
     i18n = i18n,
