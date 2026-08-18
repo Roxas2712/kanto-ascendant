@@ -1631,9 +1631,14 @@ on engines 0.1.96 and 0.1.98 do not know the later battle Pokémon's DVs yet, so
 Ascendant does not pre-roll or advertise a Shiny colour in the overworld.
 
 In Yellow, the native partner Pikachu remains follower one with its original
-mood and dialogue. Other selected party members remain separately
-addressable; Professor Oak still catches the canonical level-5 Pikachu and
-the lab gift remains Pikachu.
+mood and dialogue; it cannot be replaced in that authored story slot. To add
+another species, open **Start → Pokémon**, choose that party member, then
+**Follower → Custom Add/Add Follower**. The action automatically increases the
+visible count to follower two; alternatively choose a count from two through
+six in Ascendant's follower options. If partner Pikachu is boxed or fainted,
+Yellow intentionally hides the complete chain; withdraw or heal the partner
+and the saved extra followers reappear. Professor Oak still catches the
+canonical level-5 Pikachu and the lab gift remains Pikachu.
 
 </details>
 
