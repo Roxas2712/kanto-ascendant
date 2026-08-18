@@ -14,6 +14,8 @@ GameVersion.set("yellow")
 
 local run = T.sdk.loadMod(modPath, { data = Data })
 T.eq(#run.errors, 0, "Kanto Ascendant loads in a Yellow runtime")
+local runtimeModPath = assert(run.mod and run.mod.path,
+  "SDK exposes the loader-owned runtime mod path")
 local characters = assert(run.loader.exports.kanto_ascendant.extendedCharacters)
 T.eq(characters.characterStyle(), "crystal",
   "Yellow also receives CRYSTAL CHARS as the default style")
@@ -29,7 +31,7 @@ local red = characters.select("RED")
 T.eq(red.rival_character, "BLUE", "Yellow Red keeps Blue in the rival role")
 T.eq(run.loader.hooks:call("player.sprite", function(path) return path end,
   "yellow-back.png", { side = "back", kind = "battle" }),
-  modPath .. "/assets/characters/crystal_chars/red_back.png",
+  runtimeModPath .. "/assets/characters/crystal_chars/red_back.png",
   "extended Red Yellow resolves through the default Crystal player seam")
 
 local blue = characters.select("BLUE")

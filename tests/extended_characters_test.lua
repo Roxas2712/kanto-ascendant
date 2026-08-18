@@ -11,6 +11,8 @@ local Data = T.fixtures.load()
 local modPath = os.getenv("TRAINER_REMATCH_MOD_DIR") or "mods/kanto_ascendant"
 local run = T.sdk.loadMod(modPath, { data = Data })
 T.eq(#run.errors, 0, "Kanto Ascendant loads with extended characters")
+local runtimeModPath = assert(run.mod and run.mod.path,
+  "SDK exposes the loader-owned runtime mod path")
 
 local characters = assert(run.loader.exports.kanto_ascendant.extendedCharacters)
 local titleIntro = assert(run.loader.exports.kanto_ascendant.titleIntro)
@@ -463,7 +465,21 @@ T.eq(TrainerCard._kantoAscendantProfileFitWrapped, true,
   "Trainer Card installs the KASC-only profile placement seam")
 T.eq(TrainerCard._kantoAscendantLeaderFacesWrapped, true,
   "Trainer Card installs the KASC leader-face seam")
-local leaderFaces = assert(characters.trainerCardLeaderFaces())
+-- The SDK aliases an external checkout behind mods/<checkout-name>. Its
+-- filesystem adapter understands that virtual path, while the headless Love
+-- stub opens PNGs directly through io.open(). Bridge only that runtime prefix
+-- back to the source checkout while exercising the image-backed card seam.
+local nativeNewImage = love.graphics.newImage
+love.graphics.newImage = function(path, ...)
+  local prefix = runtimeModPath .. "/"
+  if type(path) == "string" and path:sub(1, #prefix) == prefix then
+    path = modPath .. path:sub(#runtimeModPath + 1)
+  end
+  return nativeNewImage(path, ...)
+end
+local facesLoaded, leaderFaces = pcall(characters.trainerCardLeaderFaces)
+if not facesLoaded then error(leaderFaces, 0) end
+leaderFaces = assert(leaderFaces)
 local leaderWidth, leaderHeight = leaderFaces.img:getDimensions()
 T.eq(leaderWidth, 16,
   "leader face atlas is exactly one Trainer Card cell wide")
@@ -500,6 +516,7 @@ T.check(constructedCard.badges and constructedCard.badges.img,
   "earned badge artwork remains the stock engine badge sheet")
 T.check(constructedCard.badges.img ~= constructedCard.faces.img,
   "leader portraits never replace earned badge artwork")
+love.graphics.newImage = nativeNewImage
 local graphicsDraw = love.graphics.draw
 for _, identity in ipairs({ "RED", "BLUE", "GREEN" }) do
   characters.select(identity)
