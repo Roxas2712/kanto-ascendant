@@ -26,6 +26,9 @@ jobs:
       - name: Install LuaJIT
         run: sudo apt-get update && sudo apt-get install -y luajit
 
+      - name: Install Python test dependencies
+        run: python3 -m pip install --disable-pip-version-check --no-cache-dir Pillow==11.3.0
+
       - name: Prepare the minimum 0.1.90 source fixture
         working-directory: gen1recomp
         run: |
