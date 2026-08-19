@@ -9,7 +9,8 @@
 --
 -- The in-battle bag is battle-aware: it opens on the BATTLE ITEMS pocket
 -- (or the first non-empty usable pocket) and its L/R cycling skips TMs /
--- HMs and KEY ITEMS, whose items ItemEffects refuses mid-battle.
+-- HMs plus unusable Key Items. The POKé FLUTE remains available because
+-- vanilla ItemEffects explicitly permits it to wake both sides in battle.
 --
 -- THE HIDDEN BAG: the engine's item logic (key-item flags, scripted
 -- CheckItem/TakeItem/GiveItem, the CARD_KEY door, HM gates) reads the flat
@@ -70,12 +71,23 @@ local POCKETS = {
 local POCKET_INDEX = {}
 for i, p in ipairs(POCKETS) do POCKET_INDEX[p.id] = i end
 
--- a battle bag skips the pockets whose items are unusable mid-battle:
--- TMs/HMs and KEY ITEMS are refused by ItemEffects ("isn't the time to
--- use that"), so they would only waste L/R presses.  When the bag opens
--- in battle it lands on the first non-empty pocket in BATTLE_START_PRIORITY.
-local BATTLE_UNUSABLE = { tms = true, key = true }
-local BATTLE_START_PRIORITY = { "battle", "balls", "medicine", "items" }
+-- A battle bag skips TMs/HMs. Most Key Items are unusable too, but the
+-- POKé FLUTE is the vanilla exception: ItemUsePokeFlute wakes every sleeping
+-- Pokémon on both sides and keeps the item. Only that exact Key Item enters
+-- the battle projection; Link and explicit no-item battles remain sealed.
+local BATTLE_UNUSABLE = { tms = true }
+local BATTLE_START_PRIORITY = {
+  "battle", "balls", "medicine", "items", "key",
+}
+local BATTLE_USABLE_KEY_ITEMS = { POKE_FLUTE = true }
+
+local function battleItemVisible(id, pocketId, battle)
+  if not battle then return true end
+  if battle.kind == "link" or battle.ascendantNoItems then return false end
+  if pocketId == "tms" then return false end
+  if pocketId == "key" then return BATTLE_USABLE_KEY_ITEMS[id] == true end
+  return true
+end
 
 -- fallback sets: the real ROM import flags key items via KeyItemFlags
 -- (def.keyItem) and TMs/HMs via def.machine, so these only classify
@@ -183,7 +195,8 @@ local function switchPocket(list, dir)
   local i = list.__pocketIndex
   repeat
     i = adjacentPocket(i, dir)
-  until (not battle or not BATTLE_UNUSABLE[POCKETS[i].id])
+  until (not battle or (not BATTLE_UNUSABLE[POCKETS[i].id]
+      and (POCKETS[i].id ~= "key" or list.__battleKeyItems == true)))
     or i == list.__pocketIndex -- safety: never spin forever
   list.__pocketIndex = i
   list.__project()
@@ -514,7 +527,9 @@ local function decorate(list, game, session, opts)
     local curId = list.items[list.index] and list.items[list.index].value
     local items, ids = {}, {}
     for _, id in ipairs(order) do
-      if classify(game.data, id) == pocket.id then
+      local pocketId = classify(game.data, id)
+      if pocketId == pocket.id
+          and battleItemVisible(id, pocketId, list.__battle) then
         table.insert(ids, id)
         local label, prefixW, prefix, move = labelForItem(game.data, id)
         table.insert(items, {
@@ -537,6 +552,9 @@ local function decorate(list, game, session, opts)
     list.index = math.max(1, math.min(list.index, #items))
   end
   list.__project = project
+  list.__battleKeyItems = list.__battle ~= nil
+    and battleItemVisible("POKE_FLUTE", "key", list.__battle)
+    and (game.save.inventory.POKE_FLUTE or 0) > 0
 
   -- Swap two pocket rows by translating them back onto the hidden bag's
   -- acquisition order (the engine's onSelectKey swaps `order[l.index]`
@@ -701,12 +719,15 @@ local function decorate(list, game, session, opts)
   session.wantActions = false -- presses before the bag opened do not carry over
   -- a battle bag opens on the BATTLE ITEMS pocket (falling back to the
   -- first non-empty usable pocket), not the generic ITEMS; cycling skips
-  -- TMs / HMs and KEY ITEMS via switchPocket
+  -- TMs / HMs and admits KEY ITEMS only while an owned battle-legal
+  -- POKé FLUTE is present.
   if list.__battle then
     for _, pid in ipairs(BATTLE_START_PRIORITY) do
-      list.__pocketIndex = POCKET_INDEX[pid]
-      project()
-      if #list.items > 0 then break end
+      if pid ~= "key" or list.__battleKeyItems then
+        list.__pocketIndex = POCKET_INDEX[pid]
+        project()
+        if #list.items > 0 then break end
+      end
     end
   else
     project()
@@ -924,6 +945,7 @@ return function(mod)
     POCKETS = POCKETS,
     classify = classify,
     pocketItems = pocketItems,
+    battleItemVisible = battleItemVisible,
     hiddenOrder = hiddenOrder,
     adjacentPocket = adjacentPocket,
     switchPocket = switchPocket,
