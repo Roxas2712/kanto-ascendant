@@ -253,7 +253,7 @@ eq(linkGame.save.inventory.POKE_FLUTE, 1,
 -- boundaries. The useful Bag must respect that marker even if its screen
 -- factory is called directly.
 local policy = assert(loadfile(modDir
-  .. "/ngplus_tournament_battle_policy.lua"))({})
+  .. "/ngplus_tournament_battle_policy.lua"))()({})
 local BattleState = require("src.battle.BattleState")
 local BagMenu = require("src.ui.BagMenu")
 local ItemEffects = require("src.inventory.ItemEffects")
