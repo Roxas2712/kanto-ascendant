@@ -395,6 +395,55 @@ for _, row in ipairs({
     row.type .. " protects native engine warp pads and holes")
 end
 
+-- Discord regression: a visible Wilds body could occupy the inner mouth of
+-- Viridian's north connection even though the boundary row itself was
+-- protected.  The real entrance is wider than a graph articulation, so the
+-- topology-only guard cannot infer that these are player landing/approach
+-- cells.  Explicit map connections must retain a short, full-width inward
+-- clearance lane and repair an already persisted body there.
+do
+  local game = { save = guardedSave("RED", true), data = { maps = {} } }
+  local map = makeMap("VIRIDIAN_CITY", {
+    "###...###",
+    "###..####",
+    "###...###",
+    "###...###",
+    "#.......#",
+    "#.......#",
+    "#########",
+  }, {
+    connections = { north = { map = "ROUTE_2", offset = 0 } },
+  })
+  local ow = {
+    map = map,
+    player = { cellX = 1, cellY = 5 },
+    entities = {}, npcs = {},
+  }
+  eq(safety.isSafeCell(game, ow, map, 3, 2), false,
+    "Viridian north landing lane is protected two cells inside the map")
+  eq(safety.isSafeCell(game, ow, map, 5, 3), false,
+    "Viridian north entrance keeps its full approach width clear")
+  eq(safety.isSafeCell(game, ow, map, 7, 4), true,
+    "ordinary Viridian town space remains eligible for Wilds")
+
+  local provider = makeProvider("viridian_north_regression", game, ow)
+  safety.install(provider, game)
+  local blocking = {
+    id = "viridian_north_blocker", cellX = 3, cellY = 2,
+    overworldWildSpawn = true,
+  }
+  provider.logic.spawns[blocking.id] = {
+    id = blocking.id, mapId = map.id, x = 3, y = 2,
+  }
+  provider.logic.entities[blocking.id] = blocking
+  provider.logic.byMap[map.id] = { blocking.id }
+  ow.entities = { blocking }
+  eq(safety.repair(provider, game, ow, "Viridian north connection").despawned, 1,
+    "load repair removes a Wilds body already blocking the north entrance")
+  eq(provider.logic.spawns[blocking.id], nil,
+    "persisted Viridian north blocker is removed from provider state")
+end
+
 -- Exact graph articulation, not a broad indoor ban: the one-cell bridge is
 -- unsafe while both open rooms retain valid population space.
 do
