@@ -44,6 +44,8 @@ files["assets/followers_runtime/shiny/follower_GOROCHU.png"] = { 16, 96 }
 files["assets/voxel/gorochu/gorochu_dex.png"] = { 56, 56 }
 files["assets/voxel/gorochu/gorochu_dex_shiny.png"] = { 56, 56 }
 files["assets/voxel/gorochu/gorochu_catalogue_placeholder.png"] = { 56, 56 }
+files["assets/crystal/gorochu_front.png"] = { 64, 64 }
+files["assets/crystal/gorochu_front_shiny.png"] = { 64, 64 }
 
 for relative, size in pairs(files) do
   local width, height = pngDimensions(relative)
@@ -83,12 +85,8 @@ eq(visuals.relativePath({ species = "GOROCHU", shiny = true }, "front"),
 eq(visuals.relativePath({ species = "GOROCHU" }, "back"),
   "assets/voxel/gorochu/gorochu_back.png",
   "BACK SPRITES mode owns a high-detail rear master")
-eq(visuals.cataloguePath({ species = "GOROCHU" }),
-  "assets/voxel/gorochu/gorochu_dex.png",
-  "Dex and status views receive the fitted high-resolution normal card")
-eq(visuals.cataloguePath({ species = "GOROCHU", shiny = true }),
-  "assets/voxel/gorochu/gorochu_dex_shiny.png",
-  "Dex and status views receive the fitted high-resolution shiny card")
+-- The primary visual fixture is built below; catalogue routing is asserted
+-- there once the complete twelve-frame family has been established.
 eq(visuals.relativePath({ species = "GOROCHU" }, "front", 4),
   "assets/voxel/gorochu/animation/normal/004.png",
   "normal Voxel front resolves the authored live frame")
@@ -100,8 +98,12 @@ check(not visuals.relativePath(
   "legacy static callers retain the illustrated Voxel card")
 
 local pngSignature = "\137PNG\r\n\26\n"
+local catalogueStyle = "original"
 local primaryMod = {
   path = "/fake/kanto-ascendant",
+  options = { get = function(_, key)
+    if key == "dex_sprite_style" then return catalogueStyle end
+  end },
   read = function(_, relative)
     if relative:find("assets/voxel/gorochu/crystal/", 1, true) then
       return pngSignature .. "primary"
@@ -128,6 +130,30 @@ eq(primaryShiny, "assets/voxel/gorochu/crystal/shiny/005.png",
   "animation indices wrap within the six-frame Crystal family")
 eq(primaryShinyLane, "crystal-primary",
   "shiny Voxel front uses the same atomic primary family")
+local catalogueNormal, catalogueNormalLane = primaryVisuals.cataloguePath(
+  { species = "GOROCHU" })
+eq(catalogueNormal, "assets/voxel/gorochu/crystal/normal/001.png",
+  "default Gorochu catalogue uses the current Crystal-primary identity")
+eq(catalogueNormalLane, "crystal-primary",
+  "normal catalogue records the current Crystal-primary authority")
+local catalogueShiny, catalogueShinyLane = primaryVisuals.cataloguePath(
+  { species = "GOROCHU", shiny = true })
+eq(catalogueShiny, "assets/voxel/gorochu/crystal/shiny/001.png",
+  "shiny Gorochu catalogue uses the matching current primary identity")
+eq(catalogueShinyLane, "crystal-primary",
+  "shiny catalogue records the current Crystal-primary authority")
+eq(primaryVisuals.ownsCatalogue("GOROCHU", "summary"), true,
+  "default Gorochu Summary has one explicit catalogue owner")
+eq(primaryVisuals.ownsCatalogue("GOROCHU", "dex"), true,
+  "default Gorochu Dex has one explicit catalogue owner")
+eq(primaryVisuals.ownsCatalogue("GOROCHU", "box"), false,
+  "v1.5 ownership guard does not widen into the Box renderer")
+eq(primaryVisuals.ownsCatalogue("RAICHU", "summary"), false,
+  "Gorochu ownership guard never captures another species")
+catalogueStyle = "crystal"
+eq(primaryVisuals.ownsCatalogue("GOROCHU", "summary"), false,
+  "explicit Crystal Dex mode returns Summary ownership to v1.5")
+catalogueStyle = "original"
 eq(primaryVisuals.relativePath(
   { species = "GOROCHU" }, "back", 4),
   "assets/voxel/gorochu/gorochu_back.png",
@@ -159,6 +185,12 @@ eq(incompletePath, "assets/voxel/gorochu/animation/normal/004.png",
   "incomplete family falls back without mixing normal frames")
 eq(incompleteLane, "illustrated-fallback",
   "incomplete family records the illustrated fallback lane")
+local incompleteCatalogue, incompleteCatalogueLane =
+  incompleteVisuals.cataloguePath({ species = "GOROCHU" })
+eq(incompleteCatalogue, "assets/crystal/gorochu_front.png",
+  "damaged primary catalogue falls back to the current registered identity")
+eq(incompleteCatalogueLane, "crystal-static-fallback",
+  "damaged catalogue never falls back to the obsolete illustration")
 
 local front = true
 local playerTexture
@@ -306,6 +338,12 @@ eq(back.kantoAscendantGorochuSource,
   "BACK SPRITES mode selects the approved rear master")
 eq(back.kantoAscendantGorochuSide, "back",
   "the side-texture marker records the pinned rear view")
+battle.player.mon.shiny = true
+local shinyBack = overworldBattle.sideTexture(battle, "player")
+eq(shinyBack.kantoAscendantGorochuSource,
+  "assets/voxel/gorochu/gorochu_back_shiny.png",
+  "BACK SPRITES mode selects the dedicated shiny rear master")
+battle.player.mon.shiny = nil
 eq(visuals.install(game), true, "the Voxel hook is idempotent")
 
 -- A complete Crystal family wins in a real sideTexture wrapper, stays at its
@@ -394,8 +432,14 @@ eq(afterFailure, "assets/voxel/gorochu/animation/shiny/005.png",
 eq(afterFailureLane, "illustrated-fallback",
   "run-wide decode fallback prevents style mixing")
 
--- Dex/status use the approved 96px frame in the final screen-space pass.
--- This preserves more source pixels than the native 56px UI canvas can hold.
+-- Dex/status use the current 56px primary in the final screen-space pass.
+-- A fresh owner keeps this UI route independent from the intentional Voxel
+-- decode-fallback probe above.
+local catalogueVisuals = assert(
+  dofile(modDir .. "/gorochu_visuals.lua")(primaryMod, {
+    species = "GOROCHU",
+    shinySystem = shinySystem,
+  }))
 local hudWrap
 local dexStyle = "original"
 local overlayMod = {
@@ -410,16 +454,29 @@ local overlayMod = {
     hudWrap = callback
   end },
 }
+eq(catalogueVisuals.cataloguePath(nil),
+  "assets/voxel/gorochu/crystal/normal/001.png",
+  "installed primary visual owner keeps its catalogue route")
 local overlay = assert(dofile(
   modDir .. "/gorochu_catalogue_overlay.lua"))(overlayMod, {
     species = "GOROCHU",
     shinySystem = shinySystem,
+    visuals = catalogueVisuals,
   })
-eq(overlay.placeholderPath({ species = "GOROCHU", kind = "dex" }),
-  "assets/voxel/gorochu/gorochu_catalogue_placeholder.png",
-  "Voxel Dex route receives a transparent layout placeholder")
+eq(overlay.sourceFor(nil),
+  "assets/voxel/gorochu/crystal/normal/001.png",
+  "catalogue overlay delegates source selection to the central authority")
+eq(overlayMod:read("assets/voxel/gorochu/crystal/normal/001.png"), "png",
+  "current primary catalogue source is readable to the overlay")
+eq(overlay.cataloguePath({ species = "GOROCHU", kind = "dex" }),
+  "assets/voxel/gorochu/crystal/normal/001.png",
+  "default Dex route reserves the slot with the current primary art")
+eq(overlay.cataloguePath({ species = "GOROCHU", kind = "summary",
+      mon = { species = "GOROCHU", shiny = true } }),
+  "assets/voxel/gorochu/crystal/shiny/001.png",
+  "default status route reserves the slot with current shiny primary art")
 dexStyle = "crystal"
-eq(overlay.placeholderPath({ species = "GOROCHU", kind = "dex" }), nil,
+eq(overlay.cataloguePath({ species = "GOROCHU", kind = "dex" }), nil,
   "Crystal Dex route never receives the Voxel placeholder")
 dexStyle = "original"
 eq(overlay.register(), true, "catalogue overlay hook registers")
@@ -439,8 +496,11 @@ eq(drawCalls[1][2], 60,
   "Dex high-density redraw keeps the native x=8 slot")
 eq(drawCalls[1][3], 50,
   "Dex high-density redraw keeps the native y=4 slot")
-check(math.abs(drawCalls[1][5] - (56 * 5 / 96)) < 0.0001,
-  "Dex high-density redraw maps 96 source pixels into 56 logical units")
+check(math.abs(drawCalls[1][5] - 5) < 0.0001,
+  "Dex redraw maps its source into 56 logical units")
+check(drawCalls[1][1].path:find(
+    "assets/voxel/gorochu/crystal/normal/001.png", 1, true) ~= nil,
+  "default Dex HUD never references the obsolete illustrated frame")
 
 drawCalls = {}
 local summaryState = {
@@ -450,10 +510,17 @@ local summaryState = {
 hudGame.stack.top = function() return summaryState end
 hudWrap(function() end, hudGame, viewport)
 eq(#drawCalls, 1, "shiny Gorochu status receives one high-density redraw")
-check(drawCalls[1][1].path:find("animation/shiny/001.png", 1, true) ~= nil,
-  "status overlay selects the approved shiny frame")
+check(drawCalls[1][1].path:find(
+    "assets/voxel/gorochu/crystal/shiny/001.png", 1, true) ~= nil,
+  "status overlay selects the current shiny primary frame")
 check(drawCalls[1][5] < 0,
   "status overlay preserves the Gen-I mirrored-front presentation")
+eq(drawCalls[1][2], 340,
+  "mirrored status art anchors at the right edge of the 56px slot")
+eq(drawCalls[1][3], 30,
+  "status art remains at the top of its 56px slot")
+check(math.abs(drawCalls[1][5]) == 5 and drawCalls[1][6] == 5,
+  "current 56px status art cannot extend beyond the 56px slot")
 
 drawCalls = {}
 dexStyle = "crystal"

@@ -24,6 +24,7 @@ local values = {
   sprite_style_box = true,
   sprite_style_scenes = true,
   crystal_animation = true,
+  dex_sprite_style = "original",
 }
 local events, hooks, scales = {}, {}, {}
 local function read(relative)
@@ -181,10 +182,45 @@ eq(offUser.__ascendantCrystalTransformed, "BULBASAUR",
   "Transform still records its target when battle animations are disabled")
 
 local v15Factory = assert(loadfile(modDir .. "/crystal_v15_features.lua"))()
+local catalogueOwner = {
+  ownsCatalogue = function(species, kind)
+    return species == "GOROCHU"
+      and (kind == "summary" or kind == "dex")
+      and values.dex_sprite_style ~= "crystal"
+  end,
+}
 local v15 = v15Factory(mod, {
   crystalAnimation = crystal,
   shinySystem = shinySystem,
+  catalogueOwner = catalogueOwner,
 })
+local presentationCalls = 0
+local originalPresentationAnimation = crystal.presentationAnimation
+local replacement = { current = "v1.5 replacement" }
+crystal.presentationAnimation = function()
+  presentationCalls = presentationCalls + 1
+  return { image = replacement, trueColor = true }
+end
+local retainedSummary = { game = { data = data }, sprite = { current = "primary" } }
+local retainedSummaryImage = retainedSummary.sprite
+v15:decorateSummary(retainedSummary, { species = "GOROCHU" })
+eq(retainedSummary.sprite, retainedSummaryImage,
+  "default Gorochu summary keeps the catalogue owner's current primary art")
+local retainedDex = { game = { data = data }, sprite = { current = "primary" } }
+local retainedDexImage = retainedDex.sprite
+v15:decorateDex(retainedDex, "GOROCHU")
+eq(retainedDex.sprite, retainedDexImage,
+  "default Gorochu Dex keeps the catalogue owner's current primary art")
+eq(presentationCalls, 0,
+  "v1.5 never adds a second Gorochu layer over default catalogue views")
+values.dex_sprite_style = "crystal"
+v15:decorateSummary(retainedSummary, { species = "GOROCHU" })
+eq(retainedSummary.sprite, replacement,
+  "explicit Crystal Dex mode retains the v1.5 presentation choice")
+eq(presentationCalls, 1,
+  "explicit Crystal mode reaches exactly one presentation authority")
+values.dex_sprite_style = "original"
+crystal.presentationAnimation = originalPresentationAnimation
 check(hooks["player.sprite"] ~= nil,
   "the player portrait resolver is registered independently")
 local playerCtx = { kind = "hof", side = "front" }

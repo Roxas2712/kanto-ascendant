@@ -122,8 +122,13 @@ assert(gorochu.source:find("Ascendant", 1, true), "Gorochu provenance missing")
 for _, isShiny in ipairs({ false, true }) do
   local relative = isShiny and gorochu.shinyRelative or gorochu.normalRelative
   assertSheet(relative, "GOROCHU")
-  assert(assert(sprites.resolve(game, { species = "GOROCHU", shiny = isShiny }))
-    :match("follower_GOROCHU%.png$"), "Gorochu did not load dedicated art")
+  local resolved = assert(sprites.resolve(game, {
+    species = "GOROCHU", shiny = isShiny,
+  }))
+  local variant = isShiny and "shiny" or "normal"
+  assert(resolved:find("followers_runtime/" .. variant
+      .. "/follower_GOROCHU.png", 1, true),
+    "Gorochu did not load its exact " .. variant .. " follower art")
 end
 
 -- Raichu is a first-class Kanto definition, not a special Yellow-only path.

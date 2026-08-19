@@ -913,11 +913,11 @@ for _, dexStyle in ipairs({ "original", "crystal" }) do
       "GOROCHU Crystal Dex animation is true-color")
   else
     T.eq(guestResolved:find(
-        "assets/voxel/gorochu/gorochu_catalogue_placeholder.png", 1, true)
+        "assets/voxel/gorochu/crystal/normal/001.png", 1, true)
         ~= nil,
-      true, "GOROCHU reserves its Dex slot for the high-density HUD pass")
+      true, "GOROCHU default Dex uses its current Crystal-primary identity")
     T.eq(guestCtx.trueColor, false,
-      "GOROCHU's transparent Dex placeholder does not claim a colour zone")
+      "GOROCHU default Dex leaves final colour ownership to the HUD pass")
   end
 end
 
@@ -937,14 +937,25 @@ for _, surface in ipairs({ "summary", "box" }) do
   }
   local resolved = RealRuntime.call("pokemon.sprite",
     function(path) return path end, "registered/guest_gorochu.png", ctx)
-  local expected = surface == "box"
-    and "assets/voxel/gorochu/gorochu_dex.png"
-    or "assets/voxel/gorochu/gorochu_catalogue_placeholder.png"
+  local expected = "assets/voxel/gorochu/crystal/normal/001.png"
   T.eq(resolved:find(expected, 1, true) ~= nil, true,
     "GOROCHU " .. surface .. " selects its dedicated presentation path")
   T.eq(ctx.trueColor, surface == "box",
     "GOROCHU " .. surface .. " applies true colour only to visible base art")
 end
+
+local catalogueMon = { species = "GOROCHU" }
+local catalogueSentinel = { current = "crystal-primary" }
+local catalogueScreen = {
+  game = { data = starterDexData },
+  sprite = catalogueSentinel,
+}
+ex.crystalV15:decorateSummary(catalogueScreen, catalogueMon)
+T.eq(catalogueScreen.sprite, catalogueSentinel,
+  "main wires Gorochu catalogue ownership into the v1.5 summary decorator")
+ex.crystalV15:decorateDex(catalogueScreen, "GOROCHU")
+T.eq(catalogueScreen.sprite, catalogueSentinel,
+  "main wires Gorochu catalogue ownership into the v1.5 Dex decorator")
 
 local originalStaticFrameOne = ex.crystalAnimation.staticFrameOne
 ex.crystalAnimation.staticFrameOne = function() return nil end
@@ -1854,6 +1865,16 @@ do
       if handle then handle:close() end
     end
   end
+  local shinyPartner = mon("GOROCHU")
+  shinyPartner.dvs = {
+    attack = 10, defense = 10, speed = 10, special = 10, hp = 0,
+  }
+  local shinyPortraitFiles = yellowPartner._portraitFrames(
+    shinyPartner, gorochuReactions[7])
+  T.eq(shinyPortraitFiles[1]:find(
+      "assets/yellow_partner_gorochu_portraits/shiny/excited/001.png",
+      1, true) ~= nil,
+    true, "DV-shiny partner Gorochu uses its exact shiny facial artwork")
   followerConfig.setRaichuFaces("ascendant")
   T.eq(gorochuReactions[7].text:find(
     "GORO-GOROCHU!", 1, true), 1,

@@ -306,6 +306,15 @@ eq(shinyState.variant, "shiny",
 check(shinyState.image.path:find("/front/shiny/1026/", 1, true) ~= nil,
   "live shiny switch resolves the reviewed shiny frame family")
 
+local shinyBackPath, shinyBackTrue = gorochuController.select({
+  species = "GOROCHU", mon = gorochu, kind = "battle", side = "back",
+  data = data,
+}, "back", false)
+check(shinyBackPath:find("/back/shiny/1026/001.png", 1, true) ~= nil,
+  "Gorochu CRYSTAL player side resolves the reviewed shiny rear family")
+eq(shinyBackTrue, true,
+  "Gorochu CRYSTAL shiny rear remains true colour")
+
 values.pokemon_sprite_style = "legacy"
 local classicPath, classicTrue = gorochuController.select({
   species = "GOROCHU", mon = gorochu, kind = "battle", side = "back",

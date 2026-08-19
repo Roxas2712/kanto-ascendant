@@ -72,8 +72,10 @@ package.preload["src.ui.Theme"] = function()
   return { cursor = 1, cursorHollow = 2 }
 end
 package.preload["src.pokemon.Sprites"] = function()
-  return { path = function(_, species)
-    return "existing-front/" .. tostring(species) .. ".png"
+  return { path = function(_, species, _, ctx)
+    local variant = ctx and ctx.shiny == true and "shiny" or "normal"
+    return "existing-front/" .. variant .. "/"
+      .. tostring(species) .. ".png"
   end }
 end
 package.preload["src.render.PaletteFX"] = function()
@@ -244,5 +246,24 @@ assert(#fallbackFront == 2
     and fallbackFront[1].image.path:match("GOROCHU%.png$")
     and fallbackFront[2].image.path:match("GOROCHU%.png$"),
   "Gorochu did not retain both existing left-preview and grid renderers")
+
+-- The fallback preview/grid cache must use the same DV-aware shiny
+-- authority as the production sprite resolver. A normal Gorochu loaded
+-- first must never contaminate a later true-DV shiny with mon.shiny unset.
+box[1] = { species = "GOROCHU", level = 50, dvShiny = true }
+resetDraws()
+menu:draw()
+local shinyGorochuDraws = {}
+for _, draw in ipairs(frontDraws()) do
+  if draw.image.path:match("GOROCHU%.png$") then
+    shinyGorochuDraws[#shinyGorochuDraws + 1] = draw
+  end
+end
+assert(#shinyGorochuDraws == 2,
+  "DV-shiny Gorochu must retain both preview and grid fallback draws")
+for _, draw in ipairs(shinyGorochuDraws) do
+  assert(draw.image.path:find("existing-front/shiny/GOROCHU.png", 1, true),
+    "normal Box cache contaminated a DV-shiny Gorochu")
+end
 
 print("PASS HGSS Box-grid icons: default-safe, live, right 5x4 only, sourceDex, shiny, fallback")

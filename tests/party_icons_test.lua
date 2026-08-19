@@ -76,6 +76,18 @@ local shiny = hook(function(path) return path end, "vanilla", {
 })
 assert(shiny:match("shiny/follower_CELEBI%.png$"),
   "runtime hook did not select the individual shiny sheet")
+local gorochuNormal = hook(function(path) return path end, "vanilla", {
+  mon = { species = "GOROCHU" }, data = data,
+})
+assert(gorochuNormal:find(
+    "followers_runtime/normal/follower_GOROCHU.png", 1, true),
+  "party icon did not select Gorochu's exact normal sheet")
+local gorochuShiny = hook(function(path) return path end, "vanilla", {
+  mon = { species = "GOROCHU", shiny = true }, data = data,
+})
+assert(gorochuShiny:find(
+    "followers_runtime/shiny/follower_GOROCHU.png", 1, true),
+  "party icon did not select Gorochu's exact shiny sheet")
 local blastoise = hook(function(path) return path end, "vanilla", {
   mon = { species = "BLASTOISE" }, data = data,
 })
