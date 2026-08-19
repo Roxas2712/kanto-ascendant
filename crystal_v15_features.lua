@@ -5,6 +5,7 @@
 return function(mod, opts)
   opts = opts or {}
   local crystal = opts.crystalAnimation
+  local catalogueOwner = opts.catalogueOwner
   local V = { game = nil }
   local imageCache = {}
   local okPalette, PaletteFX = pcall(require, "src.render.PaletteFX")
@@ -46,6 +47,15 @@ return function(mod, opts)
     -- Pokemon-animation provider only; trainer presentation stays with the
     -- central character/FRLG resolvers.
     return false
+  end
+
+  local function catalogueOwned(species, kind)
+    if not (catalogueOwner
+        and type(catalogueOwner.ownsCatalogue) == "function") then
+      return false
+    end
+    local ok, owned = pcall(catalogueOwner.ownsCatalogue, species, kind)
+    return ok and owned == true
   end
 
   local function relativeTrainer(name, variant)
@@ -135,6 +145,7 @@ return function(mod, opts)
 
   function V:decorateSummary(screen, mon)
     if not (crystal and screen and mon) then return end
+    if catalogueOwned(mon.species, "summary") then return end
     local state = crystal.presentationAnimation(
       mon.species, mon, "front", "summary", { data = screen.game.data })
     if state and state.image then
@@ -146,6 +157,7 @@ return function(mod, opts)
 
   function V:decorateDex(screen, species)
     if not (crystal and screen and species) then return end
+    if catalogueOwned(species, "dex") then return end
     local state = crystal.presentationAnimation(
       species, nil, "front", "dex", { data = screen.game.data })
     if state and state.image then

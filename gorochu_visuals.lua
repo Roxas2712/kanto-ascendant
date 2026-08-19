@@ -113,9 +113,23 @@ return function(mod, opts)
   V.relativePath = relativePath
 
   function V.cataloguePath(mon)
-    local suffix = isShiny(mon) and "_shiny" or ""
-    local relative = "assets/voxel/gorochu/gorochu_dex" .. suffix .. ".png"
-    return mod:read(relative) and relative or relativePath(mon, "front")
+    local variant = isShiny(mon) and "shiny" or "normal"
+    if primaryReady() then
+      return ("%s/%s/001.png"):format(V.crystalPrimaryRoot, variant),
+        "crystal-primary"
+    end
+    -- Catalogue views must never fall back to the superseded illustrated
+    -- identity. A damaged primary family may use the registered current
+    -- Crystal front; the caller still constrains it to the catalogue slot.
+    local suffix = variant == "shiny" and "_shiny" or ""
+    local relative = "assets/crystal/gorochu_front" .. suffix .. ".png"
+    return mod:read(relative) and relative or nil, "crystal-static-fallback"
+  end
+
+  function V.ownsCatalogue(target, kind)
+    return target == species and (kind == "summary" or kind == "dex")
+      and mod.options and mod.options.get
+      and mod.options:get("dex_sprite_style") ~= "crystal"
   end
 
   function V.install(game)

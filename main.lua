@@ -1348,6 +1348,7 @@ return function(mod)
   )(mod, {
     species = gorochu.id,
     shinySystem = shinySystem,
+    visuals = gorochuVisuals,
   })
   gorochuCatalogueOverlay.register()
   mod.exports.gorochuCatalogueOverlay = gorochuCatalogueOverlay
@@ -1447,6 +1448,7 @@ return function(mod)
   local crystalV15 = loadSibling(mod, "crystal_v15_features.lua")(mod, {
     crystalAnimation = crystalAnimation,
     shinySystem = shinySystem,
+    catalogueOwner = gorochuVisuals,
   })
   daycare.setShinySystem(shinySystem)
   mod.exports.daycare = daycare
@@ -1986,8 +1988,8 @@ return function(mod)
     end
 
     -- Gorochu's registered 2D sprite remains the flat/Crystal source. Its
-    -- authored high-resolution Voxel master owns catalogue-style views when
-    -- the player did not explicitly request the Crystal Dex presentation.
+    -- current 56px Crystal-primary frame owns catalogue-style views when the
+    -- player did not explicitly request the Crystal Dex presentation.
     -- External sprite resolvers still win because their changed path is
     -- preserved before this local presentation choice is considered.
     local gorochuCrystalCatalogue =
@@ -2000,10 +2002,10 @@ return function(mod)
         and (ctx.kind == "dex" or ctx.kind == "summary" or ctx.kind == "box")
         and not gorochuCrystalCatalogue
         and path == requestedPath and gorochuVisuals then
-      -- Dex/status keep the approved 96px artwork until the final
-      -- screen-space pass.  Box previews remain on the ordinary image path.
+      -- Dex/status use the same current frame in the native and final HUD
+      -- passes. Box previews remain on the ordinary image path.
       local relative = gorochuCatalogueOverlay
-          and gorochuCatalogueOverlay.placeholderPath(ctx)
+          and gorochuCatalogueOverlay.cataloguePath(ctx)
         or gorochuVisuals.cataloguePath(ctx.mon)
       if relative then
         ctx.trueColor = ctx.kind == "box"

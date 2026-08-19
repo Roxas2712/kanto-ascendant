@@ -1,21 +1,15 @@
--- High-density Gorochu artwork for the fixed 56x56 Pokédex/status slot.
+-- Current Gorochu artwork for the fixed 56x56 Pokédex/status slot.
 --
--- Those screens are first rendered to the native 160x144 Game Boy canvas.
--- Reducing the approved 96px Voxel card before that pass permanently throws
--- away its face and limb detail.  The normal sprite hook therefore supplies
--- a transparent layout placeholder, while render.hud redraws the approved
--- 96px source directly into the already-scaled screen-space slot.
+-- The catalogue owner supplies the same 56px Crystal-primary frame to the
+-- native screen and the final HUD pass. Keeping both paths on one authority
+-- prevents the legacy 96px illustration and v1.5's 64px scene frame from
+-- becoming simultaneous layers in SummaryMenu or DexEntryMenu.
 
 return function(mod, opts)
   opts = opts or {}
   local species = opts.species or "GOROCHU"
   local shinySystem = opts.shinySystem
-  local placeholder =
-    "assets/voxel/gorochu/gorochu_catalogue_placeholder.png"
-  local sources = {
-    normal = "assets/voxel/gorochu/animation/normal/001.png",
-    shiny = "assets/voxel/gorochu/animation/shiny/001.png",
-  }
+  local visuals = opts.visuals or mod.exports and mod.exports.gorochuVisuals
   local images = {}
   local registered = false
   local O = {}
@@ -32,12 +26,24 @@ return function(mod, opts)
       and mod.options:get("dex_sprite_style") ~= "crystal"
   end
 
-  function O.placeholderPath(ctx)
+  local function sourceFor(mon)
+    if not (visuals and type(visuals.cataloguePath) == "function") then
+      return nil
+    end
+    local ok, relative = pcall(visuals.cataloguePath, mon)
+    return ok and relative or nil
+  end
+
+  function O.cataloguePath(ctx)
     if not (ctx and ctx.species == species and wantsVoxel(ctx.kind)) then
       return nil
     end
-    return mod:read(placeholder) and placeholder or nil
+    local relative = sourceFor(ctx.mon)
+    return relative and mod:read(relative) and relative or nil
   end
+  -- Retain the former exported name for third-party callers; it now resolves
+  -- visible current art rather than a transparent placeholder.
+  O.placeholderPath = O.cataloguePath
 
   local function stateInfo(game)
     local state = game and game.stack and game.stack.top
@@ -59,8 +65,8 @@ return function(mod, opts)
   local function imageFor(mon)
     local variant = isShiny(mon) and "shiny" or "normal"
     if images[variant] ~= nil then return images[variant] or nil end
-    local relative = sources[variant]
-    if not (mod:read(relative) and love and love.graphics
+    local relative = sourceFor(mon)
+    if not (relative and mod:read(relative) and love and love.graphics
         and love.graphics.newImage) then
       images[variant] = false
       return nil
@@ -71,7 +77,7 @@ return function(mod, opts)
       images[variant] = false
       return nil
     end
-    if image.setFilter then image:setFilter("linear", "linear") end
+    if image.setFilter then image:setFilter("nearest", "nearest") end
     images[variant] = image
     return image
   end
@@ -125,7 +131,6 @@ return function(mod, opts)
     images = {}
   end
 
-  O.placeholder = placeholder
-  O.sources = sources
+  O.sourceFor = sourceFor
   return O
 end

@@ -230,11 +230,21 @@ return function(mod)
   end
 
   local spriteCache = {}
+  local function monIsShiny(mon)
+    local shiny = mon and mon.shiny == true or false
+    local authority = mod.exports and mod.exports.shinySystem
+    if authority and type(authority.isShiny) == "function" then
+      local ok, value = pcall(authority.isShiny, mon)
+      if ok then shiny = value == true end
+    end
+    return shiny
+  end
   local function monSprite(game, mon)
     if not (mon and mon.species and love.graphics.newImage) then return nil end
+    local shiny = monIsShiny(mon)
     local key = table.concat({
       mon.species,
-      mon.shiny and "s" or "n",
+      shiny and "s" or "n",
       tostring(mod.options:get("pokemon_sprite_style")),
       tostring(mod.options:get("sprite_style_box")),
     }, ":")
@@ -243,7 +253,7 @@ return function(mod)
     end
     local ok, path = pcall(require("src.pokemon.Sprites").path,
       game.data, mon.species, "front", {
-        kind = "box", mon = mon, shiny = mon.shiny,
+        kind = "box", mon = mon, shiny = shiny,
       })
     if not ok or not path then
       spriteCache[key] = false
@@ -313,13 +323,7 @@ return function(mod)
   local function boxGridWalkerRelative(game, mon)
     local dex, identity = boxGridSourceDex(game, mon)
     if not dex then return nil, identity end
-    local isShiny = mon.shiny == true
-    local shiny = mod.exports and mod.exports.shinySystem
-    if shiny and type(shiny.isShiny) == "function" then
-      local ok, value = pcall(shiny.isShiny, mon)
-      if ok then isShiny = value == true end
-    end
-    local variant = isShiny and "shiny" or "normal"
+    local variant = monIsShiny(mon) and "shiny" or "normal"
     return ("%s/%03d-%s.png"):format(BOX_GRID_SHEET_ROOT, dex, variant),
       variant, dex, identity
   end
