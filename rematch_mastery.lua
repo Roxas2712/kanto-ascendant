@@ -19,6 +19,15 @@ local JOHTO_MOVE_IDS = {
   SACRED_FIRE = true, AEROBLAST = true,
 }
 
+-- These attacks can exist in the merged registry and a species compatibility
+-- list before the owning save has earned their extended-move authority.
+-- Registration and tmhm membership are therefore necessary but not
+-- sufficient legal sources for trainer mastery.
+local EXTENDED_MOVE_IDS = {
+  OVERHEAT = true,
+  FRENZY_PLANT = true, BLAST_BURN = true, HYDRO_CANNON = true,
+}
+
 local RECOVERY = {
   RECOVER = true, REST = true, SOFTBOILED = true,
 }
@@ -194,9 +203,33 @@ local function legalMoves(game, mon, context)
   local species = data.pokemon and data.pokemon[mon.species]
   local legal, source = {}, {}
   local johtoUnlocked = context.johtoUnlocked == true
+  local resonance = context.resonanceRules
+    and context.resonanceRules[mon.species]
+  local function speciesAllowsExtended(id)
+    for _, moveId in ipairs(species and species.level1Moves or {}) do
+      if moveId == id then return true end
+    end
+    for _, row in ipairs(species and species.learnset or {}) do
+      if row.move == id and integer(row.level, 1, 1, 100)
+          <= integer(mon.level, 1, 1, 100) then return true end
+    end
+    for _, moveId in ipairs(species and species.tmhm or {}) do
+      if moveId == id then return true end
+    end
+    local rule = resonance and resonance[id]
+    return johtoUnlocked and rule ~= nil
+      and (not rule.level or integer(mon.level, 1, 1, 100) >= rule.level)
+  end
   local function add(id, why)
     if type(id) ~= "string" or not (data.moves and data.moves[id]) then return end
     if JOHTO_MOVE_IDS[id] and not johtoUnlocked then return end
+    if EXTENDED_MOVE_IDS[id] then
+      if type(context.extendedMoveAllowed) ~= "function" then return end
+      local ok, allowed, compatible = pcall(context.extendedMoveAllowed,
+        game, mon.species, id, context)
+      if not ok or allowed ~= true
+          or not (speciesAllowsExtended(id) or compatible == true) then return end
+    end
     if not legal[id] then legal[id], source[id] = true, why end
   end
   -- Authored trainer moves are an explicit legal source and must not be
@@ -209,8 +242,11 @@ local function legalMoves(game, mon, context)
     end
   end
   for _, id in ipairs(species and species.tmhm or {}) do add(id, "tmhm") end
-  local resonance = context.resonanceRules
-    and context.resonanceRules[mon.species]
+  -- Crown signature compatibility is owned by Field Tech rather than the
+  -- Gen-I registry's tmhm projection. Try each registered extended move so
+  -- that the callback can attest that exact family without making the move
+  -- legal for unrelated species. OVERHEAT still needs a registry source.
+  for id in pairs(EXTENDED_MOVE_IDS) do add(id, "extended") end
   if johtoUnlocked then
     for id, rule in pairs(resonance or {}) do
       if not rule.level or integer(mon.level, 1, 1, 100) >= rule.level then
@@ -316,6 +352,7 @@ function M.create(opts)
     maxDv = MAX_DV,
     maxStatExp = MAX_STAT_EXP,
     johtoMoveIds = JOHTO_MOVE_IDS,
+    extendedMoveIds = EXTENDED_MOVE_IDS,
     resonanceRules = opts.resonanceRules or {},
   }
 
@@ -334,6 +371,7 @@ function M.create(opts)
       math.floor(tonumber(context.masteryWins) or 0))
     context.johtoUnlocked = johtoUnlocked(context)
     context.resonanceRules = R.resonanceRules
+    context.extendedMoveAllowed = opts.extendedMoveAllowed
     local Stats = context.Stats or require("src.pokemon.Stats")
     local reports, allLevel100, teamTypes = {}, true, {}
     for _, mon in ipairs(battle and battle.enemyParty or {}) do
@@ -425,6 +463,7 @@ function M.create(opts)
     context = copy(context or {})
     context.johtoUnlocked = johtoUnlocked(context)
     context.resonanceRules = R.resonanceRules
+    context.extendedMoveAllowed = opts.extendedMoveAllowed
     return legalMoves(game, mon, context)
   end
   return R

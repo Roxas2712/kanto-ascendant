@@ -1046,6 +1046,23 @@ return function(mod, opts)
     return false
   end
 
+  -- This is the save-scoped authority shared by the Move Reminder and
+  -- rematch mastery. A registered move and a compatible species are still
+  -- locked until the corresponding Crown entitlement exists.
+  local function signatureMoveAllowed(game, species, moveId)
+    local signature
+    for _, row in pairs(SIGNATURE_TMS) do
+      if row.move == moveId then signature = row break end
+    end
+    if not signature or not inFamily(STARTER_FAMILIES[moveId], species)
+        or not (game and game.data and game.data.moves
+          and game.data.moves[moveId] and game.data.pokemon
+          and game.data.pokemon[species]) then return false end
+    local s = state(false)
+    return type(s) == "table" and (s.signatureUnlocked[signature.item] == true
+      or s.signatureAwarded[signature.item] == true) or false
+  end
+
   -- Optional systems may expose additional, species-specific move sources to
   -- the existing Route 5 Reminder.  Providers return rows shaped as
   -- `{ id, source, level? }`; the Reminder still owns validation, level gates,
@@ -1118,11 +1135,8 @@ return function(mod, opts)
       end
     end
 
-    local s = state()
     for _, signature in pairs(SIGNATURE_TMS) do
-      if (s.signatureUnlocked[signature.item]
-          or s.signatureAwarded[signature.item])
-          and inFamily(STARTER_FAMILIES[signature.move], mon.species) then
+      if signatureMoveAllowed(game, mon.species, signature.move) then
         add(signature.move, "crown")
       end
     end
@@ -1369,5 +1383,6 @@ return function(mod, opts)
   end
   F.signatureTMs = SIGNATURE_TMS
   F.starterFamilies = STARTER_FAMILIES
+  F.signatureMoveAllowed = signatureMoveAllowed
   return F
 end

@@ -1718,6 +1718,18 @@ return function(mod)
   local masteryModule = loadSibling(mod, "rematch_mastery.lua")
   local rematchMastery = masteryModule.create({
     resonanceRules = driftglassPrisms.resonanceRules,
+    -- Extended trainer moves share the repaired-Receiver boundary. Crown
+    -- signature attacks additionally require their exact Field-Tech reward;
+    -- OVERHEAT has no local reward item and therefore uses the receiver plus
+    -- the species-legal merged registry source enforced by mastery itself.
+    extendedMoveAllowed = function(game, species, moveId)
+      if not johtoTrainerMovesUnlocked() then return false end
+      if moveId == "OVERHEAT" then return true, false end
+      local allowed = type(fieldTech.signatureMoveAllowed) == "function"
+        and fieldTech.signatureMoveAllowed(game, species, moveId) == true
+        or false
+      return allowed, allowed
+    end,
     -- Driftglass is the existing legal seam for Generation-II moves on
     -- Kanto species.  Trainers may use those moves only after the receiver
     -- has actually been repaired in this save.
