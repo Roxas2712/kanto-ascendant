@@ -101,8 +101,8 @@ return function(mod, opts)
       q("S_LARVITAR",bi("Which Pokémon ultimately becomes Tyranitar?","Welches Pokémon wird schließlich zu Despotar?"),bi("LARVITAR","LARVITAR"),bi("PHANPY","PHANPY"),bi("TEDDIURSA","TEDDIURSA")),
       q("S_CROBAT",bi("What must Golbat gain before it evolves?","Was braucht Golbat für seine Entwicklung?"),bi("HIGH FRIENDSHIP","HOHE FREUNDSCHAFT"),bi("A MOON STONE","EINEN MONDSTEIN"),bi("A TRADE","EINEN TAUSCH")),
       q("S_DUALTYPE",bi("What are Sneasel's two types in Johto?","Welche zwei Typen hat Sniebel in Johto?"),bi("DARK / ICE","UNLICHT / EIS"),bi("DARK / STEEL","UNLICHT / STAHL"),bi("ICE / GHOST","EIS / GEIST")),
-      q("S_STEELIX",bi("Which item must Onix hold while traded to become Steelix?","Welches Item muss Onix beim Tausch tragen, um Stahlos zu werden?"),bi("METAL COAT","METALLMANTEL"),bi("LEVEL 40","LEVEL 40"),bi("SUN STONE","SONNENSTEIN")),
-      q("S_GENGAR",bi("Which Pokémon must be traded to obtain Gengar?","Welches Pokémon muss für Gengar getauscht werden?"),bi("HAUNTER","ALPOLLO"),bi("MISDREAVUS","TRAUNFUGIL"),bi("GOLBAT","GOLBAT")),
+      q("S_STEELIX",bi("Which item evolves Onix directly into Steelix here?","Welches Item entwickelt Onix hier direkt zu Stahlos?"),bi("METAL COAT","METALLMANTEL"),bi("LEVEL 40","LEVEL 40"),bi("SUN STONE","SONNENSTEIN")),
+      q("S_GENGAR",bi("At which level does Haunter evolve into Gengar here?","Auf welchem Level wird Alpollo hier zu Gengar?"),bi("LEVEL 42","LEVEL 42"),bi("LEVEL 36","LEVEL 36"),bi("BY TRADE","DURCH TAUSCH")),
       q("S_MURKROW",bi("Murkrow is Dark and which second type?","Kramurx ist Unlicht und welcher zweite Typ?"),bi("FLYING","FLUG"),bi("GHOST","GEIST"),bi("POISON","GIFT")),
       q("S_MISDREAVUS",bi("What is Misdreavus's type?","Welchen Typ hat Traunfugil?"),bi("GHOST","GEIST"),bi("DARK","UNLICHT"),bi("PSYCHIC","PSYCHO")),
       q("S_BURNED",bi("In which city is the Burned Tower?","In welcher Stadt steht die Turmruine?"),bi("ECRUTEAK CITY","TEAK CITY"),bi("MAHOGANY TOWN","MAHAGONIA CITY"),bi("BLACKTHORN CITY","EBENHOLZ CITY")),
@@ -116,11 +116,11 @@ return function(mod, opts)
       q("K_TOGEPI",bi("Which Pokémon evolves into Togetic?","Welches Pokémon entwickelt sich zu Togetic?"),bi("TOGEPI","TOGEPI"),bi("CLEFFA","PII"),bi("IGGLYBUFF","FLUFFELUFF")),
       q("K_KURT",bi("Who crafts special Balls from Apricorns?","Wer fertigt besondere Bälle aus Aprikokos?"),bi("KURT","KURT"),bi("BILL","BILL"),bi("PROF. ELM","PROF. LIND")),
       q("K_ESPEON",bi("What is Espeon's primary type?","Welchen Haupttyp hat Psiana?"),bi("PSYCHIC","PSYCHO"),bi("DARK","UNLICHT"),bi("GHOST","GEIST")),
-      q("K_PORYGON2",bi("Which held item enables Porygon's trade evolution?","Welches Item ermöglicht Porygons Tauschentwicklung?"),bi("UP-GRADE","UP-GRADE"),bi("METAL COAT","METALLMANTEL"),bi("KING'S ROCK","KING-STEIN")),
-      q("K_SCIZOR",bi("Which item must Scyther hold while being traded?","Welches Item muss Sichlor beim Tausch tragen?"),bi("METAL COAT","METALLMANTEL"),bi("UP-GRADE","UP-GRADE"),bi("DRAGON SCALE","DRACHENHAUT")),
+      q("K_PORYGON2",bi("Which item evolves Porygon directly into Porygon2 here?","Welches Item entwickelt Porygon hier direkt zu Porygon2?"),bi("UP-GRADE","UP-GRADE"),bi("METAL COAT","METALLMANTEL"),bi("KING'S ROCK","KING-STEIN")),
+      q("K_SCIZOR",bi("Which item evolves Scyther directly into Scizor here?","Welches Item entwickelt Sichlor hier direkt zu Scherox?"),bi("METAL COAT","METALLMANTEL"),bi("UP-GRADE","UP-GRADE"),bi("DRAGON SCALE","DRACHENHAUT")),
       q("K_BELLOSSOM",bi("Which stone evolves Gloom into Bellossom?","Welcher Stein entwickelt Duflor zu Blubella?"),bi("SUN STONE","SONNENSTEIN"),bi("LEAF STONE","BLATTSTEIN"),bi("MOON STONE","MONDSTEIN")),
-      q("K_POLITOED",bi("Which item must Poliwhirl hold to evolve into Politoed by trade?","Welches Item braucht Quaputzi beim Tausch zu Quaxo?"),bi("KING'S ROCK","KING-STEIN"),bi("METAL COAT","METALLMANTEL"),bi("UP-GRADE","UP-GRADE")),
-      q("K_SLOWKING",bi("Which item must Slowpoke hold to evolve into Slowking by trade?","Welches Item braucht Flegmon beim Tausch zu Laschoking?"),bi("KING'S ROCK","KING-STEIN"),bi("DRAGON SCALE","DRACHENHAUT"),bi("METAL COAT","METALLMANTEL")),
+      q("K_POLITOED",bi("Which item evolves Poliwhirl directly into Politoed here?","Welches Item entwickelt Quaputzi hier direkt zu Quaxo?"),bi("KING'S ROCK","KING-STEIN"),bi("METAL COAT","METALLMANTEL"),bi("UP-GRADE","UP-GRADE")),
+      q("K_SLOWKING",bi("Which item evolves Slowpoke directly into Slowking here?","Welches Item entwickelt Flegmon hier direkt zu Laschoking?"),bi("KING'S ROCK","KING-STEIN"),bi("DRAGON SCALE","DRACHENHAUT"),bi("METAL COAT","METALLMANTEL")),
       q("K_TYROGUE",bi("At which level can Tyrogue evolve?","Auf welchem Level kann Rabauz sich entwickeln?"),bi("LEVEL 20","LEVEL 20"),bi("LEVEL 16","LEVEL 16"),bi("LEVEL 30","LEVEL 30")),
       q("K_ELEKID",bi("Which Pokémon evolves from Elekid?","Zu welchem Pokémon entwickelt sich Elekid?"),bi("ELECTABUZZ","ELEKTEK"),bi("AMPHAROS","AMPHAROS"),bi("MAGNETON","MAGNETON")),
       q("K_MAGBY",bi("Which Pokémon evolves from Magby?","Zu welchem Pokémon entwickelt sich Magby?"),bi("MAGMAR","MAGMAR"),bi("MAGCARGO","MAGCARGO"),bi("HOUNDOOM","HUNDEMON")),
@@ -286,15 +286,15 @@ return function(mod, opts)
     if baseline.beginRun then ready,reason=baseline.beginRun(game) end
     if not ready then
       box(game,reason=="elite-four" and tr(
-        "Defeat Kanto's Elite Four again. Then the Johto host will return for another shiny run.",
-        "Besiege Kantos Top Vier erneut. Dann kehrt der Johto-Gastgeber für einen weiteren Shiny-Lauf zurück.") or tr(
+        "For another shiny run,\ndefeat Kanto's ELITE FOUR\fand CHAMPION again.\nThen return to this host.",
+        "Für einen neuen Shiny-Lauf:\fBesiege Kantos TOP VIER\nund den CHAMPION erneut.\fKehre dann zu diesem\nGastgeber zurück.") or tr(
         "The Johto arenas are not ready yet.",
         "Die Johto-Arenen sind noch nicht bereit."),function()if npc then npc.frozen=false end end)
       return true
     end
     box(game,tr(
-      "Johto calls, Champion. Challenge Johto's finest Trainers. Three sealed paths await: SILVER, then KRIS, then GOLD.",
-      "Johto ruft, Champion. Fordere die besten Trainer Johtos heraus. Drei versiegelte Pfade warten: SILVER, dann KRIS, dann GOLD."),
+      "JOHTO HOST:\nJohto calls, Champion.\fClear three sealed paths:\nSILVER, KRIS, then GOLD.\fEach path begins with 3\nquestions: 20 seconds each.\fOne wrong answer resets\nall three paths.\fThe BAG is sealed in battle;\nwe heal between Masters.\fREWARD: a shiny Johto\npartner after defeating GOLD.\fFIRST CLEAR TITLE:\nKANTO ASCENDANT.\fThe GATE HALL awaits.",
+      "JOHTO-GASTGEBER:\nJohto ruft, Champion.\fDrei versiegelte Pfade:\nSILVER, KRIS, dann GOLD.\fJeder beginnt mit 3 Fragen;\nje 20 Sekunden.\fEine falsche Antwort setzt\nalle drei Pfade zurück.\fIm Kampf bleibt der BEUTEL zu;\nwir heilen zwischen Meistern.\fBELOHNUNG:\nEin Shiny aus Johto\fnach einem Sieg über GOLD.\fERSTER TITEL:\nKANTO ASCENDANT.\fDie TORHALLE wartet."),
       function()if npc then npc.frozen=false end;P.enterHall(game)end)
     return true
   end
@@ -833,7 +833,7 @@ return function(mod, opts)
         -- Johto passage battle context; no global blackout rule is changed.
         local Pokemon=require("src.pokemon.Pokemon")
         for _,mon in ipairs(game.save.party or {}) do Pokemon.heal(mon) end
-        box(game,tr("The passage remembers your defeat. Return when ready.","Der Pfad erinnert sich deiner Niederlage. Komm bereit zurück."),function()P.enterHall(game)end)
+        box(game,tr("The passage remembers\nyour defeat.\fReturn when ready.","Der Pfad erinnert sich\nan deine Niederlage.\fKomm zurück, wenn\ndu bereit bist."),function()P.enterHall(game)end)
         return
       end
       ow:afterBattle(result,b)
@@ -863,8 +863,8 @@ return function(mod, opts)
       box(game,tr(R[key].name.." PORTAL — SEALED. Defeat the previous Johto Master first.",
         R[key].name.."-PORTAL — VERSIEGELT. Besiege zuerst den vorigen Johto-Meister."));return
     end
-    box(game,tr(R[key].name.." PORTAL — OPEN. Enter the trial?",
-      R[key].name.."-PORTAL — OFFEN. Prüfung betreten?"),function()P.enter(game,key)end)
+    box(game,tr(R[key].name.." PORTAL — OPEN.\fStepping through begins\nthe trial.",
+      R[key].name.."-PORTAL — OFFEN.\fBeim Durchschreiten\nbeginnt die Prüfung."),function()P.enter(game,key)end)
   end end
   local QUIZ_COPY={
     silver={
@@ -875,8 +875,8 @@ return function(mod, opts)
     },
     kris={
       intro=bi(
-        "KRIS'S RESEARCH TEST: Solve three questions about Johto's discoveries. You have 20 seconds per answer. A mistake resets all three trials.",
-        "KRISS FORSCHUNGSPRÜFUNG: Löse drei Fragen über Johtos Entdeckungen. Du hast je 20 Sekunden. Ein Fehler setzt alle drei Prüfungen zurück."),
+        "KRIS' RESEARCH TEST: Answer three questions about Johto's discoveries. You have 20 seconds per answer. A mistake resets all three trials.",
+        "KRIS' FORSCHUNGSPRÜFUNG: Beantworte drei Fragen über Johtos Entdeckungen. Du hast je 20 Sekunden. Ein Fehler setzt alle drei Prüfungen zurück."),
       title=bi("KRIS RESEARCH","KRIS-FORSCHUNG"),
     },
     gold={
@@ -961,8 +961,8 @@ return function(mod, opts)
       TEXT_KA_JOHTO_GATE_KRIS=gate("kris"),
       TEXT_KA_JOHTO_GATE_GOLD=gate("gold"),
       TEXT_KA_JOHTO_HALL_EXIT=function(game)box(game,tr(
-        "EXIT — INDIGO PLATEAU. Step onto the glowing double plate.",
-        "AUSGANG — INDIGO-PLATEAU. Betritt die leuchtende Doppelplatte."))end,
+        "EXIT — INDIGO PLATEAU\nUse the glowing double plate.\fWARNING: Leaving now resets\nan unfinished three-path run.",
+        "AUSGANG — INDIGO-PLATEAU\nNutze die leuchtende Platte.\fACHTUNG: Verlassen setzt\neinen unfertigen Lauf zurück."))end,
     }
     for key,r in pairs(R) do
       local u=key:upper();local routeKey=key

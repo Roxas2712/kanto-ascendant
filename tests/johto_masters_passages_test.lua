@@ -68,7 +68,12 @@ for _,key in ipairs({"SILVER","KRIS","GOLD"}) do
       and warped[1]=="KA_JOHTO_GATE_HALL" and warped[2]==9 and warped[3]==19,
     id.." visible exit does not return to the Gate Hall")
 end
-local hostBox;local hostGame={stack={push=function(_,v)hostBox=v end}};local hostNpc={frozen=false,facePlayer=function(self)self.faced=true end};local hostOw={player={}};assert(p.hostTalk(hostGame,hostOw,hostNpc));assert(deliveryCalls==1 and hostBox.text=="PENDING GIFT" and hostNpc.faced,"host recovers a pending exact-once gift before escort");hostBox.done();assert(warped[1]=="KA_JOHTO_GATE_HALL" and not hostNpc.frozen,"successful pending recovery continues through the physical gate");assert(p.hostTalk(hostGame,hostOw,hostNpc));assert(hostBox.text=="Johto calls, Champion. Challenge Johto's finest Trainers. Three sealed paths await: SILVER, then KRIS, then GOLD.","host explains the three sealed Johto paths");hostBox.done();assert(warped[1]=="KA_JOHTO_GATE_HALL" and warped[2]==9 and warped[3]==19,"host escort reaches the compact Gate Hall entry")
+local hostBox;local hostGame={stack={push=function(_,v)hostBox=v end}};local hostNpc={frozen=false,facePlayer=function(self)self.faced=true end};local hostOw={player={}};assert(p.hostTalk(hostGame,hostOw,hostNpc));assert(deliveryCalls==1 and hostBox.text=="PENDING GIFT" and hostNpc.faced,"host recovers a pending exact-once gift before escort");hostBox.done();assert(warped[1]=="KA_JOHTO_GATE_HALL" and not hostNpc.frozen,"successful pending recovery continues through the physical gate");assert(p.hostTalk(hostGame,hostOw,hostNpc));assert(hostBox.text:find("JOHTO HOST:",1,true)
+  and hostBox.text:find("SILVER, KRIS, then GOLD",1,true)
+  and hostBox.text:find("20 seconds each",1,true)
+  and hostBox.text:find("BAG is sealed",1,true)
+  and hostBox.text:find("after defeating GOLD",1,true),
+  "host does not explain the ordered paths, timing, Bag seal and Gold reward");hostBox.done();assert(warped[1]=="KA_JOHTO_GATE_HALL" and warped[2]==9 and warped[3]==19,"host escort reaches the compact Gate Hall entry")
 assert(p.canEnter({},"silver") and not p.canEnter({},"kris") and not p.canEnter({},"gold"),"ordered unlock")
 assert(p.enter({},"silver") and warped[1]=="KA_JOHTO_SILVER_PASSAGE","Silver gate warp")
 assert(not p.solve({},"silver"),"final seal stays closed until the quiz is solved")

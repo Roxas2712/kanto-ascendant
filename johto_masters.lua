@@ -389,9 +389,9 @@ return function(mod, opts)
           :format(game.save.player.name, name, box or 1)), true
     end
     return tr(
-      ("GOLD: A golden victory\ndeserves something rare!\f%s received a shiny\n%s!")
+      ("GOLD: A golden victory\ndeserves something rare!\f%s received a shiny\n%s!\fIt joined your PARTY.")
         :format(game.save.player.name, name),
-      ("GOLD: Ein goldener Sieg\nverdient etwas Seltenes!\f%s erhält ein Shiny\n%s!")
+      ("GOLD: Ein goldener Sieg\nverdient etwas Seltenes!\f%s erhält ein Shiny\n%s!\fEs ist jetzt in deinem TEAM.")
         :format(game.save.player.name, name)), true
   end
 
@@ -665,15 +665,45 @@ return function(mod, opts)
 
   function J.statusText()
     local s = syncCadence(J.game)
-    return tr("JOHTO MASTERS", "JOHTO-MEISTER")
-      .. ("\n%s: %d\n%s: %d"):format(
+    local text = tr("JOHTO MASTERS", "JOHTO-MEISTER")
+      .. ("\f%s: %d\n%s: %d"):format(
         tr("CLEARS", "SIEGE"), s.clears,
         tr("GOLD SHINIES", "GOLD-SHINYS"), s.gifts)
-      .. ("\n%s: %d"):format(
+      .. ("\f%s: %d"):format(
         tr("ARENA RUNS", "ARENENLÄUFE"), s.connectedClears)
       .. ("\f%s: %s"):format(
         tr("TITLE", "TITEL"),
         s.title and "KANTO ASCENDANT" or tr("LOCKED", "GESPERRT"))
+    if s.activeRun and type(s.passages) == "table" then
+      for _, key in ipairs({ "silver", "kris", "gold" }) do
+        local passage = s.passages[key]
+        if type(passage) == "table" and passage.status ~= "cleared" then
+          local name = key:upper()
+          text = text .. tr(
+            "\fACTIVE PATH: " .. name,
+            "\fAKTIVER PFAD: " .. name)
+          if passage.puzzle then
+            text = text .. tr(
+              "\fNEXT: Battle " .. name .. ".",
+              "\fNÄCHSTES ZIEL: Kampf\ngegen " .. name .. ".")
+          elseif passage.status == "entered" then
+            local step = math.min(3,
+              math.max(0, math.floor(tonumber(passage.step) or 0)))
+            text = text .. tr(
+              ("\fQUIZ: %d/3\nNEXT: Answer question %d.")
+                :format(step, math.min(3, step + 1)),
+              ("\fFRAGEN: %d/3\nNÄCHSTES ZIEL: Frage %d.")
+                :format(step, math.min(3, step + 1)))
+          else
+            text = text .. tr(
+              "\fNEXT: Enter the " .. name .. " portal.",
+              "\fNÄCHSTES ZIEL: " .. name .. "-Portal.")
+          end
+          break
+        end
+      end
+    end
+    return text
   end
 
   J.state = state
