@@ -91,6 +91,16 @@ for character in ("red", "green", "blue"):
                 check(bbox[3] >= frame_height - 1,
                       f"{path.name} frame {frame}: feet are not baseline-aligned")
                 checks += 1
+                if state == "walk":
+                    # A native Crystal walk cycle keeps the three idle poses
+                    # at local Y=0 and lowers each matching gait pose by one
+                    # pixel. Missing that phase made Red's down/left motion
+                    # read as a static frame even though its pixels differed.
+                    expected_top = 0 if frame < 3 else 1
+                    check(bbox[1] == expected_top,
+                          f"{path.name} frame {frame}: alpha top {bbox[1]} "
+                          f"!= walking phase {expected_top}")
+                    checks += 1
             elif state == "voxel_front":
                 check(bbox[3] <= 61,
                       f"{path.name}: transparent floor gap below shoes required")
