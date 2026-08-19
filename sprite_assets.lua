@@ -14,6 +14,8 @@ return function(mod)
   local extendedRuntime
   local kantoDexBySpecies = {}
   local prepared = {}
+  local DEFAULT_CACHE_VERSION = "v8"
+  local CRYSTAL_CACHE_VERSION = "v9"
 
   -- Engine 0.1.86 deliberately withholds love.filesystem from mod code; even
   -- reading that property raises through the LOVE facade. Packaged existence
@@ -35,6 +37,27 @@ return function(mod)
     return ok and bytes ~= nil and { type = "file" } or nil
   end
 
+  local function readPackaged(relative)
+    if type(relative) ~= "string" or relative == ""
+        or type(mod.read) ~= "function" then return nil end
+    local ok, bytes = pcall(mod.read, mod, relative)
+    return ok and type(bytes) == "string" and bytes or nil
+  end
+
+  -- Cache identity must follow the packaged bytes, not only their path. The
+  -- exact-engine sandbox does not guarantee a hashing API, so use two full
+  -- byte-stream polynomial hashes plus the byte length. All intermediates
+  -- remain below Lua's exact-integer range.
+  local function sourceFingerprint(bytes)
+    local first, second = 5381, 52711
+    for index = 1, #bytes do
+      local byte = bytes:byte(index)
+      first = (first * 257 + byte) % 2147483647
+      second = (second * 65599 + byte) % 2147483629
+    end
+    return ("%08x%08x_%x"):format(first, second, #bytes)
+  end
+
   local function validWalker(relative)
     if type(relative) ~= "string" or relative == ""
         or type(mod.read) ~= "function" then return false end
@@ -53,13 +76,14 @@ return function(mod)
     return love and love.image and love.image.newImageData
   end
 
-  local function cacheTarget(kind, name)
+  local function cacheTarget(kind, name, version)
     local safe = (tostring(kind) .. "_" .. tostring(name))
       :gsub("[^%w_.-]", "_")
     if #safe > 120 then safe = safe:sub(#safe - 119) end
     -- Flat paths need no forbidden createDirectory call. ImageData:encode
     -- resolves them inside LÖVE's own save directory.
-    return "ka_sprite_cache_v8_" .. safe .. ".png"
+    return "ka_sprite_cache_" .. tostring(version or DEFAULT_CACHE_VERSION)
+      .. "_" .. safe .. ".png"
   end
 
   local function encode(image, target)
@@ -109,13 +133,25 @@ return function(mod)
   end
 
   function A.crystal(relativePath)
+    local sourceBytes = readPackaged(relativePath)
+    if not sourceBytes then return nil end
     local source = mod.path .. "/" .. relativePath
-    if not info(source) then return nil end
     if not available() then return source end
-    local filename = relativePath:match("([^/]+)$")
-    local target = cacheTarget("crystal", relativePath)
-    local key = "crystal:" .. source
+    local fingerprint = sourceFingerprint(sourceBytes)
+    local target = cacheTarget("crystal",
+      relativePath .. "_source_" .. fingerprint, CRYSTAL_CACHE_VERSION)
+    local key = "crystal:" .. source .. ":" .. fingerprint
     if prepared[key] then return prepared[key] end
+
+    -- ImageData decode is the only exact-engine-safe persisted-cache probe.
+    -- A readable target already represents these exact source bytes and this
+    -- preparation recipe, so skip source decode, flood clear, and rewrite.
+    local cachedOk, cached = pcall(love.image.newImageData, target)
+    if cachedOk and cached then
+      prepared[key] = target
+      return target
+    end
+
     local ok, image = pcall(love.image.newImageData, source)
     if ok and image then
       clearConnectedBackground(image)
