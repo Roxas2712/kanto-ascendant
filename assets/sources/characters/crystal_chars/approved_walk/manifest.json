@@ -1,6 +1,6 @@
 {
   "schema": "kanto-ascendant.character-walk.v1",
-  "checkpoint": "2026-08-18-red-green-blue-walk-refresh",
+  "checkpoint": "2026-08-19-red-walk-phase-correction",
   "status": "approved-master",
   "runtime_format": {
     "image": "RGBA PNG",
@@ -21,12 +21,13 @@
   "characters": {
     "red": {
       "file": "red_walk.png",
-      "sha256": "7695f40c70e7895d58b2d578b440ca441bacd5b082c9ef666be50a0e1bd0d108",
-      "provenance": "maintainer-supplied original artwork, 2026-08-18 (crystal_red_walk 2.png)",
+      "sha256": "61ba03261d4e532ef6f0651505644667d37fa2488f7a8f8288ba08f81e4ee47e",
+      "provenance": "maintainer-supplied walking correction, 2026-08-19 (custom_custom_mt0k3mcc_walk.png)",
       "design": [
-        "user-supplied 2026-08-18 Crystal walking master",
+        "user-supplied 2026-08-19 corrected Crystal walking master",
         "red-and-white cap and red jacket",
         "blue trousers and yellow backpack",
+        "idle silhouettes start at local Y0; gait silhouettes start at local Y1",
         "native 16x16 geometry in all six frames"
       ]
     },

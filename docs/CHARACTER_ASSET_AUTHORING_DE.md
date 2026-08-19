@@ -1,6 +1,6 @@
 # Charakter-Assets: verbindlicher Stand und Authoring-Regeln
 
-Stand: 18. August 2026. Dieses Dokument hält den vom Maintainer gelieferten
+Stand: 19. August 2026. Dieses Dokument hält den vom Maintainer gelieferten
 Stand von Red, Blue und Green/Casey fest. Für Walking-Sprites
 sind die Dateien unter
 `assets/sources/characters/crystal_chars/approved_walk/` die verbindlichen
@@ -58,7 +58,9 @@ versehen. Vorschauen verwenden ausschließlich Nearest-Neighbour-Skalierung.
 
 ### Red
 
-- Vom Maintainer am 18. August gelieferter Crystal-Walking-Master.
+- Vom Maintainer am 19. August korrigierter Crystal-Walking-Master. Die drei
+  Idle-Silhouetten beginnen bei lokalem Y=0, die zugehörigen Laufphasen bei
+  Y=1; dadurch bewegen sich insbesondere Front- und Linksphase wieder lesbar.
 - Rot-weiße Kappe, rote Jacke, blaue Hose und gelber Rucksack.
 - Eigene native 16×16-Geometrie in allen sechs Frames.
 

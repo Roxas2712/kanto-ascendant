@@ -4,6 +4,15 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+
+- Red's Crystal walking cycle now uses the maintainer-supplied corrected
+  down/left gait phases instead of keeping those silhouettes on the idle
+  Y-position. The approved master, runtime copy and review board remain native
+  16×16 nearest-neighbour art; Green, Blue and every non-walking surface are
+  unchanged.
+
+
 ## [6.5.10] - 2026-08-22
 
 ### Fixed

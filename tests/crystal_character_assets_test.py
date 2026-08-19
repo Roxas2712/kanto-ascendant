@@ -25,10 +25,10 @@ EXPECTED = {
 # work and must update this fingerprint explicitly; ordinary feature/bugfix
 # work is not allowed to silently alter a selected, intro, battle, walking,
 # bike, fishing or throw sprite.
-FROZEN_TREE_SHA256 = "d3f2868ec9815d7f65b35b0591a8cf75028dddf5d11ff2eb6865b54d6d37340b"
+FROZEN_TREE_SHA256 = "b0e37abbcf8f4dd82f7fe004fb1647cca2a431811df9d89d162df374c7e9f8d8"
 
 PRIMARY_SHA256 = {
-    "red": "7695f40c70e7895d58b2d578b440ca441bacd5b082c9ef666be50a0e1bd0d108",
+    "red": "61ba03261d4e532ef6f0651505644667d37fa2488f7a8f8288ba08f81e4ee47e",
     "green": "240a48a253dbff69ac30129d9e601a3eac84b25f63dbd7457ebe5001aec7677e",
     "blue": "fdc8590438df553d7c231c3869bc1933c705d35f6a1ca84ee7d4a1931e402466",
 }
