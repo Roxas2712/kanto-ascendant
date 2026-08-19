@@ -21,6 +21,8 @@ return function(mod)
   local OAKS_LAB = "OAKS_LAB"
   local BLOCK_REASON = "rejected: protected story cell"
   local STARTER_REASON = "rejected: starter selection pending"
+  local CONNECTION_CLEARANCE_DEPTH = 3
+  local CONNECTION_CLEARANCE_LATERAL = 1
   local DIRS = {
     { 0, -1 }, { 1, 0 }, { 0, 1 }, { -1, 0 },
   }
@@ -282,6 +284,50 @@ return function(mod)
         end
       end
     end
+
+    -- A connection is not just its outermost cell.  Gen-I drops the player
+    -- onto a short lane inside the destination map, and multi-cell mouths are
+    -- intentionally not graph articulations.  Reserving only the boundary
+    -- and one neighbour therefore allowed two Wilds bodies to seal Viridian's
+    -- north entrance.  Protect a small inward funnel for authored connection
+    -- sides while leaving unrelated map-edge art and the rest of town free.
+    local function reserveConnectionSide(side, startX, startY,
+        scanX, scanY, count, inwardX, inwardY, lateralX, lateralY)
+      local connections = def.connections
+      if type(connections) ~= "table" or connections[side] == nil then return end
+      for index = 0, count - 1 do
+        local seedX = startX + scanX * index
+        local seedY = startY + scanY * index
+        local walkable = safeMethod(map, "isWalkableCell", seedX, seedY)
+        local water = safeMethod(map, "isWaterCell", seedX, seedY)
+        if walkable == true or water == true then
+          for depth = 0, CONNECTION_CLEARANCE_DEPTH do
+            local baseX = seedX + inwardX * depth
+            local baseY = seedY + inwardY * depth
+            for lateral = -CONNECTION_CLEARANCE_LATERAL,
+                CONNECTION_CLEARANCE_LATERAL do
+              local x = baseX + lateralX * lateral
+              local y = baseY + lateralY * lateral
+              if inBounds(x, y) then
+                local laneWalkable = safeMethod(map, "isWalkableCell", x, y)
+                local laneWater = safeMethod(map, "isWaterCell", x, y)
+                if laneWalkable == true or laneWater == true then
+                  reserve(x, y, "map connection clearance")
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+    reserveConnectionSide("north", 0, 0, 1, 0, width,
+      0, 1, 1, 0)
+    reserveConnectionSide("south", 0, height - 1, 1, 0, width,
+      0, -1, 1, 0)
+    reserveConnectionSide("west", 0, 0, 0, 1, height,
+      1, 0, 0, 1)
+    reserveConnectionSide("east", width - 1, 0, 0, 1, height,
+      -1, 0, 0, 1)
 
     local function graphPassable(x, y)
       if not inBounds(x, y) or reserved[cellKey(x, y)] then return false end
