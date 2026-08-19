@@ -219,6 +219,23 @@ return function(mod, baseData, opts)
       s.frontierPoints = math.max(0,
         math.floor(tonumber(s.frontierPoints) or 0))
       s.typeMastery = type(s.typeMastery) == "table" and s.typeMastery or {}
+      local pendingRewards = {}
+      for _, item in ipairs(type(s.pendingRewards) == "table"
+          and s.pendingRewards or {}) do
+        if type(item) == "string" and item ~= "" then
+          pendingRewards[#pendingRewards + 1] = item
+        end
+      end
+      -- 6.6 and earlier retained only one full-Bag reward. It predates any
+      -- queue entries written by 6.7, so migrate it to the front exactly once.
+      if type(s.pendingReward) == "string" and s.pendingReward ~= "" then
+        table.insert(pendingRewards, 1, s.pendingReward)
+      end
+      s.pendingRewards = pendingRewards
+      if s.pendingReward ~= nil then
+        s.pendingReward = nil
+        mod.save:set("ascendant", s)
+      end
       s.rocketStage = math.max(0, math.min(#data.rocket,
         math.floor(tonumber(s.rocketStage) or 0)))
       s.mewStage = math.max(0, math.min(4,
@@ -412,33 +429,49 @@ return function(mod, baseData, opts)
 
   local function rewardText(game, item)
     return tr(
-      ("%s received\n%s!"):format(game.save.player.name, itemName(game, item)),
-      ("%s erhält\n%s!"):format(game.save.player.name, itemName(game, item)))
+      ("%s received\n%s!\fIt was put in the BAG."):format(
+        game.save.player.name, itemName(game, item)),
+      ("%s erhält\n%s!\fIm BEUTEL verstaut."):format(
+        game.save.player.name, itemName(game, item)))
   end
 
   local function giveOrHold(game, s, item)
     if addItem(game, item) then return rewardText(game, item) end
-    s.pendingReward = item
+    s.pendingRewards = type(s.pendingRewards) == "table"
+      and s.pendingRewards or {}
+    s.pendingRewards[#s.pendingRewards + 1] = item
     persist(s)
     return tr(
-      ("The BAG is full.\f%s is reserved\nfor you."):format(itemName(game, item)),
-      ("Der BEUTEL ist voll.\f%s wird für\ndich aufbewahrt."):format(
-        itemName(game, item)))
+      ("The BAG is full.\fOAK'S AIDE will hold\n%s for you.")
+        :format(itemName(game, item)),
+      ("Der BEUTEL ist voll.\fEICHS ASSISTENT bewahrt\n%s für dich auf.")
+        :format(itemName(game, item)))
   end
 
   local function deliverPending(game, s)
-    if not s.pendingReward then return nil end
-    local item = s.pendingReward
+    local queue = type(s.pendingRewards) == "table" and s.pendingRewards or {}
+    if #queue == 0 then return nil end
+    local item = queue[1]
     if not addItem(game, item) then
       return tr(
-        ("The BAG is still full.\f%s remains\nreserved."):format(
+        ("The BAG is still full.\fOAK'S AIDE is holding\n%s for you."):format(
           itemName(game, item)),
-        ("Der BEUTEL ist noch\nvoll.\f%s bleibt\naufbewahrt."):format(
+        ("Der BEUTEL ist noch voll.\fEICHS ASSISTENT bewahrt\n%s weiter auf."):format(
           itemName(game, item)))
     end
-    s.pendingReward = nil
+    table.remove(queue, 1)
     persist(s)
-    return rewardText(game, item)
+    local message = rewardText(game, item)
+    if #queue > 0 then
+      message = message .. tr(
+        ("\f%d more reward%s\n%s with OAK'S AIDE.")
+          :format(#queue, #queue == 1 and "" or "s",
+            #queue == 1 and "awaits" or "await"),
+        ("\fNoch %d Belohnung%s\n%s bei EICHS ASSISTENTEN.")
+          :format(#queue, #queue == 1 and "" or "en",
+            #queue == 1 and "wartet" or "warten"))
+    end
+    return message
   end
 
   local function unlock(id, s)
@@ -1196,6 +1229,7 @@ return function(mod, baseData, opts)
     local permanentAchievements = s.achievements
     local permanentSelectedTitle = s.selectedTitle
     local permanentMew = s.mewCaught
+    local pendingRewards = s.pendingRewards
     local records = {
       wins = s.tournament.wins,
       best = s.tournament.best,
@@ -1219,6 +1253,7 @@ return function(mod, baseData, opts)
       cycleJohtoMastersStartClears = johtoMastersClears(),
       latestAchievement = "ascendant",
       selectedTitle = permanentSelectedTitle,
+      pendingRewards = pendingRewards,
     }
     mod.save:set("ascendant", s)
 
