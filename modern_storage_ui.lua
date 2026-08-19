@@ -595,7 +595,8 @@ return function(mod)
     local newList = ListMenu.new
     ListMenu.new = function(game, title, items, opts)
       local list = newList(game, title, items, opts)
-      if isBoxList(title) then
+      if (not opts or opts.ascendantStorageGrid ~= false)
+          and isBoxList(title) then
         list.title = localizedBoxTitle(title)
         list.__ascendantBoxGrid = true
         list.sgbPalettes = trueColor

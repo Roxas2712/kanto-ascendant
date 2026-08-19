@@ -744,6 +744,9 @@ return function(mod, opts)
           end
           boxGame.stack:push((mod.ui.KantoListMenu or mod.ui.ListMenu).new(boxGame,
             tr("RELEASE POKéMON", "POKéMON FREILASSEN"), rows, {
+              -- This is a vertical safety list, not Modern Storage's 5x4
+              -- transfer grid. Keep native ListMenu input/scroll ownership.
+              ascendantStorageGrid = false,
               onChoose = function(item, list)
                 local mon = box[list.index]
                 if not mon then return end
