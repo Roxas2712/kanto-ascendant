@@ -2000,8 +2000,12 @@ return function(mod, opts)
       if texture and fallbackReceipt then
         texture.ascendantTrainerResolverFallback = fallbackReceipt
       end
+      -- Reclassify only a selected Standing front whose HD source fell back
+      -- to the renderer. Yellow with extended identity disabled deliberately
+      -- has no `character`: its native trainer back must keep VASC's
+      -- `trainer=true` no-mirror role marker.
       if side == "player" and texture and battle and battle.showPlayerBack
-          and voxelActive() then
+          and character and voxelActive() then
         texture.trainer = false
         texture.ascendantStandingTrainer = player
       end
