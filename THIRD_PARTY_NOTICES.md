@@ -166,6 +166,25 @@ Ascendant Typhlosion is an original Kanto Ascendant fan design. Its front
 flame movement is derived from the bundled Pokémon Crystal #157 animation and
 timing described above.
 
+## Yellow Jessie, James, and Meowth staged battle art
+
+The Yellow-only staged opponent picture showing Jessie, James, and Meowth is
+fan art derived from one OpenAI ImageGen RGBA output selected and explicitly
+approved by the Kanto Ascendant maintainer on 2026-08-20. The exact source
+artifact is `exec-37308b82-3890-4a98-beea-d7279431bfa7`, SHA-256
+`8d4b4af1515b304cb6b1121bceb00078b142706558e589790d6dca5ce137736a`.
+The source-only master is excluded from launcher packages. The independently
+rendered 64px and 128px runtime surfaces, their full hashes, direct-transform
+recipes and the dated approval receipt are documented in the shipped
+`assets/yellow_jessie_james/PROVENANCE.json`.
+
+This project-level visual approval is not a claim of ownership or a broader
+distribution-rights grant for the underlying Pokémon characters. The art is
+used only in this unofficial, non-commercial fan project. If its sealed
+runtime authority is unavailable, Kanto Ascendant uses the separately
+credited bundled Yellow duo picture or the player's ROM-derived native Yellow
+picture; it never substitutes a generic Rocket character as that identity.
+
 ## Gorochu guest species
 
 Gorochu is based on the discarded Raichu evolution described by Pokémon

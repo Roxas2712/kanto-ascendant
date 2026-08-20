@@ -1,0 +1,16 @@
+{
+  "id": "DRAMALESS_SHAPE",
+  "name": "DRAMALESS 1.6.2 ST.190 contract fixture",
+  "version": "1.6.2-ST.190.1",
+  "api": 2,
+  "entry": "main.lua",
+  "profile": "content",
+  "category": "GRAPHICS",
+  "games": ["gen1"],
+  "game_version": ">=0.1.90 <2.0.0",
+  "priority": 100,
+  "dependencies": [],
+  "conflicts": [],
+  "permissions": ["engine_internals"],
+  "github": "artyrambles/dramaless_shape"
+}

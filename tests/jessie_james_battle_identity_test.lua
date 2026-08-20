@@ -29,6 +29,9 @@ local rocket = {
   id = "OPP_ROCKET",
   pic = "/engine/yellow/rocket.png",
   picJessieJames = "/engine/yellow/jessie-james.png",
+  parties = {
+    [42] = {}, [43] = {}, [44] = {}, [45] = {},
+  },
 }
 local game = { data = { trainers = { OPP_ROCKET = rocket } } }
 local function battle(index, trainer)
@@ -79,6 +82,7 @@ eq(portraits.specForBattle(battle(41)).id, "KANTO_ROCKET",
 
 local copied = {
   id = rocket.id, pic = rocket.pic, picJessieJames = rocket.picJessieJames,
+  parties = rocket.parties,
 }
 eq(portraits.specForBattle(battle(42, copied)).id, "KANTO_ROCKET",
   "a copied trainer record cannot adopt the duo identity")
@@ -88,6 +92,12 @@ rocket.picJessieJames = nil
 eq(portraits.specForBattle(battle(42)).id, "KANTO_ROCKET",
   "missing native Jessie/James authority fails closed")
 rocket.picJessieJames = originalPic
+
+local party45 = rocket.parties[45]
+rocket.parties[45] = nil
+eq(portraits.specForBattle(battle(45)).id, "KANTO_ROCKET",
+  "a nonexistent party cannot cross the Yellow duo threshold")
+rocket.parties[45] = party45
 
 edition = "red"
 eq(portraits.specForBattle(battle(42)).id, "KANTO_ROCKET",

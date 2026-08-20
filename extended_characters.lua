@@ -1626,8 +1626,34 @@ return function(mod, opts)
 
   local function ordinaryVoxelSpec(battle)
     if not (trainerVoxelPortraits
-        and type(trainerVoxelPortraits.spec) == "function") then return nil end
-    return trainerVoxelPortraits.spec(battle and battle.oppClass)
+        and type(trainerVoxelPortraits.specForBattle) == "function") then
+      return trainerVoxelPortraits
+        and type(trainerVoxelPortraits.spec) == "function"
+        and trainerVoxelPortraits.spec(battle and battle.oppClass) or nil
+    end
+    return trainerVoxelPortraits.specForBattle(battle)
+  end
+
+  local function jessieJamesVoxelSpec(battle, side)
+    if side ~= "enemy" or not (battle and battle.showEnemyTrainer) then
+      return nil
+    end
+    local spec = ordinaryVoxelSpec(battle)
+    if type(spec) ~= "table" or spec.id ~= "YELLOW_JESSIE_JAMES_MEOWTH"
+        or type(spec.authority) ~= "table"
+        or spec.authority.schema ~= "ka-yellow-jessie-james-battle/v1" then
+      return nil
+    end
+    return spec
+  end
+
+  local function jessieJamesAssetSources(spec)
+    if not (trainerVoxelPortraits
+        and type(trainerVoxelPortraits.resolveJessieJamesAssets)
+          == "function") then
+      return nil, "resolver-unavailable"
+    end
+    return trainerVoxelPortraits.resolveJessieJamesAssets(spec)
   end
 
   -- Catching demonstrations occupy the player-side trainer slot but are not
@@ -1737,6 +1763,34 @@ return function(mod, opts)
     return texture, nil
   end
 
+  -- The Yellow duo is a sealed identity, so its fallback chain must never
+  -- escape into the renderer's class-only OPP_ROCKET lookup.  Try each
+  -- packaged contract surface independently (128, 64, then the native exact
+  -- duo card).  The stage guard calls this once before accepting the arena;
+  -- successful textures are cached by highResVoxelTrainerTexture, while a
+  -- complete decode failure declines the stage and lets BattleState render
+  -- trainer.picJessieJames in native 2D.
+  local function jessieJamesVoxelTexture(battle, side)
+    local specification = jessieJamesVoxelSpec(battle, side)
+    if not specification then return nil, nil, nil, "authority" end
+    local sources, sourceProblem = jessieJamesAssetSources(specification)
+    if not sources then
+      return nil, nil, nil, sourceProblem or "approved-assets-missing"
+    end
+    local lastProblem
+    for _, candidate in ipairs(sources.candidates or {}) do
+      local ok, texture, problem = pcall(highResVoxelTrainerTexture,
+        side, specification.id, candidate.path, candidate.path, true)
+      if ok and texture then
+        return texture, candidate, sources, nil
+      end
+      lastProblem = ok and problem or ("approved-source-error:"
+        .. tostring(texture))
+    end
+    return nil, nil, sources,
+      lastProblem or sourceProblem or "approved-assets-unreadable"
+  end
+
   -- Inspectable contract used by focused compatibility tests.  A nil result
   -- means "keep DRAMALESS' registered trainerPic card", not "no portrait".
   function M.voxelStandingTrainerCharacter(battle, side)
@@ -1766,6 +1820,8 @@ return function(mod, opts)
     if side ~= "enemy" or not (battle and battle.showEnemyTrainer) then
       return nil
     end
+    local duo = jessieJamesVoxelSpec(battle, side)
+    if duo then return copy(duo) end
     local spec = JOHTO_VOXEL_BY_CLASS[battle.oppClass]
       or INDIGO_VOXEL_BY_CLASS[battle.oppClass]
       or ordinaryVoxelSpec(battle)
@@ -1850,12 +1906,74 @@ return function(mod, opts)
       return true
     end
     installTutorialStageGuard()
+    local function declineJessieJamesToNative(battle, problem)
+      if type(battle) == "table" then
+        battle.kascJessieJamesBattleMode = "native_2d"
+        battle.kascJessieJamesRendererId = rendererId
+        battle.kascJessieJamesFallbackReason = problem
+          or "approved-assets-unreadable"
+      end
+      if type(overworldBattle.finish) == "function" then
+        pcall(overworldBattle.finish)
+      end
+      return true
+    end
+    local function installJessieJamesStageGuard()
+      local current = overworldBattle.__kantoAscendantJessieJamesStageGuard
+      if type(current) == "table" and current.schema
+          == "ka-jessie-james-stage-guard/v1" then
+        M.voxelJessieJamesStageStatus = current
+        return true
+      end
+      local originalBegin = overworldBattle.begin
+      local originalEnsure = overworldBattle.ensure
+      if type(originalBegin) ~= "function"
+          or type(originalEnsure) ~= "function" then
+        M.voxelJessieJamesStageStatus = {
+          schema = "ka-jessie-james-stage-guard/v1",
+          installed = false,
+          rendererId = rendererId,
+          reason = "missing-begin-or-ensure",
+        }
+        return false
+      end
+      local guard = {
+        schema = "ka-jessie-james-stage-guard/v1",
+        installed = true,
+        rendererId = rendererId,
+        originalBegin = originalBegin,
+        originalEnsure = originalEnsure,
+      }
+      local function declineBrokenDuo(battle)
+        local spec = jessieJamesVoxelSpec(battle, "enemy")
+        if not spec then return false end
+        local texture, _, _, problem = jessieJamesVoxelTexture(
+          battle, "enemy")
+        if texture then return false end
+        declineJessieJamesToNative(battle, problem)
+        guard.declines = (guard.declines or 0) + 1
+        return true
+      end
+      overworldBattle.begin = function(state, battle, ...)
+        if declineBrokenDuo(battle) then return false end
+        return originalBegin(state, battle, ...)
+      end
+      overworldBattle.ensure = function(battle, ...)
+        if declineBrokenDuo(battle) then return false end
+        return originalEnsure(battle, ...)
+      end
+      overworldBattle.__kantoAscendantJessieJamesStageGuard = guard
+      M.voxelJessieJamesStageStatus = guard
+      return true
+    end
+    installJessieJamesStageGuard()
     local battleArtIdentityOnly = rendererId == "BATTLE_ART_VOXEL_FORK"
     local resolverSentinel = {
       schema = "ka-approved-trainer-resolver/v1",
       installed = true,
       delegated = battleArtIdentityOnly or nil,
       identityOverride = battleArtIdentityOnly or nil,
+      sealedJessieJamesOverride = battleArtIdentityOnly or nil,
       rendererId = rendererId,
       rendererVersion = rendererReceipt and rendererReceipt.rendererVersion,
       rendererProvenance = rendererReceipt and rendererReceipt.provenance,
@@ -1957,6 +2075,55 @@ return function(mod, opts)
           reason = problem,
         })
       end
+      -- Battle Art normally owns every ordinary TRAINER ART source. Yellow's
+      -- exact Jessie/James/Meowth story identity is the one additional enemy
+      -- identity allowed at this seam. Resolve it before generic delegation;
+      -- missing or tampered authority returns to the engine's native duo art.
+      if battleArtIdentityOnly and crystalVoxel and trainerVisible then
+        local duo = jessieJamesVoxelSpec(battle, side)
+        if duo then
+          local highRes, selected, sources, sourceProblem =
+            jessieJamesVoxelTexture(battle, side)
+          if highRes then
+            local contract = sources.contract
+            highRes.yellowJessieJames = true
+            highRes.yellowJessieJamesPartyIndex = duo.authority.partyIndex
+            highRes.yellowJessieJamesAuthority = duo.authority
+            highRes.yellowJessieJamesAssetRole = selected.role
+            highRes.ascendantApprovedTrainerResolver = {
+              schema = "ka-approved-trainer-texture/v1",
+              role = "yellow_jessie_james_meowth",
+              class = duo.class,
+              identity = duo.id,
+              partyIndex = duo.authority.partyIndex,
+              nativePortrait = duo.authority.nativePortrait,
+              requiresMeowth = contract.requires.meowth,
+              source = highRes.ascendantHighResSource,
+              sourceSha256 = selected.sha256,
+              fallbackSha256 = contract.assets.voxel64.sha256,
+              assetRole = selected.role,
+              rendererId = rendererId,
+              rendererVersion = resolverSentinel.rendererVersion,
+              rendererProvenance = resolverSentinel.rendererProvenance,
+            }
+            return highRes
+          end
+          fallbackReceipt = recordVoxelFallback({
+            schema = "ka-approved-trainer-fallback/v1",
+            rendererId = rendererId,
+            rendererVersion = resolverSentinel.rendererVersion,
+            side = side, class = duo.class,
+            source = sources and sources.primary or duo.failSafe,
+            reason = sourceProblem or "approved-assets-missing",
+          })
+          -- `originalSideTexture` knows only OPP_ROCKET and would recreate
+          -- the reported generic-grunt bug.  End the staged session here;
+          -- the engine's native BattleState has already selected
+          -- trainer.picJessieJames for this exact Yellow party.
+          declineJessieJamesToNative(battle, sourceProblem)
+          return nil
+        end
+      end
       -- Battle Art continues to own PLAYER ART/TRAINER ART for every source
       -- except the two explicit KASC-selected role identities above.  Do not
       -- run ordinary, Johto or Indigo replacement rules through this mixed
@@ -1972,6 +2139,7 @@ return function(mod, opts)
       -- Red/Blue/Green and Silver/Kris/Gold are identity assets, not a skin;
       -- their approved cards never follow the ordinary trainer option.
       local fixedIdentity = battle and (RIVAL_CLASS_SET[battle.oppClass]
+        or authored and authored.id == "YELLOW_JESSIE_JAMES_MEOWTH"
         or JOHTO_VOXEL_BY_CLASS[battle.oppClass])
       local style = trainerPortraitStyle(battle and battle.game or activeGame)
       local useAuthored = fixedIdentity or style == "crystal_hd"
@@ -1990,8 +2158,19 @@ return function(mod, opts)
       end
       if crystalVoxel and trainerVisible and authored and useAuthored
           and pairAvailable then
-        local highRes, problem = highResVoxelTrainerTexture(side, authored.id,
-          authored.path, authored.fallback, true)
+        local sourcePath, fallbackPath = authored.path, authored.fallback
+        local duoSources, duoSelected, duoSourceProblem
+        local highRes, problem
+        if authored.id == "YELLOW_JESSIE_JAMES_MEOWTH" then
+          highRes, duoSelected, duoSources, duoSourceProblem =
+            jessieJamesVoxelTexture(battle, side)
+          problem = duoSourceProblem
+        elseif sourcePath then
+          highRes, problem = highResVoxelTrainerTexture(side, authored.id,
+            sourcePath, fallbackPath, true)
+        else
+          problem = duoSourceProblem or "approved-assets-missing"
+        end
         if highRes then
           highRes.johtoMasterClass = JOHTO_VOXEL_BY_CLASS[battle.oppClass]
             and battle.oppClass or nil
@@ -2000,11 +2179,32 @@ return function(mod, opts)
             and battle.oppClass or nil
           highRes.kantoTrainerClass = authored.class
           highRes.kantoTrainerPortraitStyle = style
+          highRes.yellowJessieJames = authored.id
+            == "YELLOW_JESSIE_JAMES_MEOWTH" or nil
+          highRes.yellowJessieJamesPartyIndex = highRes.yellowJessieJames
+            and authored.authority.partyIndex or nil
+          highRes.yellowJessieJamesAuthority = highRes.yellowJessieJames
+            and authored.authority or nil
+          highRes.yellowJessieJamesAssetRole = highRes.yellowJessieJames
+            and duoSelected.role or nil
           highRes.ascendantApprovedTrainerResolver = {
             schema = "ka-approved-trainer-texture/v1",
             role = "enemy", class = battle.oppClass,
             approvedVersion = authored.approvedVersion or "CURRENT",
             source = highRes.ascendantHighResSource,
+            identity = highRes.yellowJessieJames and authored.id or nil,
+            partyIndex = highRes.yellowJessieJames
+              and authored.authority.partyIndex or nil,
+            requiresMeowth = highRes.yellowJessieJames and
+              authored.assetContract.requires.meowth or nil,
+            authoritySchema = authored.authority
+              and authored.authority.schema or nil,
+            authorityClass = authored.authority
+              and authored.authority.class or nil,
+            sourceSha256 = highRes.yellowJessieJames
+              and duoSelected.sha256 or nil,
+            assetRole = highRes.yellowJessieJames
+              and duoSelected.role or nil,
             rendererId = rendererId,
             rendererVersion = resolverSentinel.rendererVersion,
             rendererProvenance = resolverSentinel.rendererProvenance,
@@ -2018,6 +2218,10 @@ return function(mod, opts)
           side = side, class = battle.oppClass,
           source = authored.path, reason = problem,
         })
+        if authored.id == "YELLOW_JESSIE_JAMES_MEOWTH" then
+          declineJessieJamesToNative(battle, problem)
+          return nil
+        end
       end
       -- ORIGINAL keeps the untouched edition picture. It travels through
       -- the renderer's native card path instead of an HD
