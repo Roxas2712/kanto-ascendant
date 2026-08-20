@@ -257,15 +257,13 @@ return function(mod, opts)
     local path = visual.path
     if type(path) ~= "string" then return nil end
     if path:sub(1, 5) ~= "save/" then return runtimePath(path) end
-    local fs = love and love.filesystem
-    if not (fs and type(fs.getInfo) == "function") then
+    local okAssets, Assets = pcall(require, "src.render.Assets")
+    if not (okAssets and Assets and type(Assets.exists) == "function") then
       return runtimePath(path)
     end
-    local okAssets, Assets = pcall(require, "src.render.Assets")
-    if okAssets and Assets and type(Assets.exists) == "function" then
-      local ok, exists = pcall(Assets.exists, path)
-      if ok and exists == true then return runtimePath(path) end
-    end
+    local ok, exists = pcall(Assets.exists, path)
+    if not ok then return runtimePath(path) end
+    if exists == true then return runtimePath(path) end
     return runtimePath(visual.fallbackPath)
   end
 

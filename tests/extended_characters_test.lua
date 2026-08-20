@@ -9,7 +9,18 @@ package.path = "./?.lua;./?/init.lua;" .. package.path
 local T = require("tests.modkit")
 local Data = T.fixtures.load()
 local modPath = os.getenv("TRAINER_REMATCH_MOD_DIR") or "mods/kanto_ascendant"
-local run = T.sdk.loadMod(modPath, { data = Data })
+local sdkOpts = { data = Data }
+if modPath:sub(1, 1) == "/" then sdkOpts.root = "/" end
+local assetSink = assert(loadfile(modPath
+  .. "/tests/headless_modkit_asset_sink.lua"))()(T, modPath, {
+  bridgeLove = true,
+  derivedPrefix = "save/mod-derived/kanto_ascendant/",
+})
+local loaded, run = pcall(T.sdk.loadMod, modPath, sdkOpts)
+if not loaded then
+  assetSink.cleanup()
+  error(run, 0)
+end
 T.eq(#run.errors, 0, "Kanto Ascendant loads with extended characters")
 local runtimeModPath = assert(run.mod and run.mod.path,
   "SDK exposes the loader-owned runtime mod path")
@@ -248,6 +259,9 @@ local liveFrontContexts = {
   { kind = "credits", label = "credits" },
   { kind = "intro", label = "intro" },
 }
+-- Exact minimum-engine regression: these calls execute the mod-authored hook
+-- inside Gen1 Recomp's 0.1.90 sandbox.  Derived-path selection must use the
+-- engine Assets API without touching the sandbox-forbidden love.filesystem.
 local engineAssets = require("src.render.Assets")
 local identityAssetsExists = engineAssets.exists
 engineAssets.exists = function(path)
@@ -1014,4 +1028,6 @@ T.eq(confirmationLine, "Right! RAY!\fA trainer from\nPALLET TOWN.",
   "Oak confirms the actual chosen Red name and role")
 T.eq(confirmationDone, 1, "rival confirmation advances exactly once")
 
+run.release()
+assetSink.cleanup()
 T.finish("extended_characters_test")
