@@ -224,46 +224,60 @@ end
 
 -- The compatibility wrapper is process-stable: hot import only refreshes
 -- its bridge, while restore either removes a directly owned wrapper or
--- safely disables one that later Ascendant wrappers have layered above.
-local previewState = assert(apricorn.stockBagPreview0186,
-  "stock 0.1.90 Apricorn Bag bridge is installed")
+-- safely disables one that later Ascendant wrappers have layered above. A
+-- host with native custom-ball preflight owns the same preview instead and
+-- must never retain the compatibility wrapper.
 local beforeRefresh = BagMenu.new
-local refreshed, refreshMode = apricorn.refreshStock0186BagPreview()
-eq(refreshed, true, "0.1.90 Bag bridge refresh succeeds")
-eq(refreshMode, "refreshed", "hot import reuses the existing Bag bridge")
-eq(BagMenu.new, beforeRefresh, "hot import does not stack a Bag constructor")
-eq(apricorn.stockBagPreview0186, previewState,
-  "hot import preserves the process-stable bridge state")
-Version.engine = "0.1.91"
-local forwardRefreshed, forwardMode = apricorn.refreshStock0186BagPreview()
-eq(forwardRefreshed, true,
-  "minimum-engine contract keeps the guarded Bag bridge forward active")
-eq(forwardMode, "refreshed",
-  "forward-compatible Bag refresh does not stack a constructor")
-Version.engine = "0.1.90"
-local restored, restoreReason = previewState.restore()
-if restored then
-  eq(BagMenu.new, previewState.originalNew,
-    "direct bridge restore recovers the exact prior constructor")
-else
-  eq(restoreReason, "not_direct_owner",
-    "buried bridge restore refuses to clobber a later wrapper")
+if BagMenu.nativeBallPreflight == true then
+  eq(apricorn.stockBagPreview0186, nil,
+    "native custom-ball preflight is the only preview authority")
+  local refreshed, refreshMode = apricorn.refreshStock0186BagPreview()
+  eq(refreshed, false,
+    "native custom-ball preflight refuses the compatibility bridge")
+  eq(refreshMode, "native_ball_preflight",
+    "native custom-ball preflight reports its capability authority")
   eq(BagMenu.new, beforeRefresh,
-    "buried bridge restore preserves the later wrapper chain")
+    "native capability refresh does not wrap the Bag constructor")
+else
+  local previewState = assert(apricorn.stockBagPreview0186,
+    "stock 0.1.90 Apricorn Bag bridge is installed")
+  local refreshed, refreshMode = apricorn.refreshStock0186BagPreview()
+  eq(refreshed, true, "0.1.90 Bag bridge refresh succeeds")
+  eq(refreshMode, "refreshed", "hot import reuses the existing Bag bridge")
+  eq(BagMenu.new, beforeRefresh, "hot import does not stack a Bag constructor")
+  eq(apricorn.stockBagPreview0186, previewState,
+    "hot import preserves the process-stable bridge state")
+  Version.engine = "0.1.91"
+  local forwardRefreshed, forwardMode = apricorn.refreshStock0186BagPreview()
+  eq(forwardRefreshed, true,
+    "minimum-engine contract keeps the guarded Bag bridge forward active")
+  eq(forwardMode, "refreshed",
+    "forward-compatible Bag refresh does not stack a constructor")
+  Version.engine = "0.1.90"
+  local restored, restoreReason = previewState.restore()
+  if restored then
+    eq(BagMenu.new, previewState.originalNew,
+      "direct bridge restore recovers the exact prior constructor")
+  else
+    eq(restoreReason, "not_direct_owner",
+      "buried bridge restore refuses to clobber a later wrapper")
+    eq(BagMenu.new, beforeRefresh,
+      "buried bridge restore preserves the later wrapper chain")
+  end
+  local reactivated, reactivateMode = apricorn.refreshStock0186BagPreview()
+  eq(reactivated, true, "restored Bag bridge can be reactivated")
+  eq(reactivateMode, restored and "installed" or "refreshed",
+    "reactivation follows the owned-wrapper topology")
 end
-local reactivated, reactivateMode = apricorn.refreshStock0186BagPreview()
-eq(reactivated, true, "restored Bag bridge can be reactivated")
-eq(reactivateMode, restored and "installed" or "refreshed",
-  "reactivation follows the owned-wrapper topology")
 local _, reactivatedSave, reactivatedThrown, reactivatedStates = bagFlow(
   wildBattle("ELECTRODE", "BULBASAUR", 20, 20))
 check(reactivatedStates[#reactivatedStates]
     and reactivatedStates[#reactivatedStates].pages,
-  "reactivated bridge still displays the Apricorn preview")
+  "selected preview authority still displays the Apricorn quote")
 eq(reactivatedSave.inventory.FAST_BALL, 2,
-  "reactivated preview still preserves the ball before dismissal")
+  "selected preview still preserves the ball before dismissal")
 eq(reactivatedThrown(), nil,
-  "reactivated preview still delays the throw")
+  "selected preview still delays the throw")
 
 -- The Loader-installed event bus is the same bus BattleState.storeCaughtMon
 -- emits after the party/PC destination has been decided.

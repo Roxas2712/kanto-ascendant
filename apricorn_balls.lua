@@ -26,11 +26,12 @@ return function(mod, opts)
   local itemEffects = opts.itemEffects
   local i18n = opts.i18n
 
-  -- Gen1Recomp 0.1.86 and 0.1.90's stock BagMenu discard an ItemEffects
-  -- payload when
-  -- the result is "ball": it consumes and throws immediately.  Keep the
-  -- compatibility seam in the mod, scoped to the reviewed 0.1.90-or-newer
-  -- host family and to this package's own target-specific payload. The
+  -- Gen1Recomp 0.1.86 and the public 0.1.90+ BagMenu discard an ItemEffects
+  -- payload when the result is "ball": they consume and throw immediately.
+  -- Keep the compatibility seam in the mod, scoped to that reviewed host
+  -- family and to this package's own target-specific payload.  RC3-capable
+  -- engines expose `BagMenu.nativeBallPreflight`; those hosts already show
+  -- the payload and must never receive this second preview authority. The
   -- module-level state/bridge is
   -- deliberately stable across a dev hot reload; it never retains an old mod
   -- object, and restore() disables a buried wrapper or removes a directly
@@ -520,6 +521,22 @@ return function(mod, opts)
     end
 
     local BagMenu = require("src.ui.BagMenu")
+    if BagMenu.nativeBallPreflight == true then
+      -- A process-stable dev import may have installed the compatibility
+      -- wrapper before the host capability became visible.  Retire a directly
+      -- owned wrapper and always deactivate/forget a buried one: its live
+      -- lookup then delegates without opening a second TextBox.
+      local prior = rawget(BagMenu, BAG_PREVIEW_KEY)
+      if type(prior) == "table" and prior.version == BAG_PREVIEW_VERSION then
+        if prior.bridge then prior.bridge.active = false end
+        if BagMenu.new == prior.wrappedNew then
+          BagMenu.new = prior.originalNew
+        end
+        rawset(BagMenu, BAG_PREVIEW_KEY, nil)
+      end
+      A.stockBagPreview0186 = nil
+      return false, "native_ball_preflight"
+    end
     local TextBox = require("src.render.TextBox")
     local ids = {}
     for _, id in ipairs(A.ITEM_IDS) do ids[id] = true end
@@ -645,7 +662,8 @@ return function(mod, opts)
       for _, id in ipairs(A.ITEM_IDS) do effects.BALLS[id] = true end
     end
     local previewInstalled, previewReason = A.refreshStock0186BagPreview()
-    if previewReason ~= "not_stock_0186" then
+    if previewReason ~= "not_stock_0186"
+        and previewReason ~= "native_ball_preflight" then
       assert(previewInstalled, "Apricorn Bag preview compatibility failed")
     end
     if mod.events and mod.events.on then
