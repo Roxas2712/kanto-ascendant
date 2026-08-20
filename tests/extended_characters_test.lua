@@ -11,6 +11,7 @@ local Data = T.fixtures.load()
 local modPath = os.getenv("TRAINER_REMATCH_MOD_DIR") or "mods/kanto_ascendant"
 local sdkOpts = { data = Data }
 if modPath:sub(1, 1) == "/" then sdkOpts.root = "/" end
+local originalLoveNewImage = love.graphics.newImage
 local assetSink = assert(loadfile(modPath
   .. "/tests/headless_modkit_asset_sink.lua"))()(T, modPath, {
   bridgeLove = true,
@@ -1030,4 +1031,6 @@ T.eq(confirmationDone, 1, "rival confirmation advances exactly once")
 
 run.release()
 assetSink.cleanup()
+T.eq(love.graphics.newImage, originalLoveNewImage,
+  "headless asset bridge restores the engine image loader")
 T.finish("extended_characters_test")

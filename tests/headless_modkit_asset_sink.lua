@@ -14,6 +14,7 @@ return function(T, realModPath, opts)
   local originalNew = T.fs.new
   local originalGetInfo = love.filesystem.getInfo
   local originalRead = love.filesystem.read
+  local originalNewImage = love.graphics and love.graphics.newImage
   local memory, disk = {}, nil
   local alias = "mods/" .. realModPath:gsub("/+$", ""):match("[^/]+$")
   local exactDerived = opts.exactDerived or {}
@@ -38,6 +39,11 @@ return function(T, realModPath, opts)
       return realModPath .. path:sub(#alias + 1)
     end
     return path
+  end
+
+  local function isAliasedPath(path)
+    return type(path) == "string"
+      and (path == alias or path:sub(1, #alias + 1) == alias .. "/")
   end
 
   T.fs.new = function(root)
@@ -72,8 +78,7 @@ return function(T, realModPath, opts)
       if memory[path] ~= nil then
         return (not filter or filter == "file") and { type = "file" } or nil
       end
-      if type(path) == "string" and disk
-          and (path == alias or path:sub(1, #alias + 1) == alias .. "/") then
+      if disk and isAliasedPath(path) then
         local info = disk.getInfo(realPath(path))
         if info and (not filter or filter == info.type) then return info end
         return nil
@@ -83,11 +88,17 @@ return function(T, realModPath, opts)
 
     function love.filesystem.read(path)
       if memory[path] ~= nil then return memory[path] end
-      if type(path) == "string" and disk
-          and (path == alias or path:sub(1, #alias + 1) == alias .. "/") then
+      if disk and isAliasedPath(path) then
         return disk.read(realPath(path))
       end
       return originalRead(path)
+    end
+
+    if type(originalNewImage) == "function" then
+      function love.graphics.newImage(source, ...)
+        if isAliasedPath(source) then source = realPath(source) end
+        return originalNewImage(source, ...)
+      end
     end
   end
 
@@ -98,6 +109,9 @@ return function(T, realModPath, opts)
     T.fs.new = originalNew
     love.filesystem.getInfo = originalGetInfo
     love.filesystem.read = originalRead
+    if type(originalNewImage) == "function" then
+      love.graphics.newImage = originalNewImage
+    end
   end
   return sink
 end
