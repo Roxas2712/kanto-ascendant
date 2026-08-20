@@ -115,16 +115,18 @@ return function(game)
   local function isCatalog(value)
     return value and getmetatable(value) == starters.Catalog
   end
-  local function unmasteredOrder(rows)
+  local function unmasteredOrder(rows, reward)
     local expected = {}
     for _, id in ipairs(starters.partnerAllowlistOrder) do
       if not starters.legendaryIds[id] then expected[#expected + 1] = id end
     end
-    if #expected ~= 118 or #(rows or {}) ~= #expected then return false end
+    if reward then expected[#expected + 1] = reward end
+    if #expected ~= (reward and 119 or 118)
+        or #(rows or {}) ~= #expected then return false end
     for index, row in ipairs(rows) do
       if row.id ~= expected[index] then return false end
     end
-    return rows[#rows].id == "LARVITAR"
+    return rows[#rows].id == (reward or "LARVITAR")
   end
   local function runnerBusy()
     return game.overworld and game.overworld.runner
@@ -624,9 +626,9 @@ return function(game)
         and state().rivalPartner == nil and state().partnerSpecies == nil)
     proveReloadedLockedLab("Red/Blue rival-ball boundary")
 
-    -- This Fresh Save follows the path sealed immediately above.  The
-    -- matching Hoenn ball is therefore the earned prior-life reward, while
-    -- the middle ball remains the independent unmastered catalogue.
+    -- This Fresh Save follows the path sealed immediately above. The matching
+    -- Hoenn ball is the current hero's prior-life reward; that same durable
+    -- starter also joins the middle catalogue for every character.
     physicalInteract("OAKS_LAB", 6, 4, "up")
     local hoennCatalog = waitFor(function()
       local top = game.stack:top()
@@ -691,8 +693,9 @@ return function(game)
       catalog and catalog.mode == "balanced")
     if catalog then
       U.tap(game, "select")
-      check("real SELECT exposes the 118 legal unmastered rows",
-        catalog.mode == "free" and unmasteredOrder(catalog.rows)
+      local earnedHoenn = starters.heroChoice(game.save).species
+      check("real SELECT exposes 118 base rows plus the earned Hoenn row",
+        catalog.mode == "free" and unmasteredOrder(catalog.rows, earnedHoenn)
           and starters.partnerAllowlist.GASTLY
           and starters.partnerAllowlist.DITTO
           and not starters.partnerAllowlist.GENGAR)

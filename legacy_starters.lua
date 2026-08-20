@@ -44,6 +44,19 @@ return function(mod, opts)
     BLUE = { species = "MUDKIP", flag = "EVENT_CHOSE_SQUIRTLE" },
     GREEN = { species = "TREECKO", flag = "EVENT_CHOSE_BULBASAUR" },
   }
+  -- A regular, durable path completion also contributes that character's
+  -- Hoenn starter to Oak's reusable catalogue in later Legacy lives. Keep
+  -- this reward outside PARTNER_ALLOWLIST: the static #001-251 contract and
+  -- its rival migration semantics must not be widened by archive progress.
+  local HOENN_CATALOG_ORDER = {
+    { key = "red", species = "TORCHIC", dex = 255 },
+    { key = "blue", species = "MUDKIP", dex = 258 },
+    { key = "green", species = "TREECKO", dex = 252 },
+  }
+  local HOENN_CATALOG_KEY = {}
+  for _, row in ipairs(HOENN_CATALOG_ORDER) do
+    HOENN_CATALOG_KEY[row.species] = row.key
+  end
 
   -- Legendary and mythical partners are the capstone reward for completing
   -- all three character-bound Legacy paths.  They deliberately remain part
@@ -281,17 +294,38 @@ return function(mod, opts)
     return type(bucket) == "table" and bucket.legacy_journey or nil
   end
 
-  local function durableThreePathsComplete()
+  local function durableArchiveProfile()
     if type(journey.profile) ~= "function" then return false end
     local ok, profile = pcall(journey.profile)
     if not ok or type(profile) ~= "table"
         or profile.readOnly == true or profile.futureVersion ~= nil then
-      return false
+      return nil
     end
-    local completed = profile.completedPaths
-    return type(completed) == "table"
-      and completed.red == true and completed.blue == true
+    return profile
+  end
+
+  local function durableCompletedPaths()
+    local profile = durableArchiveProfile()
+    return profile and type(profile.completedPaths) == "table"
+      and profile.completedPaths or nil
+  end
+
+  local function durableThreePathsComplete()
+    local completed = durableCompletedPaths()
+    if not completed then return false end
+    return completed.red == true and completed.blue == true
       and completed.green == true
+  end
+
+  -- `save` is intentionally not consulted. Survey receipts, puzzle flags,
+  -- local HEVO mirrors, owned species and Mega Stones all live there; none is
+  -- archive authority. The argument remains explicit so callers cannot
+  -- mistake this cross-life gate for a process-global unlock.
+  local function durableCatalogHoenn(save, species)
+    local key = HOENN_CATALOG_KEY[tostring(species or ""):upper()]
+    if not key then return false end
+    local completed = durableCompletedPaths()
+    return type(completed) == "table" and completed[key] == true
   end
 
   local function listHasMove(rows, wanted)
@@ -441,6 +475,24 @@ return function(mod, opts)
         rows[#rows + 1] = { id = id, def = def, dex = dex }
       end
     end
+    if (mode == "balanced" or mode == "free")
+        and partnerDexMax(game.save) == 251 then
+      for _, reward in ipairs(HOENN_CATALOG_ORDER) do
+        local id, dex = reward.species, reward.dex
+        local def = game.data.pokemon and game.data.pokemon[id]
+        local drawable = false
+        if def and durableCatalogHoenn(game.save, id) then
+          local path = crystalSpritePath(game, id)
+          drawable = type(path) == "string" and path ~= ""
+        end
+        if def and math.floor(tonumber(def.dex) or 0) == dex and drawable then
+          rows[#rows + 1] = {
+            id = id, def = def, dex = dex,
+            archivePath = reward.key,
+          }
+        end
+      end
+    end
     return rows
   end
 
@@ -559,6 +611,10 @@ return function(mod, opts)
     if LEGACY_ELITE_IDS[species] and not durableThreePathsComplete() then
       return false, "all three durable Legacy paths are required"
     end
+    local durableHoennCatalog = durableCatalogHoenn(game.save, species)
+      and partnerDexMax(game.save) == 251
+      and ball == "catalog"
+      and (source == "catalog" or source == "yellow_catalog")
     if mode == "hoenn" then
       if dex > 151 and not beyondActive(game.save) then
         return false, "beyond-kanto-sealed"
@@ -570,14 +626,16 @@ return function(mod, opts)
         return false, "wrong hero Hoenn partner"
       end
     elseif mode == "balanced" then
-      if dex < 1 or dex > partnerDexMax(game.save)
-          or not BALANCED_PARTNER_IDS[species] then
+      if not durableHoennCatalog and (dex < 1
+          or dex > partnerDexMax(game.save)
+          or not BALANCED_PARTNER_IDS[species]) then
         return false, "partner is not in Balanced Choice"
       end
     elseif mode == "free" then
-      if dex < 1 or dex > partnerDexMax(game.save)
+      if not durableHoennCatalog and (dex < 1
+          or dex > partnerDexMax(game.save)
           or not PARTNER_ALLOWLIST[species]
-          or CANONICAL_ORDER[dex] ~= species then
+          or CANONICAL_ORDER[dex] ~= species) then
         return false, "partner is not a legal base #001-251 species"
       end
     elseif source ~= "yellow_pikachu" then
@@ -1744,6 +1802,8 @@ return function(mod, opts)
   L.typesLabel = typesLabel
   L.heroChoice = heroChoice
   L.hoennUnlocked = hoennUnlocked
+  L.durableCatalogHoenn = durableCatalogHoenn
+  L.hoennCatalogOrder = copy(HOENN_CATALOG_ORDER)
   L.legendaryUnlocked = durableThreePathsComplete
   L.legendaryIds = copy(LEGACY_ELITE_IDS)
   L.legendaryOrder = copy(LEGACY_ELITE_ORDER)

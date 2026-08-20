@@ -42,16 +42,18 @@ return function(game)
   local function isChoice(value)
     return value and getmetatable(value) == ChoiceBox
   end
-  local function unmasteredOrder(rows)
+  local function unmasteredOrder(rows, reward)
     local expected = {}
     for _, id in ipairs(starters.partnerAllowlistOrder) do
       if not starters.legendaryIds[id] then expected[#expected + 1] = id end
     end
-    if #expected ~= 118 or #(rows or {}) ~= #expected then return false end
+    if reward then expected[#expected + 1] = reward end
+    if #expected ~= (reward and 119 or 118)
+        or #(rows or {}) ~= #expected then return false end
     for index, row in ipairs(rows) do
       if row.id ~= expected[index] then return false end
     end
-    return rows[#rows].id == "LARVITAR"
+    return rows[#rows].id == (reward or "LARVITAR")
   end
   local function runnerBusy()
     return game.overworld and game.overworld.runner
@@ -255,8 +257,9 @@ return function(game)
     check("Balanced Kanto entry screenshot",
       U.shot(game, dir .. "/05_catalog_balanced_kanto.png"))
     U.tap(game, "select")
-    check("SELECT changes Balanced to the 118-row unmastered Free Choice",
-      catalog.mode == "free" and unmasteredOrder(catalog.rows)
+    check("SELECT shows 118 base rows plus this hero's earned Hoenn row",
+      catalog.mode == "free"
+        and unmasteredOrder(catalog.rows, expectedHeroPartner)
         and starters.partnerAllowlist.GASTLY
         and starters.partnerAllowlist.DITTO
         and starters.partnerAllowlist.PICHU

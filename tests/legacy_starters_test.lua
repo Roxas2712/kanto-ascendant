@@ -580,14 +580,19 @@ journey.completedPaths = { red = true, blue = true, green = true }
 check(starters.legendaryUnlocked(),
   "three exact durable archive paths unlock capstone partners")
 local mastered = starters.rows(game, "free")
-eq(#mastered, 129,
-  "the completed external archive restores all eleven authored candidates")
+eq(#mastered, 132,
+  "the completed archive restores eleven capstones and three Hoenn rewards")
 local masteredSet = {}
 for index, row in ipairs(mastered) do
   masteredSet[row.id] = true
-  eq(row.id, starters.partnerAllowlistOrder[index],
-    "mastered catalogue restores exact canonical allowlist order")
+  if index <= #starters.partnerAllowlistOrder then
+    eq(row.id, starters.partnerAllowlistOrder[index],
+      "mastered catalogue restores exact canonical allowlist order")
+  end
 end
+eq(table.concat({ mastered[130].id, mastered[131].id, mastered[132].id }, ","),
+  "TORCHIC,MUDKIP,TREECKO",
+  "mastered catalogue appends the explicit RED/BLUE/GREEN reward order")
 for _, species in ipairs(starters.legendaryOrder) do
   check(masteredSet[species],
     "the mastered #001-251 catalogue includes " .. species)
@@ -606,6 +611,10 @@ end
 for _, species in ipairs({ "RAIKOU", "ENTEI", "SUICUNE", "LUGIA", "HO_OH", "CELEBI" }) do
   eq(kantoMasteredSet[species], nil,
     "a mastered #001-151 run still seals Johto species " .. species)
+end
+for _, species in ipairs({ "TORCHIC", "MUDKIP", "TREECKO" }) do
+  eq(kantoMasteredSet[species], nil,
+    "a #001-151 run still seals the path-earned Hoenn reward " .. species)
 end
 
 journey.profileReadOnly = true
@@ -629,7 +638,8 @@ eq(starters.basePartnerIds.GENGAR, nil, "Free Choice excludes evolved Gengar")
 eq(starters.partnerAllowlist.DRAGONITE, nil,
   "Free Choice excludes evolved Dragonite")
 eq(starters.basePartnerIds.PIKACHU, nil, "Pichu excludes Pikachu from Free Choice")
-eq(starters.basePartnerIds.TREECKO, nil, "Free Choice excludes Sinnoh-and-later dex ids")
+eq(starters.basePartnerIds.TREECKO, nil,
+  "path-earned Hoenn rewards remain outside the static base allowlist")
 check(#balanced > 20 and #balanced < #free,
   "Balanced Choice is a meaningful curated subset")
 local balancedSet = {}
@@ -736,6 +746,13 @@ journey.profileThrows = nil
 -- Direct selection is accepted only through the real R/B or Yellow catalogue
 -- source.  The left/current-hero contract remains the distinct `hoenn` mode.
 journey.completedPaths = { red = true, blue = false, green = false }
+local kantoOnlyReward = newGame("BLUE")
+runState(kantoOnlyReward.save).partnerDexMax = 151
+expectHoennCatalog(kantoOnlyReward, "",
+  "a run explicitly fixed to #001-151 keeps non-Kanto rewards sealed")
+eq(starters.choose(kantoOnlyReward, "TORCHIC", "balanced", "catalog",
+  "catalog"), false,
+  "a direct API call cannot bypass the fixed #001-151 partner pool")
 local crossCharacter = newGame("BLUE")
 local crossChosen, crossMon = starters.choose(crossCharacter, "TORCHIC",
   "balanced", "catalog", "catalog")
@@ -745,6 +762,18 @@ eq(runState(crossCharacter.save).partnerMode, "balanced",
   "the cross-character reward remains a catalogue choice")
 eq(runState(crossCharacter.save).rivalPartner.sourcePartner, "TORCHIC",
   "the rival binding records the exact Hoenn catalogue choice")
+
+journey.completedPaths = { red = false, blue = false, green = false }
+local alreadyChosen = newGame("BLUE")
+local ordinaryChosen = starters.choose(alreadyChosen, "BULBASAUR",
+  "balanced", "catalog", "catalog")
+check(ordinaryChosen, "the control run commits its ordinary partner")
+journey.completedPaths.red = true
+eq(runState(alreadyChosen.save).partnerSpecies, "BULBASAUR",
+  "a later archive completion never rewrites the current-run partner")
+eq(starters.choose(alreadyChosen, "TORCHIC", "balanced", "catalog",
+  "catalog"), false,
+  "a later archive completion never reopens the consumed partner choice")
 
 local yellowEquivalent = newGame("GREEN")
 local yellowChosen, yellowMon = starters.choose(yellowEquivalent, "TORCHIC",
