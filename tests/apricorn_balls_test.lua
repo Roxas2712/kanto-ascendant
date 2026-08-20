@@ -346,4 +346,31 @@ local coverage = make({ save = mod.save }, { breedingData = coverageBreeding })
 eq(coverage.complete, true, "251-species weight/speed/gender coverage")
 eq(coverage.species, 251, "coverage species count")
 
+-- RC3 engines expose the custom-ball payload natively.  Their capability
+-- marker must retire a previously installed stock-host bridge as well as
+-- prevent a fresh one; otherwise dismissing the mod preview opens the same
+-- native preview again and the ball is neither spent nor thrown yet.
+local BagMenu = require("src.ui.BagMenu")
+local legacyPreview = assert(A.stockBagPreview0186,
+  "legacy host installs the compatibility preview")
+local previousNativeBallPreflight = BagMenu.nativeBallPreflight
+BagMenu.nativeBallPreflight = true
+local nativeInstalled, nativeReason = A.refreshStock0186BagPreview()
+eq(nativeInstalled, false,
+  "native custom-ball preflight does not install the legacy bridge")
+eq(nativeReason, "native_ball_preflight",
+  "native custom-ball preflight reports its capability authority")
+eq(BagMenu.new, legacyPreview.originalNew,
+  "native capability retires the directly owned legacy constructor")
+eq(A.stockBagPreview0186, nil,
+  "native capability leaves no active legacy preview authority")
+
+BagMenu.nativeBallPreflight = previousNativeBallPreflight
+local legacyReinstalled, legacyMode = A.refreshStock0186BagPreview()
+eq(legacyReinstalled, true,
+  "legacy host can reinstall its compatibility preview after the probe")
+eq(legacyMode, "installed",
+  "legacy host rebuilds one directly owned bridge")
+assert(A.stockBagPreview0186).restore()
+
 print("apricorn_balls_test: PASS")
