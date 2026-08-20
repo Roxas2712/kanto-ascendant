@@ -238,7 +238,7 @@ local function runState(save)
   return bucket and bucket.legacy_journey or nil
 end
 local journey = {}
-journey.completedPaths = { red = true, blue = false, green = false }
+journey.completedPaths = { red = false, blue = false, green = false }
 function journey.isActive(save)
   local s = runState(save)
   return type(s) == "table" and s.runId ~= nil
@@ -252,6 +252,8 @@ function journey.syncPartner()
   return true
 end
 function journey.profile()
+  if journey.profileThrows then error("injected archive read failure") end
+  if journey.profileMissing then return nil end
   return {
     completedPaths = journey.completedPaths,
     readOnly = journey.profileReadOnly,
@@ -639,6 +641,161 @@ eq(balancedSet.PIKACHU, nil,
 eq(balancedSet.MEWTWO, nil, "Balanced Choice excludes Mewtwo")
 eq(next(game.save.pokedex.seen), nil,
   "opening either catalogue never fills the new Pokédex")
+
+-- A completed Hidden-Evolution path now contributes its Hoenn starter to
+-- Oak's reusable middle-ball catalogue for every later character.  This
+-- cross-character reward is deliberately narrower than the static #001-251
+-- partner allowlist: only exact booleans from the validated archive profile
+-- may add these three rows, and both catalogue filters must agree.
+local HOENN_CATALOG_IDS = {
+  TORCHIC = true, MUDKIP = true, TREECKO = true,
+}
+local function hoennCatalogIds(gameNow, mode)
+  local ids = {}
+  for _, row in ipairs(starters.rows(gameNow, mode)) do
+    if HOENN_CATALOG_IDS[row.id] then ids[#ids + 1] = row.id end
+  end
+  return table.concat(ids, ",")
+end
+local function expectHoennCatalog(gameNow, expected, label)
+  eq(hoennCatalogIds(gameNow, "balanced"), expected,
+    label .. " in Balanced Choice")
+  eq(hoennCatalogIds(gameNow, "free"), expected,
+    label .. " in Free Choice")
+end
+
+local catalogAuthorityGame = newGame("GREEN")
+expectHoennCatalog(catalogAuthorityGame, "", "an empty archive exposes no Hoenn row")
+eq(starters.partnerAllowlist.TORCHIC, nil,
+  "the durable reward does not widen the static rival/catalogue allowlist")
+eq(starters.partnerAllowlist.MUDKIP, nil,
+  "Mudkip remains outside the static #001-251 allowlist")
+eq(starters.partnerAllowlist.TREECKO, nil,
+  "Treecko remains outside the static #001-251 allowlist")
+
+local spoofBucket = catalogAuthorityGame.save.modData.kanto_ascendant
+runState(catalogAuthorityGame.save).completedPaths = {
+  red = true, blue = true, green = true,
+}
+spoofBucket.early_hevo_survey = {
+  version = 1, authority = "viridian_pre_hall_hevo_survey_v1",
+  profile = "RED", admitted = true, entered = true,
+}
+spoofBucket.hevo_persistent = {
+  meta = { RED = true, BLUE = true, GREEN = true },
+  permanentItems = {
+    LEGACY_STARTER_TORCHIC = true,
+    LEGACY_STARTER_MUDKIP = true,
+    LEGACY_STARTER_TREECKO = true,
+  },
+}
+catalogAuthorityGame.save.flags.KA_HEVO_FISSURE_DISCOVERED_RED = true
+catalogAuthorityGame.save.flags.KA_HEVO_FISSURE_DISCOVERED_BLUE = true
+catalogAuthorityGame.save.flags.KA_HEVO_FISSURE_DISCOVERED_GREEN = true
+catalogAuthorityGame.save.inventory.BLAZIKENITE = 1
+catalogAuthorityGame.save.inventory.SWAMPERTITE = 1
+catalogAuthorityGame.save.inventory.SCEPTILITE = 1
+catalogAuthorityGame.save.pokedex.owned.TORCHIC = true
+catalogAuthorityGame.save.pokedex.owned.MUDKIP = true
+catalogAuthorityGame.save.pokedex.owned.TREECKO = true
+expectHoennCatalog(catalogAuthorityGame, "",
+  "survey, puzzle, save-local, ownership and stone spoofing expose nothing")
+
+journey.completedPaths = { red = true, blue = false, green = false }
+for _, avatar in ipairs({ "RED", "BLUE", "GREEN" }) do
+  expectHoennCatalog(newGame(avatar), "TORCHIC",
+    "RED's first durable completion follows " .. avatar .. " into the middle ball")
+end
+journey.completedPaths = { red = true, blue = true, green = false }
+expectHoennCatalog(newGame("GREEN"), "TORCHIC,MUDKIP",
+  "two different durable paths expose their two authored starters")
+journey.completedPaths = { red = true, blue = true, green = true }
+expectHoennCatalog(newGame("RED"), "TORCHIC,MUDKIP,TREECKO",
+  "the third different durable path completes the three-starter catalogue")
+
+journey.completedPaths = { red = true, blue = true, green = 1 }
+expectHoennCatalog(newGame("RED"), "TORCHIC,MUDKIP",
+  "a truthy non-boolean path bit cannot authorize a starter")
+journey.profileReadOnly = true
+expectHoennCatalog(newGame("RED"), "",
+  "a read-only archive profile fails the Hoenn catalogue closed")
+journey.profileReadOnly = nil
+journey.profileFutureVersion = 99
+expectHoennCatalog(newGame("RED"), "",
+  "an unknown future archive profile fails the Hoenn catalogue closed")
+journey.profileFutureVersion = nil
+journey.profileMissing = true
+expectHoennCatalog(newGame("RED"), "",
+  "a missing archive profile fails the Hoenn catalogue closed")
+journey.profileMissing = nil
+journey.profileThrows = true
+expectHoennCatalog(newGame("RED"), "",
+  "an archive read failure fails the Hoenn catalogue closed")
+journey.profileThrows = nil
+
+-- Direct selection is accepted only through the real R/B or Yellow catalogue
+-- source.  The left/current-hero contract remains the distinct `hoenn` mode.
+journey.completedPaths = { red = true, blue = false, green = false }
+local crossCharacter = newGame("BLUE")
+local crossChosen, crossMon = starters.choose(crossCharacter, "TORCHIC",
+  "balanced", "catalog", "catalog")
+check(crossChosen and crossMon.species == "TORCHIC",
+  "BLUE may select RED's durable Torchic from the real middle ball")
+eq(runState(crossCharacter.save).partnerMode, "balanced",
+  "the cross-character reward remains a catalogue choice")
+eq(runState(crossCharacter.save).rivalPartner.sourcePartner, "TORCHIC",
+  "the rival binding records the exact Hoenn catalogue choice")
+
+local yellowEquivalent = newGame("GREEN")
+local yellowChosen, yellowMon = starters.choose(yellowEquivalent, "TORCHIC",
+  "free", "catalog", "yellow_catalog")
+check(yellowChosen and yellowMon.species == "TORCHIC",
+  "Yellow's equivalent catalogue source accepts the durable Hoenn row")
+eq(runState(yellowEquivalent.save).partnerMode, "free",
+  "Yellow persists the chosen catalogue filter")
+
+local sourceSpoof = newGame("BLUE")
+local spoofChosen = starters.choose(sourceSpoof, "TORCHIC",
+  "balanced", "left", "hoenn_ball")
+eq(spoofChosen, false,
+  "a non-catalogue source cannot spend the cross-character reward")
+eq(#sourceSpoof.save.party, 0,
+  "source spoofing cannot stage a partner")
+
+local failedCatalogSave = newGame("BLUE")
+failedCatalogSave.writeFails = true
+local catalogSaved, catalogSaveWhy = starters.choose(failedCatalogSave,
+  "TORCHIC", "free", "catalog", "catalog")
+eq(catalogSaved, false,
+  "a failed save rolls the cross-character catalogue choice back")
+eq(catalogSaveWhy, "save failed",
+  "the failed durable catalogue write is explicit")
+eq(#failedCatalogSave.save.party, 0,
+  "failed catalogue persistence leaves no staged Pokémon")
+eq(runState(failedCatalogSave.save).partnerChosen, nil,
+  "failed catalogue persistence leaves no partner sentinel")
+eq(failedCatalogSave.save.pokedex.owned.TORCHIC, nil,
+  "failed catalogue persistence leaves no Pokédex ownership")
+
+local reloadedCatalog = newGame("GREEN")
+expectHoennCatalog(reloadedCatalog, "TORCHIC",
+  "archive-authorized rows survive a new game/save object")
+local visualRows = starters.rows(reloadedCatalog, "balanced")
+local visualIndex
+for index, row in ipairs(visualRows) do
+  if row.id == "TORCHIC" then visualIndex = index break end
+end
+check(visualIndex ~= nil, "the graphical row includes durable Torchic")
+local visualCatalog = starters.Catalog.new(reloadedCatalog, {
+  onPartnerChosen = function() end, onCatalogCancelled = function() end,
+}, {
+  mode = "balanced", ball = "catalog", source = "catalog",
+  rows = visualRows, index = visualIndex,
+})
+eq(visualCatalog:current().spriteSource, "crystal",
+  "the durable Hoenn row uses its reviewed Crystal preview")
+
+journey.completedPaths = { red = false, blue = false, green = false }
 
 -- Before the once-only partner list appears, Oak asks whether this new cycle
 -- should irreversibly open Johto. NO is the safe default, but it must open a
@@ -1662,7 +1819,7 @@ yellowScripts.talk.TEXT_OAKSLAB_EEVEE_POKE_BALL(
 local yellowMenu = yellowGame.stack:top()
 eq(yellowMenu.items[1].value, "pikachu", "Pikachu special is Yellow path one")
 eq(yellowMenu.items[2].value, "hoenn", "earned Hoenn is Yellow path two")
-eq(yellowMenu.items[3].value, "catalog", "the 129 catalogue is Yellow path three")
+eq(yellowMenu.items[3].value, "catalog", "the reusable catalogue is Yellow path three")
 eq(runState(yellowGame.save).rivalBallTaken, true,
   "Yellow's rival claim is durable before Oak offers the player a path")
 eq(yellowGame.writeCount, 1,
@@ -1687,6 +1844,14 @@ yellowScripts.talk.TEXT_OAKSLAB_EEVEE_POKE_BALL(
   yellowGame, yellowOw, {}, function() yellowDone = yellowDone + 1 end)
 local yellowCatalog = chooseYellowPath(yellowGame, 3)
 eq(yellowCatalog.mode, "balanced", "Yellow's third path opens the catalogue")
+local yellowCatalogHoenn = {}
+for _, row in ipairs(yellowCatalog.rows) do
+  if HOENN_CATALOG_IDS[row.id] then
+    yellowCatalogHoenn[#yellowCatalogHoenn + 1] = row.id
+  end
+end
+eq(table.concat(yellowCatalogHoenn, ","), "TORCHIC",
+  "Yellow's graphical catalogue includes RED's durable Hoenn reward")
 yellowCatalog:confirm()
 chooseText(yellowGame.stack, true)
 chooseText(yellowGame.stack, true)
