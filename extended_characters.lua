@@ -632,6 +632,12 @@ return function(mod, opts)
     else
       presets = { "RED", "ASH", "JACK" }
     end
+    -- Gen1Recomp 0.2.14+ keeps the preceding player-name prompt alive until
+    -- its native naming step closes it.  Ascendant replaces that step, so it
+    -- must release the engine-owned hold before opening its NamingScreen.
+    if type(speech.closeHoldBox) == "function" then
+      speech:closeHoldBox()
+    end
     pushNaming(speech, {
       title = playerNamingTitle(state), presets = presets, maxLen = speech.nameLen,
       onDone = function(name)

@@ -4,6 +4,13 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+
+- New games no longer return to the first player-name prompt or stall after
+  player/rival selection on Gen1Recomp 0.2.14. Ascendant now releases the
+  engine's held Oak-intro TextBox before opening its custom NamingScreen;
+  engines without that lifecycle method keep the previous path unchanged.
+
 ## [6.5.7] - 2026-08-18
 
 ### Fixed

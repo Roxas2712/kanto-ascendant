@@ -819,13 +819,21 @@ end
 local Screens = require("src.ui.Screens")
 local originalPush = Screens.push
 local pushed
+local playerHoldCloseCount = 0
 Screens.push = function(game, id, opts)
+  T.check(playerHoldCloseCount > 0,
+    "Gen1Recomp 0.2.14 player prompt closes before NamingScreen is pushed")
   pushed = { game = game, id = id, opts = opts }
 end
 local answers, playerDone = {}, 0
 characters.select("GREEN")
 local namingSpeech = {
   game = { save = { player = {} } }, nameLen = 7,
+  holdBox = { text = "First, what is your name?" },
+  closeHoldBox = function(self)
+    self.holdBox = nil
+    playerHoldCloseCount = playerHoldCloseCount + 1
+  end,
   recordAnswer = function(_, step, index, value, label)
     answers[#answers + 1] = { step = step.id, index = index,
       value = value, label = label }
@@ -833,6 +841,10 @@ local namingSpeech = {
 }
 introStep("name_player").run(namingSpeech,
   function() playerDone = playerDone + 1 end)
+T.eq(namingSpeech.holdBox, nil,
+  "custom player naming releases Gen1Recomp's held prompt")
+T.eq(playerHoldCloseCount, 1,
+  "custom player naming closes the held prompt exactly once")
 T.eq(pushed.id, "NamingScreen", "Green player uses the real naming screen")
 T.eq(pushed.opts.title, "HER NAME?", "Green player naming uses female wording")
 T.eq(pushed.opts.presets[1], "GREEN", "Green is the first player-name preset")
@@ -845,6 +857,23 @@ T.eq(namingSpeech.game.save.player.name, "LEAF",
   "custom Green player name is written to the vanilla save field")
 T.eq(answers[1].step, "name_player", "player naming records the original intro step")
 T.eq(playerDone, 1, "player naming advances exactly once")
+
+-- Keep the pre-0.2.14 contract valid too. If Gen1Recomp removes the held-box
+-- lifecycle again, Ascendant must continue directly to its naming screen.
+local legacyPlayerDone = 0
+local legacyNamingSpeech = {
+  game = { save = { player = {} } }, nameLen = 7,
+  recordAnswer = function() end,
+}
+introStep("name_player").run(legacyNamingSpeech,
+  function() legacyPlayerDone = legacyPlayerDone + 1 end)
+T.eq(pushed.id, "NamingScreen",
+  "engines without closeHoldBox keep the legacy naming path")
+pushed.opts.onDone("RED")
+T.eq(legacyNamingSpeech.game.save.player.name, "RED",
+  "legacy naming path still writes the selected player name")
+T.eq(legacyPlayerDone, 1,
+  "legacy naming path advances exactly once")
 
 characters.select("BLUE")
 local rivalDone = 0
