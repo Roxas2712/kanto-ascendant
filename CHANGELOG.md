@@ -4,6 +4,8 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+## [6.5.8] - 2026-08-21
+
 ### Fixed
 
 - New games no longer return to the first player-name prompt or stall after

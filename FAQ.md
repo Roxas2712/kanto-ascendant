@@ -1,6 +1,6 @@
 # Kanto Ascendant FAQ and Spoiler Guide
 
-This is the public reference for **Kanto Ascendant 6.5.7**. It applies to Red,
+This is the public reference for **Kanto Ascendant 6.5.8**. It applies to Red,
 Blue and Yellow and is maintained from the current mod code, release
 documentation and confirmed support reports.
 
@@ -40,7 +40,7 @@ breeding, shinies, Mega Evolution, Gorochu and a large Hall-of-Fame post-game.
 <summary><strong>⚠️ SPOILER — How do I install or update it?</strong></summary>
 
 1. Download the release `.zip` from the
-   [6.5.7 GitHub release](https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.5.7).
+   [6.5.8 GitHub release](https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.5.8).
 2. Import it through the Gen 1 Recomp launcher.
 3. Use Gen 1 Recomp **0.1.90** or newer. Disable every package the manager reports as a
    conflict, then enable **Kanto Ascendant** and restart.
@@ -536,7 +536,7 @@ Mankey in every active KANTO 151 game.
 <details>
 <summary><strong>⚠️ SPOILER — Do I need to start a new game for Johto Signals?</strong></summary>
 
-No. Version 6.5.7 upgrades existing Red, Blue and Yellow saves in place.
+No. Version 6.5.8 upgrades existing Red, Blue and Yellow saves in place.
 
 The signal system does not count steps taken before 6.0 was installed. Once
 the updated save has a starter and the Pokédex, it begins its own hidden

@@ -53,6 +53,18 @@ collapsed so players can reveal only the information they want.
 > [GitHub Issues](https://github.com/Roxas2712/kanto-ascendant/issues) and will
 > be considered for future updates.
 
+## What's new in 6.5.8
+
+- Fixes a Gen1Recomp 0.2.14 compatibility regression that could return to
+  Oak's first player-name prompt and stall after player/rival selection when
+  starting a new game.
+- Releases the engine-owned held intro prompt before Ascendant opens its
+  custom NamingScreen. Older engines—and a future engine that removes this
+  held-prompt lifecycle again—continue through the previous path unchanged.
+- Covers Red, Blue and Yellow as well as the Legacy/New Game Plus hand-off.
+
+See the full spoiler-light [6.5.8 release notes](RELEASE_NOTES_6.5.8.md).
+
 ## What's new in 6.5.7
 
 - Replaces the low-resolution Trainer Card with the approved 640×400 HD
@@ -1722,8 +1734,8 @@ ledger prevents duplicate delivery.
 > launcher-compatible `.zip`. A matching `.modpkg` may be retained only as an
 > internal build or verification artifact.
 
-1. Download `kanto_ascendant-6.5.7.zip` from the
-   [6.5.7 release](https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.5.7)
+1. Download `kanto_ascendant-6.5.8.zip` from the
+   [6.5.8 release](https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.5.8)
    and import it through the launcher. Developers may alternatively install
    the checked-out mod directory.
    If you downloaded a complete bundle, extract it first and import the inner
