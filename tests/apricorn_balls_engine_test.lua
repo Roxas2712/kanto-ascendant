@@ -31,7 +31,16 @@ end
 local modPath = os.getenv("TRAINER_REMATCH_MOD_DIR") or "mods/ka_rc11_integration"
 local sdkOpts = { data = Data }
 if modPath:sub(1, 1) == "/" then sdkOpts.root = "/" end
-local run = T.sdk.loadMod(modPath, sdkOpts)
+local assetSink = assert(loadfile(modPath
+  .. "/tests/headless_modkit_asset_sink.lua"))()(T, modPath, {
+  bridgeLove = true,
+  derivedPrefix = "save/mod-derived/kanto_ascendant/",
+})
+local loaded, run = pcall(T.sdk.loadMod, modPath, sdkOpts)
+if not loaded then
+  assetSink.cleanup()
+  error(run, 0)
+end
 check(run.mod and run.mod.state == "loaded", "Authority mod loads via real Loader")
 eq(#(run.errors or {}), 0, "Loader merge has no errors")
 local exports = assert(run.loader.exports.kanto_ascendant)
@@ -312,5 +321,6 @@ check(run.loader.modSave.kanto_ascendant
   "Apricorn save migration initializes through real mod.save")
 
 run.release()
+assetSink.cleanup()
 Version.engine = originalEngineVersion
 print("apricorn_balls_engine_test: PASS (" .. checks .. " checks)")
