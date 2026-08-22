@@ -1733,7 +1733,6 @@ return function(mod, baseData, opts)
     local unlocked = countKeys(s.achievements)
     local researchDone, researchTotal = researchCounts(s)
     local _, title = currentTitle(s)
-    local researchDone = countKeys(s.research.completed)
     return ("\f%s\n%s"):format(tr("CURRENT TITLE", "AKTIVER TITEL"), title)
       .. ("\f%s: %d/%d\n%s: %d/%d"):format(
         tr("ACHIEVEMENTS", "ERFOLGE"), unlocked, #data.achievements,

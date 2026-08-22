@@ -67,6 +67,14 @@ T.eq(root.items[2].screen, "AscendantCharacterTrainerOptions",
 T.check(root.items[1].help:find("Globale Pokémon", 1, true) ~= nil,
   "German Pokémon subgroup has localized SELECT help")
 
+local qol = assert(Data.screens.AscendantQolOptions.new(game, {}))
+local qolLabels = {}
+for _, item in ipairs(qol.items) do qolLabels[item.value] = item.label end
+T.eq(qolLabels.qol_exp_bar, "KAMPF-EP-LEISTE",
+  "German battle EXP bar option label is localized")
+T.eq(qolLabels.qol_caught_indicator, "GEFANGEN-ICON",
+  "German caught-indicator option label is localized")
+
 root.index = 2
 pressed = "select"
 root:update(0)

@@ -204,6 +204,7 @@ jobs:
           python3 tests/raichu_portrait_assets_test.py
           luajit tests/hgss_box_grid_icons_test.lua
           luajit tests/runtime_npc_public_placement_test.lua
+          luajit tests/ascendant_archive_research_count_67_test.lua
 
       - name: Run the ROM-free legacy fixture suites
         working-directory: kanto-ascendant
@@ -237,6 +238,8 @@ jobs:
           luajit ../kanto-ascendant/tests/legacy_wanderer_title_engine_test.lua
           luajit ../kanto-ascendant/tests/rematch_phase6_test.lua
           luajit ../kanto-ascendant/tests/rematch_visual_option_invariance_6511_test.lua
+          luajit ../kanto-ascendant/tests/runtime_locale_authority_67_test.lua
+          luajit ../kanto-ascendant/tests/visual_options_categories_de_test.lua
           luajit ../kanto-ascendant/tests/rematch_phase7_test.lua
           luajit ../kanto-ascendant/tests/rematch_phase8_test.lua
           luajit ../kanto-ascendant/tests/rematch_break_profiles_test.lua

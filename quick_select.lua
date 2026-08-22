@@ -12,7 +12,9 @@
 -- Ascendant's FIELD KIT wrapper sees the same selection it sees in the Bag
 -- and opens its normal field-tech menu.
 
-return function(mod)
+return function(mod, opts)
+  opts = opts or {}
+  local i18n = assert(opts.i18n, "quick_select requires i18n")
   local BagMenu = require("src.ui.BagMenu")
   local Menu = require("src.ui.Menu")
   local Q = {}
@@ -28,14 +30,11 @@ return function(mod)
   }
 
   local function isGerman()
-    return mod.find("deutsch") ~= nil
-      or mod.find("deutsch-blau") ~= nil
-      or mod.find("deutsch-gelb") ~= nil
-      or mod.options:get("language") == "de"
+    return i18n.isGerman()
   end
 
   local function tr(en, de)
-    return isGerman() and de or en
+    return i18n.text(en, de)
   end
 
   local function option(game, key)

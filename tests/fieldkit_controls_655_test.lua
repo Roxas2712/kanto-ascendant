@@ -71,7 +71,13 @@ local mod = {
   },
 }
 
-local quick = assert(loadfile(root .. "/quick_select.lua"))()(mod)
+local englishI18n = {
+  isGerman = function() return false end,
+  text = function(en) return en end,
+}
+local quick = assert(loadfile(root .. "/quick_select.lua"))()(mod, {
+  i18n = englishI18n,
+})
 mod.exports.quickSelect = quick
 mod.exports.fieldTech = {
   open = function() openCalls = openCalls + 1 end,
@@ -216,7 +222,9 @@ local reloadedMod = {
     if name == "input.step" then reloadHooks[priority] = fn end
   end },
 }
-local reloaded = assert(loadfile(root .. "/quick_select.lua"))()(reloadedMod)
+local reloaded = assert(loadfile(root .. "/quick_select.lua"))()(reloadedMod, {
+  i18n = englishI18n,
+})
 eq(reloaded.favorite(game), "FIELD:FLY",
   "favorite survives a clean runtime reload")
 check(type(reloadHooks[500]) == "function",

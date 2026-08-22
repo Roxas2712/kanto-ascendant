@@ -218,7 +218,12 @@ do
       }
     end } },
   }
-  assert(loadfile("catch_destination.lua"))()(catchMod)
+  assert(loadfile("catch_destination.lua"))()(catchMod, {
+    i18n = {
+      isGerman = function() return false end,
+      text = function(en) return en end,
+    },
+  })
   local shortQueued
   catchHandlers["pokemon.caught"]({
     game = {

@@ -170,7 +170,12 @@ local mod = {
 -- wrapper, then per-game Shiny System BoxMenu wrapper.
 local ui = assert(loadfile("ascendant_ui.lua"))()(mod)
 mod.ui.KantoListMenu = ui.ListMenu
-assert(loadfile("modern_storage_ui.lua"))()(mod)
+assert(loadfile("modern_storage_ui.lua"))()(mod, {
+  i18n = {
+    isGerman = function() return false end,
+    text = function(en) return en end,
+  },
+})
 local shiny = assert(loadfile("shiny_system.lua"))()(mod)
 
 local function makeMons(count)

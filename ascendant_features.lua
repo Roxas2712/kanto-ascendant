@@ -4,6 +4,7 @@
 return function(mod, opts)
   opts = opts or {}
   local optionHelp = opts.optionHelp
+  local i18n = assert(opts.i18n, "ascendant_features requires i18n")
   local ROOT_ID = "JohtoAscendantFeatures"
   local SCREEN_IDS = {
     storage = "JohtoAscendantStorageOptions",
@@ -15,14 +16,11 @@ return function(mod, opts)
   }
 
   local function german()
-    return mod.find("deutsch") ~= nil
-      or mod.find("deutsch-blau") ~= nil
-      or mod.find("deutsch-gelb") ~= nil
-      or mod.options:get("language") == "de"
+    return i18n.isGerman()
   end
 
   local function tr(en, de)
-    return german() and de or en
+    return i18n.text(en, de)
   end
 
   local toggle = { { true, "ON", "AN" }, { false, "OFF", "AUS" } }

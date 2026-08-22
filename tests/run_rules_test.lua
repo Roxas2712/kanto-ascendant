@@ -135,6 +135,12 @@ do
   })
   local features = assert(loadfile("ascendant_features.lua"))()(featureMod, {
     optionHelp = optionHelp,
+    i18n = {
+      isGerman = function() return featureValues.language == "de" end,
+      text = function(en, de)
+        return featureValues.language == "de" and de or en
+      end,
+    },
   })
   local info = features.runRulesInfo({ save = { player = { name = "LEAF" } } })
   ok(info:find("Oak's Lab", 1, true) ~= nil,

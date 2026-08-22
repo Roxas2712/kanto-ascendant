@@ -464,7 +464,7 @@ return function(mod)
   if not installedMod("jj_quick_select") then
     local installQuickSelect = loadSibling(mod, "quick_select.lua")
     if type(installQuickSelect) == "function" then
-      mod.exports.quickSelect = installQuickSelect(mod)
+      mod.exports.quickSelect = installQuickSelect(mod, { i18n = i18n })
     end
   else
     mod.exports.externalQuickSelect = true
@@ -819,14 +819,16 @@ return function(mod)
     -- registers them before this full Ascendant schema is defined; omitting
     -- them here made untouched profiles resolve EASY INTERACTIONS to nil,
     -- even though its submenu displayed the intended ON default.
-    { key = "qol_exp_bar", label = "BATTLE EXP BAR",
+    { key = "qol_exp_bar",
+      label = menuLabel("BATTLE EXP BAR", "KAMPF-EP-LEISTE"),
       type = "choice", default = "blue",
       choices = {
         { menuLabel("OFF", "AUS"), "off" },
         { menuLabel("ON (BLACK)", "AN (SCHWARZ)"), "black" },
         { menuLabel("ON (BLUE)", "AN (BLAU)"), "blue" },
       } },
-    { key = "qol_caught_indicator", label = "POKéDEX INDICATOR",
+    { key = "qol_caught_indicator",
+      label = menuLabel("POKéDEX INDICATOR", "GEFANGEN-ICON"),
       type = "choice", default = "red",
       choices = {
         { menuLabel("OFF", "AUS"), "off" },
@@ -1094,6 +1096,7 @@ return function(mod)
   if type(installAscendantFeatures) == "function" then
     mod.exports.ascendantFeatures = installAscendantFeatures(mod, {
       optionHelp = optionHelp,
+      i18n = i18n,
     })
   end
 
@@ -1102,10 +1105,12 @@ return function(mod)
   -- then install only the features that do not have an external owner.
   mod.events:once("mods.loaded", function()
     local installStorage = loadSibling(mod, "modern_storage_ui.lua")
-    if type(installStorage) == "function" then installStorage(mod) end
+    if type(installStorage) == "function" then
+      installStorage(mod, { i18n = i18n })
+    end
     local installCatchDestination = loadSibling(mod, "catch_destination.lua")
     if type(installCatchDestination) == "function" then
-      installCatchDestination(mod)
+      installCatchDestination(mod, { i18n = i18n })
     end
     local installFilters = loadSibling(mod, "storage_filters.lua")
     if type(installFilters) == "function" then installFilters(mod) end
@@ -1130,7 +1135,7 @@ return function(mod)
     end
     local installSummaryInsights = loadSibling(mod, "summary_insights.lua")
     if type(installSummaryInsights) == "function" then
-      installSummaryInsights(mod)
+      installSummaryInsights(mod, { i18n = i18n })
     end
     local installModernBalls = loadSibling(mod, "modern_ball_skins.lua")
     if type(installModernBalls) == "function" then installModernBalls(mod) end

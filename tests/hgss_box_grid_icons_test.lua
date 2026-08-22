@@ -113,7 +113,12 @@ local mod = {
   find = function() return nil end,
 }
 
-assert(loadfile(root .. "/modern_storage_ui.lua"))()(mod)
+assert(loadfile(root .. "/modern_storage_ui.lua"))()(mod, {
+  i18n = {
+    isGerman = function() return false end,
+    text = function(en) return en end,
+  },
+})
 local ui = assert(mod.exports.modernStorageUi, "storage export missing")
 
 local data = { pokemon = {

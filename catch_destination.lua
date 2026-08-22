@@ -2,23 +2,17 @@
 -- result; it only moves the newly stored record from the party to the active
 -- box after the engine has completed its normal catch bookkeeping.
 
-return function(mod)
+return function(mod, opts)
+  opts = opts or {}
+  local i18n = assert(opts.i18n, "catch_destination requires i18n")
   local Boxes = require("src.pokemon.Boxes")
   local TextBox = require("src.render.TextBox")
   local Party = require("src.pokemon.Party")
 
   local pending = setmetatable({}, { __mode = "k" })
 
-  local function tr(game, en, de)
-    local german = mod.find("deutsch") or mod.find("deutsch-blau")
-      or mod.find("deutsch-gelb")
-    local bucket = game and game.save and game.save.options
-      and game.save.options.modOptions
-      and game.save.options.modOptions[mod.id]
-    local language = bucket and bucket.language
-    if language == nil then language = mod.options:get("language") end
-    german = german or language == "de"
-    return german and de or en
+  local function tr(_, en, de)
+    return i18n.text(en, de)
   end
 
   local function isInParty(save, mon)

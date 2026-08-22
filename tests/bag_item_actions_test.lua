@@ -95,7 +95,12 @@ local mod = {
 
 -- Install in production order: Quick Select supplies explicit Bag metadata,
 -- Ascendant preserves SELECT move, then Useful Bag owns the pocket screen.
-assert(loadfile(modDir .. "/quick_select.lua"))()(mod)
+assert(loadfile(modDir .. "/quick_select.lua"))()(mod, {
+  i18n = {
+    isGerman = function() return language == "de" end,
+    text = function(en, de) return language == "de" and de or en end,
+  },
+})
 check(type(inputHook) == "function", "Quick Select installed its field hook")
 
 local helpCount = 0

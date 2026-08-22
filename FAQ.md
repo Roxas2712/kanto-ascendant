@@ -1888,6 +1888,10 @@ families and evolution branches are sealed to the save's durable playthrough
 identity before the first roster build, so changing visual options or
 reloading preserves the same complete roster.
 
+Ascendant's runtime menus follow the translation pack for the active edition.
+A German pack for another edition, or a stale private `language=de` value,
+does not switch an otherwise English game into mixed-language UI.
+
 </details>
 
 <details>

@@ -65,6 +65,9 @@ collapsed so players can reveal only the information they want.
   and makes Legacy Wanderer parties, moves, Rest AI and dialogue stage-safe.
 - Repairs release-list navigation, regional Box filters and durable Hoenn
   starter catalogue unlocks.
+- Prevents wrong-edition German packs or stale language values from mixing
+  locales, localizes both remaining raw QoL labels and fixes Crown Archive
+  research counts when optional assignments are disabled.
 - Fixes minimum-engine character art probing, VASC trainer-back orientation,
   Crystal cache reuse, Gorochu catalogue composition and Red's walk cycle;
   Blue and Green also retain their identity when mounting the Bicycle.

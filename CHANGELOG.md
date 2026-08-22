@@ -25,6 +25,9 @@ All notable changes to this project are documented in this file.
   catalogue.
 - The release list navigates vertically, and regional Box filters now enforce
   exact Kanto #001–151 and Johto #152–251 bounds.
+- Runtime helpers use the canonical active-edition locale authority; wrong
+  German packs and stale private language values no longer create mixed UI,
+  and both previously raw QoL labels are localized.
 - Character art avoids the minimum-engine sandbox's forbidden filesystem API,
   and native VASC trainer backs retain their correct facing.
 - Blue and Green keep their own bundled identity when Bicycle animation starts
@@ -42,6 +45,7 @@ All notable changes to this project are documented in this file.
   simultaneously.
 - Johto Masters dialogue now matches the implemented evolution, reward, reset,
   full-Bag and completion-status authorities.
+- Crown Archive research totals count only currently enabled assignments.
 
 ## [6.5.10] - 2026-08-22
 

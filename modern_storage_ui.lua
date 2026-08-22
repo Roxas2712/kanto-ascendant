@@ -4,7 +4,9 @@
 -- engine still owns item use, throwing away items, transfers, release
 -- confirmation, save writes and all compatibility hooks.
 
-return function(mod)
+return function(mod, opts)
+  opts = opts or {}
+  local i18n = assert(opts.i18n, "modern_storage_ui requires i18n")
   if mod.options:get("modern_storage_ui") == false then return end
 
   local Font = require("src.render.Font")
@@ -39,14 +41,11 @@ return function(mod)
   end
 
   local function german()
-    return mod.find("deutsch") ~= nil
-      or mod.find("deutsch-blau") ~= nil
-      or mod.find("deutsch-gelb") ~= nil
-      or mod.options:get("language") == "de"
+    return i18n.isGerman()
   end
 
   local function tr(en, de)
-    return german() and de or en
+    return i18n.text(en, de)
   end
 
   local function option(game, key)

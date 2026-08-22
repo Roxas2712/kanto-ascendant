@@ -5,19 +5,18 @@
 -- (0..65535). We name both concepts on-screen so players do not mistake the
 -- values for the later 31-IV / 252-EV ranges.
 
-return function(mod)
+return function(mod, opts)
+  opts = opts or {}
+  local i18n = assert(opts.i18n, "summary_insights requires i18n")
   local ok, SummaryMenu = pcall(require, "src.ui.SummaryMenu")
   if not ok or type(SummaryMenu) ~= "table" then return end
 
   local function german()
-    return mod.find("deutsch") ~= nil
-      or mod.find("deutsch-blau") ~= nil
-      or mod.find("deutsch-gelb") ~= nil
-      or mod.options:get("language") == "de"
+    return i18n.isGerman()
   end
 
   local function tr(en, de)
-    return german() and de or en
+    return i18n.text(en, de)
   end
 
   local function option(game, key)

@@ -42,6 +42,10 @@ required.
   screen's 5×4 grid controller.
 - KANTO and JOHTO Box filters are bounded to Dex #001–151 and #152–251;
   later/private IDs no longer leak into either region.
+- Runtime UI follows only the German translation pack matching the active
+  edition; an unrelated installed pack or stale private language value can no
+  longer mix German into an English game. The battle EXP bar and caught-icon
+  option labels now use their German menu text as well.
 - Save-derived character art uses the engine Assets API instead of a
   sandbox-forbidden filesystem probe on minimum supported engines.
 - Blue and Green retain their selected identity when mounting the Bicycle in
@@ -61,6 +65,8 @@ required.
   evolution rules instead of canonical trade requirements.
 - Reward target, reset and full-Bag behavior are stated accurately, and the
   completion-status handoff follows the actual 6.5 authority.
+- The Crown Archive research numerator now counts only currently enabled
+  assignments, so an old save cannot display values such as `4/1`.
 
 ## Followers
 
