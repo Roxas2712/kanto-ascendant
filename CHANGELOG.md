@@ -2,16 +2,36 @@
 
 All notable changes to this project are documented in this file.
 
-## [Unreleased]
+## [6.5.11] - 2026-08-22
 
 ### Fixed
 
+- Optional runtime hosts and visible Wilds now use bounded, reachable public
+  tiles and keep Celadon/Indigo entrances plus multi-cell map connections
+  clear.
+- The Poké Flute is restored to the normal battle Bag while Link and explicit
+  no-item battles remain sealed.
+- Full-Bag Ascendant rewards use a persistent, exact-once FIFO with migration
+  from the previous scalar pending reward.
+- Rematch Mastery gates Overheat, Frenzy Plant, Blast Burn and Hydro Cannon by
+  their save-bound receiver/Crown authority.
+- Durable Hoenn starter completions remain visible in Oak's later-life middle
+  catalogue.
+- The release list navigates vertically, and regional Box filters now enforce
+  exact Kanto #001–151 and Johto #152–251 bounds.
+- Character art avoids the minimum-engine sandbox's forbidden filesystem API,
+  and native VASC trainer backs retain their correct facing.
+- Valid Crystal caches are reused without a cold-start rewrite; Gorochu's
+  catalogue surfaces share one current normal/Shiny authority.
 - Red's Crystal walking cycle now uses the maintainer-supplied corrected
   down/left gait phases instead of keeping those silhouettes on the idle
   Y-position. The approved master, runtime copy and review board remain native
   16×16 nearest-neighbour art; Green, Blue and every non-walking surface are
   unchanged.
-
+- Native custom-ball preflight and the legacy Apricorn preview no longer run
+  simultaneously.
+- Johto Masters dialogue now matches the implemented evolution, reward, reset,
+  full-Bag and completion-status authorities.
 
 ## [6.5.10] - 2026-08-22
 

@@ -53,6 +53,23 @@ collapsed so players can reveal only the information they want.
 > [GitHub Issues](https://github.com/Roxas2712/kanto-ascendant/issues) and will
 > be considered for future updates.
 
+## What's new in 6.5.11
+
+- Keeps every dynamically generated host on reachable public floor tiles;
+  Celadon's Game Corner entrance and Indigo Plateau access lanes stay clear.
+- Restores the Poké Flute in the normal battle Bag while preserving Link and
+  explicit no-item restrictions, and queues full-Bag Ascendant rewards safely.
+- Prevents visible Wilds from blocking multi-cell map connections and seals
+  extended Rematch Mastery moves until their save-bound authority is earned.
+- Repairs release-list navigation, regional Box filters and durable Hoenn
+  starter catalogue unlocks.
+- Fixes minimum-engine character art probing, VASC trainer-back orientation,
+  Crystal cache reuse, Gorochu catalogue composition and Red's walk cycle.
+- Selects one Apricorn preview authority and aligns Johto Masters dialogue,
+  evolution rules and reward handoff with the implemented 6.5 systems.
+
+See the full spoiler-light [6.5.11 release notes](RELEASE_NOTES_6.5.11.md).
+
 ## What's new in 6.5.10
 
 - Corrects Red/Green's Yellow rival progression so the S.S. Anne Wartortle
@@ -1761,8 +1778,8 @@ ledger prevents duplicate delivery.
 > launcher-compatible `.zip`. A matching `.modpkg` may be retained only as an
 > internal build or verification artifact.
 
-1. Download `kanto_ascendant-6.5.10.zip` from the
-   [6.5.10 release](https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.5.10)
+1. Download `kanto_ascendant-6.5.11.zip` from the
+   [6.5.11 release](https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.5.11)
    and import it through the launcher. Developers may alternatively install
    the checked-out mod directory.
    If you downloaded a complete bundle, extract it first and import the inner
