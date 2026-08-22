@@ -4,6 +4,8 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+## [6.5.9] - 2026-08-22
+
 ### Fixed
 
 - Yellow now has renewable Koffing and Weezing encounters in Pokémon Mansion

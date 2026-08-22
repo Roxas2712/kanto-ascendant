@@ -53,7 +53,7 @@ collapsed so players can reveal only the information they want.
 > [GitHub Issues](https://github.com/Roxas2712/kanto-ascendant/issues) and will
 > be considered for future updates.
 
-## What's new in 6.5.9 (unpublished candidate)
+## What's new in 6.5.9
 
 - Restores renewable Koffing and Weezing acquisition in Yellow when KANTO 151
   is set to REWARDS or WILD, using only two former Raticate slots in Pokémon
@@ -64,10 +64,7 @@ collapsed so players can reveal only the information they want.
 - Verifies all six edition/mode combinations at 251/251 while keeping KANTO
   151 OFF and disabled legendary options as explicit configuration boundaries.
 
-This candidate has not been published. The current public download remains
-6.5.8 until maintainer approval.
-
-See the full spoiler-light [6.5.9 candidate release notes](RELEASE_NOTES_6.5.9.md).
+See the full spoiler-light [6.5.9 release notes](RELEASE_NOTES_6.5.9.md).
 
 ## What's new in 6.5.8
 
@@ -1750,8 +1747,8 @@ ledger prevents duplicate delivery.
 > launcher-compatible `.zip`. A matching `.modpkg` may be retained only as an
 > internal build or verification artifact.
 
-1. Download `kanto_ascendant-6.5.8.zip` from the
-   [6.5.8 release](https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.5.8)
+1. Download `kanto_ascendant-6.5.9.zip` from the
+   [6.5.9 release](https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.5.9)
    and import it through the launcher. Developers may alternatively install
    the checked-out mod directory.
    If you downloaded a complete bundle, extract it first and import the inner

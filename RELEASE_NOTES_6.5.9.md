@@ -1,7 +1,4 @@
-# Kanto Ascendant 6.5.9 — Yellow Kanto-151 Hotfix Candidate
-
-> **Unpublished candidate:** this build is prepared for maintainer review and
-> is not live. The current public release remains 6.5.8.
+# Kanto Ascendant 6.5.9 — Yellow Kanto-151 Hotfix
 
 Kanto Ascendant 6.5.9 is a save-compatible gameplay and validation hotfix for
 Pokémon Red, Blue and Yellow. No new save or story reset is required.
@@ -32,6 +29,13 @@ Pokémon Red, Blue and Yellow. No new save or story reset is required.
 
 ## Install or update
 
-This candidate is intentionally not available for download. If approved, it
-can be packaged and published through the normal Kanto Ascendant release
-process. Existing saves remain compatible.
+1. Close the game and launcher.
+2. Back up important saves.
+3. Import `kanto_ascendant-6.5.9.zip` through the launcher.
+4. Resolve every reported conflict, then restart the launcher and game.
+
+The matching checksum file is `SHA256SUMS-6.5.9.txt`.
+
+Please report reproducible issues with edition, engine version, platform,
+renderer, enabled mods, exact steps and—when progression is involved—a save
+file.
