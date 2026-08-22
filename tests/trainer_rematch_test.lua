@@ -52,22 +52,42 @@ local function packagedPath(runtimePath)
 end
 local sdkOpts = { data = Data }
 if modPath:sub(1, 1) == "/" then sdkOpts.root = "/" end
+
+-- Keep the public SDK's external-mod alias, first-run options and generated
+-- art on one test-owned filesystem without touching the host root.
+_G.__kaHeadlessAssetSink = assert(loadfile(modPath
+  .. "/tests/headless_modkit_asset_sink.lua"))()(T, modPath, {
+    derivedPrefix = "save/mod-derived/kanto_ascendant/",
+    bridgeLove = true,
+  })
 -- Source checkouts intentionally report 0.0.0-dev, while this release is
 -- pinned to the current public engine contract of 0.1.90. Stamp only this
 -- synthetic loader;
 -- the exact archived-engine gate independently validates the real range.
 _G.__kaTestSavedEngineVersion = require("src.core.Version").engine
 require("src.core.Version").engine = "0.1.90"
-local run = T.sdk.loadMod(modPath, sdkOpts)
+_G.__kaTrainerLoadOk, _G.__kaTrainerLoadResult =
+  pcall(T.sdk.loadMod, modPath, sdkOpts)
 require("src.core.Version").engine = _G.__kaTestSavedEngineVersion
 _G.__kaTestSavedEngineVersion = nil
+if not _G.__kaTrainerLoadOk then
+  _G.__kaHeadlessAssetSink.cleanup()
+  error(_G.__kaTrainerLoadResult, 0)
+end
+local run = _G.__kaTrainerLoadResult
+_G.__kaTrainerLoadOk, _G.__kaTrainerLoadResult = nil, nil
 if not run.mod then
   local rows = {}
   for id, loaded in pairs(run.loader and run.loader.mods or {}) do
     rows[#rows + 1] = tostring(id) .. "=" .. tostring(loaded.path)
   end
-  error("Kanto Ascendant did not load: " .. table.concat(run.errors or {}, " | ")
-    .. " discovered=" .. table.concat(rows, ","))
+  local reason = "Kanto Ascendant did not load: "
+    .. table.concat(run.errors or {}, " | ")
+    .. " discovered=" .. table.concat(rows, ",")
+  run.release()
+  _G.__kaHeadlessAssetSink.cleanup()
+  _G.__kaHeadlessAssetSink = nil
+  error(reason)
 end
 T.eq(#run.errors, 0, "loads clean")
 -- The shipped language layer follows an installed translation mod instead of
@@ -640,6 +660,10 @@ T.neq(ex.kantoCrystalBacks, nil,
 T.eq(ex.crystalSprites.FERALIGATR, true,
   "the visually tested Feraligatr Crystal pair is bundled")
 end)()
+-- The current public engine's headless image decoder is temporarily disabled
+-- while asserting renderer-free Crystal path and palette behavior.
+_G.__kaRendererFreeImage = love.image
+love.image = nil
 local RealRuntime = require("src.mods.Runtime")
 local crystalCtx = { species = "RAIKOU", side = "front", trueColor = false }
 local crystalPath = RealRuntime.call("pokemon.sprite",
@@ -1098,6 +1122,8 @@ T.eq(externalCrystalPath, "external/crystal/raikou/001.png",
   "an external Johto animation resolver takes priority over bundled stills")
 removeExternalCrystal()
 end
+love.image = _G.__kaRendererFreeImage
+_G.__kaRendererFreeImage = nil
 
 run.loader.modOptions.kanto_ascendant = { legend_art = "original" }
 local originalCtx = { species = "RAIKOU", side = "back", trueColor = false }
@@ -6522,4 +6548,6 @@ assert(loadfile(modPath .. "/tests/johto_signals_lind_spec.lua"))()(
 end)()
 
 run.release()
+_G.__kaHeadlessAssetSink.cleanup()
+_G.__kaHeadlessAssetSink = nil
 T.finish("kanto_ascendant")
