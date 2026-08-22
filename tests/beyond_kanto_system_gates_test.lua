@@ -384,6 +384,7 @@ do
   local grand = assert(loadfile("grand_tour.lua"))()(mod, {
     data = data, beyondKanto = boundary,
     postgame = { state = function() return { crownChampion = true } end },
+    placement = { findWideRandom = function() end },
   })
   active = false
   grand.install(game)

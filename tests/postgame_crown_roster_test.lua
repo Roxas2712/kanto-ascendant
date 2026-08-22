@@ -173,6 +173,7 @@ end
 local ascendantData = assert(loadfile("ascendant_data.lua"))()
 local ascendant = assert(loadfile("ascendant.lua"))()(mod, D, {
   data = ascendantData, postgame = postgame,
+  placement = { findWideRandom = function() end },
 })
 local function speciesCount(team, species)
   local count = 0

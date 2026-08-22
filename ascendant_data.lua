@@ -215,7 +215,8 @@ A.tournament = {
   name = "KANTO_ASCENDANT_TOURNAMENT_HOST",
   text = "MOD_KANTO_ASCENDANT_TOURNAMENT",
   sprite = "SPRITE_COOLTRAINER_F",
-  preferred = { { 7, 5 }, { 8, 5 }, { 7, 6 } },
+  preferred = { { 6, 8 }, { 7, 8 }, { 6, 9 }, { 7, 9 } },
+  publicArea = { minX = 6, maxX = 7, minY = 8, maxY = 9 },
   opponents = {
     {
       name = text("ACE MARA", "ASS MARA"), class = "OPP_COOLTRAINER_F",
@@ -454,7 +455,8 @@ A.newGamePlus = {
   name = "KANTO_ASCENDANT_STEWARD",
   textId = "MOD_KANTO_ASCENDANT_NEW_GAME_PLUS",
   sprite = "SPRITE_OAK",
-  preferred = { { 4, 5 }, { 5, 5 }, { 4, 6 } },
+  preferred = { { 8, 8 }, { 9, 8 }, { 8, 9 }, { 9, 9 } },
+  publicArea = { minX = 8, maxX = 9, minY = 8, maxY = 9 },
 }
 
 A.worldMoments = {

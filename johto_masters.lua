@@ -12,6 +12,7 @@ return function(mod, opts)
   local i18n = opts.i18n
   local journey = opts.journey
   local beyondKanto = opts.beyondKanto or opts.johtoBoundary
+  local placement = assert(opts.placement, "runtime NPC placement missing")
   local J = { game = nil }
 
   local function tr(en, de)
@@ -556,32 +557,6 @@ return function(mod, opts)
     return out
   end
 
-  local function findSpawnCell(ow)
-    local function free(x, y)
-      return ow.map:inBounds(x, y) and ow.map:isWalkableCell(x, y)
-        and not ow.map:warpAtCell(x, y) and not ow:npcAtCell(x, y)
-        and not (ow.player.cellX == x and ow.player.cellY == y)
-    end
-    for _, cell in ipairs(data.preferred or {}) do
-      if free(cell[1], cell[2]) then return cell[1], cell[2] end
-    end
-    -- Do not scan the complete map: the first technically walkable cells in
-    -- Indigo Plateau are behind the service counter.  A dynamic ambient NPC
-    -- may occupy a preferred cell, so retain a bounded public-floor fallback.
-    local area = data.publicArea or {}
-    local minX = math.max(0, math.floor(tonumber(area.minX) or 0))
-    local maxX = math.min(ow.map.widthCells - 1,
-      math.floor(tonumber(area.maxX) or (ow.map.widthCells - 1)))
-    local minY = math.max(0, math.floor(tonumber(area.minY) or 0))
-    local maxY = math.min(ow.map.heightCells - 1,
-      math.floor(tonumber(area.maxY) or (ow.map.heightCells - 1)))
-    for y = minY, maxY do
-      for x = minX, maxX do
-        if free(x, y) then return x, y end
-      end
-    end
-  end
-
   local function liveRuntimeHost(ow, ids)
     local expected = {}
     for _, id in ipairs(ids) do expected[id] = true end
@@ -611,7 +586,7 @@ return function(mod, opts)
     local toggles = game.save and game.save.objectToggles
       and game.save.objectToggles[data.map]
     if toggles then toggles[data.name] = nil end
-    local x, y = findSpawnCell(ow)
+    local x, y = placement.findWideRandom(ow, data.preferred)
     if not x then
       if mod.log and mod.log.warn then
         mod.log:warn("Johto Masters host has no free public Indigo cell")

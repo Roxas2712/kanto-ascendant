@@ -156,6 +156,7 @@ jobs:
       #   tests/legacy_252_279_data_engine_test.lua
       #   tests/legacy_rival_partner_engine_test.lua
       #   tests/vanilla_kanto_content_boundary_test.lua
+      #   tests/runtime_npc_public_placement_engine_test.lua
 
       - name: Run the Johto Signals regression suite
         working-directory: kanto-ascendant
@@ -202,6 +203,7 @@ jobs:
           python3 tests/gorochu_voxel_animation_test.py
           python3 tests/raichu_portrait_assets_test.py
           luajit tests/hgss_box_grid_icons_test.lua
+          luajit tests/runtime_npc_public_placement_test.lua
 
       - name: Run the ROM-free legacy fixture suites
         working-directory: kanto-ascendant

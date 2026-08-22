@@ -7,6 +7,7 @@
 return function(mod, opts)
   opts = opts or {}
   local i18n = opts.i18n
+  local placement = assert(opts.placement, "runtime NPC placement missing")
   local megaEvolution = assert(opts.megaEvolution, "Mega controller missing")
   local ascendantTyphlosion = assert(
     opts.ascendantTyphlosion, "Ascendant Typhlosion controller missing")
@@ -32,7 +33,7 @@ return function(mod, opts)
       npc = "KANTO_ASCENDANT_VERDANT_RELIC_KEEPER",
       text = "MOD_KANTO_ASCENDANT_VERDANT_RELIC",
       sprite = "SPRITE_COOLTRAINER_F",
-      preferred = { { 31, 21 }, { 30, 21 }, { 31, 20 } },
+      preferred = { { 36, 12 }, { 36, 11 }, { 37, 12 } },
     },
     totodile = {
       family = { TOTODILE = true, CROCONAW = true, FERALIGATR = true },
@@ -344,22 +345,6 @@ return function(mod, opts)
     return out
   end
 
-  local function findSpawnCell(ow, preferred)
-    local function free(x, y)
-      return ow.map:inBounds(x, y) and ow.map:isWalkableCell(x, y)
-        and not ow.map:warpAtCell(x, y) and not ow:npcAtCell(x, y)
-        and not (ow.player.cellX == x and ow.player.cellY == y)
-    end
-    for _, cell in ipairs(preferred or {}) do
-      if free(cell[1], cell[2]) then return cell[1], cell[2] end
-    end
-    for y = 0, ow.map.heightCells - 1 do
-      for x = 0, ow.map.widthCells - 1 do
-        if free(x, y) then return x, y end
-      end
-    end
-  end
-
   local function ensureNpc(game, def, should)
     if not (mod.world and def.map) then return end
     local ids = runtimeObjectIds(game, def)
@@ -370,7 +355,7 @@ return function(mod, opts)
     if #ids > 0 then return end
     local ow = mod.world:overworld()
     if not (ow and ow.map and ow.map.id == def.map) then return end
-    local x, y = findSpawnCell(ow, def.preferred)
+    local x, y = placement.findWideRandom(ow, def.preferred)
     if not x then return end
     mod.world:spawnNpc(def.map, {
       name = def.npc, sprite = def.sprite, movement = "STAY",

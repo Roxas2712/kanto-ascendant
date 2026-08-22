@@ -21,9 +21,8 @@ return {
   -- looked like an ordinary clerk and could be mistaken for missing.
   preferred = {
     { 10, 8 }, { 11, 8 }, { 10, 9 },
-    { 11, 9 }, { 9, 9 }, { 12, 9 },
   },
-  publicArea = { minX = 5, maxX = 12, minY = 7, maxY = 9 },
+  publicArea = { minX = 10, maxX = 11, minY = 8, maxY = 9 },
   trainers = {
     {
       key = "silver", name = text("SILVER", "SILVER"),

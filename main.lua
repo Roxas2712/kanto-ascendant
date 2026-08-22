@@ -1829,6 +1829,8 @@ return function(mod)
     spawnSafety = wildsSpawnSafety,
   })
   mod.exports.internalWilds = internalWilds
+  mod.exports.runtimeNpcPlacement = loadSibling(
+    mod, "runtime_npc_placement.lua")(mod)
   local ascendantData = loadSibling(mod, "ascendant_data.lua")
   local makeAscendant = loadSibling(mod, "ascendant.lua")
   local ascendant
@@ -2316,6 +2318,7 @@ return function(mod)
     worldEvents = worldEvents,
     kantoCompletion = kantoCompletion,
     legacyPaths = legacyPaths,
+    placement = mod.exports.runtimeNpcPlacement,
   })
   eventArchive.setAscendant(ascendant)
   postgame.extension = ascendant
@@ -2349,6 +2352,7 @@ return function(mod)
     i18n = i18n,
     journey = legacyJourney,
     beyondKanto = mod.exports.beyondKanto,
+    placement = mod.exports.runtimeNpcPlacement,
   })
   ascendant.setJohtoMasters(johtoMasters)
   mod.exports.johtoMasters = johtoMasters
@@ -2403,6 +2407,7 @@ return function(mod)
     i18n = i18n,
     megaEvolution = megaEvolution,
     ascendantTyphlosion = ascendantTyphlosion,
+    placement = mod.exports.runtimeNpcPlacement,
   })
   mod.exports.starterRelicQuests = starterRelicQuests
 
@@ -2432,6 +2437,7 @@ return function(mod)
     dialoguePagination = dialoguePagination,
     beyondKanto = mod.exports.beyondKanto,
     stepClock = playerStepClock,
+    placement = mod.exports.runtimeNpcPlacement,
     awardFrontierPoints = function(amount)
       local multiplier = worldEvents and worldEvents.frontierMultiplier
         and worldEvents.frontierMultiplier() or 1

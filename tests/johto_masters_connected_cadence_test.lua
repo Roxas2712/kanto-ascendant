@@ -103,6 +103,7 @@ end
 
 local masters = make(mod, {
   data = data, postgame = postgame, shinySystem = shinySystem,
+  placement = { findWideRandom = function() end },
   journey = {
     syncJohtoMastersPersistent = function(save)
       assert(save == game.save)
@@ -342,6 +343,7 @@ local partialGame = {
 }
 local partialMasters = make(partialMod, {
   data = data, postgame = postgame, shinySystem = shinySystem,
+  placement = { findWideRandom = function() end },
 })
 local partialState = partialMasters.syncCadence(partialGame)
 assert(partialState.activeRun and partialState.runSerial == 1
@@ -382,6 +384,7 @@ local rewardedGame = {
 }
 local rewardedMasters = make(rewardedMod, {
   data = data, postgame = postgame, shinySystem = shinySystem,
+  placement = { findWideRandom = function() end },
 })
 local rewardedState = rewardedMasters.syncCadence(rewardedGame)
 assert(rewardedState.passages.gold.status == "cleared"

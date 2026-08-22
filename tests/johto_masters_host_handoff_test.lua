@@ -83,6 +83,7 @@ local passages = {
 }
 local masters = make(mod, {
   data = data, postgame = postgame, shinySystem = { forceMon = function() end },
+  placement = { findWideRandom = function() return 10, 8 end },
   journey = { syncJohtoMastersPersistent = function(save)
     assert(save == gameSave, "Johto persistence received a detached save")
     archiveSyncs = archiveSyncs + 1
@@ -111,7 +112,7 @@ assert(host.mapId == "INDIGO_PLATEAU_LOBBY" and host.def.text == data.textId,
   "Indigo host did not expose johtoMastersData.textId")
 assert(host.def.x == 10 and host.def.y == 8,
   "Indigo host did not use the authored public visitor-floor position")
-assert(data.publicArea.minY == 7 and host.def.y >= data.publicArea.minY,
+assert(data.publicArea.minY == 8 and host.def.y >= data.publicArea.minY,
   "Indigo host regressed into the staff/counter area")
 assert(host.def.trainerClass == nil,
   "Indigo host must not retain the legacy Rival-2 direct-gauntlet class")

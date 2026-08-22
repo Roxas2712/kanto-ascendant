@@ -151,6 +151,7 @@ return function(mod, baseData, opts)
   local worldEvents = opts.worldEvents
   local kantoCompletion = opts.kantoCompletion
   local titleProvider = opts.titleProvider or opts.legacyPaths
+  local placement = assert(opts.placement, "runtime NPC placement missing")
   local johtoMasters
   local questTracker
   local trainerStates = opts.trainerStates or function() return {} end
@@ -801,22 +802,6 @@ return function(mod, baseData, opts)
     return out
   end
 
-  local function findSpawnCell(ow, preferred)
-    local function free(x, y)
-      return ow.map:inBounds(x, y) and ow.map:isWalkableCell(x, y)
-        and not ow.map:warpAtCell(x, y) and not ow:npcAtCell(x, y)
-        and not (ow.player.cellX == x and ow.player.cellY == y)
-    end
-    for _, cell in ipairs(preferred or {}) do
-      if free(cell[1], cell[2]) then return cell[1], cell[2] end
-    end
-    for y = 0, ow.map.heightCells - 1 do
-      for x = 0, ow.map.widthCells - 1 do
-        if free(x, y) then return x, y end
-      end
-    end
-  end
-
   local function removeLiveNpc(ow, npc)
     if not (ow and npc) then return end
     for _, list in ipairs({ ow.npcs or {}, ow.entities or {} }) do
@@ -836,7 +821,7 @@ return function(mod, baseData, opts)
     if #ids > 0 then return end
     local ow = mod.world:overworld()
     if not (ow and ow.map and ow.map.id == def.map) then return end
-    local x, y = findSpawnCell(ow, def.preferred)
+    local x, y = placement.findWideRandom(ow, def.preferred)
     if not x then
       mod.log:warn("no free spawn cell for %s on %s", def.name, def.map)
       return

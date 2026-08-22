@@ -135,6 +135,7 @@ return function(mod, opts)
   local i18n = opts.i18n
   local dialoguePagination = opts.dialoguePagination
   local beyondKanto = opts.beyondKanto or opts.johtoBoundary
+  local placement = assert(opts.placement, "runtime NPC placement missing")
   local G = { game = nil }
   local activeFactory
 
@@ -826,22 +827,6 @@ return function(mod, opts)
     return out
   end
 
-  local function findSpawnCell(ow, preferred)
-    local function free(x, y)
-      return ow.map:inBounds(x, y) and ow.map:isWalkableCell(x, y)
-        and not ow.map:warpAtCell(x, y) and not ow:npcAtCell(x, y)
-        and not (ow.player.cellX == x and ow.player.cellY == y)
-    end
-    for _, cell in ipairs(preferred or {}) do
-      if free(cell[1], cell[2]) then return cell[1], cell[2] end
-    end
-    for y = 0, ow.map.heightCells - 1 do
-      for x = 0, ow.map.widthCells - 1 do
-        if free(x, y) then return x, y end
-      end
-    end
-  end
-
   local function ensureHost(game, mapId, def)
     local ids = runtimeObjectIds(game, def)
     local should = eligible() and mapId == def.map
@@ -852,7 +837,7 @@ return function(mod, opts)
     if #ids > 0 then return end
     local ow = mod.world:overworld()
     if not (ow and ow.map and ow.map.id == def.map) then return end
-    local x, y = findSpawnCell(ow, def.preferred)
+    local x, y = placement.findWideRandom(ow, def.preferred)
     if not x then
       if mod.log then mod.log:warn("no free Grand Tour host cell on %s", def.map) end
       return

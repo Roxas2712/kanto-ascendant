@@ -8,7 +8,8 @@ end
 local function key(x, y) return tostring(x) .. "," .. tostring(y) end
 
 local randomCalls = 0
-local placement = assert(loadfile(ROOT .. "/runtime_npc_placement.lua"))({
+local makePlacement = assert(loadfile(ROOT .. "/runtime_npc_placement.lua"))()
+local placement = makePlacement({
   exports = {},
 }, {
   random = function(limit)
@@ -30,7 +31,7 @@ local placementMod = {
     occupancy = function() return occupancy end,
   } } },
 }
-placement = assert(loadfile(ROOT .. "/runtime_npc_placement.lua"))(
+placement = makePlacement(
   placementMod, {
     random = function(limit)
       randomCalls = randomCalls + 1
@@ -86,7 +87,7 @@ local relicMod = {
   hooks = { wrap = function() end }, events = { on = function() end },
   world = {}, ui = {},
 }
-local relics = assert(loadfile(ROOT .. "/starter_relic_quests.lua"))(relicMod, {
+local relics = assert(loadfile(ROOT .. "/starter_relic_quests.lua"))()(relicMod, {
   placement = placement,
   megaEvolution = {
     hasStone = function() return false end,

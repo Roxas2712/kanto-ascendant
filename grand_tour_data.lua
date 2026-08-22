@@ -28,7 +28,8 @@ return {
     name = "KANTO_ASCENDANT_BATTLE_FACTORY",
     textId = "MOD_KANTO_ASCENDANT_BATTLE_FACTORY",
     sprite = "SPRITE_COOLTRAINER_F",
-    preferred = { { 13, 5 }, { 12, 5 }, { 13, 6 }, { 12, 6 } },
+    preferred = { { 12, 8 }, { 13, 8 }, { 14, 8 } },
+    publicArea = { minX = 12, maxX = 14, minY = 8, maxY = 8 },
     rounds = 3,
     candidates = {
       mon("VENUSAUR", { "RAZOR_LEAF", "SLEEP_POWDER", "BODY_SLAM", "REFLECT" }),
