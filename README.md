@@ -53,6 +53,22 @@ collapsed so players can reveal only the information they want.
 > [GitHub Issues](https://github.com/Roxas2712/kanto-ascendant/issues) and will
 > be considered for future updates.
 
+## What's new in 6.5.9 (unpublished candidate)
+
+- Restores renewable Koffing and Weezing acquisition in Yellow when KANTO 151
+  is set to REWARDS or WILD, using only two former Raticate slots in Pokémon
+  Mansion B1F.
+- Replaces the Red-only reachability snapshot with a real Red/Blue/Yellow
+  matrix covering actual wild encounters, fishing, gifts, trades, events,
+  research eggs, evolution and configurable legendary paths.
+- Verifies all six edition/mode combinations at 251/251 while keeping KANTO
+  151 OFF and disabled legendary options as explicit configuration boundaries.
+
+This candidate has not been published. The current public download remains
+6.5.8 until maintainer approval.
+
+See the full spoiler-light [6.5.9 candidate release notes](RELEASE_NOTES_6.5.9.md).
+
 ## What's new in 6.5.8
 
 - Fixes a Gen1Recomp 0.2.14 compatibility regression that could return to

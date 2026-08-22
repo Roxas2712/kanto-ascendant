@@ -4,6 +4,20 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+
+- Yellow now has renewable Koffing and Weezing encounters in Pokémon Mansion
+  B1F whenever KANTO 151 is set to REWARDS or WILD. Only two former Raticate
+  slots change; Red, Blue and every other Mansion species remain untouched.
+- The reachability audit now evaluates the actual Red, Blue and Yellow wild,
+  fishing, gift, fossil, NPC-trade, event, research, evolution and legendary
+  authorities separately. It no longer lets Red's Mansion table mask a Yellow
+  gap, correctly finds Horsea through the Super Rod and derives Yellow's Jynx
+  from the guaranteed Smoochum research egg.
+- KANTO 151 OFF and deliberately disabled legendary options are reported as
+  explicit configuration boundaries instead of false 251-species success or
+  product defects.
+
 ## [6.5.8] - 2026-08-21
 
 ### Fixed

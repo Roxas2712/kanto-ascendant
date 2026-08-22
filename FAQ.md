@@ -1,7 +1,8 @@
 # Kanto Ascendant FAQ and Spoiler Guide
 
-This is the public reference for **Kanto Ascendant 6.5.8**. It applies to Red,
-Blue and Yellow and is maintained from the current mod code, release
+This is the candidate reference for **Kanto Ascendant 6.5.9**. The candidate
+is not published yet; the current public release remains 6.5.8. It applies to
+Red, Blue and Yellow and is maintained from the current mod code, release
 documentation and confirmed support reports.
 
 > [!WARNING]
@@ -474,6 +475,18 @@ These changes apply in every edition when KANTO 151 is active:
 | Electabuzz | Power Plant |
 | Eevee, level 25, 2% | Route 7 after the first Hall of Fame |
 
+Yellow additionally repairs the two edition-specific gaps left by its native
+Pokémon Mansion table:
+
+| Pokémon | Location and exact encounter slot |
+|---|---|
+| Koffing Lv.35 | Pokémon Mansion B1F, slot 4, 10% |
+| Weezing Lv.40 | Pokémon Mansion B1F, slot 8, 5% |
+
+Those two Yellow-only entries replace Raticate slots. Grimer/Muk, Growlithe,
+Magmar, Ditto, Ponyta and the Growlithe/Vulpix edition identity are unchanged.
+Koffing can still evolve into Weezing at level 35.
+
 Former trade evolutions also gain level routes:
 
 - Kadabra → Alakazam at level 42
@@ -536,7 +549,7 @@ Mankey in every active KANTO 151 game.
 <details>
 <summary><strong>⚠️ SPOILER — Do I need to start a new game for Johto Signals?</strong></summary>
 
-No. Version 6.5.8 upgrades existing Red, Blue and Yellow saves in place.
+No. Version 6.5.9 upgrades existing Red, Blue and Yellow saves in place.
 
 The signal system does not count steps taken before 6.0 was installed. Once
 the updated save has a starter and the Pokédex, it begins its own hidden

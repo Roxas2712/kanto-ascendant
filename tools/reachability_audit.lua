@@ -1,11 +1,10 @@
--- ROM-free acquisition and data-integrity audit for Kanto Ascendant 5.0.
+-- Acquisition and data-integrity audit for Kanto Ascendant.
 --
--- The engine's public fixture is deliberately tiny.  seedFixture() expands
--- that fixture with a factual, compact snapshot of Pokemon Red's encounter
--- slots and with schema-correct placeholders for the canonical Kanto roster
--- and for content authorities needed while the complete mod registers.
--- The mod is then loaded normally, so its real patches, Johto registrations
--- and evolution rows are what audit() inspects.
+-- audit() consumes the caller's active edition data. seedFixture() remains a
+-- ROM-free schema smoke-test helper only; it must never be used as evidence
+-- for Red/Blue/Yellow reachability. The edition matrix loads each imported
+-- dataset independently and passes its real grass, water, fishing and trade
+-- authorities here.
 
 local A = {}
 
@@ -332,31 +331,40 @@ function A.seedFixture(data)
     end
     data.encounters[mapId] = encounter
   end
+  -- ROM-free Red-shaped smoke-test authorities. The real edition matrix does
+  -- not call seedFixture(); it reads the imported per-edition field tables.
+  data.field = data.field or {}
+  data.field.superRod = {
+    ROUTE_10 = {
+      { species = "KRABBY", level = 15 },
+      { species = "HORSEA", level = 15 },
+    },
+    SAFARI_ZONE_CENTER = {
+      { species = "DRATINI", level = 15 },
+    },
+  }
+  data.field.trades = {
+    { give = "ABRA", get = "MR_MIME" },
+    { give = "SPEAROW", get = "FARFETCHD" },
+    { give = "SLOWBRO", get = "LICKITUNG" },
+    { give = "POLIWHIRL", get = "JYNX" },
+  }
   return data
 end
 
-local KANTO_SPECIAL = {
+local ALWAYS_KANTO_SPECIAL = {
+  { "AERODACTYL", "Old Amber revival" },
+  { "LAPRAS", "Silph Co. gift" },
+  { "PORYGON", "Celadon Game Corner prize" },
+  { "SNORLAX", "Poké Flute static encounter" },
+}
+
+local REWARD_KANTO_SPECIAL = {
   { "BULBASAUR", "Master Erika reward" },
   { "SQUIRTLE", "Master Misty reward" },
   { "CHARMANDER", "Master Blaine reward" },
   { "OMANYTE", "Helix Fossil revival / Master Brock recovery" },
   { "KABUTO", "Dome Fossil revival / Master Brock recovery" },
-  { "AERODACTYL", "Old Amber revival" },
-  { "EEVEE", "Route 7 post-League encounter (2%)" },
-  { "FARFETCHD", "Vermilion in-game trade" },
-  { "MR_MIME", "Route 2 in-game trade" },
-  { "JYNX", "Cerulean in-game trade" },
-  { "LICKITUNG", "Route 18 in-game trade" },
-  { "HITMONLEE", "Fighting Dojo gift choice / Victory Road slot" },
-  { "HITMONCHAN", "Fighting Dojo gift choice / Victory Road slot" },
-  { "LAPRAS", "Silph Co. gift" },
-  { "PORYGON", "Celadon Game Corner prize" },
-  { "SNORLAX", "Poké Flute static encounter" },
-  { "POLIWAG", "Good Rod encounter table" },
-  { "KRABBY", "Super Rod encounter table" },
-  { "GOLDEEN", "Good Rod encounter table" },
-  { "MAGIKARP", "Old Rod encounter table" },
-  { "DRATINI", "Safari Zone Super Rod encounter table" },
 }
 
 local KANTO_STONES = {
@@ -375,10 +383,15 @@ local function addError(report, text)
   report.errors[#report.errors + 1] = text
 end
 
-function A.audit(data, exports, extraData)
+function A.audit(data, exports, extraData, opts)
+  opts = opts or {}
+  local edition = tostring(opts.edition or "unknown"):lower()
+  local mode = tostring(opts.mode or "ascendant"):lower()
   local report = {
     errors = {}, reachable = {}, sources = {}, edges = {},
-    wildSlots = 0, habitatRows = 0,
+    wildSlots = 0, fishingSlots = 0, habitatRows = 0,
+    edition = edition, mode = mode, missing = {},
+    configBoundaries = {}, excludedSpecies = {},
   }
   local johto = assert(exports.johtoData, "johtoData export required")
   local postgame = assert(exports.postgameData, "postgameData export required")
@@ -447,6 +460,18 @@ function A.audit(data, exports, extraData)
     report.sources[species][#report.sources[species] + 1] = label
   end
 
+  local function legendEnabled(species)
+    if type(opts.legends) == "table" and opts.legends[species] == false then
+      if not report.excludedSpecies[species] then
+        report.excludedSpecies[species] = true
+        report.configBoundaries[#report.configBoundaries + 1] =
+          species .. " disabled by configuration"
+      end
+      return false
+    end
+    return true
+  end
+
   for index, id in ipairs(johto.order or {}) do
     local expected = JOHTO_ORDER[index]
     if id ~= expected then
@@ -486,7 +511,23 @@ function A.audit(data, exports, extraData)
       end
     end
   end
-  for _, row in ipairs(KANTO_SPECIAL) do source(row[1], row[2]) end
+  for mapId, rows in pairs(data.field and data.field.superRod or {}) do
+    for slot, row in ipairs(rows) do
+      report.fishingSlots = report.fishingSlots + 1
+      source(row.species, ("Super Rod %s slot %d (Lv%d)")
+        :format(mapId, slot, tonumber(row.level) or 0))
+    end
+  end
+  source("MAGIKARP", "Old Rod encounter")
+  source("GOLDEEN", "Good Rod encounter")
+  source("POLIWAG", "Good Rod encounter")
+  for _, row in ipairs(ALWAYS_KANTO_SPECIAL) do source(row[1], row[2]) end
+  if mode == "ascendant" then
+    for _, row in ipairs(REWARD_KANTO_SPECIAL) do source(row[1], row[2]) end
+  end
+  if mode ~= "off" then
+    source("EEVEE", "Route 7 post-League encounter (2%)")
+  end
 
   for key, row in pairs(johto.starters or {}) do
     source(row.species, "Johto starter trial " .. key)
@@ -513,16 +554,20 @@ function A.audit(data, exports, extraData)
   end
 
   for species, row in pairs(postgame.staticLegends or {}) do
-    source(species, "static legend event at " .. tostring(row.map))
+    if legendEnabled(species) then
+      source(species, "static legend event at " .. tostring(row.map))
+    end
   end
   for species in pairs(postgame.roamers or {}) do
-    source(species, "roaming legendary event")
+    if legendEnabled(species) then source(species, "roaming legendary event") end
   end
   for species, row in pairs(postgame.spawnedLegends or {}) do
-    source(species, "spawned legend event at " .. tostring(row.map))
+    if legendEnabled(species) then
+      source(species, "spawned legend event at " .. tostring(row.map))
+    end
   end
   for _, profile in ipairs((exports.eventData or {}).profiles or {}) do
-    if profile.species == "MEW" then
+    if profile.species == "MEW" and legendEnabled("MEW") then
       source(profile.species, "Kanto Heritage Mew event")
     end
   end
@@ -543,6 +588,17 @@ function A.audit(data, exports, extraData)
             :format(tostring(edge.to), from))
         end
       end
+    end
+  end
+  for index, trade in ipairs(data.field and data.field.trades or {}) do
+    if validSpecies[trade.give] and validSpecies[trade.get] then
+      local edge = {
+        from = trade.give, to = trade.get, method = "NPC_TRADE",
+        detail = ("edition %s trade #%d"):format(edition, index),
+      }
+      report.edges[#report.edges + 1] = edge
+      incoming[edge.to] = incoming[edge.to] or {}
+      incoming[edge.to][#incoming[edge.to] + 1] = edge
     end
   end
 
@@ -638,8 +694,11 @@ function A.audit(data, exports, extraData)
         reasons[#reasons + 1] = edge.from .. " -> " .. species .. " (" .. why .. ")"
       end
       if #reasons == 0 then reasons[1] = "no direct source and no incoming evolution" end
-      addError(report, ("Dex #%03d %s unreachable: %s")
-        :format(dex, species, table.concat(reasons, "; ")))
+      report.missing[#report.missing + 1] = species
+      if mode ~= "off" and not report.excludedSpecies[species] then
+        addError(report, ("Dex #%03d %s unreachable: %s")
+          :format(dex, species, table.concat(reasons, "; ")))
+      end
     end
   end
 
@@ -690,6 +749,20 @@ function A.audit(data, exports, extraData)
     end
   end
   report.reachableCount = reachableCount
+  local excludedCount, configuredReachable = 0, 0
+  for dex = 1, 251 do
+    local species = byDex[dex]
+    if species then
+      if report.excludedSpecies[species] then
+        excludedCount = excludedCount + 1
+      elseif report.reachable[species] then
+        configuredReachable = configuredReachable + 1
+      end
+    end
+  end
+  report.configuredTarget = 251 - excludedCount
+  report.configuredReachableCount = configuredReachable
+  report.completionEligible = mode ~= "off"
   report.guestReachable = {}
   for _, species in ipairs(guestSpecies) do
     if report.reachable[species] then
@@ -708,20 +781,33 @@ function A.audit(data, exports, extraData)
     end
   end
   report.ok = #report.errors == 0
+    and (not report.completionEligible
+      or report.configuredReachableCount == report.configuredTarget)
   return report
 end
 
 function A.format(report)
   local lines = {
-    ("Reachability: %d/251 species"):format(report.reachableCount or 0),
-    ("Encounter graph: %d real slots, %d evolution edges, %d Living-Johto habitats")
-      :format(report.wildSlots or 0, #(report.edges or {}), report.habitatRows or 0),
+    ("Reachability %s/%s: %d/251 species")
+      :format(tostring(report.edition or "unknown"):upper(),
+        tostring(report.mode or "unknown"):upper(), report.reachableCount or 0),
+    ("Configured boundary: %d/%d%s")
+      :format(report.configuredReachableCount or 0,
+        report.configuredTarget or 251,
+        report.completionEligible and "" or " (KANTO 151 OFF)"),
+    ("Encounter graph: %d wild slots, %d fishing slots, %d evolution/trade edges, %d Living-Johto habitats")
+      :format(report.wildSlots or 0, report.fishingSlots or 0,
+        #(report.edges or {}), report.habitatRows or 0),
     "Guest evolutions reachable: "
       .. (#(report.guestReachable or {}) > 0
         and table.concat(report.guestReachable, ", ") or "none"),
     "Renewable Johto evolution items: "
       .. table.concat(report.renewableJohtoItems or {}, ", "),
   }
+  if #(report.configBoundaries or {}) > 0 then
+    lines[#lines + 1] = "Configuration boundaries: "
+      .. table.concat(report.configBoundaries, "; ")
+  end
   if report.ok then
     lines[#lines + 1] = "Species and move references: valid"
   else

@@ -8,6 +8,8 @@
 
 package.path = "./?.lua;./?/init.lua;" .. package.path
 local T = require("tests.modkit")
+local Version = require("src.core.Version")
+if Version.engine == "0.0.0-dev" then Version.engine = "0.2.14" end
 local Data = T.fixtures.load()
 local modPath = os.getenv("TRAINER_REMATCH_MOD_DIR") or "mods/kanto_ascendant"
 local audit = assert(loadfile(modPath .. "/tools/reachability_audit.lua"))()

@@ -1237,6 +1237,7 @@ return function(mod)
     i18n = i18n,
     contentEnabled = contentEnabled,
     legacyJourney = legacyJourney,
+    gameVersion = GameVersion,
   })
   mod.exports.kantoCompletion = kantoCompletion
   local makeFieldTech = loadSibling(mod, "field_tech.lua")

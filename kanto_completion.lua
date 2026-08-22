@@ -106,6 +106,16 @@ local SHARED_ENCOUNTERS = {
   },
 }
 
+-- Yellow removes the Koffing family from every native Mansion floor. Keep
+-- the shared B1F completion table intact, then replace only two of Yellow's
+-- remaining Raticate slots. Red and Blue retain their native family slots.
+local YELLOW_ENCOUNTERS = {
+  POKEMON_MANSION_B1F = {
+    [4] = { level = 35, species = "KOFFING" },
+    [8] = { level = 40, species = "WEEZING" },
+  },
+}
+
 local WILD_ENCOUNTERS = {
   SAFARI_ZONE_EAST = {
     [10] = { level = 23, species = "BULBASAUR" },
@@ -198,6 +208,7 @@ return function(mod, opts)
   opts = opts or {}
   local i18n = opts.i18n
   local legacyJourney = opts.legacyJourney or opts.journey
+  local gameVersion = opts.gameVersion
   local enabled = opts.contentEnabled ~= false
   local K = { game = nil, enabled = enabled }
 
@@ -242,6 +253,7 @@ return function(mod, opts)
   K.criticalAcquisitions = CRITICAL_ACQUISITIONS
   K.tradeEvolutions = TRADE_EVOLUTIONS
   K.sharedEncounters = SHARED_ENCOUNTERS
+  K.yellowEncounters = YELLOW_ENCOUNTERS
   K.wildEncounters = WILD_ENCOUNTERS
   K.rewardGuardEncounters = REWARD_GUARD_ENCOUNTERS
   K.postgameEevee = POSTGAME_EEVEE
@@ -268,6 +280,12 @@ return function(mod, opts)
 
     for mapId, replacements in pairs(SHARED_ENCOUNTERS) do
       patchEncounter(mapId, replacements)
+    end
+    if gameVersion and type(gameVersion.get) == "function"
+        and gameVersion.get() == "yellow" then
+      for mapId, replacements in pairs(YELLOW_ENCOUNTERS) do
+        patchEncounter(mapId, replacements)
+      end
     end
     if selected == "wild" then
       for mapId, replacements in pairs(WILD_ENCOUNTERS) do
