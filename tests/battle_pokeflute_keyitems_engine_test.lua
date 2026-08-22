@@ -249,47 +249,23 @@ eq(linkEnemy.status, "SLP", "link Bag navigation cannot mutate the peer")
 eq(linkGame.save.inventory.POKE_FLUTE, 1,
   "link Bag navigation cannot consume the POKe FLUTE")
 
--- World Rank tournaments seal all items at the menu and final effect
--- boundaries. The useful Bag must respect that marker even if its screen
--- factory is called directly.
-local policy = assert(loadfile(modDir
-  .. "/ngplus_tournament_battle_policy.lua"))()({})
-local BattleState = require("src.battle.BattleState")
-local BagMenu = require("src.ui.BagMenu")
-local ItemEffects = require("src.inventory.ItemEffects")
-policy.install({ battleState = BattleState, bagMenu = BagMenu,
-  itemEffects = ItemEffects })
-local tournamentMon = { species = "PIKACHU", status = "SLP" }
-local tournamentEnemy = { species = "GASTLY", status = "SLP" }
-local tournamentGame = makeGame({ POKE_FLUTE = 1, TOWN_MAP = 1 },
-  { "POKE_FLUTE", "TOWN_MAP" }, { tournamentMon })
-local tournamentTurns = 0
-local tournamentBattle = {
-  kind = "trainer", game = tournamentGame,
-  player = { mon = tournamentMon }, enemy = { mon = tournamentEnemy },
-  enemyParty = { tournamentEnemy },
-  itemUsed = function() tournamentTurns = tournamentTurns + 1 end,
-}
-policy.apply(tournamentBattle, { policy = { noItems = true } })
-eq(BattleState.openItems(tournamentBattle), nil,
-  "World Rank blocks the battle Bag at its primary boundary")
-local tournamentBag = pushBattleBag(tournamentGame, tournamentBattle)
-check(tournamentBag.ascendantTournamentItemsBlocked == true,
-  "World Rank marks a direct Bag path as sealed")
-check(cycleNeverShows(tournamentBag, "POKE_FLUTE"),
-  "World Rank never exposes POKe FLUTE through a direct Bag path")
-local result, _, extra = ItemEffects.use(Data, tournamentGame.save,
-  "POKE_FLUTE", nil, tournamentBattle)
-eq(result, "failed", "World Rank blocks direct POKe FLUTE effects")
-check(extra and extra.ascendantTournamentItemsBlocked == true,
-  "World Rank direct-effect refusal retains its policy receipt")
-eq(tournamentMon.status, "SLP",
-  "World Rank direct-effect refusal does not wake the party")
-eq(tournamentEnemy.status, "SLP",
-  "World Rank direct-effect refusal does not wake the opponent")
-eq(tournamentTurns, 0, "World Rank refusal spends no battle turn")
-eq(tournamentGame.save.inventory.POKE_FLUTE, 1,
-  "World Rank refusal cannot consume the POKe FLUTE")
+-- 6.5's explicit no-item battle marker remains sealed. World Rank's separate
+-- policy module is a 6.7-only feature and is intentionally not backported.
+local sealedMon = { species = "PIKACHU", status = "SLP" }
+local sealedEnemy = { species = "GASTLY", status = "SLP" }
+local sealedGame = makeGame({ POKE_FLUTE = 1, TOWN_MAP = 1 },
+  { "POKE_FLUTE", "TOWN_MAP" }, { sealedMon })
+local sealedBag = pushBattleBag(sealedGame, {
+  kind = "trainer", ascendantNoItems = true,
+  player = { mon = sealedMon }, enemy = { mon = sealedEnemy },
+  enemyParty = { sealedEnemy },
+})
+check(cycleNeverShows(sealedBag, "POKE_FLUTE"),
+  "explicit no-item battles never expose POKe FLUTE")
+eq(sealedMon.status, "SLP", "sealed Bag navigation cannot wake the party")
+eq(sealedEnemy.status, "SLP", "sealed Bag navigation cannot wake the opponent")
+eq(sealedGame.save.inventory.POKE_FLUTE, 1,
+  "sealed Bag navigation cannot consume the POKe FLUTE")
 
 print(("battle_pokeflute_keyitems_engine_test: PASS engine=%s edition=%s checks=%d")
   :format(expectedEngine, edition, checks))
