@@ -1802,6 +1802,21 @@ do
     "assets/yellow_partner_raichu_portraits/normal/content/001.png",
     1, true) ~= nil, true,
     "happy Raichu uses the supplied dedicated expression")
+  local followerConfig = ex.followerConfig
+  T.neq(followerConfig, nil,
+    "the Yellow Raichu face option controller is exported")
+  followerConfig.setRaichuFaces("classic_yellow")
+  local classicPortraitFiles = yellowPartner._portraitFrames(
+    mon("RAICHU"), devotedReaction)
+  T.eq(classicPortraitFiles[1]:find(
+    "assets/yellow_partner_raichu_classic_portraits/normal/devoted/001.png",
+    1, true) ~= nil, true,
+    "classic Yellow option selects the alternate Raichu face set")
+  for _, path in ipairs(classicPortraitFiles) do
+    local handle = io.open(packagedPath(path), "rb")
+    T.neq(handle, nil, "classic Yellow Raichu portrait frame is packaged")
+    if handle then handle:close() end
+  end
   T.eq(Data.pokemon.RAICHU.spriteFront:find(
     "yellow_partner_raichu_portraits", 1, true) == nil, true,
     "dedicated reaction faces do not replace Raichu's battle front sprite")
@@ -1839,6 +1854,7 @@ do
       if handle then handle:close() end
     end
   end
+  followerConfig.setRaichuFaces("ascendant")
   T.eq(gorochuReactions[7].text:find(
     "GORO-GOROCHU!", 1, true), 1,
     "Gorochu says its own name in the excited partner dialogue")

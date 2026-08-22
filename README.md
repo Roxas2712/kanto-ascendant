@@ -53,6 +53,20 @@ collapsed so players can reveal only the information they want.
 > [GitHub Issues](https://github.com/Roxas2712/kanto-ascendant/issues) and will
 > be considered for future updates.
 
+## What's new in 6.5.10
+
+- Corrects Red/Green's Yellow rival progression so the S.S. Anne Wartortle
+  remains Wartortle in Pokémon Tower and later becomes Blastoise, while every
+  Eevee-outcome variant advances to the intended story tier.
+- Restores the Pokémon Tower room music immediately after winning the rival
+  battle on affected engine builds.
+- Adds Leaf Blade/Laubklinge to Leafeon's level-71 learnset. It uses physical
+  Attack only for Leafeon and stays a classic special Grass move globally.
+- Repairs clipped Yellow partner-Raichu portraits and adds a Yellow-only
+  RAICHU FACES option for corrected Ascendant or classic Yellow-style faces.
+
+See the full spoiler-light [6.5.10 release notes](RELEASE_NOTES_6.5.10.md).
+
 ## What's new in 6.5.9
 
 - Restores renewable Koffing and Weezing acquisition in Yellow when KANTO 151
@@ -1747,8 +1761,8 @@ ledger prevents duplicate delivery.
 > launcher-compatible `.zip`. A matching `.modpkg` may be retained only as an
 > internal build or verification artifact.
 
-1. Download `kanto_ascendant-6.5.9.zip` from the
-   [6.5.9 release](https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.5.9)
+1. Download `kanto_ascendant-6.5.10.zip` from the
+   [6.5.10 release](https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.5.10)
    and import it through the launcher. Developers may alternatively install
    the checked-out mod directory.
    If you downloaded a complete bundle, extract it first and import the inner

@@ -26,6 +26,7 @@ return function(mod, opts)
       ROLLOUT = tr("ROLLOUT", "WALZER"),
       ANCIENTPOWER = tr("ANCIENTPOWER", "ANTIK-KRAFT"),
       DOUBLE_HIT = tr("DOUBLE HIT", "DOPPELSCHLAG"),
+      LEAF_BLADE = tr("LEAF BLADE", "LAUBKLINGE"),
     },
   }
 
@@ -208,7 +209,7 @@ return function(mod, opts)
       level1 = { "TAIL_WHIP", "TACKLE", "SAND_ATTACK", "RAZOR_LEAF" },
       learnset = levels(22, "QUICK_ATTACK", 29, "SYNTHESIS",
         36, "MEGA_DRAIN", 43, "GIGA_DRAIN", 64, "SUNNY_DAY",
-        78, "SWORDS_DANCE"),
+        71, "LEAF_BLADE", 78, "SWORDS_DANCE"),
       tmhm = { "SWORDS_DANCE", "TOXIC", "BODY_SLAM", "TAKE_DOWN",
         "DOUBLE_EDGE", "HYPER_BEAM", "MEGA_DRAIN", "SOLARBEAM", "DIG",
         "MIMIC", "DOUBLE_TEAM", "REFLECT", "BIDE", "SWIFT", "REST",
@@ -490,9 +491,15 @@ return function(mod, opts)
     accuracy = 90, pp = 10, category = "physical",
     effect = "ATTACK_TWICE_EFFECT", multiHit = 2,
   })
+  upsert(mod.content.moves, "LEAF_BLADE", {
+    id = "LEAF_BLADE", name = H.moveNames.LEAF_BLADE,
+    type = "GRASS", power = 90,
+    accuracy = 100, pp = 15, category = "special",
+    effect = "NO_ADDITIONAL_EFFECT", highCrit = true,
+  })
   H.moveIds = {
     rollout = "ROLLOUT", ancientPower = "ANCIENTPOWER",
-    doubleHit = "DOUBLE_HIT",
+    doubleHit = "DOUBLE_HIT", leafBlade = "LEAF_BLADE",
   }
   H.moveEffectIds = {
     rollout = "ROLLOUT_EFFECT", ancientPower = "ANCIENTPOWER_EFFECT",
@@ -508,14 +515,25 @@ return function(mod, opts)
     return 30 * multiplier
   end
 
+  local function leafeonUsesPhysicalLeafBlade(user)
+    return user and user.mon and user.mon.species == "LEAFEON"
+  end
+
   if mod.hooks and mod.hooks.wrap then
     mod.hooks:wrap("battle.damage", function(nextDamage, ctx)
-      if not (ctx and ctx.move and ctx.move.id == "ROLLOUT") then
+      local moveId = ctx and ctx.move and ctx.move.id
+      local physicalLeafBlade = moveId == "LEAF_BLADE"
+        and leafeonUsesPhysicalLeafBlade(ctx.user)
+      if moveId ~= "ROLLOUT" and not physicalLeafBlade then
         return nextDamage(ctx)
       end
       local move = {}
       for key, value in pairs(ctx.move) do move[key] = value end
-      move.power = rolloutPower(ctx.user)
+      if moveId == "ROLLOUT" then
+        move.power = rolloutPower(ctx.user)
+      else
+        move.category = "physical"
+      end
       local adjusted = {}
       for key, value in pairs(ctx) do adjusted[key] = value end
       adjusted.move = move
@@ -555,6 +573,7 @@ return function(mod, opts)
     onDamageDealt = onRolloutLanded,
     onBattlerSwitched = onBattlerSwitched,
   }
+  H.leafBlade = { isPhysicalUser = leafeonUsesPhysicalLeafBlade }
   if mod.events and mod.events.on then
     mod.events:on("battle.move_used", onMoveUsed)
     mod.events:on("battle.damage_dealt", onRolloutLanded)

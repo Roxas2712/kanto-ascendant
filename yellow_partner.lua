@@ -1107,9 +1107,14 @@ return function(mod, opts)
           "%s/assets/yellow_partner_gorochu_portraits/%s/%s/%03d.png")
           :format(mod.path, variant, reaction.id, frame)
       else
+        local classic = followerConfig and followerConfig.raichuFaces
+          and followerConfig.raichuFaces() == "classic_yellow"
+        local directory = classic
+          and "yellow_partner_raichu_classic_portraits"
+          or "yellow_partner_raichu_portraits"
         out[#out + 1] = (
-          "%s/assets/yellow_partner_raichu_portraits/%s/%s/%03d.png")
-          :format(mod.path, variant, reaction.id, frame)
+          "%s/assets/%s/%s/%s/%03d.png")
+          :format(mod.path, directory, variant, reaction.id, frame)
       end
     end
     return out

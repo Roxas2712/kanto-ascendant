@@ -4,6 +4,23 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+## [6.5.10] - 2026-08-22
+
+### Fixed
+
+- Red and Green now interpret Yellow's rival-party indices correctly, keeping
+  the established Squirtle/Wartortle line and advancing every Pokémon Tower,
+  Silph Co. and late Route 22 variant to the intended story tier.
+- Winning the Pokémon Tower rival battle now restores the room music
+  immediately on affected engine builds.
+- Folipurba/Leafeon learns Leaf Blade/Laubklinge at level 71. The move remains
+  a classic special Grass move globally and uses physical Attack only when
+  used by Leafeon.
+- Yellow's partner Raichu portraits no longer contain clipped edge fragments.
+  A Yellow-only RAICHU FACES option switches between the corrected Ascendant
+  set and animated classic Yellow-style faces; Pikachu, Gorochu and Red/Blue
+  remain unchanged.
+
 ## [6.5.9] - 2026-08-22
 
 ### Fixed

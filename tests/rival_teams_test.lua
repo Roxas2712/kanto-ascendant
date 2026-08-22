@@ -37,6 +37,90 @@ T.eq(table.concat(redActual, ","), table.concat(redExpected, ","),
 T.eq(table.concat(red[1].moves, ","),
   "CHARM,QUICK_ATTACK,THUNDERBOLT,THUNDER",
   "Red Pikachu retains its authored Crystal moves")
+
+local function roster(rows)
+  local out = {}
+  for _, row in ipairs(rows) do
+    out[#out + 1] = row.species .. ":" .. row.level
+  end
+  return table.concat(out, ",")
+end
+
+-- Yellow's RIVAL2 index expresses Eevee's outcome, not a Kanto starter
+-- branch. All three Tower variants must advance together and retain the
+-- Squirtle line established on the S.S. Anne.
+local yellowAnne = teams.resolve("RED", "OPP_RIVAL2", 1, vanilla, true)
+T.eq(roster(yellowAnne),
+  "PIKACHU:19,RATICATE:16,EEVEE:18,WARTORTLE:20",
+  "Yellow Red establishes Wartortle on the S.S. Anne")
+for index = 2, 4 do
+  local tower = teams.resolve("RED", "OPP_RIVAL2", index, vanilla, true)
+  T.eq(roster(tower), "PIKACHU:25,EEVEE:23,SNORLAX:22,WARTORTLE:25",
+    "Yellow Tower variant " .. index
+      .. " advances levels and retains Wartortle")
+end
+for index = 5, 7 do
+  local silph = teams.resolve("RED", "OPP_RIVAL2", index, vanilla, true)
+  T.eq(roster(silph), "PIKACHU:37,ESPEON:35,SNORLAX:38,BLASTOISE:40",
+    "Yellow Silph variant " .. index .. " reaches the third story tier")
+end
+for index = 8, 10 do
+  local route = teams.resolve("RED", "OPP_RIVAL2", index, vanilla, true)
+  T.eq(#route, 6, "Yellow late Route 22 variant " .. index
+    .. " reaches Red's complete pre-Champion team")
+  T.eq(route[6].species, "BLASTOISE",
+    "Yellow late Route 22 variant " .. index
+      .. " keeps the established Squirtle line")
+end
+T.eq(roster(teams.resolve("RED", "OPP_RIVAL1", 2, vanilla, true)),
+  "PIKACHU:9,SQUIRTLE:8",
+  "Yellow first Route 22 battle uses Red's second progression tier")
+T.eq(roster(teams.resolve("RED", "OPP_RIVAL1", 3, vanilla, true)),
+  "PIKACHU:18,EEVEE:15,RATTATA:15,WARTORTLE:17",
+  "Yellow Cerulean battle uses Red's third progression tier")
+
+local Music = require("src.core.Music")
+local oldPlayMap, restored = Music.playMap, nil
+Music.playMap = function(_, mapId, onBike, surfing)
+  restored = { mapId = mapId, onBike = onBike, surfing = surfing }
+end
+local restoredTower = teams.restoreTowerMusic({
+  result = "win",
+  battle = {
+    oppClass = "OPP_RIVAL2",
+    game = {
+      data = Data,
+      save = { onBike = false, player = { map = "POKEMON_TOWER_2F" } },
+      overworld = {
+        map = { id = "POKEMON_TOWER_2F" },
+        player = { surfing = false },
+      },
+    },
+  },
+})
+Music.playMap = oldPlayMap
+T.eq(restoredTower, true,
+  "Tower rival victory explicitly restores the authored room music")
+T.eq(restored and restored.mapId, "POKEMON_TOWER_2F",
+  "Tower music restoration targets only the active room")
+T.eq(teams.restoreTowerMusic({
+  result = "win",
+  battle = {
+    oppClass = "OPP_RIVAL2",
+    game = { save = { player = { map = "SILPH_CO_7F" } } },
+  },
+}), false, "unrelated rival battles do not touch map music")
+
+local GameVersion = require("src.core.GameVersion")
+local previousVersion = GameVersion.get()
+GameVersion.set("yellow")
+characters.select("GREEN") -- GREEN's matrix rival is RED.
+local yellowThroughHook = run.loader.hooks:call("trainer.party",
+  function(_, _, party) return party end, "OPP_RIVAL2", 2, vanilla)
+GameVersion.set(previousVersion)
+T.eq(roster(yellowThroughHook),
+  "PIKACHU:25,EEVEE:23,SNORLAX:22,WARTORTLE:25",
+  "live trainer hook applies Yellow's Tower tier and Wartortle continuity")
 local green1 = teams.resolve("GREEN", "OPP_RIVAL3", 1, vanilla)
 local green2 = teams.resolve("GREEN", "OPP_RIVAL3", 2, vanilla)
 local green3 = teams.resolve("GREEN", "OPP_RIVAL3", 3, vanilla)

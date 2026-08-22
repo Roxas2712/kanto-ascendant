@@ -47,6 +47,7 @@ local optionValues = {
   follower_count = 1,
   follower_order = "party",
   yellow_partner_presentation = "ascendant_box",
+  yellow_raichu_face_style = "ascendant",
 }
 local edition = "red"
 local gameVersion = {
@@ -69,6 +70,8 @@ assert(config.count() == 1 and config.mode() == "party",
   "Phase-5 defaults changed")
 assert(config.presentation() == "ascendant_box",
   "Yellow presentation default changed")
+assert(config.raichuFaces() == "ascendant",
+  "Raichu face default changed")
 
 -- Central option storage is shared by the process, but migration is per save.
 -- A legacy slot without Phase-5 state always receives 1/PARTY, never another
@@ -76,6 +79,7 @@ assert(config.presentation() == "ascendant_box",
 local globalFour = {
   follower_count = 4, follower_order = "custom",
   yellow_partner_presentation = "yellow_center",
+  yellow_raichu_face_style = "classic_yellow",
 }
 local legacyMod = harness({}, globalFour)
 local legacyConfig = factory("follower_config.lua")(legacyMod,
@@ -86,7 +90,8 @@ local legacyGame = {
 }
 legacyConfig.install(legacyGame, { applyConfig = function() end })
 assert(legacyConfig.count() == 1 and legacyConfig.mode() == "party"
-    and legacyConfig.presentation() == "ascendant_box",
+    and legacyConfig.presentation() == "ascendant_box"
+    and legacyConfig.raichuFaces() == "ascendant",
   "legacy save inherited another slot's global follower options")
 
 local a, b, c, d, e, f =
@@ -263,6 +268,12 @@ listeners["mod.options_changed"]({
 })
 assert(config.presentation() == "yellow_center",
   "runtime Yellow presentation option was not persisted")
+listeners["mod.options_changed"]({
+  mod = "kanto_ascendant", key = "yellow_raichu_face_style",
+  value = "classic_yellow",
+})
+assert(config.raichuFaces() == "classic_yellow",
+  "runtime Raichu face option was not persisted")
 assert(applied > 0, "runtime configuration never refreshed the controller")
 
 print("follower phase5 config tests passed")

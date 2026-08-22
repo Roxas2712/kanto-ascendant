@@ -83,6 +83,7 @@ end
 local rollout = assert(Data.moves.ROLLOUT)
 local ancient = assert(Data.moves.ANCIENTPOWER)
 local doubleHit = assert(Data.moves.DOUBLE_HIT)
+local leafBlade = assert(Data.moves.LEAF_BLADE)
 eq(rollout.effect, "ROLLOUT_EFFECT", "Rollout uses its real effect")
 eq(rollout.power, 30, "Rollout starts at 30 power")
 eq(rollout.accuracy, 90, "Rollout keeps 90 percent accuracy")
@@ -96,6 +97,8 @@ eq(doubleHit.effect, "ATTACK_TWICE_EFFECT",
 eq(doubleHit.multiHit, 2, "Double Hit requests exactly two hits")
 eq(doubleHit.power, 35, "Double Hit keeps 35 power per hit")
 eq(doubleHit.accuracy, 90, "Double Hit keeps 90 percent accuracy")
+eq(leafBlade.category, "special",
+  "Leaf Blade keeps classic Grass damage for non-Leafeon users")
 check(type(Data.move_effects.ROLLOUT_EFFECT.run) == "function",
   "Rollout has an executable merged effect")
 check(type(Data.move_effects.ANCIENTPOWER_EFFECT.run) == "function",
@@ -107,6 +110,18 @@ eq(Data.move_effects.ATTACK_TWICE_EFFECT.hitCount({ move = doubleHit }), 2,
 -- the same effect record, damage hook and BattleState lock API used in battle.
 local BattleState = require("src.battle.BattleState")
 local Runtime = require("src.mods.Runtime")
+local function resolvedLeafBladeCategory(species)
+  return Runtime.call("battle.damage", function(ctx)
+    return ctx.move.category
+  end, {
+    move = leafBlade, user = { mon = { species = species } },
+    target = {}, battle = {}, opts = {},
+  })
+end
+eq(resolvedLeafBladeCategory("LEAFEON"), "physical",
+  "the live damage hook makes Leaf Blade physical for Leafeon")
+eq(resolvedLeafBladeCategory("EEVEE"), "special",
+  "the live damage hook does not globalize Leafeon's exception")
 local rolloutEffect = Data.move_effects.ROLLOUT_EFFECT
 local user = { isPlayer = true }
 local moveInst = { id = "ROLLOUT", pp = 20 }

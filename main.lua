@@ -1011,6 +1011,15 @@ return function(mod)
         { menuLabel("YELLOW CENTER", "YELLOW-ZENTRUM"), "yellow_center" },
       },
     }
+    ascendantOptionSchema[#ascendantOptionSchema + 1] = {
+      key = "yellow_raichu_face_style",
+      label = menuLabel("RAICHU FACES", "RAICHU-MIMIK"),
+      type = "choice", default = "ascendant",
+      choices = {
+        { menuLabel("ASCENDANT", "ASCENDANT"), "ascendant" },
+        { menuLabel("CLASSIC YELLOW", "KLASSISCH GELB"), "classic_yellow" },
+      },
+    }
   end
   idMigration.applyOptionDefaults(ascendantOptionSchema)
   mod.options:define(ascendantOptionSchema)

@@ -46,6 +46,7 @@ for _, id in ipairs({
 }) do moveSeed[id] = { id = id, effect = "TESTED_EFFECT" } end
 
 local crystalSentinel = { untouched = true }
+local damageHook
 local mod = {
   id = "kanto_ascendant", path = root,
   exports = { crystalLearnsetAudit = crystalSentinel },
@@ -55,6 +56,11 @@ local mod = {
     item_effects = registry(), evolution_methods = registry(),
     move_effects = registry(),
     icons = registry(), constants = registry({ dexSize = 260, dexDigits = 3 }),
+  },
+  hooks = {
+    wrap = function(_, name, fn)
+      if name == "battle.damage" then damageHook = fn end
+    end,
   },
 }
 local packages = createPackages(mod, {
@@ -70,6 +76,7 @@ local englishMoveNames = {
   ROLLOUT = "ROLLOUT",
   ANCIENTPOWER = "ANCIENTPOWER",
   DOUBLE_HIT = "DOUBLE HIT",
+  LEAF_BLADE = "LEAF BLADE",
 }
 for id, expected in pairs(englishMoveNames) do
   eq(mod.content.moves:get(id).name, expected,
@@ -83,6 +90,7 @@ local germanMoveNames = {
   ROLLOUT = "WALZER",
   ANCIENTPOWER = "ANTIK-KRAFT",
   DOUBLE_HIT = "DOPPELSCHLAG",
+  LEAF_BLADE = "LAUBKLINGE",
 }
 for id, expected in pairs(germanMoveNames) do
   eq(germanPreview.moveNames[id], expected,
@@ -97,6 +105,37 @@ check(data._meta.source:find("pokeheartgold", 1, true),
   "generated rows retain their HGSS source")
 eq(mod.content.constants:get("dexSize"), 279,
   "HEVO extends the private catalogue through slot 279")
+local leafBlade = assert(mod.content.moves:get("LEAF_BLADE"),
+  "Leafeon receives its defining Grass attack")
+eq(leafBlade.type, "GRASS", "Leaf Blade keeps Grass STAB")
+eq(leafBlade.category, "special",
+  "Leaf Blade keeps the classic Grass category for every other user")
+eq(leafBlade.power, 90, "Leaf Blade keeps its HGSS base power")
+eq(leafBlade.accuracy, 100, "Leaf Blade keeps its HGSS accuracy")
+eq(leafBlade.pp, 15, "Leaf Blade keeps its HGSS PP")
+eq(leafBlade.highCrit, true, "Leaf Blade keeps its high critical-hit rate")
+local leafeonLearnsLeafBlade = false
+for _, row in ipairs(mod.content.pokemon:get("LEAFEON").learnset) do
+  if row.level == 71 and row.move == "LEAF_BLADE" then
+    leafeonLearnsLeafBlade = true
+    break
+  end
+end
+check(leafeonLearnsLeafBlade,
+  "Leafeon learns physical Grass STAB at its canonical HGSS level")
+eq(hevo.leafBlade.isPhysicalUser({ mon = { species = "LEAFEON" } }), true,
+  "Leafeon alone activates the physical Leaf Blade override")
+eq(hevo.leafBlade.isPhysicalUser({ mon = { species = "EEVEE" } }), false,
+  "another species keeps Leaf Blade on the classic special rule")
+local function hookedLeafBladeCategory(species)
+  return assert(damageHook)(function(ctx) return ctx.move.category end, {
+    move = leafBlade, user = { mon = { species = species } },
+  })
+end
+eq(hookedLeafBladeCategory("LEAFEON"), "physical",
+  "the damage hook makes Leaf Blade physical for Leafeon")
+eq(hookedLeafBladeCategory("EEVEE"), "special",
+  "the damage hook leaves Leaf Blade special for every other species")
 check(mod.exports.crystalLearnsetAudit == crystalSentinel,
   "HEVO never overwrites the Crystal learnset audit export")
 check(mod.exports.hevoSpeciesAudit == hevo.audit,

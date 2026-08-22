@@ -647,6 +647,7 @@ return function(mod, opts)
     event_flee = "heritage",
     follower_count = "followers",
     follower_order = "followers", yellow_partner_presentation = "followers",
+    yellow_raichu_face_style = "followers",
     legend_art = "visuals", kanto_crystal_art = "visuals",
     dex_sprite_style = "visuals", party_icon_style = "visuals",
     crystal_animation = "visuals",

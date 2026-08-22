@@ -35,6 +35,10 @@ return function(mod, opts)
     return value == "yellow_center" and "yellow_center" or "ascendant_box"
   end
 
+  local function normalizeRaichuFaces(value)
+    return value == "classic_yellow" and "classic_yellow" or "ascendant"
+  end
+
   local function normalizeState(s)
     if type(s) ~= "table" then s = {} end
     s.version = VERSION
@@ -45,6 +49,8 @@ return function(mod, opts)
     s.mode = normalizeMode(s.mode ~= nil and s.mode or "party")
     s.presentation = normalizePresentation(
       s.presentation ~= nil and s.presentation or "ascendant_box")
+    s.raichuFaces = normalizeRaichuFaces(
+      s.raichuFaces ~= nil and s.raichuFaces or "ascendant")
     s.custom = type(s.custom) == "table" and s.custom or {}
     local clean, seen = {}, {}
     for _, id in ipairs(s.custom) do
@@ -180,6 +186,7 @@ return function(mod, opts)
     syncOneOption("follower_order", s.mode)
     if C.isYellow() then
       syncOneOption("yellow_partner_presentation", s.presentation)
+      syncOneOption("yellow_raichu_face_style", s.raichuFaces)
     end
   end
 
@@ -204,6 +211,7 @@ return function(mod, opts)
   function C.count() return state().count end
   function C.mode() return state().mode end
   function C.presentation() return state().presentation end
+  function C.raichuFaces() return state().raichuFaces end
   function C.customIds()
     local copy = {}
     for i, id in ipairs(state().custom) do copy[i] = id end
@@ -236,6 +244,16 @@ return function(mod, opts)
       syncOneOption("yellow_partner_presentation", s.presentation)
     end
     return s.presentation
+  end
+
+  function C.setRaichuFaces(value)
+    local s = state()
+    s.raichuFaces = normalizeRaichuFaces(value)
+    persist(s)
+    if C.isYellow() then
+      syncOneOption("yellow_raichu_face_style", s.raichuFaces)
+    end
+    return s.raichuFaces
   end
 
   function C.add(mon)
@@ -453,6 +471,8 @@ return function(mod, opts)
       elseif ev.key == "follower_order" then C.setMode(ev.value)
       elseif ev.key == "yellow_partner_presentation" then
         C.setPresentation(ev.value)
+      elseif ev.key == "yellow_raichu_face_style" then
+        C.setRaichuFaces(ev.value)
       end
     end, 220)
     mod.events:on("save.loaded", function(ev)

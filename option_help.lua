@@ -257,6 +257,9 @@ return function(i18n)
     yellow_partner_presentation = {
       "Chooses Ascendant's partner layout or Yellow's original centered Pikachu presentation.",
       "Wählt Ascendants Partner-Layout oder Gelbs ursprüngliche zentrierte Pikachu-Darstellung." },
+    yellow_raichu_face_style = {
+      "Chooses corrected Ascendant Raichu portraits or animated faces adapted from the classic Yellow-style sheet.",
+      "Wählt korrigierte Ascendant-Raichu-Porträts oder animierte Gesichter aus dem klassischen Gelb-Stil." },
   }
 
   local legendNames = {
