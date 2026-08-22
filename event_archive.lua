@@ -5,6 +5,7 @@ return function(mod, opts)
   opts = opts or {}
   local data = assert(opts.data, "event archive data missing")
   local postgame = assert(opts.postgame, "postgame controller missing")
+  local placement = assert(opts.placement, "runtime NPC placement missing")
   local i18n = opts.i18n
   local C = { game = nil, ascendant = nil }
   local pendingRoamer
@@ -337,22 +338,6 @@ return function(mod, opts)
     return out
   end
 
-  local function findSpawnCell(ow, preferred)
-    local function free(x, y)
-      return ow.map:inBounds(x, y) and ow.map:isWalkableCell(x, y)
-        and not ow.map:warpAtCell(x, y) and not ow:npcAtCell(x, y)
-        and not (ow.player.cellX == x and ow.player.cellY == y)
-    end
-    for _, cell in ipairs(preferred or {}) do
-      if free(cell[1], cell[2]) then return cell[1], cell[2] end
-    end
-    for y = 0, ow.map.heightCells - 1 do
-      for x = 0, ow.map.widthCells - 1 do
-        if free(x, y) then return x, y end
-      end
-    end
-  end
-
   local function ensureCupHost(game, profile)
     local cup = data.cups[profile.id]
     if not cup then return end
@@ -368,7 +353,7 @@ return function(mod, opts)
     if #ids > 0 then return end
     local ow = mod.world:overworld()
     if not (ow and ow.map and ow.map.id == cup.map) then return end
-    local x, y = findSpawnCell(ow, cup.preferred)
+    local x, y = placement.findWideRandom(ow, cup.preferred)
     if not x then
       mod.log:warn("no free Heritage Cup host cell on %s", cup.map)
       return

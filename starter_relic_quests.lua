@@ -58,7 +58,7 @@ return function(mod, opts)
       npc = "KANTO_ASCENDANT_TORRENT_RELIC_KEEPER",
       text = "MOD_KANTO_ASCENDANT_TORRENT_RELIC",
       sprite = "SPRITE_SWIMMER",
-      preferred = { { 29, 20 }, { 28, 20 }, { 29, 19 } },
+      preferred = { { 30, 30 }, { 31, 30 }, { 29, 30 } },
     },
     cyndaquil = {
       family = { CYNDAQUIL = true, QUILAVA = true, TYPHLOSION = true },

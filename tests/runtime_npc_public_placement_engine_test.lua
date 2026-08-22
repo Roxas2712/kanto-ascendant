@@ -66,6 +66,8 @@ end
 local ascendantData = assert(loadfile(ROOT .. "/ascendant_data.lua"))()
 local grandTourData = assert(loadfile(ROOT .. "/grand_tour_data.lua"))()
 local johtoMastersData = assert(loadfile(ROOT .. "/johto_masters_data.lua"))()
+local eventData = assert(loadfile(ROOT .. "/event_data.lua"))()
+local johtoData = assert(loadfile(ROOT .. "/johto_data.lua"))()
 local indigo = runtimeMap("INDIGO_PLATEAU_LOBBY")
 local indigoOw = overworld(indigo)
 local hosts = {
@@ -100,6 +102,45 @@ for label, cells in pairs({
     end
   end
   assert(unsafe == #cells, label .. " old staff-area list was not fully unsafe")
+end
+
+-- Audit every optional wide host against its actual edition map, then activate
+-- every host sharing a map at once. Dynamic occupancy must select another
+-- vetted cell or fail closed; it may never escape into an arbitrary map row.
+local allWide = {
+  ascendantData.tournament, ascendantData.newGamePlus,
+  grandTourData.factory, johtoMastersData,
+}
+for _, cup in pairs(eventData.cups or {}) do allWide[#allWide + 1] = cup end
+for _, guide in pairs(johtoData.starters or {}) do
+  allWide[#allWide + 1] = guide
+end
+for _, relic in pairs(relics.quests or {}) do
+  if relic.map then allWide[#allWide + 1] = relic end
+end
+
+local byMap = {}
+for _, def in ipairs(allWide) do
+  byMap[def.map] = byMap[def.map] or {}
+  byMap[def.map][#byMap[def.map] + 1] = def
+  spawned = {}
+  local map = runtimeMap(def.map)
+  local ow = overworld(map)
+  for _, cell in ipairs(def.preferred or {}) do
+    assert(placement.candidateSafe(ow, cell[1], cell[2]),
+      ((def.name or def.npc) .. " has unsafe authored candidate %d,%d on %s")
+        :format(cell[1], cell[2], def.map))
+  end
+end
+for mapId, definitions in pairs(byMap) do
+  spawned = {}
+  local map = runtimeMap(mapId)
+  local ow = overworld(map)
+  for _, def in ipairs(definitions) do
+    local x, y = placement.findWideRandom(ow, def.preferred)
+    assert(x and y, (def.name or def.npc) .. " has no simultaneous safe cell")
+    spawned[key(x, y)] = def.name or def.npc
+  end
 end
 
 print("runtime_npc_public_placement_engine_test: PASS")

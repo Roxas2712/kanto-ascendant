@@ -6,6 +6,7 @@ return function(mod, opts)
   opts = opts or {}
   local data = assert(opts.data, "Johto research data missing")
   local postgame = assert(opts.postgame, "postgame controller missing")
+  local placement = assert(opts.placement, "runtime NPC placement missing")
   local i18n = opts.i18n
   local daycare = opts.daycare
   local dexProgress = opts.dexProgress
@@ -682,22 +683,6 @@ return function(mod, opts)
     return out
   end
 
-  local function findSpawnCell(ow, preferred)
-    local function free(x, y)
-      return ow.map:inBounds(x, y) and ow.map:isWalkableCell(x, y)
-        and not ow.map:warpAtCell(x, y) and not ow:npcAtCell(x, y)
-        and not (ow.player.cellX == x and ow.player.cellY == y)
-    end
-    for _, cell in ipairs(preferred or {}) do
-      if free(cell[1], cell[2]) then return cell[1], cell[2] end
-    end
-    for y = 0, ow.map.heightCells - 1 do
-      for x = 0, ow.map.widthCells - 1 do
-        if free(x, y) then return x, y end
-      end
-    end
-  end
-
   local function ensureNpc(game, def, should)
     local ids = runtimeObjectIds(game, def.map, def.name)
     if not should then
@@ -707,7 +692,9 @@ return function(mod, opts)
     if #ids > 0 then return end
     local ow = mod.world:overworld()
     if not (ow and ow.map and ow.map.id == def.map) then return end
-    local x, y = findSpawnCell(ow, def.preferred)
+    local finder = def == data.aide and placement.findRandom
+      or placement.findWideRandom
+    local x, y = finder(ow, def.preferred)
     if not x then return end
     mod.world:spawnNpc(def.map, {
       name = def.name, sprite = def.sprite, movement = "STAY", range = "DOWN",

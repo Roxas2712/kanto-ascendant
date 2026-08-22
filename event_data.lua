@@ -107,7 +107,7 @@ E.cups = {
     name = "KANTO_HERITAGE_UNIVERSITY_HOST",
     textId = "MOD_KANTO_HERITAGE_UNIVERSITY",
     sprite = "SPRITE_COOLTRAINER_F",
-    preferred = { { 25, 17 }, { 24, 17 }, { 26, 17 } },
+    preferred = { { 14, 12 }, { 15, 12 }, { 13, 12 } },
     title = text("UNIVERSITY CUP", "UNIVERSITÄTS-CUP"),
     intro = text(
       "Three young researchers\nare testing unusual\nWater teams.\fWin their bracket and\nthe historic prize is\nyours.",
@@ -138,7 +138,7 @@ E.cups = {
     name = "KANTO_HERITAGE_SKY_HOST",
     textId = "MOD_KANTO_HERITAGE_SKY",
     sprite = "SPRITE_COOLTRAINER_F",
-    preferred = { { 29, 20 }, { 28, 20 }, { 30, 20 } },
+    preferred = { { 16, 12 }, { 16, 11 }, { 17, 12 } },
     title = text("STAMP SKY CUP", "STAMP-HIMMELS-CUP"),
     intro = text(
       "The Stamp Society has\nopened a three-round\nFlying bracket.\fIts first historic\nprize waits at the top.",
@@ -169,7 +169,7 @@ E.cups = {
     name = "KANTO_HERITAGE_BALLOON_HOST",
     textId = "MOD_KANTO_HERITAGE_BALLOON",
     sprite = "SPRITE_COOLTRAINER_F",
-    preferred = { { 18, 18 }, { 17, 18 }, { 19, 18 } },
+    preferred = { { 24, 14 }, { 23, 14 }, { 25, 14 } },
     title = text("BALLOON CUP", "BALLON-CUP"),
     intro = text(
       "Vermilion's Balloon Cup\ncelebrates an impossible\nPikachu flight.\fClear three Electric\ncrews to claim it.",
@@ -200,7 +200,7 @@ E.cups = {
     name = "KANTO_HERITAGE_FIRE_HOST",
     textId = "MOD_KANTO_HERITAGE_FIRE",
     sprite = "SPRITE_COOLTRAINER_F",
-    preferred = { { 32, 20 }, { 31, 20 }, { 33, 20 } },
+    preferred = { { 46, 29 }, { 46, 28 }, { 45, 29 } },
     title = text("STAMP FIRE CUP", "STAMP-FEUER-CUP"),
     intro = text(
       "The second Stamp bracket\nburns across three\nFire specialists.\fIts champion receives\na storied Rapidash.",
@@ -231,7 +231,7 @@ E.cups = {
     name = "KANTO_HERITAGE_WAVE_HOST",
     textId = "MOD_KANTO_HERITAGE_WAVE",
     sprite = "SPRITE_COOLTRAINER_F",
-    preferred = { { 20, 15 }, { 19, 15 }, { 21, 15 } },
+    preferred = { { 12, 20 }, { 13, 20 }, { 11, 20 } },
     title = text("WAVE CUP", "WELLEN-CUP"),
     intro = text(
       "The Wave Cup remembers\nthe Pikachu that crossed\nthe sea.\fSurvive three Water\nteams to meet its heir.",

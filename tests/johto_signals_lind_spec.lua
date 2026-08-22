@@ -96,6 +96,7 @@ return function(T, Data, modPath)
     local research = makeResearch(fakeMod, {
       data = johtoData,
       postgame = postgame,
+      placement = { findRandom = function() end, findWideRandom = function() end },
       i18n = { text = function(en) return en end },
     })
     local game = {

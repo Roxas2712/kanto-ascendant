@@ -1621,6 +1621,8 @@ return function(mod)
       johtoEncounterLevels.setBonusRange(2, 8)
     end
   end
+  mod.exports.runtimeNpcPlacement = loadSibling(
+    mod, "runtime_npc_placement.lua")(mod)
   local makeJohtoResearch = loadSibling(mod, "johto_research.lua")
   local johtoResearch = makeJohtoResearch(mod, {
     data = johtoData,
@@ -1630,6 +1632,7 @@ return function(mod)
     daycare = daycare,
     encounterLevels = johtoEncounterLevels,
     johtoBoundary = mod.exports.beyondKanto,
+    placement = mod.exports.runtimeNpcPlacement,
   })
   shinySystem.setJohtoResearch(johtoResearch)
   recruitment.configureJohto(johtoData.order, function(species)
@@ -1829,8 +1832,6 @@ return function(mod)
     spawnSafety = wildsSpawnSafety,
   })
   mod.exports.internalWilds = internalWilds
-  mod.exports.runtimeNpcPlacement = loadSibling(
-    mod, "runtime_npc_placement.lua")(mod)
   local ascendantData = loadSibling(mod, "ascendant_data.lua")
   local makeAscendant = loadSibling(mod, "ascendant.lua")
   local ascendant
@@ -1840,6 +1841,7 @@ return function(mod)
     data = eventData,
     postgame = postgame,
     i18n = i18n,
+    placement = mod.exports.runtimeNpcPlacement,
   })
   mod.exports.eventArchive = eventArchive
   mod.exports.eventData = eventData

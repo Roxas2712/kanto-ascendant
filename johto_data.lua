@@ -621,7 +621,7 @@ J.starters = {
   chikorita = {
     species = "CHIKORITA", map = "CELADON_CITY", name = "VERDANT_GUIDE",
     textId = "KANTO_ASCENDANT_JOHTO_CHIKORITA", sprite = "SPRITE_COOLTRAINER_F",
-    preferred = { { 28, 21 }, { 29, 21 }, { 27, 21 } },
+    preferred = { { 16, 22 }, { 17, 22 }, { 15, 22 } },
     title = { en = "VERDANT TRIAL", de = "PFLANZEN-PRÜFUNG" },
     intro = {
       en = "ERIKA entrusted me\nwith a Johto seed.\fWin three battles and\nCHIKORITA may join you.",
@@ -645,7 +645,7 @@ J.starters = {
   cyndaquil = {
     species = "CYNDAQUIL", map = "CINNABAR_ISLAND", name = "EMBER_GUIDE",
     textId = "KANTO_ASCENDANT_JOHTO_CYNDAQUIL", sprite = "SPRITE_SCIENTIST",
-    preferred = { { 9, 7 }, { 10, 7 }, { 8, 7 } },
+    preferred = { { 7, 12 }, { 8, 12 }, { 10, 12 } },
     title = { en = "EMBER TRIAL", de = "FEUER-PRÜFUNG" },
     intro = {
       en = "BLAINE found a warm\negg from Johto.\fSurvive three rounds\nto earn CYNDAQUIL.",
@@ -669,7 +669,7 @@ J.starters = {
   totodile = {
     species = "TOTODILE", map = "CERULEAN_CITY", name = "TORRENT_GUIDE",
     textId = "KANTO_ASCENDANT_JOHTO_TOTODILE", sprite = "SPRITE_SWIMMER",
-    preferred = { { 26, 20 }, { 27, 20 }, { 25, 20 } },
+    preferred = { { 16, 20 }, { 17, 20 }, { 15, 20 } },
     title = { en = "TORRENT TRIAL", de = "WASSER-PRÜFUNG" },
     intro = {
       en = "MISTY is guarding a\nwild Johto hatchling.\fClear three waves and\nTOTODILE is yours.",

@@ -136,6 +136,7 @@ do
       habitats = {}, researchBase = {}, order = {}, species = {},
     },
     postgame = { hasHallOfFame = function() return true end },
+    placement = { findRandom = function() end, findWideRandom = function() end },
     johtoBoundary = boundary,
     daycare = {
       reserveEgg = function() reserved = reserved + 1 return true end,
