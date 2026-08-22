@@ -110,6 +110,8 @@ end
 local ascendantData = assert(loadfile(ROOT .. "/ascendant_data.lua"))()
 local grandTourData = assert(loadfile(ROOT .. "/grand_tour_data.lua"))()
 local johtoMastersData = assert(loadfile(ROOT .. "/johto_masters_data.lua"))()
+local eventData = assert(loadfile(ROOT .. "/event_data.lua"))()
+local johtoData = assert(loadfile(ROOT .. "/johto_data.lua"))()
 local indigo = {
   tournament = ascendantData.tournament,
   steward = ascendantData.newGamePlus,
@@ -130,6 +132,22 @@ for label, def in pairs(indigo) do
   end
 end
 
+local expected = {
+  { "University Cup", eventData.cups.university_magikarp, 14, 12 },
+  { "Stamp Sky Cup", eventData.cups.stamp_fearow, 16, 12 },
+  { "Balloon Cup", eventData.cups.flying_pikachu, 24, 14 },
+  { "Stamp Fire Cup", eventData.cups.stamp_rapidash, 46, 29 },
+  { "Wave Cup", eventData.cups.surfing_pikachu, 12, 20 },
+  { "Verdant Guide", johtoData.starters.chikorita, 16, 22 },
+  { "Ember Guide", johtoData.starters.cyndaquil, 7, 12 },
+  { "Torrent Guide", johtoData.starters.totodile, 16, 20 },
+}
+for _, row in ipairs(expected) do
+  local def = assert(row[2], row[1] .. " definition missing")
+  check(def.preferred[1][1] == row[3] and def.preferred[1][2] == row[4],
+    row[1] .. " still starts in its reported unsafe area")
+end
+
 local function read(path)
   local file = assert(io.open(ROOT .. "/" .. path, "rb"))
   local text = file:read("*a")
@@ -138,7 +156,7 @@ local function read(path)
 end
 for _, path in ipairs({
   "ascendant.lua", "grand_tour.lua", "johto_masters.lua",
-  "starter_relic_quests.lua",
+  "starter_relic_quests.lua", "event_archive.lua", "johto_research.lua",
 }) do
   check(read(path):find("findWideRandom", 1, true),
     path .. " does not use bounded randomized wide placement")
