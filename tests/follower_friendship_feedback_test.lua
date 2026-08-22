@@ -10,12 +10,16 @@ local i18n = {
   text = function(english, deutsch) return german and deutsch or english end,
 }
 local selected
+local eventHandlers = {}
 local selection = {
   active = function() return selected end,
   edition = function() return "red" end,
   identity = function(mon) return mon and mon.species end,
 }
-local controller = factory({ events = { on = function() end } }, {
+local controller = factory({ events = { on = function(_, name, fn)
+  eventHandlers[name] = eventHandlers[name] or {}
+  eventHandlers[name][#eventHandlers[name] + 1] = fn
+end } }, {
   selection = selection,
   sprites = { resolve = function() return "unused" end },
   i18n = i18n,
@@ -206,4 +210,28 @@ pokemon.FUTURE = {
 assert(controller.friendshipProfile(game, mon("FUTURE", 255)) == nil,
   "future/malformed evolution rows did not fail closed")
 
-print("PASS follower friendship: dynamic methods bands DE/EN chain 1-6 immutable")
+-- Walking with a selected friendship follower must make real progress even
+-- before Hall of Fame / Johto Research activation. The old implementation
+-- awarded no bond at all in that state, making literal city laps inert.
+local walking = mon("GOLBAT", 0, "ZUBI")
+local reserve = mon("TOGEPI", 0, "BOXI")
+selected = walking
+game.save.party = { walking, reserve }
+local stepped = assert(eventHandlers["world.stepped"]
+  and eventHandlers["world.stepped"][1],
+  "native follower did not register walking friendship")
+for _ = 1, 31 do stepped({ game = game }) end
+assert(walking.johtoBond == 0,
+  "walking friendship paid before the documented cadence")
+stepped({ game = game })
+assert(walking.johtoBond == 1,
+  "32 genuine follower steps did not raise friendship")
+assert(reserve.johtoBond == 0,
+  "walking friendship changed an unselected party Pokemon")
+for _ = 33, 1600 do stepped({ game = game }) end
+assert(walking.johtoBond == 50,
+  "1600 follower steps did not leave the misleading wary band")
+has(controller.friendshipText(game, walking, walking.nickname),
+  "is starting", "walking reaches the next qualitative bond band")
+
+print("PASS follower friendship: dynamic bands chain 1-6 and walking progress")

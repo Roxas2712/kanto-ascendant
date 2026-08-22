@@ -12,6 +12,7 @@ return function(mod, opts)
   local config = opts.config
   local i18n = opts.i18n
   local MAX_FOLLOWERS, MAX_TRAIL = 6, 64
+  local FRIENDSHIP_STEP_CADENCE = 32
   local N = {
     active = false, count = 1,
     runtime = setmetatable({}, { __mode = "k" }),
@@ -1013,6 +1014,37 @@ return function(mod, opts)
   N._genericTalk = genericTalk
 
   if mod.events and mod.events.on then
+    -- The Johto research controller historically awarded walking friendship
+    -- only after its post-game boundary was active. A selected friendship
+    -- follower therefore made no progress during the main Kanto journey even
+    -- though its dialogue explicitly asked the player to spend time walking
+    -- together. Keep this authority on the actual selected follower rows:
+    -- one point per 32 genuine world steps, persisted on the Pokemon itself.
+    -- Party reserves, boxed Pokemon and synthetic trainer clocks are untouched.
+    mod.events:on("world.stepped", function(ev)
+      local game = ev and ev.game or N.game
+      if not (game and game.save) then return end
+      local seen = {}
+      for _, row in ipairs(rows(game)) do
+        local mon = row and row.mon
+        if type(mon) == "table" and not seen[mon]
+            and friendshipProfile(game, mon) then
+          seen[mon] = true
+          local progress = math.max(0, math.floor(
+            tonumber(mon.johtoBondWalkSteps) or 0)) + 1
+          if progress >= FRIENDSHIP_STEP_CADENCE then
+            local bond = mon.johtoBond
+            if bond == nil then bond = 0 end
+            if type(bond) == "number" and bond == math.floor(bond)
+                and bond >= 0 and bond <= 255 then
+              mon.johtoBond = math.min(255, bond + 1)
+              progress = progress - FRIENDSHIP_STEP_CADENCE
+            end
+          end
+          mon.johtoBondWalkSteps = progress
+        end
+      end
+    end, -20)
     mod.events:on("pokemon.evolved", function() N.refresh() end, -20)
     mod.events:on("pokemon.caught", function() N.refresh() end, -20)
     mod.events:on("save.loaded", function()

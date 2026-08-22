@@ -452,6 +452,9 @@ return function(mod)
   })
   mod.exports.titleIntro = loadSibling(mod, "title_intro.lua")(mod, extendedCharacters)
   local recruitment = loadSibling(mod, "trainer_recruits.lua")
+  local rematchRosterAuthority = loadSibling(mod,
+    "rematch_roster_authority.lua")
+  mod.exports.rematchRosterAuthority = rematchRosterAuthority
   local loot = loadSibling(mod, "rematch_loot.lua")
   local function installedMod(id)
     local ok, handle = pcall(mod.find, id)
@@ -2883,6 +2886,11 @@ return function(mod)
       local progress = state.rematches + state.trainingCycles
       local boost = nextLevelBoost(progress, levelGain())
       local rank = ascendant and ascendant.rematchRank(progress)
+      local rosterAuthority = rematchRosterAuthority.authority(game, {
+        kind = "field", key = key, trainerClass = d.trainerClass,
+        rematchNumber = (state.rematches or 0) + 1,
+        edition = GameVersion.get(), storage = mod.storage,
+      })
       local rematchTeam, generation = recruitment.expand(
         game.data, team, d.trainerClass,
         key, progress, boost, mod.options:get("team_growth") ~= false, {
@@ -2891,7 +2899,11 @@ return function(mod)
           originalStages = state.originalStages,
           originalBranches = state.originalBranches,
           rematchNumber = (state.rematches or 0) + 1,
-          random = deps.rematchRandom or randomSource(deps),
+          -- A focused test may inject RNG. Production rebuilds the exact same
+          -- roster from the durable save/run authority across visual options,
+          -- reloads and retries.
+          random = deps.rematchRandom,
+          seed = rosterAuthority,
           deferCommit = true,
         })
       -- Freeze one pure level plan before showing a warning. The exact same

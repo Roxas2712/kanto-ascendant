@@ -408,6 +408,14 @@ Cannon. Invalid, placeholder, incompatible and HM records never enter it.
 Every Wanderer item uses `Bag -> PC -> pending`; the persistent token ledger
 prevents replay or duplicate delivery.
 
+The chosen party must also fit the scaled target level: an early encounter
+cannot pull a late fully evolved party such as a level-5 Nidoking. An explicit
+status-only or Rest-only row receives a damaging move only when that move is
+registered and documented for the actual species; there is no universal
+invented Tackle fallback. In a Legacy Wanderer battle, Rest is considered only
+at half HP or below. Challenge and farewell lines use the trainer's role,
+support English and German and avoid immediate repeats.
+
 </details>
 
 <details>
@@ -1836,6 +1844,12 @@ affected older save with exactly one eligible self-owned Pikachu, Raichu or
 Gorochu is repaired automatically; when several candidates make the identity
 ambiguous, Ascendant does not guess.
 
+Selected followers whose evolution genuinely uses friendship gain one
+friendship point per 32 real overworld steps. Only Pokémon currently selected
+into the visible follower chain advance: party reserves and boxed Pokémon do
+not. Synthetic trainer/rematch clocks do not count. From zero friendship,
+1,600 following steps reach 50 and leave the initial wary dialogue band.
+
 </details>
 
 <details>
@@ -1843,6 +1857,8 @@ ambiguous, Ascendant does not guess.
 
 - Exact path: **START → ASCENDANT → OPTIONS → VISUALS → CHARACTERS / TRAINERS**.
 - **FIELD CHARACTERS:** changes only the overworld walking sheets.
+- In `GAME/KASC` field-art mode, Blue and Green use their bundled matching
+  Bicycle sheets; mounting the Bicycle does not substitute Red.
 - **TRAINER PORTRAITS:** switches Red, Blue and Green between `CRYSTAL HD`
   and `ORIGINAL` across the selector, Trainer Card, normal 2D front/back,
   rival, tutorial and other 2D identity surfaces. Staged 3D and throw art
@@ -1866,6 +1882,11 @@ ambiguous, Ascendant does not guess.
 
 DEX SPRITES does not change battles, followers, evolutions, trades, Hall of
 Fame screens or the small animated party icons.
+
+Presentation settings also do not rebuild field-rematch teams. Recruitment
+families and evolution branches are sealed to the save's durable playthrough
+identity before the first roster build, so changing visual options or
+reloading preserves the same complete roster.
 
 </details>
 

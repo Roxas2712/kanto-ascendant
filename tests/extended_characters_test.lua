@@ -163,6 +163,12 @@ end
 run.loader.modOptions.kanto_ascendant = {
   character_sprite_style = "ascendant", trainer_portrait_style = "frlg",
 }
+for _, identity in ipairs({ "BLUE", "GREEN" }) do
+  characters.select(identity)
+  T.eq(characters.getCharacterSprite(identity, "bike").sprite,
+    "SPRITE_KA_CRYSTAL_" .. identity .. "_BIKE",
+    identity .. " keeps its own identity when mounting the bicycle in GAME/KASC")
+end
 T.eq(frlgTrainerPack.refresh(trainerGame), true,
   "legacy FRLG option can be migrated independently of field style")
 T.eq(trainerGame.data.trainers.OPP_BROCK.pic, "baseline/brock.png",

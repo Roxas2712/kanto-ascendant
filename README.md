@@ -61,10 +61,15 @@ collapsed so players can reveal only the information they want.
   explicit no-item restrictions, and queues full-Bag Ascendant rewards safely.
 - Prevents visible Wilds from blocking multi-cell map connections and seals
   extended Rematch Mastery moves until their save-bound authority is earned.
+- Keeps field-rematch rosters stable across visual-option changes and reloads,
+  and makes Legacy Wanderer parties, moves, Rest AI and dialogue stage-safe.
 - Repairs release-list navigation, regional Box filters and durable Hoenn
   starter catalogue unlocks.
 - Fixes minimum-engine character art probing, VASC trainer-back orientation,
-  Crystal cache reuse, Gorochu catalogue composition and Red's walk cycle.
+  Crystal cache reuse, Gorochu catalogue composition and Red's walk cycle;
+  Blue and Green also retain their identity when mounting the Bicycle.
+- Lets selected friendship-evolution followers gain progress from genuine
+  walking steps without advancing reserves or synthetic clocks.
 - Selects one Apricorn preview authority and aligns Johto Masters dialogue,
   evolution rules and reward handoff with the implemented 6.5 systems.
 

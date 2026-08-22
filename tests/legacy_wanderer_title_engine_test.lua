@@ -38,7 +38,9 @@ end
 
 local modPath = os.getenv("TRAINER_REMATCH_MOD_DIR")
   or "mods/kanto_ascendant"
-local run = T.sdk.loadMod(modPath, { data = Data })
+local sdkOpts = { data = Data }
+if modPath:sub(1, 1) == "/" then sdkOpts.root = "/" end
+local run = T.sdk.loadMod(modPath, sdkOpts)
 eq(#(run.errors or {}), 0, "the complete mod graph loads in the real engine")
 local exports = assert(run.loader.exports.kanto_ascendant)
 local hall = assert(exports.legacyHall)
@@ -77,7 +79,7 @@ eq(titleId, nil, "a fresh real save has no selected title")
 eq(titleName, nil, "a fresh real save does not manufacture a Champion title")
 eq(wanderers.reactionContext(scientist).kind, "fallback",
   "the late-bound real Hall provider preserves no-title fallback")
-contains(wanderers.challengeText(scientist), "journey taught you",
+contains(wanderers.challengeText(scientist), "road\ntaught you",
   "the real no-title field dialogue stays neutral")
 
 check(ascendant.unlockAchievement("factory_architect"),
@@ -91,7 +93,7 @@ eq(wanderers.reactionContext(scientist).kind, "title_factory",
   "the real Scientist recognizes the active title")
 eq(wanderers.reactionContext(ace).kind, "fallback",
   "the real unrelated ace keeps the neutral fallback")
-contains(wanderers.challengeText(scientist), "BATTLE FACTORY ACE!",
+contains(wanderers.challengeText(scientist), "BATTLE FACTORY!",
   "the selected title reaches the authored real field dialogue")
 eq(save.modData.kanto_ascendant.legacy_hall.selectedTitle,
   "factory_architect", "Hall selection is stored in mod save data")
@@ -115,7 +117,7 @@ eq(titleName, "FACTORY ARCHITECT",
   "the persisted title keeps its localized display name")
 eq(wanderers.reactionContext(scientist).kind, "title_factory",
   "the matching reaction survives reload with the selected title")
-contains(wanderers.challengeText(scientist), "BATTLE FACTORY ACE!",
+contains(wanderers.challengeText(scientist), "BATTLE FACTORY!",
   "the reloaded real dialogue still names the achievement")
 
 -- Partner recognition reads only the committed active-run fields. Merely

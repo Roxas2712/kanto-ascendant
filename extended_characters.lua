@@ -78,7 +78,10 @@ return function(mod, opts)
       defaultNames = { player = "BLUE", rival = "GREEN" }, palette = "BLUE",
       visuals = {
         overworld = { sprite = "SPRITE_BLUE", status = "final" },
-        bike = { sprite = "SPRITE_RED_BIKE", status = "dev-fallback", fallback = "RED_BIKE" },
+        -- GAME/KASC has its own Blue walking identity but no separate native
+        -- Gen-I bicycle sheet. Use the bundled identity-matched 16x16 bike
+        -- instead of visibly swapping the player to Red while mounted.
+        bike = { sprite = "SPRITE_KA_CRYSTAL_BLUE_BIKE", status = "final" },
         surf = { sprite = "SPRITE_SEEL", status = "shared-final" },
         fishing = { id = "red", status = "dev-fallback", fallback = "RED_FISHING" },
         battleBack = { path = "assets/characters/blue_back.png", status = "final" },
@@ -118,7 +121,8 @@ return function(mod, opts)
       defaultNames = { player = "GREEN", rival = "RED" }, palette = "GREEN",
       visuals = {
         overworld = { sprite = "SPRITE_KA_GREEN", status = "final" },
-        bike = { sprite = "SPRITE_RED_BIKE", status = "dev-fallback", fallback = "RED_BIKE" },
+        -- Casey likewise keeps her identity across the mount transition.
+        bike = { sprite = "SPRITE_KA_CRYSTAL_GREEN_BIKE", status = "final" },
         surf = { sprite = "SPRITE_SEEL", status = "shared-final" },
         fishing = { id = "red", status = "dev-fallback", fallback = "RED_FISHING" },
         battleBack = { path = "assets/characters/green_back.png", status = "final" },

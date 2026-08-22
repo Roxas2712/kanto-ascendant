@@ -1,5 +1,6 @@
 local engine = assert(os.getenv("GEN1RECOMP_DIR"),
   "GEN1RECOMP_DIR is required")
+local modRoot = os.getenv("TRAINER_REMATCH_MOD_DIR") or "."
 package.path = engine .. "/?.lua;" .. engine .. "/?/init.lua;" .. package.path
 local Serializer = require("src.core.SaveSerializer")
 local Collision = require("src.world.Collision")
@@ -66,7 +67,7 @@ local function deterministic(low, high, purpose)
   return low
 end
 
-local makeWanderers = assert(loadfile("legacy_wanderers.lua"))()
+local makeWanderers = assert(loadfile(modRoot .. "/legacy_wanderers.lua"))()
 local wanderers = makeWanderers(mod, {
   journey = journey, titles = titles, random = deterministic,
 })
@@ -371,7 +372,7 @@ local masterHits, masterDenominator = wanderers.masterBallOdds(game)
 eq(masterHits, 1, "Master Ball has one dedicated rare hit")
 eq(masterDenominator, 32,
   "Master Ball uses its own obtainable 1-in-32 group")
-local rematchMasterSpec = assert(loadfile("rematch_loot.lua"))()
+local rematchMasterSpec = assert(loadfile(modRoot .. "/rematch_loot.lua"))()
   .SPECIAL.rematchMaster
 ok(masterDenominator < rematchMasterSpec.denominator,
   "1-in-32 Surprise Master Ball is more frequent than 1-in-50 rematch loot")

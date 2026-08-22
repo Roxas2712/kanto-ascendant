@@ -5,7 +5,7 @@ return function(mod, opts)
   local journey = assert(opts.journey, "legacy wanderers need legacy journey")
   local i18n = opts.i18n
   local W = {
-    STATE_VERSION = 5,
+    STATE_VERSION = 6,
     MIN_STEPS = 200,
     HARD_MAX_STEPS = 1800,
     MIN_MAP_CHANGES = 2,
@@ -50,6 +50,7 @@ return function(mod, opts)
     },
   }
   local titleProvider = opts.titles
+  local surpriseProvider = opts.surprise
   local rewardController = opts.rewards
   local recruitmentProvider = opts.recruitment
   local masteryProvider = opts.mastery
@@ -294,6 +295,12 @@ return function(mod, opts)
     end
     s.rewardedTokens = type(s.rewardedTokens) == "table"
       and s.rewardedTokens or {}
+    s.dialogueByToken = type(s.dialogueByToken) == "table"
+      and s.dialogueByToken or {}
+    s.farewellByToken = type(s.farewellByToken) == "table"
+      and s.farewellByToken or {}
+    s.dialogueHistory = type(s.dialogueHistory) == "table"
+      and s.dialogueHistory or {}
     local pending = {}
     local seenPending = {}
     for _, row in ipairs(type(s.pendingRewards) == "table"
@@ -875,6 +882,73 @@ return function(mod, opts)
     return out
   end
 
+  -- Authored trainer parties describe their intended progression stage even
+  -- though the live Wanderer later rescales levels around the player's usable
+  -- team. Never rotate a far-later party (for example an authored Lv45
+  -- Nidoking roster) into an early Lv5 challenge merely because its index is
+  -- next. At mature targets every earlier party remains eligible, preserving
+  -- the existing rotation and fairness history.
+  local function stageSafeIndexes(trainer, indexes, targetLevel)
+    local safe = {}
+    for _, index in ipairs(indexes or {}) do
+      local party = trainer and trainer.parties and trainer.parties[index]
+      if type(party) == "table" and #party > 0
+          and averageLevel(party) <= targetLevel + 8 then
+        safe[#safe + 1] = index
+      end
+    end
+    return safe
+  end
+
+  local function legalDamagingMoves(game, species, level)
+    local pokemon = game and game.data and game.data.pokemon or {}
+    local moves = game and game.data and game.data.moves or {}
+    local def = pokemon[species]
+    local out, seen = {}, {}
+    local function add(id)
+      local move = type(id) == "string" and moves[id] or nil
+      if move and (tonumber(move.power) or 0) > 0 and not seen[id] then
+        seen[id], out[#out + 1] = true, id
+      end
+    end
+    for _, id in ipairs(def and def.level1Moves or {}) do add(id) end
+    for _, row in ipairs(def and def.learnset or {}) do
+      if integer(row.level, 1) <= integer(level, 1) then add(row.move) end
+    end
+    for _, id in ipairs(def and def.tmhm or {}) do add(id) end
+    return out, seen
+  end
+
+  local function ensureExplicitDamage(game, row)
+    if type(row.moves) ~= "table" then return row end
+    local candidates, legal = legalDamagingMoves(
+      game, row.species, row.level)
+    local moves = game.data and game.data.moves or {}
+    for _, id in ipairs(row.moves) do
+      if legal[id] and (tonumber(moves[id] and moves[id].power) or 0) > 0 then
+        return row
+      end
+    end
+    local damaging = candidates[1]
+    if not damaging then return nil end
+    if #row.moves < 4 then
+      row.moves[#row.moves + 1] = damaging
+    else
+      -- Keep the authored tactical order and replace only the last
+      -- non-damaging slot. A full legal attacking set returned above.
+      local replace = #row.moves
+      for index = #row.moves, 1, -1 do
+        local def = moves[row.moves[index]]
+        if not def or (tonumber(def.power) or 0) <= 0 then
+          replace = index
+          break
+        end
+      end
+      row.moves[replace] = damaging
+    end
+    return row
+  end
+
   function W.growthProgress(game, s, tier)
     s = s or state()
     local Badges = require("src.inventory.Badges")
@@ -908,14 +982,17 @@ return function(mod, opts)
       and archetype.partyIndexes
       or partyIndexes(game, archetype.class, trainer)
     if #indexes == 0 then return nil end
+    local tier = W.challengeTier(game, bonus, s)
+    if not tier then return nil end
+    indexes = stageSafeIndexes(trainer, indexes, tier.targetLevel)
+    if #indexes == 0 then return nil end
     s = s or state()
     s.rotation = type(s.rotation) == "table" and s.rotation or {}
     local cursor = integer(s.rotation[archetype.class])
     local position = cursor % #indexes + 1
     local partyIndex = indexes[position]
     local source = cleanSourceParty(game, trainer.parties[partyIndex])
-    local tier = W.challengeTier(game, bonus, s)
-    if #source == 0 or not tier then return nil end
+    if #source == 0 then return nil end
     local growth = W.growthProgress(game, s, tier)
     local recruitment = currentProvider(recruitmentProvider)
     if recruitment and type(recruitment.expand) == "function" then
@@ -947,13 +1024,18 @@ return function(mod, opts)
         recruitment.commit(progressState, generation, true)
       end
     end
-    local team = {}
-    for index = 1, tier.teamSize do
-      local sourceIndex = (index + cursor - 1) % #source + 1
+    local team, attempts = {}, 0
+    while #team < tier.teamSize and attempts < math.max(
+        tier.teamSize * 2, #source * 2) do
+      attempts = attempts + 1
+      local sourceIndex = (attempts + cursor - 1) % #source + 1
       local row = copy(source[sourceIndex])
-      row.level = tier.targetLevels[index]
-      team[#team + 1] = row
+      row.level = tier.targetLevels[#team + 1]
+      row = ensureExplicitDamage(game, row)
+      if row then team[#team + 1] = row end
     end
+    if #team == 0 then return nil end
+    while #team < tier.teamSize do team[#team + 1] = copy(team[#team]) end
     if advance ~= false then s.rotation[archetype.class] = cursor + 1 end
     tier.rotation = cursor
     tier.sourceParty = partyIndex
@@ -972,6 +1054,11 @@ return function(mod, opts)
   function W.setTitleProvider(provider)
     titleProvider = type(provider) == "table" and provider or nil
     return titleProvider ~= nil
+  end
+
+  function W.setSurpriseProvider(provider)
+    surpriseProvider = type(provider) == "table" and provider or nil
+    return surpriseProvider ~= nil
   end
 
   local function teamHasSpecies(team, species)
@@ -1048,8 +1135,8 @@ return function(mod, opts)
     local kind = context.kind
     if kind == "title_factory" then
       return tr(
-        "SCIENTIST:\nBATTLE FACTORY ACE!\fNow show me the team\nyou built yourself.",
-        "FORSCHER:\nFABRIK-ARCHITEKT!\fJetzt zeig mir dein\neigenes Team.")
+        "SCIENTIST:\nBATTLE FACTORY!\fNo rental team.\fShow what you\nbuilt!",
+        "FORSCHER:\nFABRIK-ARCHITEKT!\fKein Leihteam.\fZeig, was du\ngebaut hast!")
     elseif kind == "title_red" then
       return tr(
         "ACE TRAINER:\nKANTO CHALLENGER!\fDefend that title\nin battle.",
@@ -1064,32 +1151,131 @@ return function(mod, opts)
         "HÜTERIN:\nDAS GRÜNE SIEGEL!\fZeig die Stärke\neurer Bindung.")
     elseif kind == "title_pass" then
       return tr(
-        "VETERAN:\nTHREE SEALS!\fShow what the journey\nmade of you.",
-        "VETERAN:\nDREI SIEGEL!\fZeig, was die Reise\naus dir gemacht hat.")
+        "VETERAN:\nTHREE SEALS!\fShow what the road\nmade of you.",
+        "VETERAN:\nDREI SIEGEL!\fZeig, was der Weg\naus dir machte.")
     elseif kind == "partner_match" then
       return tr(
         "WANDERER:\nI know that bond.\fLet our partners\ntest each other!",
-        "WANDERTRAINER:\nIch sehe euren Bund.\fUnsere Partner\ntreten gegeneinander an!")
+        "WANDERTRAINER:\nIch sehe den Bund.\fUnsere Partner\ntreten jetzt an!")
     elseif kind == "path_red" then
       return tr(
         "WANDERER:\nGROUDON'S TRIAL!\fThis time only the\nbattle decides.",
-        "WANDERTRAINER:\nGROUDONS PRÜFUNG!\fDiesmal entscheidet\nnur der Kampf.")
+        "WANDERTRAINER:\nGROUDONS PRÜFUNG!\fDiesmal zählt nur\nder Kampf.")
     elseif kind == "path_blue" then
       return tr(
         "SCIENTIST:\nKYOGRE'S TRIAL!\fNow prove your\nbattle plan.",
-        "FORSCHER:\nKYOGRES PRÜFUNG!\fBeweise jetzt deinen\nKampfplan.")
+        "FORSCHER:\nKYOGRES PRÜFUNG!\fZeig deinen\nKampfplan.")
     elseif kind == "path_green" then
       return tr(
         "KEEPER:\nRAYQUAZA'S TRIAL!\fShow the bond that\nopened your path.",
-        "HÜTERIN:\nRAYQUAZAS PRÜFUNG!\fZeig den Bund, der\ndeinen Pfad öffnete.")
+        "HÜTERIN:\nRAYQUAZAS PRÜFUNG!\fZeig den Bund.\fEr ebnete den Weg.")
     elseif kind == "path_complete" then
       return tr(
         "VETERAN:\nTHREE PATHS!\fOne honest battle\nremains.",
-        "VETERAN:\nDREI PFADE!\fEin ehrlicher Kampf\nbleibt.")
+        "VETERAN:\nDREI PFADE!\fEin fairer Kampf\nbleibt.")
     end
-    return tr(
-      "WANDERER:\nI sought you out.\fShow me what this\njourney taught you!",
-      "WANDERTRAINER:\nIch suchte dich.\fZeig, was du auf der\nReise gelernt hast!")
+    active = type(active) == "table" and active or {}
+    if surpriseProvider and type(surpriseProvider.challengeText) == "function" then
+      local ok, text = pcall(surpriseProvider.challengeText, active)
+      if ok and type(text) == "string" and text ~= "" then return text end
+    end
+
+    -- Old/future callers without an encounter identity still receive the
+    -- established safe fallback. Live encounters always carry a token and
+    -- therefore use the contextual, repeat-suppressed pool below.
+    if type(active.token) ~= "string" or active.token == "" then
+      return tr(
+        "WANDERER:\nI sought you out.\fShow what the road\ntaught you!",
+        "WANDERTRAINER:\nIch suchte dich.\fZeig, was der Weg\ndich gelehrt hat!")
+    end
+
+    local pools = {
+      {
+        "%s, I followed your\ntrail here.\fShow me where it\nleads!",
+        "%s, ich folgte deiner\nSpur bis hierher.\fZeig mir, wohin\nsie führt!",
+      }, {
+        "%s, every road tells\na different story.\fLet's write this\none in battle!",
+        "%s, jeder Weg erzählt\neine andere Geschichte.\fDiese schreiben wir\nim Kampf!",
+      }, {
+        "%s, your team shows\nwhere you are going.\fI want to test\nthat direction!",
+        "%s, dein Team zeigt,\nwohin du willst.\fIch prüfe diese\nRichtung im Kampf!",
+      }, {
+        "%s, no ceremony.\fJust one honest\nroad battle!",
+        "%s, keine Zeremonie.\fNur ein ehrlicher\nKampf auf dem Weg!",
+      },
+    }
+    local token = type(active.token) == "string" and active.token or nil
+    local s = state()
+    local cached = token and s.dialogueByToken[token]
+    if type(cached) == "table" then return tr(cached.en, cached.de) end
+    local hash = 0
+    for index = 1, #(token or "fallback") do
+      hash = (hash * 33 + (token or "fallback"):byte(index)) % 2147483647
+    end
+    local choice = hash % #pools + 1
+    if s.dialogueHistory.fallback == choice and #pools > 1 then
+      choice = choice % #pools + 1
+    end
+    s.dialogueHistory.fallback = choice
+    local class = active.archetype and active.archetype.class
+    local trainer = active.game and active.game.data and active.game.data.trainers
+      and active.game.data.trainers[class]
+    local speakerEn = trainer and trainer.name
+      or type(class) == "string" and class:gsub("^OPP_", ""):gsub("_", " ")
+      or "WANDERER"
+    local speakerDe = ({ OPP_LASS = "GÖRE", OPP_SCIENTIST = "FORSCHER",
+      OPP_YOUNGSTER = "KNIRPS", OPP_HIKER = "WANDERER",
+      OPP_COOLTRAINER_F = "ASS-TRAINERIN",
+      OPP_COOLTRAINER_M = "ASS-TRAINER" })[class] or speakerEn
+    local pair = pools[choice]
+    cached = {
+      en = speakerEn .. ":\n" .. pair[1]:format(
+        active.game and active.game.save and active.game.save.player
+          and active.game.save.player.name or "TRAINER"),
+      de = speakerDe .. ":\n" .. pair[2]:format(
+        active.game and active.game.save and active.game.save.player
+          and active.game.save.player.name or "TRAINER"),
+    }
+    if token then s.dialogueByToken[token] = cached end
+    persist(s)
+    return tr(cached.en, cached.de)
+  end
+
+  function W.farewellText(active, result)
+    result = result == "win" and "win"
+      or (result == "lose" or result == "loss") and "loss" or nil
+    if not result then return nil end
+    if surpriseProvider and type(surpriseProvider.farewellText) == "function" then
+      local ok, text = pcall(surpriseProvider.farewellText, active, result)
+      if ok and type(text) == "string" and text ~= "" then return text end
+    end
+    active = type(active) == "table" and active or {}
+    local token = type(active.token) == "string" and active.token or nil
+    local key = token and token .. "|" .. result
+    local s = state()
+    local cached = key and s.farewellByToken[key]
+    if type(cached) == "table" then return tr(cached.en, cached.de) end
+    local class = active.archetype and active.archetype.class
+    local trainer = active.game and active.game.data and active.game.data.trainers
+      and active.game.data.trainers[class]
+    local speakerEn = trainer and trainer.name
+      or type(class) == "string" and class:gsub("^OPP_", ""):gsub("_", " ")
+      or "WANDERER"
+    local speakerDe = ({ OPP_LASS = "GÖRE", OPP_SCIENTIST = "FORSCHER",
+      OPP_YOUNGSTER = "KNIRPS", OPP_HIKER = "WANDERER" })[class] or speakerEn
+    local en, de
+    if result == "win" then
+      en = "You got me this time.\fI'll train on the\nnext road. See you!"
+      de = "Diesmal warst du besser.\fIch trainiere auf der\nnächsten Route. Bis dann!"
+    else
+      en = "That's the battle\nI came to find.\fThe road is yours\nagain. See you!"
+      de = "Diesen Kampf habe\nich gesucht.\fDer Weg gehört wieder\ndir. Bis dann!"
+    end
+    cached = { en = speakerEn .. ":\n" .. en,
+      de = speakerDe .. ":\n" .. de }
+    if key then s.farewellByToken[key] = cached end
+    persist(s)
+    return tr(cached.en, cached.de)
   end
 
   function W.availableArchetypes(game)
@@ -1554,6 +1740,28 @@ return function(mod, opts)
 
   -- Keep the engine's own registered TrainerAI item action, but cap it over
   -- the whole Wanderer battle instead of letting wAICount reset per monster.
+  local function restAction(action)
+    return action and (action.id == "REST" or action.move == "REST")
+  end
+
+  local function damagingFallback(battle)
+    local enemy = battle and battle.enemy
+    local moves = battle and battle.data and battle.data.moves or {}
+    local unlimited = battle and battle.ruleset
+      and battle.ruleset.enemyUnlimitedPP
+    for index, move in ipairs(enemy and enemy.curMoves or {}) do
+      local id = type(move) == "table" and move.id or move
+      local def = moves[id]
+      local pp = type(move) == "table" and tonumber(move.pp) or 1
+      if index ~= enemy.disabledSlot and def
+          and (tonumber(def.power) or 0) > 0
+          and (unlimited or (pp or 0) > 0) then
+        return move, id
+      end
+    end
+    return nil
+  end
+
   mod.hooks:wrap("battle.enemy_action", function(nextAction, battle)
     if not (battle and battle.ascendantLegacyWanderer) then
       return nextAction(battle)
@@ -1566,6 +1774,25 @@ return function(mod, opts)
     if action and action.special == "aiItem" then
       battle.ascendantLegacyHealItemUses = math.min(cap,
         integer(battle.ascendantLegacyHealItemUses) + 1)
+    end
+    if restAction(action) then
+      local mon = battle.enemy and battle.enemy.mon
+      local maximum = mon and mon.stats and tonumber(mon.stats.hp)
+      local hp = mon and tonumber(mon.hp)
+      -- REST consumes a turn and fails at full HP. Above half health its
+      -- two-turn sleep cost is also not a meaningful Wanderer recovery line.
+      -- Scope the correction to this marked battle and reuse an attack that
+      -- already exists on the current battler; vanilla/other trainers retain
+      -- the engine's byte-for-byte decision.
+      if hp and maximum and maximum > 0 and hp * 2 > maximum then
+        local move, id = damagingFallback(battle)
+        if move then
+          if action.id then return move end
+          local fallback = copy(action)
+          fallback.move = id
+          return fallback
+        end
+      end
     end
     return action
   end, 4800)
@@ -1773,8 +2000,7 @@ return function(mod, opts)
     battle.ascendantLegacyHealItemUses = 0
     battle.introText = tr("The road trial\nbegins!",
       "Die Wegprüfung\nbeginnt!")
-    battle.endBattleText = tr("Road trial\ncomplete!",
-      "Wegprüfung\nbestanden!")
+    battle.endBattleText = W.farewellText(active, "win")
     if battle.trainer then
       local multiplier = active.tier.pact == "ascendant" and 3
         or active.tier.pact == "legacy" and 2.75 or 2.5
@@ -1945,7 +2171,8 @@ return function(mod, opts)
       active.rewardText = specialText or W.rewardText(active.game,
         encounter.reward, placement)
     elseif ev.result ~= "win" and placement == "resolved_loss" then
-      active.lossText = W.lossText(s.lossRelief)
+      active.lossText = W.farewellText(active, "loss")
+        .. "\f" .. W.lossText(s.lossRelief)
     end
     cleanup(active)
   end, 5000)

@@ -15,12 +15,22 @@ All notable changes to this project are documented in this file.
   from the previous scalar pending reward.
 - Rematch Mastery gates Overheat, Frenzy Plant, Blast Burn and Hydro Cannon by
   their save-bound receiver/Crown authority.
+- Field-rematch rosters use the durable playthrough identity before their first
+  build, so visual-option changes and reloads cannot reroll recruitment or
+  evolution branches.
+- Legacy Wanderers reject over-levelled late parties at early scaled levels,
+  guarantee a species-legal damaging move for explicit status-only sets, use
+  Rest only at half HP or below and vary role-aware English/German dialogue.
 - Durable Hoenn starter completions remain visible in Oak's later-life middle
   catalogue.
 - The release list navigates vertically, and regional Box filters now enforce
   exact Kanto #001–151 and Johto #152–251 bounds.
 - Character art avoids the minimum-engine sandbox's forbidden filesystem API,
   and native VASC trainer backs retain their correct facing.
+- Blue and Green keep their own bundled identity when Bicycle animation starts
+  in GAME/KASC field-art mode.
+- Selected friendship-evolution followers gain one friendship point per 32
+  genuine world steps; reserves and synthetic clocks remain excluded.
 - Valid Crystal caches are reused without a cold-start rewrite; Gorochu's
   catalogue surfaces share one current normal/Shiny authority.
 - Red's Crystal walking cycle now uses the maintainer-supplied corrected

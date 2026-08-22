@@ -1,4 +1,5 @@
 local engine = assert(os.getenv("GEN1RECOMP_DIR"), "GEN1RECOMP_DIR is required")
+local modRoot = os.getenv("TRAINER_REMATCH_MOD_DIR") or "."
 package.path = engine .. "/?.lua;" .. engine .. "/?/init.lua;" .. package.path
 
 local assertions = 0
@@ -48,7 +49,7 @@ local titles = {
   currentTitle = function() return selectedId, selectedName or "CHAMPION" end,
 }
 
-local makeWanderers = assert(loadfile("legacy_wanderers.lua"))()
+local makeWanderers = assert(loadfile(modRoot .. "/legacy_wanderers.lua"))()
 local wanderers = makeWanderers(mod, {
   journey = journey, i18n = i18n, titles = titles,
 })
@@ -78,10 +79,10 @@ local keeper = active("OPP_POKEMANIAC")
 -- fallback returned by Legacy Hall.
 eq(wanderers.reactionContext(scientist).kind, "fallback",
   "no selected title preserves the neutral challenger reaction")
-contains(wanderers.challengeText(scientist), "Roads\nremember steps",
+contains(wanderers.challengeText(scientist), "road\ntaught you",
   "English no-title fallback is authored rather than generic title praise")
 language = "de"
-contains(wanderers.challengeText(scientist), "Wege\nkennen Schritte",
+contains(wanderers.challengeText(scientist), "Weg\ndich gelehrt",
   "German no-title fallback is localized")
 language = "en"
 
@@ -130,10 +131,10 @@ eq(context.kind, "partner_match",
   "a committed partner is recognized in the wanderer's real roster")
 eq(context.partnerName, "Pikachu",
   "the partner reaction uses the registered species name")
-contains(wanderers.challengeText(partnerMatch), "PIKACHU knows",
+contains(wanderers.challengeText(partnerMatch), "I know that bond",
   "the English partner reaction names the matching partner")
 language = "de"
-contains(wanderers.challengeText(partnerMatch), "PIKACHU kennt",
+contains(wanderers.challengeText(partnerMatch), "Ich sehe den Bund",
   "the German partner reaction names the matching partner")
 language = "en"
 legacyState.partnerChosen = false

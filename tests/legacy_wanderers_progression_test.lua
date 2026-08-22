@@ -1,5 +1,6 @@
 local engine = assert(os.getenv("GEN1RECOMP_DIR"),
   "GEN1RECOMP_DIR is required")
+local modRoot = os.getenv("TRAINER_REMATCH_MOD_DIR") or "."
 package.path = engine .. "/?.lua;" .. engine .. "/?/init.lua;" .. package.path
 
 local assertions = 0
@@ -35,12 +36,13 @@ local journey = {
   wanderersEnabled = function() return true end,
 }
 local clock = 0
-local recruitment = assert(loadfile("trainer_recruits.lua"))()
+local recruitment = assert(loadfile(modRoot .. "/trainer_recruits.lua"))()
 recruitment.configureJohto({}, function() return false end)
 recruitment.configureEvolutionAvailability(function() return false end)
 
 local pokemon = {
   RATTATA = { dex = 19, types = { "NORMAL" },
+    level1Moves = { "TACKLE" },
     baseStats = { hp = 30, attack = 56, defense = 35, speed = 72, special = 25 },
     evolutions = { { method = "LEVEL", level = 20, species = "RATICATE" } } },
   RATICATE = { dex = 20, types = { "NORMAL" },
@@ -50,6 +52,7 @@ local pokemon = {
       { level = 40, move = "SUPER_FANG" } },
     tmhm = { "BODY_SLAM", "BLIZZARD", "THUNDER" } },
   PIDGEY = { dex = 16, types = { "NORMAL", "FLYING" },
+    level1Moves = { "TACKLE" },
     baseStats = { hp = 40, attack = 45, defense = 40, speed = 56, special = 35 },
     evolutions = { { method = "LEVEL", level = 18, species = "PIDGEOTTO" } } },
   PIDGEOTTO = { dex = 17, types = { "NORMAL", "FLYING" },
@@ -61,6 +64,10 @@ local pokemon = {
     learnset = { { level = 20, move = "WING_ATTACK" },
       { level = 40, move = "AGILITY" } },
     tmhm = { "BODY_SLAM", "BLIZZARD", "THUNDER" } },
+  CHANSEY = { dex = 113, types = { "NORMAL" },
+    level1Moves = { "POUND" }, learnset = {}, tmhm = {}, evolutions = {} },
+  NIDOKING = { dex = 34, types = { "POISON", "GROUND" },
+    level1Moves = { "TACKLE" }, learnset = {}, tmhm = {}, evolutions = {} },
 }
 local moves = {
   TACKLE = { type = "NORMAL", power = 35, accuracy = 95, pp = 35 },
@@ -72,6 +79,9 @@ local moves = {
   THUNDER = { type = "ELECTRIC", power = 120, accuracy = 70, pp = 10 },
   WING_ATTACK = { type = "FLYING", power = 60, accuracy = 100, pp = 35 },
   AGILITY = { type = "PSYCHIC_TYPE", power = 0, accuracy = 100, pp = 30 },
+  REST = { type = "PSYCHIC_TYPE", power = 0, accuracy = 100, pp = 10 },
+  GROWL = { type = "NORMAL", power = 0, accuracy = 100, pp = 40 },
+  POUND = { type = "NORMAL", power = 40, accuracy = 100, pp = 35 },
 }
 local game = {
   save = { inventory = {}, party = {
@@ -83,13 +93,17 @@ local game = {
     trainers = { OPP_YOUNGSTER = { name = "YOUNGSTER", parties = {
       { { species = "RATTATA", level = 5 },
         { species = "PIDGEY", level = 6 } },
+    } }, OPP_LASS = { name = "LASS", parties = {
+      { { species = "RATTATA", level = 5, moves = { "REST" } },
+        { species = "CHANSEY", level = 6, moves = { "GROWL" } } },
+      { { species = "NIDOKING", level = 45, moves = { "REST" } } },
     } } },
-    sprites = { SPRITE_YOUNGSTER = {} },
+    sprites = { SPRITE_YOUNGSTER = {}, SPRITE_LASS = {} },
     constants = { badges = {} },
   },
 }
 
-local makeWanderers = assert(loadfile("legacy_wanderers.lua"))()
+local makeWanderers = assert(loadfile(modRoot .. "/legacy_wanderers.lua"))()
 local wanderers = makeWanderers(mod, {
   journey = journey, recruitment = recruitment,
   clock = function() return clock end,
@@ -99,7 +113,59 @@ local wanderers = makeWanderers(mod, {
     return lo
   end,
 })
-local archetype = wanderers.liveTrainerPool(game)[1]
+local archetype, lass
+for _, row in ipairs(wanderers.liveTrainerPool(game)) do
+  if row.class == "OPP_YOUNGSTER" then archetype = row end
+  if row.class == "OPP_LASS" then lass = row end
+end
+ok(archetype, "progression Youngster enters the ordinary road pool")
+ok(lass, "late-party regression class enters the ordinary road pool")
+
+-- Regression: a rotation cursor pointing at a much later authored party used
+-- to rescale Nidoking all the way down to Lv5. The authored party stage must
+-- be filtered before fair level scaling, while the cursor remains persistent.
+game.save.party[1].level, game.save.party[2].level = 4, 4
+local stageState = { wins = 0, rotation = { OPP_LASS = 1 } }
+local stageIndex, stageTeam = wanderers.teamFor(
+  game, lass, stageState, 1, true)
+eq(stageIndex, 1, "low-level Wanderer rejects the late Nidoking party")
+ok(stageTeam[1].species ~= "NIDOKING",
+  "late fully evolved species leaked into an early scaled challenge")
+
+local function hasMove(row, wanted)
+  for _, id in ipairs(row.moves or {}) do if id == wanted then return true end end
+  return false
+end
+local stageBySpecies = {}
+for _, row in ipairs(stageTeam) do stageBySpecies[row.species] = row end
+ok(stageBySpecies.RATTATA and hasMove(stageBySpecies.RATTATA, "REST")
+    and hasMove(stageBySpecies.RATTATA, "TACKLE"),
+  "REST-only authored row did not gain its legal damaging move")
+ok(stageBySpecies.CHANSEY and hasMove(stageBySpecies.CHANSEY, "GROWL")
+    and hasMove(stageBySpecies.CHANSEY, "POUND"),
+  "status-only authored row did not gain a species-legal damaging move")
+ok(not hasMove(stageBySpecies.CHANSEY, "TACKLE"),
+  "status-only repair invented universal TACKLE instead of species authority")
+game.save.party[1].level, game.save.party[2].level = 10, 10
+
+local dialogueA = { token = "wanderer-dialogue-a", game = game,
+  archetype = lass, team = stageTeam }
+local dialogueB = { token = "wanderer-dialogue-b", game = game,
+  archetype = lass, team = stageTeam }
+local challengeA = wanderers.challengeText(dialogueA)
+local challengeB = wanderers.challengeText(dialogueB)
+ok(challengeA:find("LASS", 1, true),
+  "fallback challenge lost the actual trainer speaker role")
+ok(challengeA ~= challengeB,
+  "consecutive fallback challenges repeated the same generic line")
+ok(wanderers.challengeText(dialogueA) == challengeA,
+  "same encounter token did not retain its exact challenge line")
+local farewellWin = wanderers.farewellText(dialogueA, "win")
+local farewellLoss = wanderers.farewellText(dialogueA, "loss")
+ok(farewellWin and farewellWin:find("LASS", 1, true),
+  "win farewell lost the actual trainer speaker role")
+ok(farewellLoss and farewellLoss ~= farewellWin,
+  "win/loss farewells are missing or indistinguishable")
 
 local earlyState = { wins = 0, rotation = {} }
 local _, early, earlyTier = wanderers.teamFor(
@@ -153,7 +219,7 @@ eq(#relievedBattle.enemyAIMods, 2,
 eq(relievedBattle.ascendantLegacyHealItemCap, 0,
   "relieved retry removes the opponent healing item")
 
-local mastery = assert(loadfile("rematch_mastery.lua"))().create({
+local mastery = assert(loadfile(modRoot .. "/rematch_mastery.lua"))().create({
   johtoUnlocked = function() return true end,
 })
 local function mon(species, level)
@@ -239,5 +305,32 @@ eq(second.move, "TACKLE",
   "a per-mon AI reset cannot create healing spam after the cap")
 eq(battle.ascendantLegacyHealItemUses, 1,
   "battle-wide healing usage stays capped at exactly one")
+
+-- REST policy is scoped to Legacy Wanderers. At full or comfortably high HP
+-- it falls back to an existing usable damaging move; at low HP it remains a
+-- legal choice. Ordinary trainer AI is returned byte-for-byte unchanged.
+local restMove = { id = "REST", pp = 10 }
+local tackleMove = { id = "TACKLE", pp = 35 }
+local restBattle = {
+  ascendantLegacyWanderer = true,
+  ascendantLegacyHealItemCap = 0,
+  data = game.data,
+  ruleset = { enemyUnlimitedPP = false },
+  enemy = { mon = { hp = 100, stats = { hp = 100 } },
+    curMoves = { restMove, tackleMove } },
+}
+local fullRest = enemyAction(function() return restMove end, restBattle)
+eq(fullRest.id, "TACKLE", "full-HP Wanderer rejected useless REST")
+restBattle.enemy.mon.hp = 60
+local highRest = enemyAction(function() return restMove end, restBattle)
+eq(highRest.id, "TACKLE", "high-HP Wanderer rejected premature REST")
+restBattle.enemy.mon.hp = 40
+local lowRest = enemyAction(function() return restMove end, restBattle)
+eq(lowRest.id, "REST", "low-HP Wanderer keeps meaningful REST")
+local ordinaryRest = enemyAction(function() return restMove end, {
+  data = game.data, enemy = restBattle.enemy,
+})
+ok(ordinaryRest == restMove,
+  "ordinary trainer REST action changed outside the Wanderer battle")
 
 print(("legacy wanderers progression: %d assertions"):format(assertions))
