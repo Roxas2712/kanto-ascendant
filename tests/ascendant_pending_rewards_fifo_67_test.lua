@@ -80,6 +80,7 @@ local function controller(saved)
   }
   return assert(loadfile(root .. "/ascendant.lua"))()(mod, baseData, {
     data=data, postgame=postgame,
+    placement={ findWideRandom=function() end },
   })
 end
 
