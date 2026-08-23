@@ -43,9 +43,13 @@ local storyKeys = {
   "_PokemonTower2FRivalDefeatedText",
   "_PokemonTower2FRivalVictoryText",
   "_Route22RivalBeforeBattleText1",
+  "_Route22Rival1DefeatedText",
   "_Route22Rival1VictoryText",
+  "_Route22RivalAfterBattleText1",
   "_Route22RivalBeforeBattleText2",
+  "_Route22Rival2DefeatedText",
   "_Route22Rival2VictoryText",
+  "_Route22RivalAfterBattleText2",
   "_SSAnne2FRivalText",
   "_SSAnne2FRivalDefeatedText",
   "_SSAnne2FRivalCutMasterText",
@@ -73,7 +77,7 @@ end
 
 local storyKeySet = {}
 for _, key in ipairs(storyKeys) do storyKeySet[key] = true end
-check(#storyKeys == 42, "story contract no longer contains 42 keys")
+check(#storyKeys == 46, "story contract no longer contains 46 keys")
 check(dialogue.rival.BLUE == nil,
   "Blue gained an overlay instead of preserving native R/B/Y dialogue")
 for _, identity in ipairs({ "RED", "GREEN" }) do
@@ -94,21 +98,21 @@ for _, identity in ipairs({ "RED", "GREEN" }) do
 end
 
 check(dialogue.rival.RED._OaksLabRivalGoAheadAndChooseText[1]
-    :find("Good for you", 1, true) ~= nil,
-  "Red's polite starter-choice voice regressed")
+    :find("made up", 1, true) ~= nil,
+  "Red's calm starter-choice voice regressed")
 check(dialogue.rival.RED._PokemonTower2FRivalWhatBringsYouHereText[1]
     :find("respects", 1, true) ~= nil,
   "Red's thoughtful Tower voice regressed")
 check(dialogue.rival.GREEN._OaksLabRivalGoAheadAndChooseText[1]
-    :find("Probably", 1, true) ~= nil,
-  "Green's scattered starter-choice voice regressed")
+    :find("That's the plan", 1, true) ~= nil,
+  "Green's deliberate starter-choice voice regressed")
 check(dialogue.rival.GREEN._OaksLabRivalIllTakeYouOnText[1]
     :find("research", 1, true) ~= nil,
   "Green's playful first-battle voice regressed")
-check(dialogue.introAsk.RED[1]:find("listens", 1, true) ~= nil,
-  "Oak no longer introduces Red's quiet identity")
-check(dialogue.introAsk.GREEN[1]:find("plans", 1, true) ~= nil,
-  "Oak no longer introduces Green's scattered identity")
+check(dialogue.introAsk.RED[1]:find("notices", 1, true) ~= nil,
+  "Oak no longer introduces Red's attentive identity")
+check(dialogue.introAsk.GREEN[1]:find("curious", 1, true) ~= nil,
+  "Oak no longer introduces Green's curious identity")
 
 local blueHuntBefore = "{RIVAL}: So the rumors\nwere true!\fYou already found a\nlegend.\fDo not think you will\nclaim the rest alone.\fI built a team to\ntrack powers like\nthese.\fBeat me, and I will\nshare my readings.\fLegend Hunter battle.\nAccept?"
 check(postgameDialogue.huntRival.before.en == blueHuntBefore,
@@ -216,7 +220,15 @@ local TextBox = require("src.render.TextBox")
 local makePagination = assert(loadfile(root .. "/dialogue_pagination.lua"))()
 local pagination = makePagination({ path = root, content = { text = registry() } },
   { TextBox = TextBox })
-local function safe(label, value)
+local function safe(label, value, authored)
+  if authored then
+    for page in (tostring(value) .. "\f"):gmatch("(.-)\f") do
+      local authoredRows = 1
+      for _ in page:gmatch("\n") do authoredRows = authoredRows + 1 end
+      check(authoredRows <= 2,
+        label .. " has more than two authored rows before pagination")
+    end
+  end
   local gated = pagination.gateText({}, value)
   local pages = TextBox.paginate(gated, 18)
   for index, page in ipairs(pages) do
@@ -227,7 +239,7 @@ for _, identity in ipairs({ "RED", "GREEN" }) do
   for _, key in ipairs(storyKeys) do
     for language = 1, 2 do
       safe(identity .. " " .. key .. " " .. language,
-        dialogue.rival[identity][key][language])
+        dialogue.rival[identity][key][language], true)
     end
   end
   for _, key in ipairs({ "before", "decline", "win", "after" }) do

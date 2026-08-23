@@ -1,6 +1,6 @@
 # Kanto Ascendant FAQ and Spoiler Guide
 
-This is the public reference for **Kanto Ascendant 6.5.11**. It applies to Red,
+This is the public reference for **Kanto Ascendant 6.5.12**. It applies to Red,
 Blue and Yellow and is maintained from the current mod code, release
 documentation and confirmed support reports.
 
@@ -40,7 +40,7 @@ breeding, shinies, Mega Evolution, Gorochu and a large Hall-of-Fame post-game.
 <summary><strong>⚠️ SPOILER — How do I install or update it?</strong></summary>
 
 1. Download the release `.zip` from the
-   [6.5.11 GitHub release](https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.5.11).
+   [6.5.12 GitHub release](https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.5.12).
 2. Import it through the Gen 1 Recomp launcher.
 3. Use Gen 1 Recomp **0.1.90** or newer. Disable every package the manager reports as a
    conflict, then enable **Kanto Ascendant** and restart.
@@ -376,6 +376,11 @@ genuine outdoor map changes count. Interiors, caves, Safari and HEVO maps do
 not. There is no repeated per-step probability: once due, the reserved
 encounter retries only when the field state is safe.
 
+The control is at **START → ASCENDANT → OPTIONS → GAMEPLAY → LEGACY NG+ →
+WANDERER FREQ.** and appears only during an active Legacy Journey. `RARE` is
+the default for new Legacy journeys. Existing explicit `NEVER`, `RARE`,
+`NORMAL` or `OFTEN` choices remain unchanged.
+
 | Frequency | Earliest steps | Target map changes | Hard due |
 |---|---:|---:|---:|
 | RARE | 600 | 4-6 | 5000 steps, or 7 changes after the floor |
@@ -415,6 +420,41 @@ registered and documented for the actual species; there is no universal
 invented Tackle fallback. In a Legacy Wanderer battle, Rest is considered only
 at half HP or below. Challenge and farewell lines use the trainer's role,
 support English and German and avoid immediate repeats.
+
+</details>
+
+<details>
+<summary><strong>Why does an old pre-6.5 save still show original Red/Blue art?</strong></summary>
+
+The base game's locked `SPRITE PACK: GAME/KASC` row is not the player/rival
+art selector. Use **START → ASCENDANT → OPTIONS → VISUALS → CHARACTERS /
+TRAINERS**:
+
+- `FIELD CHARACTERS: KASC FIELD` selects the bundled Red/Blue field sheets.
+- `TRAINER PORTRAITS: CRYSTAL HD` selects the bundled player/rival battle and
+  portrait family.
+
+From 6.5.12 onward, a continued save whose character record is exactly absent
+because it predates 6.5 applies those visual choices to the canonical Red
+player / Blue rival pair without creating a character-selection or story
+record. A present disabled or future-format record is never guessed or
+rewritten.
+
+</details>
+
+<details>
+<summary><strong>Why did Red or Green use Blue's dialogue after a Route 22 battle?</strong></summary>
+
+Route 22 plays two separate text phases after a victory: the immediate defeat
+line and a second farewell before the rival walks away. Earlier character
+overlays covered the surrounding challenge and loss dialogue but omitted both
+victory-phase keys, so Red and Green inherited the active edition's native
+Blue wording.
+
+Version 6.5.12 gives Red and Green both phases for the early and late Route 22
+battles. Their complete 46-key main-story dialogue sets were also reviewed in
+English and German against the actual speaker, scene and battle outcome. Blue
+continues to use the active Red, Blue or Yellow edition's native dialogue.
 
 </details>
 
@@ -556,7 +596,7 @@ Mankey in every active KANTO 151 game.
 <details>
 <summary><strong>⚠️ SPOILER — Do I need to start a new game for Johto Signals?</strong></summary>
 
-No. Version 6.5.11 upgrades existing Red, Blue and Yellow saves in place.
+No. Version 6.5.12 upgrades existing Red, Blue and Yellow saves in place.
 
 The signal system does not count steps taken before 6.0 was installed. Once
 the updated save has a starter and the Pokédex, it begins its own hidden

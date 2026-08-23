@@ -45,8 +45,8 @@ return function(i18n)
       "Controls additional item or money rewards earned after rematch victories.",
       "Steuert zusätzliche Item- oder Geldbelohnungen nach gewonnenen Revanchen." },
     legacy_wanderer_frequency = {
-      "Controls surprise challengers only during an active Legacy New Game+ run. NEVER stops new encounters but still delivers already reserved rewards.",
-      "Steuert Überraschungstrainer nur in einem aktiven Legacy-Neues-Spiel+. NIE stoppt neue Kämpfe, liefert aber bereits vorgemerkte Preise weiter aus." },
+      "Controls surprise challengers only during an active Legacy New Game+ run. RARE is the default; NEVER stops new encounters but still delivers already reserved rewards.",
+      "Steuert Überraschungstrainer nur in einem aktiven Legacy-Neues-Spiel+. SELTEN ist Standard; NIE stoppt neue Kämpfe, liefert aber bereits vorgemerkte Preise weiter aus." },
     kanto_151 = {
       "Controls how all original 151 species become obtainable: rewards, wild encounters or no assistance.",
       "Bestimmt, wie alle ursprünglichen 151 Arten erhältlich werden: Belohnungen, Wildfänge oder keine Hilfe.", true },

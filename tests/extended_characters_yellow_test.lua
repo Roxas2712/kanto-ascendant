@@ -12,7 +12,19 @@ local modPath = os.getenv("TRAINER_REMATCH_MOD_DIR") or "mods/kanto_ascendant"
 local oldVersion = GameVersion.get()
 GameVersion.set("yellow")
 
-local run = T.sdk.loadMod(modPath, { data = Data })
+local assetSink = assert(loadfile(modPath
+  .. "/tests/headless_modkit_asset_sink.lua"))()(T, modPath, {
+  bridgeLove = true,
+  derivedPrefix = "save/mod-derived/kanto_ascendant/",
+})
+local sdkOpts = { data = Data }
+if modPath:sub(1, 1) == "/" then sdkOpts.root = "/" end
+local loaded, run = pcall(T.sdk.loadMod, modPath, sdkOpts)
+if not loaded then
+  assetSink.cleanup()
+  GameVersion.set(oldVersion)
+  error(run, 0)
+end
 T.eq(#run.errors, 0, "Kanto Ascendant loads in a Yellow runtime")
 local runtimeModPath = assert(run.mod and run.mod.path,
   "SDK exposes the loader-owned runtime mod path")
@@ -20,12 +32,14 @@ local characters = assert(run.loader.exports.kanto_ascendant.extendedCharacters)
 T.eq(characters.characterStyle(), "crystal",
   "Yellow also receives CRYSTAL CHARS as the default style")
 
-T.eq(characters.isEnabled(), false, "vanilla Yellow keeps the extension opt-in")
+T.eq(characters.isEnabled(), false,
+  "pre-6.5 Yellow visual compatibility does not create story identity")
 T.eq(characters.trainerCardProfileFit(nil, 56, 56), nil,
   "unselected vanilla Yellow keeps its edition-native Trainer Card placement")
 T.eq(run.loader.hooks:call("player.sprite", function(path) return path end,
   "yellow-vanilla-back.png", { side = "back", kind = "battle" }),
-  "yellow-vanilla-back.png", "vanilla Yellow keeps its player art path")
+  runtimeModPath .. "/assets/characters/crystal_chars/red_back.png",
+  "pre-6.5 Yellow applies the default Red visual family without save mutation")
 
 local red = characters.select("RED")
 T.eq(red.rival_character, "BLUE", "Yellow Red keeps Blue in the rival role")
@@ -76,4 +90,6 @@ T.eq(followerSave.pikachuHappiness, 92,
   "Yellow Pikachu reactions continue independently of selected trainer identity")
 
 GameVersion.set(oldVersion)
+run.release()
+assetSink.cleanup()
 T.finish("extended_characters_yellow_test")

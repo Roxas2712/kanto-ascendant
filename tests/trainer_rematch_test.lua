@@ -1172,8 +1172,8 @@ T.eq(optionRows.loot_mode.type, "choice",
   "rare rematch loot has OFF, BALANCED and GENEROUS modes")
 T.eq(optionRows.legacy_wanderer_frequency.type, "choice",
   "Legacy NG+ Wanderer frequency is a stable four-way choice")
-T.eq(optionRows.legacy_wanderer_frequency.default, "normal",
-  "existing active Legacy saves default to NORMAL cadence")
+T.eq(optionRows.legacy_wanderer_frequency.default, "rare",
+  "new Legacy journeys default to the less intrusive RARE cadence")
 T.same(optionRows.legacy_wanderer_frequency.choices, {
   { "NEVER", "never" }, { "RARE", "rare" },
   { "NORMAL", "normal" }, { "OFTEN", "often" },

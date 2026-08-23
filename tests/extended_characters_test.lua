@@ -55,6 +55,23 @@ T.eq(table.concat(titleIntro.order, ","), "GREEN,BLUE,RED",
   "title trainer order advertises the mod with Green first")
 T.eq(characters.characterStyle(), "crystal",
   "CRYSTAL CHARS is the default character style")
+local pre65Rivals = {
+  OPP_RIVAL1 = { pic = "native-rival-1" },
+  OPP_RIVAL2 = { pic = "native-rival-2" },
+  OPP_RIVAL3 = { pic = "native-rival-3" },
+}
+local pre65Game = {
+  data = { trainers = pre65Rivals },
+  mods = run.loader,
+  save = { options = { modOptions = run.loader.modOptions } },
+}
+characters.refreshVisuals(pre65Game)
+T.check(pre65Rivals.OPP_RIVAL1.pic:find(
+    "/assets/characters/crystal_chars/blue_front.png", 1, true) ~= nil,
+  "a pre-6.5 save with no identity record still applies the selected "
+    .. "Red/Blue visual family")
+T.eq(characters.getState().enabled, false,
+  "visual-only pre-6.5 compatibility does not manufacture story identity")
 run.loader.modOptions.kanto_ascendant = { character_sprite_style = "ascendant" }
 T.eq(characters.getState().enabled, false,
   "an absent legacy record keeps extended selection off")
@@ -765,6 +782,10 @@ characters.setEnabled(false)
 characters.refreshVisuals(presentationGame)
 T.eq(nativePortraits.OPP_RIVAL1.pic, "native-rival-1",
   "disabled legacy saves leave rival portraits untouched")
+T.eq(run.loader.hooks:call("player.sprite", function(path) return path end,
+    "native-player-back", { side = "back", kind = "battle" }),
+  "native-player-back",
+  "a present disabled record remains authoritative for player art")
 characters.select("BLUE")
 T.check(nativePortraits.OPP_RIVAL1.pic:match(
   "/assets/characters/crystal_chars/green_front%.png$") ~= nil,
@@ -803,8 +824,9 @@ T.eq(labText._OaksLabRivalGrampsText, "{RIVAL}: Gramps!",
   "Blue rival restores the active game's exact native wording")
 characters.select("GREEN")
 characters.refreshVisuals(storyGame)
-T.check(labText._RedsHouse1FMomWakeUpText:find("girls", 1, true) ~= nil,
-  "Green's mother addresses her as a girl")
+T.check(labText._RedsHouse1FMomWakeUpText:find("Everyone", 1, true) ~= nil
+    and not labText._RedsHouse1FMomWakeUpText:find("boys", 1, true),
+  "Green's mother uses the reviewed inclusive journey line")
 T.eq(labText._PalletTownRivalsHouseSignText, "OAK FAMILY HOUSE",
   "shared family house sign no longer assumes Blue is the player")
 T.check(labText._BluesHouseDaisyRivalAtLabText:find("{RIVAL}", 1, true) ~= nil,
@@ -960,7 +982,7 @@ introStep("ask_rival_name").run({
   end,
 }, function() blueRivalDone = blueRivalDone + 1 end)
 T.eq(blueRivalLine,
-  "This is my grand-\nson.\fHe's been your\nrival for years.\f...What was his\nname again?",
+  "This is my grand-\nson.\fHe's quick, proud,\nand very capable.\f...What was his\nname again?",
   "Red route introduces Oak's grandson before asking for his name")
 T.eq(blueRivalPic, "rival",
   "Red route switches from the player to Blue's portrait")
@@ -975,7 +997,7 @@ introStep("ask_rival_name").run({
   end,
 }, function() end)
 T.eq(blueRivalLine,
-  "This girl is from\nPALLET TOWN.\fShe's friendly, quick,\nand full of plans.\f...What was her\nname again?",
+  "This girl is from\nPALLET TOWN.\fShe's clever, curious,\nand always has a plan.\fUsually more than one.\f...What was her\nname again?",
   "Blue route introduces Green without inventing an Oak relationship")
 
 local relationLine, relationDone = nil, 0
@@ -1016,7 +1038,7 @@ for _, step in ipairs(steps) do
   end
 end
 T.eq(greenRivalLine,
-  "This boy is from\nPALLET TOWN.\fHe says little, but\nlistens closely.\f...What was his\nname again?",
+  "This boy is from\nPALLET TOWN.\fHe speaks little,\nnotices everything,\fand trusts his skill.\f...What was his\nname again?",
   "Green's route introduces Red as a quiet non-grandchild Pallet boy")
 T.eq(greenRivalDone, 1,
   "the Green rival introduction advances exactly once")

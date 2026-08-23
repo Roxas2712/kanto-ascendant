@@ -217,6 +217,23 @@ return function(mod, opts)
     return "crystal_hd"
   end
 
+  local function characterSpriteStyle(game)
+    local saved = game and game.save and game.save.options
+      and game.save.options.modOptions
+      and game.save.options.modOptions[mod.id]
+      and game.save.options.modOptions[mod.id].character_sprite_style
+    local style = saved
+    if style == nil and mod.options and type(mod.options.get) == "function" then
+      local ok, value = pcall(mod.options.get, mod.options,
+        "character_sprite_style")
+      if ok then style = value end
+    end
+    -- Exact absence is a pre-6.5 options shape and follows the schema's KASC
+    -- default. Only a deliberate ASCENDANT FIELD choice restores native
+    -- edition sheets.
+    return style == "ascendant" and "ascendant" or "crystal"
+  end
+
   local function whiteUiPalette(game, name)
     local P = require("src.render.PaletteFX")
     local palette = P.pal(game.data, name or "MEWMON")
@@ -400,8 +417,7 @@ return function(mod, opts)
   end
 
   function M.characterStyle()
-    local ok, style = pcall(mod.options.get, mod.options, "character_sprite_style")
-    return ok and style == "crystal" and "crystal" or "ascendant"
+    return characterSpriteStyle(activeGame)
   end
 
   local BATTLE_VISUAL_STATES = {
@@ -1349,9 +1365,16 @@ return function(mod, opts)
   refreshVisuals = function(game)
     if not game then return end
     activeGame = game
+    local rawState = mod.save:get(SAVE_KEY)
     local state = M.getState()
     local overworld = game.overworld
-    if not state.enabled then
+    -- Saves predating 6.5 have no character record at all. Their canonical
+    -- roles are still Red player / Blue rival, so apply only that visual pair
+    -- through the current FIELD CHARACTERS and TRAINER PORTRAITS options.
+    -- Do not manufacture selection, dialogue, name or story state. A present
+    -- disabled/future record remains authoritative and restores native art.
+    local pre65VisualOnly = rawState == nil
+    if not state.enabled and not pre65VisualOnly then
       restoreOverworldPresentation(overworld)
       restoreRivalPresentation(game)
       refreshCharacterDialogue(game, state)
@@ -1424,13 +1447,12 @@ return function(mod, opts)
     -- shared renderer exposes them through player.sprite. Preserve both the
     -- selected path and its native palette contract verbatim.
     if ctx and (ctx.demo or ctx.oakDemo) then return path end
+    local rawState = mod.save:get(SAVE_KEY)
     local state = M.getState()
-    -- Red/Blue saves created before the three-character record existed still
-    -- represent the canonical Red protagonist.  Resolve his approved battle
-    -- family without manufacturing selection/story state in the save. Yellow
-    -- keeps its edition-specific protagonist until the user explicitly makes
-    -- an Ascendant character choice.
-    if not state.enabled and GameVersion.get() == "yellow" then return path end
+    -- Exact record absence is the pre-6.5 Red/Blue visual fallback handled by
+    -- refreshVisuals above. A present disabled record is deliberate and must
+    -- restore the edition-owned player picture in every edition.
+    if not state.enabled and rawState ~= nil then return path end
     local visualState = M.playerVisualState(ctx)
     local visual = M.getPlayerSprite(visualState)
     if ctx and BATTLE_VISUAL_STATES[visualState] then

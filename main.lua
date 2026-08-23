@@ -583,7 +583,7 @@ return function(mod)
       } },
     { key = "legacy_wanderer_frequency",
       label = menuLabel("WANDERER FREQ.", "WANDERER-HÄUFIGK."),
-      type = "choice", default = "normal",
+      type = "choice", default = "rare",
       choices = {
         { menuLabel("NEVER", "NIE"), "never" },
         { menuLabel("RARE", "SELTEN"), "rare" },

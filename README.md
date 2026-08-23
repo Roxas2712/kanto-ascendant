@@ -53,6 +53,19 @@ collapsed so players can reveal only the information they want.
 > [GitHub Issues](https://github.com/Roxas2712/kanto-ascendant/issues) and will
 > be considered for future updates.
 
+## What's new in 6.5.12
+
+- Adds a dedicated, active-Legacy-only `GAMEPLAY → LEGACY NG+` options page
+  and makes the less intrusive `RARE` Wanderer cadence the new default.
+- Makes `FIELD CHARACTERS` and `TRAINER PORTRAITS` work for exact pre-6.5
+  Red/Blue saves that have no character record, without rewriting story or
+  identity data.
+- Keeps Red and Green's selected voice through both Route 22 post-battle
+  phases and revises their complete bilingual main-story dialogue for natural,
+  scene-correct English and German while Blue retains native edition text.
+
+See the full spoiler-light [6.5.12 release notes](RELEASE_NOTES_6.5.12.md).
+
 ## What's new in 6.5.11
 
 - Keeps every dynamically generated host on reachable public floor tiles;
@@ -1746,6 +1759,9 @@ trainer state. Only eligible steps on Kanto routes and outdoor town/city maps
 count; interiors, caves, Safari and HEVO maps do not. There is no per-step
 spawn roll. Once due, the transaction waits for a safe eligible field state.
 
+The setting lives at `START → ASCENDANT → OPTIONS → GAMEPLAY → LEGACY NG+`.
+New Legacy journeys default to `RARE`; explicit saved choices are preserved.
+
 | Frequency | Earliest eligible steps | Normal map-change target | Hard due |
 |---|---:|---:|---:|
 | RARE | 600 | 4-6 | 5000 steps, or 7 map changes after the floor |
@@ -1786,8 +1802,8 @@ ledger prevents duplicate delivery.
 > launcher-compatible `.zip`. A matching `.modpkg` may be retained only as an
 > internal build or verification artifact.
 
-1. Download `kanto_ascendant-6.5.11.zip` from the
-   [6.5.11 release](https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.5.11)
+1. Download `kanto_ascendant-6.5.12.zip` from the
+   [6.5.12 release](https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.5.12)
    and import it through the launcher. Developers may alternatively install
    the checked-out mod directory.
    If you downloaded a complete bundle, extract it first and import the inner

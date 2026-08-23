@@ -204,7 +204,7 @@ local rewards = assert(loadfile(modPath .. "/rematch_rewards.lua"))()(mod, {
     { key = "loot_mode", label = "LOOT", type = "choice",
       default = "balanced", choices = { { "BALANCED", "balanced" } } },
     { key = "legacy_wanderer_frequency", label = "WANDERER FREQ.",
-      type = "choice", default = "normal", choices = {
+      type = "choice", default = "rare", choices = {
         { "NEVER", "never" }, { "RARE", "rare" },
         { "NORMAL", "normal" }, { "OFTEN", "often" },
       } },
@@ -345,8 +345,8 @@ local multiplierRow
 for _, row in ipairs(rows) do if row.value == "exp_multiplier" then multiplierRow = row end end
 ok(multiplierRow ~= nil, "GAMEPLAY contains one EXP Multiplier row")
 local gameplayRoot = screens.AscendantGameplayOptions.new(game, {})
-eq(#gameplayRoot.items, 5,
-  "GAMEPLAY is a compact five-submenu hub")
+eq(#gameplayRoot.items, 6,
+  "active Legacy NG+ receives a dedicated sixth submenu")
 eq(gameplayRoot.pageJump, false,
   "Ascendant option lists reserve L/R for the highlighted value")
 eq(gameplayRoot.footer, "A:OPEN SEL:HELP",
@@ -355,11 +355,13 @@ eq(gameplayRoot.items[1].screen, "AscendantCoreOptions",
   "core rules moved into their focused submenu")
 eq(gameplayRoot.items[2].screen, "AscendantRematchOptions",
   "rematch tuning moved into its focused submenu")
-eq(gameplayRoot.items[3].screen, "AscendantTrainingOptions",
+eq(gameplayRoot.items[3].screen, "AscendantLegacyOptions",
+  "Legacy-only controls have a discoverable focused submenu")
+eq(gameplayRoot.items[4].screen, "AscendantTrainingOptions",
   "EXP assistance moved into its focused submenu")
-eq(gameplayRoot.items[4].screen, "AscendantCaptureOptions",
+eq(gameplayRoot.items[5].screen, "AscendantCaptureOptions",
   "capture and storage settings have a focused submenu")
-eq(gameplayRoot.items[5].screen, "AscendantControlOptions",
+eq(gameplayRoot.items[6].screen, "AscendantControlOptions",
   "controls have a focused submenu")
 gameplayRoot.onChoose(gameplayRoot.items[1])
 eq(game.lastScreen.id, "AscendantCoreOptions",
@@ -426,15 +428,20 @@ eq(optionWrites, 2,
   "only the two L/R changes write options")
 
 local rematch = screens.AscendantRematchOptions.new(game, {})
-eq(#rematch.items, 5,
-  "named recovery plus active Legacy frequency fit the compact menu")
+eq(#rematch.items, 4,
+  "REMATCH contains only rematch recovery, growth and loot controls")
 eq(rematch.items[1].value, "rest_profile",
   "the named recovery profile is first in REMATCH")
 eq(rematch.items[1].right, "NORMAL",
   "a fresh menu shows the NORMAL profile")
-eq(rematch.items[5].value, "legacy_wanderer_frequency",
-  "Legacy NG+ menu exposes the stable Wanderer frequency option")
-eq(#rematch.items[5].schema.choices, 4,
+local legacyOptions = screens.AscendantLegacyOptions.new(game, {})
+eq(#legacyOptions.items, 1,
+  "LEGACY NG+ has one focused Wanderer frequency control")
+eq(legacyOptions.items[1].value, "legacy_wanderer_frequency",
+  "LEGACY NG+ exposes the stable Wanderer frequency option")
+eq(legacyOptions.items[1].right, "RARE",
+  "new Legacy journeys default to the less intrusive RARE cadence")
+eq(#legacyOptions.items[1].schema.choices, 4,
   "Wanderer frequency offers NEVER/RARE/NORMAL/OFTEN")
 rematch:ascendantStep(1)
 eq(rematch.items[1].right, "LONG",
@@ -443,7 +450,7 @@ rematch:ascendantStep(1)
 rematch:ascendantStep(1)
 eq(rematch.items[1].right, "CUSTOM",
   "CUSTOM is reachable through the same profile control")
-eq(#rematch.items, 7,
+eq(#rematch.items, 6,
   "CUSTOM immediately exposes its two numeric controls")
 eq(rematch.items[2].value, "rest_min", "CUSTOM exposes its minimum")
 eq(rematch.items[3].value, "rest_max", "CUSTOM exposes its maximum")
@@ -453,18 +460,25 @@ eq(game.mods.modOptions.kanto_ascendant.rest_min, 152,
   "CUSTOM minimum remains exactly editable")
 rematch.index = 1
 rematch:ascendantStep(-1)
-eq(#rematch.items, 5, "leaving CUSTOM hides both numeric rows")
+eq(#rematch.items, 4, "leaving CUSTOM hides both numeric rows")
 rematch:ascendantStep(1)
-eq(#rematch.items, 7, "returning to CUSTOM restores both rows")
+eq(#rematch.items, 6, "returning to CUSTOM restores both rows")
 eq(rematch.items[2].right, "152",
   "switching profiles preserves the custom minimum")
 legacyRunActive = false
 local ordinaryRematch = screens.AscendantRematchOptions.new(game, {})
 eq(#ordinaryRematch.items, 6,
-  "fresh normal campaign hides the Wanderer frequency row in-game")
+  "normal campaign keeps the same CUSTOM rematch controls")
 for _, row in ipairs(ordinaryRematch.items) do
   ok(row.value ~= "legacy_wanderer_frequency",
     "non-NG+ in-game menu contains no inactive Wanderer control")
+end
+local ordinaryGameplay = screens.AscendantGameplayOptions.new(game, {})
+eq(#ordinaryGameplay.items, 5,
+  "normal campaigns do not show an inactive LEGACY NG+ submenu")
+for _, row in ipairs(ordinaryGameplay.items) do
+  ok(row.screen ~= "AscendantLegacyOptions",
+    "normal campaign menu contains no inactive Legacy page")
 end
 legacyRunActive = true
 

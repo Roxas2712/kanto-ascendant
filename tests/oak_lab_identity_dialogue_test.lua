@@ -140,7 +140,7 @@ check(dialogue.rival.RED._OaksLabRivalTakesText4[1]
     :find("asked", 1, true) ~= nil,
   "Red does not calmly acknowledge taking the intended ball")
 check(dialogue.rival.GREEN._OaksLabRivalTakesText1[1]
-    :find("Was this yours", 1, true) ~= nil,
+    :find("meant\nfor you", 1, true) ~= nil,
   "Green does not realize she picked the intended ball")
 check(not dialogue.rival.RED._OaksLabRivalTakesText2[1]
     :find("snatched", 1, true),

@@ -2,6 +2,24 @@
 
 All notable changes to this project are documented in this file.
 
+## [6.5.12] - 2026-08-23
+
+### Fixed
+
+- Active Legacy Journeys expose Wanderer frequency on a dedicated
+  `GAMEPLAY → LEGACY NG+` page instead of hiding it among field-rematch
+  recovery settings. New Legacy journeys default to `RARE`; every explicit
+  `NEVER`, `RARE`, `NORMAL` or `OFTEN` choice remains unchanged.
+- Saves whose character record is exactly absent because they predate 6.5 now
+  apply the selected KASC Red/Blue field and trainer-portrait families without
+  manufacturing character-selection, name, dialogue or story state. Present
+  disabled and future-format records remain authoritative.
+- Red and Green now own both Route 22 defeat and walk-away phases instead of
+  falling back to Blue's edition-native post-battle wording. Their complete
+  46-key main-story dialogue surfaces were reviewed in English and German for
+  natural phrasing, scene context, battle direction and two-row pagination;
+  Blue's native edition dialogue remains unchanged.
+
 ## [6.5.11] - 2026-08-22
 
 ### Fixed

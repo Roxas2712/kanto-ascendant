@@ -612,7 +612,7 @@ return function(mod, opts)
     rest_profile = "rematch", rest_min = "rematch",
     rest_max = "rematch", level_gain = "rematch",
     team_growth = "rematch", loot_mode = "rematch",
-    legacy_wanderer_frequency = "rematch",
+    legacy_wanderer_frequency = "legacy",
     vision_encounters = "adventure", shiny_hunts = "adventure",
     shiny_event = "adventure",
     mega_evolution = "adventure", mega_opponents = "adventure",
@@ -697,6 +697,7 @@ return function(mod, opts)
     end
   end
   local function schemaValueLabel(game, row, value)
+    if value == nil then value = row.default end
     if row.key == "adaptive_trainer_levels"
         and (value == "auto" or value == nil and row.default == "auto") then
       local policy = mod.exports and mod.exports.adaptiveTrainerLevels
@@ -890,14 +891,17 @@ return function(mod, opts)
     end })
   end
 
-  local function submenu(value, label, screen, help)
-    return { value = value, label = label, screen = screen, help = help }
+  local function submenu(value, label, screen, help, visible)
+    return { value = value, label = label, screen = screen, help = help,
+      visible = visible }
   end
 
   local function registerGroupedCategory(name, category, title, children)
     mod.content.screens:register(name, { new = function(game, args)
       local rows = {}
-      for _, row in ipairs(children) do rows[#rows + 1] = row end
+      for _, row in ipairs(children) do
+        if row.visible == nil or row.visible(game) then rows[#rows + 1] = row end
+      end
       for _, row in ipairs(optionRows(game, category)) do
         rows[#rows + 1] = row
       end
@@ -909,6 +913,8 @@ return function(mod, opts)
     tr("CORE RULES", "GRUNDREGELN"))
   registerCategory("AscendantRematchOptions", "rematch",
     tr("REMATCH", "REVANCHEN"))
+  registerCategory("AscendantLegacyOptions", "legacy",
+    tr("LEGACY NG+", "LEGACY NG+"))
   registerCategory("AscendantTrainingOptions", "training",
     tr("EXP / TRAINING", "EP / TRAINING"))
   registerCategory("AscendantFollowerOptions", "followers", tr("FOLLOWERS", "BEGLEITER"))
@@ -960,6 +966,15 @@ return function(mod, opts)
         "AscendantRematchOptions", tr(
           "Recovery steps, level gain, team growth and rematch loot.",
           "Pausenschritte, Levelanstieg, Teamwachstum und Revanchensbeute.")),
+      submenu("legacy", tr("LEGACY NG+", "LEGACY NG+"),
+        "AscendantLegacyOptions", tr(
+          "Frequency and behavior of Legacy Journey surprise challengers.",
+          "Häufigkeit und Verhalten der Überraschungstrainer auf Legacy-Reisen."),
+        function(game)
+          return legacyWanderers
+            and type(legacyWanderers.legacyRunEnabled) == "function"
+            and legacyWanderers.legacyRunEnabled(game)
+        end),
       submenu("training", tr("EXP / TRAINING", "EP / TRAINING"),
         "AscendantTrainingOptions", tr(
           "Unlocked EXP Share and multiplier assistance.",
