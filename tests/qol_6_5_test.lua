@@ -53,8 +53,8 @@ for _, key in ipairs({
 end
 ok(main:find('key = "language"', 1, true) == nil,
   "language follows the installed game translation instead of a private toggle")
-ok(manifest:find('"version": "6.5.13"', 1, true) ~= nil,
-  "release manifest reports 6.5.13")
+ok(manifest:find('"version": "6.5.14"', 1, true) ~= nil,
+  "release manifest reports 6.5.14")
 ok(manifest:find('"id": "kanto_ascendant"', 1, true) ~= nil,
   "manifest uses Kanto Ascendant's own canonical id")
 ok(manifest:find('"trainer_rematch"', 1, true) ~= nil,

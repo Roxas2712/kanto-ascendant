@@ -2101,6 +2101,18 @@ return function(mod, opts)
     return placement or "no_reward", rewardReason, specialText
   end
 
+  local function releaseEncounterLock(active)
+    local released = {}
+    local function release(ow)
+      if not ow or released[ow] then return end
+      released[ow] = true
+      ow.engaging = false
+      if ow.player then ow.player.inputLocked = false end
+    end
+    release(active and active.ow)
+    release(active and active.game and active.game.overworld)
+  end
+
   local function cleanup(active)
     active = active or W.active
     if not active then return true end
@@ -2112,21 +2124,14 @@ return function(mod, opts)
         and reason:find("no runtime object", 1, true) ~= nil
       if not (ok and (removed == true or alreadyGone)) then
         active.removalPending = true
-        if W.active == active and active.ow then
-          active.ow.engaging = false
-          if active.ow.player then active.ow.player.inputLocked = false end
-        end
+        if W.active == active then releaseEncounterLock(active) end
         return false
       end
       active.npcId = nil
     end
     active.removalPending = nil
     active.cleaned = true
-    local ow = active.ow
-    if ow and W.active == active then
-      ow.engaging = false
-      if ow.player then ow.player.inputLocked = false end
-    end
+    if W.active == active then releaseEncounterLock(active) end
     if W.active == active then W.active = nil end
     return true
   end

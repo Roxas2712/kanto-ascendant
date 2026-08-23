@@ -251,6 +251,28 @@ staleFarewell.done()
 eq(#mapHandoff.removals, 1,
   "late pre-map callback cannot remove a future actor")
 
+local blackoutHandoff = harness()
+local blackoutBattle = start(blackoutHandoff)
+blackoutHandoff.handlers["battle.ended"]({
+  battle = blackoutBattle, result = "loss",
+})
+blackoutBattle.onFinish("loss")
+local center = {
+  map = { id = "CERULEAN_POKECENTER" },
+  player = { inputLocked = true },
+  engaging = true,
+}
+blackoutHandoff.game.overworld = center
+blackoutHandoff.handlers["map.entered"]({
+  game = blackoutHandoff.game, mapId = "CERULEAN_POKECENTER",
+})
+eq(center.player.inputLocked, false,
+  "blackout handoff unlocks the current Pokemon Center player")
+eq(center.engaging, false,
+  "blackout handoff clears the current overworld encounter gate")
+eq(blackoutHandoff.wanderers.active, nil,
+  "blackout handoff retires stale Surprise authority")
+
 local reload = harness()
 local reloadBattle = start(reload)
 reload.handlers["battle.ended"]({ battle = reloadBattle, result = "win" })

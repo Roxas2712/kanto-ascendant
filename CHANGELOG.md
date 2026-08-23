@@ -2,6 +2,15 @@
 
 All notable changes to this project are documented in this file.
 
+## [6.5.14] - 2026-08-23
+
+### Fixed
+
+- Losing a Legacy Wandertrainer battle can no longer leave the player unable
+  to move or open the menu after the native blackout returns them to a Pokémon
+  Center. Encounter cleanup now releases both the route controller that began
+  the challenge and the current post-blackout overworld controller.
+
 ## [6.5.13] - 2026-08-23
 
 ### Fixed

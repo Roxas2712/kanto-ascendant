@@ -53,6 +53,15 @@ collapsed so players can reveal only the information they want.
 > [GitHub Issues](https://github.com/Roxas2712/kanto-ascendant/issues) and will
 > be considered for future updates.
 
+## What's new in 6.5.14
+
+- Prevents a Legacy Wandertrainer defeat from carrying its encounter input
+  lock through the native blackout into a Pokémon Center.
+- Retires the stale field encounter while preserving the normal blackout,
+  party healing, protected Wandertrainer money and next-encounter cadence.
+
+See the full spoiler-light [6.5.14 release notes](RELEASE_NOTES_6.5.14.md).
+
 ## What's new in 6.5.13
 
 - Gives Legacy Wandertrainers twelve contextual bilingual greetings while
@@ -65,7 +74,7 @@ collapsed so players can reveal only the information they want.
 - Keeps Yellow's Jessie/James/Meowth story battles on their approved combined
   staged art, with exact byte verification and a native Yellow fallback.
 
-See the full spoiler-light [6.5.13 release notes](RELEASE_NOTES_6.5.13.md).
+See the historical [6.5.13 release notes](RELEASE_NOTES_6.5.13.md).
 
 ## What's new in 6.5.12
 
@@ -1816,8 +1825,8 @@ ledger prevents duplicate delivery.
 > launcher-compatible `.zip`. A matching `.modpkg` may be retained only as an
 > internal build or verification artifact.
 
-1. Download `kanto_ascendant-6.5.13.zip` from the
-   [6.5.13 release](https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.5.13)
+1. Download `kanto_ascendant-6.5.14.zip` from the
+   [6.5.14 release](https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.5.14)
    and import it through the launcher. Developers may alternatively install
    the checked-out mod directory.
    If you downloaded a complete bundle, extract it first and import the inner
