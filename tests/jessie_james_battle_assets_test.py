@@ -155,7 +155,38 @@ with tempfile.TemporaryDirectory(prefix="ka-jessie-james-rebuild-") as raw:
     second["review"] = digest(
         rebuilt / "assets/sources/yellow_jessie_james/review/jessie_james_meowth_contact_sheet.png")
     check(first == second, "two independent rebuild passes are byte-identical")
-    for role in ("voxel64", "voxel128", "provenance", "review"):
-        check(first[role] == EXPECTED[role], f"rebuilt {role} is frozen")
+
+    # Pillow/zlib may choose different valid PNG compression bytes on Linux
+    # and macOS. The checked-in package bytes remain frozen above; a rebuild
+    # must reproduce every RGBA pixel and the same semantic receipt, while its
+    # receipt honestly records the hashes of the locally encoded PNGs.
+    for role in ("voxel64", "voxel128"):
+        approved_path = ROOT / receipt["assets"][role]["path"]
+        rebuilt_path = rebuilt / receipt["assets"][role]["path"]
+        with Image.open(approved_path) as approved_image, \
+                Image.open(rebuilt_path) as rebuilt_image:
+            approved_rgba = approved_image.convert("RGBA")
+            rebuilt_rgba = rebuilt_image.convert("RGBA")
+            check(rebuilt_rgba.size == approved_rgba.size and
+                  rebuilt_rgba.tobytes() == approved_rgba.tobytes(),
+                  f"rebuilt {role} RGBA pixels are frozen")
+
+    rebuilt_receipt = json.loads(
+        (rebuilt / "assets/yellow_jessie_james/PROVENANCE.json")
+        .read_text(encoding="utf-8"))
+    expected_receipt = json.loads(json.dumps(receipt))
+    for role in ("voxel64", "voxel128"):
+        expected_receipt["assets"][role]["sha256"] = first[role]
+    check(rebuilt_receipt == expected_receipt,
+          "rebuilt provenance preserves the approved semantic contract")
+
+    with Image.open(REVIEW) as approved_review, Image.open(
+            rebuilt / "assets/sources/yellow_jessie_james/review/"
+            "jessie_james_meowth_contact_sheet.png") as rebuilt_review:
+        approved_rgba = approved_review.convert("RGBA")
+        rebuilt_rgba = rebuilt_review.convert("RGBA")
+        check(rebuilt_rgba.size == approved_rgba.size and
+              rebuilt_rgba.tobytes() == approved_rgba.tobytes(),
+              "rebuilt review board RGBA pixels are frozen")
 
 print(f"jessie_james_battle_assets_test: PASS ({checks} checks)")
