@@ -79,7 +79,7 @@ eq(titleId, nil, "a fresh real save has no selected title")
 eq(titleName, nil, "a fresh real save does not manufacture a Champion title")
 eq(wanderers.reactionContext(scientist).kind, "fallback",
   "the late-bound real Hall provider preserves no-title fallback")
-contains(wanderers.challengeText(scientist), "road\ntaught you",
+contains(wanderers.challengeText(scientist), "sought a trainer",
   "the real no-title field dialogue stays neutral")
 
 check(ascendant.unlockAchievement("factory_architect"),
@@ -139,10 +139,14 @@ reloadedSave.modData.kanto_ascendant.ascendant.latestAchievement = nil
 eq(wanderers.reactionContext(partnerActive).kind, "fallback",
   "an unresolved partner choice cannot affect real dialogue")
 reloadedSave.modData.kanto_ascendant.legacy_journey.partnerChosen = true
+reloadedSave.party = { { species = "PIKACHU", level = 30 } }
 eq(wanderers.reactionContext(partnerActive).kind, "partner_match",
-  "the same roster recognizes the partner only after commitment")
-contains(wanderers.challengeText(partnerActive), "I know that bond.",
-  "the real committed-partner dialogue names the species")
+  "the active party recognizes the partner only after commitment")
+contains(wanderers.challengeText(partnerActive), "PIKACHU",
+  "the real committed-partner dialogue names the player's species")
+reloadedSave.party = {}
+eq(wanderers.reactionContext(partnerActive).kind, "fallback",
+  "a committed partner outside the active party cannot trigger the line")
 
 -- A separate New Game save must not inherit the previous save's active title.
 run.loader.modSave = {}

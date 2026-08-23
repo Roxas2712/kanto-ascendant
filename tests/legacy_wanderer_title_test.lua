@@ -1,5 +1,4 @@
 local engine = assert(os.getenv("GEN1RECOMP_DIR"), "GEN1RECOMP_DIR is required")
-local modRoot = os.getenv("TRAINER_REMATCH_MOD_DIR") or "."
 package.path = engine .. "/?.lua;" .. engine .. "/?/init.lua;" .. package.path
 
 local assertions = 0
@@ -13,6 +12,10 @@ local function eq(actual, expected, message)
 end
 local function contains(text, fragment, message)
   check(type(text) == "string" and text:find(fragment, 1, true) ~= nil,
+    message .. " (text: " .. tostring(text) .. ")")
+end
+local function excludes(text, fragment, message)
+  check(type(text) == "string" and text:find(fragment, 1, true) == nil,
     message .. " (text: " .. tostring(text) .. ")")
 end
 
@@ -49,14 +52,17 @@ local titles = {
   currentTitle = function() return selectedId, selectedName or "CHAMPION" end,
 }
 
-local makeWanderers = assert(loadfile(modRoot .. "/legacy_wanderers.lua"))()
+local makeWanderers = assert(loadfile("legacy_wanderers.lua"))()
 local wanderers = makeWanderers(mod, {
   journey = journey, i18n = i18n, titles = titles,
 })
 local game = {
-  save = {},
+  save = { party = { { species = "PIKACHU", level = 30 } } },
   data = {
-    pokemon = { PIKACHU = { name = "Pikachu" } },
+    pokemon = {
+      PIKACHU = { name = "Pikachu" },
+      CHARMANDER = { name = "Charmander" },
+    },
     trainers = {
       OPP_COOLTRAINER_M = {}, OPP_COOLTRAINER_F = {},
       OPP_JR_TRAINER_M = {}, OPP_JR_TRAINER_F = {},
@@ -79,10 +85,10 @@ local keeper = active("OPP_POKEMANIAC")
 -- fallback returned by Legacy Hall.
 eq(wanderers.reactionContext(scientist).kind, "fallback",
   "no selected title preserves the neutral challenger reaction")
-contains(wanderers.challengeText(scientist), "road\ntaught you",
+contains(wanderers.challengeText(scientist), "sought a trainer",
   "English no-title fallback is authored rather than generic title praise")
 language = "de"
-contains(wanderers.challengeText(scientist), "Weg\ndich gelehrt",
+contains(wanderers.challengeText(scientist), "Profi wie dich",
   "German no-title fallback is localized")
 language = "en"
 
@@ -124,35 +130,74 @@ selectedId, selectedName = nil, nil
 legacyState.partnerChosen = true
 legacyState.partnerSpecies = "PIKACHU"
 local partnerMatch = active("OPP_SUPER_NERD", nil, {
-  { species = "PIKACHU", level = 30 },
+  { species = "CHARMANDER", level = 30 },
 })
 local context = wanderers.reactionContext(partnerMatch)
 eq(context.kind, "partner_match",
   "a committed partner is recognized in the wanderer's real roster")
 eq(context.partnerName, "Pikachu",
   "the partner reaction uses the registered species name")
-contains(wanderers.challengeText(partnerMatch), "I know that bond",
-  "the English partner reaction names the matching partner")
+eq(context.trainerPartnerName, "Charmander",
+  "the partner reaction uses the Wandertrainer's lead species name")
+contains(wanderers.challengeText(partnerMatch), "PIKACHU",
+  "the English partner reaction names the player's partner")
+contains(wanderers.challengeText(partnerMatch), "CHARMANDER",
+  "the English partner reaction names the Wandertrainer's partner")
 language = "de"
-contains(wanderers.challengeText(partnerMatch), "Ich sehe den Bund",
-  "the German partner reaction names the matching partner")
+contains(wanderers.challengeText(partnerMatch), "PIKACHU",
+  "the German partner reaction names the player's partner")
+contains(wanderers.challengeText(partnerMatch), "CHARMANDER",
+  "the German partner reaction names the Wandertrainer's partner")
 language = "en"
+game.save.party = {}
+eq(wanderers.reactionContext(partnerMatch).kind, "fallback",
+  "a chosen partner outside the current party cannot trigger the team line")
+game.save.party = { { species = "PIKACHU", level = 30 } }
 legacyState.partnerChosen = false
 eq(wanderers.reactionContext(partnerMatch).kind, "fallback",
   "an uncommitted selector species cannot leak into dialogue")
 legacyState.partnerChosen, legacyState.partnerSpecies = nil, nil
 
-eq(wanderers.reactionContext(active("OPP_COOLTRAINER_M",
-  "red_challenge")).kind, "path_red",
+legacyState.avatar, legacyState.pathComplete = "RED", false
+local redPast = active("OPP_COOLTRAINER_M", "red_challenge")
+eq(wanderers.reactionContext(redPast).kind, "path_red_past",
   "a completed Red-path challenger gets its authored reaction")
+contains(wanderers.challengeText(redPast), "another life",
+  "inherited Red completion is described as another life")
+legacyState.pathComplete = true
+eq(wanderers.reactionContext(redPast).kind, "path_red_current",
+  "current-life Red completion receives direct recognition")
+contains(wanderers.challengeText(redPast), "overcame",
+  "current-life Red completion is acknowledged directly")
+excludes(wanderers.challengeText(redPast), "another life",
+  "current-life Red completion is not attributed to another life")
+language = "de"
+contains(wanderers.challengeText(redPast), "Prüfung bestanden",
+  "German current-life Red completion is acknowledged directly")
+excludes(wanderers.challengeText(redPast), "anderen",
+  "German current-life Red completion is not attributed to another life")
+language = "en"
+legacyState.avatar = "BLUE"
+local blueCurrent = active("OPP_SCIENTIST", "oak_researcher")
+eq(wanderers.reactionContext(blueCurrent).kind, "path_blue_current",
+  "current-life Blue completion receives direct recognition")
+contains(wanderers.challengeText(blueCurrent), "mastered",
+  "current-life Blue dialogue uses strategy authority")
+legacyState.avatar = "GREEN"
+local greenCurrent = active("OPP_POKEMANIAC", "wild_keeper")
+eq(wanderers.reactionContext(greenCurrent).kind, "path_green_current",
+  "current-life Green completion receives direct recognition")
+contains(wanderers.challengeText(greenCurrent), "bond opened",
+  "current-life Green dialogue uses bond authority")
+legacyState.avatar, legacyState.pathComplete = "RED", false
 eq(wanderers.reactionContext(active("OPP_SCIENTIST",
-  "oak_researcher")).kind, "path_blue",
+  "oak_researcher")).kind, "path_blue_past",
   "a completed Blue-path researcher gets its authored reaction")
 eq(wanderers.reactionContext(active("OPP_POKEMANIAC",
-  "wild_keeper")).kind, "path_green",
+  "wild_keeper")).kind, "path_green_past",
   "a completed Green-path keeper gets its authored reaction")
 eq(wanderers.reactionContext(active("OPP_COOLTRAINER_F",
-  "legacy_keeper")).kind, "path_complete",
+  "legacy_keeper")).kind, "path_complete_past",
   "a three-path veteran gets its authored reaction")
 
 eq(#wanderers.availableArchetypes(game), #wanderers.ARCHETYPES,

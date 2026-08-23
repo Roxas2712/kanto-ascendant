@@ -1108,26 +1108,128 @@ return function(mod, opts)
     local partner = type(legacy) == "table" and legacy.partnerChosen == true
       and type(legacy.partnerSpecies) == "string" and legacy.partnerSpecies
       or nil
-    if partner and teamHasSpecies(active.team, partner) then
-      local def = game and game.data and game.data.pokemon
-        and game.data.pokemon[partner]
+    if partner and game and game.save
+        and teamHasSpecies(game.save.party, partner) then
+      local pokemon = game.data and game.data.pokemon or {}
+      local def = pokemon[partner]
+      local lead = type(active.team) == "table" and active.team[1] or nil
+      local trainerPartner = type(lead) == "table" and lead.species or nil
+      local trainerDef = type(trainerPartner) == "string"
+        and pokemon[trainerPartner] or nil
       return {
         kind = "partner_match", partner = partner,
         partnerName = def and def.name or partner,
+        trainerPartner = trainerPartner,
+        trainerPartnerName = trainerDef and trainerDef.name
+          or trainerPartner or "PARTNER",
       }
     end
 
     local variant = archetype.legacyVariant
+    local avatar = type(legacy) == "table"
+      and tostring(legacy.avatar or ""):lower() or ""
+    local currentComplete = type(legacy) == "table"
+      and legacy.pathComplete == true
     if variant == "red_challenge" then
-      return { kind = "path_red" }
+      return { kind = currentComplete and avatar == "red"
+        and "path_red_current" or "path_red_past" }
     elseif variant == "oak_researcher" then
-      return { kind = "path_blue" }
+      return { kind = currentComplete and avatar == "blue"
+        and "path_blue_current" or "path_blue_past" }
     elseif variant == "wild_keeper" then
-      return { kind = "path_green" }
+      return { kind = currentComplete and avatar == "green"
+        and "path_green_current" or "path_green_past" }
     elseif variant == "legacy_keeper" then
-      return { kind = "path_complete" }
+      return { kind = "path_complete_past" }
     end
     return { kind = "fallback" }
+  end
+
+  local DIALOGUE = {
+    { postLeague = true,
+      en = "%s!\fMany trials fell\nbefore you.\fYou even faced\nlegendary Pokémon.\fShow how strong\nyour team became!",
+      de = "%s!\fViele Prüfungen\nhast du bestanden.\fSelbst legendäre\nPOKÉMON waren da.\fZeig, wie stark\ndein Team ist!" },
+    { en = "%s!\fYour wins--\nKANTO knows them.\fShow us the skill\nbehind the tales!",
+      de = "%s!\fKANTO kennt\ndeine Siege.\fZeig uns, was du\nwirklich kannst!" },
+    { postLeague = true,
+      en = "%s!\fGYM LEADERS,\nrivals, legends--\fyou faced them all\fNow it is our turn",
+      de = "%s!\fARENALEITER,\nRivalen, Legenden\fdu fordertest sie\nalle heraus.\fNun sind wir dran!" },
+    { en = "%s!\fYour journey\ninspires trainers.\fLet us see what we\nmight learn here!",
+      de = "%s!\fDeine Reise\nprägt Trainer.\fMal sehen, was wir\nvon dir lernen!" },
+    { en = "%s!\fI sought a trainer\nlike you.\fWill you face us?",
+      de = "%s!\fIch suchte\neinen wie dich.\fTrittst du gegen\nuns an?" },
+    { en = "%s!\fYour team came\na long way.\fSo did mine.\fCompare our teams!",
+      de = "%s!\fDein Team hat\nviel erlebt.\fMeines auch.\fWer ist stärker?" },
+    { en = "%s!\fThey say you\nface every test.\fSo do we!",
+      de = "%s!\fDu weichst keiner\nPrüfung aus.\fWir auch nicht!" },
+    { en = "No crowd.\nNo prize.\fJust two trainers\nand their POKÉMON.\fReady, %s?",
+      de = "Kein Publikum.\nKein Preis.\fNur zwei Trainer\nund ihre POKÉMON.\fBereit, %s?" },
+    { en = "%s!\fSo you are\nthe famed trainer.\fLet us test those\nstories!",
+      de = "%s!\fDu bist also\nder berühmte Profi\fDie Geschichten--\fmal sehen, ob\nsie stimmen!" },
+    { postLeague = true,
+      en = "You beat legends?\fGood, %s.\fWe wanted a real\nchallenge!",
+      de = "Du hast Legenden\nbezwungen?\fGut, %s.\fWir suchten eine\nechte Prüfung!" },
+    { en = "%s!\fYou look sure\nof yourself.\fDo your POKÉMON\nfeel the same?",
+      de = "%s!\fDu wirkst sehr\nselbstsicher.\fDeine POKÉMON\nauch?" },
+    { en = "%s!\fI found you.\fDo not disappoint\nus now!",
+      de = "%s!\fEndlich habe\nich dich gefunden.\fEnttäusch uns\njetzt nicht!" },
+  }
+
+  local SPEAKER_DE = {
+    OPP_BEAUTY = "SCHÖNHEIT", OPP_BIKER = "BIKER",
+    OPP_BIRD_KEEPER = "VOGELWÄRTER", OPP_BLACKBELT = "KARATEKA",
+    OPP_BUG_CATCHER = "KÄFERSAMMLER", OPP_BURGLAR = "EINBRECHER",
+    OPP_CHANNELER = "EXORZISTIN", OPP_COOLTRAINER_F = "ASS-TRAINERIN",
+    OPP_COOLTRAINER_M = "ASS-TRAINER", OPP_CUE_BALL = "ROWDY",
+    OPP_ENGINEER = "INGENIEUR", OPP_FISHER = "ANGLER",
+    OPP_GAMBLER = "SPIELER", OPP_GENTLEMAN = "GENTLEMAN",
+    OPP_HIKER = "WANDERER", OPP_JR_TRAINER_F = "TRAINERIN",
+    OPP_JR_TRAINER_M = "TRAINER", OPP_JUGGLER = "JONGLEUR",
+    OPP_LASS = "GÖRE", OPP_POKEMANIAC = "POKÉMANIAC",
+    OPP_PSYCHIC_TR = "PSYCHO", OPP_ROCKER = "ROCKER",
+    OPP_SAILOR = "MATROSE", OPP_SCIENTIST = "FORSCHER",
+    OPP_SUPER_NERD = "STREBER", OPP_SWIMMER = "SCHWIMMER",
+    OPP_TAMER = "DOMPTEUR", OPP_YOUNGSTER = "KNIRPS",
+  }
+
+  local function safeLabel(value)
+    if type(value) ~= "string" then return nil end
+    value = value:gsub("[\r\n\f\v]", " "):gsub("^%s+", "")
+      :gsub("%s+$", "")
+    if value == "" or #value > 24 or value:find("OPP_", 1, true) then
+      return nil
+    end
+    return value
+  end
+
+  local function speakerLabels(active)
+    local class = active and active.archetype and active.archetype.class
+    local game = active and active.game
+    local trainer = type(class) == "string" and game and game.data
+      and game.data.trainers and game.data.trainers[class] or nil
+    local en = safeLabel(trainer and trainer.name)
+    if not en and type(class) == "string" then
+      en = safeLabel(class:gsub("^OPP_", ""):gsub("_", " "))
+    end
+    en = en or "WANDERER"
+    return en, safeLabel(SPEAKER_DE[class]) or en
+  end
+
+  local function playerName(active)
+    local player = active and active.game and active.game.save
+      and active.game.save.player
+    return type(player and player.name) == "string" and player.name ~= ""
+      and player.name or "TRAINER"
+  end
+
+  local function currentLifeChampion(active)
+    local save = active and active.game and active.game.save
+    if type(save) ~= "table" then return false end
+    if type(save.hallOfFame) == "table" and #save.hallOfFame > 0 then
+      return true
+    end
+    return type(save.flags) == "table"
+      and save.flags.EVENT_BEAT_CHAMPION_RIVAL_THIS_RUN == true
   end
 
   function W.challengeText(active)
@@ -1154,25 +1256,43 @@ return function(mod, opts)
         "VETERAN:\nTHREE SEALS!\fShow what the road\nmade of you.",
         "VETERAN:\nDREI SIEGEL!\fZeig, was der Weg\naus dir machte.")
     elseif kind == "partner_match" then
+      local partner = tostring(context.partnerName
+        or context.partner or "PARTNER"):upper()
+      local trainerPartner = tostring(context.trainerPartnerName
+        or context.trainerPartner or "PARTNER"):upper()
       return tr(
-        "WANDERER:\nI know that bond.\fLet our partners\ntest each other!",
-        "WANDERTRAINER:\nIch sehe den Bund.\fUnsere Partner\ntreten jetzt an!")
-    elseif kind == "path_red" then
+        "WANDERER:\nYou have a\n" .. partner .. ".\fYour bond is clear\fMy partner is\n"
+          .. trainerPartner .. ".\fWe are as close.\fWhich bond is\nstronger?",
+        "WANDERTRAINER:\nDu hast ein\n" .. partner .. ".\fEuer Band ist eng.\fMein Partner ist\n"
+          .. trainerPartner .. ".\fUns verbindet\ngenauso viel.\fWessen Band ist\nstärker?")
+    elseif kind == "path_red_current" then
       return tr(
-        "WANDERER:\nGROUDON'S TRIAL!\fThis time only the\nbattle decides.",
-        "WANDERTRAINER:\nGROUDONS PRÜFUNG!\fDiesmal zählt nur\nder Kampf.")
-    elseif kind == "path_blue" then
+        "WANDERER:\nYou overcame\nGROUDON'S trial.\fThat took courage.\fShow that courage\nin battle!",
+        "WANDERTRAINER:\nDu hast GROUDONS\nPrüfung bestanden.\fDazu gehört Mut.\fZeig diesen Mut\nim Kampf!")
+    elseif kind == "path_red_past" then
       return tr(
-        "SCIENTIST:\nKYOGRE'S TRIAL!\fNow prove your\nbattle plan.",
-        "FORSCHER:\nKYOGRES PRÜFUNG!\fZeig deinen\nKampfplan.")
-    elseif kind == "path_green" then
+        "WANDERER:\nYou look as though\nyou once passed\fGROUDON'S trial\nin another life.\fDoes that courage\nremain?",
+        "WANDERTRAINER:\nDu siehst aus, als\nhättest du\fGROUDONS Prüfung\nin einem anderen\fLeben bestanden.\fSteckt dieser Mut\nnoch in dir?")
+    elseif kind == "path_blue_current" then
       return tr(
-        "KEEPER:\nRAYQUAZA'S TRIAL!\fShow the bond that\nopened your path.",
-        "HÜTERIN:\nRAYQUAZAS PRÜFUNG!\fZeig den Bund.\fEr ebnete den Weg.")
-    elseif kind == "path_complete" then
+        "SCIENTIST:\nYou mastered\nKYOGRE'S trial.\fYour strategy is\nexceptional.\fLet us test it!",
+        "FORSCHER:\nDu hast KYOGRES\nPrüfung gemeistert.\fDeine Strategie ist\naußergewöhnlich.\fBeweise sie uns!")
+    elseif kind == "path_blue_past" then
       return tr(
-        "VETERAN:\nTHREE PATHS!\fOne honest battle\nremains.",
-        "VETERAN:\nDREI PFADE!\fEin fairer Kampf\nbleibt.")
+        "SCIENTIST:\nYou look as though\nyou once mastered\fKYOGRE'S trial\nin another life.\fCan you still plan\nthat far ahead?",
+        "FORSCHER:\nDu siehst aus, als\nhättest du\fKYOGRES Prüfung\nin einem anderen\fLeben gemeistert.\fPlanst du immer\nnoch weit voraus?")
+    elseif kind == "path_green_current" then
+      return tr(
+        "KEEPER:\nYou overcame\nRAYQUAZA'S trial.\fYour bond opened\nthe path.\fShow how strong it\nhas become!",
+        "HÜTERIN:\nDu hast RAYQUAZAS\nPrüfung bestanden.\fEuer Band öffnete\nden Pfad.\fZeig, wie stark es\ngeworden ist!")
+    elseif kind == "path_green_past" then
+      return tr(
+        "KEEPER:\nYou look as though\nyour bond opened\fRAYQUAZA'S path\nin another life.\fIs that bond still\nas strong?",
+        "HÜTERIN:\nDu siehst aus, als\nhätte euer Band\fRAYQUAZAS Pfad\nin einem anderen\fLeben geöffnet.\fIst dieses Band\nnoch immer stark?")
+    elseif kind == "path_complete_past" then
+      return tr(
+        "VETERAN:\nYou look as though\nyou walked all 3\fin another life.\fShow what remains\nof that journey!",
+        "VETERAN:\nDu siehst aus, als\nhättest du\falle drei Pfade\nin einem anderen\fLeben beschritten.\fZeig, was davon\ngeblieben ist!")
     end
     active = type(active) == "table" and active or {}
     if surpriseProvider and type(surpriseProvider.challengeText) == "function" then
@@ -1185,60 +1305,78 @@ return function(mod, opts)
     -- therefore use the contextual, repeat-suppressed pool below.
     if type(active.token) ~= "string" or active.token == "" then
       return tr(
-        "WANDERER:\nI sought you out.\fShow what the road\ntaught you!",
-        "WANDERTRAINER:\nIch suchte dich.\fZeig, was der Weg\ndich gelehrt hat!")
+        "WANDERER:\nI sought a trainer\nwith experience.\fWill you face us?",
+        "WANDERTRAINER:\nIch suche einen\nProfi wie dich.\fTrittst du gegen\nuns an?")
     end
 
-    local pools = {
-      {
-        "%s, I followed your\ntrail here.\fShow me where it\nleads!",
-        "%s, ich folgte deiner\nSpur bis hierher.\fZeig mir, wohin\nsie führt!",
-      }, {
-        "%s, every road tells\na different story.\fLet's write this\none in battle!",
-        "%s, jeder Weg erzählt\neine andere Geschichte.\fDiese schreiben wir\nim Kampf!",
-      }, {
-        "%s, your team shows\nwhere you are going.\fI want to test\nthat direction!",
-        "%s, dein Team zeigt,\nwohin du willst.\fIch prüfe diese\nRichtung im Kampf!",
-      }, {
-        "%s, no ceremony.\fJust one honest\nroad battle!",
-        "%s, keine Zeremonie.\fNur ein ehrlicher\nKampf auf dem Weg!",
-      },
-    }
     local token = type(active.token) == "string" and active.token or nil
     local s = state()
     local cached = token and s.dialogueByToken[token]
     if type(cached) == "table" then return tr(cached.en, cached.de) end
-    local hash = 0
-    for index = 1, #(token or "fallback") do
-      hash = (hash * 33 + (token or "fallback"):byte(index)) % 2147483647
+    local pool = {}
+    local postLeague = currentLifeChampion(active)
+    for _, candidate in ipairs(DIALOGUE) do
+      if candidate.postLeague ~= true or postLeague then
+        pool[#pool + 1] = candidate
+      end
     end
-    local choice = hash % #pools + 1
-    if s.dialogueHistory.fallback == choice and #pools > 1 then
-      choice = choice % #pools + 1
+    local choice = rawRandom(1, #pool, "dialogue_pick")
+    if s.dialogueHistory.fallback == choice and #pool > 1 then
+      choice = choice % #pool + 1
     end
     s.dialogueHistory.fallback = choice
-    local class = active.archetype and active.archetype.class
-    local trainer = active.game and active.game.data and active.game.data.trainers
-      and active.game.data.trainers[class]
-    local speakerEn = trainer and trainer.name
-      or type(class) == "string" and class:gsub("^OPP_", ""):gsub("_", " ")
-      or "WANDERER"
-    local speakerDe = ({ OPP_LASS = "GÖRE", OPP_SCIENTIST = "FORSCHER",
-      OPP_YOUNGSTER = "KNIRPS", OPP_HIKER = "WANDERER",
-      OPP_COOLTRAINER_F = "ASS-TRAINERIN",
-      OPP_COOLTRAINER_M = "ASS-TRAINER" })[class] or speakerEn
-    local pair = pools[choice]
+    local pair = pool[choice]
+    local speakerEn, speakerDe = speakerLabels(active)
+    local name = playerName(active)
     cached = {
-      en = speakerEn .. ":\n" .. pair[1]:format(
-        active.game and active.game.save and active.game.save.player
-          and active.game.save.player.name or "TRAINER"),
-      de = speakerDe .. ":\n" .. pair[2]:format(
-        active.game and active.game.save and active.game.save.player
-          and active.game.save.player.name or "TRAINER"),
+      en = speakerEn .. ":\n" .. pair.en:format(name),
+      de = speakerDe .. ":\n" .. pair.de:format(name),
     }
     if token then s.dialogueByToken[token] = cached end
     persist(s)
     return tr(cached.en, cached.de)
+  end
+
+  local FAREWELL = {
+    win = {
+      { "You earned this.\fMy partner and I\ncan learn more.\fUntil next time!",
+        "Diesen Sieg habt\nihr verdient.\fMein Partner und ich\nlernen noch dazu.\fBis dann!" },
+      { "Now I understand\nall those stories.\fWe will train and\ntry again. Bye!",
+        "Jetzt verstehe ich\nall die Geschichten.\fWir trainieren und\nversuchen es erneut!" },
+      { "That was the test\nwe needed.\f%s!\fWe have work!",
+        "Das brauchten wir.\f%s!\fWir haben zu tun!" },
+      { "You read our\nbest strategy.\fNext time, we'll\nbe prepared!",
+        "Du durchschautest\nunsere beste Taktik.\fNächstes Mal sind\nwir besser bereit!" },
+      { "No excuses.\fYou were stronger\ntoday.\fWe'll meet again!",
+        "Keine Ausreden.\fHeute wart ihr\nstärker.\fWir sehen uns wieder!" },
+      { "That settles it--\nfor now.\fMy POKÉMON and I\nwill train again.",
+        "Das klärt es--\nvorerst.\fMeine POKÉMON und ich\ntrainieren weiter." },
+    },
+    loss = {
+      { "Good battle.\fThe next route\nbelongs to us.\fYou will be ready\nnext time!",
+        "Guter Kampf.\fDie nächste Route\ngehört uns.\fNächstes Mal seid\nihr bereit!" },
+      { "That was close.\fMy partner and I\nwill remember it.",
+        "Das war knapp.\fMein Partner und ich\nwerden den Kampf\nnicht vergessen." },
+      { "We won today.\fYour team never\ngave up.\fWe'll meet again!",
+        "Heute siegten wir,\ndoch dein Team gab\nniemals auf.\fWir sehen uns wieder!" },
+      { "That was the test\nwe came to find.\fWe will move on.\fCatch us\nwhen you're ready!",
+        "Diesen Kampf haben\nwir gesucht.\fWir ziehen weiter.\fHolt uns ein, wenn\nihr bereit seid!" },
+      { "Few trainers push\nus that far.\fTrain hard.\fNext time may end\nanother way!",
+        "Kaum jemand fordert\nuns so sehr.\fTrainiert weiter--\ndann endet es\nvielleicht anders!" },
+      { "Our bond carried\nus today.\fYours will grow.\fUntil next time!",
+        "Unser Band trug uns\nheute zum Sieg.\fEures wird wachsen.\fBis zum\nnächsten Mal!" },
+    },
+  }
+
+  local function leadName(active)
+    local mon = active and type(active.team) == "table" and active.team[1]
+    local species = type(mon) == "table" and mon.species or nil
+    local pokemon = active and active.game and active.game.data
+      and active.game.data.pokemon
+    local def = type(species) == "string" and type(pokemon) == "table"
+      and pokemon[species] or nil
+    local name = safeLabel(def and def.name) or safeLabel(species) or "PARTNER"
+    return name:upper()
   end
 
   function W.farewellText(active, result)
@@ -1255,24 +1393,14 @@ return function(mod, opts)
     local s = state()
     local cached = key and s.farewellByToken[key]
     if type(cached) == "table" then return tr(cached.en, cached.de) end
-    local class = active.archetype and active.archetype.class
-    local trainer = active.game and active.game.data and active.game.data.trainers
-      and active.game.data.trainers[class]
-    local speakerEn = trainer and trainer.name
-      or type(class) == "string" and class:gsub("^OPP_", ""):gsub("_", " ")
-      or "WANDERER"
-    local speakerDe = ({ OPP_LASS = "GÖRE", OPP_SCIENTIST = "FORSCHER",
-      OPP_YOUNGSTER = "KNIRPS", OPP_HIKER = "WANDERER" })[class] or speakerEn
-    local en, de
-    if result == "win" then
-      en = "You got me this time.\fI'll train on the\nnext road. See you!"
-      de = "Diesmal warst du besser.\fIch trainiere auf der\nnächsten Route. Bis dann!"
-    else
-      en = "That's the battle\nI came to find.\fThe road is yours\nagain. See you!"
-      de = "Diesen Kampf habe\nich gesucht.\fDer Weg gehört wieder\ndir. Bis dann!"
-    end
-    cached = { en = speakerEn .. ":\n" .. en,
-      de = speakerDe .. ":\n" .. de }
+    local pair = FAREWELL[result][rawRandom(
+      1, #FAREWELL[result], "farewell_" .. result)]
+    local speakerEn, speakerDe = speakerLabels(active)
+    local partner = leadName(active)
+    cached = {
+      en = speakerEn .. ":\n" .. pair[1]:format(partner),
+      de = speakerDe .. ":\n" .. pair[2]:format(partner),
+    }
     if key then s.farewellByToken[key] = cached end
     persist(s)
     return tr(cached.en, cached.de)
@@ -1975,14 +2103,32 @@ return function(mod, opts)
 
   local function cleanup(active)
     active = active or W.active
-    if not active then return end
-    if active.npcId then mod.world:removeNpc(active.npcId) end
+    if not active then return true end
+    if active.cleaned == true then return true end
+    if active.npcId then
+      local ok, removed, reason = pcall(
+        mod.world.removeNpc, mod.world, active.npcId)
+      local alreadyGone = ok and removed == nil and type(reason) == "string"
+        and reason:find("no runtime object", 1, true) ~= nil
+      if not (ok and (removed == true or alreadyGone)) then
+        active.removalPending = true
+        if W.active == active and active.ow then
+          active.ow.engaging = false
+          if active.ow.player then active.ow.player.inputLocked = false end
+        end
+        return false
+      end
+      active.npcId = nil
+    end
+    active.removalPending = nil
+    active.cleaned = true
     local ow = active.ow
-    if ow then
+    if ow and W.active == active then
       ow.engaging = false
       if ow.player then ow.player.inputLocked = false end
     end
-    W.active = nil
+    if W.active == active then W.active = nil end
+    return true
   end
 
   function W.configureBattle(game, battle, active)
@@ -2000,7 +2146,8 @@ return function(mod, opts)
     battle.ascendantLegacyHealItemUses = 0
     battle.introText = tr("The road trial\nbegins!",
       "Die Wegprüfung\nbeginnt!")
-    battle.endBattleText = W.farewellText(active, "win")
+    battle.endBattleText = tr("Road trial\ncomplete!",
+      "Wegprüfung\nbestanden!")
     if battle.trainer then
       local multiplier = active.tier.pact == "ascendant" and 3
         or active.tier.pact == "legacy" and 2.75 or 2.5
@@ -2029,36 +2176,243 @@ return function(mod, opts)
     return battle
   end
 
+  local function pushText(game, text, done)
+    if not (game and game.stack and type(text) == "string" and text ~= "") then
+      return false
+    end
+    local ok, TextBox = pcall(require, "src.render.TextBox")
+    if not (ok and TextBox and type(TextBox.new) == "function") then
+      return false
+    end
+    local made, box = pcall(TextBox.new, game, text, done)
+    if not made or not box then return false end
+    local pushed, accepted = pcall(game.stack.push, game.stack, box)
+    return pushed and accepted ~= false
+  end
+
+  local function showOutcome(active)
+    if not active or active.cancelled or active.outcomeShown
+        or type(active.outcomeText) ~= "string"
+        or active.outcomeText == "" then return false end
+    local game = active.game
+    if not (game and game.save == active.save) then return false end
+    if pushText(game, active.outcomeText) then
+      active.outcomeShown = true
+      return true
+    end
+    return false
+  end
+
+  local function completeDeparture(active)
+    if not active or active.departureCompleted then return false end
+    active.departureCompleted = true
+    active.farewellOpen = nil
+    if cleanup(active) then
+      showOutcome(active)
+      return true
+    end
+    active.outcomePending = true
+    return false
+  end
+
+  local function departureStart(active)
+    local handle = active and active.npcId
+      and mod.world:npc(active.mapId, active.npcId) or nil
+    local npc = handle and (handle.npc or handle) or nil
+    local x = npc and tonumber(npc.cellX or npc.x)
+      or tonumber(active and active.spawnX)
+    local y = npc and tonumber(npc.cellY or npc.y)
+      or tonumber(active and active.spawnY)
+    if not (x and y) then return nil end
+    return math.floor(x), math.floor(y), handle
+  end
+
+  local function outsideCamera(active, x, y)
+    local game, ow = active and active.game, active and active.ow
+    local camera = ow and ow.camera
+    if not (game and ow and camera and tonumber(camera.x)
+        and tonumber(camera.y)) then return false end
+    local viewW, viewH = 160, 144
+    local renderer = game.renderer
+    if renderer and type(renderer.worldViewSize) == "function" then
+      local ok, width, height = pcall(renderer.worldViewSize, renderer)
+      if ok and tonumber(width) and tonumber(height) then
+        viewW, viewH = tonumber(width), tonumber(height)
+      end
+    end
+    local px, py = x * 16, y * 16
+    return px >= camera.x + viewW or px + 16 <= camera.x
+      or py >= camera.y + viewH or py + 16 <= camera.y
+  end
+
+  function W.findDeparturePath(active)
+    local sx, sy = departureStart(active)
+    local ow, player = active and active.ow, active and active.ow
+      and active.ow.player
+    if not (sx and sy and ow and ow.map and player) then return nil end
+    local queue, head = { { x = sx, y = sy, path = {} } }, 1
+    local seen = { [key(sx, sy)] = true }
+    while head <= #queue do
+      local row = queue[head]; head = head + 1
+      if #row.path > 0 and outsideCamera(active, row.x, row.y) then
+        return row.path
+      end
+      if #row.path < 24 then
+        local nextRows = {}
+        for order, d in ipairs(DIRS) do
+          local nx, ny = row.x + d[1], row.y + d[2]
+          local id = key(nx, ny)
+          if not seen[id] and safeCell(ow, nx, ny) then
+            nextRows[#nextRows + 1] = {
+              d = d, x = nx, y = ny, id = id, order = order,
+              distance = math.abs(nx - player.cellX)
+                + math.abs(ny - player.cellY),
+            }
+          end
+        end
+        table.sort(nextRows, function(a, b)
+          if a.distance ~= b.distance then return a.distance > b.distance end
+          return a.order < b.order
+        end)
+        for _, nextRow in ipairs(nextRows) do
+          seen[nextRow.id] = true
+          local path = copy(row.path)
+          path[#path + 1] = nextRow.d[3]
+          queue[#queue + 1] = {
+            x = nextRow.x, y = nextRow.y, path = path,
+          }
+        end
+      end
+    end
+    return nil
+  end
+
+  local function walkDeparture(active, path, index)
+    if W.active ~= active or active.cleaned or active.cancelled then
+      return false
+    end
+    local direction = path and path[index]
+    if not direction then return completeDeparture(active) end
+    local cx, cy = departureStart(active)
+    local delta
+    for _, candidate in ipairs(DIRS) do
+      if candidate[3] == direction then delta = candidate; break end
+    end
+    if not (cx and cy and delta
+        and safeCell(active.ow, cx + delta[1], cy + delta[2])) then
+      return completeDeparture(active)
+    end
+    local handle = active.npcId
+      and mod.world:npc(active.mapId, active.npcId) or nil
+    if not (handle and type(handle.scriptMove) == "function") then
+      return completeDeparture(active)
+    end
+    local callbackCalled = false
+    local function moved()
+      if callbackCalled then return end
+      callbackCalled = true
+      walkDeparture(active, path, index + 1)
+    end
+    local ok, accepted = pcall(handle.scriptMove,
+      handle, direction, 1, moved)
+    if not ok or accepted == false then
+      return completeDeparture(active)
+    end
+    return true
+  end
+
+  local function beginDeparture(active)
+    if not active or active.departureStarted then return false end
+    active.departureStarted = true
+    active.farewellOpen = nil
+    local path = W.findDeparturePath(active)
+    if type(path) ~= "table" or #path == 0 then
+      return completeDeparture(active)
+    end
+    active.departurePath = path
+    return walkDeparture(active, path, 1)
+  end
+
+  local function presentDeparture(active)
+    if not active or active.departurePresented or active.cancelled then
+      return false
+    end
+    local game, ow = active.game, active.ow
+    if W.active ~= active or not active.resolved or not active.finishSeen
+        or not (game and game.save == active.save and game.overworld == ow
+          and ow and ow.map and ow.map.id == active.mapId) then
+      active.cancelled = true
+      cleanup(active)
+      return false
+    end
+    active.departurePresented = true
+    local completed = false
+    local function done()
+      if completed then return end
+      completed = true
+      if active.cancelled or active.cleaned then return end
+      beginDeparture(active)
+    end
+    if type(active.farewellText) == "string" and active.farewellText ~= ""
+        and pushText(game, active.farewellText, done) then
+      active.farewellOpen = true
+      return true
+    end
+    beginDeparture(active)
+    return false
+  end
+
   local function startBattle(active)
     if W.active ~= active then return cleanup(active) end
     local game, ow = active.game, active.ow
     if not (game and ow and game.overworld == ow and ow.map
         and ow.map.id == active.mapId) then return cleanup(active) end
-    local BattleState = require("src.battle.BattleState")
+    local loaded, BattleState = pcall(require, "src.battle.BattleState")
+    if not (loaded and BattleState
+        and type(BattleState.newTrainer) == "function") then
+      return cleanup(active)
+    end
     pendingParty = {
       class = active.archetype.class, index = active.partyIndex,
       team = active.team,
     }
-    local battle = BattleState.newTrainer(game, active.archetype.class,
-      active.partyIndex)
+    local made, battle = pcall(BattleState.newTrainer, game,
+      active.archetype.class, active.partyIndex)
     pendingParty = nil
-    if not battle or battle.dead then return cleanup(active) end
-    W.configureBattle(game, battle, active)
+    if not made or not battle or battle.dead then return cleanup(active) end
+    local configured, accepted = pcall(W.configureBattle,
+      game, battle, active)
+    if not configured or accepted == nil then return cleanup(active) end
     active.battle = battle
     active.moneyBefore = tonumber(game.save.money) or 0
+    active.save = game.save
+    local priorFinish = battle.onFinish
+    local finishCalled = false
     battle.onFinish = function(result)
-      ow:afterBattle(result, battle)
-      if result == "lose" then game.save.money = active.moneyBefore end
-      if result == "lose" and active.lossText and game.stack then
-        game.stack:push(require("src.render.TextBox").new(
-          game, active.lossText))
+      if finishCalled then return end
+      finishCalled = true
+      if type(priorFinish) == "function" then pcall(priorFinish, result) end
+      if ow and type(ow.afterBattle) == "function" then
+        pcall(ow.afterBattle, ow, result, battle)
       end
-      if result == "win" and active.rewardText and game.stack then
-        game.stack:push(require("src.render.TextBox").new(
-          game, active.rewardText))
+      if (result == "lose" or result == "loss")
+          and game.save == active.save then
+        game.save.money = active.moneyBefore
       end
+      active.finishSeen = true
+      active.finishResult = result
+      if active.resolved then presentDeparture(active) end
     end
-    ow:pushBattle(battle)
+    local pushed, pushAccepted = false, nil
+    if ow and type(ow.pushBattle) == "function" then
+      pushed, pushAccepted = pcall(ow.pushBattle, ow, battle)
+    end
+    if not pushed or pushAccepted == false then
+      active.battle = nil
+      battle.onFinish = priorFinish
+      return cleanup(active)
+    end
+    return true
   end
 
   local function walkPath(active, index)
@@ -2105,6 +2459,7 @@ return function(mod, opts)
       expBonusPercent = encounter.expBonusPercent,
       reward = encounter.reward and copy(encounter.reward) or nil,
       path = approach.path,
+      spawnX = approach.x, spawnY = approach.y,
     }
     W.active = active
     ow.engaging = true
@@ -2131,13 +2486,47 @@ return function(mod, opts)
   end
 
   mod.events:on("game.ready", function(ev) W.game = ev and ev.game end, 1000)
+  mod.events:on("save.loading", function()
+    local active = W.active
+    if active then
+      active.cancelled = true
+      cleanup(active)
+    end
+  end, 4000)
   mod.events:on("save.loaded", function(ev)
     W.game = ev and ev.game or W.game
-    W.active = nil
-    if W.legacyRunEnabled(W.game) then state() end
+    local active = W.active
+    if active then
+      active.cancelled = true
+      cleanup(active)
+    end
   end, 1000)
+  mod.events:on("map.entered", function(ev)
+    local active = W.active
+    if active and (active.mapId ~= (ev and ev.mapId)
+        or active.resolved or active.removalPending) then
+      active.cancelled = true
+      cleanup(active)
+    end
+  end, 4000)
+  mod.events:on("map.reloaded", function()
+    local active = W.active
+    if active then
+      active.cancelled = true
+      cleanup(active)
+    end
+  end, 4000)
   mod.events:on("world.stepped", function(ev)
     local game = W.game
+    local retiring = W.active
+    if retiring and retiring.removalPending then
+      if cleanup(retiring) and retiring.outcomePending
+          and not retiring.cancelled then
+        retiring.outcomePending = nil
+        showOutcome(retiring)
+      end
+      return
+    end
     if not W.legacyRunEnabled(game) then return end
     local s = state()
     local frequency = W.syncFrequency(game, s)
@@ -2159,9 +2548,11 @@ return function(mod, opts)
     local active = W.active
     if not (active and battle and battle == active.battle
         and battle.ascendantLegacyWanderer) then return end
+    if active.resolved then return end
     local s = state()
     local encounter = s.encounter
     if not (encounter and encounter.token == active.token) then
+      active.cancelled = true
       cleanup(active)
       return
     end
@@ -2171,10 +2562,14 @@ return function(mod, opts)
       active.rewardText = specialText or W.rewardText(active.game,
         encounter.reward, placement)
     elseif ev.result ~= "win" and placement == "resolved_loss" then
-      active.lossText = W.farewellText(active, "loss")
-        .. "\f" .. W.lossText(s.lossRelief)
+      active.lossText = W.lossText(s.lossRelief)
     end
-    cleanup(active)
+    active.result = ev.result == "win" and "win" or "loss"
+    active.farewellText = W.farewellText(active, active.result)
+    active.outcomeText = active.result == "win"
+      and active.rewardText or active.lossText
+    active.resolved = true
+    if active.finishSeen then presentDeparture(active) end
   end, 5000)
 
   mod.hooks:wrap("encounter.species", function(nextEncounter, enc, ctx)

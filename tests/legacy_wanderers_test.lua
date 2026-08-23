@@ -600,7 +600,7 @@ local scientist = {
 titleId = nil
 eq(wanderers.reactionContext(scientist).kind, "fallback",
   "no selected title keeps the neutral road introduction")
-contains(wanderers.challengeText(scientist), "sought you out",
+contains(wanderers.challengeText(scientist), "sought a trainer",
   "neutral introduction clearly challenges the player")
 titleId = "factory_architect"
 eq(wanderers.reactionContext(scientist).kind, "title_factory",

@@ -2,6 +2,22 @@
 
 All notable changes to this project are documented in this file.
 
+## [6.5.13] - 2026-08-23
+
+### Fixed
+
+- Legacy Wanderers now use twelve contextual English/German greetings. Lines
+  claiming legendary accomplishments require the current playthrough's Hall
+  of Fame instead of inheriting that claim from an earlier life.
+- A committed Legacy partner is acknowledged only while present in the active
+  party; the challenge names both that partner and the Wandertrainer's lead
+  Pokémon. Path challengers distinguish current-life accomplishments from
+  achievements inherited from another life.
+- Victories and defeats each use six role-aware farewell variants. After the
+  farewell, the Wandertrainer follows a bounded collision-, warp-, NPC- and
+  player-safe route out of the visible camera before retiring. If no safe route
+  exists, exact-once cleanup remains the fallback.
+
 ## [6.5.12] - 2026-08-23
 
 ### Fixed

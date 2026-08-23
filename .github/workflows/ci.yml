@@ -271,7 +271,7 @@ jobs:
           luajit ../kanto-ascendant/tests/dramaless_wall_decals_compat_test.lua
           luajit ../kanto-ascendant/tests/wilds_spawn_safety_655_test.lua
 
-      - name: Audit the 6.5.11 release boundary
+      - name: Audit the 6.5.13 release boundary
         working-directory: kanto-ascendant
         run: python3 tools/johto_signals_release_audit.py .
 
@@ -281,21 +281,21 @@ jobs:
           MODKIT_LUAJIT: luajit
         run: |
           python3 tools/modkit.py pack ../kanto-ascendant \
-            -o ../kanto_ascendant-6.5.11.zip
-          unzip -tq ../kanto_ascendant-6.5.11.zip
+            -o ../kanto_ascendant-6.5.13.zip
+          unzip -tq ../kanto_ascendant-6.5.13.zip
           (
             cd ..
-            sha256sum kanto_ascendant-6.5.11.zip \
-              > SHA256SUMS-6.5.11.txt
+            sha256sum kanto_ascendant-6.5.13.zip \
+              > SHA256SUMS-6.5.13.txt
           )
           python3 ../kanto-ascendant/tools/johto_signals_release_audit.py \
-            ../kanto_ascendant-6.5.11.zip
+            ../kanto_ascendant-6.5.13.zip
           python3 - <<'PY'
           import hashlib
           import json
           import zipfile
 
-          package = "../kanto_ascendant-6.5.11.zip"
+          package = "../kanto_ascendant-6.5.13.zip"
           forbidden_prefixes = (
               "art_review/",
               "artifacts/",
@@ -492,9 +492,9 @@ jobs:
                       raise SystemExit(f"Kanto Shiny follower hash drift: #{dex_number:03d}")
 
               manifest = json.loads(archive.read("manifest.json"))
-              if manifest.get("version") != "6.5.11":
+              if manifest.get("version") != "6.5.13":
                   raise SystemExit(
-                      "Expected manifest version 6.5.11, got "
+                      "Expected manifest version 6.5.13, got "
                       + repr(manifest.get("version"))
                   )
 
@@ -504,8 +504,8 @@ jobs:
       - name: Upload the verified release
         uses: actions/upload-artifact@v4
         with:
-          name: kanto-ascendant-6.5.11-release
+          name: kanto-ascendant-6.5.13-release
           if-no-files-found: error
           path: |
-            kanto_ascendant-6.5.11.zip
-            SHA256SUMS-6.5.11.txt
+            kanto_ascendant-6.5.13.zip
+            SHA256SUMS-6.5.13.txt

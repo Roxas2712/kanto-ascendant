@@ -1,6 +1,6 @@
 # Kanto Ascendant FAQ and Spoiler Guide
 
-This is the public reference for **Kanto Ascendant 6.5.12**. It applies to Red,
+This is the public reference for **Kanto Ascendant 6.5.13**. It applies to Red,
 Blue and Yellow and is maintained from the current mod code, release
 documentation and confirmed support reports.
 
@@ -40,7 +40,7 @@ breeding, shinies, Mega Evolution, Gorochu and a large Hall-of-Fame post-game.
 <summary><strong>⚠️ SPOILER — How do I install or update it?</strong></summary>
 
 1. Download the release `.zip` from the
-   [6.5.12 GitHub release](https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.5.12).
+   [6.5.13 GitHub release](https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.5.13).
 2. Import it through the Gen 1 Recomp launcher.
 3. Use Gen 1 Recomp **0.1.90** or newer. Disable every package the manager reports as a
    conflict, then enable **Kanto Ascendant** and restart.
@@ -418,8 +418,20 @@ cannot pull a late fully evolved party such as a level-5 Nidoking. An explicit
 status-only or Rest-only row receives a damaging move only when that move is
 registered and documented for the actual species; there is no universal
 invented Tackle fallback. In a Legacy Wanderer battle, Rest is considered only
-at half HP or below. Challenge and farewell lines use the trainer's role,
-support English and German and avoid immediate repeats.
+at half HP or below.
+
+Version 6.5.13 expands this presentation without changing cadence, rewards or
+party strength. Twelve role-aware English/German greetings avoid immediate
+repeats; references to defeated legendary Pokémon require the current
+playthrough's Hall of Fame. A committed partner line appears only when that
+Pokémon is in the current party and names both partners. Current Legacy-path
+accomplishments are distinguished from paths completed in another life.
+
+Wins and losses each have six farewell variants. After the farewell closes,
+the trainer walks over currently valid public cells until outside the camera.
+Walls, warps, signs, NPCs and the player are excluded. If no safe path exists
+or movement fails, the trainer uses the existing bounded cleanup fallback
+instead of blocking the field.
 
 </details>
 

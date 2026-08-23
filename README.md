@@ -53,6 +53,18 @@ collapsed so players can reveal only the information they want.
 > [GitHub Issues](https://github.com/Roxas2712/kanto-ascendant/issues) and will
 > be considered for future updates.
 
+## What's new in 6.5.13
+
+- Gives Legacy Wandertrainers twelve contextual bilingual greetings while
+  reserving legendary-accomplishment lines for the current playthrough's Hall
+  of Fame.
+- Names both Pokémon in active-partner challenges and distinguishes current
+  Legacy-path accomplishments from achievements inherited from another life.
+- Adds six farewells for each battle result and lets the Wandertrainer walk
+  safely out of view before disappearing.
+
+See the full spoiler-light [6.5.13 release notes](RELEASE_NOTES_6.5.13.md).
+
 ## What's new in 6.5.12
 
 - Adds a dedicated, active-Legacy-only `GAMEPLAY → LEGACY NG+` options page
@@ -64,7 +76,7 @@ collapsed so players can reveal only the information they want.
   phases and revises their complete bilingual main-story dialogue for natural,
   scene-correct English and German while Blue retains native edition text.
 
-See the full spoiler-light [6.5.12 release notes](RELEASE_NOTES_6.5.12.md).
+See the historical [6.5.12 release notes](RELEASE_NOTES_6.5.12.md).
 
 ## What's new in 6.5.11
 
@@ -1802,8 +1814,8 @@ ledger prevents duplicate delivery.
 > launcher-compatible `.zip`. A matching `.modpkg` may be retained only as an
 > internal build or verification artifact.
 
-1. Download `kanto_ascendant-6.5.12.zip` from the
-   [6.5.12 release](https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.5.12)
+1. Download `kanto_ascendant-6.5.13.zip` from the
+   [6.5.13 release](https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.5.13)
    and import it through the launcher. Developers may alternatively install
    the checked-out mod directory.
    If you downloaded a complete bundle, extract it first and import the inner
