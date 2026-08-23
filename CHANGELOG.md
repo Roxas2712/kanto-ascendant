@@ -17,6 +17,10 @@ All notable changes to this project are documented in this file.
   farewell, the Wandertrainer follows a bounded collision-, warp-, NPC- and
   player-safe route out of the visible camera before retiring. If no safe route
   exists, exact-once cleanup remains the fallback.
+- Yellow's four Jessie/James story battles now keep their exact combined
+  Jessie/James/Meowth identity in supported staged renderers. Ordinary Rocket
+  grunts and Red/Blue remain unchanged; missing or invalid approved assets
+  fall back to Yellow's native duo picture instead of a generic grunt.
 
 ## [6.5.12] - 2026-08-23
 

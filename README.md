@@ -62,6 +62,8 @@ collapsed so players can reveal only the information they want.
   Legacy-path accomplishments from achievements inherited from another life.
 - Adds six farewells for each battle result and lets the Wandertrainer walk
   safely out of view before disappearing.
+- Keeps Yellow's Jessie/James/Meowth story battles on their approved combined
+  staged art, with exact byte verification and a native Yellow fallback.
 
 See the full spoiler-light [6.5.13 release notes](RELEASE_NOTES_6.5.13.md).
 

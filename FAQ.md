@@ -436,6 +436,18 @@ instead of blocking the field.
 </details>
 
 <details>
+<summary><strong>Why did Jessie and James look like a generic Rocket grunt in Yellow?</strong></summary>
+
+Their four Yellow encounters share the ordinary Rocket trainer class, so a
+staged renderer could lose the story-party identity and select its class-wide
+grunt art. Version 6.5.13 binds the approved combined Jessie/James/Meowth art
+to Yellow's exact live trainer record and original story-party indices. Normal
+Rocket grunts and Red/Blue are untouched. If an approved image is missing or
+cannot be decoded, the game uses Yellow's native Jessie/James picture.
+
+</details>
+
+<details>
 <summary><strong>Why does an old pre-6.5 save still show original Red/Blue art?</strong></summary>
 
 The base game's locked `SPRITE PACK: GAME/KASC` row is not the player/rival

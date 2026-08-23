@@ -202,6 +202,11 @@ jobs:
           python3 tests/gorochu_crystal_animation_test.py
           python3 tests/gorochu_voxel_animation_test.py
           python3 tests/raichu_portrait_assets_test.py
+          python3 tests/jessie_james_battle_assets_test.py
+          KANTO_ASCENDANT_MOD_DIR=. \
+            luajit tests/jessie_james_battle_identity_test.lua
+          KANTO_ASCENDANT_MOD_DIR=. \
+            luajit tests/jessie_james_battle_asset_authority_test.lua
           luajit tests/hgss_box_grid_icons_test.lua
           luajit tests/runtime_npc_public_placement_test.lua
           luajit tests/ascendant_archive_research_count_67_test.lua
@@ -270,6 +275,7 @@ jobs:
           luajit ../kanto-ascendant/tests/voxel_renderer_compat_test.lua
           luajit ../kanto-ascendant/tests/potato_voxel_172_manager_test.lua
           luajit ../kanto-ascendant/tests/battle_art_voxel_compat_test.lua
+          luajit ../kanto-ascendant/tests/jessie_james_non_battle_art_test.lua
           luajit ../kanto-ascendant/tests/dramaless_camera_compat_test.lua
           luajit ../kanto-ascendant/tests/dramaless_camera_option_menu_test.lua
           luajit ../kanto-ascendant/tests/dramaless_wall_decals_compat_test.lua
@@ -365,6 +371,9 @@ jobs:
               "assets/characters/frlg_trainers/leader_sabrina_voxel_front_hd_v2.png",
               "assets/characters/frlg_trainers/leader_blaine_voxel_front_hd_v2.png",
               "assets/characters/frlg_trainers/leader_giovanni_voxel_front_hd_v2.png",
+              "assets/yellow_jessie_james/PROVENANCE.json",
+              "assets/yellow_jessie_james/battle/jessie_james_meowth_voxel_front.png",
+              "assets/yellow_jessie_james/battle/jessie_james_meowth_voxel_front_hd.png",
               "useful_bag.lua",
               "catch_destination.lua",
               "party_icons.lua",

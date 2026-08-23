@@ -1,4 +1,4 @@
-# Kanto Ascendant 6.5.13 — Wandertrainer Dialogue and Departure Hotfix
+# Kanto Ascendant 6.5.13 — Wandertrainer and Yellow Battle-Art Hotfix
 
 Kanto Ascendant 6.5.13 is a save-compatible presentation and dialogue hotfix
 for Pokémon Red, Blue and Yellow. No new game or story reset is required.
@@ -27,6 +27,18 @@ for Pokémon Red, Blue and Yellow. No new game or story reset is required.
 - Wandertrainer cadence, frequency settings, party scaling, rewards, loss
   relief and battle AI are unchanged.
 
+## Yellow Jessie, James and Meowth battle identity
+
+- Yellow's four Jessie/James encounters now use the approved combined
+  Jessie/James/Meowth staged battle art instead of being reduced to a generic
+  Team Rocket grunt by supported Voxel battle renderers.
+- The resolver requires Yellow, the exact live Rocket trainer record and one
+  of the four original story-party indices. Ordinary Rocket grunts and every
+  Red/Blue battle remain unchanged.
+- Both packaged sizes and the provenance receipt are verified by exact
+  SHA-256. If no approved surface can be decoded, the battle safely returns to
+  Yellow's native Jessie/James picture rather than showing the wrong trainer.
+
 ## Install or update
 
 1. Close the game and launcher.
@@ -35,4 +47,3 @@ for Pokémon Red, Blue and Yellow. No new game or story reset is required.
 4. Resolve every reported conflict, then restart the launcher and game.
 
 The matching checksum file is `SHA256SUMS-6.5.13.txt`.
-
