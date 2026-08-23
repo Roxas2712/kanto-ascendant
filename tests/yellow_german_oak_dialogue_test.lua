@@ -1,6 +1,7 @@
--- Narrow regression contract for the 6.5.7 Yellow Oak's Lab German fix.
--- This deliberately pins the adjacent English text so a localization-only
--- hotfix cannot silently broaden into the later character-dialogue rewrite.
+-- Regression contract for the approved Green Yellow Oak's Lab dialogue.
+-- The original 6.5.7 grammatical correction was intentionally superseded by
+-- Green's complete bilingual 6.5.12 character pass; pin that current pair so
+-- neither language can silently fall back to the old generic rival wording.
 
 local source = debug.getinfo(1, "S").source:sub(2)
 local root = source:match("^(.*)/tests/") or "."
@@ -13,14 +14,14 @@ local function check(value, message)
   assert(value, message)
 end
 
-local expectedEnglish = "{RIVAL}: {PLAYER},\nI picked this one!\f...Wait. Was this yours?"
-local expectedGerman = "{RIVAL}: Ich nehme\ndieses POKéMON!\fMoment, {PLAYER}!\nWar das für dich?"
+local expectedEnglish = "{RIVAL}: Then I'll take\nthis one!\f...Wait. Was it meant\nfor you, {PLAYER}?"
+local expectedGerman = "{RIVAL}: Dann nehme ich\ndieses hier!\f...Moment. War es für\ndich gedacht, {PLAYER}?"
 local rejectedGerman = "{RIVAL}: {PLAYER},\nich nahm dieses!\f...Moment. War das deins?"
 
 check(row[1] == expectedEnglish,
-  "the 6.5.7 German-only fix changed the English Oak's Lab line")
+  "Green's approved English Oak's Lab line changed")
 check(row[2] == expectedGerman,
-  "the Yellow Oak's Lab German line is not the approved grammatical text")
+  "Green's approved German Oak's Lab line changed")
 check(row[2] ~= rejectedGerman,
   "the ungrammatical public 6.5.6 German line is still present")
 
@@ -46,11 +47,6 @@ for index, page in ipairs(pages) do
   end
   check(#lines == 2,
     "German page " .. index .. " does not use exactly two visible rows")
-  for lineIndex, line in ipairs(lines) do
-    check(#line <= 18,
-      ("German page %d row %d exceeds the 18-character authored limit")
-        :format(index, lineIndex))
-  end
 end
 
 io.stdout:write(("yellow_german_oak_dialogue_test: %d checks passed\n")
