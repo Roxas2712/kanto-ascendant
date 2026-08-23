@@ -1,6 +1,6 @@
 # Kanto Ascendant FAQ and Spoiler Guide
 
-This is the public reference for **Kanto Ascendant 6.5.14**. It applies to Red,
+This is the public reference for **Kanto Ascendant 6.5.15**. It applies to Red,
 Blue and Yellow and is maintained from the current mod code, release
 documentation and confirmed support reports.
 
@@ -40,7 +40,7 @@ breeding, shinies, Mega Evolution, Gorochu and a large Hall-of-Fame post-game.
 <summary><strong>⚠️ SPOILER — How do I install or update it?</strong></summary>
 
 1. Download the release `.zip` from the
-   [6.5.14 GitHub release](https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.5.14).
+   [6.5.15 GitHub release](https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.5.15).
 2. Import it through the Gen 1 Recomp launcher.
 3. Use Gen 1 Recomp **0.1.90** or newer. Disable every package the manager reports as a
    conflict, then enable **Kanto Ascendant** and restart.
@@ -438,6 +438,12 @@ the player to a Pokémon Center, cleanup releases the encounter input lock from
 the current Center controller as well as the route controller that started the
 battle. The normal blackout, healing, protected money and future Wandertrainer
 cadence remain unchanged.
+
+Version 6.5.15 additionally cancels the Wandertrainer's already queued
+farewell movement during that map handoff. Without this cancellation, the old
+off-map actor could never finish its movement and the engine continued to
+treat the field as scripted, blocking movement and the menu even though the
+controller lock itself had been released.
 
 </details>
 
@@ -2013,7 +2019,7 @@ proven from a screenshot alone.
 
 | Report | Status |
 |---|---|
-| Cannot move or open the menu after losing to a Legacy Wandertrainer | **Fixed in 6.5.14.** Blackout cleanup now releases the current Pokémon Center controller as well as the route controller that began the encounter. |
+| Cannot move or open the menu after losing to a Legacy Wandertrainer | **Fixed in 6.5.15.** Blackout cleanup releases both controllers and cancels the defeated Wandertrainer's stale queued farewell movement before it can block field input on the destination map. |
 | Master Circuit shows 6/8 after eight wins | **Fixed in current GitHub source.** Gym clears are recorded at battle end, and affected saves repair missing crests from victory-only boss history. |
 | Lt. Surge only repeats Gorochu dialogue after the evolution | **Fixed in current GitHub source.** Completed owners return to the normal rematch conversation. |
 | Event Archive says READY but nothing happens | **Clarified in current GitHub source.** READY means unlocked; the details page now directs Festival players to the Cup city or Roaming players to habitats. |

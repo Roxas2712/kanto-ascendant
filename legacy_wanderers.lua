@@ -2103,9 +2103,18 @@ return function(mod, opts)
 
   local function releaseEncounterLock(active)
     local released = {}
+    local npcId = active and active.npcId
     local function release(ow)
       if not ow or released[ow] then return end
       released[ow] = true
+      if npcId and type(ow.scriptMoves) == "table" then
+        for i = #ow.scriptMoves, 1, -1 do
+          local move = ow.scriptMoves[i]
+          if move and move.entity and move.entity.id == npcId then
+            table.remove(ow.scriptMoves, i)
+          end
+        end
+      end
       ow.engaging = false
       if ow.player then ow.player.inputLocked = false end
     end
@@ -2116,6 +2125,7 @@ return function(mod, opts)
   local function cleanup(active)
     active = active or W.active
     if not active then return true end
+    if W.active == active then releaseEncounterLock(active) end
     if active.cleaned == true then return true end
     if active.npcId then
       local ok, removed, reason = pcall(

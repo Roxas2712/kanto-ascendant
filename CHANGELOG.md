@@ -2,6 +2,15 @@
 
 All notable changes to this project are documented in this file.
 
+## [6.5.15] - 2026-08-23
+
+### Fixed
+
+- Losing a Legacy Wandertrainer battle no longer leaves an off-map farewell
+  movement queued after the blackout. Cleanup now cancels only that retiring
+  Wandertrainer's pending movement before it can keep field input and the menu
+  blocked in the destination Pokémon Center.
+
 ## [6.5.14] - 2026-08-23
 
 ### Fixed

@@ -2,7 +2,7 @@
 
 > **Full gameplay spoilers:** these guides reveal every fissure location,
 > mandatory puzzle, Mega Stone cache and final-door requirement for Kanto
-> Ascendant 6.5.14.
+> Ascendant 6.5.15.
 
 [Open the offline HTML guide](index.html)
 

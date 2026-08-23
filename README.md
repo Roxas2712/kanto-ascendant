@@ -53,6 +53,15 @@ collapsed so players can reveal only the information they want.
 > [GitHub Issues](https://github.com/Roxas2712/kanto-ascendant/issues) and will
 > be considered for future updates.
 
+## What's new in 6.5.15
+
+- Cancels a Wandertrainer's queued farewell movement when a defeat blackouts
+  to another map, preventing that orphaned movement from blocking field input.
+- Keeps the 6.5.14 controller unlock while preserving normal blackout,
+  healing, protected Wandertrainer money and next-encounter cadence.
+
+See the full spoiler-light [6.5.15 release notes](RELEASE_NOTES_6.5.15.md).
+
 ## What's new in 6.5.14
 
 - Prevents a Legacy Wandertrainer defeat from carrying its encounter input
@@ -60,7 +69,7 @@ collapsed so players can reveal only the information they want.
 - Retires the stale field encounter while preserving the normal blackout,
   party healing, protected Wandertrainer money and next-encounter cadence.
 
-See the full spoiler-light [6.5.14 release notes](RELEASE_NOTES_6.5.14.md).
+See the historical [6.5.14 release notes](RELEASE_NOTES_6.5.14.md).
 
 ## What's new in 6.5.13
 
@@ -1825,8 +1834,8 @@ ledger prevents duplicate delivery.
 > launcher-compatible `.zip`. A matching `.modpkg` may be retained only as an
 > internal build or verification artifact.
 
-1. Download `kanto_ascendant-6.5.14.zip` from the
-   [6.5.14 release](https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.5.14)
+1. Download `kanto_ascendant-6.5.15.zip` from the
+   [6.5.15 release](https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.5.15)
    and import it through the launcher. Developers may alternatively install
    the checked-out mod directory.
    If you downloaded a complete bundle, extract it first and import the inner

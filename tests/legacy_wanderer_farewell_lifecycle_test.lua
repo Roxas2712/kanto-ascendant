@@ -76,11 +76,17 @@ local function harness(config)
   end
 
   local handle = {
-    npc = { cellX = 7, cellY = 5 },
+    npc = { id = "ROUTE_2_obj_99", cellX = 7, cellY = 5 },
     face = function() return true end,
     scriptMove = function(self, direction, _, done)
       if config.moveMode == "throw" then error("movement failed") end
       if config.moveMode == "false" then return false end
+      if config.deferMoves then
+        ow.scriptMoves[#ow.scriptMoves + 1] = {
+          entity = self.npc, direction = direction, onDone = done,
+        }
+        return true
+      end
       ow.scriptMoves[#ow.scriptMoves + 1] = direction
       local delta = {
         up = { 0, -1 }, down = { 0, 1 },
@@ -272,6 +278,44 @@ eq(center.engaging, false,
   "blackout handoff clears the current overworld encounter gate")
 eq(blackoutHandoff.wanderers.active, nil,
   "blackout handoff retires stale Surprise authority")
+
+local reusedController = harness()
+local reusedBattle = start(reusedController)
+reusedController.handlers["battle.ended"]({
+  battle = reusedBattle, result = "loss",
+})
+reusedBattle.onFinish("loss")
+reusedController.ow.map.id = "CERULEAN_POKECENTER"
+reusedController.handlers["map.entered"]({
+  mapId = "CERULEAN_POKECENTER",
+})
+eq(reusedController.ow.player.inputLocked, false,
+  "blackout unlocks the reused overworld player")
+eq(reusedController.ow.engaging, false,
+  "blackout clears encounter state on the reused overworld controller")
+eq(reusedController.wanderers.active, nil,
+  "blackout retires stale authority on the reused controller")
+
+local staleDeparture = harness({ deferMoves = true })
+local staleDepartureBattle = start(staleDeparture)
+staleDeparture.handlers["battle.ended"]({
+  battle = staleDepartureBattle, result = "loss",
+})
+staleDepartureBattle.onFinish("loss")
+staleDeparture.pushed[#staleDeparture.pushed].done()
+local unrelatedMove = { entity = { id = "CENTER_SCRIPT_NPC" } }
+staleDeparture.ow.scriptMoves[#staleDeparture.ow.scriptMoves + 1]
+  = unrelatedMove
+eq(#staleDeparture.ow.scriptMoves, 2,
+  "farewell departure and unrelated movement are pending before blackout")
+staleDeparture.ow.map.id = "CERULEAN_POKECENTER"
+staleDeparture.handlers["map.entered"]({
+  mapId = "CERULEAN_POKECENTER",
+})
+eq(#staleDeparture.ow.scriptMoves, 1,
+  "blackout cancels the stale Wandertrainer movement queue")
+eq(staleDeparture.ow.scriptMoves[1], unrelatedMove,
+  "blackout preserves unrelated scripted movement")
 
 local reload = harness()
 local reloadBattle = start(reload)
