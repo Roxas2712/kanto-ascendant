@@ -221,6 +221,7 @@ jobs:
           POKEPORT_DATA_DIR: tests/fixture_data
           TRAINER_REMATCH_MOD_DIR: ../kanto-ascendant
           GEN1RECOMP_DIR: .
+          KANTO_ASCENDANT_MOD_DIR: ../kanto-ascendant
           KA_STORY_GYM_FIXTURE: ../kanto-ascendant/tests/fixtures/story_gym_contract.lua
         run: |
           luajit ../kanto-ascendant/tests/id_migration_test.lua
@@ -237,6 +238,8 @@ jobs:
           luajit ../kanto-ascendant/tests/legacy_wanderers_progression_test.lua
           luajit ../kanto-ascendant/tests/legacy_wanderer_title_test.lua
           luajit ../kanto-ascendant/tests/legacy_wanderer_title_engine_test.lua
+          luajit ../kanto-ascendant/tests/legacy_wanderer_dialogue_6513_test.lua
+          luajit ../kanto-ascendant/tests/legacy_wanderer_farewell_lifecycle_test.lua
           luajit ../kanto-ascendant/tests/rematch_phase6_test.lua
           luajit ../kanto-ascendant/tests/rematch_visual_option_invariance_6511_test.lua
           luajit ../kanto-ascendant/tests/runtime_locale_authority_67_test.lua
