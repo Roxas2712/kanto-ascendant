@@ -12,9 +12,11 @@ if Version.engine == "0.0.0-dev" then
   Version.engine = os.getenv("KASC_TEST_ENGINE_VERSION") or "0.1.96"
 end
 local Data = T.fixtures.load()
+local sdkOpts = { data = Data }
+if modPath:sub(1, 1) == "/" then sdkOpts.root = "/" end
 local run = T.sdk.loadMods({
   modPath .. "/tests/fixtures/language_mods/deutsch", modPath,
-}, { data = Data, root = "/" })
+}, sdkOpts)
 Version.engine = savedEngine
 
 local unexpected = {}
