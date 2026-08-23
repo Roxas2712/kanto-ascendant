@@ -220,6 +220,7 @@ jobs:
         env:
           POKEPORT_DATA_DIR: tests/fixture_data
           TRAINER_REMATCH_MOD_DIR: ../kanto-ascendant
+          GEN1RECOMP_DIR: .
           KA_STORY_GYM_FIXTURE: ../kanto-ascendant/tests/fixtures/story_gym_contract.lua
         run: |
           luajit ../kanto-ascendant/tests/id_migration_test.lua
