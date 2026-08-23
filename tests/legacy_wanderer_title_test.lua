@@ -1,4 +1,5 @@
 local engine = assert(os.getenv("GEN1RECOMP_DIR"), "GEN1RECOMP_DIR is required")
+local modRoot = os.getenv("TRAINER_REMATCH_MOD_DIR") or "."
 package.path = engine .. "/?.lua;" .. engine .. "/?/init.lua;" .. package.path
 
 local assertions = 0
@@ -52,7 +53,7 @@ local titles = {
   currentTitle = function() return selectedId, selectedName or "CHAMPION" end,
 }
 
-local makeWanderers = assert(loadfile("legacy_wanderers.lua"))()
+local makeWanderers = assert(loadfile(modRoot .. "/legacy_wanderers.lua"))()
 local wanderers = makeWanderers(mod, {
   journey = journey, i18n = i18n, titles = titles,
 })
