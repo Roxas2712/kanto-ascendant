@@ -293,7 +293,7 @@ return function(mod, opts)
   end
 
   local pocketNames = {
-    ITEMS = { "ITEMS", "ITEMS" },
+    ITEMS = { "ITEMS", "ALLGEMEIN" },
     MEDICINE = { "MEDICINE", "MEDIZIN" },
     ["POKé BALLS"] = { "POKé BALLS", "POKéBÄLLE" },
     ["TMs / HMs"] = { "TMs / HMs", "TMs / VMs" },

@@ -378,6 +378,8 @@ language = "de"
 local germanGame = makeGame({ A_ITEM = 1, M_ITEM = 2 },
   { "A_ITEM", "M_ITEM" })
 local germanBag = pushBag(germanGame)
+eq(germanBag.title, "ALLGEMEIN",
+  "German universal translator localizes the generic item pocket")
 -- The skin receives the locale directly as well as through the decorated
 -- list, so a wrapper-order difference cannot turn its help chrome English.
 local germanListTranslator = germanBag.__ascendantTr

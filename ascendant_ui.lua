@@ -405,7 +405,12 @@ return function(mod, opts)
     color(C.red)
     love.graphics.rectangle("fill", 0, 15, 8, 4)
     color(C.white)
-    Font.draw(truncate(menu.title, 82), 12, 5)
+    -- The engine constructs the flat Bag with the raw title "ITEMS" even
+    -- while the edition-matched German translator is active. Actual field
+    -- Bags carry kind="bag"; localize only those so Legacy item archives keep
+    -- their own authored title when they reuse this presentation.
+    local title = menu.kind == "bag" and tr("BAG", "BEUTEL") or menu.title
+    Font.draw(truncate(title, 82), 12, 5)
     if menu.footer and tostring(menu.footer):match("^¥") then
       local money = truncate(menu.footer, 58)
       Font.draw(money, 153 - Font.width(money), 5)

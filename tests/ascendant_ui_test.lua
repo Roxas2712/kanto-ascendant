@@ -187,13 +187,24 @@ local optOut = ui.ListMenu.new({}, "EXTERNAL", rows, {
 eq(optOut.__kantoAscendantLayout, nil, "explicit compatibility opt-out is honored")
 
 local bag = ui.decorateBag({
+  kind = "bag",
   title = "ITEMS", items = { { label = "TRANK", right = "x2", value = "POTION" } },
   index = 1, scroll = 0, rows = 7, footer = "¥3000",
 }, function() return "Stellt 20 KP wieder her." end)
 eq(bag.__kantoAscendantBag, true, "Bag receives the dedicated presentation")
 eq(bag.__kantoAscendantStyle, "firered-bag", "Bag uses the FireRed variant")
 eq(bag.rows, 4, "description panel leaves a four-row item viewport")
+local BagFont = require("src.render.Font")
+local originalBagDraw = BagFont.draw
+local bagText = {}
+BagFont.draw = function(value, ...)
+  bagText[#bagText + 1] = tostring(value)
+  return originalBagDraw(value, ...)
+end
 bag:draw()
+BagFont.draw = originalBagDraw
+ok(table.concat(bagText, " "):find("BEUTEL", 1, true) ~= nil,
+  "German translator did not localize the old KASC Bag header")
 
 local pushed, popped = nil, 0
 local game = {

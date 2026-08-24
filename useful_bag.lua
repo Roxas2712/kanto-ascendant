@@ -69,7 +69,7 @@ local POCKETS = {
 }
 
 local POCKET_LABELS_DE = {
-  items = "ITEMS", medicine = "MEDIZIN", balls = "POKéBÄLLE",
+  items = "ALLGEMEIN", medicine = "MEDIZIN", balls = "POKéBÄLLE",
   tms = "TMs / VMs", battle = "KAMPFITEMS", key = "BASIS-ITEMS",
 }
 

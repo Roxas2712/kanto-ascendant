@@ -40,7 +40,7 @@ return function(mod, opts)
     tms = "TMs", battle = "BATTLE", key = "KEY",
   }
   local SHORT_DE = {
-    items = "ITEMS", medicine = "MED", balls = "BÄLLE",
+    items = "ALLG.", medicine = "MED", balls = "BÄLLE",
     tms = "TMs", battle = "KAMPF", key = "BASIS",
   }
 
