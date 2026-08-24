@@ -91,6 +91,10 @@ return function(mod, opts)
   local PC_ATLAS_PATH = "assets/ui/frlg_pc/interface.png"
   local PC_ATLAS_W, PC_ATLAS_H = 641, 1240
   local FRLG_UI_W, FRLG_UI_H, FRLG_UI_SCALE = 480, 320, 2
+  -- The authentic 240x160 Box already uses its final row at logical y=145.
+  -- MOVE adds a persistent help plaque, so give that organizer one separate
+  -- 16px logical row instead of painting the plaque over Pokémon slots 16-20.
+  local FRLG_ORGANIZER_H = 352
   local PC_ATLAS_REGIONS = {
     blue = { 241, 0, 240, 160 },
     orange = { 0, 0, 240, 160 },
@@ -253,12 +257,31 @@ return function(mod, opts)
     return pcInterfaceStyle(game) == "firered"
   end
 
+  local function useFireRedLegacyBank(game)
+    if option(game, "modern_storage_ui") == false then return false end
+    local selected = option(game, "legacy_bank_interface_style")
+      or "follow_pc"
+    if selected == "ascendant" then return false end
+    if selected == "firered" then return pcAtlas() ~= nil end
+    return useFireRedPc(game)
+  end
+
   local function useCustomPc(game)
     return pcInterfaceStyle(game) ~= "default"
   end
 
   local function fireRedUiSize()
     return FRLG_UI_W, FRLG_UI_H
+  end
+
+  local function fireRedOrganizerUiSize()
+    return FRLG_UI_W, FRLG_ORGANIZER_H
+  end
+
+  local function fireRedOrganizerTrueColor()
+    local PaletteFX = require("src.render.PaletteFX")
+    return { PaletteFX.trueColorZone(
+      0, 0, FRLG_UI_W / 8 - 1, FRLG_ORGANIZER_H / 8 - 1) }
   end
 
   local function fireRedTrueColor()
@@ -786,17 +809,28 @@ return function(mod, opts)
       or title:find("TEAM", 1, true) ~= nil
   end
 
+  -- The German translation uses an 11px TTF while the sampled FireRed button
+  -- plaques were authored for 8px tile glyphs. Scale only the two replacement
+  -- button captions; PKMN DATA remains untouched original atlas artwork.
+  local function drawFireRedPlaqueCaption(text, x, y, budget)
+    text = tostring(text or "")
+    local scale = german() and .7 or 1
+    local width = Font.width(text)
+    if width * scale > budget then scale = budget / math.max(1, width) end
+    if scale >= .995 or not (love.graphics.push and love.graphics.pop
+        and love.graphics.translate and love.graphics.scale) then
+      return Font.draw(truncate(text, budget), x, y)
+    end
+    love.graphics.push()
+    love.graphics.translate(x, y)
+    love.graphics.scale(scale, scale)
+    Font.draw(text, 0, 0)
+    love.graphics.pop()
+  end
+
   local function drawFireRedData(mon, game)
     drawAtlasRegion("data-panel", PC_ATLAS_REGIONS.dataPanel,
       0, 0, 80, 160)
-    if german() then
-      -- PKMN DATA is baked into the English source sheet. Repaint only its
-      -- small title plaque; the rest of the authentic panel remains intact.
-      color({ .57, .57, .66, 1 })
-      love.graphics.rectangle("fill", 4, 1, 72, 10)
-      color(C.ink)
-      Font.draw("PKMN-DAT.", 4, 2)
-    end
     if not mon then return end
 
     drawMonImage(game, mon, 7, 18, 66, 72)
@@ -850,13 +884,13 @@ return function(mod, opts)
       color(C.blue3)
       love.graphics.rectangle("line", 85.5, 4.5, 69, 12)
       color(C.white)
-      Font.draw("TEAM", 104, 7)
+      drawFireRedPlaqueCaption("TEAM", 106, 7, 48)
       color(C.blue2)
       love.graphics.rectangle("fill", 173, 4, 63, 13)
       color(C.blue3)
       love.graphics.rectangle("line", 173.5, 4.5, 62, 12)
       color(C.white)
-      Font.draw("BOX ZU", 181, 7)
+      drawFireRedPlaqueCaption("BOX ZU", 184, 7, 46)
     end
     if party then
       -- The selected green PARTY POKéMON artwork is already sampled above.
@@ -1172,9 +1206,9 @@ return function(mod, opts)
 
   local function drawOrganizerHelp(state)
     color(C.cream)
-    love.graphics.rectangle("fill", 82, 145, 158, 15)
+    love.graphics.rectangle("fill", 82, 160, 158, 16)
     color(C.blue3)
-    love.graphics.rectangle("line", 82.5, 145.5, 157, 14)
+    love.graphics.rectangle("line", 82.5, 160.5, 157, 15)
     local text = state.message
     if not text and state.carry then
       local def = state.game.data.pokemon[state.carry.mon.species] or {}
@@ -1185,7 +1219,7 @@ return function(mod, opts)
       and tr("A:MOVE  SELECT:BOX", "A:BEWEG. SELECT:BOX")
       or tr("A:MOVE  SELECT:PARTY", "A:BEWEG. SELECT:TEAM"))
     color(C.ink)
-    drawFittedFireRedText(text, 87, 149, 148)
+    drawFittedFireRedText(text, 87, 164, 148)
   end
 
   local function drawOrganizerBox(state)
@@ -1376,8 +1410,8 @@ return function(mod, opts)
       isOpaque = true, letterboxWhite = true,
       __ascendantFireRedOrganizer = true,
     }
-    state.uiSize = fireRedUiSize
-    state.sgbPalettes = fireRedTrueColor
+    state.uiSize = fireRedOrganizerUiSize
+    state.sgbPalettes = fireRedOrganizerTrueColor
     function state:update(dt)
       if self.messageTime then
         self.messageTime = self.messageTime - (tonumber(dt) or 0)
@@ -1512,8 +1546,8 @@ return function(mod, opts)
       __ascendantFireRedOrganizer = true,
       __ascendantLegacyBankOrganizer = true,
     }
-    state.uiSize = fireRedUiSize
-    state.sgbPalettes = fireRedTrueColor
+    state.uiSize = fireRedOrganizerUiSize
+    state.sgbPalettes = fireRedOrganizerTrueColor
 
     function state:refresh()
       local rows, err = self.adapter.rows()
@@ -1555,6 +1589,15 @@ return function(mod, opts)
       self.messageTime = 2.4
     end
 
+    local function bankLockFooter(reason)
+      local upper = tostring(reason or ""):upper()
+      if upper:find("BEYOND KANTO", 1, true)
+          or upper:find("JENSEITS VON KANTO", 1, true) then
+        return tr("BEYOND KANTO: SEALED", "JOHTO: GESPERRT")
+      end
+      return tr("WITHDRAWAL LOCKED", "ENTNAHME GESPERRT")
+    end
+
     local function bankMon(self)
       if self.zone == "party" then
         return (self.game.save.party or {})[self.partyIndex]
@@ -1565,13 +1608,13 @@ return function(mod, opts)
 
     local function drawBankHelp(self)
       color(C.cream)
-      love.graphics.rectangle("fill", 82, 145, 158, 15)
+      love.graphics.rectangle("fill", 82, 160, 158, 16)
       color(C.blue3)
-      love.graphics.rectangle("line", 82.5, 145.5, 157, 14)
+      love.graphics.rectangle("line", 82.5, 160.5, 157, 15)
       local row = self.zone ~= "party" and self:bankRow() or nil
       local text = self.message
       if not text and row and row.withdrawBlocked then
-        text = row.withdrawReason or tr("WITHDRAWAL LOCKED", "ENTNAHME GESPERRT")
+        text = bankLockFooter(row.withdrawReason)
       end
       if not text and self.carry then
         local mon = self.carry.mon
@@ -1583,7 +1626,7 @@ return function(mod, opts)
         and tr("A:STORE  SELECT:BANK", "A:ABLG  SELECT:BANK")
         or tr("A:TAKE  SELECT:PARTY", "A:NEHM  SELECT:TEAM"))
       color(C.ink)
-      drawFittedFireRedText(text, 87, 149, 148)
+      drawFittedFireRedText(text, 87, 164, 148)
     end
 
     local function drawBankMons(self)
@@ -1598,15 +1641,18 @@ return function(mod, opts)
           end
           if row.withdrawBlocked then
             color(C.red)
-            love.graphics.rectangle("fill", x + 4, y - 11, 7, 7)
+            -- Keep the lock badge beside the hand, not under its palm.
+            love.graphics.rectangle("fill", x + 8, y - 11, 7, 7)
             color(C.white)
-            Font.draw("X", x + 5, y - 10)
+            Font.draw("X", x + 9, y - 10)
           end
         end
       end
       if not self.transition and self.zone == "bank" then
         local x, y = fireRedSlotCenter(self.bankIndex)
-        drawPixelHand(x - 8 + (self.slide or 0), y - 13,
+        local row = self:bankRow()
+        local handY = row and row.withdrawBlocked and y - 24 or y - 13
+        drawPixelHand(x - 8 + (self.slide or 0), handY,
           self.game, self.carry and self.carry.mon)
       elseif not self.transition and self.zone == "bank_tab" then
         drawPixelHand(149, 17, self.game, self.carry and self.carry.mon)
@@ -1660,8 +1706,7 @@ return function(mod, opts)
             if type(self.adapter.showLocked) == "function" then
               self.adapter.showLocked(row)
             end
-            return bankMessage(self, row.withdrawReason or
-              tr("WITHDRAWAL LOCKED", "ENTNAHME GESPERRT"))
+            return bankMessage(self, bankLockFooter(row.withdrawReason))
           end
           self.carry = { zone = "bank", id = row.id, mon = row.mon,
             index = self:globalIndex() }
@@ -2185,6 +2230,7 @@ return function(mod, opts)
     drawFireRedBoxGrid = drawFireRedBoxGrid,
     pcInterfaceStyle = pcInterfaceStyle,
     useFireRedPc = useFireRedPc,
+    useFireRedLegacyBank = useFireRedLegacyBank,
     useCustomPc = useCustomPc,
     pcAtlasPath = PC_ATLAS_PATH,
     wallpaperLabel = wallpaperLabel,

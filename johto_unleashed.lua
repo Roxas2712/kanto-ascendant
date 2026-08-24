@@ -695,8 +695,8 @@ return function(mod, opts)
     local dex = speciesDex(game or B.game, species)
     if dex and dex >= 1 and dex <= 151 then return true end
     return false, tr(
-      "BEYOND KANTO is sealed\nin this save. The POKéMON\nremains safe in the\nLegacy Bank.",
-      "JENSEITS VON KANTO ist\nin diesem Spielstand\nversiegelt.\fDas POKéMON bleibt sicher\nin der Vermächtnis-Bank.")
+      "BEYOND KANTO:\nSEALED.\fThe POKéMON remains safe\nin the Legacy Bank.",
+      "JENSEITS VON KANTO:\nVERSIEGELT.\fDas POKéMON bleibt sicher\nin der Vermächtnis-Bank.")
   end
 
   function B.status(value)

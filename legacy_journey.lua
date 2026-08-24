@@ -1737,8 +1737,8 @@ return function(mod, opts)
   local function openFireRedBank(game)
     local storage = mod.exports and mod.exports.modernStorageUi
     if not (storage and type(storage.newLegacyBankOrganizer) == "function"
-        and type(storage.useFireRedPc) == "function"
-        and storage.useFireRedPc(game)) then
+        and type(storage.useFireRedLegacyBank) == "function"
+        and storage.useFireRedLegacyBank(game)) then
       return false
     end
     local screen = storage.newLegacyBankOrganizer(game, {

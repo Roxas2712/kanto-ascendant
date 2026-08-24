@@ -21,7 +21,8 @@ local gorochu = read("gorochu.lua")
 local mainKeys = {
   "wild_level_scaling",
   "johto_level_bonus", "ascendant_useful_bag", "ascendant_quick_select",
-  "ascendant_qol", "modern_storage_ui", "pc_interface_style", "catch_destination",
+  "ascendant_qol", "modern_storage_ui", "pc_interface_style",
+  "legacy_bank_interface_style", "catch_destination",
   "pokedex_filter", "box_filter", "text_speed", "ride_control",
   "pokemon_sprite_style", "sprite_style_battle", "sprite_style_summary",
   "sprite_style_dex", "sprite_style_box", "sprite_style_scenes",
@@ -38,7 +39,8 @@ end
 for _, key in ipairs({
   "johto_level_bonus", "ascendant_useful_bag",
   "ascendant_quick_select", "ascendant_qol",
-  "modern_storage_ui", "pc_interface_style", "catch_destination", "pokedex_filter", "box_filter",
+  "modern_storage_ui", "pc_interface_style", "legacy_bank_interface_style",
+  "catch_destination", "pokedex_filter", "box_filter",
   "text_speed", "ride_control", "pokemon_sprite_style",
   "sprite_style_battle", "sprite_style_summary", "sprite_style_dex",
   "sprite_style_box", "sprite_style_scenes", "ascendant_bag_mode",

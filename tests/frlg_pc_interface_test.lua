@@ -6,6 +6,7 @@ local root = os.getenv("TRAINER_REMATCH_MOD_DIR") or "."
 local options = {
   modern_storage_ui = true,
   pc_interface_style = "ascendant",
+  legacy_bank_interface_style = "follow_pc",
   box_grid_icon_style = "current",
   fast_box_switch = true,
   ascendant_useful_bag = false,
@@ -13,13 +14,15 @@ local options = {
   sprite_style_box = true,
 }
 local atlasPath = "assets/ui/frlg_pc/interface.png"
-local draws, quads, handPolygons, fontDraws = {}, {}, 0, {}
+local draws, quads, handPolygons, fontDraws, rectangles = {}, {}, 0, {}, {}
 local language = "en"
 local loadedImagePaths, spriteRequests = {}, {}
 
 love = { graphics = {} }
 function love.graphics.setColor() end
-function love.graphics.rectangle() end
+function love.graphics.rectangle(mode, x, y, w, h)
+  rectangles[#rectangles + 1] = { mode = mode, x = x, y = y, w = w, h = h }
+end
 function love.graphics.circle() end
 function love.graphics.arc() end
 function love.graphics.polygon(mode)
@@ -174,6 +177,8 @@ assert(#quads == 0, "KASC choice unexpectedly sampled the GBA atlas")
 -- The option is live for newly drawn storage surfaces.
 options.pc_interface_style = "firered"
 assert(ui.useFireRedPc(game) == true, "valid FRLG atlas was rejected")
+assert(ui.useFireRedLegacyBank(game) == true,
+  "Legacy Bank did not follow the selected FRLG PC interface")
 local wideW, wideH = list:uiSize()
 assert(wideW == 480 and wideH == 320,
   "FRLG organizer did not request its readable 480x320 PC surface")
@@ -282,21 +287,29 @@ local organizer = pushed[#pushed]
 assert(organizer and organizer.uiSize and organizer.update and organizer.draw,
   "MOVE POKéMON did not open the live organizer")
 local ow, oh = organizer:uiSize()
-assert(ow == 480 and oh == 320, "live organizer surface drifted")
+assert(ow == 480 and oh == 352,
+  "live organizer did not reserve a separate help row")
 organizer:draw()
+local separatedHelp = false
+for _, rect in ipairs(rectangles) do
+  separatedHelp = separatedHelp or (rect.mode == "fill" and rect.x == 82
+    and rect.y == 160 and rect.w == 158 and rect.h == 16)
+end
+assert(separatedHelp,
+  "organizer help still overlaps the fourth Pokémon row at y=145")
 local pressed = {}
 game.input.wasPressed = function(_, key) return pressed[key] == true end
 
--- Fixed English pixels in the source atlas are overpainted only in German.
--- The authentic panel/button frames remain, while all visible controls speak
--- the active game's language.
+-- PKMN DATA is readable original FireRed artwork and must never be covered.
+-- Only the two actionable buttons receive compact German captions.
 language = "de"
 fontDraws = {}
 organizer:draw()
 local localized = table.concat(fontDraws, "\n")
-assert(localized:find("PKMN%-DAT%.") and localized:find("TEAM", 1, true)
+assert(not localized:find("PKMN%-DAT%.")
+    and localized:find("TEAM", 1, true)
     and localized:find("BOX ZU", 1, true),
-  "German FRLG chrome still leaked baked English panel/button captions")
+  "German FRLG chrome covered PKMN DATA or missed a button caption")
 organizer.zone, organizer.boxIndex = "box", 20
 pressed = { a = true }
 organizer:update(1 / 60)
@@ -382,21 +395,35 @@ local bankRows = {
   { id = "locked", mon = { species = "PIKACHU", level = 25 },
     withdrawBlocked = true, withdrawReason = "HALL ENTRY NEEDED" },
 }
-local bankMoves, bankWithdrawals, bankDeposits = 0, 0, 0
+local bankMoves, bankWithdrawals, bankDeposits, bankLockedShown = 0, 0, 0, nil
 local bank = ui.newLegacyBankOrganizer(game, {
   rows = function() return bankRows end,
   move = function() bankMoves = bankMoves + 1 return true end,
   withdraw = function() bankWithdrawals = bankWithdrawals + 1 return true end,
   deposit = function() bankDeposits = bankDeposits + 1 return true end,
+  showLocked = function(row) bankLockedShown = row.withdrawReason end,
 })
 assert(bank.__ascendantLegacyBankOrganizer and bank:boxCount() == 500,
   "Legacy Bank did not start with 500 sparse virtual Boxes")
+local bw, bh = bank:uiSize()
+assert(bw == 480 and bh == 352,
+  "Legacy Bank did not reserve the non-overlapping help row")
 bank.zone, bank.bankIndex = "bank", 1
 pressed = { a = true }
 bank:update(1 / 60)
 pressed = {}
-assert(bank.carry == nil and bank.message == "HALL ENTRY NEEDED",
+assert(bank.carry == nil and bank.message == "WITHDRAWAL LOCKED"
+    and bankLockedShown == "HALL ENTRY NEEDED",
   "locked Legacy Pokémon was picked up or its reason was hidden")
+options.legacy_bank_interface_style = "ascendant"
+assert(ui.useFireRedLegacyBank(game) == false,
+  "explicit Kanto Ascendant Legacy Bank style was ignored")
+options.legacy_bank_interface_style = "firered"
+options.pc_interface_style = "default"
+assert(ui.useFireRedLegacyBank(game) == true,
+  "explicit FRLG Legacy Bank style incorrectly followed the normal PC")
+options.legacy_bank_interface_style = "follow_pc"
+options.pc_interface_style = "firered"
 for index = 2, 9999 do
   bankRows[index] = { id = "bank:" .. index,
     mon = { species = "PIKACHU", level = 25 } }

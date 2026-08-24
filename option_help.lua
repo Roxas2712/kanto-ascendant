@@ -188,6 +188,9 @@ return function(i18n)
     pc_interface_style = {
       "Chooses the PC presentation. FIRERED / LEAFGREEN is the new default with live Box wallpapers, party view and cross-Box moving. KANTO ASCENDANT restores the previous blue/cream layout. GAME DEFAULT yields to the untouched engine PC. Missing FireRed artwork falls back safely to Kanto Ascendant.",
       "Wählt die PC-Darstellung. FIRERED / LEAFGREEN ist der neue Standard mit wechselnden Box-Hintergründen, Teamansicht und Verschieben durch mehrere Boxen. KANTO ASCENDANT stellt die bisherige blau-cremefarbene Ansicht wieder her. SPIELSTANDARD nutzt den unveränderten Engine-PC. Fehlende FireRed-Grafik fällt sicher auf Kanto Ascendant zurück." },
+    legacy_bank_interface_style = {
+      "Chooses the Legacy Bank presentation. FOLLOW PC mirrors the normal PC setting. FIRERED / LEAFGREEN keeps the 500-Box organizer even when the normal PC uses another style; KANTO ASCENDANT restores the compact list. The Bank remains the same archive and all NG+ withdrawal locks still apply.",
+      "Wählt die Darstellung der Vermächtnisbank. PC FOLGEN übernimmt die normale PC-Einstellung. FIRERED / LEAFGREEN behält den Organizer mit 500 Boxen auch bei anderer PC-Optik; KANTO ASCENDANT stellt die kompakte Liste wieder her. Das Archiv bleibt identisch und alle NG+-Entnahmesperren gelten weiter." },
     box_grid_icon_style = {
       "Chooses the small icons in the right-hand 5 by 4 storage grid. CURRENT keeps the existing Box art; HGSS WALKERS uses the bundled 16-pixel walking sprites when an exact species asset is available. The large preview on the left never changes.",
       "Wählt die kleinen Icons im rechten 5-mal-4-Boxraster. AKTUELL behält die bisherige Boxgrafik; HGSS-BEGLEITER nutzt die enthaltenen 16-Pixel-Laufsprites, wenn für die genaue Art eine Grafik vorhanden ist. Die große Vorschau links bleibt immer unverändert." },

@@ -44,6 +44,12 @@ return function(mod, opts)
             { "ascendant", "KANTO ASCENDANT", "KANTO ASCENDANT" },
             { "default", "GAME DEFAULT", "SPIELSTANDARD" },
           } },
+        { key = "legacy_bank_interface_style", en = "LEGACY BANK UI",
+          de = "VERMÄCHTNIS-BANK", values = {
+            { "follow_pc", "FOLLOW PC", "PC FOLGEN" },
+            { "firered", "FIRERED / LEAFGREEN", "FIRERED / LEAFGREEN" },
+            { "ascendant", "KANTO ASCENDANT", "KANTO ASCENDANT" },
+          } },
         { key = "catch_destination", en = "CATCH DEST.", de = "FANGZIEL",
           values = {
             { "ask", "ASK", "FRAGEN" }, { "party", "PARTY", "TEAM" },
