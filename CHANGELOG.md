@@ -2,6 +2,26 @@
 
 All notable changes to this project are documented in this file.
 
+## [6.5.17] - 2026-08-25
+
+### Added
+
+- The Legacy Bank menu can move every withdrawable Pokémon to free ordinary
+  PC Box slots in one action. Capacity is checked before the first lease, so
+  an undersized PC produces a precise warning without a partial transfer.
+- The FireRed Legacy organizer supports persistent START multi-selection
+  across virtual Bank pages followed by one selected-PC-transfer action.
+
+### Fixed
+
+- Every Legacy Bank withdrawal now records both seen and owned Pokédex data.
+  Loading a save repairs missing entries for physical Pokémon withdrawn by an
+  older build, including Party, legacy single-Box and all current PC Boxes.
+- VASC staged battles no longer trust a stale boolean HD-resolver marker after
+  the renderer recreates its `sideTexture` seam. KASC verifies the exact live
+  wrapper on save load and rebinds its authored 128px combat-front source
+  instead of allowing the native 64px trainer picture to be enlarged.
+
 ## [6.5.16] - 2026-08-24
 
 ### Added

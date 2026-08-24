@@ -398,14 +398,23 @@ assert(game.save.boxes[2][1] == beforeClose,
 local bankRows = {
   { id = "locked", mon = { species = "PIKACHU", level = 25 },
     withdrawBlocked = true, withdrawReason = "HALL ENTRY NEEDED" },
+  { id = "box-one", bankSlot = 2,
+    mon = { species = "EEVEE", level = 25 } },
+  { id = "box-two", bankSlot = 21,
+    mon = { species = "CHARMANDER", level = 25 } },
 }
 local bankMoves, bankWithdrawals, bankDeposits, bankLockedShown = 0, 0, 0, nil
+local selectedActionRows = nil
 local bank = ui.newLegacyBankOrganizer(game, {
   rows = function() return bankRows end,
   move = function() bankMoves = bankMoves + 1 return true end,
   withdraw = function() bankWithdrawals = bankWithdrawals + 1 return true end,
   deposit = function() bankDeposits = bankDeposits + 1 return true end,
   showLocked = function(row) bankLockedShown = row.withdrawReason end,
+  selectedAction = function(rows, done)
+    selectedActionRows = rows
+    done(true)
+  end,
 })
 assert(bank.__ascendantLegacyBankOrganizer and bank:boxCount() == 500,
   "Legacy Bank did not start with 500 sparse virtual Boxes")
@@ -419,6 +428,24 @@ pressed = {}
 assert(bank.carry == nil and bank.message == "WITHDRAWAL LOCKED"
     and bankLockedShown == "HALL ENTRY NEEDED",
   "locked Legacy Pokémon was picked up or its reason was hidden")
+bank.zone, bank.bankBox, bank.bankIndex = "bank", 1, 2
+pressed = { start = true }
+bank:update(1 / 60)
+pressed = {}
+assert(bank:selectedCount() == 1 and bank.selected["box-one"],
+  "START did not mark the first Legacy Pokémon")
+bank.bankBox, bank.bankIndex = 2, 1
+pressed = { start = true }
+bank:update(1 / 60)
+pressed = {}
+assert(bank:selectedCount() == 2 and bank.selected["box-two"],
+  "Legacy multi-selection did not survive a cross-Box page change")
+pressed = { a = true }
+bank:update(1 / 60)
+pressed = {}
+assert(selectedActionRows and #selectedActionRows == 2
+    and bank:selectedCount() == 0,
+  "A did not open one action for the complete cross-Box selection")
 options.legacy_bank_interface_style = "ascendant"
 assert(ui.useFireRedLegacyBank(game) == false,
   "explicit Kanto Ascendant Legacy Bank style was ignored")

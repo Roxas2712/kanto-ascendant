@@ -1510,6 +1510,8 @@ return function(mod, opts)
     return portrait ~= nil
   end
 
+  local ensureDex, markDexOwned, restoreDex
+
   local function withdraw(game, row, list)
     local Boxes = require("src.pokemon.Boxes")
     local Party = require("src.pokemon.Party")
@@ -1535,9 +1537,13 @@ return function(mod, opts)
       return
     end
 
+    local previousDex = {}
+    markDexOwned(game.save, mon, previousDex)
+
     if not game:writeSave() then
       if destination == "party" then removeExact(game.save.party, mon)
       else removeExact(Boxes.ensure(game.save)[boxNumber], mon) end
+      restoreDex(game.save, previousDex)
       archive.releaseLease(game.save, row.id)
       list.footer = tr("SAVE FAILED", "SPEICHERN FEHLGESCHLAGEN")
       return
@@ -1546,6 +1552,151 @@ return function(mod, opts)
     list.footer = destination == "party"
       and tr("WITHDRAWN TO PARTY", "INS TEAM GENOMMEN")
       or tr("WITHDRAWN TO BOX ", "IN BOX ") .. tostring(boxNumber)
+  end
+
+  ensureDex = function(save)
+    save.pokedex = type(save.pokedex) == "table" and save.pokedex or {}
+    save.pokedex.seen = type(save.pokedex.seen) == "table"
+      and save.pokedex.seen or {}
+    save.pokedex.owned = type(save.pokedex.owned) == "table"
+      and save.pokedex.owned or {}
+    return save.pokedex
+  end
+
+  markDexOwned = function(save, mon, previous)
+    local species = type(mon) == "table" and mon.species
+    if type(species) ~= "string" then return false end
+    local dex = ensureDex(save)
+    if previous and previous[species] == nil then
+      previous[species] = {
+        seen = dex.seen[species], owned = dex.owned[species],
+      }
+    end
+    dex.seen[species], dex.owned[species] = true, true
+    return true
+  end
+
+  restoreDex = function(save, previous)
+    local dex = ensureDex(save)
+    for species, flags in pairs(previous or {}) do
+      dex.seen[species], dex.owned[species] = flags.seen, flags.owned
+    end
+  end
+
+  -- Physical Legacy identities are durable proof of ownership. This narrow
+  -- load repair covers Pokémon withdrawn by builds which leased the archive
+  -- row successfully but forgot to update the Pokédex. It never reveals a
+  -- species which remains inside the Bank.
+  local function repairLegacyDexFromStorage(gameOrSave)
+    local save = type(gameOrSave) == "table"
+      and (type(gameOrSave.save) == "table" and gameOrSave.save or gameOrSave)
+      or nil
+    if type(save) ~= "table" then return 0 end
+    local repaired = {}
+    local function scan(list)
+      for _, mon in ipairs(type(list) == "table" and list or {}) do
+        if type(mon) == "table" and mon.__kaLegacyId
+            and type(mon.species) == "string" then
+          local dex = ensureDex(save)
+          if dex.seen[mon.species] ~= true
+              or dex.owned[mon.species] ~= true then
+            repaired[mon.species] = true
+          end
+          markDexOwned(save, mon)
+        end
+      end
+    end
+    scan(save.party)
+    scan(save.box)
+    for _, box in ipairs(type(save.boxes) == "table" and save.boxes or {}) do
+      scan(box)
+    end
+    local count = 0
+    for _ in pairs(repaired) do count = count + 1 end
+    return count
+  end
+
+  -- Move every currently withdrawable Legacy Pokémon directly into ordinary
+  -- PC Boxes. Capacity is checked before the first archive lease, so a full
+  -- PC is a warning-only operation and cannot produce a partial transfer.
+  local function withdrawRowsToBoxes(game, requestedRows)
+    local Boxes = require("src.pokemon.Boxes")
+    local Stats = require("src.pokemon.Stats")
+    local rows = requestedRows
+    if rows == nil then
+      local rowsErr
+      rows, rowsErr = archive.availableMons(game.save)
+      if type(rows) ~= "table" then return false, tostring(rowsErr) end
+    end
+    if type(rows) ~= "table" then
+      return false, tr("INVALID SELECTION", "UNGÜLTIGE AUSWAHL")
+    end
+    local transferable, blocked = {}, 0
+    for _, row in ipairs(rows) do
+      if row.withdrawBlocked then blocked = blocked + 1
+      else transferable[#transferable + 1] = row end
+    end
+    if #transferable == 0 then
+      return false, blocked > 0
+        and tr("ALL POKéMON ARE SEALED", "ALLE POKéMON SIND VERSIEGELT")
+        or tr("LEGACY BANK IS EMPTY", "VERMÄCHTNIS-BANK IST LEER")
+    end
+
+    local boxes = Boxes.ensure(game.save)
+    local free = 0
+    for index = 1, Boxes.COUNT do
+      free = free + math.max(0, Boxes.CAPACITY - #(boxes[index] or {}))
+    end
+    if free < #transferable then
+      return false, tr(
+        ("PC BOXES NEED %d MORE FREE SLOT%s."):format(
+          #transferable - free, #transferable - free == 1 and "" or "S"),
+        ("IN DEN PC-BOXEN FEHLEN %d FREIE PLÄTZE."):format(
+          #transferable - free))
+    end
+
+    local inserted, leased, previousDex = {}, {}, {}
+    local function rollback(message)
+      for index = #inserted, 1, -1 do
+        local placed = inserted[index]
+        removeExact(boxes[placed.box], placed.mon)
+      end
+      restoreDex(game.save, previousDex)
+      for index = #leased, 1, -1 do
+        archive.releaseLease(game.save, leased[index])
+      end
+      return false, message
+    end
+
+    for _, row in ipairs(transferable) do
+      local mon, leaseErr = archive.leaseMon(game.save, row.id)
+      if not mon then return rollback(tostring(leaseErr)) end
+      leased[#leased + 1] = row.id
+      Stats.ensure(game.data.pokemon[mon.species], mon)
+      local box = Boxes.deposit(game.save, mon)
+      if not box then
+        return rollback(tr("PC BOXES ARE FULL", "PC-BOXEN SIND VOLL"))
+      end
+      inserted[#inserted + 1] = { box = box, mon = mon }
+      markDexOwned(game.save, mon, previousDex)
+    end
+    if not game:writeSave() then
+      return rollback(tr("SAVE FAILED", "SPEICHERN FEHLGESCHLAGEN"))
+    end
+    local text = tr(
+      ("%d POKéMON MOVED TO PC BOXES."):format(#inserted),
+      ("%d POKéMON IN PC-BOXEN ÜBERTRAGEN."):format(#inserted))
+    if blocked > 0 then
+      text = text .. "\f" .. tr(
+        ("%d SEALED POKéMON REMAIN IN THE LEGACY BANK."):format(blocked),
+        ("%d VERSIEGELTE POKéMON BLEIBEN IN DER VERMÄCHTNIS-BANK.")
+          :format(blocked))
+    end
+    return true, text, #inserted, blocked
+  end
+
+  local function withdrawAllToBoxes(game)
+    return withdrawRowsToBoxes(game, nil)
   end
 
   local function openWithdraw(game)
@@ -1692,8 +1843,11 @@ return function(mod, opts)
     if not mon then return false, tostring(err) end
     Stats.ensure(game.data.pokemon[mon.species], mon)
     table.insert(game.save.party, mon)
+    local previousDex = {}
+    markDexOwned(game.save, mon, previousDex)
     if not game:writeSave() then
       removeExact(game.save.party, mon)
+      restoreDex(game.save, previousDex)
       archive.releaseLease(game.save, row.id)
       return false, tr("SAVE FAILED", "SPEICHERN FEHLGESCHLAGEN")
     end
@@ -1760,6 +1914,30 @@ return function(mod, opts)
             "BANK-REIHENFOLGE NICHT VERFÜGBAR")
         end
         return archive.reorderAvailableMon(game.save, id, targetIndex)
+      end,
+      selectedAction = function(rows, done)
+        local count = #rows
+        local actionMenu
+        actionMenu = (mod.ui.KantoListMenu or mod.ui.ListMenu).new(game,
+          tr("SELECTED POKéMON", "AUSGEWÄHLTE POKéMON"), {
+            {
+              label = tr("MOVE TO PC BOXES", "IN PC-BOXEN"),
+              right = tostring(count), value = "pc",
+            },
+            { label = tr("CANCEL SELECTION", "AUSWAHL AUFHEBEN"),
+              value = "cancel" },
+          }, {
+            ascendantStyle = "firered-storage",
+            onChoose = function(item)
+              if game.stack:top() == actionMenu then game.stack:pop() end
+              if item and item.value == "pc" then
+                local ok, text = withdrawRowsToBoxes(game, rows)
+                pushMessage(game, text)
+                if done then done(ok) end
+              elseif done then done(false, true) end
+            end,
+          })
+        game.stack:push(actionMenu)
       end,
     })
     game.stack:push(screen)
@@ -2163,13 +2341,23 @@ return function(mod, opts)
     end
     bindArchiveData(game and game.data)
     archive.reconcileLeases(game.save)
-    if openFireRedBank(game) then return true end
     local available = #archive.availableMons(game.save)
     local rows = {
       {
         label = tr("WITHDRAW POKéMON", "POKéMON NEHMEN"),
         right = tostring(available),
-        onSelect = function() openWithdraw(game) end,
+        onSelect = function()
+          if not openFireRedBank(game) then openWithdraw(game) end
+        end,
+      },
+      {
+        label = tr("ALL TO PC BOXES", "ALLE IN PC-BOXEN"),
+        onSelect = function()
+          local ok, text = withdrawAllToBoxes(game)
+          pushMessage(game, text or (ok and tr("TRANSFER COMPLETE",
+            "ÜBERTRAGUNG FERTIG") or tr("TRANSFER FAILED",
+            "ÜBERTRAGUNG FEHLGESCHLAGEN")))
+        end,
       },
       {
         label = tr("DEPOSIT PARTY", "TEAM ABLEGEN"),
@@ -3018,6 +3206,10 @@ return function(mod, opts)
         return
       end
       archive.reconcileLeases(ev.save)
+      -- Engine builds whose save.loaded payload omits `game` still expose the
+      -- exact incoming save, so the one-time ownership repair must not depend
+      -- on game.ready having run first.
+      repairLegacyDexFromStorage(ev.game or ev.save or activeGame)
       archive.reconcileCheckout(ev.save)
       archive.syncProfile(ev.save)
       J.reconcileLegacyRunRules(ev.save)
@@ -3104,6 +3296,10 @@ return function(mod, opts)
   function J.syncPartner(save)
     return archive.syncPartner and archive.syncPartner(save) or true
   end
+
+  J.withdrawAllToBoxes = withdrawAllToBoxes
+  J.withdrawRowsToBoxes = withdrawRowsToBoxes
+  J.repairLegacyDexFromStorage = repairLegacyDexFromStorage
 
   function J.syncHevoPersistent(save)
     return archive.syncHevoPersistent

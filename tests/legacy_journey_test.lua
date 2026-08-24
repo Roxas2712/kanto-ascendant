@@ -152,6 +152,73 @@ local journey = makeJourney(mod, {
   end,
 })
 
+-- Legacy Bank hotfix: bulk PC transfer is preflighted, marks the Pokédex and
+-- the load repair covers physical identities withdrawn by an older build.
+do
+  local originalAvailable = archive.availableMons
+  local leased, released = 0, 0
+  local bankRows = {
+    { id = "LEGACY:A", mon = { species = "PIKACHU", level = 25,
+      __kaLegacyId = "LEGACY:A" } },
+    { id = "LEGACY:B", mon = { species = "EEVEE", level = 25,
+      __kaLegacyId = "LEGACY:B" } },
+  }
+  archive.availableMons = function() return bankRows end
+  archive.leaseMon = function(_, id)
+    leased = leased + 1
+    for _, row in ipairs(bankRows) do
+      if row.id == id then return archive.copy(row.mon) end
+    end
+  end
+  archive.releaseLease = function() released = released + 1 return true end
+  local bulkGame = {
+    save = { party = {}, currentBox = 1,
+      pokedex = { seen = {}, owned = {} } },
+    data = { pokemon = { PIKACHU = {}, EEVEE = {} } },
+    writeSave = function() return true end,
+  }
+  local transferred, transferText, transferCount =
+    journey.withdrawAllToBoxes(bulkGame)
+  ok(transferred and transferCount == 2
+      and transferText:find("2 POKéMON", 1, true),
+    "bulk Legacy transfer reports the complete PC delivery")
+  eq(#bulkGame.save.boxes[1], 2,
+    "bulk Legacy transfer writes every selected Pokémon to ordinary PC Boxes")
+  ok(bulkGame.save.pokedex.seen.PIKACHU
+      and bulkGame.save.pokedex.owned.PIKACHU
+      and bulkGame.save.pokedex.seen.EEVEE
+      and bulkGame.save.pokedex.owned.EEVEE,
+    "bulk Legacy transfer registers seen and owned Pokédex entries")
+  eq(leased, 2, "bulk Legacy transfer leases each archive identity once")
+  eq(released, 0, "successful bulk transfer keeps the durable live leases")
+
+  bulkGame.save.pokedex = { seen = {}, owned = {} }
+  eq(journey.repairLegacyDexFromStorage(bulkGame), 2,
+    "hotfix load repair finds both already-withdrawn Legacy species")
+  ok(bulkGame.save.pokedex.owned.PIKACHU
+      and bulkGame.save.pokedex.owned.EEVEE,
+    "hotfix load repair restores missing Legacy Pokédex ownership")
+
+  local fullSave = { party = {}, currentBox = 1,
+    boxes = {}, pokedex = { seen = {}, owned = {} } }
+  for box = 1, 12 do
+    fullSave.boxes[box] = {}
+    for slot = 1, 20 do
+      fullSave.boxes[box][slot] = { species = "PIKACHU" }
+    end
+  end
+  local beforeLease = leased
+  local fullOk, fullWarning = journey.withdrawAllToBoxes({
+    save = fullSave, data = bulkGame.data, writeSave = function() return true end,
+  })
+  ok(not fullOk and fullWarning:find("MORE FREE SLOT", 1, true),
+    "full PC gives a precise warning instead of a partial Legacy transfer")
+  eq(leased, beforeLease,
+    "capacity preflight runs before the first destructive archive lease")
+  archive.availableMons = originalAvailable
+  archive.leaseMon, archive.releaseLease = nil, nil
+end
+
 local chapterSave = {
   player = { name = "LEAF", rival = "BLUE" },
   modData = { kanto_ascendant = {
@@ -710,9 +777,11 @@ styledHub.opts.onChoose(styledHub.items[3])
 local styledBank = styledStates[#styledStates]
 eq(styledBank.opts.ascendantStyle, "firered-storage",
   "Legacy Pokémon Bank uses the shared KASC storage presentation")
+eq(styledBank.items[2].label, "ALL TO PC BOXES",
+  "Legacy Bank exposes the one-action complete PC transfer")
 local normalLocker = archive.locker
 archive.locker = function() return { items = { POTION = 2 }, money = 0 } end
-styledBank.opts.onChoose(styledBank.items[3])
+styledBank.opts.onChoose(styledBank.items[4])
 local styledLocker = styledStates[#styledStates]
 eq(styledLocker.opts.ascendantStyle, "firered-storage",
   "Legacy locker hub uses the shared KASC storage presentation")
@@ -843,11 +912,15 @@ ok(not journey.currentHevoDoorVisit(futureHevo, "RED"),
   "future identity cannot consume Red's final-door visit")
 
 local reconcileBeforeLoad = archiveCalls.reconcile
+activeSave.party = { { species = "PIKACHU", __kaLegacyId = "OLD:JAMES" } }
+activeSave.pokedex = { seen = {}, owned = {} }
 events["save.loaded"]({ save = activeSave })
 events["save.writing"]({ save = activeSave })
 eq(archiveCalls.reconcile, reconcileBeforeLoad + 1,
   "loading reconciles interrupted bank leases exactly once")
 eq(archiveCalls.mark, 1, "first save marks the direct hand-off active")
+ok(activeSave.pokedex.seen.PIKACHU and activeSave.pokedex.owned.PIKACHU,
+  "save-only load payload repairs James-style missing Legacy Pokédex entries")
 
 local migrated = hevoSave(true, "BLUE", true, true)
 local migrationGame = { save = migrated, writes = 0 }

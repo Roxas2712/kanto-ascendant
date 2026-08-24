@@ -1982,16 +1982,24 @@ return function(mod, opts)
       reason = battleArtIdentityOnly
         and "renderer-owns-stage-kasc-owns-selected-identity" or nil,
     }
-    M.voxelResolverStatus = resolverSentinel
-    if overworldBattle.__ascendantStandingTrainerMirror then
-      overworldBattle.__kantoAscendantApprovedTrainerResolver =
+    local installedRelay =
+      overworldBattle.__kantoAscendantApprovedTrainerRelay
+    if type(installedRelay) == "table"
+        and installedRelay.schema == "ka-approved-trainer-relay/v1"
+        and type(installedRelay.wrapper) == "function"
+        and overworldBattle.sideTexture == installedRelay.wrapper then
+      local activeResolver =
         overworldBattle.__kantoAscendantApprovedTrainerResolver
         or resolverSentinel
+      overworldBattle.__kantoAscendantApprovedTrainerResolver = activeResolver
+      M.voxelResolverStatus = activeResolver
       return true
     end
+    M.voxelResolverStatus = resolverSentinel
     local originalSideTexture = overworldBattle.sideTexture
     if type(originalSideTexture) ~= "function" then return false end
-    overworldBattle.sideTexture = function(battle, side)
+    local wrappedSideTexture
+    wrappedSideTexture = function(battle, side)
       -- FULL/staged renderers bypass `player.sprite` when choosing a trainer
       -- source. Yellow's tutorial gets the existing approved Oak standee.
       -- Red/Blue's old man has no approved staged asset and should have been
@@ -2241,9 +2249,17 @@ return function(mod, opts)
       end
       return texture
     end
+    overworldBattle.sideTexture = wrappedSideTexture
     overworldBattle.__ascendantStandingTrainerMirror = true
     overworldBattle.__ascendantStandingTrainerOriginal = originalSideTexture
     overworldBattle.__kantoAscendantApprovedTrainerResolver = resolverSentinel
+    overworldBattle.__kantoAscendantApprovedTrainerRelay = {
+      schema = "ka-approved-trainer-relay/v1",
+      wrapper = wrappedSideTexture,
+      original = originalSideTexture,
+      rendererId = rendererId,
+      rendererVersion = resolverSentinel.rendererVersion,
+    }
     return true
   end
 
@@ -2253,10 +2269,21 @@ return function(mod, opts)
     installVoxelStandingTrainer(game)
   end)
   mod.events:on("save.loaded", function(ev)
-    refreshVisuals(ev and ev.game or activeGame)
+    local game = ev and ev.game or activeGame
+    refreshVisuals(game)
+    -- Renderer 2.x may recreate its public source seam while a slot is
+    -- loading.  A boolean marker can survive that replacement and previously
+    -- make us trust a wrapper that was no longer installed, which enlarged
+    -- the native 64px trainer picture.  Re-check the exact function identity
+    -- and rebind the approved HD resolver when necessary.
+    installVoxelStandingTrainer(game)
   end)
   mod.events:on("map.entered", function()
     refreshVisuals(activeGame)
+    -- Also cover renderers whose game.ready callback runs after ours. Every
+    -- trainer battle begins from a live map, and the identity check makes
+    -- this a no-op while the approved wrapper is already current.
+    installVoxelStandingTrainer(activeGame)
   end)
   mod.events:on("mod.options_changed", function(ev)
     if ev and ev.mod == mod.id and (ev.key == "character_sprite_style"

@@ -1,6 +1,6 @@
 # Kanto Ascendant FAQ and Spoiler Guide
 
-This is the public reference for **Kanto Ascendant 6.5.16**. It applies to Red,
+This is the public reference for **Kanto Ascendant 6.5.17**. It applies to Red,
 Blue and Yellow and is maintained from the current mod code, release
 documentation and confirmed support reports.
 
@@ -40,7 +40,7 @@ breeding, shinies, Mega Evolution, Gorochu and a large Hall-of-Fame post-game.
 <summary><strong>⚠️ SPOILER — How do I install or update it?</strong></summary>
 
 1. Download the release `.zip` from the
-   [6.5.16 GitHub release](https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.5.16).
+   [6.5.17 GitHub release](https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.5.17).
 2. Import it through the Gen 1 Recomp launcher.
 3. Use Gen 1 Recomp **0.1.90** or newer. Disable every package the manager reports as a
    conflict, then enable **Kanto Ascendant** and restart.
@@ -444,6 +444,22 @@ farewell movement during that map handoff. Without this cancellation, the old
 off-map actor could never finish its movement and the engine continued to
 treat the field as scripted, blocking movement and the menu even though the
 controller lock itself had been released.
+
+</details>
+
+<details>
+<summary><strong>Why did Voxel battles enlarge pixelated trainer fronts although KASC includes HD art?</strong></summary>
+
+The authored 128px combat-front files were present. A renderer lifecycle
+reload could replace its public trainer-source function while leaving an old
+boolean KASC marker set. KASC then assumed its HD resolver was still active,
+and VASC enlarged the native 64px trainer picture instead.
+
+Version 6.5.17 verifies the exact installed wrapper function on save load and
+rebinds the approved HD source when that public seam changed. The small
+companion sprites remain packaged for native 2D and safe fallback use; they
+are not selected as staged KASC combat fronts while the supported public
+renderer contract is active.
 
 </details>
 
@@ -1857,6 +1873,14 @@ slots are occupied, and later capacity continues to grow automatically.
 A red `X` marks a Bank Pokémon whose current-run or Beyond-Kanto rule blocks
 withdrawal. Selecting it opens the complete bilingual reason; the Pokémon
 remains stored and cannot be bypassed by moving it to another Bank slot.
+
+Version 6.5.17 adds **ALL TO PC BOXES / ALLE IN PC-BOXEN** to the Bank menu.
+It checks all ordinary PC Boxes before the first withdrawal and changes
+nothing if there is not enough room. In the FireRed Legacy organizer, START
+marks or unmarks Pokémon across Bank pages and A opens one action for the full
+selection. Every withdrawal registers seen and owned Pokédex data; loading the
+hotfix also repairs missing entries for older Legacy withdrawals still in the
+Party or PC storage.
 
 Choose `KANTO ASCENDANT` under **PC INTERFACE** for the former blue/cream
 layout, or `GAME DEFAULT` for the untouched engine PC. A missing/damaged

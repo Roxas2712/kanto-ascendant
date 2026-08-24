@@ -1508,6 +1508,7 @@ return function(mod, opts)
     local state = {
       game = game, adapter = adapter, zone = "bank", bankBox = 1,
       bankIndex = 1, partyIndex = 1, rows = {}, slots = {}, slide = 0,
+      selected = {},
       isOpaque = true, letterboxWhite = true,
       __ascendantFireRedOrganizer = true,
       __ascendantLegacyBankOrganizer = true,
@@ -1550,6 +1551,20 @@ return function(mod, opts)
       return self.slots[self:globalIndex(slot)]
     end
 
+    function state:selectedRows()
+      local rows = {}
+      for _, row in ipairs(self.rows or {}) do
+        if row and row.id and self.selected[row.id] then
+          rows[#rows + 1] = row
+        end
+      end
+      return rows
+    end
+
+    function state:selectedCount()
+      return #self:selectedRows()
+    end
+
     local function bankMessage(self, text)
       self.message = tostring(text or "")
       self.messageTime = 2.4
@@ -1590,7 +1605,10 @@ return function(mod, opts)
       end
       text = text or (self.zone == "party"
         and tr("A:STORE  SELECT:BANK", "A:ABLG  SELECT:BANK")
-        or tr("A:TAKE  SELECT:PARTY", "A:NEHM  SELECT:TEAM"))
+        or self:selectedCount() > 0
+          and tr(("START:MARK  A:ACTIONS %d"):format(self:selectedCount()),
+            ("START:MARK. A:AKTION %d"):format(self:selectedCount()))
+          or tr("A:TAKE START:MARK", "A:NEHM START:MARK."))
       color(C.ink)
       drawFittedFireRedText(text, 87, FRLG_HELP_Y + 4, 148)
     end
@@ -1611,6 +1629,11 @@ return function(mod, opts)
             love.graphics.rectangle("fill", x + 8, y - 11, 7, 7)
             color(C.white)
             Font.draw("X", x + 9, y - 10)
+          elseif self.selected[row.id] then
+            color(C.blue3)
+            love.graphics.rectangle("fill", x + 8, y - 11, 7, 7)
+            color(C.white)
+            Font.draw("+", x + 8, y - 10)
           end
         end
       end
@@ -1699,6 +1722,43 @@ return function(mod, opts)
       bankMessage(self, tr("BANK UPDATED", "BANK AKTUALISIERT"))
     end
 
+    local function toggleBankSelection(self)
+      if self.zone ~= "bank" or self.carry then return false end
+      local row = self:bankRow()
+      if not row then
+        bankMessage(self, tr("EMPTY SLOT", "LEERER PLATZ"))
+        return true
+      end
+      if row.withdrawBlocked then
+        if type(self.adapter.showLocked) == "function" then
+          self.adapter.showLocked(row)
+        end
+        bankMessage(self, bankLockFooter(row.withdrawReason))
+        return true
+      end
+      self.selected[row.id] = not self.selected[row.id] or nil
+      bankMessage(self, self.selected[row.id]
+        and tr("POKéMON MARKED", "POKéMON MARKIERT")
+        or tr("MARK REMOVED", "MARKIERUNG ENTFERNT"))
+      return true
+    end
+
+    local function openSelectedAction(self)
+      local rows = self:selectedRows()
+      if #rows == 0 or type(self.adapter.selectedAction) ~= "function" then
+        return false
+      end
+      self.adapter.selectedAction(rows, function(completed, cancelled)
+        if completed or cancelled then self.selected = {} end
+        self.carry = nil
+        self:refresh()
+        if completed then
+          bankMessage(self, tr("PC BOXES UPDATED", "PC-BOXEN AKTUALISIERT"))
+        end
+      end)
+      return true
+    end
+
     function state:update(dt)
       if self.messageTime then
         self.messageTime = self.messageTime - (tonumber(dt) or 0)
@@ -1731,11 +1791,14 @@ return function(mod, opts)
           self.zone == "party" and "bank" or "party")
         return
       end
+      if input:wasPressed("start") then
+        if toggleBankSelection(self) then return end
+      end
       if input:wasPressed("a") then
         if self.zone == "close" then
           self.carry = nil
           self.game.stack:pop()
-        else pickOrDrop(self) end
+        elseif not openSelectedAction(self) then pickOrDrop(self) end
         return
       end
       if self.zone == "close" then

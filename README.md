@@ -53,6 +53,19 @@ collapsed so players can reveal only the information they want.
 > [GitHub Issues](https://github.com/Roxas2712/kanto-ascendant/issues) and will
 > be considered for future updates.
 
+## What's new in 6.5.17
+
+- Adds one-action transfer of every available Legacy Bank Pokémon to ordinary
+  PC Boxes, with a complete capacity preflight and no partial transfer.
+- Adds START multi-selection across Legacy Bank pages, followed by a shared
+  action for the complete selection.
+- Registers every withdrawal in the Pokédex and repairs missing ownership for
+  Legacy Pokémon already present in Party or PC storage.
+- Rebinds KASC's authored HD trainer source when a VASC lifecycle reload has
+  replaced the public source function behind a stale compatibility marker.
+
+See the full spoiler-light [6.5.17 release notes](RELEASE_NOTES_6.5.17.md).
+
 ## What's new in 6.5.16
 
 - Makes the readable FireRed / LeafGreen PC organizer the default, including
@@ -1848,8 +1861,8 @@ ledger prevents duplicate delivery.
 > launcher-compatible `.zip`. A matching `.modpkg` may be retained only as an
 > internal build or verification artifact.
 
-1. Download `kanto_ascendant-6.5.16.zip` from the
-   [6.5.16 release](https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.5.16)
+1. Download `kanto_ascendant-6.5.17.zip` from the
+   [6.5.17 release](https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.5.17)
    and import it through the launcher. Developers may alternatively install
    the checked-out mod directory.
    If you downloaded a complete bundle, extract it first and import the inner
