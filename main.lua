@@ -1079,7 +1079,9 @@ return function(mod)
   end
   if bagMode == "pockets" then
     local installBag = loadSibling(mod, "useful_bag.lua")
-    if type(installBag) == "function" then installBag(mod) end
+    if type(installBag) == "function" then
+      installBag(mod, { i18n = i18n })
+    end
     mod.exports.externalUsefulBag = false
   elseif bagMode ~= "off" then
     -- Reclaim the Bag screen from an installed standalone Useful Bag while

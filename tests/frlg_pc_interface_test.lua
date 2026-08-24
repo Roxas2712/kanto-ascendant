@@ -13,7 +13,8 @@ local options = {
   sprite_style_box = true,
 }
 local atlasPath = "assets/ui/frlg_pc/interface.png"
-local draws, quads, handPolygons = {}, {}, 0
+local draws, quads, handPolygons, fontDraws = {}, {}, 0, {}
+local language = "en"
 local loadedImagePaths, spriteRequests = {}, {}
 
 love = { graphics = {} }
@@ -60,7 +61,7 @@ package.preload["src.render.Font"] = function()
     spansFitting = function(spans, width)
       return math.min(#spans, math.floor(width / 8))
     end,
-    draw = function() end,
+    draw = function(text) fontDraws[#fontDraws + 1] = tostring(text) end,
     drawCode = function() end,
   }
 end
@@ -129,8 +130,8 @@ local mod = {
 }
 assert(loadfile(root .. "/modern_storage_ui.lua"))()(mod, {
   i18n = {
-    isGerman = function() return false end,
-    text = function(en) return en end,
+    isGerman = function() return language == "de" end,
+    text = function(en, de) return language == "de" and de or en end,
   },
 })
 local ui = assert(mod.exports.modernStorageUi)
@@ -256,6 +257,12 @@ local rootMenu = Menu.new(game, {
 })
 assert(rootMenu.__ascendantFireRedPcRoot == true,
   "Pokémon Center PC root did not receive FRLG chrome")
+while #pushed > 0 do table.remove(pushed) end
+pushed[#pushed + 1] = rootMenu
+local accessPrompt = TextBox.new(game, "Accessed BILL's PC.")
+assert(accessPrompt.__ascendantFireRedPcAccessPrompt
+    and accessPrompt.isOpaque == true and accessPrompt.uiSize == nil,
+  "terminal access text still double-scaled the FRLG root underneath")
 local itemMenu = ListMenu.new(game, "WITHDRAW ITEM", items, { messageBox = true })
 assert(itemMenu.__ascendantFireRedItemPc == true,
   "player item storage did not receive FRLG chrome")
@@ -277,12 +284,33 @@ assert(organizer and organizer.uiSize and organizer.update and organizer.draw,
 local ow, oh = organizer:uiSize()
 assert(ow == 480 and oh == 320, "live organizer surface drifted")
 organizer:draw()
+local pressed = {}
+game.input.wasPressed = function(_, key) return pressed[key] == true end
+
+-- Fixed English pixels in the source atlas are overpainted only in German.
+-- The authentic panel/button frames remain, while all visible controls speak
+-- the active game's language.
+language = "de"
+fontDraws = {}
+organizer:draw()
+local localized = table.concat(fontDraws, "\n")
+assert(localized:find("PKMN%-DAT%.") and localized:find("TEAM", 1, true)
+    and localized:find("BOX ZU", 1, true),
+  "German FRLG chrome still leaked baked English panel/button captions")
+organizer.zone, organizer.boxIndex = "box", 20
+pressed = { a = true }
+organizer:update(1 / 60)
+pressed = {}
+fontDraws = {}
+organizer:draw()
+assert(table.concat(fontDraws, "\n"):find("LEERER PLATZ", 1, true),
+  "German organizer help remained English")
+language = "en"
+organizer.zone, organizer.boxIndex = "box", 1
 
 -- The Box tab changes Box and wallpaper as navigation: no cartridge-era
 -- save confirmation and no forced write. A carried mon remains attached to
 -- the hand while browsing and can be committed into a different Box.
-local pressed = {}
-game.input.wasPressed = function(_, key) return pressed[key] == true end
 organizer.zone, organizer.boxIndex = "box", 1
 local crossBoxMon = game.save.boxes[1][1]
 pressed = { a = true }

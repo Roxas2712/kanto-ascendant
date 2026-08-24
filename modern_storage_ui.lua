@@ -789,6 +789,14 @@ return function(mod, opts)
   local function drawFireRedData(mon, game)
     drawAtlasRegion("data-panel", PC_ATLAS_REGIONS.dataPanel,
       0, 0, 80, 160)
+    if german() then
+      -- PKMN DATA is baked into the English source sheet. Repaint only its
+      -- small title plaque; the rest of the authentic panel remains intact.
+      color({ .57, .57, .66, 1 })
+      love.graphics.rectangle("fill", 4, 1, 72, 10)
+      color(C.ink)
+      Font.draw("PKMN-DAT.", 4, 2)
+    end
     if not mon then return end
 
     drawMonImage(game, mon, 7, 18, 66, 72)
@@ -833,6 +841,23 @@ return function(mod, opts)
       82, 1, 76, 20)
     drawAtlasRegion("close-button", PC_ATLAS_REGIONS.closeBox,
       170, 1, 69, 20)
+    if german() then
+      -- These two captions are also pixels in the atlas. Keep the sampled
+      -- frames, but give the German game readable labels instead of leaking
+      -- PARTY POKéMON / CLOSE BOX from the English reference sheet.
+      color(party and C.green or C.blue2)
+      love.graphics.rectangle("fill", 85, 4, 70, 13)
+      color(C.blue3)
+      love.graphics.rectangle("line", 85.5, 4.5, 69, 12)
+      color(C.white)
+      Font.draw("TEAM", 104, 7)
+      color(C.blue2)
+      love.graphics.rectangle("fill", 173, 4, 63, 13)
+      color(C.blue3)
+      love.graphics.rectangle("line", 173.5, 4.5, 62, 12)
+      color(C.white)
+      Font.draw("BOX ZU", 181, 7)
+    end
     if party then
       -- The selected green PARTY POKéMON artwork is already sampled above.
       -- A small hand on the button is the original FRLG focus language.
@@ -1993,6 +2018,27 @@ return function(mod, opts)
       or top.__ascendantFireRedOrganizer) or false
   end
 
+  -- Access messages are created while the terminal root is still on the
+  -- stack, before BoxMenu/PlayerPC is pushed. They are not organizer overlays:
+  -- treating them as such leaves the 2x PC root visible below a second scaled
+  -- classic TextBox. Return the nearest actual owner so that one transition
+  -- can stay on the normal 160x144 surface without weakening real Box prompts.
+  local function fireRedPcOwner(game)
+    local states = game and game.stack and game.stack.states or {}
+    for index = #states, 1, -1 do
+      local state = states[index]
+      if state and state.__ascendantFireRedPcRoot then return "terminal" end
+      if state and (state.__ascendantBoxGrid
+          or state.__ascendantFireRedBoxRoot
+          or state.__ascendantFireRedOrganizer
+          or state.__ascendantFireRedPcOverlay) then
+        return "storage"
+      end
+      if state and state.isOpaque then break end
+    end
+    return nil
+  end
+
   local function isStorageMonSubmenu(items)
     local sawStats, sawBack, sawAction = false, false, false
     for _, item in ipairs(items or {}) do
@@ -2078,9 +2124,16 @@ return function(mod, opts)
     TextBox.__ascendantFireRedPcOverlay = true
     local newTextBox = TextBox.new
     TextBox.new = function(game, ...)
-      local wide = useFireRedPc(game) and fireRedPcStackActive(game)
+      local owner = useFireRedPc(game) and fireRedPcOwner(game) or nil
+      local wide = owner == "storage"
       local textBox = newTextBox(game, ...)
-      if wide then
+      if owner == "terminal" then
+        -- Hide the terminal menu for its short cartridge access message. The
+        -- callback then opens the 480x320 Box surface in one clean transition.
+        textBox.isOpaque = true
+        textBox.letterboxWhite = true
+        textBox.__ascendantFireRedPcAccessPrompt = true
+      elseif wide then
         textBox.__ascendantFireRedPcOverlay = true
         textBox.uiSize = fireRedUiSize
         textBox.sgbPalettes = fireRedTrueColor

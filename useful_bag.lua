@@ -814,14 +814,15 @@ end
 
 -- ------------------------------------------------ entry chunk
 
-return function(mod)
+return function(mod, opts)
+  opts = opts or {}
   local skinBody, skinReadError = mod:read("fire_red_bag_skin.lua")
   assert(type(skinBody) == "string", skinReadError
     or "unable to read fire_red_bag_skin.lua")
   local skinChunk, skinLoadError = loadstring(skinBody,
     "@" .. mod.path .. "/fire_red_bag_skin.lua")
   assert(skinChunk, skinLoadError)
-  local fireRedSkin = skinChunk()(mod)
+  local fireRedSkin = skinChunk()(mod, { i18n = opts.i18n })
 
   -- Each open Bag is an independent interaction session (the field and battle
   -- bags can coexist briefly in harnesses/compat flows). R3 targets the most

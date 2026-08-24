@@ -140,7 +140,11 @@ end } }
 mod.events = { on = function(_, name, fn)
   if name == "game.ready" then ready = fn end
 end }
-assert(loadfile(modDir .. "/useful_bag.lua"))()(mod)
+assert(loadfile(modDir .. "/useful_bag.lua"))()(mod, {
+  i18n = {
+    text = function(en, de) return language == "de" and de or en end,
+  },
+})
 check(screen and ready, "Useful Bag installed screen and ready callback")
 
 local function makeGame(inventory, order)
@@ -374,6 +378,21 @@ language = "de"
 local germanGame = makeGame({ A_ITEM = 1, M_ITEM = 2 },
   { "A_ITEM", "M_ITEM" })
 local germanBag = pushBag(germanGame)
+-- The skin receives the locale directly as well as through the decorated
+-- list, so a wrapper-order difference cannot turn its help chrome English.
+local germanListTranslator = germanBag.__ascendantTr
+germanBag.__ascendantTr = nil
+tap(germanBag, "start")
+local germanHelp = germanGame.stack:top()
+eq(germanHelp.helpLabel, "HILFE", "German Bag help title is localized")
+eq(germanHelp.closeLabel, "A/B: ZURÜCK",
+  "German Bag help close hint is localized")
+local germanHelpBody = table.concat(germanHelp.lines, " ")
+check(germanHelpBody:find("Ein Item", 1, true) ~= nil
+    and germanHelpBody:find("nutzbarem", 1, true) ~= nil,
+  "German Bag help body is localized: " .. germanHelpBody)
+germanGame.stack:pop()
+germanBag.__ascendantTr = germanListTranslator
 actions = openActions(germanBag)
 eq(actions.title, "ITEM-AKTIONEN", "German action title is localized")
 eq(row(actions, "move").fullLabel, "ITEM VERSCHIEBEN",

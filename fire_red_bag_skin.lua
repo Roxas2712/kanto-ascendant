@@ -4,7 +4,9 @@
 -- already contains KASC's FIELD KIT, Quick Select, SELECT move, battle-item,
 -- USE/TOSS and safety callbacks; none of those callbacks are replaced here.
 
-return function(mod)
+return function(mod, opts)
+  opts = opts or {}
+  local i18n = opts.i18n
   local Font = require("src.render.Font")
   local Theme = require("src.ui.Theme")
 
@@ -47,6 +49,10 @@ return function(mod)
   end
 
   local function tr(list, en, de)
+    if i18n and type(i18n.text) == "function" then
+      local ok, value = pcall(i18n.text, en, de)
+      if ok and type(value) == "string" then return value end
+    end
     local translate = list and list.__ascendantTr
     if type(translate) == "function" then
       local ok, value = pcall(translate, en, de)
@@ -183,6 +189,8 @@ return function(mod)
       game = game,
       title = item.label or tostring(item.value or "ITEM"),
       lines = wrap(description(list, item), 16),
+      helpLabel = tr(list, "HELP", "HILFE"),
+      closeLabel = tr(list, "A/B: BACK", "A/B: ZURÜCK"),
       time = 0,
       __kascBagHelp = true,
     }
@@ -201,7 +209,7 @@ return function(mod)
       if not g then return end
       Font.drawBox(1, 3, 18, 11)
       color(g, C.ink)
-      Font.draw(tr(list, "HELP", "HILFE"), 16, 32)
+      Font.draw(self.helpLabel, 16, 32)
       color(g, C.blueDark); g.rectangle("fill", 16, 43, 128, 1)
       color(g, C.ink); Font.draw(truncate(self.title, 128), 16, 48)
       local viewportY, viewportH = 62, 29
@@ -213,7 +221,7 @@ return function(mod)
       end
       if g.setScissor then g.setScissor() end
       color(g, C.blueDark)
-      Font.draw(tr(list, "A/B: BACK", "A/B: ZURÜCK"), 16, 96)
+      Font.draw(self.closeLabel, 16, 96)
       color(g, C.white)
     end
     return overlay
