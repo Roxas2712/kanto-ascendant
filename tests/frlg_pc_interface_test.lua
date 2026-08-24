@@ -9,7 +9,8 @@ local options = {
   legacy_bank_interface_style = "follow_pc",
   box_grid_icon_style = "current",
   fast_box_switch = true,
-  ascendant_useful_bag = false,
+  ascendant_useful_bag = true,
+  ascendant_bag_mode = "skin",
   pokemon_sprite_style = "crystal",
   sprite_style_box = true,
 }
@@ -138,6 +139,9 @@ assert(loadfile(root .. "/modern_storage_ui.lua"))()(mod, {
   },
 })
 local ui = assert(mod.exports.modernStorageUi)
+local classicBag = BagMenu.new({})
+assert(classicBag.__ascendantModernBag == nil,
+  "KASC Bag skin was overwritten by the FireRed pockets renderer")
 local game = {
   data = { pokemon = { PIKACHU = { name = "PIKACHU", dex = 25 } } },
   save = {

@@ -1987,10 +1987,12 @@ return function(mod, opts)
   end
 
   -- The integrated Useful Bag still owns item behavior and pockets. This
-  -- wrapper replaces only the inherited monochrome ListMenu renderer.
+  -- wrapper replaces only its inherited renderer in the explicit FireRed
+  -- pockets mode. KASC SKIN and KASC 999 SKIN must retain ascendant_ui's
+  -- established blue/cream Bag instead of being painted over here.
   local mode = bagMode()
   if not mod.exports.externalUsefulBag
-      and (mode == "skin" or mode == "expanded" or mode == "pockets") then
+      and mode == "pockets" then
     local okBag, BagMenu = pcall(require, "src.ui.BagMenu")
     if okBag and BagMenu and not BagMenu.__ascendantModernStorage then
       BagMenu.__ascendantModernStorage = true
