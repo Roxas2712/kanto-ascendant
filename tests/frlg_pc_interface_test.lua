@@ -300,16 +300,16 @@ assert(separatedHelp,
 local pressed = {}
 game.input.wasPressed = function(_, key) return pressed[key] == true end
 
--- PKMN DATA is readable original FireRed artwork and must never be covered.
--- Only the two actionable buttons receive compact German captions.
+-- The full FireRed chrome is original atlas artwork in every language. Local
+-- help and action text still follows the selected game language.
 language = "de"
 fontDraws = {}
 organizer:draw()
 local localized = table.concat(fontDraws, "\n")
 assert(not localized:find("PKMN%-DAT%.")
-    and localized:find("TEAM", 1, true)
-    and localized:find("BOX ZU", 1, true),
-  "German FRLG chrome covered PKMN DATA or missed a button caption")
+    and not localized:find("TEAM", 1, true)
+    and not localized:find("BOX ZU", 1, true),
+  "German FRLG chrome covered original atlas captions")
 organizer.zone, organizer.boxIndex = "box", 20
 pressed = { a = true }
 organizer:update(1 / 60)

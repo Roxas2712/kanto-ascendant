@@ -809,25 +809,6 @@ return function(mod, opts)
       or title:find("TEAM", 1, true) ~= nil
   end
 
-  -- The German translation uses an 11px TTF while the sampled FireRed button
-  -- plaques were authored for 8px tile glyphs. Scale only the two replacement
-  -- button captions; PKMN DATA remains untouched original atlas artwork.
-  local function drawFireRedPlaqueCaption(text, x, y, budget)
-    text = tostring(text or "")
-    local scale = german() and .7 or 1
-    local width = Font.width(text)
-    if width * scale > budget then scale = budget / math.max(1, width) end
-    if scale >= .995 or not (love.graphics.push and love.graphics.pop
-        and love.graphics.translate and love.graphics.scale) then
-      return Font.draw(truncate(text, budget), x, y)
-    end
-    love.graphics.push()
-    love.graphics.translate(x, y)
-    love.graphics.scale(scale, scale)
-    Font.draw(text, 0, 0)
-    love.graphics.pop()
-  end
-
   local function drawFireRedData(mon, game)
     drawAtlasRegion("data-panel", PC_ATLAS_REGIONS.dataPanel,
       0, 0, 80, 160)
@@ -875,23 +856,6 @@ return function(mod, opts)
       82, 1, 76, 20)
     drawAtlasRegion("close-button", PC_ATLAS_REGIONS.closeBox,
       170, 1, 69, 20)
-    if german() then
-      -- These two captions are also pixels in the atlas. Keep the sampled
-      -- frames, but give the German game readable labels instead of leaking
-      -- PARTY POKéMON / CLOSE BOX from the English reference sheet.
-      color(party and C.green or C.blue2)
-      love.graphics.rectangle("fill", 85, 4, 70, 13)
-      color(C.blue3)
-      love.graphics.rectangle("line", 85.5, 4.5, 69, 12)
-      color(C.white)
-      drawFireRedPlaqueCaption("TEAM", 106, 7, 48)
-      color(C.blue2)
-      love.graphics.rectangle("fill", 173, 4, 63, 13)
-      color(C.blue3)
-      love.graphics.rectangle("line", 173.5, 4.5, 62, 12)
-      color(C.white)
-      drawFireRedPlaqueCaption("BOX ZU", 184, 7, 46)
-    end
     if party then
       -- The selected green PARTY POKéMON artwork is already sampled above.
       -- A small hand on the button is the original FRLG focus language.
