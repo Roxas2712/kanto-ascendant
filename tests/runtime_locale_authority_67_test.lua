@@ -207,7 +207,10 @@ local function runCase(edition, case)
   local bucket = {
     language = case.stale and "de" or nil,
     catch_destination = "ask",
-    modern_storage_ui = false,
+    -- Keep the storage helper enabled while exercising its runtime-locale
+    -- authority.  Setting the saved master switch to false correctly yields
+    -- to the engine-owned PC and therefore cannot test Ascendant's labels.
+    modern_storage_ui = true,
     status_values = "dv",
   }
   local game = {
