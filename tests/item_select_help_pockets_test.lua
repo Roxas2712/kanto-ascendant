@@ -62,7 +62,15 @@ assert(loadfile(modDir .. "/ascendant_bag.lua"))()({}, {
 local ready
 local screen
 local mod = {
+  path = modDir,
   exports = {},
+  read = function(_, relative)
+    local file = assert(io.open(modDir .. "/" .. relative, "rb"))
+    local body = file:read("*a")
+    file:close()
+    return body
+  end,
+  assets = { image = function() return nil end },
   content = { screens = { override = function(_, id, factory)
     T.eq(id, "BagMenu", "Useful Bag owns only BagMenu")
     screen = factory
@@ -103,8 +111,9 @@ T.check(table.concat(game.save.bagOrder, ",") ~= beforeOrder,
 edge = "start"
 bag:update(0)
 edge = nil
-T.eq(helpCount, 1, "START opens item help in pocket mode")
-T.check(game.stack:top().__help, "START pushed the help state")
+T.eq(helpCount, 0, "FireRed START help stays on its own wide overlay")
+T.check(game.stack:top().__kascBagHelp,
+  "START pushed the FireRed item-help state")
 game.stack:pop()
 
 -- R3 remains an optional controller shortcut to the extended action screen.

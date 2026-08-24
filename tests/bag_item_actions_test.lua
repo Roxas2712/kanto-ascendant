@@ -70,7 +70,15 @@ local inputHook
 local ListMenu = require("src.ui.ListMenu")
 local mod = {
   id = "trainer_rematch",
+  path = modDir,
   exports = {},
+  read = function(_, relative)
+    local file = assert(io.open(modDir .. "/" .. relative, "rb"))
+    local body = file:read("*a")
+    file:close()
+    return body
+  end,
+  assets = { image = function() return nil end },
   find = function() return nil end,
   options = { get = function(_, key)
     if key == "language" then return language end
@@ -211,8 +219,8 @@ eq(bag.__ascendantBagSecondary, "move",
 local untouched = inventorySnapshot(fieldGame.save.inventory)
 local beforeHelpOrder = joined(fieldGame.save.bagOrder)
 tap(bag, "start")
-check(fieldGame.stack:top().__help and helpCount == 1,
-  "START directly opens item help")
+check(fieldGame.stack:top().__kascBagHelp and helpCount == 0,
+  "START opens the readable FireRed item-help overlay")
 fieldGame.stack:pop()
 eq(joined(fieldGame.save.bagOrder), beforeHelpOrder,
   "START help never reorders items")

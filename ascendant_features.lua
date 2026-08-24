@@ -33,10 +33,16 @@ return function(mod, opts)
         { key = "ascendant_bag_mode", en = "BAG MODE", de = "BEUTEL",
           values = {
             { "off", "OFF / EXTERNAL", "AUS / EXTERN" },
-            { "standard", "GAME STANDARD", "SPIELSTANDARD" },
-            { "skin", "STANDARD SKIN", "STANDARD-SKIN" },
-            { "expanded", "999 SKIN", "999-SKIN" },
-            { "pockets", "999 POCKETS", "999 FÄCHER" },
+            { "standard", "GAME DEFAULT", "SPIELSTANDARD" },
+            { "skin", "KASC SKIN", "KASC-SKIN" },
+            { "expanded", "KASC 999 SKIN", "KASC-999-SKIN" },
+            { "pockets", "FIRERED 999 POCKETS", "FIRERED-999-FÄCHER" },
+          } },
+        { key = "pc_interface_style", en = "PC INTERFACE",
+          de = "PC-OBERFLÄCHE", values = {
+            { "firered", "FIRERED / LEAFGREEN", "FIRERED / LEAFGREEN" },
+            { "ascendant", "KANTO ASCENDANT", "KANTO ASCENDANT" },
+            { "default", "GAME DEFAULT", "SPIELSTANDARD" },
           } },
         { key = "catch_destination", en = "CATCH DEST.", de = "FANGZIEL",
           values = {

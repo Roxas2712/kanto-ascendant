@@ -162,8 +162,8 @@ return function(i18n)
       "Master switch for Ascendant's enhanced Bag support. The detailed layout is selected with BAG MODE.",
       "Hauptschalter für Ascendants erweiterten Beutel. Die genaue Aufteilung wird mit BEUTELMODUS gewählt.", true },
     ascendant_bag_mode = {
-      "Chooses vanilla capacity, FireRed skin, expanded capacity or categorized pockets. OFF hands the Bag back to an external compatible owner.",
-      "Wählt Standardgröße, Feuerrot-Skin, mehr Platz oder sortierte Fächer. AUS übergibt den Beutel an einen kompatiblen externen Besitzer.", true },
+      "Chooses the Bag's complete presentation and capacity. FIRERED POCKETS is the new default and preserves six pockets, 999 slots, Field Kit, Quick Select, battle filtering, item moving and protection. KASC SKIN retains the previous layout; GAME DEFAULT yields to the engine Bag. OFF hands ownership to an external compatible mod.",
+      "Wählt Darstellung und Kapazität des Beutels. FIRERED-FÄCHER ist der neue Standard und behält sechs Fächer, 999 Plätze, Feld-Kit, Schnellwahl, Kampffilter, Item-Verschieben und Schutzregeln. KASC-SKIN behält die bisherige Ansicht; SPIELSTANDARD übergibt an den Engine-Beutel. AUS übergibt an eine kompatible externe Mod.", true },
     ascendant_quick_select = {
       "Enables the Field Kit shortcut. Tap SELECT to use the assigned favorite tool; hold SELECT to open the full Field Kit. In the Field Kit, A uses a tool, SELECT makes it the favorite and B closes the menu.",
       "Aktiviert das Feld-Kit-Kürzel. SELECT kurz nutzt das festgelegte Lieblingswerkzeug; SELECT halten öffnet das ganze Feld-Kit. Im Feld-Kit nutzt A ein Werkzeug, SELECT macht es zum Favoriten und B schließt das Menü." },
@@ -183,8 +183,11 @@ return function(i18n)
       "Shows the current place name after entering a map and selects how many seconds it remains visible.",
       "Zeigt nach Betreten einer Karte den Ortsnamen und bestimmt, wie viele Sekunden er sichtbar bleibt." },
     modern_storage_ui = {
-      "Uses Ascendant's FireRed-inspired Bag, Box and Pokémon information layout instead of the plain Gen-I menus.",
-      "Verwendet Ascendants von Feuerrot inspirierte Beutel-, Box- und Pokémon-Ansicht statt der schlichten Gen-I-Menüs.", true },
+      "Master switch for Kanto Ascendant menu skins. OFF preserves the previous behavior and yields PC/storage presentation to the engine after restart.",
+      "Hauptschalter für Kanto-Ascendant-Menü-Skins. AUS behält das bisherige Verhalten und übergibt PC/Lagerung nach einem Neustart an die Engine.", true },
+    pc_interface_style = {
+      "Chooses the PC presentation. FIRERED / LEAFGREEN is the new default with live Box wallpapers, party view and cross-Box moving. KANTO ASCENDANT restores the previous blue/cream layout. GAME DEFAULT yields to the untouched engine PC. Missing FireRed artwork falls back safely to Kanto Ascendant.",
+      "Wählt die PC-Darstellung. FIRERED / LEAFGREEN ist der neue Standard mit wechselnden Box-Hintergründen, Teamansicht und Verschieben durch mehrere Boxen. KANTO ASCENDANT stellt die bisherige blau-cremefarbene Ansicht wieder her. SPIELSTANDARD nutzt den unveränderten Engine-PC. Fehlende FireRed-Grafik fällt sicher auf Kanto Ascendant zurück." },
     box_grid_icon_style = {
       "Chooses the small icons in the right-hand 5 by 4 storage grid. CURRENT keeps the existing Box art; HGSS WALKERS uses the bundled 16-pixel walking sprites when an exact species asset is available. The large preview on the left never changes.",
       "Wählt die kleinen Icons im rechten 5-mal-4-Boxraster. AKTUELL behält die bisherige Boxgrafik; HGSS-BEGLEITER nutzt die enthaltenen 16-Pixel-Laufsprites, wenn für die genaue Art eine Grafik vorhanden ist. Die große Vorschau links bleibt immer unverändert." },

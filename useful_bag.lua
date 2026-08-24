@@ -68,6 +68,11 @@ local POCKETS = {
   { id = "key",      label = "KEY ITEMS" },
 }
 
+local POCKET_LABELS_DE = {
+  items = "ITEMS", medicine = "MEDIZIN", balls = "POKéBÄLLE",
+  tms = "TMs / VMs", battle = "KAMPFITEMS", key = "BASIS-ITEMS",
+}
+
 local POCKET_INDEX = {}
 for i, p in ipairs(POCKETS) do POCKET_INDEX[p.id] = i end
 
@@ -543,7 +548,8 @@ local function decorate(list, game, session, opts)
       end
     end
     list.items, list.__pocketIds = items, ids
-    list.title = pocket.label
+    list.title = bagTr(list, pocket.label,
+      POCKET_LABELS_DE[pocket.id] or pocket.label)
     if curId then
       for i, id in ipairs(ids) do
         if id == curId then list.index = i break end
@@ -809,6 +815,14 @@ end
 -- ------------------------------------------------ entry chunk
 
 return function(mod)
+  local skinBody, skinReadError = mod:read("fire_red_bag_skin.lua")
+  assert(type(skinBody) == "string", skinReadError
+    or "unable to read fire_red_bag_skin.lua")
+  local skinChunk, skinLoadError = loadstring(skinBody,
+    "@" .. mod.path .. "/fire_red_bag_skin.lua")
+  assert(skinChunk, skinLoadError)
+  local fireRedSkin = skinChunk()(mod)
+
   -- Each open Bag is an independent interaction session (the field and battle
   -- bags can coexist briefly in harnesses/compat flows). R3 targets the most
   -- recently opened list; START is handled by that list as item help.
@@ -840,6 +854,7 @@ return function(mod)
       local VanillaBagMenu = require("src.ui.BagMenu")
       local session = newSession()
       local list = decorate(VanillaBagMenu.new(game, opts), game, session, opts)
+      list = fireRedSkin.decorate(list, game, POCKETS)
       currentSession = session
       return list
     end,
@@ -957,6 +972,7 @@ return function(mod)
     tickerOffset = tickerOffset,
     labelForItem = labelForItem,
     tickerFor = tickerFor,
+    fireRedHelpOffset = fireRedSkin.helpOffset,
   }
   for key, value in pairs(bagExports) do mod.exports[key] = value end
 end

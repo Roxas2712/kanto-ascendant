@@ -45,7 +45,7 @@ local detailed = {
   "ascendant_useful_bag", "ascendant_bag_mode",
   "ascendant_quick_select", "ascendant_qol",
   "qol_exp_bar", "qol_caught_indicator", "qol_easy_interactions",
-  "qol_location_banners", "modern_storage_ui", "catch_destination",
+  "qol_location_banners", "modern_storage_ui", "pc_interface_style", "catch_destination",
   "pokedex_filter", "box_filter", "text_speed", "ride_control",
   "quick_select_tap", "quick_select_registration",
   "quick_select_empty_notice", "catch_box_notice", "status_values",

@@ -2,6 +2,31 @@
 
 All notable changes to this project are documented in this file.
 
+## [6.5.16] - 2026-08-24
+
+### Added
+
+- The FireRed / LeafGreen PC organizer is now the default storage interface.
+  It has readable 480×320 rendering, twelve live Box wallpapers, normal and
+  Shiny Crystal-compatible sprites, gender display, a real hand cursor,
+  Party view, close control and cursor-attached movement across Boxes and the
+  Party. Box navigation no longer forces a cartridge-era save prompt.
+- The Legacy Bank receives its own FireRed organizer backed by the existing
+  durable archive. Lock markers and full bilingual reasons remain visible;
+  Pokémon can move between persistent Bank slots or between Bank and Party.
+  It starts with 500 sparse virtual Boxes, cycles the same wallpapers and
+  grows beyond Box 500 only when the initial 10,000 slots are occupied.
+- The FireRed six-pocket Bag is the new default, with the established KASC
+  Field Kit, Quick Select, SELECT item moving, battle filtering, USE/TOSS,
+  protected-item rules and 999-capacity behavior preserved.
+
+### Compatibility
+
+- `PC INTERFACE` can restore the previous Kanto Ascendant blue/cream layout or
+  yield to the untouched engine PC. Missing or invalid FireRed PC artwork
+  falls back to Kanto Ascendant. Existing saves and Legacy archives require no
+  migration.
+
 ## [6.5.15] - 2026-08-23
 
 ### Fixed

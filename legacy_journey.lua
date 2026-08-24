@@ -1681,6 +1681,91 @@ return function(mod, opts)
     game.stack:push(list)
   end
 
+  local function bankWithdrawToParty(game, row)
+    local Party = require("src.pokemon.Party")
+    local Stats = require("src.pokemon.Stats")
+    game.save.party = type(game.save.party) == "table" and game.save.party or {}
+    if #game.save.party >= Party.MAX then
+      return false, tr("PARTY IS FULL", "TEAM IST VOLL")
+    end
+    local mon, err = archive.leaseMon(game.save, row and row.id)
+    if not mon then return false, tostring(err) end
+    Stats.ensure(game.data.pokemon[mon.species], mon)
+    table.insert(game.save.party, mon)
+    if not game:writeSave() then
+      removeExact(game.save.party, mon)
+      archive.releaseLease(game.save, row.id)
+      return false, tr("SAVE FAILED", "SPEICHERN FEHLGESCHLAGEN")
+    end
+    return true
+  end
+
+  local function bankDepositFromParty(game, partyIndex, targetIndex)
+    game.save.party = type(game.save.party) == "table" and game.save.party or {}
+    if #game.save.party <= 1 then
+      return false, tr("KEEP ONE IN PARTY", "EINS MUSS IM TEAM BLEIBEN")
+    end
+    local mon = game.save.party[partyIndex]
+    if not mon then return false, tr("EMPTY SLOT", "LEERER PLATZ") end
+    local id, err = archive.stageDeposit(game.save, mon)
+    if not id then return false, tostring(err) end
+    table.remove(game.save.party, partyIndex)
+    if not game:writeSave() then
+      table.insert(game.save.party, partyIndex, mon)
+      return false, tr("SAVE FAILED", "SPEICHERN FEHLGESCHLAGEN")
+    end
+    local completed, completeErr = archive.completeDeposit(game.save, id)
+    if not completed then
+      if mod.log and mod.log.error then
+        mod.log:error("legacy deposit finalization failed: "
+          .. tostring(completeErr))
+      end
+      return false, tr("BANK WILL RECOVER ON LOAD",
+        "BANK WIRD BEIM LADEN REPARIERT")
+    end
+    if type(archive.reorderAvailableMon) == "function" then
+      local reordered, reorderErr = archive.reorderAvailableMon(
+        game.save, id, targetIndex)
+      if not reordered and mod.log and mod.log.error then
+        mod.log:error("legacy bank visual reorder failed: "
+          .. tostring(reorderErr))
+      end
+    end
+    return true
+  end
+
+  local function openFireRedBank(game)
+    local storage = mod.exports and mod.exports.modernStorageUi
+    if not (storage and type(storage.newLegacyBankOrganizer) == "function"
+        and type(storage.useFireRedPc) == "function"
+        and storage.useFireRedPc(game)) then
+      return false
+    end
+    local screen = storage.newLegacyBankOrganizer(game, {
+      rows = function()
+        return archive.availableMons(game.save)
+      end,
+      withdraw = function(row)
+        return bankWithdrawToParty(game, row)
+      end,
+      showLocked = function(row)
+        return showMonHelp(game, { value = row })
+      end,
+      deposit = function(partyIndex, targetIndex)
+        return bankDepositFromParty(game, partyIndex, targetIndex)
+      end,
+      move = function(id, targetIndex)
+        if type(archive.reorderAvailableMon) ~= "function" then
+          return false, tr("BANK ORDER UNAVAILABLE",
+            "BANK-REIHENFOLGE NICHT VERFÜGBAR")
+        end
+        return archive.reorderAvailableMon(game.save, id, targetIndex)
+      end,
+    })
+    game.stack:push(screen)
+    return true
+  end
+
   local function itemLocked(game, id)
     return itemClaimStatus(game, id) ~= true
   end
@@ -2078,6 +2163,7 @@ return function(mod, opts)
     end
     bindArchiveData(game and game.data)
     archive.reconcileLeases(game.save)
+    if openFireRedBank(game) then return true end
     local available = #archive.availableMons(game.save)
     local rows = {
       {

@@ -53,6 +53,20 @@ collapsed so players can reveal only the information they want.
 > [GitHub Issues](https://github.com/Roxas2712/kanto-ascendant/issues) and will
 > be considered for future updates.
 
+## What's new in 6.5.16
+
+- Makes the readable FireRed / LeafGreen PC organizer the default, including
+  live wallpapers, Party view and drag-at-the-hand movement across Boxes.
+- Adds the matching Legacy Bank organizer with visible lock reasons, 500
+  sparse virtual Boxes and automatic expansion only after the initial 10,000
+  slots are occupied.
+- Makes the FireRed six-pocket Bag the default while preserving KASC's Field
+  Kit, Quick Select, sorting, battle and item-safety behavior.
+- Keeps both the former Kanto Ascendant PC layout and the untouched engine PC
+  selectable under **PC INTERFACE**.
+
+See the full spoiler-light [6.5.16 release notes](RELEASE_NOTES_6.5.16.md).
+
 ## What's new in 6.5.15
 
 - Cancels a Wandertrainer's queued farewell movement when a defeat blackouts
@@ -1834,8 +1848,8 @@ ledger prevents duplicate delivery.
 > launcher-compatible `.zip`. A matching `.modpkg` may be retained only as an
 > internal build or verification artifact.
 
-1. Download `kanto_ascendant-6.5.15.zip` from the
-   [6.5.15 release](https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.5.15)
+1. Download `kanto_ascendant-6.5.16.zip` from the
+   [6.5.16 release](https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.5.16)
    and import it through the launcher. Developers may alternatively install
    the checked-out mod directory.
    If you downloaded a complete bundle, extract it first and import the inner

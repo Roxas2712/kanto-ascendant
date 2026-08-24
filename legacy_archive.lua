@@ -1978,7 +1978,9 @@ return function(opts)
     for index, mon in ipairs(tx.payload.mons or {}) do
       local id = mon.__kaLegacyId or (tx.id .. ":MON:" .. index)
       mon.__kaLegacyId = id
-      local row = { id = id, mon = copy(mon), depositedBy = tx.id }
+      local previous = byId[id] and archive.bank[byId[id]] or nil
+      local row = { id = id, mon = copy(mon), depositedBy = tx.id,
+        bankSlot = previous and previous.bankSlot or nil }
       if byId[id] then archive.bank[byId[id]] = row
       else
         archive.bank[#archive.bank + 1] = row
@@ -2269,6 +2271,28 @@ return function(opts)
     return found
   end
 
+  local function bankSlotLayout(rows)
+    rows = type(rows) == "table" and rows or {}
+    local boxCount = math.max(500, math.ceil((#rows + 1) / 20))
+    local limit = boxCount * 20
+    local used, slots = {}, {}
+    for index, row in ipairs(rows) do
+      local slot = type(row) == "table" and tonumber(row.bankSlot) or nil
+      slot = slot and math.floor(slot) or nil
+      if slot and slot >= 1 and slot <= limit and not used[slot] then
+        used[slot], slots[index] = true, slot
+      end
+    end
+    local nextFree = 1
+    for index in ipairs(rows) do
+      if not slots[index] then
+        while used[nextFree] do nextFree = nextFree + 1 end
+        slots[index], used[nextFree] = nextFree, true
+      end
+    end
+    return slots, boxCount
+  end
+
   function A.reconcileLeases(save)
     local state = runState(save)
     if type(state) ~= "table" or not state.runId then return false end
@@ -2307,9 +2331,12 @@ return function(opts)
     snapshot, loadErr = mutableArchive()
     if not snapshot then return {}, loadErr end
     local rows = {}
-    for _, row in ipairs(snapshot.bank) do
+    local bankSlots, bankBoxCount = bankSlotLayout(snapshot.bank)
+    for index, row in ipairs(snapshot.bank) do
       if type(row) == "table" and row.id and not row.lease then
         local visible = copy(row)
+        visible.bankSlot = bankSlots[index]
+        visible.bankBoxCount = bankBoxCount
         if type(withdrawalGate) == "function" then
           local called, allowed, reason = pcall(
             withdrawalGate, save, visible.mon, visible.id)
@@ -2322,7 +2349,51 @@ return function(opts)
         rows[#rows + 1] = visible
       end
     end
+    table.sort(rows, function(a, b)
+      return (a.bankSlot or 0) < (b.bankSlot or 0)
+    end)
     return rows
+  end
+
+  -- Move one visible entry to an absolute virtual slot. Occupied visible
+  -- slots swap, matching the normal PC organizer. Leased rows reserve their
+  -- slots until that exact identity returns and can never be overwritten.
+  function A.reorderAvailableMon(save, id, targetVisibleIndex)
+    if not registryReady() then
+      return false, "Legacy registry validation is unavailable"
+    end
+    local allowed, accessErr = requireBankAccess(save)
+    if not allowed then return false, accessErr end
+    local archive, loadErr = mutableArchive()
+    if not archive then return false, loadErr end
+
+    local sourceIndex
+    for index, row in ipairs(archive.bank) do
+      if type(row) == "table" and row.id == id and not row.lease then
+        sourceIndex = index
+        break
+      end
+    end
+    if not sourceIndex then return false, "unknown available legacy Pokémon" end
+
+    local slots, boxCount = bankSlotLayout(archive.bank)
+    local targetSlot = math.floor(tonumber(targetVisibleIndex) or 0)
+    if targetSlot < 1 or targetSlot > boxCount * 20 then
+      return false, "invalid Legacy Bank slot"
+    end
+    local targetIndex
+    for index, slot in ipairs(slots) do
+      if slot == targetSlot then targetIndex = index break end
+    end
+    if targetIndex and archive.bank[targetIndex].lease then
+      return false, "Legacy Bank slot is reserved by a withdrawn Pokémon"
+    end
+    local sourceSlot = slots[sourceIndex]
+    archive.bank[sourceIndex].bankSlot = targetSlot
+    if targetIndex and targetIndex ~= sourceIndex then
+      archive.bank[targetIndex].bankSlot = sourceSlot
+    end
+    return A.write(archive)
   end
 
   function A.leaseMon(save, id)
@@ -2400,11 +2471,13 @@ return function(opts)
       or (state.runId .. ":LIVE:" .. archive.depositSerial)
     mon.__kaLegacyId = id
     local byId = bankIndex(archive)
+    local previous = byId[id] and archive.bank[byId[id]] or nil
     local row = {
       id = id,
       mon = copy(mon),
       depositedBy = state.runId,
       lease = state.runId,
+      bankSlot = previous and previous.bankSlot or nil,
     }
     if byId[id] then archive.bank[byId[id]] = row
     else archive.bank[#archive.bank + 1] = row end

@@ -276,6 +276,32 @@ pack, party/follower sheets, shiny reveal, Mega forms or Voxel compatibility.
 The v1.5 material is an additive presentation layer and yields to the external
 Crystal mod when that package is active.
 
+## Pokémon FireRed / LeafGreen PC interface atlas
+
+The FireRed / LeafGreen PC skin samples the unmodified `PC Interface` sheet
+published by The Spriters Resource:
+
+https://www.spriters-resource.com/game_boy_advance/pokemonfireredleafgreen/asset/3861/
+
+The source page names `yoursavior` as uploader and `fabnt` as contributor; the
+sheet itself states that credit is not required. Kanto Ascendant nevertheless
+retains those names, the source URL and the exact source hash in
+`assets/ui/frlg_pc/PROVENANCE.md`. Runtime nearest-neighbour quads select the
+terminal patterns and twelve Box wallpapers; the atlas is not repainted or
+split into derivative files.
+
+## Pokémon FireRed / LeafGreen Bag UI sheet
+
+The FireRed Bag samples the maintainer-supplied, unmodified 704×560
+`assets/bag-ui-sheet.png`. The local source did not include an original page,
+uploader, contributor or separate license, so Kanto Ascendant makes no further
+attribution or ownership claim. Its exact hash and treatment are recorded in
+`assets/BAG_UI_PROVENANCE.md`; a missing sheet falls back to code-drawn shapes.
+
+Pokémon FireRed / LeafGreen and the original game artwork remain copyright of
+their respective rights holders. These assets are used only in this
+unofficial, non-commercial fan project.
+
 ## Kanto Ascendant trainer pictures
 
 Public packages do not contain the native FireRed/LeafGreen trainer-front PNGs.

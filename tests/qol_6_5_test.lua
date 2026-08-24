@@ -21,7 +21,7 @@ local gorochu = read("gorochu.lua")
 local mainKeys = {
   "wild_level_scaling",
   "johto_level_bonus", "ascendant_useful_bag", "ascendant_quick_select",
-  "ascendant_qol", "modern_storage_ui", "catch_destination",
+  "ascendant_qol", "modern_storage_ui", "pc_interface_style", "catch_destination",
   "pokedex_filter", "box_filter", "text_speed", "ride_control",
   "pokemon_sprite_style", "sprite_style_battle", "sprite_style_summary",
   "sprite_style_dex", "sprite_style_box", "sprite_style_scenes",
@@ -38,7 +38,7 @@ end
 for _, key in ipairs({
   "johto_level_bonus", "ascendant_useful_bag",
   "ascendant_quick_select", "ascendant_qol",
-  "modern_storage_ui", "catch_destination", "pokedex_filter", "box_filter",
+  "modern_storage_ui", "pc_interface_style", "catch_destination", "pokedex_filter", "box_filter",
   "text_speed", "ride_control", "pokemon_sprite_style",
   "sprite_style_battle", "sprite_style_summary", "sprite_style_dex",
   "sprite_style_box", "sprite_style_scenes", "ascendant_bag_mode",
@@ -53,8 +53,8 @@ for _, key in ipairs({
 end
 ok(main:find('key = "language"', 1, true) == nil,
   "language follows the installed game translation instead of a private toggle")
-ok(manifest:find('"version": "6.5.15"', 1, true) ~= nil,
-  "release manifest reports 6.5.15")
+ok(manifest:find('"version": "6.5.16"', 1, true) ~= nil,
+  "release manifest reports 6.5.16")
 ok(manifest:find('"id": "kanto_ascendant"', 1, true) ~= nil,
   "manifest uses Kanto Ascendant's own canonical id")
 ok(manifest:find('"trainer_rematch"', 1, true) ~= nil,

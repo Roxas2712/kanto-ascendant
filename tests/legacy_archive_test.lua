@@ -594,6 +594,31 @@ local bankAfterPartner = archive.bankAccess(fresh)
 eq(bankAfterPartner, true, "OPEN activates immediately after the partner")
 local available = archive.availableMons(fresh)
 eq(#available, 3, "all archived Pokémon begin available")
+local originalFirstId, originalSecondId = available[1].id, available[2].id
+local movedId = available[3].id
+ok(archive.reorderAvailableMon(fresh, movedId, 1),
+  "virtual Legacy Box move persists through archive authority")
+local movedRows = archive.availableMons(fresh)
+eq(movedRows[1].id, movedId,
+  "virtual Legacy Box move changes the visible slot order")
+ok(archive.reorderAvailableMon(fresh, movedId, 9999),
+  "a Pokémon can occupy a sparse slot in virtual Bank Box 500")
+movedRows = archive.availableMons(fresh)
+local sparseRow
+for _, row in ipairs(movedRows) do
+  if row.id == movedId then sparseRow = row break end
+end
+eq(sparseRow and sparseRow.bankSlot, 9999,
+  "virtual Box 500 slot survives an archive readback")
+eq(sparseRow and sparseRow.bankBoxCount, 500,
+  "using Box 500 does not expand the initial capacity")
+ok(archive.reorderAvailableMon(fresh, movedId, 3),
+  "virtual Legacy Box order can be restored without changing identity")
+ok(archive.reorderAvailableMon(fresh, originalFirstId, 1),
+  "first original Bank slot can be restored after sparse movement")
+ok(archive.reorderAvailableMon(fresh, originalSecondId, 2),
+  "second original Bank slot can be restored after sparse movement")
+available = archive.availableMons(fresh)
 local leased = assert(archive.leaseMon(fresh, available[1].id))
 eq(leased.species, "CHARMANDER", "withdrawal returns the full archived Pokémon")
 fresh.party = { leased }

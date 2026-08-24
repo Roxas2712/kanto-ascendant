@@ -1,6 +1,6 @@
 # Kanto Ascendant FAQ and Spoiler Guide
 
-This is the public reference for **Kanto Ascendant 6.5.15**. It applies to Red,
+This is the public reference for **Kanto Ascendant 6.5.16**. It applies to Red,
 Blue and Yellow and is maintained from the current mod code, release
 documentation and confirmed support reports.
 
@@ -40,7 +40,7 @@ breeding, shinies, Mega Evolution, Gorochu and a large Hall-of-Fame post-game.
 <summary><strong>⚠️ SPOILER — How do I install or update it?</strong></summary>
 
 1. Download the release `.zip` from the
-   [6.5.15 GitHub release](https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.5.15).
+   [6.5.16 GitHub release](https://github.com/Roxas2712/kanto-ascendant/releases/tag/v6.5.16).
 2. Import it through the Gen 1 Recomp launcher.
 3. Use Gen 1 Recomp **0.1.90** or newer. Disable every package the manager reports as a
    conflict, then enable **Kanto Ascendant** and restart.
@@ -1840,6 +1840,31 @@ Victory Road 3F for Charmander.
 </details>
 
 <details>
+<summary><strong>⚠️ SPOILER — How do the FireRed PC and Legacy Bank Boxes work?</strong></summary>
+
+`FIRERED / LEAFGREEN` is the default **PC INTERFACE** in 6.5.16. In the
+organizer, **A** picks up or drops the Pokémon at the hand, **SELECT** slides
+between the current Box and Party, and the arrows on the Box title change
+Boxes without opening a save prompt. `CLOSE BOX` exits; if the hand is carrying
+something, closing or pressing **B** cancels that uncommitted carry safely.
+
+The normal PC keeps the engine's Box and Party limits. The Legacy Bank uses the
+same controls but remains backed by its durable unlimited archive. It begins
+with 500 virtual Boxes (20 slots each), stores only occupied positions and
+repeats the twelve wallpapers. Box 501 appears only after all first 10,000
+slots are occupied, and later capacity continues to grow automatically.
+
+A red `X` marks a Bank Pokémon whose current-run or Beyond-Kanto rule blocks
+withdrawal. Selecting it opens the complete bilingual reason; the Pokémon
+remains stored and cannot be bypassed by moving it to another Bank slot.
+
+Choose `KANTO ASCENDANT` under **PC INTERFACE** for the former blue/cream
+layout, or `GAME DEFAULT` for the untouched engine PC. A missing/damaged
+FireRed atlas automatically uses the Kanto Ascendant fallback.
+
+</details>
+
+<details>
 <summary><strong>⚠️ SPOILER — How do SELECT, the Field Kit and Bag sorting work?</strong></summary>
 
 In the overworld, tap **SELECT** to use the saved favourite Field Kit tool, or
@@ -1858,7 +1883,11 @@ switching to the Bicycle.
 
 Inside the Bag, **SELECT** keeps its classic sorting role: mark an item, move
 the cursor and press **SELECT** again to place it. **B** cancels an active move
-or exits when nothing is being moved. **START** opens the context help.
+or exits when nothing is being moved. **START** opens the context help. The
+6.5.16 default `FIRERED POCKETS / 999` view changes only the presentation: all
+six pockets, Quick Select, battle filtering, USE/TOSS and protected-item rules
+remain active. The previous KASC skins and the engine-default Bag remain
+selectable under **BAG MODE**.
 
 </details>
 
