@@ -125,8 +125,8 @@ end
 local run = T.sdk.loadMods({ alias }, { data = Data, fs = fs })
 local loaded = assert(run.mods.kanto_ascendant,
   "Kanto Ascendant did not load through the exact engine SDK")
-assert(loaded.manifest.version == "6.5.15",
-  "regression must run against Kanto Ascendant 6.5.15")
+assert(loaded.manifest.version == "6.5.17",
+  "regression must run against Kanto Ascendant 6.5.17")
 assert(#(run.errors or {}) == 0, table.concat(run.errors or {}, "\n"))
 
 local function freshSave()
