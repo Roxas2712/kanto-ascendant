@@ -303,19 +303,74 @@ eq(rewards.state(game).expMultiplierSetting, 3,
 
 local a, b, c = { hp = 10 }, { hp = 10 }, { hp = 10 }
 game.save.party = { a, b, c }
-local allocations = {}
+local allocations, expSummaries = {}, {}
+local expBattle = {
+  game = game,
+  sayNext = function(_, text) expSummaries[#expSummaries + 1] = text end,
+}
 hooks["battle.exp_award"](function() error("vanilla award must be replaced") end, {
-  battle = { game = game }, alive = { a }, participants = 1,
+  battle = expBattle, alive = { a }, participants = 1,
   applyShare = function(mon, split, announce)
     allocations[#allocations + 1] = { mon = mon, split = split, announce = announce }
+    events["battle.exp_gained"]({
+      battle = expBattle, mon = mon, gained = split == 1 and 100 or 50,
+    })
   end,
 })
 eq(#allocations, 3, "TEAM mode awards every healthy party member")
 eq(allocations[1].split, 1, "TEAM participant keeps its normal award")
 eq(allocations[2].split, 2, "TEAM reserve receives a half award")
 eq(allocations[3].split, 2, "every TEAM reserve receives the same half award")
+eq(allocations[1].announce, true,
+  "TEAM mode names only its first EXP recipient")
+eq(allocations[2].announce, nil,
+  "TEAM reserve EXP is paid without one message per Pokémon")
+eq(allocations[3].announce, nil,
+  "all later TEAM recipients stay silent")
+eq(#expSummaries, 1,
+  "TEAM mode emits one combined receipt for all later recipients")
+eq(expSummaries[1],
+  "Rest of the team:\n50 EXP. each!",
+  "TEAM receipt reports the exact shared amount")
 eq(hooks["exp.gain"](function() return 100 end, {}), 300,
   "the final ×3 multiplier is applied once after allocation")
+
+-- A one-Pokémon party keeps the ordinary named receipt and adds no redundant
+-- "rest of the team" page.
+game.save.party = { a }
+allocations, expSummaries = {}, {}
+hooks["battle.exp_award"](function() error("vanilla award must be replaced") end, {
+  battle = expBattle, alive = { a }, participants = 1,
+  applyShare = function(mon, split, announce)
+    allocations[#allocations + 1] = { mon = mon, split = split, announce = announce }
+    events["battle.exp_gained"]({
+      battle = expBattle, mon = mon, gained = 100,
+    })
+  end,
+})
+eq(#allocations, 1, "single-recipient TEAM mode pays exactly once")
+eq(allocations[1].announce, true,
+  "single-recipient TEAM mode keeps the normal EXP message")
+eq(#expSummaries, 0,
+  "single-recipient TEAM mode adds no empty team summary")
+game.save.party = { a, b, c }
+
+-- Per-Pokémon bonuses can make the quiet awards differ. In that case the
+-- compact receipt reports their exact total rather than claiming "each".
+allocations, expSummaries = {}, {}
+hooks["battle.exp_award"](function() error("vanilla award must be replaced") end, {
+  battle = expBattle, alive = { a }, participants = 1,
+  applyShare = function(mon, split, announce)
+    allocations[#allocations + 1] = { mon = mon, split = split, announce = announce }
+    local gained = mon == a and 100 or (mon == b and 50 or 75)
+    events["battle.exp_gained"]({
+      battle = expBattle, mon = mon, gained = gained,
+    })
+  end,
+})
+eq(expSummaries[1],
+  "Rest of the team:\n125 EXP. total!",
+  "mixed reserve bonuses produce an accurate total receipt")
 
 rewards.setExpShare(game, "classic")
 allocations = {}

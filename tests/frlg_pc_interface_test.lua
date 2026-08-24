@@ -287,16 +287,16 @@ local organizer = pushed[#pushed]
 assert(organizer and organizer.uiSize and organizer.update and organizer.draw,
   "MOVE POKéMON did not open the live organizer")
 local ow, oh = organizer:uiSize()
-assert(ow == 480 and oh == 352,
-  "live organizer did not reserve a separate help row")
+assert(ow == 480 and oh == 360,
+  "live organizer did not reserve sprite overflow and a separate help row")
 organizer:draw()
 local separatedHelp = false
 for _, rect in ipairs(rectangles) do
   separatedHelp = separatedHelp or (rect.mode == "fill" and rect.x == 82
-    and rect.y == 160 and rect.w == 158 and rect.h == 16)
+    and rect.y == 164 and rect.w == 158 and rect.h == 16)
 end
 assert(separatedHelp,
-  "organizer help still overlaps the fourth Pokémon row at y=145")
+  "organizer help still overlaps oversized Pokémon in the fourth row")
 local pressed = {}
 game.input.wasPressed = function(_, key) return pressed[key] == true end
 
@@ -406,8 +406,8 @@ local bank = ui.newLegacyBankOrganizer(game, {
 assert(bank.__ascendantLegacyBankOrganizer and bank:boxCount() == 500,
   "Legacy Bank did not start with 500 sparse virtual Boxes")
 local bw, bh = bank:uiSize()
-assert(bw == 480 and bh == 352,
-  "Legacy Bank did not reserve the non-overlapping help row")
+assert(bw == 480 and bh == 360,
+  "Legacy Bank did not reserve sprite overflow and a separate help row")
 bank.zone, bank.bankIndex = "bank", 1
 pressed = { a = true }
 bank:update(1 / 60)

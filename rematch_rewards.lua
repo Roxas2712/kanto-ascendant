@@ -1114,6 +1114,45 @@ return function(mod, opts)
 
   -- ------------------------- EXP allocation, then final multiplier
 
+  -- TEAM mode pays reserve Pokémon silently and replaces the old message per
+  -- party slot with one compact receipt.  battle.exp_gained is synchronous on
+  -- both the Gen-I and Gen-II battle implementations, so the receipt can use
+  -- the exact post-split/post-multiplier amounts (including trade/Lucky Egg
+  -- differences) without reimplementing either engine's EXP formula.
+  local expSummaryCapture
+  mod.events:on("battle.exp_gained", function(ev)
+    local capture = expSummaryCapture
+    if capture and ev and ev.battle == capture.battle
+        and ev.mon == capture.mon then
+      capture.gains[#capture.gains + 1] =
+        math.max(0, math.floor(tonumber(ev.gained) or 0))
+    end
+  end)
+
+  local function queueTeamExpSummary(battle, gains)
+    if not battle or #gains == 0 then return end
+    local same, first, total = true, gains[1], 0
+    for _, gained in ipairs(gains) do
+      same = same and gained == first
+      total = total + gained
+    end
+    local text
+    if same then
+      text = tr(
+        ("Rest of the team:\n%d EXP. each!"):format(first),
+        ("Das restliche Team:\nje %d EP!"):format(first))
+    else
+      text = tr(
+        ("Rest of the team:\n%d EXP. total!"):format(total),
+        ("Das restliche Team:\ninsg. %d EP!"):format(total))
+    end
+    if type(battle.sayNext) == "function" then
+      battle:sayNext(text)
+    elseif type(battle.emit) == "function" then
+      battle:emit({ kind = "message", text = text })
+    end
+  end
+
   mod.hooks:wrap("battle.exp_award", function(nextAward, ctx)
     local battle = ctx and ctx.battle
     local game = battle and battle.game
@@ -1143,16 +1182,36 @@ return function(mod, opts)
 
     -- TEAM: surviving participants receive their normal divided award;
     -- every other healthy party member receives half of an undivided award.
+    -- Only the first recipient gets the normal named receipt. All later
+    -- recipients are paid identically but represented by one team summary.
     local participant = {}
+    local allocations = {}
     for _, mon in ipairs(ctx.alive or {}) do
       participant[mon] = true
-      ctx.applyShare(mon, math.max(1, ctx.participants), true)
+      allocations[#allocations + 1] = {
+        mon = mon, split = math.max(1, ctx.participants),
+      }
     end
     for _, mon in ipairs(game.save.party or {}) do
       if (mon.hp or 0) > 0 and not participant[mon] then
-        ctx.applyShare(mon, 2, "expAll")
+        allocations[#allocations + 1] = { mon = mon, split = 2 }
       end
     end
+    local capture = { battle = battle, mon = nil, gains = {} }
+    for index, allocation in ipairs(allocations) do
+      if index == 1 then
+        ctx.applyShare(allocation.mon, allocation.split, true)
+      else
+        capture.mon = allocation.mon
+        expSummaryCapture = capture
+        -- Passing an explicit nil is intentional: both battle generations
+        -- interpret a supplied falsy third argument as "pay, do not announce".
+        ctx.applyShare(allocation.mon, allocation.split, nil)
+        expSummaryCapture = nil
+        capture.mon = nil
+      end
+    end
+    queueTeamExpSummary(battle, capture.gains)
   end, 200)
 
   mod.hooks:wrap("exp.gain", function(nextGain, ctx)

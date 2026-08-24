@@ -92,9 +92,11 @@ return function(mod, opts)
   local PC_ATLAS_W, PC_ATLAS_H = 641, 1240
   local FRLG_UI_W, FRLG_UI_H, FRLG_UI_SCALE = 480, 320, 2
   -- The authentic 240x160 Box already uses its final row at logical y=145.
-  -- MOVE adds a persistent help plaque, so give that organizer one separate
-  -- 16px logical row instead of painting the plaque over Pokémon slots 16-20.
-  local FRLG_ORGANIZER_H = 352
+  -- Crystal and other oversized walkers can extend below the original 160px
+  -- canvas, so keep a compact overflow lane before the persistent help plaque.
+  -- The physical organizer surface is rendered at the usual 2x scale.
+  local FRLG_HELP_Y = 164
+  local FRLG_ORGANIZER_H = 360
   local PC_ATLAS_REGIONS = {
     blue = { 241, 0, 240, 160 },
     orange = { 0, 0, 240, 160 },
@@ -1170,9 +1172,9 @@ return function(mod, opts)
 
   local function drawOrganizerHelp(state)
     color(C.cream)
-    love.graphics.rectangle("fill", 82, 160, 158, 16)
+    love.graphics.rectangle("fill", 82, FRLG_HELP_Y, 158, 16)
     color(C.blue3)
-    love.graphics.rectangle("line", 82.5, 160.5, 157, 15)
+    love.graphics.rectangle("line", 82.5, FRLG_HELP_Y + 0.5, 157, 15)
     local text = state.message
     if not text and state.carry then
       local def = state.game.data.pokemon[state.carry.mon.species] or {}
@@ -1183,7 +1185,7 @@ return function(mod, opts)
       and tr("A:MOVE  SELECT:BOX", "A:BEWEG. SELECT:BOX")
       or tr("A:MOVE  SELECT:PARTY", "A:BEWEG. SELECT:TEAM"))
     color(C.ink)
-    drawFittedFireRedText(text, 87, 164, 148)
+    drawFittedFireRedText(text, 87, FRLG_HELP_Y + 4, 148)
   end
 
   local function drawOrganizerBox(state)
@@ -1572,9 +1574,9 @@ return function(mod, opts)
 
     local function drawBankHelp(self)
       color(C.cream)
-      love.graphics.rectangle("fill", 82, 160, 158, 16)
+      love.graphics.rectangle("fill", 82, FRLG_HELP_Y, 158, 16)
       color(C.blue3)
-      love.graphics.rectangle("line", 82.5, 160.5, 157, 15)
+      love.graphics.rectangle("line", 82.5, FRLG_HELP_Y + 0.5, 157, 15)
       local row = self.zone ~= "party" and self:bankRow() or nil
       local text = self.message
       if not text and row and row.withdrawBlocked then
@@ -1590,7 +1592,7 @@ return function(mod, opts)
         and tr("A:STORE  SELECT:BANK", "A:ABLG  SELECT:BANK")
         or tr("A:TAKE  SELECT:PARTY", "A:NEHM  SELECT:TEAM"))
       color(C.ink)
-      drawFittedFireRedText(text, 87, 164, 148)
+      drawFittedFireRedText(text, 87, FRLG_HELP_Y + 4, 148)
     end
 
     local function drawBankMons(self)
