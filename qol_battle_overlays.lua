@@ -10,6 +10,16 @@ function M.new(mod)
   local wrapped = setmetatable({}, { __mode = "k" })
   local installed = false
   local service = {}
+  local hudOwnerPredicate
+
+  -- VASC's reviewed ORAS provider offers an exact-shot ownership predicate.
+  -- Only the two built-in duplicates yield; native frames, failed receipts
+  -- and other registered overlays retain their original draw path.
+  function service:setHudOwnerPredicate(predicate)
+    if predicate ~= nil and type(predicate) ~= "function" then return false end
+    hudOwnerPredicate = predicate
+    return true
+  end
 
   function service:add(overlay)
     overlays[#overlays + 1] = overlay
@@ -132,8 +142,15 @@ function M.new(mod)
           voxel3dBattleData = rendererHudContext and rendererHudContext.shot,
         }
 
+        local ownsBuiltinHud = false
+        if hudOwnerPredicate then
+          local okOwner, owned = pcall(hudOwnerPredicate, self)
+          ownsBuiltinHud = okOwner and owned == true
+        end
         for i, overlay in ipairs(overlays) do
-          if not failed[i] then
+          local duplicate = ownsBuiltinHud and
+            (overlay.id == "experience bar" or overlay.id == "caught indicator")
+          if not failed[i] and not duplicate then
             love.graphics.push("all")
             local ok, err = pcall(overlay.draw, self, states[i], context)
             love.graphics.pop()

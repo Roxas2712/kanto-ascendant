@@ -28,6 +28,15 @@ return function(mod)
     options = loadModule("qol_options.lua").install(mod, features),
     battle = loadModule("qol_battle_overlays.lua").new(mod),
   }
+  -- Publish only the negotiated overlay-ownership seam, not the mutable
+  -- overlay registry or the internal QoL services.
+  mod.exports.qualityOfLife = {
+    battle = {
+      setHudOwnerPredicate = function(_, predicate)
+        return services.battle:setHudOwnerPredicate(predicate)
+      end,
+    },
+  }
 
   for _, feature in ipairs(features) do
     feature.install(mod, services)
