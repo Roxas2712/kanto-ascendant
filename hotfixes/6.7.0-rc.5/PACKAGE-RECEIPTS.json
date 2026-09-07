@@ -1,0 +1,23 @@
+{
+  "vasc": {
+    "file": "Voxel-Ascendant-RC66g-Download-Fallback.zip",
+    "sha256": "2d9ef08495018e36442ef66d7fb1615b1d147c801750c109592c10ddb36e46ca",
+    "changed": [
+      "manifest.json",
+      "docs/guide/POKEMON_HD_DOWNLOADS.md",
+      "lib/HdContentDownload.lua",
+      "lib/HdContentMenu.lua",
+      "runtime-receipt.json"
+    ],
+    "baseSha256": "e054242d9c56bb967bd0345d8ddd054d70c3b566a97f4be2f0e302f61c4bd3ea"
+  },
+  "kasc": {
+    "file": "kanto_ascendant-6.7.0-rc.5.zip",
+    "sha256": "be901d5be37b222b577a193fc726e661a6d2a7e82f975e217f7cec274876980b",
+    "changed": [
+      "manifest.json",
+      ".modkit/pack.json"
+    ],
+    "baseSha256": "c4ca71f98939ae1111c488b397fdbce57b77c2d2bc9d12fb7027b9411dc412e0"
+  }
+}
