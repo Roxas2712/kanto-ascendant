@@ -50,6 +50,12 @@ the seal; this is not DRM.
 
 ## Provenance
 
+Checks: native ZIP import of both companions; all three Cart imports/updates;
+Red, Blue and Yellow native Card-scoped boot, save/reload and re-import without
+save modification; three paired battle interaction cases. Start screenshots
+were inspected. The automated Card test passes the Cart ID into the native
+boot callback in an isolated QA host; it is not a physical-device UI audit.
+
 KASC: `60cf3ea2a5cd905d202063895939c4d6e1d1058b137e2d2d40f12480a6ac1a40`
 
 VASC: `e054242d9c56bb967bd0345d8ddd054d70c3b566a97f4be2f0e302f61c4bd3ea`
