@@ -496,6 +496,24 @@ return function(mod, opts)
   end
 
   local function handleOptionsChanged(payload)
+    -- The embedded controller owns Wilds keys, but Mod Manager emits the
+    -- Ascendant owner/key pair. Config.setOption synchronizes storage only;
+    -- it deliberately does not emit an event. Translate locally so toggling
+    -- the owner option also rebuilds/clears the live population and hooks.
+    if payload and payload.mod == mod.id then
+      local wildsKey
+      for key, ascendantKey in pairs(ASCENDANT_OPTION) do
+        if payload.key == ascendantKey then wildsKey = key; break end
+      end
+      if not wildsKey then return end
+      local translated = {}
+      for key, value in pairs(payload) do translated[key] = value end
+      translated.mod, translated.key = proxy.id, wildsKey
+      payload = translated
+      -- Density/water helpers consult the saved Wilds bucket first. Update
+      -- that bucket before invoking their callbacks, not one event later.
+      Config.setOption(proxy, wildsKey, payload.value, mod.id, { game = game() })
+    end
     safe("options_changed", logic.onOptionsChanged, logic, payload)
     safe("ambient options_changed", ambient.onOptionsChanged, ambient, payload)
     if payload and payload.mod == proxy.id and payload.key == "enabled" then
