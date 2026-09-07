@@ -31,6 +31,10 @@ private maintenance material have not been published by this tag.
   separately tracked supported forms and direct/egg/shiny gift profiles.
   **The visible Pokédex is not expanded.** Profiles blocked by missing art or
   runtime support stay unavailable; this is not a promise of every form.
+  The regular Dex starts at 151 Kanto entries and expands to 251 Kanto/Johto
+  entries after its unlock, with discovered optional entries handled
+  separately. The backend therefore includes 774 base species beyond Gen II;
+  that number is not an extra wild-encounter count.
 - Expanded front/back sprite coverage and available animations for later
   Pokémon, with static fallback where needed. Existing protected Gen-I/II
   Crystal, Gorochu and Mega artwork is retained. Not every sprite is animated
