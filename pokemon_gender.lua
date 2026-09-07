@@ -111,9 +111,33 @@ return function(mod, opts)
       and not battle.showPlayerBack and slide == 0
   end
 
+  -- Modern VASC/KASC ORAS cards already include gender. The mobile facade
+  -- deliberately omits classic snapHUDs, so rendererHudSnapped alone cannot
+  -- establish ownership there. Trust only a successful, exact live shot from
+  -- the public renderer receipt; native, stale and failed frames keep glyphs.
+  local function modernHudOwnsGender(battle)
+    local shot = type(battle) == "table" and battle.voxelAscendantShot
+    if type(shot) ~= "table" or not voxelRenderer
+        or type(voxelRenderer.module) ~= "function" then return false end
+    local ok, renderer = pcall(voxelRenderer.module,
+      battle.game, "OverworldBattle")
+    if not ok or type(renderer) ~= "table"
+        or type(renderer.hudSnapReceipt) ~= "function"
+        or type(renderer.shot) ~= "function" then return false end
+    local gotReceipt, receipt = pcall(renderer.hudSnapReceipt, battle)
+    local gotShot, live = pcall(renderer.shot)
+    return gotReceipt and gotShot and live == shot
+      and type(receipt) == "table"
+      and receipt.schema == "voxel-ascendant/hud-snap/v1"
+      and receipt.shot == shot and receipt.snapped == true
+      and (receipt.owner == "voxel_ascendant.oras"
+        or receipt.owner == "kanto_ascendant.oras")
+  end
+
   -- Crystal puts the symbols on the level/status row. Keep these coordinates
   -- available as a diagnostic seam and for renderer-backed acceptance tests.
   function M.drawBattleHUD(battle, slide)
+    if modernHudOwnsGender(battle) then return end
     local Font = require("src.render.Font")
     if enemyHudVisible(battle, slide) then
       local mon = battle.enemy.mon
