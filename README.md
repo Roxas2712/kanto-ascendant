@@ -1,82 +1,58 @@
-# Kanto Ascendant 6.7.0-rc.1 — Frozen Preview
+# Kanto Ascendant 6.7 RC2 — Custom Carts & Live VASC
 
-This is a **public pre-release**, not a replacement for stable 6.5.22.
-Download **kanto_ascendant-6.7.0-rc.1.zip** from the release assets and import
-that ZIP through the Recompiler launcher. Back up your save before testing.
+Public pre-release. Stable 6.5.22 is not replaced.
 
-This distribution-only tag records the frozen binary/source-payload archive
-and its verification. GitHub's automatically generated “Source code” archives
-contain these release records, **not the installable mod**. The installable ZIP
-contains the runtime Lua sources and assets. The development worktree and
-private maintenance material have not been published by this tag.
+## Changes from RC1
 
-## Changes since the last full release, 6.5.22
+Compatibility only: explicit admission of live **VASC RC66g / 3.0.0-rc.15**.
+Only manifest, renderer admission and archive metadata changed. Gameplay and
+assets are byte-identical to RC1. No VASC code was edited.
 
-- New Game+ partner selection adds separate **Random Starter Pool** and
-  **Random Global** paths. Your partner and the rival's partner are rolled
-  independently; cancelling the selection remains possible.
-- New starter habitats and revised exploration areas, including the
-  multi-floor Moltres volcano, hidden Regi sanctuaries and Hoenn legendary
-  encounters. Current-playthrough event completion controls the relevant
-  legendary progression rather than inherited Pokédex ownership alone.
-- Separate Rocket raid maps keep the original locations intact, with varied
-  team configurations and return handling. Rival journeys add persistent,
-  separated encounters and revised dialogue. Full device/visual coverage
-  remains a follow-up, not a claim of this preview.
-- Extended Legacy Bank support for Gold, Silver and Crystal on hosts with
-  the required bank/battle interfaces. Mega equipment permissions copy
-  without removing the source equipment; transferred Pokémon retain single
-  ownership. Gen-II Mega presentation additionally depends on the companion.
-- Internal species identities extend through national number **1025**, with
-  separately tracked supported forms and direct/egg/shiny gift profiles.
-  **The visible Pokédex is not expanded.** Profiles blocked by missing art or
-  runtime support stay unavailable; this is not a promise of every form.
-  The regular Dex starts at 151 Kanto entries and expands to 251 Kanto/Johto
-  entries after its unlock, with discovered optional entries handled
-  separately. The backend therefore includes 774 base species beyond Gen II;
-  that number is not an extra wild-encounter count.
-- Expanded front/back sprite coverage and available animations for later
-  Pokémon, with static fallback where needed. Existing protected Gen-I/II
-  Crystal, Gorochu and Mega artwork is retained. Not every sprite is animated
-  and the full visual catalogue review is not complete.
-- Generation-aware AUTO/manual rules and learnsets retain earlier legal
-  tutor/TM options. Held-item ownership, wild-item rolls, egg handling and
-  item separation at the bank are integrated; reward pools use implemented,
-  era-approved effects. Only supported ability/move/item effects are active.
-- Battle-checkpoint retention for the rule profile and supported effect
-  markers, plus the embedded Wilds OFF → map change → ON recovery fix.
+Three Custom Carts: **Red, Blue and Yellow**, retaining original covers and
+Cart/save identities. Required pair: **KASC 6.7.0-rc.2 + VASC 3.0.0-rc.15**.
 
-## Compatibility — read before installing
+## Installation
 
-The exact paired companion reviewed for this frozen RC is **Voxel Ascendant
-RC66f (3.0.0-rc.14)**. **RC66g / 3.0.0-rc.15 is not admitted by this archive.**
-Do not assume a newer live VASC works with this RC and do not bypass the
-compatibility gate. VASC is not bundled. The future combined Custom Cart is
-not part of this release; automatic Cart download/import is not yet approved.
+Use a Recompiler supporting Custom Carts and mod indexes (tested host 0.2.56).
+Supply your own matching game ROM; none is distributed here.
 
-This is a deliberately bounded preview. Gigantamax factors can be preserved,
-but Gigantamax battle activation is **not implemented**. Remaining later moves,
-abilities, held-item effects and missing form art are follow-up work, not
-advertised as complete. Link battles are deferred/disabled for this release.
-The finished walkthrough is also deferred.
+1. Back up saves and download the `.g1rcart` for your edition below.
+2. Add this feed in the launcher's **Find mods** sources:
 
-## Verification and limits
+   https://raw.githubusercontent.com/Roxas2712/kanto-ascendant/codex/kasc-6.7-card-distribution/kasc-card-index.json
 
-- 227/227 selected regression tests passed on the frozen v57 source.
-- Exact source/package parity, required assets, package hygiene and ZIP CRC
-  checks passed: 102,362 payload files, 152,279,962 archive bytes.
-- The exact archive passed six startup checks: Red, Blue, Yellow (German),
-  Gold, Silver and Crystal on the prepared test hosts.
-- A native desktop Wilds re-enable flow with RC66f passed. These checks are
-  **not** complete playthroughs or physical iOS/Android/Windows certification;
-  they do not close the remaining full sprite/transfer/visual review.
+3. Import/open the Cart, install its pinned mods, then Play.
 
-The stable release remains 6.5.22. Please include your engine, KASC and VASC
-versions, edition, generation settings and reproduction steps in bug reports.
+The index supplies exact prerelease versions: this host's direct GitHub
+lookup truncates their suffixes. Cart SHA256 checks remain enforced.
+Alternatively import both exact mod ZIPs manually before opening the Cart.
+Do not install GitHub's automatically generated “Source code” archives.
 
-## Frozen archive
+Existing Cart identities are retained. Ordinary non-Cart saves can have a
+different launcher scope; automatic migration is not promised. Back up first.
 
-SHA256: `bf80c3a844fc8c9f550b496bea74db054b562cac91f81a0f789b42ea2741854c`
+## Limits
 
-The follow-up will be a separately versioned build, not an unnoticed
-replacement of this archive.
+RC1's unfinished mechanics remain unfinished/inactive: later move/item/
+ability effects, missing form artwork, Gigantamax battles and Link battles
+are not newly enabled. Full physical-device and sprite review is separate.
+
+**Riolu gift limitation:** Riolu can hatch and battle, but its evolution to
+Lucario is missing in RC1 and this compatibility-only RC2. A separate gameplay
+hotfix is next. Backend registration alone does not implement evolution rules.
+
+VASC retains its own published limitations, including the separately reported
+graphics-resource issue; this release does not claim to fix those.
+
+Carts pin this tested pair, not arbitrary future VASC. Updating the pair
+requires a new reviewed Cart version. The host allows deliberately breaking
+the seal; this is not DRM.
+
+## Provenance
+
+KASC: `60cf3ea2a5cd905d202063895939c4d6e1d1058b137e2d2d40f12480a6ac1a40`
+
+VASC: `e054242d9c56bb967bd0345d8ddd054d70c3b566a97f4be2f0e302f61c4bd3ea`
+
+This tag holds distribution records. Runtime Lua/assets are in the installable
+ZIP, not the automatic source snapshot. RC1 remains unchanged for rollback.
