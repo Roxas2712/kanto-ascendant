@@ -1,6 +1,12 @@
-# Kanto Ascendant 6.7 RC3 — Custom Carts + Riolu hotfix
+# Kanto Ascendant 6.7 — Cards + Riolu hotfix
 
-Public **pre-release**. Stable 6.5.22 remains Latest.
+Public release, promoted from RC3 without changing the installable files.
+The existing `v6.7.0-rc.3` tag and internal version are retained so Card pins,
+checksums and existing download links continue to work.
+
+**Cards now have their own repository:** [KASC Cards — Red, Blue and Yellow](https://github.com/Roxas2712/kasc-cards).
+KASC remains the separately downloadable gameplay mod; the Cards combine it
+with the required VASC release without duplicating either mod's code.
 
 ## In this update
 
@@ -22,7 +28,7 @@ Public **pre-release**. Stable 6.5.22 remains Latest.
    (tested host: 0.2.56) and your own matching ROM.
 2. Add this source under **Find mods** in the launcher:
 
-   https://raw.githubusercontent.com/Roxas2712/kanto-ascendant/codex/kasc-6.7-card-distribution/kasc-card-index.json
+   https://raw.githubusercontent.com/Roxas2712/kasc-cards/main/kasc-card-index.json
 
 3. Import the edition's **1.3.0-rc.3.g1rcart**, install/update its required
    pinned mods, then Play. When updating, replace the old KASC installation.
