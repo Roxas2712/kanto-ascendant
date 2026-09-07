@@ -1,0 +1,816 @@
+--- a/legacy_archive.lua
++++ b/legacy_archive.lua
+@@ -1120,6 +1120,7 @@
+   end
+ 
+   local function markFuture(version, path)
++    if A.invalidateReadView then A.invalidateReadView() end
+     local reason = ("legacy archive %s uses future schema %d; "
+       .. "this build is read-only"):format(tostring(path), version)
+     A.readOnly = true
+@@ -1130,6 +1131,7 @@
+   end
+ 
+   local function markCorruptWorldRank(path, detail)
++    if A.invalidateReadView then A.invalidateReadView() end
+     local reason = ("legacy archive %s has corrupt World Rank receipts; "
+       .. "this build is read-only: %s"):format(tostring(path), tostring(detail))
+     A.readOnly = true
+@@ -1328,6 +1330,7 @@
+   end
+ 
+   local function writePath(path, value)
++    if A.invalidateReadView then A.invalidateReadView() end
+     ensureDirectory()
+     local ok, err = fs.write(path, SaveSerializer.encode(value))
+     if not ok then
+@@ -1339,6 +1342,7 @@
+   end
+ 
+   function A.write(archive)
++    if A.invalidateReadView then A.invalidateReadView() end
+     if A.readOnly then return false, A.readOnlyReason end
+     local currentArchive, currentStatus, _, currentVersion, currentErr =
+       decode(filename)
+@@ -1437,6 +1441,30 @@
+     end
+     clearFuture()
+     return empty()
++  end
++
++  -- Hot UI/world queries share one normalized read view per loaded save.
++  -- Mutation/validation paths continue to call A.load and re-read storage.
++  -- Views never escape: public getters return copies of their projection.
++  local readView, readViewScope
++  function A.invalidateReadView()
++    readView, readViewScope = nil, nil
++  end
++
++  local function readArchiveView()
++    local scope = type(opts.readViewScope) == "function"
++      and opts.readViewScope() or nil
++    if scope == nil then return A.load() end
++    if readView ~= nil and readViewScope == scope and not A.readOnly then
++      return readView
++    end
++    local value, err = A.load()
++    if err == nil and not A.readOnly then
++      readView, readViewScope = value, scope
++    else
++      A.invalidateReadView()
++    end
++    return value, err
+   end
+ 
+   local function mutableArchive()
+@@ -3528,7 +3556,7 @@
+   end
+ 
+   function A.current()
+-    local archive, err = A.load()
++    local archive, err = readArchiveView()
+     return copy(type(archive.current) == "table" and archive.current or {}), err
+   end
+ 
+@@ -3633,7 +3661,7 @@
+   function A.activeCharacter(save)
+     local run = runState(save)
+     if type(run) ~= "table" or not run.runId then return nil end
+-    local archive = A.load()
++    local archive = readArchiveView()
+     local current = type(archive.current) == "table" and archive.current or {}
+     local avatar = run.avatar or current.avatar
+     avatar = tostring(avatar or ""):upper()
+@@ -3653,7 +3681,7 @@
+   end
+ 
+   function A.hevoPersistent()
+-    local archive, err = A.load()
++    local archive, err = readArchiveView()
+     return copy(type(archive.hevoPersistent) == "table"
+       and archive.hevoPersistent or {}), err
+   end
+@@ -3762,7 +3790,7 @@
+   end
+ 
+   function A.worldRankState()
+-    local archive, err = A.load()
++    local archive, err = readArchiveView()
+     if A.readOnly then
+       return nil, err or A.readOnlyReason
+         or "Legacy archive is read-only"
+@@ -4236,7 +4264,7 @@
+   end
+ 
+   function A.profile()
+-    local archive = A.load()
++    local archive = readArchiveView()
+     local current = type(archive.current) == "table" and archive.current or {}
+     local completedPaths = type(archive.completedPaths) == "table"
+       and archive.completedPaths or {}
+@@ -4327,11 +4355,13 @@
+   A.runRulesSnapshotVersion = RUN_RULES_SNAPSHOT_VERSION
+   A.vaultBindingVersion = VAULT_BINDING_VERSION
+   function A.bindSha256(digest)
++    if A.invalidateReadView then A.invalidateReadView() end
+     if type(digest) ~= "function" then return false end
+     sha256Digest = digest
+     return true
+   end
+   function A.bindData(data)
++    if A.invalidateReadView then A.invalidateReadView() end
+     if type(data) ~= "table" or type(data.pokemon) ~= "table"
+         or type(data.items) ~= "table" or type(data.moves) ~= "table" then
+       registryValidation = false
+--- a/legacy_journey.lua
++++ b/legacy_journey.lua
+@@ -191,6 +191,9 @@
+       modId = mod.id,
+       fs = opts.archiveFs or storageArchiveFs(),
+       editionScoped = storageBackendMode == "edition",
++      readViewScope = function()
++        return storageScopeReady and activeGame and activeGame.save or nil
++      end,
+       enforceLegacyMigrationGuard = true,
+       log = mod.log,
+       isBadge = Bag.isBadge,
+@@ -3641,7 +3644,12 @@
+     if ev and ev.game then activeGame = ev.game end
+   end, 5000)
+ 
++  mod.events:on("save.loading", function()
++    if archive.invalidateReadView then archive.invalidateReadView() end
++  end, 9000)
++
+   mod.events:on("save.created", function(ev)
++    if archive.invalidateReadView then archive.invalidateReadView() end
+     -- The engine's provisional boot save is created before game.ready, while a
+     -- player-selected New Game (including our direct handoff) is created after
+     -- it. This distinction avoids allocating storage for a title skeleton.
+@@ -3651,6 +3659,7 @@
+   end, 9000)
+ 
+   mod.events:on("save.loaded", function(ev)
++    if archive.invalidateReadView then archive.invalidateReadView() end
+     if ev and ev.save then
+       storageScopeReady = true
+       local lineageOk, lineageErr = true, nil
+--- a/support_session_log.lua
++++ b/support_session_log.lua
+@@ -1,617 +1,28 @@
+--- KASC-66-SUPPORT-SESSION-LOG/v1
+---
+--- Always-on, event-driven support flight recorder. The engine's mod.log
+--- remains authoritative; this owner only mirrors its instance methods and
+--- records narrow structured KASC lifecycle events in an exact private ring.
+-
++-- Public performance build: diagnostic recording is removed.
++-- Keep the interface used by gameplay modules, without touching the filesystem,
++-- wrapping the host logger, retaining event payloads or exposing repro markers.
+ return function(mod)
+-  local Support = {}
+-
+-  Support.OWNER = "KASC-66-SUPPORT-SESSION-LOG/v1"
+-  Support.SCHEMA = "ascendant-support-session-log/v1"
+-  Support.DIRECTORY = "KASC-Logs"
+-  Support.FILE = Support.DIRECTORY
+-  Support.MAX_SESSIONS = 5
+-  Support.MAX_BYTES = 8 * 1024 * 1024
+-  Support.RETENTION_SECONDS = 7 * 24 * 60 * 60
+-  Support.COMBINED_KASC_VASC_MAX_BYTES = 80 * 1024 * 1024
+-  Support.ALWAYS_ON = true
+-
+-  local sessionFile
+-  local sessionBytes = 0
+-  local sessionCapped = false
+-  local sessionFinalized = false
+-  local sequence = 0
+-  local startedAt
+-  local previousIncomplete
+-  local repeatEvent, repeatSignature, repeatCount
+-  local booted = false
+-  local wrapped = false
+-  local segments, segmentLogged = {}, {}
+-  local summary = {
+-    errors=0, warnings=0, fallbacks=0, firstError=nil,
+-    lastMap=nil, lastScene=nil, abnormal=false,
++  local function disabled() return false, "diagnostics-disabled" end
++  return {
++    OWNER = "KASC-SUPPORT-DISABLED/v1",
++    SCHEMA = "ascendant-support-session-log/v1",
++    ALWAYS_ON = false,
++    ENABLED = false,
++    MAX_SESSIONS = 0,
++    MAX_BYTES = 0,
++    RETENTION_SECONDS = 0,
++    boot = function() return true end,
++    registerSegment = function() return true end,
++    write = disabled,
++    mirrorModLog = disabled,
++    markRepro = disabled,
++    finalize = function() return true end,
++    sessionFile = function() return nil end,
++    sessionId = function() return nil end,
++    deleteOwnLogs = disabled,
++    status = function()
++      return { enabled=false, alwaysOn=false, bytes=0, maxBytes=0,
++        maxSessions=0, retentionSeconds=0, export="DISABLED" }
++    end,
+   }
+-
+-  local function fs()
+-    return love and love.filesystem or nil
+-  end
+-
+-  local function utc(compact)
+-    local format = compact and "!%Y%m%dT%H%M%SZ" or "!%Y-%m-%dT%H:%M:%SZ"
+-    return os and os.date and os.date(format) or "time-unavailable"
+-  end
+-
+-  local function monotonic()
+-    local timer = love and love.timer
+-    if timer and type(timer.getTime) == "function" then
+-      local ok, value = pcall(timer.getTime)
+-      if ok and type(value) == "number" then return value end
+-    end
+-    return 0
+-  end
+-
+-  local function clean(value, limit)
+-    value = tostring(value == nil and "nil" or value)
+-    value = value:gsub("[\r\n\t]", " ")
+-    value = value:gsub("[%w%._%%+%-]+@[%w%.%-]+", "<email>")
+-    value = value:gsub("%f[%d]%d+%.%d+%.%d+%.%d+%f[%D]", "<ip>")
+-    value = value:gsub("/[Uu]sers/[^/%s]+/[^%s]+", function(path)
+-      return "<path:" .. (path:match("([^/]+)$") or "redacted") .. ">"
+-    end)
+-    value = value:gsub("/[Hh]ome/[^/%s]+/[^%s]+", function(path)
+-      return "<path:" .. (path:match("([^/]+)$") or "redacted") .. ">"
+-    end)
+-    value = value:gsub("[A-Za-z]:\\[Uu]sers\\[^\\%s]+\\[^%s]+", function(path)
+-      return "<path:" .. (path:match("([^\\]+)$") or "redacted") .. ">"
+-    end)
+-    for _, key in ipairs({
+-      "token", "secret", "password", "giftcode", "gift_code", "linkcode",
+-      "link_code", "roomcode", "room_code", "searchtext", "search_text",
+-      "playername", "player_name", "trainername", "trainer_name",
+-    }) do
+-      local pattern = key:gsub("%a", function(letter)
+-        return "[" .. letter:lower() .. letter:upper() .. "]"
+-      end)
+-      value = value:gsub("(" .. pattern .. "%s*[=:]%s*)[^%s,;]+",
+-        "%1<redacted>")
+-    end
+-    limit = tonumber(limit) or 384
+-    if #value > limit then value = value:sub(1, limit) .. "..." end
+-    return value
+-  end
+-
+-  local SAFE_FIELDS = {}
+-  for _, key in ipairs({
+-    "action", "active", "actual", "animation", "animationTarget", "axis",
+-    "backend", "battleId", "buildReceiptId", "camera", "canvasHeight",
+-    "canvasWidth", "cardId", "checkpoint", "code", "count", "dependency",
+-    "dependencyStatus", "dpi", "edition", "enabled", "engineVersion",
+-    "error", "fallback", "firstError", "formId", "generation", "height",
+-    "hud", "inputMode", "kind", "level", "mapId", "maxBytes", "mode",
+-    "moveId", "operation", "orientation", "os", "owner", "packageHash",
+-    "packageId", "phase", "pipeline", "platform", "provider",
+-    "providerStatus", "reason", "renderer", "repeatCount", "repeatedEvent",
+-    "result", "retention", "rollbackReceiptId", "schema", "sceneId",
+-    "segmentId", "shader", "source", "speciesId", "stack", "status",
+-    "target", "targetKind", "total", "version", "warning", "width",
+-    "windowHeight", "windowWidth",
+-  }) do SAFE_FIELDS[key] = true end
+-
+-  local function normalizedFields(fields)
+-    local entries, dropped = {}, 0
+-    for rawKey, value in pairs(type(fields) == "table" and fields or {}) do
+-      local key = tostring(rawKey)
+-      if SAFE_FIELDS[key] and type(value) ~= "table"
+-          and type(value) ~= "function" and type(value) ~= "userdata"
+-          and type(value) ~= "thread" then
+-        local safe = clean(value, key == "stack" and 1024 or 384)
+-        if key ~= "code" or safe:match("^D%d%d$") then
+-          entries[#entries + 1] = { key=key, value=safe }
+-        else
+-          dropped = dropped + 1
+-        end
+-      else
+-        dropped = dropped + 1
+-      end
+-    end
+-    table.sort(entries, function(a, b) return a.key < b.key end)
+-    return entries, dropped
+-  end
+-
+-  local function normalizedEvent(event)
+-    event = tostring(event or "unknown"):gsub("[^%w%._%-]", "-")
+-    if #event > 96 then event = event:sub(1, 96) end
+-    if event:match("^kasc%.") then return event end
+-    local lower, segment = event:lower(), "core"
+-    if lower:match("^battle") or lower:match("^mega")
+-        or lower:match("^move") then segment = "battle"
+-    elseif lower:match("^menu") or lower:match("^ui")
+-        or lower:match("^repro") then segment = "ui"
+-    elseif lower:match("^save") or lower:match("^migration")
+-        or lower:match("^legacy") or lower:match("^ng")
+-        or lower:match("^oak") then segment = "persistence"
+-    elseif lower:match("^gift") or lower:match("^link")
+-        or lower:match("^profile") then segment = "compat"
+-    elseif lower:match("^map") or lower:match("^world")
+-        or lower:match("^scene") then segment = "world"
+-    end
+-    return "kasc." .. segment .. "." .. event
+-  end
+-
+-  local function sharedSessionId()
+-    local key = "__ASCENDANT_SUPPORT_SESSION_V1"
+-    local existing = rawget(_G, key)
+-    if type(existing) == "string" and existing:match("^ASC%-%w[%w%-]+$") then
+-      return existing
+-    end
+-    local stamp = utc(true):gsub("[^%w]", "")
+-    local ticks = math.floor(monotonic() * 1000) % 1000000
+-    local value = ("ASC-%s-%06d"):format(stamp, ticks)
+-    rawset(_G, key, value)
+-    return value
+-  end
+-
+-  local function elapsedMs()
+-    if not startedAt then startedAt = monotonic() end
+-    return math.max(0, math.floor((monotonic() - startedAt) * 1000))
+-  end
+-
+-  local function encodedLine(event, entries)
+-    sequence = sequence + 1
+-    local parts = {
+-      utc(false), "seq=" .. tostring(sequence),
+-      "elapsedMs=" .. tostring(elapsedMs()),
+-      "session=" .. sharedSessionId(),
+-      "event=" .. normalizedEvent(event),
+-    }
+-    for _, entry in ipairs(entries or {}) do
+-      parts[#parts + 1] = entry.key .. "=" .. entry.value
+-    end
+-    return table.concat(parts, "\t") .. "\n"
+-  end
+-
+-  local function ownLogName(name)
+-    if type(name) ~= "string" then return false end
+-    local stamp = "%d%d%d%d%d%d%d%dT%d%d%d%d%d%dZ"
+-    local modern = "^KASC%-SESSION%-" .. stamp
+-      .. "%-G[12x]%-ASC%-%w[%w%-]*%.log$"
+-    local legacy = "^KASC%-SESSION%-" .. stamp .. "%-G[12x]%.log$"
+-    local legacySuffix = "^KASC%-SESSION%-" .. stamp .. "%-G[12x]%-%d+%.log$"
+-    return name:match(modern) ~= nil or name:match(legacy) ~= nil
+-      or name:match(legacySuffix) ~= nil
+-  end
+-
+-  local function logNames(filesystem)
+-    if not (filesystem and type(filesystem.getDirectoryItems) == "function") then
+-      return {}
+-    end
+-    local ok, items = pcall(filesystem.getDirectoryItems, Support.DIRECTORY)
+-    if not ok or type(items) ~= "table" then return {} end
+-    local names = {}
+-    for _, name in ipairs(items) do
+-      if ownLogName(name) then names[#names + 1] = name end
+-    end
+-    table.sort(names)
+-    return names
+-  end
+-
+-  local function readFile(filesystem, path)
+-    if not (filesystem and type(filesystem.read) == "function") then return nil end
+-    local ok, payload = pcall(filesystem.read, path)
+-    return ok and type(payload) == "string" and payload or nil
+-  end
+-
+-  local function removeOwn(filesystem, name)
+-    if not ownLogName(name) or type(filesystem.remove) ~= "function" then
+-      return false
+-    end
+-    local ok, result = pcall(filesystem.remove,
+-      Support.DIRECTORY .. "/" .. name)
+-    return ok and result ~= false
+-  end
+-
+-  local function prune(filesystem, names)
+-    local kept = {}
+-    local now = os and type(os.time) == "function" and os.time() or nil
+-    for _, name in ipairs(names) do
+-      local expired = false
+-      if now and type(filesystem.getInfo) == "function" then
+-        local ok, info = pcall(filesystem.getInfo,
+-          Support.DIRECTORY .. "/" .. name)
+-        local modified = ok and type(info) == "table"
+-          and tonumber(info.modtime or info.modification) or nil
+-        expired = modified ~= nil
+-          and now - modified > Support.RETENTION_SECONDS
+-      end
+-      if expired then removeOwn(filesystem, name)
+-      else kept[#kept + 1] = name end
+-    end
+-    while #kept >= Support.MAX_SESSIONS do
+-      local oldest = table.remove(kept, 1)
+-      if not removeOwn(filesystem, oldest) then break end
+-    end
+-    return kept
+-  end
+-
+-  local function generation()
+-    local ok, version = pcall(require, "src.core.GameVersion")
+-    if ok and type(version) == "table" then
+-      local value = tonumber(version.generation)
+-      if value == 1 or value == 2 then return value end
+-      local info = type(version.info) == "function" and version.info() or nil
+-      value = type(info) == "table" and tonumber(info.generation) or nil
+-      if value == 1 or value == 2 then return value end
+-    end
+-    return 1
+-  end
+-
+-  local function ensureSession()
+-    if sessionFile then return sessionFile end
+-    local filesystem = fs()
+-    if not (filesystem and type(filesystem.createDirectory) == "function"
+-        and type(filesystem.getDirectoryItems) == "function"
+-        and type(filesystem.write) == "function") then return nil end
+-    pcall(filesystem.createDirectory, Support.DIRECTORY)
+-    local existing = logNames(filesystem)
+-    local newest = existing[#existing]
+-    if newest then
+-      local old = readFile(filesystem, Support.DIRECTORY .. "/" .. newest)
+-      if not (old and old:find(
+-          "\tevent=kasc.core.session-finalized\t", 1, true)) then
+-        previousIncomplete = newest
+-      end
+-    end
+-    local names = prune(filesystem, existing)
+-    local used = {}
+-    for _, name in ipairs(names) do used[name] = true end
+-    local id = sharedSessionId():gsub("[^%w%-]", "")
+-    local base = "KASC-SESSION-" .. utc(true) .. "-G"
+-      .. tostring(generation()) .. "-" .. id
+-    local name, suffix = base .. ".log", 2
+-    while used[name] do
+-      name = base .. "-" .. tostring(suffix) .. ".log"
+-      suffix = suffix + 1
+-    end
+-    sessionFile = Support.DIRECTORY .. "/" .. name
+-    Support.FILE = sessionFile
+-    local ok, result = pcall(filesystem.write, sessionFile, "")
+-    if not ok or result == false then
+-      sessionFile, Support.FILE = nil, Support.DIRECTORY
+-      return nil
+-    end
+-    sessionBytes, sessionCapped, sessionFinalized = 0, false, false
+-    sequence, startedAt = 0, monotonic()
+-    return sessionFile
+-  end
+-
+-  local function appendRaw(payload)
+-    local filesystem, path = fs(), ensureSession()
+-    if not (filesystem and path and type(filesystem.append) == "function")
+-        or sessionCapped then return false end
+-    payload = tostring(payload or "")
+-    if sessionBytes + #payload + 384 > Support.MAX_BYTES then
+-      local entries = normalizedFields({
+-        maxBytes=Support.MAX_BYTES, action="further-events-dropped",
+-      })
+-      payload = encodedLine("kasc.core.log-size-limit", entries)
+-      sessionCapped = true
+-    end
+-    if sessionBytes + #payload > Support.MAX_BYTES then
+-      sessionCapped = true
+-      return false
+-    end
+-    local ok, result = pcall(filesystem.append, path, payload)
+-    if ok and result ~= false then
+-      sessionBytes = sessionBytes + #payload
+-      return true
+-    end
+-    return false
+-  end
+-
+-  local function emitRaw(event, fields)
+-    local entries = normalizedFields(fields)
+-    return appendRaw(encodedLine(event, entries))
+-  end
+-
+-  local function flushRepeat()
+-    if not repeatEvent or repeatCount <= 0 then return true end
+-    local event, count = repeatEvent, repeatCount
+-    repeatEvent, repeatSignature, repeatCount = nil, nil, 0
+-    return emitRaw("kasc.core.repeat-summary", {
+-      repeatedEvent=event, repeatCount=count,
+-    })
+-  end
+-
+-  local function updateSummary(event, fields)
+-    local lower = tostring(event):lower()
+-    local status = type(fields) == "table"
+-      and tostring(fields.status or fields.result or ""):lower() or ""
+-    if lower:find("error", 1, true) or status == "error"
+-        or status == "failure" or status == "failed" then
+-      summary.errors, summary.abnormal = summary.errors + 1, true
+-      if not summary.firstError then summary.firstError = normalizedEvent(event) end
+-    end
+-    if lower:find("warn", 1, true) or status == "warning" then
+-      summary.warnings = summary.warnings + 1
+-    end
+-    if lower:find("fallback", 1, true) then
+-      summary.fallbacks = summary.fallbacks + 1
+-    end
+-    if type(fields) == "table" then
+-      if fields.mapId ~= nil then summary.lastMap = clean(fields.mapId, 96) end
+-      if fields.sceneId ~= nil then summary.lastScene = clean(fields.sceneId, 96) end
+-    end
+-  end
+-
+-  function Support.write(event, fields)
+-    event = normalizedEvent(event)
+-    local entries, dropped = normalizedFields(fields)
+-    if dropped > 0 then
+-      entries[#entries + 1] = { key="warning", value="fields-redacted" }
+-      table.sort(entries, function(a, b) return a.key < b.key end)
+-    end
+-    local signatureParts = { event }
+-    for _, entry in ipairs(entries) do
+-      signatureParts[#signatureParts + 1] = entry.key .. "=" .. entry.value
+-    end
+-    local signature = table.concat(signatureParts, "\0")
+-    updateSummary(event, fields)
+-    if signature == repeatSignature then
+-      repeatCount = repeatCount + 1
+-      return true
+-    end
+-    flushRepeat()
+-    repeatEvent, repeatSignature, repeatCount = event, signature, 0
+-    return appendRaw(encodedLine(event, entries))
+-  end
+-
+-  function Support.registerSegment(row)
+-    if type(row) ~= "table" then return false, "invalid-segment" end
+-    local id = clean(row.segmentId or row.cardId, 96)
+-    if id == "nil" or id == "" then return false, "missing-segment-id" end
+-    segments[id] = {
+-      segmentId=id, cardId=row.cardId or id,
+-      version=row.version or row.schema or "unknown",
+-      schema=row.schema or "unknown", owner=row.owner or "unknown",
+-      active=row.active == false and false or true,
+-      dependencyStatus=row.dependencyStatus or "unknown",
+-      providerStatus=row.providerStatus or "unknown",
+-      buildReceiptId=row.buildReceiptId or "unknown",
+-      rollbackReceiptId=row.rollbackReceiptId or "unknown",
+-      status=row.pureData == true and "pure-data/no-runtime-events"
+-        or "runtime-events-registered",
+-    }
+-    if booted and not segmentLogged[id] then
+-      segmentLogged[id] = true
+-      Support.write("kasc.core.segment-inventory", segments[id])
+-    end
+-    return true
+-  end
+-
+-  local function emitSegments()
+-    local ids = {}
+-    for id in pairs(segments) do ids[#ids + 1] = id end
+-    table.sort(ids)
+-    for _, id in ipairs(ids) do
+-      if not segmentLogged[id] then
+-        segmentLogged[id] = true
+-        Support.write("kasc.core.segment-inventory", segments[id])
+-      end
+-    end
+-  end
+-
+-  function Support.mirrorModLog()
+-    if wrapped then return true end
+-    local logger = mod and mod.log
+-    if type(logger) ~= "table" then return false, "mod-log-unavailable" end
+-    local installed = 0
+-    for _, level in ipairs({ "info", "warn", "error" }) do
+-      local original = logger[level]
+-      if type(original) == "function" then
+-        local wrapper = function(self, formatString, ...)
+-          local okFormat, message = pcall(string.format,
+-            tostring(formatString or ""), ...)
+-          Support.write("kasc.core.mod-log", {
+-            level=level,
+-            status=level == "error" and "error"
+-              or (level == "warn" and "warning" or "info"),
+-            reason=okFormat and message or tostring(formatString or ""),
+-          })
+-          return original(self, formatString, ...)
+-        end
+-        local ok = pcall(function() logger[level] = wrapper end)
+-        if ok and logger[level] == wrapper then installed = installed + 1 end
+-      end
+-    end
+-    wrapped = installed > 0
+-    return wrapped, installed
+-  end
+-
+-  local function runtimeMetadata()
+-    local width, height, dpi, renderer = 0, 0, 1, "unknown"
+-    if love and love.graphics then
+-      if type(love.graphics.getDimensions) == "function" then
+-        local ok, w, h = pcall(love.graphics.getDimensions)
+-        if ok then width, height = tonumber(w) or 0, tonumber(h) or 0 end
+-      end
+-      if type(love.graphics.getDPIScale) == "function" then
+-        local ok, value = pcall(love.graphics.getDPIScale)
+-        if ok then dpi = tonumber(value) or 1 end
+-      end
+-      if type(love.graphics.getRendererInfo) == "function" then
+-        local ok, value = pcall(love.graphics.getRendererInfo)
+-        if ok and value ~= nil then renderer = tostring(value) end
+-      end
+-    end
+-    local osName = "unknown"
+-    if love and love.system and type(love.system.getOS) == "function" then
+-      local ok, value = pcall(love.system.getOS)
+-      if ok and value ~= nil then osName = tostring(value) end
+-    end
+-    return {
+-      os=osName, renderer=renderer, windowWidth=width, windowHeight=height,
+-      canvasWidth=width, canvasHeight=height, dpi=dpi,
+-      orientation="unknown", inputMode="unknown",
+-    }
+-  end
+-
+-  function Support.boot()
+-    if booted then return true end
+-    if not ensureSession() then return false, "session-unavailable" end
+-    Support.registerSegment({
+-      cardId="KASC-66-SUPPORT-SESSION-LOG", version="v1",
+-      schema=Support.SCHEMA, owner=Support.OWNER,
+-      active=true, dependencyStatus="ready", providerStatus="active",
+-      buildReceiptId="support-session-log-vertical-slice",
+-      rollbackReceiptId="KASC_66_SUPPORT_SESSION_LOG_ROLLBACK",
+-    })
+-    local metadata = runtimeMetadata()
+-    metadata.version = mod and mod.version or "unknown"
+-    metadata.packageId = mod and mod.id or "kanto_ascendant"
+-    metadata.packageHash = mod and mod.packageHash or "unknown"
+-    metadata.engineVersion = "unknown"
+-    metadata.generation = generation()
+-    metadata.retention = Support.MAX_SESSIONS
+-    metadata.maxBytes = Support.MAX_BYTES
+-    metadata.owner = Support.OWNER
+-    metadata.schema = Support.SCHEMA
+-    Support.write("kasc.core.game-start", metadata)
+-    booted = true
+-    if previousIncomplete then
+-      Support.write("kasc.core.previous-session-incomplete", {
+-        source=previousIncomplete, status="previous_session_incomplete",
+-      })
+-    end
+-    emitSegments()
+-    Support.mirrorModLog()
+-    return true
+-  end
+-
+-  function Support.sessionFile() return ensureSession() end
+-  function Support.sessionId() return sharedSessionId() end
+-  function Support.status()
+-    return {
+-      owner=Support.OWNER, schema=Support.SCHEMA, path=ensureSession(),
+-      sessionId=sharedSessionId(), bytes=sessionBytes,
+-      maxBytes=Support.MAX_BYTES, maxSessions=Support.MAX_SESSIONS,
+-      retentionSeconds=Support.RETENTION_SECONDS, capped=sessionCapped,
+-      alwaysOn=true, export="PATH_ONLY",
+-    }
+-  end
+-
+-  function Support.markRepro(state)
+-    state = state == "end" and "end" or "begin"
+-    return Support.write("kasc.ui.repro-marker-" .. state, {
+-      action=state, status="user-marked",
+-    })
+-  end
+-
+-  function Support.finalize(status)
+-    if sessionFinalized then return true end
+-    flushRepeat()
+-    emitRaw("kasc.core.session-summary", {
+-      status=status or (summary.abnormal and "abnormal" or "normal"),
+-      firstError=summary.firstError or "none", count=summary.errors,
+-      warning=summary.warnings, fallback=summary.fallbacks,
+-      mapId=summary.lastMap or "unknown", sceneId=summary.lastScene or "unknown",
+-    })
+-    local ok = emitRaw("kasc.core.session-finalized", {
+-      status=status or (summary.abnormal and "abnormal" or "normal"),
+-    })
+-    sessionFinalized = ok == true
+-    return ok
+-  end
+-
+-  function Support.deleteOwnLogs()
+-    local filesystem = fs()
+-    if not (filesystem and type(filesystem.getDirectoryItems) == "function"
+-        and type(filesystem.remove) == "function") then
+-      return false, "filesystem-remove-unavailable"
+-    end
+-    local removed = 0
+-    for _, name in ipairs(logNames(filesystem)) do
+-      if removeOwn(filesystem, name) then removed = removed + 1 end
+-    end
+-    sessionFile, sessionBytes, sessionCapped = nil, 0, false
+-    sessionFinalized, sequence, startedAt = false, 0, nil
+-    repeatEvent, repeatSignature, repeatCount = nil, nil, 0
+-    Support.FILE = Support.DIRECTORY
+-    if not ensureSession() then return false, "new-session-unavailable" end
+-    Support.write("kasc.ui.logs-deleted", {
+-      action="own-support-logs-only", count=removed, status="recording",
+-    })
+-    return true, removed
+-  end
+-
+-  function Support.open(game, tr)
+-    tr = type(tr) == "function" and tr or function(en) return en end
+-    local ui = mod and mod.ui
+-    local Menu = ui and (ui.KantoListMenu or ui.ListMenu)
+-    if not (Menu and type(Menu.new) == "function" and game and game.stack) then
+-      return false, "support-menu-unavailable"
+-    end
+-    local reproActive, deleteArmed = false, false
+-    local current = Support.status()
+-    local rows = {
+-      {
+-        label=tr("CURRENT LOG", "AKTUELLES LOG"),
+-        right=current.capped and "FULL" or "ACTIVE", action="path",
+-      },
+-      {
+-        label=tr("MARK REPRO", "REPRO MARKIEREN"),
+-        right="BEGIN", action="repro",
+-      },
+-      {
+-        label=tr("DELETE LOGS", "LOGS LÖSCHEN"),
+-        right="A=ARM", action="delete",
+-      },
+-    }
+-    local function help(title, body)
+-      local ascendant = mod.exports and mod.exports.ascendantUi
+-      if ascendant and type(ascendant.showHelp) == "function" then
+-        return ascendant.showHelp(game, title, body)
+-      end
+-      return false
+-    end
+-    local menu = Menu.new(game, tr("SUPPORT LOG", "FEHLERPROTOKOLL"), rows, {
+-      pageJump=false, rows=5,
+-      footer=tr("A:CHOOSE SEL:HELP", "A:WAHL SEL:HILFE"),
+-      onChoose=function(item)
+-        if not item then return false end
+-        if item.action == "path" then
+-          current = Support.status()
+-          item.right = current.capped and "FULL" or "ACTIVE"
+-          return help(tr("SUPPORT LOG", "FEHLERPROTOKOLL"), table.concat({
+-            "FILE: " .. tostring(current.path or "unavailable"),
+-            "SESSION: " .. tostring(current.sessionId or "unavailable"),
+-            "SIZE: " .. tostring(current.bytes or 0) .. "/"
+-              .. tostring(current.maxBytes or 0),
+-            tr("Use app file sharing/Files; this host exposes a path-only fallback.",
+-              "App-Dateifreigabe/Dateien verwenden; dieser Host bietet nur den Pfad-Fallback."),
+-          }, "\n"))
+-        elseif item.action == "repro" then
+-          local state = reproActive and "end" or "begin"
+-          local done = Support.markRepro(state)
+-          if done then reproActive = not reproActive end
+-          item.right = done and (reproActive and "END" or "BEGIN") or "FAILED"
+-          return done
+-        elseif item.action == "delete" then
+-          if not deleteArmed then
+-            deleteArmed, item.right = true, "A=CONFIRM"
+-            return true
+-          end
+-          deleteArmed = false
+-          local done = Support.deleteOwnLogs()
+-          item.right = done and "DONE" or "FAILED"
+-          return done
+-        end
+-        return false
+-      end,
+-    })
+-    game.stack:push(menu)
+-    return true
+-  end
+-
+-  return Support
+ end
+--- a/main.lua
++++ b/main.lua
+@@ -248,9 +248,8 @@
+ end
+ 
+ return function(mod)
+-  -- Required 6.6 infrastructure: create the bounded KASC session before any
+-  -- migration, option or feature module can emit a warning. This mirrors the
+-  -- existing mod.log instance but never replaces its host-facing semantics.
++  -- Preserve the support interface for gameplay modules; public builds use
++  -- an inert implementation without marker files or host-logger wrappers.
+   mod.exports = mod.exports or {}
+   mod.exports.supportSessionLog =
+     loadSibling(mod, "support_session_log.lua")(mod)

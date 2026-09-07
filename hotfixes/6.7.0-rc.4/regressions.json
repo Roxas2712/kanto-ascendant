@@ -1,0 +1,47 @@
+[
+  {
+    "test": "ngplus_read_view_regression_test",
+    "exit": 0,
+    "output": "NGPLUS READ VIEW PASS: 600 hot queries, no reads/writes; copy isolation; authoritative read; write/failure; scope/reload; future schema; opt-in\n"
+  },
+  {
+    "test": "support_disabled_performance_test",
+    "exit": 0,
+    "output": "PASS: 100000 disabled marker calls, no filesystem/graphics access, no logger wrapping, host warnings preserved\n"
+  },
+  {
+    "test": "legacy_archive_test",
+    "exit": 0,
+    "output": "LEGACY ARCHIVE PASS: 400 assertions\n"
+  },
+  {
+    "test": "legacy_archive_integrity_test",
+    "exit": 0,
+    "output": "LEGACY ARCHIVE INTEGRITY PASS: 149 assertions\n"
+  },
+  {
+    "test": "legacy_archive_v9_bank_migration_67_test",
+    "exit": 0,
+    "output": "legacy archive v9 Bank migration 6.7: 31 checks passed\n"
+  },
+  {
+    "test": "legacy_journey_test",
+    "exit": 0,
+    "output": "[warn] font: no glyph for \"1\"\n[warn] font: no glyph for \"8\"\n[warn] font: no glyph for \"0\"\n[warn] font: no glyph for \" \"\n[warn] font: no glyph for \"P\"\n[warn] font: no glyph for \"O\"\n[warn] font: no glyph for \"K\"\n[warn] font: no glyph for \"\u00e9\"\n[warn] font: no glyph for \"M\"\n[warn] font: no glyph for \"N\"\n[warn] font: no glyph for \"V\"\n[warn] font: no glyph for \"E\"\n[warn] font: no glyph for \"D\"\n[warn] font: no glyph for \"C\"\n[warn] font: no glyph for \"B\"\n[warn] font: no glyph for \"X\"\n[warn] font: no glyph for \"S\"\n[warn] font: no glyph for \"A\"\n[warn] font: no glyph for \"R\"\n[warn] font: no glyph for \"F\"\n[warn] font: no glyph for \"U\"\n[warn] font: no glyph for \"L\"\n[warn] font: no glyph for \".\"\n[warn] font: no glyph for \"W\"\n[warn] font: no glyph for \"i\"\n[warn] font: no glyph for \"t\"\n[warn] font: no glyph for \"h\"\n[warn] font: no glyph for \"d\"\n[warn] font: no glyph for \"r\"\n[warn] font: no glyph for \"a\"\n[warn] font: no glyph for \"w\"\n[warn] font: no glyph for \"?\"\n[warn] font: no glyph for \"Y\"\n[warn] font: no glyph for \"G\"\n[warn] font: no glyph for \"o\"\n[warn] font: no glyph for \"u\"\n[warn] font: no glyph for \"n\"\n[warn] font: no glyph for \"e\"\n[warn] font: no glyph for \"g\"\n[warn] font: no glyph for \"c\"\n[warn] font: no glyph for \"y\"\n[warn] font: no glyph for \"H\"\n[warn] font: no glyph for \"3\"\n[warn] font: no glyph for \"s\"\n[warn] font: no glyph for \"T\"\n[warn] font: no glyph for \"\u00c4\"\n[warn] font: no glyph for \"I\"\n[warn] font: no glyph for \"-\"\nLEGACY JOURNEY PASS: 1088 assertions\n"
+  },
+  {
+    "test": "ngplus_tournament_test",
+    "exit": 0,
+    "output": "ngplus_tournament_test: ok\n"
+  },
+  {
+    "test": "ngplus_tournament_rewards_test",
+    "exit": 0,
+    "output": "NGPLUS TOURNAMENT REWARDS PASS: 212 assertions\n"
+  },
+  {
+    "test": "ngplus_tournament_reward_queue_test",
+    "exit": 0,
+    "output": "ngplus_tournament_reward_queue_test: 27 assertions PASS\n"
+  }
+]

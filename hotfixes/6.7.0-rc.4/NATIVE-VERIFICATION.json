@@ -1,0 +1,20 @@
+{
+  "status": "PASS",
+  "host": "Gen1Recomp 0.2.56 / macOS",
+  "kasc": "6.7.0-rc.4",
+  "vasc": "3.0.0-rc.15",
+  "diagnostics": "DISABLED",
+  "step_ms": [
+    882.89954166667,
+    7.0169583333346,
+    8.7340000000005,
+    7.2368333333337,
+    7.0958749999974,
+    9.3681250000017,
+    9.0495833333364,
+    8.0555416666712
+  ],
+  "recurring_median_ms": 8.0555416666712,
+  "windows": "pending",
+  "scope": "Existing affected NG+ save; event callbacks after real restoreSave"
+}

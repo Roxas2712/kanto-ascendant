@@ -1,0 +1,29 @@
+DIAGNOSTICS	DISABLED
+MODS	true	SAVE	OAKS_LAB
+SLOW	save.loaded kanto_ascendant mods/kanto_ascendant/legacy_journey.lua:3661	2277.658375
+SLOW	save.loaded kanto_ascendant mods/kanto_ascendant/legacy_starters.lua:2128	290.11491666667
+SLOW	save.loaded kanto_ascendant mods/kanto_ascendant/hoenn_discovery.lua:1273	282.67829166666
+SLOW	save.loaded kanto_ascendant mods/kanto_ascendant/starter_habitats.lua:1236	2852.4390833333
+SLOW	save.loaded kanto_ascendant mods/kanto_ascendant/ngplus_tournament_rewards.lua:1188	275.13495833333
+SLOW	save.loaded kanto_ascendant mods/kanto_ascendant/generation_rules.lua:634	300.71441666666
+SLOW	save.writing kanto_ascendant mods/kanto_ascendant/legacy_journey.lua:3700	726.74404166666
+SLOW	world.stepped kanto_ascendant mods/kanto_ascendant/pokemon_equipment_runtime_67.lua:168	880.56820833333
+STEP	1	882.89954166667
+STEP	2	7.0169583333346
+STEP	3	8.7340000000005
+STEP	4	7.2368333333337
+STEP	5	7.0958749999974
+STEP	6	9.3681250000017
+STEP	7	9.0495833333364
+STEP	8	8.0555416666712
+TOTAL	save.loaded kanto_ascendant mods/kanto_ascendant/legacy_journey.lua:3661	1	2277.658375	2277.658375
+TOTAL	save.loaded kanto_ascendant mods/kanto_ascendant/legacy_starters.lua:2128	1	290.11491666667	290.11491666667
+TOTAL	save.loaded kanto_ascendant mods/kanto_ascendant/hoenn_discovery.lua:1273	1	282.67829166666	282.67829166666
+TOTAL	save.loaded kanto_ascendant mods/kanto_ascendant/starter_habitats.lua:1236	1	2852.4390833333	2852.4390833333
+TOTAL	save.loaded kanto_ascendant mods/kanto_ascendant/ngplus_tournament_rewards.lua:1188	1	275.13495833333	275.13495833333
+TOTAL	save.loaded kanto_ascendant mods/kanto_ascendant/generation_rules.lua:634	1	300.71441666666	300.71441666666
+TOTAL	world.stepped VOXEL_ASCENDANT mods/VOXEL_ASCENDANT/lib/OverworldPokemonCard.lua:145	32	34.865791666657	6.4850416666644
+TOTAL	world.stepped kanto_ascendant mods/kanto_ascendant/ngplus_tournament.lua:1215	8	15.431166666669	3.2227916666621
+TOTAL	world.stepped kanto_ascendant mods/kanto_ascendant/pokemon_equipment_runtime_67.lua:168	8	881.38108333333	880.56820833333
+TOTAL	save.writing kanto_ascendant mods/kanto_ascendant/legacy_journey.lua:3700	1	726.74404166666	726.74404166666
+DONE

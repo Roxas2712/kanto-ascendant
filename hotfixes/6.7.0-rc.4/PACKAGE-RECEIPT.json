@@ -1,0 +1,15 @@
+{
+  "version": "6.7.0-rc.4",
+  "base_sha256": "77746d4b533d4f61bf0e0f49231f33b7ed9ca034fd84ee9d1c70578f72cc5069",
+  "sha256": "c4ca71f98939ae1111c488b397fdbce57b77c2d2bc9d12fb7027b9411dc412e0",
+  "changed_files": [
+    "legacy_archive.lua",
+    "legacy_journey.lua",
+    "main.lua",
+    "manifest.json",
+    "support_session_log.lua",
+    ".modkit/pack.json"
+  ],
+  "zip_integrity": "PASS",
+  "all_pack_file_hashes": "PASS"
+}
