@@ -36,7 +36,7 @@ return function(ownerMod)
   -- exposes that metadata and always validates the common capability facade.
   R.approvedVersionRanges = {
     VOXEL_ASCENDANT = {
-      range = ">=0.1.0-rc.1 <3.0.0-0 || =3.0.0-rc.12 || =3.0.0-rc.13",
+      range = ">=0.1.0-rc.1 <3.0.0-0 || =3.0.0-rc.12 || =3.0.0-rc.13 || =3.0.0-rc.14",
       provenance = "voxel-ascendant-supported-series-best-effort",
     },
     DRAMALESS_SHAPE = {
