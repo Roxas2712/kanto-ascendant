@@ -1,0 +1,22 @@
+{
+  "vasc": {
+    "file": "Voxel-Ascendant-3.0.9.zip",
+    "sha256": "4ef16ed2d9acb97f620e1480e7a6f78a423f9730ec6197aa2f0647f0ab275f99",
+    "baseSha256": "b45b9e1a186c9a842c10d644d0af7466b626d8fd1fa5222f58ca94608ab50e2e",
+    "changed": [
+      "lib/BattleArena.lua",
+      "manifest.json",
+      "runtime-receipt.json"
+    ]
+  },
+  "kasc": {
+    "file": "kanto_ascendant-6.7.0-rc.11.zip",
+    "sha256": "99a6276b6b14a1993237fb323b4d46953b1bccaf14930227be01e1f1f0a9bb3c",
+    "baseSha256": "b10285ab87aaf3f74eb309e253566a3b99c893bf8b9c41c0aca40062f957ca06",
+    "changed": [
+      ".modkit/pack.json",
+      "hevo_packages.lua",
+      "manifest.json"
+    ]
+  }
+}

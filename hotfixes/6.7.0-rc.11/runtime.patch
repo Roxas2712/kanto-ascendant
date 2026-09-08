@@ -1,0 +1,31 @@
+--- a/hevo_packages.lua
++++ b/hevo_packages.lua
+@@ -639,12 +639,25 @@
+       local request = deps and deps.request or function(g, pokemon, trigger, callback)
+         return require("src.pokemon.Evolution").request(g, pokemon, trigger, callback)
+       end
++      -- The native request also completes synchronously when no branch matches.
++      -- Keep that completion pending until its return value tells us whether
++      -- an evolution started, so a declined request still gets field feedback.
++      local returned, accepted, completed, delivered = false, false, false, false
++      local function complete()
++        completed = true
++        if returned and accepted and not delivered then
++          delivered = true
++          if done then done() end
++        end
++      end
+       local called, evolved = pcall(request, game, selected, {
+         kind = "hevo_field", field = package.field, package = package.id,
+-      }, done)
++      }, complete)
++      returned = true
++      accepted = called and evolved ~= nil and evolved ~= false
++      if accepted and completed then complete() end
+       if not called then return false, evolved, false end
+-      -- Evolution.request calls done itself when there is no matching branch.
+-      return evolved ~= nil and evolved ~= false, evolved or "evolve", true
++      return accepted, evolved or "evolve", accepted
+     end
+     if mon then return evolve(mon) end
+     require("src.ui.Screens").push(game, "PartyMenu", {
