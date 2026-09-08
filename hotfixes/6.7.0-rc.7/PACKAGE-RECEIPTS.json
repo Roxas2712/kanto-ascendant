@@ -1,7 +1,7 @@
 {
   "vasc": {
     "file": "Voxel-Ascendant-3.0.3.zip",
-    "sha256": "4ca63026ba20fb9df3e454baeba35ff40dfb08f89e4b8a9978947f263cc2bb2b",
+    "sha256": "8829b8a20b75760418a02c57014b213e61d4cbe1e51166b73e53927cf678f674",
     "baseSha256": "022082fd2949129ac3b252ca2d00af0133e993a8dcbe640b1723aefaff98f7ce",
     "changed": [
       "battle_hud_oras.lua",
