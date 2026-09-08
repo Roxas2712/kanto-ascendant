@@ -1,0 +1,24 @@
+{
+  "vasc": {
+    "file": "Voxel-Ascendant-3.0.8.zip",
+    "sha256": "b45b9e1a186c9a842c10d644d0af7466b626d8fd1fa5222f58ca94608ab50e2e",
+    "baseSha256": "2d170da3737c90507f79e1eb2d09eb0f539c9c2260685f5e5361dfc9c00d35b3",
+    "changed": [
+      "lib/OverworldBattle.lua",
+      "manifest.json",
+      "runtime-receipt.json"
+    ]
+  },
+  "kasc": {
+    "file": "kanto_ascendant-6.7.0-rc.10.zip",
+    "sha256": "b10285ab87aaf3f74eb309e253566a3b99c893bf8b9c41c0aca40062f957ca06",
+    "baseSha256": "63452d883ebb317f5ff58abebfded023cf4485076080f4476c24c87d3bdb21f0",
+    "changed": [
+      ".modkit/pack.json",
+      "difficulty.lua",
+      "hevo_packages.lua",
+      "legacy_wanderers.lua",
+      "manifest.json"
+    ]
+  }
+}

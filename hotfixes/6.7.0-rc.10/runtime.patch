@@ -1,0 +1,88 @@
+--- a/hevo_packages.lua
++++ b/hevo_packages.lua
+@@ -650,8 +650,24 @@
+     require("src.ui.Screens").push(game, "PartyMenu", {
+       pickOnly = true, onCancel = done,
+       onSwitch = function(selected)
+-        local ok, _, doneHandled = evolve(selected)
+-        if not ok and not doneHandled and done then done() end
++        local ok, reason, doneHandled = evolve(selected)
++        if not ok and not doneHandled then
++          local message
++          if reason == "locked" then
++            message = tr("This field is sealed.\nUnlock its power first.",
++              "Das Feld ist versiegelt.\nSchalte es zuerst frei.")
++          elseif reason == "beyond-kanto-sealed" or reason == "future-generation" then
++            message = tr("This evolution is not\navailable in this era.",
++              "Diese Entwicklung ist\nin dieser Epoche\nnoch nicht verfügbar.")
++          elseif reason == "pokemon" or reason == "species" then
++            message = tr("This POKéMON cannot\nevolve at this field.",
++              "Dieses POKéMON kann\nsich hier nicht\nentwickeln.")
++          else
++            message = tr("The field did not\ntrigger an evolution.",
++              "Das Feld hat keine\nEntwicklung ausgelöst.")
++          end
++          game.stack:push(require("src.render.TextBox").new(game, message, done))
++        end
+       end,
+     })
+     return true
+--- a/legacy_wanderers.lua
++++ b/legacy_wanderers.lua
+@@ -1560,10 +1560,11 @@
+     local ids = {}
+     local kantoBalls = {
+       POKE_BALL = true, GREAT_BALL = true, ULTRA_BALL = true,
+-      MASTER_BALL = true, SAFARI_BALL = true,
++      MASTER_BALL = true,
+     }
+     for id, def in pairs(game and game.data and game.data.items or {}) do
+-      if itemIsBall(game, id, def)
++      -- Safari supplies belong to the Safari Zone, not road-trial loot.
++      if id ~= "SAFARI_BALL" and itemIsBall(game, id, def)
+           and (beyondActive(game) or kantoBalls[id] == true) then
+         ids[#ids + 1] = id
+       end
+@@ -1671,7 +1672,7 @@
+     if apricorn then
+       rows = { { qty = 1, weight = 4 }, { qty = 2, weight = 1 } }
+     elseif not rows then
+-      rows = { { qty = 1, weight = id == "SAFARI_BALL" and 1 or 2 } }
++      rows = { { qty = 1, weight = 2 } }
+     end
+     for _, spec in ipairs(rows) do
+       pool[#pool + 1] = {
+@@ -1953,7 +1954,12 @@
+     local pending = pendingParty
+     if pending and pending.class == oppClass and pending.index == partyIndex then
+       pending.visited = true
+-      return nextParty(oppClass, partyIndex, copy(pending.team))
++      local team = copy(pending.team)
++      -- The road trial already resolved its level from the usable party.
++      -- Other trainer hooks still own species/moves, but Difficulty must not
++      -- add its authored-trainer offset to this adaptive target a second time.
++      for _, row in ipairs(team) do row.kaWandererTargetLevel = row.level end
++      return nextParty(oppClass, partyIndex, team)
+     end
+     return nextParty(oppClass, partyIndex, party)
+   end, 5000)
+--- a/difficulty.lua
++++ b/difficulty.lua
+@@ -78,8 +78,15 @@
+   function D.adjustParty(party, badges)
+     local out, overflow = clone(party or {}), {}
+     for index, row in ipairs(out) do
+-      row.level, overflow[index] = D.adjustLevel(
+-        row.level, "trainer", badges)
++      if type(row.kaWandererTargetLevel) == "number"
++          and row.kaWandererTargetLevel == row.level
++          and row.level >= 1 and row.level <= 100 then
++        overflow[index] = 0
++      else
++        row.level, overflow[index] = D.adjustLevel(
++          row.level, "trainer", badges)
++      end
++      row.kaWandererTargetLevel = nil
+     end
+     return out, overflow
+   end
