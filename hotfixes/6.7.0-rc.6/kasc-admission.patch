@@ -1,0 +1,29 @@
+--- a/manifest.json
++++ b/manifest.json
+@@ -1,7 +1,7 @@
+ {
+   "id": "kanto_ascendant",
+   "name": "Kanto Ascendant",
+-  "version": "6.7.0-rc.5",
++  "version": "6.7.0-rc.6",
+   "api": 2,
+   "entry": "entry.lua",
+   "profile": "content",
+@@ -41,7 +41,7 @@
+         "repositories": [
+           "Roxas2712/voxel-ascendant"
+         ],
+-        "version": ">=0.1.0-rc.1 <3.0.0-0 || >=3.0.0-rc.1 <=3.0.0-rc.12 || =3.0.0-rc.13 || =3.0.0-rc.14 || =3.0.0-rc.15"
++        "version": ">=0.1.0-rc.1 <3.0.0-0 || >=3.0.0-rc.1 <=3.0.0-rc.12 || =3.0.0-rc.13 || =3.0.0-rc.14 || =3.0.0-rc.15 || >=3.0.0-rc.15.1"
+       },
+       {
+         "repositories": [
+@@ -93,7 +93,7 @@
+     "jj_quick_select",
+     "nuzlocke",
+     "Kanto-Reforged",
+-    "VOXEL_ASCENDANT@<0.1.0-rc.1 || >=3.0.0-0 <3.0.0-rc.1 || >3.0.0-rc.12 <3.0.0-rc.13 || >3.0.0-rc.13 <3.0.0-rc.14 || >3.0.0-rc.14 <3.0.0-rc.15 || >3.0.0-rc.15 <3.0.0-rc.15.1 || >3.0.0-rc.15.1",
++    "VOXEL_ASCENDANT@<0.1.0-rc.1 || >=3.0.0-0 <3.0.0-rc.1 || >3.0.0-rc.12 <3.0.0-rc.13 || >3.0.0-rc.13 <3.0.0-rc.14 || >3.0.0-rc.14 <3.0.0-rc.15 || >3.0.0-rc.15 <3.0.0-rc.15.1",
+     "BATTLE_ART_VOXEL_FORK@<1.9.0 || >=3.0.0-0",
+     "DRAMATIC_SHAPE",
+     "potato_voxel@<1.7.2 || >=3.0.0-0",
