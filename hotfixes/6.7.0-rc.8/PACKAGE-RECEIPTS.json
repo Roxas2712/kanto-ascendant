@@ -1,0 +1,37 @@
+{
+  "vasc": {
+    "file": "Voxel-Ascendant-3.0.5.zip",
+    "sha256": "fc4533a3ba83256bb7895a0785cee4d41f7f76b900b5424aa8cabcd20cdf2ed9",
+    "baseSha256": "721510466282a9a30b9b0b4d41d52a2f65e172ef6456c69787e262b0f2b0940c",
+    "changed": [
+      "battle_hud_oras.lua",
+      "lib/FollowerMovementInput.lua",
+      "lib/Gen1MobileMenuBridge.lua",
+      "lib/ManualBagSort.lua",
+      "lib/OverworldBattle.lua",
+      "lib/PartyMenuSkins.lua",
+      "lib/PerformanceDiagnostics.lua",
+      "lib/PokemonUiGen1Hosts.lua",
+      "lib/adapters/gen1/OverworldBattlePublic.lua",
+      "main_gen1.lua",
+      "manifest.json",
+      "runtime-receipt.json"
+    ]
+  },
+  "kasc": {
+    "file": "kanto_ascendant-6.7.0-rc.8.zip",
+    "sha256": "c51b1ab40a1ca21ac8295a9514dcec19a0885221e49b3b97b27b9fb82b50c2e7",
+    "baseSha256": "c7dd5b166f3eeed6b622d98261c35434b0739f842f18b4441e9862a2b9e482fc",
+    "changed": [
+      ".modkit/pack.json",
+      "generation_move_catalog_67.lua",
+      "main.lua",
+      "manifest.json",
+      "mega_evolution.lua",
+      "pokemon_equipment_runtime_67.lua",
+      "rematch_clock.lua",
+      "rematch_mastery.lua",
+      "trainer_recruits.lua"
+    ]
+  }
+}

@@ -1,0 +1,544 @@
+--- a/generation_move_catalog_67.lua
++++ b/generation_move_catalog_67.lua
+@@ -179,9 +179,56 @@
+     return id
+   end
+ 
++  -- Gen-II Foresight is a volatile mark on the current battler. The native
++  -- switch path creates a fresh battler, so this never changes saved types.
++  local identifiedKey="_kascForesightIdentified"
++  local function shallow(value)
++    local out={};for k,v in pairs(value or {})do out[k]=v end;return out
++  end
++  local function registerForesight()
++    local id="KA_GEN_MOVE_FORESIGHT"
++    mod.content.move_effects:register(id, {
++      kind="primary",accuracyChecked=true,
++      run=function(ctx)
++        local target=ctx.target
++        if target[identifiedKey] or target.invulnerable or target.mon.hp<=0 then
++          return {tr("But, it failed!","Doch es schlug fehl!")}
++        end
++        target[identifiedKey]=true
++        return {tr("%s identified\n%s!","%s identifiziert\n%s!"):format(
++          ctx.displayName(ctx.user),ctx.displayName(target))}
++      end,
++    })
++    mod.hooks:wrap("battle.accuracy",function(nextAccuracy,ctx)
++      if not (ctx and ctx.target and ctx.target[identifiedKey]) then return nextAccuracy(ctx)end
++      local acc=ctx.user.stages and ctx.user.stages.accuracy or 0
++      local eva=ctx.target.stages and ctx.target.stages.evasion or 0
++      if eva<acc then return nextAccuracy(ctx)end
++      -- Crystal's identification rule ignores disadvantageous accuracy/evasion
++      -- stage comparisons; base accuracy, misses and other hooks still apply.
++      local adjusted=shallow(ctx)
++      adjusted.user=shallow(ctx.user);adjusted.user.stages=shallow(ctx.user.stages)
++      adjusted.target=shallow(ctx.target);adjusted.target.stages=shallow(ctx.target.stages)
++      adjusted.user.stages.accuracy=0;adjusted.target.stages.evasion=0
++      return nextAccuracy(adjusted)
++    end,22000)
++    mod.hooks:wrap("battle.damage",function(nextDamage,ctx)
++      if not (ctx and ctx.target and ctx.target[identifiedKey] and ctx.move
++          and (ctx.move.type=="NORMAL" or ctx.move.type=="FIGHTING")) then return nextDamage(ctx)end
++      local adjusted=shallow(ctx);adjusted.target=shallow(ctx.target)
++      adjusted.target.curTypes={}
++      for _,t in ipairs(ctx.target.curTypes or {})do
++        if t~="GHOST" then adjusted.target.curTypes[#adjusted.target.curTypes+1]=t end
++      end
++      return nextDamage(adjusted)
++    end,22000)
++    return id
++  end
++
+   local function chooseEffect(row)
+     local damaging=row.category~="status"
+     if not damaging then
++      if row.id=="FORESIGHT" then return registerForesight(),"identification" end
+       if row.healing>0 then return effect("HEAL_EFFECT"),"healing" end
+       if #(row.changes or {})>0 then
+         return registerStatEffect(row,false),"stat-primary"
+--- a/main.lua
++++ b/main.lua
+@@ -1847,6 +1847,7 @@
+   local megaAnimationData = loadSibling(mod, "mega_animation_data.lua")
+   local megaEvolution = makeMegaEvolution(mod, {
+     postgame = postgame,
++    journey = legacyJourney,
+     i18n = i18n,
+     contentEnabled = contentEnabled,
+     animationData = megaAnimationData,
+@@ -2526,6 +2527,7 @@
+   end
+   local masteryModule = loadSibling(mod, "rematch_mastery.lua")
+   local rematchMastery = masteryModule.create({
++    generationRules = mod.exports.generationRules,
+     resonanceRules = driftglassPrisms.resonanceRules,
+     -- Extended trainer moves share the repaired-Receiver boundary. Crown
+     -- signature attacks additionally require their exact Field-Tech reward;
+@@ -4391,9 +4393,7 @@
+         rematchNumber = (state.rematches or 0) + 1,
+         edition = GameVersion.get(), storage = mod.storage,
+       })
+-      local rematchTeam, generation = recruitment.expand(
+-        game.data, team, d.trainerClass,
+-        key, progress, boost, mod.options:get("team_growth") ~= false, {
++      local recruitmentOptions = {
+           game = game,
+           selections = state.recruitFamilies,
+           recentHistory = state.recruitHistory,
+@@ -4406,7 +4406,11 @@
+           random = deps.rematchRandom,
+           seed = rosterAuthority,
+           deferCommit = true,
+-        })
++        }
++      local rematchTeam, generation = recruitment.expand(
++        game.data, team, d.trainerClass,
++        key, progress, boost, mod.options:get("team_growth") ~= false,
++        recruitmentOptions)
+       -- The rematch builder owns growth and recruits, but the shared 6.7
+       -- contract owns the final lane boundary. A malformed, overfull or
+       -- generation-illegal optional plan falls back to the trainer's exact
+@@ -4449,6 +4453,26 @@
+           plannedPreview = plannedTeam
+           if plannedReport.mode == "adaptive" then
+             frozenTeam, frozenReport = plannedTeam, plannedReport
++          end
++        end
++      end
++      -- Evolution gates must use the same final levels as the battle, also
++      -- when adaptive scaling raises or lowers the provisional rematch boost.
++      if generation and plannedPreview then
++        recruitmentOptions.targetLevels = {}
++        for i, row in ipairs(plannedPreview) do
++          recruitmentOptions.targetLevels[i] = row.level
++        end
++        local finalTeam, finalGeneration = recruitment.expand(
++          game.data, team, d.trainerClass, key, progress, boost,
++          mod.options:get("team_growth") ~= false, recruitmentOptions)
++        local legal = not teamContracts or not teamContracts.validatePlan
++          or teamContracts.validatePlan("expert_rematch", game, finalTeam)
++        if legal and #finalTeam == #rematchTeam then
++          rematchTeam, generation = finalTeam, finalGeneration
++          for i, row in ipairs(finalTeam) do
++            plannedPreview[i].species = row.species
++            if frozenTeam then frozenTeam[i].species = row.species end
+           end
+         end
+       end
+@@ -4921,8 +4945,15 @@
+     -- Sound cache entry created by an earlier follower/UI lookup.
+     if johtoAudio and activeGame then johtoAudio.install(activeGame) end
+     if gorochu and activeGame then gorochu.installAudio(activeGame) end
+-    if mod.save:get("trainer_step_clock") == nil then
+-      mod.save:set("trainer_step_clock", playerStepClock())
++    -- Keep saved deadlines in their original accelerated timeline when a
++    -- historical slot has no separate clock yet. Literal walking stays intact.
++    local clockBucket = {
++      step_clock = mod.save:get("step_clock"),
++      trainer_step_clock = mod.save:get("trainer_step_clock"),
++      trainers = mod.save:get("trainers"),
++    }
++    if loadSibling(mod, "rematch_clock.lua").recover(clockBucket) then
++      mod.save:set("trainer_step_clock", clockBucket.trainer_step_clock)
+     end
+     seedDefeatedTrainers(ev.save)
+     migrateRestTimers()
+--- a/mega_evolution.lua
++++ b/mega_evolution.lua
+@@ -636,10 +636,16 @@
+     end
+   end
+ 
++  local function newGamePlus(battle)
++    local save = battle and battle.game and battle.game.save
++    return save and opts.journey and type(opts.journey.isActive)=="function"
++      and opts.journey.isActive(save)==true or false
++  end
++
+   local function eligibleOpponent(battle)
+     local mode = mod.options:get("mega_opponents") or "bosses"
+     if mode == "off" or battle.kind ~= "trainer" then return false end
+-    if mode == "all" then return true end
++    if mode == "all" or newGamePlus(battle) then return true end
+     if BOSS_CLASSES[battle.oppClass] == true then return true end
+     for _, mon in ipairs(battle.enemyParty or {}) do
+       if (tonumber(mon.level) or 0) >= 80 then return true end
+@@ -1492,8 +1498,9 @@
+     if not (battle and battleFeatureAllowed(battle) and optionEnabled()) then
+       return
+     end
+-    if eligibleOpponent(battle) and enemyMegaTargetAvailable(battle) and postgame
+-        and postgame.hasHallOfFame(battle.game.save) then
++    if eligibleOpponent(battle) and enemyMegaTargetAvailable(battle)
++        and (newGamePlus(battle) or postgame
++          and postgame.hasHallOfFame(battle.game.save)) then
+       battle._ascMegaEnemyPending = true
+     end
+   end, -10)
+--- a/pokemon_equipment_runtime_67.lua
++++ b/pokemon_equipment_runtime_67.lua
+@@ -9,6 +9,13 @@
+   local function copy(v)
+     if type(v)~='table' then return v end
+     local r={};for k,x in pairs(v)do r[k]=copy(x)end;return r
++  end
++  local function sameStoredValue(a,b)
++    if a==b then return true end
++    if type(a)~='table' or type(b)~='table' then return false end
++    for k,v in pairs(a)do if not sameStoredValue(v,b[k])then return false end end
++    for k in pairs(b)do if a[k]==nil then return false end end
++    return true
+   end
+   local reasons={
+     no_item={'No held item.','Kein getragenes Item.'},
+@@ -150,12 +157,16 @@
+     if checkpoints[game.save]==stamp then return true end
+     local previous=copy(game.save.modData)
+     if rules.resolve then rules.resolve(game)end
+-    local ok,why=U.initialize(game,true)
++    -- A reload or party reorder invalidates the in-memory stamp, but does
++    -- not by itself require another durable save. Core.bind still commits
++    -- new identities/abilities; force a commit only for resolved rule changes.
++    local rulesChanged=not sameStoredValue(previous,game.save.modData)
++    local ok,why=U.initialize(game,rulesChanged)
+     if not ok then
+       game.save.modData=previous
+       return nil,why
+     end
+-    if rules.syncData then rules.syncData(game)end
++    if rulesChanged and rules.syncData then rules.syncData(game)end
+     checkpoints[game.save]=ownershipStamp(game)
+     return true
+   end
+--- /dev/null
++++ b/rematch_clock.lua
+@@ -0,0 +1,29 @@
++-- A trainer deadline and its rolled rest duration prove the earliest possible
++-- clock value. Older saves can lack the separately accelerated trainer clock.
++-- Recover only that lower bound; never reroll or rewrite any trainer deadline.
++local C = {}
++local function integer(value)
++  value=tonumber(value)
++  if not value or value~=value or value==math.huge or value==-math.huge then return nil end
++  return math.max(0,math.floor(value))
++end
++function C.recover(bucket)
++  if type(bucket)~='table' then return false end
++  local real=integer(bucket.step_clock) or 0
++  local saved=integer(bucket.trainer_step_clock)
++  local clock=math.max(real,saved or 0)
++  if saved==nil then
++    for _,trainer in pairs(type(bucket.trainers)=='table' and bucket.trainers or {}) do
++      if type(trainer)=='table' then
++        local deadline,duration=integer(trainer.readyAt),integer(trainer.lastRest)
++        if deadline and duration and duration>0 then
++          clock=math.max(clock,deadline-duration)
++        end
++      end
++    end
++  end
++  if saved==clock then return false end
++  bucket.trainer_step_clock=clock
++  return true
++end
++return C
+--- a/rematch_mastery.lua
++++ b/rematch_mastery.lua
+@@ -142,12 +142,21 @@
+     + (dvs.speed % 2) * 2 + (dvs.special % 2)
+ end
+ 
++local DAMAGE_EFFECTS = {
++  SUPER_FANG_EFFECT=true, SPECIAL_DAMAGE_EFFECT=true,
++  OHKO_EFFECT=true, COUNTER_EFFECT=true,
++}
++local function damaging(def)
++  return type(def)=="table" and ((tonumber(def.power) or 0)>0
++    or DAMAGE_EFFECTS[def.effect]==true)
++end
++
+ local function moveClass(id, def)
+   if RECOVERY[id] then return "recovery" end
+   if SETUP[id] then return "setup" end
+   if STATUS[id] then return "status" end
+   if UTILITY[id] then return "utility" end
+-  if (tonumber(def and def.power) or 0) > 0 then return "damage" end
++  if damaging(def) then return "damage" end
+   return "utility"
+ end
+ 
+@@ -222,6 +231,11 @@
+   end
+   local function add(id, why)
+     if type(id) ~= "string" or not (data.moves and data.moves[id]) then return end
++    local rules = context.generationRules
++    if rules and type(rules.moveAvailable)=="function" then
++      local resolved=context.generationProfile or rules.resolve(game)
++      if not rules.moveAvailable(id,resolved and resolved.activeEpoch or 1,data) then return end
++    end
+     if JOHTO_MOVE_IDS[id] and not johtoUnlocked then return end
+     if EXTENDED_MOVE_IDS[id] then
+       if type(context.extendedMoveAllowed) ~= "function" then return end
+@@ -242,6 +256,31 @@
+     end
+   end
+   for _, id in ipairs(species and species.tmhm or {}) do add(id, "tmhm") end
++  -- Evolved trainer Pokemon are constructed directly. They still retain
++  -- legal level-up moves of their actual ancestors (e.g. Caterpie's Tackle),
++  -- never moves of descendants or unrelated members of a branching family.
++  local visited = { [mon.species]=true }
++  local function inherit(child)
++    for parentId, parent in pairs(data.pokemon or {}) do
++      if not visited[parentId] and not parent.giftOnly and not parent.backendForm then
++        for _, evolution in ipairs(parent.evolutions or {}) do
++          local target=evolution.species or evolution[2]
++          local rules=context.generationRules
++          if target==child
++              and (not rules or rules.speciesAvailable(game,parentId,parent)) then
++            visited[parentId]=true
++            for _,id in ipairs(parent.level1Moves or {}) do add(id,"pre-evolution") end
++            for _,row in ipairs(parent.learnset or {}) do
++              if (tonumber(row.level) or 1)<=mon.level then add(row.move,"pre-evolution") end
++            end
++            inherit(parentId)
++            break
++          end
++        end
++      end
++    end
++  end
++  inherit(mon.species)
+   -- Crown signature compatibility is owned by Field Tech rather than the
+   -- Gen-I registry's tmhm projection. Try each registered extended move so
+   -- that the callback can attest that exact family without making the move
+@@ -312,7 +351,13 @@
+   end
+   -- A deliberate tactical tool survives upgrades.  This is what protects
+   -- authored sets such as Clefairy + Minimize from raw-power replacement.
+-  for _, id in ipairs(current) do if TACTICAL_KEEP[id] then take(id) end end
++  local attack
++  for _, row in ipairs(ranked) do
++    if row.class=="damage" then attack=row.id;break end
++  end
++  for _, id in ipairs(current) do
++    if TACTICAL_KEEP[id] and (not attack or #selected<3) then take(id) end
++  end
+   local function best(predicate)
+     for _, row in ipairs(ranked) do
+       if predicate(row) and not chosen[row.id] then return row.id end
+@@ -321,7 +366,7 @@
+   take(best(function(row)
+     local def = game.data.moves[row.id]
+     return row.class == "damage" and hasType(species.types, def.type)
+-  end))
++  end) or attack)
+   take(best(function(row)
+     return row.class == "status" or row.class == "setup"
+       or row.class == "recovery"
+@@ -331,18 +376,21 @@
+     return row.class == "damage" and not hasType(species.types, def.type)
+   end))
+   for _, row in ipairs(ranked) do take(row.id) end
+-  if #selected == 0 then return current, role, sources, false end
++  if #selected == 0 then return current, role, sources, false, legal end
+ 
+   local oldScore = setScore(current, game, species, role, teamTypes)
+   local newScore = setScore(selected, game, species, role, teamTypes)
+-  if not context.perfect and #current > 0 and newScore + 0.001 < oldScore then
+-    return current, role, sources, false
++  local currentDamage=false
++  for _,id in ipairs(current) do if damaging(game.data.moves[id]) then currentDamage=true end end
++  if not context.perfect and #current > 0 and (currentDamage or not attack)
++      and newScore + 0.001 < oldScore then
++    return current, role, sources, false, legal
+   end
+   local changed = #current ~= #selected
+   if not changed then
+     for i, id in ipairs(current) do if selected[i] ~= id then changed = true end end
+   end
+-  return selected, role, sources, changed
++  return selected, role, sources, changed, legal
+ end
+ 
+ function M.create(opts)
+@@ -372,6 +420,8 @@
+     context.johtoUnlocked = johtoUnlocked(context)
+     context.resonanceRules = R.resonanceRules
+     context.extendedMoveAllowed = opts.extendedMoveAllowed
++    context.generationRules = opts.generationRules
++    context.generationProfile = opts.generationRules and opts.generationRules.resolve(game)
+     local Stats = context.Stats or require("src.pokemon.Stats")
+     local reports, allLevel100, teamTypes = {}, true, {}
+     for _, mon in ipairs(battle and battle.enemyParty or {}) do
+@@ -412,9 +462,18 @@
+       end
+       mon.hp = mon.stats.hp
+ 
+-      local moveIds, role, sources, changed = chooseMoves(
++      local moveIds, role, sources, changed, legal = chooseMoves(
+         game, mon, context, teamTypes)
+-      if changed and (mon.level == MAX_LEVEL or context.progress >= 3) then
++      local currentDamage, illegalCurrent=false,false
++      for _,move in ipairs(mon.moves or {}) do
++        if not legal[move.id] then illegalCurrent=true end
++        if legal[move.id] and damaging(game.data.moves[move.id]) then currentDamage=true end
++      end
++      local repairsAttack=false
++      for _,id in ipairs(moveIds) do if damaging(game.data.moves[id]) then repairsAttack=true end end
++      local applied = illegalCurrent or changed and (mon.level == MAX_LEVEL
++        or context.progress >= 3 or not currentDamage and repairsAttack)
++      if applied then
+         mon.moves = {}
+         for _, id in ipairs(moveIds) do
+           local move = game.data.moves[id]
+@@ -427,7 +486,7 @@
+         species = mon.species, level = mon.level, tier = tier,
+         quality = quality, qualityBand = { low, high },
+         dvs = copy(dvs), statExp = copy(statExp), moves = copy(moveIds),
+-        role = role, sources = sources, movesChanged = changed,
++        role = role, sources = sources, movesChanged = applied,
+       }
+     end
+     local report = {
+@@ -464,6 +523,8 @@
+     context.johtoUnlocked = johtoUnlocked(context)
+     context.resonanceRules = R.resonanceRules
+     context.extendedMoveAllowed = opts.extendedMoveAllowed
++    context.generationRules = opts.generationRules
++    context.generationProfile = opts.generationRules and opts.generationRules.resolve(game)
+     return legalMoves(game, mon, context)
+   end
+   return R
+--- a/trainer_recruits.lua
++++ b/trainer_recruits.lua
+@@ -113,14 +113,17 @@
+   LATIAS = true, LATIOS = true,
+   KYOGRE = true, GROUDON = true, RAYQUAZA = true,
+   JIRACHI = true, DEOXYS = true,
++  UXIE = true, MESPRIT = true, AZELF = true, DIALGA = true, PALKIA = true,
++  HEATRAN = true, REGIGIGAS = true, GIRATINA = true, CRESSELIA = true,
++  PHIONE = true, MANAPHY = true, DARKRAI = true, SHAYMIN = true, ARCEUS = true,
+ }
+ 
+ local TWO_STAGE = {
+-  { 50, 50 }, { 40, 60 }, { 30, 70 }, { 20, 80 }, { 10, 90 },
++  { 5, 95 }, { 4, 96 }, { 3, 97 }, { 2, 98 }, { 1, 99 },
+ }
+ local THREE_STAGE = {
+-  { 50, 30, 20 }, { 40, 30, 30 }, { 30, 30, 40 },
+-  { 20, 30, 50 }, { 10, 25, 65 }, { 5, 20, 75 }, { 5, 10, 85 },
++  { 1, 4, 95 }, { 1, 3, 96 }, { 1, 2, 97 },
++  { 1, 1, 98 }, { 0, 2, 98 }, { 0, 1, 99 }, { 0, 1, 99 },
+ }
+ local HISTORY_LIMIT = 3
+ 
+@@ -209,6 +212,7 @@
+ local function themesFor(pokemon, team, classId)
+   local out = {}
+   for typeId in pairs(CLASS_THEMES[classId] or {}) do out[typeId] = true end
++  if next(out) ~= nil then return out end
+   for _, species in ipairs(POOLS[classId] or {}) do
+     local def = pokemon[species]
+     for _, typeId in ipairs(def and def.types or {}) do out[typeId] = true end
+@@ -220,6 +224,21 @@
+     end
+   end
+   return out
++end
++
++-- Registry presence also includes event-only gifts and private ABI species.
++-- Ordinary recruits and their evolutions stop at Sinnoh, even in later battle
++-- rulesets. Keep this separate from player-owned/event species availability.
++local function ordinarySpecies(def)
++  if type(def) ~= "table" then return false end
++  if def.giftOnly or def.isMega or def.isGigantamax or def.backendForm
++      or (def.regionalForm ~= nil and def.regionalForm ~= false
++        and def.regionalForm ~= "") then return false end
++  local epoch = tonumber(def.originGeneration or def.originEpoch)
++  if epoch and epoch > 4 then return false end
++  local dex = tonumber(def.sourceDex or def.nationalDex or def.dexNumber
++    or def.dex or def.index)
++  return dex ~= nil and dex == math.floor(dex) and dex >= 1 and dex <= 493
+ end
+ 
+ local speciesAvailability = function() return true end
+@@ -249,7 +268,8 @@
+   local target = evolutionTarget(row)
+   if not target or not pokemon[target] then return false end
+   local def = pokemon[target]
+-  if not speciesAvailability(context and context.game, target, def) then
++  if (target ~= "GOROCHU" and not ordinarySpecies(def)) or LEGENDARY[target]
++      or not speciesAvailability(context and context.game, target, def) then
+     return false
+   end
+   local dex = tonumber(def.dex or def.index)
+@@ -339,7 +359,8 @@
+     levelBoost, options, update)
+   local start = slot.species
+   local level = math.min(100, math.max(1,
+-    math.floor(tonumber(slot.level) or 1) + levelBoost))
++    math.floor(tonumber(options.targetLevels and options.targetLevels[slotIndex])
++      or (tonumber(slot.level) or 1) + levelBoost)))
+   local context = { original = true, slot = slotIndex,
+     rematchNumber = rematchNumber, level = level, graph = options.graph, game=options.game }
+   local stages, maximum = reachableStages(pokemon, start, level, context)
+@@ -374,7 +395,7 @@
+ local function familyCatalog(pokemon, graph, wanted, game)
+   local byRoot = {}
+   for species, def in pairs(pokemon or {}) do
+-    if not LEGENDARY[species]
++    if not LEGENDARY[species] and ordinarySpecies(def)
+         and speciesAvailability(game, species, def) then
+       local root = graph.root(species)
+       local row = byRoot[root] or { root = root, members = {} }
+@@ -411,8 +432,13 @@
+ 
+ local function bestAdditionalSpecies(pokemon, family, level, context)
+   local stages, maximum = reachableStages(pokemon, family, level, context)
+-  local choices = stages[maximum] or stages[0]
+-  return choices[1], maximum
++  for depth = maximum, 0, -1 do
++    for _, species in ipairs(stages[depth] or {}) do
++      if not context.wanted or sharesType(pokemon, species, context.wanted) then
++        return species, depth
++      end
++    end
++  end
+ end
+ 
+ local function recentPenalty(species, history)
+@@ -513,7 +539,8 @@
+   local function addFamily(seed)
+     if not pokemon[seed] then return end
+     local seedDef = pokemon[seed]
+-    if not speciesAvailability(options.game, seed, seedDef) then return end
++    if not ordinarySpecies(seedDef)
++        or not speciesAvailability(options.game, seed, seedDef) then return end
+     local seedDex = tonumber(seedDef.dex or seedDef.index)
+     if seedDex and seedDex > 151 and seedDex <= 251
+         and not availability(seed) and not (R.evolutionAvailable
+@@ -533,7 +560,7 @@
+   for _, row in ipairs(familyCatalog(pokemon, graph, themes, options.game)) do
+     addFamily(row.seed)
+   end
+-  if #sources == 0 then
++  if #sources == 0 and not POOLS[classId] and not CLASS_THEMES[classId] then
+     for species in pairs(pokemon) do addFamily(species) end
+   end
+ 
+@@ -544,9 +571,12 @@
+     local candidates = {}
+     for _, source in ipairs(sources) do
+       if not chosen[source.root] then
+-        local species = bestAdditionalSpecies(pokemon, source.seed, targetLevel,
++        local recruitLevel = tonumber(options.targetLevels
++          and options.targetLevels[#team + recruit]) or targetLevel
++        local species = bestAdditionalSpecies(pokemon, source.seed, recruitLevel,
+           { original = false, rematchNumber = rematchNumber,
+-            level = targetLevel, graph = graph, game=options.game })
++            level = recruitLevel, graph = graph, game=options.game,
++            wanted = CLASS_THEMES[classId] })
+         if species and not LEGENDARY[species] then
+           candidates[#candidates + 1] = {
+             root = source.root, family = source.seed, species = species,

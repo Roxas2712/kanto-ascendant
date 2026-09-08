@@ -2,11 +2,11 @@
   "generated_at": "2026-09-08",
   "mods": [
     {
-      "title": "Kanto Ascendant 6.7.0-rc.6",
-      "downloadURL": "https://github.com/Roxas2712/kanto-ascendant/releases/download/v6.7.0-rc.6/kanto_ascendant-6.7.0-rc.6.zip",
+      "title": "Kanto Ascendant 6.7.0-rc.8",
+      "downloadURL": "https://github.com/Roxas2712/kanto-ascendant/releases/download/v6.7.0-rc.8/kanto_ascendant-6.7.0-rc.8.zip",
       "author": "Roxas2712",
       "experimental": true,
-      "version": "6.7.0-rc.6",
+      "version": "6.7.0-rc.8",
       "games": [
         "gen1",
         "gen2"
@@ -15,11 +15,11 @@
       "repo": "Roxas2712/kanto-ascendant"
     },
     {
-      "title": "Voxel Ascendant 3.0.2",
-      "downloadURL": "https://github.com/Roxas2712/voxel-ascendant/releases/download/v3.0.2/Voxel-Ascendant-3.0.2.zip",
+      "title": "Voxel Ascendant 3.0.5",
+      "downloadURL": "https://github.com/Roxas2712/voxel-ascendant/releases/download/v3.0.5/Voxel-Ascendant-3.0.5.zip",
       "author": "Roxas2712",
       "experimental": true,
-      "version": "3.0.2",
+      "version": "3.0.5",
       "games": [
         "gen1",
         "gen2"
@@ -83,31 +83,31 @@
   "carts": [
     {
       "automatic_version_check": false,
-      "downloadURL": "https://github.com/Roxas2712/kasc-cards/releases/download/v1.3.0-rc.6/kanto-ascendant-red-1.3.0-rc.6.g1rcart",
+      "downloadURL": "https://github.com/Roxas2712/kasc-cards/releases/download/v1.3.0-rc.9/kanto-ascendant-red-1.3.0-rc.9.g1rcart",
       "base": "red",
-      "version": "1.3.0-rc.6",
+      "version": "1.3.0-rc.9",
       "mods": [
         {
-          "sha256": "b02c320e592bac16abb1f298d5752bb219c0063b2845ad144eb494b11d65e9c2",
+          "sha256": "c51b1ab40a1ca21ac8295a9514dcec19a0885221e49b3b97b27b9fb82b50c2e7",
           "repo": "Roxas2712/kanto-ascendant",
           "source": "github",
           "id": "kanto_ascendant",
-          "version": "6.7.0-rc.6"
+          "version": "6.7.0-rc.8"
         },
         {
-          "sha256": "022082fd2949129ac3b252ca2d00af0133e993a8dcbe640b1723aefaff98f7ce",
+          "sha256": "fc4533a3ba83256bb7895a0785cee4d41f7f76b900b5424aa8cabcd20cdf2ed9",
           "repo": "Roxas2712/voxel-ascendant",
           "source": "github",
           "id": "VOXEL_ASCENDANT",
-          "version": "3.0.2"
+          "version": "3.0.5"
         }
       ],
       "id": "kanto_ascendant_red",
       "title": "Kanto Ascendant - Rot",
-      "fixed_release_tag": "v1.3.0-rc.6",
+      "fixed_release_tag": "v1.3.0-rc.9",
       "author": "Roxas2712",
       "shell": "#9b9b93",
-      "summary": "VASC HD download fallback + KASC 6.7.0-rc.6 compatibility. Exact pinned pair.",
+      "summary": "Kanto Ascendant 6.7.0-rc.8 / Voxel Ascendant 3.0.5",
       "seal": "sealed",
       "repo": "Roxas2712/kasc-cards",
       "load_order": [
@@ -117,31 +117,31 @@
     },
     {
       "automatic_version_check": false,
-      "downloadURL": "https://github.com/Roxas2712/kasc-cards/releases/download/v1.3.0-rc.6/kanto-ascendant-blue-1.3.0-rc.6.g1rcart",
+      "downloadURL": "https://github.com/Roxas2712/kasc-cards/releases/download/v1.3.0-rc.9/kanto-ascendant-blue-1.3.0-rc.9.g1rcart",
       "base": "blue",
-      "version": "1.3.0-rc.6",
+      "version": "1.3.0-rc.9",
       "mods": [
         {
-          "sha256": "b02c320e592bac16abb1f298d5752bb219c0063b2845ad144eb494b11d65e9c2",
+          "sha256": "c51b1ab40a1ca21ac8295a9514dcec19a0885221e49b3b97b27b9fb82b50c2e7",
           "repo": "Roxas2712/kanto-ascendant",
           "source": "github",
           "id": "kanto_ascendant",
-          "version": "6.7.0-rc.6"
+          "version": "6.7.0-rc.8"
         },
         {
-          "sha256": "022082fd2949129ac3b252ca2d00af0133e993a8dcbe640b1723aefaff98f7ce",
+          "sha256": "fc4533a3ba83256bb7895a0785cee4d41f7f76b900b5424aa8cabcd20cdf2ed9",
           "repo": "Roxas2712/voxel-ascendant",
           "source": "github",
           "id": "VOXEL_ASCENDANT",
-          "version": "3.0.2"
+          "version": "3.0.5"
         }
       ],
       "id": "kanto_ascendant_blue",
       "title": "Kanto Ascendant - Blau",
-      "fixed_release_tag": "v1.3.0-rc.6",
+      "fixed_release_tag": "v1.3.0-rc.9",
       "author": "Roxas2712",
       "shell": "#9b9b93",
-      "summary": "VASC HD download fallback + KASC 6.7.0-rc.6 compatibility. Exact pinned pair.",
+      "summary": "Kanto Ascendant 6.7.0-rc.8 / Voxel Ascendant 3.0.5",
       "seal": "sealed",
       "repo": "Roxas2712/kasc-cards",
       "load_order": [
@@ -151,31 +151,31 @@
     },
     {
       "automatic_version_check": false,
-      "downloadURL": "https://github.com/Roxas2712/kasc-cards/releases/download/v1.3.0-rc.6/kanto-ascendant-yellow-1.3.0-rc.6.g1rcart",
+      "downloadURL": "https://github.com/Roxas2712/kasc-cards/releases/download/v1.3.0-rc.9/kanto-ascendant-yellow-1.3.0-rc.9.g1rcart",
       "base": "yellow",
-      "version": "1.3.0-rc.6",
+      "version": "1.3.0-rc.9",
       "mods": [
         {
-          "sha256": "b02c320e592bac16abb1f298d5752bb219c0063b2845ad144eb494b11d65e9c2",
+          "sha256": "c51b1ab40a1ca21ac8295a9514dcec19a0885221e49b3b97b27b9fb82b50c2e7",
           "repo": "Roxas2712/kanto-ascendant",
           "source": "github",
           "id": "kanto_ascendant",
-          "version": "6.7.0-rc.6"
+          "version": "6.7.0-rc.8"
         },
         {
-          "sha256": "022082fd2949129ac3b252ca2d00af0133e993a8dcbe640b1723aefaff98f7ce",
+          "sha256": "fc4533a3ba83256bb7895a0785cee4d41f7f76b900b5424aa8cabcd20cdf2ed9",
           "repo": "Roxas2712/voxel-ascendant",
           "source": "github",
           "id": "VOXEL_ASCENDANT",
-          "version": "3.0.2"
+          "version": "3.0.5"
         }
       ],
       "id": "kanto_ascendant_yellow",
       "title": "Kanto Ascendant - Gelb",
-      "fixed_release_tag": "v1.3.0-rc.6",
+      "fixed_release_tag": "v1.3.0-rc.9",
       "author": "Roxas2712",
       "shell": "#9b9b93",
-      "summary": "VASC HD download fallback + KASC 6.7.0-rc.6 compatibility. Exact pinned pair.",
+      "summary": "Kanto Ascendant 6.7.0-rc.8 / Voxel Ascendant 3.0.5",
       "seal": "sealed",
       "repo": "Roxas2712/kasc-cards",
       "load_order": [
