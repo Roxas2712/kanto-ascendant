@@ -1,0 +1,23 @@
+{
+  "vasc": {
+    "file": "Voxel-Ascendant-3.0.6.zip",
+    "sha256": "64a463e9f0a2f50bd058d13817c4d332123c6324acded7d30a18de052417c50e",
+    "baseSha256": "fc4533a3ba83256bb7895a0785cee4d41f7f76b900b5424aa8cabcd20cdf2ed9",
+    "changed": [
+      "integrated/ascendant_pokemon_overworld/src/follower_gen1.lua",
+      "integrated/ascendant_pokemon_overworld/src/runtime.lua",
+      "manifest.json",
+      "runtime-receipt.json"
+    ]
+  },
+  "kasc": {
+    "file": "kanto_ascendant-6.7.0-rc.9.zip",
+    "sha256": "63452d883ebb317f5ff58abebfded023cf4485076080f4476c24c87d3bdb21f0",
+    "baseSha256": "c51b1ab40a1ca21ac8295a9514dcec19a0885221e49b3b97b27b9fb82b50c2e7",
+    "changed": [
+      ".modkit/pack.json",
+      "manifest.json",
+      "summary_insights.lua"
+    ]
+  }
+}

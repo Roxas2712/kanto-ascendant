@@ -1,0 +1,15 @@
+--- a/summary_insights.lua
++++ b/summary_insights.lua
+@@ -149,6 +149,12 @@
+     local originalDraw = SummaryMenu.draw
+ 
+     SummaryMenu.update = function(self, dt)
++      -- The native constructor starts a short white hold before the cry.
++      -- Keep its lifecycle running even when the extra values page owns
++      -- navigation; otherwise pages 1/2 stay covered indefinitely.
++      if self.closing or (self.whiteHold and self.whiteHold > 0) then
++        return originalUpdate(self, dt)
++      end
+       local bridge = SummaryMenu._ascendantInsightsBridge
+       if bridge and bridge.valuesMode(self.game) ~= "off" then
+         local input = self.game.input
