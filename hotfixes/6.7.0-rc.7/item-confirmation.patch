@@ -1,0 +1,19 @@
+--- a/item_protection.lua
++++ b/item_protection.lua
+@@ -14,12 +14,11 @@
+     local def = game.data.items and game.data.items[id]
+     local name = def and def.name or tostring(id):gsub("_", " ")
+     local prompt = require("src.render.TextBox").new(game,
+-      tr(name .. " really use?", name .. " wirklich benutzen?"))
++      tr(name .. " really use?", name .. " wirklich benutzen?"), nil, {
++        defaultNo = true,
++        choice = function(ok) if ok then yes() end end,
++      })
+     game.stack:push(prompt)
+-    game.stack:push(require("src.ui.ChoiceBox").new(game, function(ok)
+-      if game.stack:top() == prompt then game.stack:pop() end
+-      if ok then yes() end
+-    end, { defaultNo = true }))
+     return true
+   end
+   local BagMenu = require("src.ui.BagMenu")

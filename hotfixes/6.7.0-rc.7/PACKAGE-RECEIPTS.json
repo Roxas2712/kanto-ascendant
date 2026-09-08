@@ -1,0 +1,35 @@
+{
+  "vasc": {
+    "file": "Voxel-Ascendant-3.0.3.zip",
+    "sha256": "4ca63026ba20fb9df3e454baeba35ff40dfb08f89e4b8a9978947f263cc2bb2b",
+    "baseSha256": "022082fd2949129ac3b252ca2d00af0133e993a8dcbe640b1723aefaff98f7ce",
+    "changed": [
+      "battle_hud_oras.lua",
+      "data/arena_ground.lua",
+      "gen2/lib/Stadium.lua",
+      "gen2/lib/StadiumRig.lua",
+      "lib/ArenaGround.lua",
+      "lib/BattleCam.lua",
+      "lib/BattleScene.lua",
+      "lib/Gen1MobileMenuBridge.lua",
+      "lib/OrasPartyOverlayPresentation.lua",
+      "lib/OverworldBattle.lua",
+      "lib/PartyMenuSkins.lua",
+      "lib/VoxelBattleStage.lua",
+      "lib/VoxelScene.lua",
+      "main_gen1.lua",
+      "manifest.json",
+      "runtime-receipt.json"
+    ]
+  },
+  "kasc": {
+    "file": "kanto_ascendant-6.7.0-rc.7.zip",
+    "sha256": "c7dd5b166f3eeed6b622d98261c35434b0739f842f18b4441e9862a2b9e482fc",
+    "baseSha256": "b02c320e592bac16abb1f298d5752bb219c0063b2845ad144eb494b11d65e9c2",
+    "changed": [
+      ".modkit/pack.json",
+      "item_protection.lua",
+      "manifest.json"
+    ]
+  }
+}
