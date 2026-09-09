@@ -1,0 +1,11 @@
+{
+  "base": "6.7.2",
+  "base_sha256": "fa7054c819839dc05531c94b98c240f4475692a9fffbe88bc2700f895724cdcf",
+  "version": "6.7.3",
+  "sha256": "9b93265c9590dfb90db86459cbe18859e9ac6507ba86880030cf740939c35371",
+  "changed": [
+    "manifest.json",
+    "story_level_cap.lua",
+    ".modkit/pack.json"
+  ]
+}

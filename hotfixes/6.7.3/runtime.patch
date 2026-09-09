@@ -1,0 +1,102 @@
+--- a/story_level_cap.lua
++++ b/story_level_cap.lua
+@@ -214,6 +214,10 @@
+   end
+ 
+   local function adaptiveParty(game, party, ceiling)
++    -- STORY is progression-bound; feeding the player-scaled opponent back
++    -- into its EXP cap would let that cap rise with the player forever.
++    local state, future = readableState()
++    if not future and state.mode == "story" then return party end
+     if type(party) ~= "table" or not (adaptive
+         and type(adaptive.planAdjusted) == "function"
+         and type(adaptive.currentSelection) == "function") then
+@@ -514,10 +518,57 @@
+     return future
+   end
+ 
++  -- Newer engine builds retain exp.gain but may not implement
++  -- pokemon.level_cap. Clamp the final award, after reward multipliers.
++  mod.hooks:wrap("exp.gain", function(nextGain, context)
++    local gained = nextGain(context)
++    if C.mode() ~= "story" then return gained end
++    local game = context and context.game or currentGame
++    local mon = context and context.mon
++    local cap = C.effective(game)
++    if not (cap and mon) then return gained end
++    if (tonumber(mon.level) or 0) >= cap.level then return 0 end
++    local data = context and context.data or game and game.data
++    local def = data and data.pokemon and data.pokemon[mon.species]
++    if not def then return gained end
++    local Growth = require("src.pokemon.Growth")
++    local limit = Growth.expForLevel(def.growthRate, cap.level, data.growth_rates)
++    return math.max(0, math.min(tonumber(gained) or 0,
++      limit - (tonumber(mon.exp) or 0)))
++  end, 10000)
++
++  local function installCandyGuard()
++    local ok, effects = pcall(require, "src.inventory.ItemEffects")
++    if not (ok and type(effects.use) == "function") then return end
++    local key = "__ascendantStoryCapCandy"
++    local holder = rawget(effects, key)
++    if not holder then
++      holder = { use = effects.use }
++      effects.use = function(data, save, item, target, battle, ...)
++        if item == "RARE_CANDY" and target and holder.blocked(save, target) then
++          return "failed", { require("src.core.RomText")(data,
++            "_ItemUseNoEffectText", "It won't have\nany effect.") }
++        end
++        return holder.use(data, save, item, target, battle, ...)
++      end
++      rawset(effects, key, holder)
++    end
++    holder.blocked = function(save, mon)
++      if C.mode() ~= "story" or not currentGame or currentGame.save ~= save then
++        return false
++      end
++      local Runtime = require("src.mods.Runtime")
++      if not Runtime.wantsHook("pokemon.level_cap") then return false end
++      local cap = C.effective(currentGame)
++      return cap and (tonumber(mon.level) or 0) >= cap.level or false
++    end
++  end
++
+   local function rememberGame(ev)
+     currentGame = ev and ev.game or currentGame or mod.game
+     inBattle = false
+     activeBattleCap = nil
++    installCandyGuard()
+   end
+   mod.events:on("game.ready", rememberGame, 170)
+   mod.events:on("save.loaded", rememberGame, 170)
+@@ -525,9 +576,9 @@
+     inBattle = true
+     activeBattleCap = nil
+   end, 1000)
+-  -- Run after Difficulty (170), story Gym metadata (180), and Adaptive
+-  -- (-100). The exact constructed mandatory party then wins over every
+-  -- preview source and remains immutable for the whole battle.
++  -- Freeze the progression cap after Difficulty (170) and Gym metadata
++  -- (180), but BEFORE Adaptive (-100) reads the opponent ceiling. Never
++  -- derive the player cap from the already scaled enemy party.
+   mod.events:on("battle.started", function(ev)
+     local battle = ev and ev.battle
+     local game = battle and battle.game or currentGame
+@@ -540,13 +591,10 @@
+           or battle.postgameGym == activeBattleCap.key)) then
+       return
+     end
+-    local actual = maxLevel(battle.enemyParty)
+-    if actual then
+-      activeBattleCap.level = actual
+-      activeBattleCap.team = clone(battle.enemyParty)
+-      activeBattleCap.actualBattle = true
+-    end
+-  end, -1000)
++    local ceiling = tonumber(battle.ascendantStoryLevelCeiling)
++    battle.ascendantStoryLevelCeiling = math.min(ceiling or 100,
++      activeBattleCap.level)
++  end, 0)
+   mod.events:on("battle.ended", function()
+     inBattle = false
+     activeBattleCap = nil

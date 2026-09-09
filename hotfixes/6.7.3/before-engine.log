@@ -1,0 +1,14 @@
+...p-20260909/tests/story_level_cap_release_engine_test.lua:37: battle reaches cap: 30 ~= 21
+stack traceback:
+	[C]: in function 'assert'
+	...p-20260909/tests/story_level_cap_release_engine_test.lua:37: in function 'eq'
+	...p-20260909/tests/story_level_cap_release_engine_test.lua:140: in main chunk
+	[C]: in function 'dofile'
+	main.lua:5: in function <main.lua:5>
+	[C]: in function 'xpcall'
+	main.lua:5: in function 'load'
+	[love "callbacks.lua"]:136: in function <[love "callbacks.lua"]:135>
+	[C]: in function 'xpcall'
+	[love "boot.lua"]:368: in function <[love "boot.lua"]:355>
+	[C]: in function 'xpcall'
+	[love "boot.lua"]:377: in function <[love "boot.lua"]:344>
