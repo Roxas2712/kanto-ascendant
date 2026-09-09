@@ -1,0 +1,19 @@
+--- a/legacy_hall.lua
++++ b/legacy_hall.lua
+@@ -534,8 +534,14 @@
+ 
+   mod.hooks:wrap("ui.start_menu.items", function(nextItems, game, items)
+     local out = nextItems(game, items)
+-    if type(out) ~= "table" or not (postgame
+-        and postgame.hasHallOfFame(game.save)) then return out end
++    if type(out) ~= "table" then return out end
++    -- NG+ starts a fresh league record; its title menu must remain available
++    -- throughout the new journey, including before the first badge.
++    local save = game and game.save
++    local inLegacyJourney = legacyJourney and legacyJourney.isActive
++      and legacyJourney.isActive(save)
++    if not (inLegacyJourney or (postgame
++        and postgame.hasHallOfFame(save))) then return out end
+     return mod.ui.insertBefore(out, "SAVE", {
+       label = tr("LEGACY", "VERMÄCHTNIS"),
+       ascendantMenu = true,
