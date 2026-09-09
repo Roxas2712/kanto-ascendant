@@ -1,0 +1,469 @@
+--- a/entry.lua
++++ b/entry.lua
+@@ -14,6 +14,8 @@
+ end
+ 
+ return function(mod)
++  mod.exports.hdDownloadSupport=loadSibling(mod,'hd_download_support.lua')(
++    mod,loadSibling(mod,'hd_download_log.lua'))
+   local GameVersion = require("src.core.GameVersion")
+   local current = type(GameVersion.get) == "function"
+     and GameVersion.get() or GameVersion.current or "red"
+--- a/manifest.json
++++ b/manifest.json
+@@ -1,12 +1,12 @@
+ {
+   "id": "kanto_ascendant",
+   "name": "Kanto Ascendant",
+-  "version": "6.7.3",
++  "version": "6.7.4",
+   "api": 2,
+   "entry": "entry.lua",
+   "profile": "content",
+   "affects_link": true,
+-  "game_version": ">=0.1.96",
++  "game_version": ">=0.2.57",
+   "games": [
+     "gen1",
+     "gen2"
+@@ -16,7 +16,9 @@
+   "priority": 100,
+   "assets_transforms": "shiny_transforms.lua",
+   "permissions": [
+-    "engine_internals"
++    "engine_internals",
++    "compute",
++    "network"
+   ],
+   "dependencies": [],
+   "optional_dependencies": [
+--- /dev/null
++++ b/hd_download_support.lua
+@@ -0,0 +1,223 @@
++-- KASC-owned HD transport and diagnostic integration for public VASC.
++-- Uses declared compute/network permissions; no game executable is modified.
++return function(mod,Log)
++  local Net=require('src.mods.Net')
++  local Version=require('src.core.Version')
++  local platform=love.system.getOS()
++  local now=function()return love.timer.getTime()end
++  local diag=Log.new({cache=mod.cache,version=mod.version,engineVersion=Version.engine,platform=platform,now=now})
++  local self={diagnostics=diag,active=true,version='6.7.4'}
++  local Screens=require('src.ui.Screens')
++  local jobs,workers,attached={},{},{}
++  local source=assert(mod:read('hd_download_worker.lua'))
++  if Net._kascHdSupport then Net._kascHdSupport.close()end
++  local original={get=Net.get,poll=Net.poll,release=Net.release,cancel=Net.cancel,releaseAll=Net.releaseAll}
++  local wrappers={}
++  local originalBuild=Screens.build
++  local buildWrapper
++  local exportJob
++  local function route(url)
++    if type(url)~='string'then return end
++    local origin,path=url:match('^(https://[^/]+)(/.*)$')
++    local host=origin=='https://vasc-downloads.ascendant-content.workers.dev' and 'primary'
++      or origin=='https://vasc-content.maarten-paus.chatgpt.site' and 'fallback'
++    if not host then return end
++    if path=='/catalog.json'then return host,'catalog'end
++    local digest=path:match('^/manifests/([0-9a-f]+)%.json$')
++    if digest and #digest==64 then return host,'manifest'end
++    digest=path:match('^/blobs/sha256/([0-9a-f]+)$')
++    if digest and #digest==64 then return host,'chunk'end
++    digest=path:match('^/downloads/start/([0-9a-f]+)$')
++    if digest and #digest==64 then return host,'start'end
++    digest=path:match('^/downloads/complete/([0-9a-f]+)$')
++    if digest and #digest==48 then return host,'complete'end
++  end
++  local function event(name,fields)pcall(diag.event,diag,name,fields)end
++  local function failEvent(reason)
++    local fields=Log.error(reason);event('failed',fields)
++  end
++  local function collect()
++    local count=0
++    for job in pairs(workers)do
++      local response=job.channel:pop()
++      local running=job.thread:isRunning()
++      if not response and not running and job.state.status=='pending'then
++        response={status='error',err=job.thread:getError() or 'Network polling failed'}
++      end
++      if response and job.state.status=='pending'then
++        job.state=response
++        if job.step=='export'then self.exportStatus=response.message or 'export_failed'end
++        local fields=response.status=='ok' and {} or Log.error(response.err)
++        fields.source=job.source;fields.step=job.step;fields.status=response.status
++        fields.received_bytes=type(response.body)=='string' and #response.body or 0
++        fields.elapsed_ms=math.floor(math.max(0,now()-job.started)*1000)
++        event('response',fields)
++      end
++      if running then count=count+1 else workers[job]=nil end
++    end
++    return count
++  end
++  local function owns(loader,id,handle)
++    local job=jobs[handle]
++    return job and job.loader==loader and job.modId==id and job or nil
++  end
++  wrappers.get=function(loader,id,url,opts)
++    local host,step=route(url)
++    if not self.active or id~='VOXEL_ASCENDANT' or not host then return original.get(loader,id,url,opts)end
++    self.attach()
++    opts=type(opts)=='table' and opts or {}
++    if collect()>=4 then return nil,'HD download workers busy; try again'end
++    local seconds=math.min(30,math.max(1,tonumber(opts.maxSeconds) or 30))
++    if not diag.active then diag:begin('download','kasc-binary-worker')end
++    local channel=love.thread.newChannel()
++    local job={loader=loader,modId=id,channel=channel,state={status='pending'},source=host,step=step,started=now()}
++    local ok,why=pcall(function()
++      job.thread=love.thread.newThread(source)
++      job.thread:start(url,seconds,channel)
++    end)
++    if not ok then failEvent(why);return nil,tostring(why)end
++    local handle={};jobs[handle]=job;workers[job]=true
++    event('request',{source=host,step=step})
++    return handle
++  end
++  wrappers.poll=function(loader,id,handle)
++    local job=owns(loader,id,handle)
++    if not job then return original.poll(loader,id,handle)end
++    collect();local state=job.state
++    return {status=state.status,body=state.body,err=state.err}
++  end
++  wrappers.cancel=function(loader,id,handle)
++    local job=owns(loader,id,handle)
++    if not job then return original.cancel(loader,id,handle)end
++    job.state={status='cancelled'};event('cancelled',{source=job.source,step=job.step});return true
++  end
++  wrappers.release=function(loader,id,handle)
++    if not owns(loader,id,handle)then return original.release(loader,id,handle)end
++    jobs[handle]=nil;collect();return true
++  end
++  function self.export()
++    if not self.active then return false end
++    if exportJob and exportJob.thread:isRunning()then return false end
++    local ok,body=pcall(mod.cache.read,mod.cache,Log.PATH)
++    if not ok or type(body)~='string' or #body>32768 or not body:match('^KASC HD download log v1\n')then
++      self.exportStatus='no_log';return false
++    end
++    local previousOk,previous=pcall(mod.cache.read,mod.cache,Log.PREVIOUS)
++    if previousOk and type(previous)=='string' and #previous<=32768 and previous:match('^KASC HD download log v1\n')then
++      body=body..'\n--- PREVIOUS ATTEMPT / VORHERIGER VERSUCH ---\n'..previous
++    end
++    local channel=love.thread.newChannel()
++    local job={channel=channel,state={status='pending'},source='local',step='export',started=now()}
++    local started=pcall(function()
++      job.thread=love.thread.newThread(assert(mod:read('hd_download_export.lua')))
++      job.thread:start(body,channel)
++    end)
++    if not started then self.exportStatus='export_failed';return false end
++    exportJob=job;workers[job]=true;self.exportStatus='exporting';return true
++  end
++  buildWrapper=function(game,id,...)
++    local menu=originalBuild(game,id,...)
++    if not self.active or id~='VascPokemonHdDownloads' or type(menu)~='table' or type(menu.items)~='table'then return menu end
++    local de=menu.items[1] and menu.items[1].label=='DOWNLOAD-STATUS'
++    local row={label=de and 'DOWNLOADLOG EXPORTIEREN' or 'EXPORT DOWNLOAD LOG',action='kasc_hd_export'}
++    local function addRow()
++      local exists=false
++      for _,item in ipairs(menu.items)do if item==row then exists=true end end
++      if not exists then table.insert(menu.items,math.min(4,#menu.items+1),row)end
++      row.right=diag.saved and (de and 'BEREIT' or 'READY') or '--'
++      row.help='KASC-HD-DOWNLOAD-LOG.txt\n\n'..(de
++        and 'A exportiert das Downloadlog mit dem vorherigen Versuch. Am Handy Speicherort waehlen; am PC oeffnet sich der Exportordner.'
++        or 'A exports the download log including the previous attempt. Choose a location on mobile; the export folder opens on desktop.')
++      local status=self.exportStatus
++      if status=='no_log'then row.help=de and 'Noch kein Log. Zuerst einen HD-Download versuchen.' or 'No log yet. Try an HD download first.'
++      elseif status=='export_failed' or diag.failed then row.help=de and 'Log konnte nicht gespeichert oder exportiert werden.' or 'Could not save or export the log.'
++      elseif status=='picker_opened'then row.right=de and 'SPEICHERN' or 'SAVE'
++      elseif status=='folder_opened' or status=='export_saved'then row.right=de and 'EXPORTIERT' or 'EXPORTED'
++      elseif status=='exporting'then row.right='...'end
++    end
++    local update,choose=menu.update,menu.onChoose
++    menu.update=function(owner,...)
++      local a,b;if update then a,b=update(owner,...)end;collect();addRow();return a,b
++    end
++    menu.onChoose=function(item,...)
++      if item==row then self.export();addRow();return end
++      if choose then return choose(item,...)end
++    end
++    addRow();return menu
++  end
++  Screens.build=buildWrapper
++  function self.attach()
++    if not self.active then return end
++    local vasc=mod:find('VOXEL_ASCENDANT')
++    local api=vasc and vasc.exports and vasc.exports.pokemonHdContent
++    local d=api and api.downloader and api.downloader()
++    if not d or attached[d]then return end
++    local old={check=d.check,start=d.start,update=d.update,cancel=d.cancel}
++    if type(old.check)~='function' or type(old.start)~='function' or type(old.update)~='function' or type(old.cancel)~='function'then return end
++    attached[d]=old;d.kascDownloadLog=diag
++    local function begin(action)
++      self.exportStatus=nil
++      diag:begin(action,'kasc-binary-worker')
++      if d.status=='error' or d.status=='cancelled'then
++        d.usingFallback=nil;if d.warnings then d.warnings.fallback_used=nil end
++      end
++    end
++    local function outcome(previous)
++      if d.status=='error' and previous~='error'then failEvent(d.message)
++      elseif d.status=='ready' and previous~='ready'then event('complete',{done_bytes=d.doneBytes})end
++    end
++    old.checkWrapper=function(owner,...)
++      if not owner:busy()then begin('check')end
++      local before=owner.status;local a,b=old.check(owner,...);outcome(before);return a,b
++    end
++    old.startWrapper=function(owner,generation,packageId,consent)
++      if consent==true and not owner:busy()then begin('download')end
++      local before=owner.status;local a,b=old.start(owner,generation,packageId,consent);outcome(before);return a,b
++    end
++    old.updateWrapper=function(owner,...)
++      local before=owner.status;local a,b=old.update(owner,...);outcome(before);return a,b
++    end
++    old.cancelWrapper=function(owner,...)
++      if owner:busy()then event('cancelled',{done_bytes=owner.doneBytes})end
++      return old.cancel(owner,...)
++    end
++    d.check,d.start,d.update,d.cancel=old.checkWrapper,old.startWrapper,old.updateWrapper,old.cancelWrapper
++  end
++  function self.close()
++    if not self.active then return end
++    self.active=false
++    for _,job in pairs(jobs)do job.state={status='cancelled'}end
++    for job in pairs(workers)do job.state={status='cancelled'}end
++    jobs={}
++    for d,old in pairs(attached)do
++      for _,key in ipairs({'check','start','update','cancel'})do
++        if d[key]==old[key..'Wrapper']then d[key]=old[key]end
++      end
++      d.kascDownloadLog=nil
++    end
++    attached={}
++    if Screens.build==buildWrapper then Screens.build=originalBuild end
++    for key,fn in pairs(wrappers)do if Net[key]==fn then Net[key]=original[key]end end
++    if Net._kascHdSupport==self then Net._kascHdSupport=nil end
++  end
++  wrappers.releaseAll=function(loader,id)
++    for handle,job in pairs(jobs)do
++      if job.loader==loader and job.modId==id then job.state={status='cancelled'};jobs[handle]=nil end
++    end
++    if id==mod.id then self.close()end
++    return original.releaseAll(loader,id)
++  end
++  for key,fn in pairs(wrappers)do Net[key]=fn end
++  Net._kascHdSupport=self
++  require('src.core.SessionLifecycle').registerProcessShutdown(function()
++    self.close()
++    for job in pairs(workers)do pcall(job.thread.wait,job.thread)end
++    workers={}
++  end)
++  mod.events:on('game.ready',self.attach,100)
++  mod.hooks:wrap('core.update',function(nextFn,...)
++    if next(workers)then collect()end
++    return nextFn(...)
++  end)
++  return self
++end
+--- /dev/null
++++ b/hd_download_worker.lua
+@@ -0,0 +1,22 @@
++-- Source-only one-shot worker. No idle loop survives game shutdown.
++local url,seconds,result=...
++require('love.filesystem')
++require('love.system')
++require('love.thread')
++local ok,body,err=pcall(function()
++  local origin,path
++  if type(url)=='string'then origin,path=url:match('^(https://[^/]+)(/.*)$')end
++  assert(origin=='https://vasc-downloads.ascendant-content.workers.dev'
++    or origin=='https://vasc-content.maarten-paus.chatgpt.site','unapproved HD origin')
++  assert(path and not path:find('[%s?#]'),'invalid HD route')
++  local Host=assert(love.filesystem.load('src/core/HostShell.lua'))()
++  local popen=Host.popen
++  function Host.popen(command,mode,options)
++    if love.system.getOS()=='Windows' and mode=='r' then mode='rb'end
++    return popen(command,mode,options)
++  end
++  return Host.httpGet(url,'gen1recomp-mod/VOXEL_ASCENDANT',nil,seconds)
++end)
++if not ok then err=body;body=nil end
++if type(body)=='string' and #body>4*1024*1024 then body=nil;err='Response exceeds content limit'end
++result:push(body and {status='ok',body=body} or {status='error',err=tostring(err or 'Network unavailable')})
+--- /dev/null
++++ b/hd_download_log.lua
+@@ -0,0 +1,85 @@
++-- Local, bounded diagnostics. Never persist URLs, receipt tickets or bodies.
++local M={PATH="KASC-HD-DOWNLOAD-LOG.txt",PREVIOUS="KASC-HD-DOWNLOAD-LOG-VORHER.txt"}
++local LIMIT,ROWS=32768,80
++local ERRORS={
++  ["Network unavailable in this engine"]="transport_unavailable",
++  ["Network unavailable"]="network_unavailable",
++  ["Network polling failed"]="poll_failed",
++  ["Public download source not configured"]="source_not_configured",
++  ["Response exceeds content limit"]="response_too_large",
++  ["Invalid content catalog"]="invalid_catalog",
++  ["Catalog downgrade rejected"]="catalog_downgrade",
++  ["Manifest does not match catalog"]="manifest_mismatch",
++  ["Package size mismatch"]="package_size_mismatch",
++  ["Truncated chunk"]="truncated_chunk",
++}
++local function token(value)
++  return tostring(value or "unknown"):gsub("[^%w_.%-]","_"):sub(1,80)
++end
++function M.error(reason)
++  local raw=tostring(reason or "")
++  local lower=raw:lower()
++  local result={error_kind="transport_error"}
++  result.http_code=tonumber(raw:match("HTTP (%d%d%d)"))
++  result.curl_code=tonumber(raw:match("curl: %((%d+)%)"))
++  if ERRORS[raw]then result.error_kind=ERRORS[raw]
++  elseif raw:find("\137PNG",1,true)then result.error_kind="png_in_transport_error"
++  elseif result.http_code then result.error_kind="http_error"
++  elseif result.curl_code==28 or lower:find("timeout",1,true) or lower:find("timed out",1,true)then result.error_kind="timeout"
++  elseif result.curl_code==6 or lower:find("resolve",1,true)then result.error_kind="dns"
++  elseif result.curl_code==60 or lower:find("ssl",1,true) or lower:find("certificate",1,true)then result.error_kind="tls"
++  elseif raw:match("^[a-z_]+$")then result.error_kind=token(raw)
++  end
++  return result
++end
++function M.new(d)
++  local self={path=M.PATH,saved=false,failed=false,active=false}
++  local cache=d.cache
++  local rows,header={},""
++  local clock=d.now or function()return os.time()end
++  local function now()
++    local ok,n=pcall(clock)
++    return ok and type(n)=="number" and n==n and n~=math.huge and n~=-math.huge and n or 0
++  end
++  local started=0
++  local function write(path,body)
++    if not cache or type(cache.write)~="function"then return false end
++    local ok,yes=pcall(cache.write,cache,path,body)
++    return ok and yes==true
++  end
++  local function flush()
++    local body=header..table.concat(rows,"\n").."\n"
++    while #body>LIMIT and #rows>1 do table.remove(rows,1);body=header..table.concat(rows,"\n").."\n"end
++    self.saved=write(M.PATH,body);self.failed=not self.saved
++  end
++  function self:begin(action,transport)
++    -- Rotate on explicit attempts, never merely by starting/closing the game.
++    if cache and type(cache.read)=="function"then
++      local ok,old=pcall(cache.read,cache,M.PATH)
++      if ok and type(old)=="string" and #old<=LIMIT and old:match("^KASC HD download log v1\n")then
++        write(M.PREVIOUS,old)
++      end
++    end
++    started=now();rows={};self.active=true
++    local ok,utc=pcall(function()return os.date("!%Y-%m-%dT%H-%M-%SZ")end)
++    header="KASC HD download log v1\nbuild=kasc-6.7.4-hd-download utc="..token(ok and utc or nil).."\nmod_version="..token(d.version)
++      .." engine_version="..token(d.engineVersion).." platform="..token(d.platform)
++      .." transport="..token(transport).."\n"
++    self:event("begin",{action=action})
++  end
++  function self:event(event,fields)
++    if not self.active then return end
++    local line=string.format("t=%.3f event=%s",math.max(0,now()-started),token(event))
++    local keys={"action","source","step","package","chunk","expected_bytes","received_bytes",
++      "elapsed_ms","done_bytes","error_kind","http_code","curl_code","status"}
++    for _,key in ipairs(keys)do
++      local v=fields and fields[key]
++      if v~=nil then line=line.." "..key.."="..token(v)end
++    end
++    rows[#rows+1]=line
++    if #rows>ROWS then table.remove(rows,1)end
++    flush()
++  end
++  return self
++end
++return M
+--- /dev/null
++++ b/hd_download_export.lua
+@@ -0,0 +1,23 @@
++-- Only invoked by the player's LOG EXPORT action. Fixed export names.
++local body,result=...
++require('love.filesystem')
++require('love.system')
++require('love.thread')
++local ok,code=pcall(function()
++  assert(type(body)=='string' and #body<=66000 and body:match('^KASC HD download log v1\n'),'invalid log')
++  local name='KASC-HD-DOWNLOAD-LOG.txt'
++  assert(love.filesystem.createDirectory('exports'))
++  assert(love.filesystem.write('exports/'..name,body))
++  local platform=love.system.getOS()
++  if (platform=='Android' or platform=='iOS') and type(love.system.createFile)=='function'then
++    -- Same staging contract as the engine's save-file export picker.
++    assert(love.filesystem.write('pending_export.sav',body))
++    if love.system.createFile(name,love.filesystem.getSaveDirectory())then return 'picker_opened'end
++  end
++  local dir=love.filesystem.getSaveDirectory()..'/exports'
++  dir=dir:gsub('\\','/'):gsub('([^%w%-%._~/:])',function(c)return ('%%%02X'):format(c:byte())end)
++  local url=(dir:sub(1,1)=='/' and 'file://' or 'file:///')..dir
++  if love.system.openURL(url)then return 'folder_opened'end
++  return 'export_saved'
++end)
++result:push({status=ok and 'ok' or 'error',message=ok and code or 'export_failed'})
+--- /dev/null
++++ b/HD-DOWNLOAD-HILFE.txt
+@@ -0,0 +1,62 @@
++KANTO ASCENDANT 6.7.4 — HD-DOWNLOAD-FIX UND LOG
++
++Basis: öffentliche KASC-Version 6.7.3 vom 9. September 2026.
++Benötigt: offizielle Engine gen1recomp 0.2.57 oder neuer.
++Getestete VASC-Basis: unveränderte öffentliche Version 3.0.14.
++
++INSTALLATION
++Spiel schließen. Vorhandene KASC-Installation durch dieses vollständige Paket
++ersetzen. Nur eine KASC-Kopie aktivieren. VASC, Spielstände und vorhandene
++HD-Downloadteile beibehalten. Keine besondere Windows-EXE nötig.
++
++DER FIX
++KASC übernimmt ausschließlich die VASC-HD-Anfragen an die beiden bekannten
++Inhaltsquellen in einem eigenen Hintergrund-Thread. Unter Windows werden die
++Antworten im Binärmodus gelesen, damit PNG-Daten unverändert bleiben.
++Paketgrößen und Prüfsummen prüft weiterhin der bestehende VASC-Downloader.
++Ein erneuter Versuch nach Fehler/Abbruch prüft wieder die Hauptquelle und
++verwendet bereits geprüfte Teile weiter.
++
++LOG EINFACH EXPORTIEREN
++1. Im Spiel den HD-Pokemon-Download versuchen.
++2. Im selben Downloadmenü DOWNLOADLOG EXPORTIEREN wählen.
++3. Die Datei heißt auf jedem Gerät: KASC-HD-DOWNLOAD-LOG.txt
++   Auf Windows/Mac/Linux öffnet sich der Exportordner.
++   Auf Android/iOS öffnet sich, sofern die Engine den Dateiexport bereitstellt,
++   die System-Dateiauswahl. Dort z.B. Downloads als Ziel wählen.
++4. Diese Datei zur Auswertung weitergeben. Sie enthält auch den vorigen Versuch.
++   Der Export erfolgt erst nach dieser Auswahl. Kein automatisches Hochladen.
++
++AUTOMATISCH GESPEICHERTE ORIGINALDATEIEN
++Im KASC-Cache des Spiel-Datenordners:
++  mod_cache/kanto_ascendant/KASC-HD-DOWNLOAD-LOG.txt
++  mod_cache/kanto_ascendant/KASC-HD-DOWNLOAD-LOG-VORHER.txt
++Der zusätzliche Export liegt im normalen Spiel-Datenordner unter:
++  exports/KASC-HD-DOWNLOAD-LOG.txt
++Bei Portable-Modus liegt der KASC-Cache neben dem Spiel; der Export wird über
++die System-Speicherfunktion ausgegeben und der Ordner am Desktop geöffnet.
++
++INHALT DES LOGS
++KASC-/Engine-Version, Plattform, UTC-Startzeit, Quelle, Downloadschritt,
++Antwortgröße, Laufzeit sowie HTTP-/curl-Fehlercodes, soweit vorhanden.
++Validierungsfehler des VASC-Downloaders werden ebenfalls aufgezeichnet.
++URLs, Antwortinhalte, persönliche Ordnerpfade und Belegtickets werden nicht
++gespeichert. Maximal 80 letzte Ereignisse / 32 KiB je Originaldatei.
++Schreibfehler im Log brechen den Download nicht ab.
++
++BERECHTIGUNGEN
++KASC deklariert zusätzlich compute und network für die mitgelieferten
++Hintergrund-Threads. Das normale allgemeine Gameplay-Logging bleibt aus.
++
++PRÜFSTATUS
++Integration mit unverändertem VASC 3.0.14: Fehler beider Quellen, Wiederaufnahme,
++Cache-Erhalt, Abbruch, Besitzertrennung, Log und Menüexport getestet.
++Windows-Textmodus mit echter HD-PNG-Datei reproduziert und der Binärmodus-Fix
++geprüft. Native LÖVE-Threads auf macOS laden von beiden Live-Quellen jeweils
++812803 Bytes mit korrektem SHA-256, innerhalb der Mod-Sandbox mit deklarierten
++Berechtigungen und unveränderter Engine. Desktop-/Mobil-Exportverträge geprüft.
++Ein nativer Windows-/Handy-Test auf einem betroffenen Gerät steht noch aus.
++
++RÜCKWEG
++Spiel schließen und das öffentliche KASC-6.7.3-Paket wieder einsetzen.
++Spielstände und HD-Cache nicht löschen.

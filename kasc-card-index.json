@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-09-09",
+  "generated_at": "2026-09-10",
   "mods": [
     {
-      "title": "Kanto Ascendant 6.7.3",
-      "downloadURL": "https://github.com/Roxas2712/kanto-ascendant/releases/download/v6.7.3/kanto_ascendant-6.7.3.zip",
+      "title": "Kanto Ascendant 6.7.4",
+      "downloadURL": "https://github.com/Roxas2712/kanto-ascendant/releases/download/v6.7.4/kanto_ascendant-6.7.4.zip",
       "author": "Roxas2712",
       "experimental": true,
-      "version": "6.7.3",
+      "version": "6.7.4",
       "games": [
         "gen1",
         "gen2"
@@ -15,11 +15,11 @@
       "repo": "Roxas2712/kanto-ascendant"
     },
     {
-      "title": "Voxel Ascendant 3.0.13",
-      "downloadURL": "https://github.com/Roxas2712/voxel-ascendant/releases/download/v3.0.13/Voxel-Ascendant-3.0.13.zip",
+      "title": "Voxel Ascendant 3.0.14",
+      "downloadURL": "https://github.com/Roxas2712/voxel-ascendant/releases/download/v3.0.14/Voxel-Ascendant-3.0.14.zip",
       "author": "Roxas2712",
       "experimental": true,
-      "version": "3.0.13",
+      "version": "3.0.14",
       "games": [
         "gen1",
         "gen2"

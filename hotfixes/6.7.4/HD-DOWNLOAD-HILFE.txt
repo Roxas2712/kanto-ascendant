@@ -1,0 +1,62 @@
+KANTO ASCENDANT 6.7.4 — HD-DOWNLOAD-FIX UND LOG
+
+Basis: öffentliche KASC-Version 6.7.3 vom 9. September 2026.
+Benötigt: offizielle Engine gen1recomp 0.2.57 oder neuer.
+Getestete VASC-Basis: unveränderte öffentliche Version 3.0.14.
+
+INSTALLATION
+Spiel schließen. Vorhandene KASC-Installation durch dieses vollständige Paket
+ersetzen. Nur eine KASC-Kopie aktivieren. VASC, Spielstände und vorhandene
+HD-Downloadteile beibehalten. Keine besondere Windows-EXE nötig.
+
+DER FIX
+KASC übernimmt ausschließlich die VASC-HD-Anfragen an die beiden bekannten
+Inhaltsquellen in einem eigenen Hintergrund-Thread. Unter Windows werden die
+Antworten im Binärmodus gelesen, damit PNG-Daten unverändert bleiben.
+Paketgrößen und Prüfsummen prüft weiterhin der bestehende VASC-Downloader.
+Ein erneuter Versuch nach Fehler/Abbruch prüft wieder die Hauptquelle und
+verwendet bereits geprüfte Teile weiter.
+
+LOG EINFACH EXPORTIEREN
+1. Im Spiel den HD-Pokemon-Download versuchen.
+2. Im selben Downloadmenü DOWNLOADLOG EXPORTIEREN wählen.
+3. Die Datei heißt auf jedem Gerät: KASC-HD-DOWNLOAD-LOG.txt
+   Auf Windows/Mac/Linux öffnet sich der Exportordner.
+   Auf Android/iOS öffnet sich, sofern die Engine den Dateiexport bereitstellt,
+   die System-Dateiauswahl. Dort z.B. Downloads als Ziel wählen.
+4. Diese Datei zur Auswertung weitergeben. Sie enthält auch den vorigen Versuch.
+   Der Export erfolgt erst nach dieser Auswahl. Kein automatisches Hochladen.
+
+AUTOMATISCH GESPEICHERTE ORIGINALDATEIEN
+Im KASC-Cache des Spiel-Datenordners:
+  mod_cache/kanto_ascendant/KASC-HD-DOWNLOAD-LOG.txt
+  mod_cache/kanto_ascendant/KASC-HD-DOWNLOAD-LOG-VORHER.txt
+Der zusätzliche Export liegt im normalen Spiel-Datenordner unter:
+  exports/KASC-HD-DOWNLOAD-LOG.txt
+Bei Portable-Modus liegt der KASC-Cache neben dem Spiel; der Export wird über
+die System-Speicherfunktion ausgegeben und der Ordner am Desktop geöffnet.
+
+INHALT DES LOGS
+KASC-/Engine-Version, Plattform, UTC-Startzeit, Quelle, Downloadschritt,
+Antwortgröße, Laufzeit sowie HTTP-/curl-Fehlercodes, soweit vorhanden.
+Validierungsfehler des VASC-Downloaders werden ebenfalls aufgezeichnet.
+URLs, Antwortinhalte, persönliche Ordnerpfade und Belegtickets werden nicht
+gespeichert. Maximal 80 letzte Ereignisse / 32 KiB je Originaldatei.
+Schreibfehler im Log brechen den Download nicht ab.
+
+BERECHTIGUNGEN
+KASC deklariert zusätzlich compute und network für die mitgelieferten
+Hintergrund-Threads. Das normale allgemeine Gameplay-Logging bleibt aus.
+
+PRÜFSTATUS
+Integration mit unverändertem VASC 3.0.14: Fehler beider Quellen, Wiederaufnahme,
+Cache-Erhalt, Abbruch, Besitzertrennung, Log und Menüexport getestet.
+Windows-Textmodus mit echter HD-PNG-Datei reproduziert und der Binärmodus-Fix
+geprüft. Native LÖVE-Threads auf macOS laden von beiden Live-Quellen jeweils
+812803 Bytes mit korrektem SHA-256, innerhalb der Mod-Sandbox mit deklarierten
+Berechtigungen und unveränderter Engine. Desktop-/Mobil-Exportverträge geprüft.
+Ein nativer Windows-/Handy-Test auf einem betroffenen Gerät steht noch aus.
+
+RÜCKWEG
+Spiel schließen und das öffentliche KASC-6.7.3-Paket wieder einsetzen.
+Spielstände und HD-Cache nicht löschen.

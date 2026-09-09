@@ -1,0 +1,18 @@
+{
+  "base": "v6.7.3",
+  "version": "6.7.4",
+  "files": 102369,
+  "changed": [
+    "entry.lua",
+    "manifest.json"
+  ],
+  "added": [
+    "HD-DOWNLOAD-HILFE.txt",
+    "hd_download_export.lua",
+    "hd_download_log.lua",
+    "hd_download_support.lua",
+    "hd_download_worker.lua"
+  ],
+  "sha256": "62ff1f9a8d5ec3a741973d473ea085e4f12efe2d61cf23f394a46881f076f118",
+  "native_windows_test": false
+}

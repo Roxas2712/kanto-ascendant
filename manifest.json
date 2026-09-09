@@ -1,12 +1,12 @@
 {
   "id": "kanto_ascendant",
   "name": "Kanto Ascendant",
-  "version": "6.7.3",
+  "version": "6.7.4",
   "api": 2,
   "entry": "entry.lua",
   "profile": "content",
   "affects_link": true,
-  "game_version": ">=0.1.96",
+  "game_version": ">=0.2.57",
   "games": [
     "gen1",
     "gen2"
@@ -16,7 +16,9 @@
   "priority": 100,
   "assets_transforms": "shiny_transforms.lua",
   "permissions": [
-    "engine_internals"
+    "engine_internals",
+    "compute",
+    "network"
   ],
   "dependencies": [],
   "optional_dependencies": [
