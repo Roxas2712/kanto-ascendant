@@ -378,8 +378,15 @@ return function(mod, opts)
           return gymStage(game, def), GYMS, index
         end
       end
-      -- A damaged or externally imported save may lack the route flags that
-      -- explain its badges.  Do not invent an open fight for that save.
+      -- Normal story errands can leave every unbeaten Gym route-locked
+      -- (for example, after Misty but before receiving Cut). Keep the next
+      -- undefeated milestone as the cap while the player opens its route.
+      -- Reachable leaders above still take priority for nonlinear progress.
+      for index, def in ipairs(GYMS) do
+        if not present(bag[def.badge]) then
+          return gymStage(game, def), GYMS, index
+        end
+      end
       return nil, GYMS, nil
     end
 

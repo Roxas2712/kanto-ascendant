@@ -1,0 +1,26 @@
+[
+  {
+    "test": "full_package_load_test.lua",
+    "exit": 0,
+    "result": "PASS",
+    "summary": "FULL PACKAGE LOAD PASS: complete release archive and ten move effect owners"
+  },
+  {
+    "test": "story_level_cap_daycare_66_test.lua",
+    "exit": 0,
+    "result": "PASS",
+    "summary": "story_level_cap_daycare_66_test: PASS checks=12"
+  },
+  {
+    "test": "story_level_cap_menu_66_test.lua",
+    "exit": 0,
+    "result": "PASS",
+    "summary": "story_level_cap_menu_66_test: PASS checks=30"
+  },
+  {
+    "test": "story_level_cap_regression.lua",
+    "exit": 0,
+    "result": "PASS",
+    "summary": "story_level_cap_regression: PASS checks=198"
+  }
+]

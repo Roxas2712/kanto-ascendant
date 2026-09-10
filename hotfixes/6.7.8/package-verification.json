@@ -1,0 +1,13 @@
+{
+  "version": "6.7.8",
+  "base_sha256": "9a3dce45159e9af7aae952845d1f2f9a6ca08e9eba4f85235da2ebd0bbf3594a",
+  "sha256": "07b0748c6fe8ccadc0bff789fd029a8a13ad70cd36818b4a720933703275dc07",
+  "changed_files": [
+    "manifest.json",
+    "story_level_cap.lua",
+    ".modkit/pack.json"
+  ],
+  "zip_integrity": "PASS",
+  "all_pack_file_hashes": "PASS",
+  "published": false
+}
