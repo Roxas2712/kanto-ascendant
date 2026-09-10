@@ -1,0 +1,709 @@
+--- a/hoenn_acquisition_67_data.lua
++++ b/hoenn_acquisition_67_data.lua
+@@ -258,4 +258,29 @@
+   for _, family in ipairs(families) do A.familyCharacter[family] = character end
+ end
+ 
++-- Direct local districts, not a transitive world graph. Exhausting a district
++-- must never turn an early-game clue into a trip across Kanto.
++A.traceDistricts = {
++  {"PALLET_TOWN", "ROUTE_1", "VIRIDIAN_CITY", "ROUTE_2", "ROUTE_22"},
++  {"VIRIDIAN_FOREST", "ROUTE_2", "PEWTER_CITY", "ROUTE_3"},
++  {"ROUTE_3", "ROUTE_4", "MT_MOON_1F", "MT_MOON_B1F", "MT_MOON_B2F"},
++  {"CERULEAN_CITY", "ROUTE_4", "ROUTE_5", "ROUTE_9", "ROUTE_24", "ROUTE_25"},
++  {"SAFFRON_CITY", "ROUTE_5", "ROUTE_6", "ROUTE_7", "ROUTE_8"},
++  {"VERMILION_CITY", "ROUTE_6", "ROUTE_11", "DIGLETTS_CAVE"},
++  {"ROUTE_9", "ROUTE_10", "ROCK_TUNNEL_1F", "ROCK_TUNNEL_B1F", "POWER_PLANT"},
++  {"LAVENDER_TOWN", "ROUTE_8", "ROUTE_10", "ROUTE_12",
++    "POKEMON_TOWER_3F", "POKEMON_TOWER_4F", "POKEMON_TOWER_5F", "POKEMON_TOWER_6F", "POKEMON_TOWER_7F"},
++  {"CELADON_CITY", "ROUTE_7", "ROUTE_16", "ROUTE_17"},
++  {"ROUTE_12", "ROUTE_13", "ROUTE_14", "ROUTE_15"},
++  {"FUCHSIA_CITY", "ROUTE_15", "ROUTE_18", "ROUTE_19",
++    "SAFARI_ZONE_CENTER", "SAFARI_ZONE_EAST", "SAFARI_ZONE_WEST", "SAFARI_ZONE_NORTH"},
++  {"ROUTE_17", "ROUTE_18"},
++  {"ROUTE_19", "ROUTE_20", "SEAFOAM_ISLANDS_1F", "SEAFOAM_ISLANDS_B1F",
++    "SEAFOAM_ISLANDS_B2F", "SEAFOAM_ISLANDS_B3F", "SEAFOAM_ISLANDS_B4F"},
++  {"CINNABAR_ISLAND", "ROUTE_20", "ROUTE_21", "POKEMON_MANSION_1F",
++    "POKEMON_MANSION_2F", "POKEMON_MANSION_3F", "POKEMON_MANSION_B1F"},
++  {"ROUTE_23", "INDIGO_PLATEAU", "VICTORY_ROAD_1F", "VICTORY_ROAD_2F", "VICTORY_ROAD_3F"},
++  {"CERULEAN_CAVE_1F", "CERULEAN_CAVE_2F", "CERULEAN_CAVE_B1F"},
++}
++
+ return A
+--- a/hoenn_discovery.lua
++++ b/hoenn_discovery.lua
+@@ -9,7 +9,7 @@
+   INTRODUCTION_ROLL_MAX = 10000,
+   INTRODUCTION_HIT_MAX = 2000,
+   HARD_INTRODUCTION_WIN = 8,
+-  HARD_OVERLAY_ENCOUNTER = 200,
++  HARD_OVERLAY_ENCOUNTER = 50,
+   NORMAL_HIT_MIN = 9901,       -- 1.00%
+   TRACE_HIT_MIN = 9851,        -- 1.50%
+   STARTER_HIT_MIN = 9851,      -- 0.50% directly below the normal 1% bucket
+@@ -226,9 +226,34 @@
+     return out, changed
+   end
+ 
+-  local function introductionPool(root, registered)
++  local function localFamilies(root, registered, mapId)
++    local families = registeredOrder(registered, "ordinary")
++    if H.legacyCompatibility or not mapId then return families end
++    local nearby = { [mapId] = true }
++    for _, district in ipairs(Acquisition.traceDistricts or {}) do
++      local contains = false
++      for _, place in ipairs(district) do if place == mapId then contains = true end end
++      if contains then for _, place in ipairs(district) do nearby[place] = true end end
++    end
++    local here, around = {}, {}
++    for _, family in ipairs(families) do
++      local habitat = H.primaryHabitat(family)
++      -- Old saves retain their actual encounter location, even when it was
++      -- assigned by a Wanderer rather than by the authored habitat table.
++      local target = H.traceMap(root, family) or habitat and habitat.map
++      local status = State.status(root, "hoenn", family)
++      if status ~= "caught" and status ~= "unlocked" then
++        if target == mapId then here[#here + 1] = family
++        elseif nearby[target] then around[#around + 1] = family end
++      end
++    end
++    if #here > 0 then return here end
++    return around
++  end
++
++  local function introductionPool(root, registered, mapId)
+     local unseen, unresolved, caught = {}, {}, {}
+-    for _, family in ipairs(registeredOrder(registered, "ordinary")) do
++    for _, family in ipairs(localFamilies(root, registered, mapId)) do
+       local status = State.status(root, "hoenn", family)
+       if status == "unseen" then
+         unseen[#unseen + 1] = family
+@@ -240,7 +265,7 @@
+     end
+     if #unseen > 0 then return unseen, "unseen" end
+     if #unresolved > 0 then return unresolved, "unresolved" end
+-    return caught, "caught"
++    return {}, "caught"
+   end
+ 
+   H.introductionPool = introductionPool
+@@ -264,7 +289,7 @@
+       }
+     end
+ 
+-    local pool, tier = introductionPool(out, args.registeredFamilies)
++    local pool, tier = introductionPool(out, args.registeredFamilies, mapId)
+     if #pool == 0 then
+       return out, {
+         eligible = false, introduced = false, rollsUsed = 0,
+@@ -317,7 +342,7 @@
+ 
+     local family = pool[args.familyRoll]
+     local habitat = H.primaryHabitat(family)
+-    local traceMap = mapKey(args.traceMap)
++    local traceMap = H.legacyCompatibility and mapKey(args.traceMap)
+       or habitat and mapKey(habitat.map) or mapId
+     local status = State.status(out, "hoenn", family)
+     if status == "unseen" or status == "sighted" then
+@@ -480,6 +505,19 @@
+     return pool[((roll - lower) % #pool) + 1]
+   end
+ 
++  -- Reserve enough remaining encounters for simultaneous clues. Waiting
++  -- until all reach 49 misses would make every clue but one exceed 50.
++  local function dueTrace(traces)
++    local ordered = copy(traces)
++    table.sort(ordered, function(a, b)
++      if a.pity ~= b.pity then return a.pity > b.pity end
++      return a.family < b.family
++    end)
++    for index, row in ipairs(ordered) do
++      if row.pity + index >= H.HARD_OVERLAY_ENCOUNTER then return ordered[1] end
++    end
++  end
++
+   function H.planFieldOverlay(root, args)
+     args = type(args) == "table" and args or {}
+     local native, mapId, roll = args.native, mapKey(args.mapId), args.roll
+@@ -489,12 +527,10 @@
+     end
+     local traces = H.activeTraces(root, mapId, args.registeredFamilies)
+     local tracePool, traceFamilies = {}, {}
+-    local forced
++    local forced = dueTrace(traces)
+     for _, row in ipairs(traces) do
+       tracePool[#tracePool + 1] = row.family
+       traceFamilies[row.family] = true
+-      if row.pity + 1 >= H.HARD_OVERLAY_ENCOUNTER
+-          and (not forced or row.pity > forced.pity) then forced = row end
+     end
+     if args.legacyEnabled == true then
+       for _, row in ipairs(H.legacyHabitats(
+@@ -554,7 +590,7 @@
+         args.levelMode, args.badgeCount)
+       local species
+       species, level = selectSpecies(args.game, def, roll, level,
+-        mode ~= "starter")
++        mode ~= "starter" and mode ~= "trace")
+       output.species, output.level = species, level
+       output.kaEncounterSource = "hoenn_discovery"
+       output.kaProtected = true
+@@ -596,7 +632,7 @@
+     if #traces == 0 then return native, nil, "no-map-trace" end
+ 
+     local traceSet, pool = {}, {}
+-    local forced
++    local forced = dueTrace(traces)
+     for _, row in ipairs(traces) do
+       traceSet[row.family] = true
+       pool[#pool + 1] = {
+@@ -605,10 +641,6 @@
+         level = native.level,
+         habitats = { mapId },
+       }
+-      if row.pity + 1 >= H.HARD_OVERLAY_ENCOUNTER
+-          and (not forced or row.pity > forced.pity) then
+-        forced = row
+-      end
+     end
+ 
+     local planned, reason = Overlay.plan({
+@@ -1116,9 +1148,10 @@
+       if type(token) == "string" and H.lastSurpriseToken(root) == token then
+         return false, "duplicate-surprise-win"
+       end
++      local pool = introductionPool(root, families, mapId)
++      if #pool == 0 then return false, "no-local-family" end
+       local chanceRoll = random(1, H.INTRODUCTION_ROLL_MAX,
+         "hoenn-introduction")
+-      local pool = introductionPool(root, families)
+       local willIntroduce = chanceRoll <= H.INTRODUCTION_HIT_MAX
+         or H.introductionPity(root) + 1 >= H.HARD_INTRODUCTION_WIN
+       local familyRoll = willIntroduce and random(1, #pool, "hoenn-family")
+@@ -1130,7 +1163,6 @@
+         chanceRoll = chanceRoll,
+         familyRoll = familyRoll,
+         token = token,
+-        traceMap = mapId,
+       })
+       if result.changed then manager.replace(nextRoot) end
+       battle.kaHoennIntroductionCounted = result.changed == true
+--- a/hoenn_trace_presentation_67.lua
++++ b/hoenn_trace_presentation_67.lua
+@@ -31,16 +31,311 @@
+     return type(value) == "string" and value ~= "" and value or species
+   end
+ 
++  local voices = {
++    DEFAULT = {
++      { "One more travel tip.", "Noch ein Reisetipp." },
++      { "A little discovery for you.", "Eine kleine Entdeckung für dich." },
++      { "Here is something worth a detour.", "Dafür lohnt sich ein Abstecher." },
++      { "Before I move on...", "Bevor ich weiterziehe..." },
++      { "I made a note of this.", "Das habe ich mir notiert." },
++      { "Take this tip along.", "Nimm diesen Tipp mit." },
++    },
++    YOUNGSTER = {
++      { "Hey, guess what!", "Hey, rate mal!" },
++      { "You have to check this out!", "Das musst du dir ansehen!" },
++      { "This made my whole day!", "Das war mein Tageshighlight!" },
++      { "Wait, I nearly forgot!", "Halt, fast vergessen!" },
++      { "My friends will be so jealous!", "Da werden meine Freunde staunen!" },
++      { "Ready for another adventure?", "Lust auf noch ein Abenteuer?" },
++    },
++    LASS = {
++      { "I had such a lovely surprise!", "Das war eine schöne Überraschung!" },
++      { "I kept hoping to see it again.", "Ich wollte es unbedingt wiedersehen." },
++      { "Let me share my lucky find.", "Ich verrate dir meinen Glücksfund." },
++      { "I stopped just to watch it.", "Dafür bin ich stehen geblieben." },
++      { "This is my favorite travel story.", "Das war mein schönstes Reiseerlebnis." },
++      { "I think you would like this.", "Das könnte dir gefallen." },
++    },
++    BUG_CATCHER = {
++      { "My net nearly slipped!", "Fast wäre mir das Netz entglitten!" },
++      { "I was checking the undergrowth.", "Ich habe das Unterholz abgesucht." },
++      { "Keep your eyes low!", "Schau auch mal nach unten!" },
++      { "Not every find fits in a net!", "Nicht jeder Fund passt ins Netz!" },
++      { "I took a break from bug hunting.", "Ich machte Pause vom Käferfangen." },
++      { "A good catcher notices everything.", "Ein guter Fänger sieht genau hin." },
++    },
++    HIKER = {
++      { "That was worth the long walk!", "Dafür hat sich der Marsch gelohnt!" },
++      { "My boots have seen a lot.", "Meine Stiefel kommen viel herum." },
++      { "I stopped to catch my breath.", "Ich musste kurz verschnaufen." },
++      { "Let me mark your next stop.", "Ich verrate dir einen guten Halt." },
++      { "A good hike needs a good find!", "So macht Wandern Spaß!" },
++      { "Keep some room in your backpack.", "Lass noch Platz im Rucksack." },
++    },
++    FISHER = {
++      { "Patience paid off again.", "Geduld hat sich wieder ausgezahlt." },
++      { "I put my rod aside for a moment.", "Ich legte die Angel kurz beiseite." },
++      { "An angler keeps a sharp eye.", "Ein Angler schaut genau hin." },
++      { "This one was a surprise!", "Das war eine Überraschung!" },
++      { "Not all my stories are about fish.", "Nicht jede Geschichte handelt von Fischen." },
++      { "Here is a tip from an old angler.", "Ein Tipp von einem alten Angler." },
++    },
++    SWIMMER = {
++      { "A little tip from my travels!", "Ein Tipp von meinen Ausflügen!" },
++      { "I took a break from swimming.", "Ich machte eine Schwimmpause." },
++      { "That was a refreshing surprise!", "Das war eine schöne Abwechslung!" },
++      { "I was catching my breath.", "Ich holte gerade Luft." },
++      { "There is more to see on shore, too.", "Auch an Land gibt es viel zu sehen." },
++      { "Here is my find of the day.", "Das war mein Fund des Tages." },
++    },
++    SAILOR = {
++      { "Listen up, mate!", "Hör zu, Kamerad!" },
++      { "Put this in your logbook.", "Das gehört ins Logbuch." },
++      { "A sailor never forgets a good find.", "So einen Fund vergisst kein Seemann." },
++      { "I was taking some shore leave.", "Ich hatte gerade Landgang." },
++      { "Here is a tale for your next voyage.", "Eine Geschichte für deine nächste Reise." },
++      { "Fair winds brought me a surprise!", "Das war ein guter Reisetag!" },
++    },
++    BIRD_KEEPER = {
++      { "I looked down for a change.", "Ich schaute ausnahmsweise nach unten." },
++      { "My birds were not the only sight.", "Es gab nicht nur Vögel zu sehen." },
++      { "A sharp eye helps on the ground, too.", "Scharfe Augen helfen auch am Boden." },
++      { "I paused on my birdwatching walk.", "Ich machte Pause beim Vogelbeobachten." },
++      { "I nearly missed this one!", "Fast hätte ich es übersehen!" },
++      { "Here is a sighting for your notes.", "Eine Sichtung für deine Notizen." },
++    },
++    BLACKBELT = {
++      { "Stay focused on your surroundings.", "Achte auf deine Umgebung." },
++      { "I found it during a training break.", "Das war in meiner Trainingspause." },
++      { "Patience is part of training.", "Geduld gehört zum Training." },
++      { "A keen eye is a useful skill.", "Ein wacher Blick ist wichtig." },
++      { "My training took an interesting turn.", "Mein Training nahm eine neue Wendung." },
++      { "Let your next lesson be discovery.", "Auch Entdeckungen machen dich stärker." },
++    },
++    SCIENTIST = {
++      { "An observation for your records.", "Eine Beobachtung für deine Unterlagen." },
++      { "I checked my notes twice.", "Ich habe meine Notizen geprüft." },
++      { "This sighting deserves a field visit.", "Diese Sichtung verdient einen Besuch." },
++      { "Here is my latest field observation.", "Meine neueste Feldbeobachtung." },
++      { "I recorded the location carefully.", "Den Fundort habe ich genau notiert." },
++      { "A useful addition to your research.", "Das könnte deiner Forschung helfen." },
++    },
++    SUPER_NERD = {
++      { "I knew my notes would be useful!", "Ich wusste, dass meine Notizen helfen!" },
++      { "I checked the species carefully.", "Ich habe die Art genau geprüft." },
++      { "My field notes have a new entry.", "Ein neuer Eintrag in meinen Feldnotizen." },
++      { "This beats reading about it!", "Besser, als nur davon zu lesen!" },
++      { "Here is something for your collection.", "Ein Tipp für deine Sammlung." },
++      { "I almost dropped my notebook!", "Fast fiel mir mein Notizbuch herunter!" },
++    },
++    POKEMANIAC = {
++      { "I would know that Pokemon anywhere!", "Dieses Pokémon erkenne ich überall!" },
++      { "What a find for a collector!", "Was für ein Fund für einen Sammler!" },
++      { "I could talk about this all day.", "Davon könnte ich ewig erzählen." },
++      { "That was the highlight of my search.", "Das war der Höhepunkt meiner Suche." },
++      { "My collection can wait for a story.", "Für diese Geschichte mache ich Pause." },
++      { "You understand why I was excited!", "Du verstehst meine Begeisterung!" },
++    },
++    ENGINEER = {
++      { "I made a note during my break.", "Das habe ich in der Pause notiert." },
++      { "My route had an unexpected stop.", "Meine Strecke hatte einen Extra-Halt." },
++      { "Here is a precise location.", "Ich kann dir den Ort genau nennen." },
++      { "I like a tip you can actually use.", "Ich mag Tipps, mit denen man etwas anfängt." },
++      { "This was outside my usual work.", "Das lag außerhalb meiner üblichen Arbeit." },
++      { "A small discovery between jobs.", "Eine Entdeckung zwischen zwei Aufträgen." },
++    },
++    ROCKER = {
++      { "That find really rocked!", "Dieser Fund hat gerockt!" },
++      { "I stopped humming for a second.", "Da hörte ich kurz auf zu summen." },
++      { "Here is a little encore!", "Hier kommt eine kleine Zugabe!" },
++      { "This deserves its own song!", "Das verdient ein eigenes Lied!" },
++      { "One last note before I go.", "Noch eine Note zum Abschied." },
++      { "Listen to this discovery!", "Hör dir diesen Fund an!" },
++    },
++    BIKER = {
++      { "I hit the brakes for this!", "Dafür habe ich gebremst!" },
++      { "One stop was worth the ride.", "Dieser Halt war die Fahrt wert." },
++      { "Here is a tip from the road.", "Ein Tipp von unterwegs." },
++      { "I parked to get a better look.", "Ich hielt an, um genauer hinzusehen." },
++      { "That made a good pit stop.", "Das war ein guter Zwischenstopp." },
++      { "Keep your eyes open out there.", "Halt unterwegs die Augen offen." },
++    },
++    CUE_BALL = {
++      { "All right, one useful tip.", "Na gut, ein brauchbarer Tipp." },
++      { "Even I stopped to look.", "Da blieb sogar ich stehen." },
++      { "That got my attention.", "Das hat mich neugierig gemacht." },
++      { "You did not hear this from just anyone.", "So einen Tipp gibt dir nicht jeder." },
++      { "Take a look for yourself.", "Schau es dir selbst an." },
++      { "I know a worthwhile stop.", "Ich kenne einen lohnenden Halt." },
++    },
++    BURGLAR = {
++      { "I keep an eye out for rare finds.", "Ich habe ein Auge für seltene Funde." },
++      { "This tip is yours for free.", "Diesen Tipp gibt es gratis." },
++      { "I noticed something on my rounds.", "Auf meiner Runde fiel mir etwas auf." },
++      { "No lockpicks needed for this one.", "Dafür brauchst du keinen Dietrich." },
++      { "A sharp eye beats a heavy bag.", "Ein scharfer Blick zahlt sich aus." },
++      { "I remember exactly where it was.", "Ich weiß noch genau, wo es war." },
++    },
++    ROCKET = {
++      { "Fine, here is a tip.", "Na gut, hier ist ein Tipp." },
++      { "I was scouting the area.", "Ich habe die Gegend erkundet." },
++      { "Do not waste this information.", "Mach etwas aus dieser Information." },
++      { "I noticed it while passing through.", "Beim Vorbeigehen fiel es mir auf." },
++      { "Call this a little inside information.", "Nenn es einen kleinen Insider-Tipp." },
++      { "You might want to follow this up.", "Dem solltest du nachgehen." },
++    },
++    GAMBLER = {
++      { "My lucky find of the day!", "Mein Glücksfund des Tages!" },
++      { "This tip costs you nothing.", "Dieser Tipp kostet dich nichts." },
++      { "Fortune had a surprise for me.", "Das Glück hatte eine Überraschung parat." },
++      { "I would not keep this to myself.", "Das möchte ich dir nicht vorenthalten." },
++      { "Sometimes it pays to take a detour.", "Manchmal lohnt sich ein Umweg." },
++      { "Luck favors an attentive traveler.", "Aufmerksame Reisende haben mehr Glück." },
++    },
++    JUGGLER = {
++      { "I nearly dropped everything!", "Fast hätte ich alles fallen lassen!" },
++      { "Here is one more little surprise.", "Noch eine kleine Überraschung." },
++      { "This caught me off balance.", "Das brachte mich aus dem Takt." },
++      { "I paused my practice for a look.", "Dafür unterbrach ich meine Übung." },
++      { "Keep your eyes on this one!", "Behalte das im Auge!" },
++      { "A good trip needs a surprise.", "Zu einer guten Reise gehört Überraschung." },
++    },
++    TAMER = {
++      { "I watched it for a while.", "Ich habe es eine Weile beobachtet." },
++      { "A trainer should know local wildlife.", "Trainer sollten die Tierwelt kennen." },
++      { "That was an interesting encounter.", "Das war eine interessante Begegnung." },
++      { "I gave it plenty of space.", "Ich habe etwas Abstand gehalten." },
++      { "Observe first, then approach.", "Erst beobachten, dann nähern." },
++      { "Here is a useful field tip.", "Ein nützlicher Tipp von unterwegs." },
++    },
++    CHANNELER = {
++      { "Something drew my attention.", "Etwas zog meinen Blick auf sich." },
++      { "I remember that meeting clearly.", "An diese Begegnung erinnere ich mich gut." },
++      { "A quiet moment brought a surprise.", "Ein stiller Moment voller Überraschung." },
++      { "Not every strange meeting is a ghost.", "Nicht jede seltsame Begegnung ist ein Geist." },
++      { "I have a sighting to share.", "Ich möchte dir eine Sichtung verraten." },
++      { "Perhaps our paths crossed for a reason.", "Vielleicht trafen wir uns nicht zufällig." },
++    },
++    PSYCHIC_TR = {
++      { "This was an observation, not a vision.", "Eine Beobachtung, keine Vision." },
++      { "I noticed it during my travels.", "Es fiel mir auf meiner Reise auf." },
++      { "A moment of focus helped.", "Ein aufmerksamer Moment genügte." },
++      { "You need no psychic power for this tip.", "Für diesen Tipp brauchst du keine Psi-Kraft." },
++      { "I remember the place clearly.", "An den Ort erinnere ich mich genau." },
++      { "An interesting meeting stayed with me.", "Diese Begegnung blieb mir im Gedächtnis." },
++    },
++    GENTLEMAN = {
++      { "May I offer a travel tip?", "Darf ich einen Reisetipp geben?" },
++      { "A most pleasant discovery.", "Eine äußerst erfreuliche Entdeckung." },
++      { "Allow me to share an observation.", "Erlaub mir eine Beobachtung." },
++      { "I made a memorable stop.", "Dieser Halt blieb mir im Gedächtnis." },
++      { "This may be of interest to you.", "Das könnte dich interessieren." },
++      { "One small recommendation before I leave.", "Noch ein kleiner Tipp zum Abschied." },
++    },
++    BEAUTY = {
++      { "That was a lovely sight!", "Das war ein schöner Anblick!" },
++      { "I had to stop and look.", "Ich musste einfach stehen bleiben." },
++      { "Some finds make a trip special.", "Manche Funde machen eine Reise besonders." },
++      { "Here is a little travel secret.", "Ein kleines Reisegeheimnis für dich." },
++      { "That encounter made me smile.", "Bei dieser Begegnung musste ich lächeln." },
++      { "I have a delightful tip for you.", "Ich habe einen schönen Tipp für dich." },
++    },
++    COOLTRAINER = {
++      { "Here is a useful scouting report.", "Ein nützlicher Erkundungsbericht." },
++      { "A good trainer shares good information.", "Gute Trainer teilen gute Informationen." },
++      { "I checked the location myself.", "Ich war selbst an diesem Ort." },
++      { "Add this stop to your route.", "Plane diesen Halt auf deiner Route ein." },
++      { "Something for your next field trip.", "Ein Tipp für deinen nächsten Ausflug." },
++      { "I found a promising lead.", "Ich habe eine gute Entdeckung gemacht." },
++    },
++    JR_TRAINER = {
++      { "I learned something on my trip!", "Ich habe unterwegs etwas gelernt!" },
++      { "My notes are finally useful!", "Endlich helfen meine Notizen!" },
++      { "Here is my latest discovery.", "Hier ist meine neueste Entdeckung." },
++      { "I took a good look to be sure.", "Ich habe zur Sicherheit genau hingesehen." },
++      { "We can help each other explore.", "Wir können uns beim Erkunden helfen." },
++      { "I was proud of this find!", "Auf diesen Fund war ich stolz!" },
++    },
++    RIVAL = {
++      { "Try keeping up with my discoveries!", "Halt mit meinen Entdeckungen Schritt!" },
++      { "I found something you might have missed.", "Das hast du vielleicht noch übersehen." },
++      { "Here, one tip. Make it count.", "Hier, ein Tipp. Mach etwas daraus." },
++      { "I already checked this place out.", "Diesen Ort habe ich schon erkundet." },
++      { "Let us see if you can find it too.", "Mal sehen, ob du es auch findest." },
++      { "Even a rival can share a good lead.", "Auch ein Rivale kann einen Tipp teilen." },
++    },
++    BOSS = {
++      { "Your journey still has surprises.", "Deine Reise hält noch Überraschungen bereit." },
++      { "Experience means knowing where to look.", "Erfahrung heißt auch, gute Fundorte zu kennen." },
++      { "I made a useful discovery on my travels.", "Ich machte unterwegs eine nützliche Entdeckung." },
++      { "Take this as a tip from a fellow trainer.", "Ein Tipp von Trainer zu Trainer." },
++      { "Strength is not all there is to training.", "Zum Training gehört mehr als Stärke." },
++      { "Keep exploring beyond our battle.", "Erkunde weiter, auch nach unserem Kampf." },
++    },
++  }
++  local aliases = {
++    COOLTRAINER_M="COOLTRAINER", COOLTRAINER_F="COOLTRAINER",
++    JR_TRAINER_M="JR_TRAINER", JR_TRAINER_F="JR_TRAINER",
++    JUGGLER_X="JUGGLER", UNUSED_JUGGLER="JUGGLER",
++    RIVAL1="RIVAL", RIVAL2="RIVAL", RIVAL3="RIVAL",
++    BROCK="HIKER", MISTY="SWIMMER", LT_SURGE="ENGINEER",
++    ERIKA="BEAUTY", KOGA="TAMER", SABRINA="PSYCHIC_TR",
++    BLAINE="SCIENTIST", GIOVANNI="BOSS", LORELEI="BOSS",
++    BRUNO="BLACKBELT", AGATHA="CHANNELER", LANCE="BOSS",
++    PROF_OAK="SCIENTIST", CHIEF="BOSS", UNUSED="DEFAULT",
++  }
++  local findings = {
++    { "I encountered %s!\fThe exact location:\n%s", "Ich bin %s begegnet!\fDer genaue Fundort:\n%s" },
++    { "I spotted %s!\fI saw it at:\n%s", "Ich habe %s gesehen!\fUnd zwar an diesem Ort:\n%s" },
++    { "I met %s on my travels.\fMake a note of the place:\n%s", "Unterwegs traf ich %s.\fMerk dir den Fundort:\n%s" },
++    { "I stopped to watch %s.\fHere is where I saw it:\n%s", "Ich beobachtete %s.\fDort habe ich es gesehen:\n%s" },
++    { "My latest sighting: %s.\fThe location was:\n%s", "Meine letzte Sichtung: %s.\fDas war an diesem Ort:\n%s" },
++    { "Want to meet %s?\fI encountered it at:\n%s", "Du möchtest %s treffen?\fIch bin ihm dort begegnet:\n%s" },
++  }
++  local previousVariants = {}
++  local function dialogueChoice(battle)
++    local class = battle and (battle.oppClass or battle.trainer and battle.trainer.class) or ""
++    class = tostring(class):gsub("^OPP_", "")
++    local style = aliases[class] or class
++    if not voices[style] then style = "DEFAULT" end
++    local token = tostring(battle and battle.ascendantLegacyToken or "")
++      .. ":" .. class .. ":" .. trainerName(battle)
++    local hash = 0
++    for i = 1, #token do hash = (hash * 33 + token:byte(i)) % 2147483647 end
++    local index = hash % 6 + 1
++    if previousVariants[class] == index then index = index % 6 + 1 end
++    return class, style, index
++  end
++  P.dialogueChoice = dialogueChoice
++  P.dialogueVoices = voices
++
+   function P.announcement(battle, result)
+     local game = battle and battle.game or activeGame
+     local species = result and result.family
+     if type(species) ~= "string" or species == "" then return nil end
+     local name = speciesName(game, species)
+-    return tr(
+-      trainerName(battle) .. ": I found a rare\nHoenn trail here!\f"
+-        .. "It may lead to " .. name .. ".\nSearch the grass!",
+-      trainerName(battle) .. ": Ich fand hier eine\nseltene Hoenn-Spur!\f"
+-        .. "Sie könnte zu " .. name .. " führen.\nSuch im Gras!")
++    local habitat = type(result.habitat) == "table" and result.habitat or {}
++    local target = result.mapId or habitat.map
++    if type(target) ~= "string" or target == "" then return nil end
++    local authored = target == habitat.map
++    local map = game and game.data and game.data.maps and game.data.maps[target]
++    local fallback = target:gsub("_", " ")
++    local location = authored and tr(habitat.en or fallback, habitat.de or fallback)
++      or type(map) == "table" and type(map.name) == "string" and map.name or fallback
++    -- A relocated old trace has no saved terrain; do not claim grass/cave.
++    local terrain = authored and habitat.terrain or nil
++    local search = terrain == "grass" and tr("Search the grass there.", "Such dort im Gras.")
++      or (terrain == "indoor" or terrain == "cave")
++        and tr("Explore inside there.", "Suche dort im Inneren.")
++      or tr("Search for wild Pokemon there.", "Suche dort wilde Pokémon.")
++    local class, style, index = dialogueChoice(battle)
++    local voice = voices[style][index]
++    local finding = findings[index]
++    local text = trainerName(battle) .. ": " .. tr(voice[1], voice[2]) .. "\f"
++      .. tr(finding[1], finding[2]):format(name, location) .. "\f"
++      .. search .. "\f" .. tr("Within 1-50 wild\nencounters there!",
++        "Dort triffst du es in\n1-50 wilden Begegnungen!")
++    return text, class, index
+   end
+ 
+   function P.captureAnnouncement(ev)
+@@ -51,10 +346,13 @@
+         and type(result) == "table" and result.introduced == true) then
+       return false
+     end
++    local text, class, variant = P.announcement(battle, result)
++    if not text then return false end
++    previousVariants[class] = variant
+     P.pending = {
+       game = battle.game or activeGame,
+       token = battle.ascendantLegacyToken,
+-      text = P.announcement(battle, result),
++      text = text,
+     }
+     return P.pending.text ~= nil
+   end
+@@ -88,6 +386,7 @@
+   function P.reset(ev)
+     activeGame = ev and ev.game or activeGame
+     P.pending = nil
++    previousVariants = {}
+   end
+ 
+   P.enabled = enabled
+--- a/mega_evolution.lua
++++ b/mega_evolution.lua
+@@ -645,6 +645,17 @@
+   local function eligibleOpponent(battle)
+     local mode = mod.options:get("mega_opponents") or "bosses"
+     if mode == "off" or battle.kind ~= "trainer" then return false end
++    -- Wanderers have their own entitlement/level/odds authority. Generic
++    -- "all" or boss-class rules must not bypass its rejected plan.
++    if battle.ascendantLegacyWanderer == true then
++      if battle.ascendantSurpriseMega ~= true
++          or type(battle.ascendantEnemyMegaForm) ~= "string" then return false end
++      for _, mon in ipairs(battle.enemyParty or {}) do
++        if mon.species == battle.ascendantEnemyMegaSpecies
++            and (tonumber(mon.level) or 0) >= 80 then return true end
++      end
++      return false
++    end
+     if mode == "all" or newGamePlus(battle) then return true end
+     if BOSS_CLASSES[battle.oppClass] == true then return true end
+     for _, mon in ipairs(battle.enemyParty or {}) do
+@@ -853,6 +864,13 @@
+     if not optionEnabled() then return false, "disabled" end
+     if not battler or not battler.mon or battler.mon.isEgg then
+       return false, "invalid"
++    end
++    if side == "enemy" and battle._ascMegaEnemyUsed then return false, "used" end
++    if side == "enemy" and battle.ascendantLegacyWanderer == true
++        and (not eligibleOpponent(battle)
++          or battler.mon.species ~= battle.ascendantEnemyMegaSpecies
++          or (tonumber(battler.mon.level) or 0) < 80) then
++      return false, "wanderer-plan"
+     end
+     local johtoMasterSecret = side == "enemy" and battle
+       and battle.johtoPassage == true
+--- a/generation_move_catalog_67.lua
++++ b/generation_move_catalog_67.lua
+@@ -225,7 +225,122 @@
+     return id
+   end
+ 
++  -- Conditions are owned by the move, not by the trainer or selected era.
++  -- Later moves must never become free generic damage in a Gen-I host.
++  local conditionalIds = {
++    FOCUS_PUNCH="KA_GEN_FOCUS_PUNCH", SUCKER_PUNCH="KA_GEN_SUCKER_PUNCH",
++    GIGA_IMPACT="KA_GEN_GIGA_IMPACT",
++  }
++  local function battleState(battle)
++    return battle and battle._kaConditionalMoves67
++  end
++  local function focusLost(battle,user)
++    local state=battleState(battle)
++    return state and state.hit[user] == true or false
++  end
++  local function focusMessage(user)
++    return tr("Lost focus! The attack failed.","Die Konzentration ist weg! Power-Punch scheitert.")
++  end
++  local function suckerAllowed(ctx)
++    local state=battleState(ctx.battle)
++    local action=state and state.actions[ctx.target]
++    local move=action and action.id and ctx.data.moves[action.id]
++    return state and not state.moved[ctx.target] and not ctx.target.mustRecharge
++      and action and not action.special and move
++      and (move.category=="physical" or move.category=="special"
++        or move.category~="status" and (tonumber(move.power)or 0)>0) or false
++  end
++  local records={
++    FOCUS_PUNCH={kind="full",gate=function(ctx)
++      return not focusLost(ctx.battle,ctx.user),focusMessage(ctx.user)
++    end},
++    SUCKER_PUNCH={kind="full",gate=function(ctx)
++      return suckerAllowed(ctx),tr("But, it failed!","Doch es schlug fehl!")
++    end},
++    GIGA_IMPACT={kind="full",afterDamage=function(ctx,dealt)
++      -- Unlike the original Hyper Beam, this later move recharges even
++      -- after a knockout or breaking a Substitute. Misses never enter here.
++      if (tonumber(dealt)or 0)>0 then ctx.user.mustRecharge=true end
++    end},
++  }
++  -- The same recharge contract covers every imported Hyper-Beam-style
++  -- move (#81), not just Giga Impact. Native Gen-I Hyper Beam is untouched.
++  for id,row in pairs(data.byId)do
++    if row.effect==81 then
++      conditionalIds[id]="KA_GEN_RECHARGE_"..id
++      records[id]=records.GIGA_IMPACT
++    end
++  end
++  for move,id in pairs(conditionalIds)do
++    if not effectExists(id)then mod.content.move_effects:register(id,records[move])end
++  end
++  function C.conditionalTurn(ev)
++    local battle=ev and ev.battle
++    if not battle then return end
++    local actions={}
++    if battle.player then actions[battle.player]=ev.playerAction end
++    if battle.enemy then actions[battle.enemy]=ev.enemyAction end
++    battle._kaConditionalMoves67={actions=actions,moved={},hit={}}
++    for battler,action in pairs(actions)do
++      if action and action.id=="FOCUS_PUNCH" and type(battle.say)=="function" then
++        battle:say(tr("Focusing for Focus Punch...","Konzentriert sich auf Power-Punch..."))
++      end
++    end
++  end
++  function C.conditionalMoveUsed(ev)
++    local state=ev and battleState(ev.battle)
++    if not state then return end
++    state.moved[ev.user]=true
++    state.damageTarget,state.damageMove=ev.target,ev.move
++    state.beforeHP=ev.target and ev.target.mon and ev.target.mon.hp
++  end
++  function C.conditionalDamage(ev)
++    local state=ev and battleState(ev.battle)
++    if not state or not ev.target or ev.user==ev.target then return end
++    -- Compare real HP, not damage credited to a Substitute. This also
++    -- excludes recoil, weather, poison and other non-attack HP changes.
++    if state.damageTarget==ev.target and state.damageMove==ev.move
++        and (tonumber(ev.damage)or 0)>0 and state.beforeHP
++        and ev.target.mon.hp<state.beforeHP then state.hit[ev.target]=true end
++    if state.damageTarget==ev.target then state.beforeHP=ev.target.mon.hp end
++  end
++  function C.clearConditional(ev)
++    if ev and ev.battle then ev.battle._kaConditionalMoves67=nil end
++  end
++  function C.installConditional(Battle)
++    Battle._kaConditionalOwner67=C
++    if Battle._kaConditionalWrapped67 then return end
++    Battle._kaConditionalWrapped67=true
++    local execute=assert(Battle.executeAction)
++    Battle.executeAction=function(battle,user,target,action)
++      local state=battleState(battle)
++      if state then state.moved[user]=true end
++      return execute(battle,user,target,action)
++    end
++    local perform=assert(Battle.performMove)
++    Battle.performMove=function(battle,user,target,inst,called)
++      local move=inst and battle.data and battle.data.moves[inst.id]
++      if move and move.effect==conditionalIds.FOCUS_PUNCH and focusLost(battle,user) then
++        -- Stop before the native PP deduction and used-move announcement.
++        -- A lost-focus failure consumes neither PP nor damage RNG.
++        battle:sayNext(focusMessage(user))
++        return
++      end
++      return perform(battle,user,target,inst,called)
++    end
++  end
++  if mod.events and type(mod.events.on)=="function" then
++    mod.events:on("battle.turn_started",C.conditionalTurn,5000)
++    mod.events:on("battle.move_used",C.conditionalMoveUsed,5000)
++    mod.events:on("battle.damage_dealt",C.conditionalDamage,5000)
++    mod.events:on("battle.turn_ended",C.clearConditional,-5000)
++    mod.events:on("battle.ended",C.clearConditional,-5000)
++    mod.events:on("battle.battler_switched",C.clearConditional,5000)
++    C.installConditional(require("src.battle.BattleState"))
++  end
++
+   local function chooseEffect(row)
++    if conditionalIds[row.id] then return conditionalIds[row.id],"conditional-damage" end
+     local damaging=row.category~="status"
+     if not damaging then
+       if row.id=="FORESIGHT" then return registerForesight(),"identification" end
+@@ -236,6 +351,17 @@
+       local ailment=registerPrimaryAilment(row)
+       if ailment then return ailment,"ailment-primary" end
+       return registerUnsupported(row),"unsupported-status"
++    end
++    if row.id=="FREEZE_SHOCK" or row.id=="ICE_BURN" then
++      local id="KA_GEN_CHARGE_"..row.id
++      if not effectExists(id)then
++        local side=SIDE_AILMENT[row.ailment]
++        local selected=side and chanceEffect(row,side) or "NO_ADDITIONAL_EFFECT"
++        local record=copy(mod.content.move_effects:get(selected) or {})
++        record.charge={anim="XSTATITEM_ANIM",enemyAnim="XSTATITEM_DUPLICATE_ANIM"}
++        mod.content.move_effects:register(id,record)
++      end
++      return id,"charge-with-secondary"
+     end
+     if SEMI_INVULNERABLE[row.id] then
+       return effect("FLY_EFFECT"),"semi-invulnerable"

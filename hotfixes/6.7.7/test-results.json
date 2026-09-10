@@ -1,0 +1,64 @@
+{
+  "engine": "0.2.57",
+  "package_sha256": "9a3dce45159e9af7aae952845d1f2f9a6ca08e9eba4f85235da2ebd0bbf3594a",
+  "results": [
+    {
+      "test": "conditional_moves_engine_regression_test.lua",
+      "status": "PASS"
+    },
+    {
+      "test": "full_package_load_test.lua",
+      "status": "PASS"
+    },
+    {
+      "test": "generation_move_catalog_67_test.lua",
+      "status": "PASS"
+    },
+    {
+      "test": "hoenn_acquisition_67_test.lua",
+      "status": "PASS"
+    },
+    {
+      "test": "hoenn_discovery_phase2_test.lua",
+      "status": "PASS"
+    },
+    {
+      "test": "hoenn_field_access_67_test.lua",
+      "status": "PASS"
+    },
+    {
+      "test": "hoenn_field_overlay_67_test.lua",
+      "status": "PASS"
+    },
+    {
+      "test": "hoenn_trace_presentation_67_test.lua",
+      "status": "PASS"
+    },
+    {
+      "test": "local_trace_regression_test.lua",
+      "status": "PASS"
+    },
+    {
+      "test": "pokedex_area_hoenn_67_test.lua",
+      "status": "PASS"
+    },
+    {
+      "test": "surprise_mega_67_test.lua",
+      "status": "PASS"
+    },
+    {
+      "test": "trace_dialogue_variants_regression_test.lua",
+      "status": "PASS"
+    },
+    {
+      "test": "trace_fifty_encounters_regression_test.lua",
+      "status": "PASS"
+    },
+    {
+      "test": "wanderer_mega_gate_regression_test.lua",
+      "status": "PASS"
+    }
+  ],
+  "physical_mobile_visual_test": "not_run",
+  "dialogue_font_fixture": "English ROM font; German umlaut glyph warnings require localized-font/device visual follow-up"
+}

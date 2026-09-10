@@ -1,0 +1,17 @@
+{
+  "version": "6.7.7",
+  "base_sha256": "f3c8a57822b56f46607163bafba7d002b0a8b7906b3fbeec9bac70b522c809c7",
+  "sha256": "9a3dce45159e9af7aae952845d1f2f9a6ca08e9eba4f85235da2ebd0bbf3594a",
+  "changed_files": [
+    "generation_move_catalog_67.lua",
+    "hoenn_acquisition_67_data.lua",
+    "hoenn_discovery.lua",
+    "hoenn_trace_presentation_67.lua",
+    "manifest.json",
+    "mega_evolution.lua",
+    ".modkit/pack.json"
+  ],
+  "zip_integrity": "PASS",
+  "all_pack_file_hashes": "PASS",
+  "published": false
+}
