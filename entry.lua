@@ -33,6 +33,8 @@ return function(mod)
   local sha256 = loadSibling(mod, "legacy_bank_sha256.lua")
   local mega = mod.exports and mod.exports.megaEvolution or nil
   if currentGeneration == 2 then
+    mod.exports.supportSessionLog=loadSibling(mod,"support_session_log.lua")(mod)
+    mod.exports.supportSessionLog.boot()
     local makeMega = loadSibling(mod, "mega_evolution.lua")
     local animationData = loadSibling(mod, "mega_animation_data.lua")
     mega = makeMega(mod, {
