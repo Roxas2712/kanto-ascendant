@@ -1,0 +1,32 @@
+{
+  "riolu_live_checks": 21,
+  "other_friendship_live_checks": 111,
+  "failures": 0,
+  "species": [
+    "RIOLU",
+    "PICHU",
+    "CLEFFA",
+    "IGGLYBUFF",
+    "TOGEPI",
+    "GOLBAT",
+    "CHANSEY",
+    "EEVEE"
+  ],
+  "evolutions": [
+    "LUCARIO",
+    "PIKACHU",
+    "CLEFAIRY",
+    "JIGGLYPUFF",
+    "TOGETIC",
+    "CROBAT",
+    "BLISSEY",
+    "ESPEON",
+    "UMBREON"
+  ],
+  "save_load": true,
+  "postgame_research_party_gain": true,
+  "engine": "0.2.57",
+  "platform": "macOS desktop L\u00d6VE",
+  "instrumented": true,
+  "physical_mobile_test": false
+}

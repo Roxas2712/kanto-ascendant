@@ -1,0 +1,18 @@
+--- a/backend_gift_species_67.lua
++++ b/backend_gift_species_67.lua
+@@ -224,8 +224,14 @@
+     -- Gifts may hatch before the postgame Johto research programme opens.
+     -- Give this missing family its own durable walking progress; do not
+     -- change any other Pokemon, gift receipt, saved moves or global era.
++    -- Native world.stepped carries map/coordinates, not the Game object.
++    -- Keep the live Game, but read its current save/party on every step.
++    local activeGame=mod.game
++    mod.events:on('game.ready',function(ev)
++      activeGame=ev and ev.game or activeGame
++    end)
+     mod.events:on('world.stepped',function(ev)
+-      local game=ev and ev.game
++      local game=ev and ev.game or activeGame
+       for _,mon in ipairs(game and game.save and game.save.party or {})do
+         if mon.species==riolu and not mon.isEgg and not mon.eggSpecies
+             and (tonumber(mon.hp) or 0)>0 then
