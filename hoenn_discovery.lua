@@ -706,6 +706,16 @@ function Module.create(State, Overlay, Acquisition)
     local battle = value.battle or value
     local kind = value.kind or battle.kind
     local encounterSource = value.encounterSource or battle.encounterSource
+    -- Engine 0.2.57 identifies ordinary grass/cave/surf battles through
+    -- checkpointOrigin, without setting encounterSource. Accept that exact
+    -- field origin only; missing provenance or explicit non-wild sources
+    -- must not count. The pending proposal and all guards below still apply.
+    local origin = battle.checkpointOrigin
+    if encounterSource == nil and type(origin) == "table"
+        and origin.kind == "wild_encounter"
+        and origin.map == transaction.mapId then
+      encounterSource = "wild"
+    end
     local species = value.species
     local level = value.level
     if battle.enemy and battle.enemy.mon then

@@ -1,0 +1,72 @@
+--- a/hoenn_discovery.lua
++++ b/hoenn_discovery.lua
+@@ -706,6 +706,16 @@
+     local battle = value.battle or value
+     local kind = value.kind or battle.kind
+     local encounterSource = value.encounterSource or battle.encounterSource
++    -- Engine 0.2.57 identifies ordinary grass/cave/surf battles through
++    -- checkpointOrigin, without setting encounterSource. Accept that exact
++    -- field origin only; missing provenance or explicit non-wild sources
++    -- must not count. The pending proposal and all guards below still apply.
++    local origin = battle.checkpointOrigin
++    if encounterSource == nil and type(origin) == "table"
++        and origin.kind == "wild_encounter"
++        and origin.map == transaction.mapId then
++      encounterSource = "wild"
++    end
+     local species = value.species
+     local level = value.level
+     if battle.enemy and battle.enemy.mon then
+--- a/pokemon_equipment_67.lua
++++ b/pokemon_equipment_67.lua
+@@ -75,6 +75,12 @@
+     bucket.pokemon_equipment_67=nextState;modData[modId]=bucket
+     return modData
+   end
++  -- Metadata transactions replace the root table. Rebind the engine's mod
++  -- save API on both staging and rollback so subsequent progress is saved.
++  local function setMetadata(game, value)
++    game.save.modData=value
++    if type(game.adoptSave)=='function' then game:adoptSave(game.save) end
++  end
+   local function save(game)
+     local ok,wrote=pcall(persist,game)
+     return ok and wrote==true
+@@ -133,10 +139,10 @@
+     local oldMetadata=game.save.modData
+     for _,row in ipairs(changed)do row.mon._kascEquipmentHandle=row.handle end
+     for _,row in ipairs(extra)do for key,value in pairs(row.plan)do row.mon[key]=value end end
+-    game.save.modData=metadata(game.save,nextState);busy[game]=true
++    setMetadata(game,metadata(game.save,nextState));busy[game]=true
+     local wrote=save(game);busy[game]=nil
+     if not wrote then
+-      game.save.modData=oldMetadata
++      setMetadata(game,oldMetadata)
+       for _,row in ipairs(changed)do row.mon._kascEquipmentHandle=nil end
+       for _,row in ipairs(extra)do for key in pairs(row.plan)do row.mon[key]=row.old[key]end end
+       return nil,'save_failed'
+@@ -237,11 +243,12 @@
+     local oldInventory,oldOrder,oldMetadata=game.save.inventory,game.save.bagOrder,game.save.modData
+     local oldAlias1,oldAlias2=row.mon.item,row.mon.heldItem
+     game.save.inventory,game.save.bagOrder=staged.inventory,staged.bagOrder
+-    game.save.modData=metadata(game.save,nextState)
++    setMetadata(game,metadata(game.save,nextState))
+     row.mon.item=nextItem or nil;row.mon.heldItem=nextItem or nil
+     busy[game]=true;local wrote=save(game);busy[game]=nil
+     if not wrote then
+-      game.save.inventory,game.save.bagOrder,game.save.modData=oldInventory,oldOrder,oldMetadata
++      game.save.inventory,game.save.bagOrder=oldInventory,oldOrder
++      setMetadata(game,oldMetadata)
+       row.mon.item,row.mon.heldItem=oldAlias1,oldAlias2
+       return nil,'save_failed'
+     end
+--- a/pokemon_equipment_runtime_67.lua
++++ b/pokemon_equipment_runtime_67.lua
+@@ -164,6 +164,7 @@
+     local ok,why=U.initialize(game,rulesChanged)
+     if not ok then
+       game.save.modData=previous
++      if type(game.adoptSave)=='function' then game:adoptSave(game.save) end
+       return nil,why
+     end
+     if rulesChanged and rules.syncData then rules.syncData(game)end

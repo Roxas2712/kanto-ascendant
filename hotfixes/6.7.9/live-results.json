@@ -1,0 +1,13 @@
+{
+  "engine": "0.2.57",
+  "candidate": "6.7.9",
+  "live_checks": 307,
+  "live_failures": 0,
+  "natural_step_encounters": 50,
+  "disk_reload_after_encounter": 25,
+  "guaranteed_species": "POOCHYENA",
+  "guaranteed_at": 50,
+  "device": "desktop macOS L\u00d6VE",
+  "manual_play": false,
+  "physical_mobile_test": false
+}
