@@ -40,11 +40,19 @@ function M.new(catalog,store,options)
       local g=grouped[family] or {id=family,label=text and tr(text[1],text[2]) or family,help=text and tr(text[3],text[4]) or "",packages={}}
       grouped[family]=g
       local plan=catalog:plan({p.id},store)
+      local localFiles=store.localStatus and store:localStatus(p.id)
+      local partial=localFiles and not localFiles.checking and localFiles.present>0 and not localFiles.complete
+      local checking=localFiles and localFiles.checking
+      local cachePartial=options.hasPartial and options.hasPartial(p.id)==true
+      local status=plan.ready and tr("Already installed","Bereits installiert")
+        or checking and tr('Checking installed files','Pruefe vorhandene Dateien')
+        or partial and tr('Partially installed','Teilweise installiert')
+        or plan.canDownload and tr("Available","Verfügbar") or tr("Not yet available","Noch nicht verfügbar")
       g.packages[#g.packages+1]={id=p.id,band=p.band,species=p.species,
         fileBytes=p.fileBytes,downloadBytes=plan.downloadBytes,estimateExact=plan.estimateExact,
-        installed=plan.ready,downloadable=plan.canDownload,selected=self.selected[p.id]==true,
-        statusLabel=plan.ready and tr("Already installed","Bereits installiert") or plan.canDownload and tr("Available","Verfügbar") or tr("Not yet available","Noch nicht verfügbar"),
-        canDelete=plan.ready or (options.hasPartial and options.hasPartial(p.id)==true) or false,
+        installed=plan.ready,downloadable=plan.canDownload and not checking,selected=self.selected[p.id]==true,
+        statusLabel=status,localFiles=localFiles,cachePartial=cachePartial,
+        canDelete=not checking and (plan.ready or partial or cachePartial) or false,
         status=plan.ready and "installed" or plan.canDownload and "available" or "not_yet_available"}
     end
     local rows={};for _,g in pairs(grouped) do rows[#rows+1]=g end

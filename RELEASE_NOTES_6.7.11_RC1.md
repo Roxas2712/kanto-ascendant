@@ -9,6 +9,11 @@ Public release candidate — manual preserving desktop installation.
   301-package catalogue; with VASC, both entries use the shared content session.
 - Installed files omitted by the new package are preserved by the supplied
   external installer. A verified full backup is created before replacement.
+- The download menu inventories retained built-in Pokemon files as complete,
+  partial or absent, without inventing verified download receipts. Explicit
+  deletion of old built-in files uses the included `manage-sprites.py` desktop
+  helper: close the game, confirm the selected package, and retain its backup.
+  Downloaded DLC packages are removed through the in-game restart workflow.
 - KASC includes its own fullscreen presentation for Start/options, feature
   menus, downloads, Bag, party, summary and PC storage. With VASC enabled,
   local presentation yields to VASC; KASC entries and gameplay remain active.
@@ -35,9 +40,13 @@ Box 60 serialization and full/overflow behavior; guarded UI ownership and
 language-regression tests. Exact final package/install receipts accompany the
 release. No physical Windows, Linux, Android or iOS verification is claimed.
 
-Old loose sprites remain usable; they are not falsely labelled as a complete
-verified download package. The package manager's delete operation manages
-downloaded packages, not every historical loose file in a mixed installation.
+Old loose sprites remain usable; their actual presence is shown separately
+from verified download receipts. Built-in files cannot be physically removed
+through the engine's sandbox API. Their delete button creates a confirmed
+request for the desktop helper, and remains pending until files are actually
+removed. The helper only targets catalogued Pokemon artwork, backs it up,
+and separately asks before removing modified variants. Own trainer/UI art,
+save files and other packages are not blanket-deleted.
 Original-scanner image flags remain documented maintainer-disputed findings,
 not an external clean-scan approval. This is a pre-release, not an unrestricted
 certification of every historical feature or every platform.

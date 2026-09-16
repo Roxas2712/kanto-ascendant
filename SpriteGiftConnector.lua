@@ -2,6 +2,7 @@
 local M={}
 function M.new(mod,archive,i18n)
  local self={}
+ local nativeInfo=mod.info -- before downloaded-asset resolvers wrap the facade
  local function load(name)return assert((loadstring or _G.load)(assert(mod:read('lib/'..name..'.lua'))))()end
  local function standalone()
   if self.ownsSession then return self.session end
@@ -17,6 +18,9 @@ function M.new(mod,archive,i18n)
   local vasc=exports and exports.VOXEL_ASCENDANT
   local session=vasc and vasc.ascendantContent or self.session or standalone()
   if not session or type(session.rewardContent)~='function'then self.gate=nil;return false end
+  if type(mod.read)=='function' and type(mod.info)=='function' and session.store and session.catalog and session.cache then
+   load('SpriteBundledSession').attach(session,mod,nativeInfo)
+  end
   local gate=session:rewardContent(mod,archive,game)
   self.session=session;mod.exports.ascendantContent=session
   if self.gate~=gate then

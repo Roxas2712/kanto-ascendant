@@ -1,6 +1,10 @@
 -- UI wording only. Internal diagnostic codes and persisted state stay intact.
 local M={}
 local messages={
+ bundled_inventory_checking={'Existing sprite files are being checked. Please wait.','Vorhandene Sprite-Dateien werden geprueft. Bitte warten.'},
+ bundled_removal_pending={'An external removal request is pending. Close the game and use manage-sprites.py from the update bundle.','Ein externer Loeschauftrag wartet. Spiel schliessen und manage-sprites.py aus dem Updatepaket verwenden.'},
+ bundled_removal_cancelled={'Removal request cancelled. Existing sprite files remain unchanged.','Loeschauftrag abgebrochen. Vorhandene Sprite-Dateien bleiben unveraendert.'},
+ invalid_bundled_removal_request={'The saved removal request is invalid. No built-in files were removed.','Der gespeicherte Loeschauftrag ist ungueltig. Keine eingebauten Dateien wurden entfernt.'},
  not_yet_available={'This package is not available yet.','Dieses Paket ist noch nicht verfügbar.'},
  busy_or_restart_required={'Finish the current operation or restart the game first.','Bitte zuerst den laufenden Vorgang beenden oder das Spiel neu starten.'},
  busy={'Another operation is still running.','Ein anderer Vorgang läuft noch.'},

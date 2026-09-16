@@ -29,24 +29,52 @@ function M.new(mod,game,guided,de,session)
     end
     return menu
   end
-  local function confirmDelete(id)
+  local function confirmDelete(id,p)
     if busy() then return notice("busy_or_restart_required") end
+    local localFiles=p and p.localFiles
+    local external=localFiles and not localFiles.checking and localFiles.present>0
     push(make("vasc_content_delete_"..id,tr("DELETE PACKAGE?","PAKET LÖSCHEN?"),{
       {label=tr("CANCEL","ABBRECHEN"),action="cancel"},
       {label=tr("DELETE","LÖSCHEN"),action="delete"}},function(row)
         if row.action=="cancel" then return game.stack:pop() end
         if row.action=="delete" then
+          if external then
+            local ok,why=session.kascBundledInventory:request(id,true)
+            if not ok then return notice(why)end
+            local receipt=session.store:receipt(id)
+            if receipt or p.cachePartial then
+              local removed,err=session.removal:request(id,true)
+              if not removed then return notice(err)end
+            end
+            game.stack:pop()
+            return notice(tr('Removal requested. Close the game, run manage-sprites.py from the desktop update bundle, then restart. Local files stay until the helper confirms removal.',
+              'Entfernen vorgemerkt. Spiel schliessen, manage-sprites.py aus dem Desktop-Updatepaket starten, dann neu starten. Alte Dateien bleiben bis zur bestaetigten Entfernung durch den Helfer.'))
+          end
           local ok,why=session.removal:request(id,true)
           if ok then game.stack:pop() end
           notice(why)
         end
-      end,tr("Deletion happens on restart. Shared files stay. Missing sprites use the original style.",
+      end,external and tr('Includes old built-in files. The engine cannot delete them in-game. This prepares a desktop helper request with backup; no files are deleted now. Close the game before running the helper.',
+        'Enthaelt alte Moddateien. Die Engine kann diese nicht im Spiel loeschen. Bereitet den Desktop-Helfer mit Backup vor; jetzt wird nichts geloescht. Vor dem Helfer das Spiel schliessen.')
+        or tr("Deletion happens on restart. Shared files stay. Missing sprites use the original style.",
         "Löschen erfolgt beim Neustart. Gemeinsame Dateien bleiben erhalten. Fehlende Sprites nutzen den Originalstil.")))
   end
   local function packageMenu(p)
+    if session.kascBundledInventory then session.kascBundledInventory:prioritize(p.id)end
     local function packageRows()
       for _,group in ipairs(session.model:groups())do for _,fresh in ipairs(group.packages)do if fresh.id==p.id then p=fresh end end end
     local rows={{label=tr("STATUS","STATUS"),right=p.statusLabel,action="status"}}
+    if p.localFiles then
+      local f=p.localFiles
+      rows[#rows+1]={label=tr('OLD MOD FILES','ALTE MODDATEIEN'),right=f.checking and tr('CHECKING','PRUEFUNG') or (f.present..' / '..f.total),
+        help=tr('Actual files in this mod. Presence does not claim verified download checksums. Partial sets remain usable and can be completed by a download.',
+          'Tatsaechliche Dateien dieser Mod. Vorhandensein ist keine verifizierte Download-Pruefsumme. Teilsammlungen bleiben nutzbar und koennen per Download ergaenzt werden.')}
+      local job=session.kascBundledInventory and session.kascBundledInventory:pending()
+      if job and job.packageIds[1]==p.id and f.present>0 then
+        rows[#rows+1]={label=tr('EXTERNAL REMOVAL PENDING','EXTERNES ENTFERNEN AUSSTEHEND'),action='externalHelp'}
+        rows[#rows+1]={label=tr('CANCEL REMOVAL REQUEST','ENTFERNAUFTRAG ABBRECHEN'),action='cancelExternal'}
+      end
+    end
     if p.installed then
       rows[#rows+1]={label=tr("ALREADY INSTALLED","BEREITS INSTALLIERT"),action="status"}
       local version=p.id:match('^vasc%.sprite%.pokemon%-mega%-original%-20260830%.') and 'original-20260830'
@@ -62,7 +90,19 @@ function M.new(mod,game,guided,de,session)
     return rows
     end
     push(make("vasc_content_package_"..p.id,p.id,packageRows,function(row)
-      if row.action=='megaCollection' then
+      if row.action=='externalHelp' then
+        return notice(tr('Close the game. Run manage-sprites.py from the update bundle and select this mod and its shared cache. Restart after the helper confirms removal.',
+          'Spiel schliessen. manage-sprites.py aus dem Updatepaket starten und diese Mod samt gemeinsamem Cache waehlen. Nach bestaetigter Entfernung neu starten.'))
+      elseif row.action=='cancelExternal' then
+        local inv=session.kascBundledInventory
+        local cached=session.removal:pending()
+        if cached and cached.id==p.id then
+          local key='sprite-content/removal-pending-v1.json'
+          if session.cache:remove(key)~=true or session.cache:read(key)~=nil then return notice('queue_remove_failed')end
+        end
+        local ok,why=inv:cancel(p.id);session.epoch=session.epoch+1
+        return notice(why)
+      elseif row.action=='megaCollection' then
         local exports=game.mods and game.mods.exports
         local kasc=exports and exports.kanto_ascendant
         local collections=kasc and kasc.megaSpriteCollections
@@ -76,9 +116,11 @@ function M.new(mod,game,guided,de,session)
         return session:openPackageImport(p.id)
       elseif row.action=="manual" then return session:openManual(p.id,de)
       elseif row.action=="delete" then
+        if p.localFiles and p.localFiles.checking then return notice(tr('Checking existing files. Please wait.','Vorhandene Dateien werden geprueft. Bitte warten.'))end
         if not p.canDelete then return notice("not_installed") end
-        return confirmDelete(p.id)
+        return confirmDelete(p.id,p)
       elseif row.action=="download" then
+        if p.localFiles and p.localFiles.checking then return notice(tr('Checking existing files. Please wait.','Vorhandene Dateien werden geprueft. Bitte warten.'))end
         if busy() then return notice("busy_or_restart_required") end
         if not p.downloadable then return notice("not_yet_available") end
         -- Session opens the existing size-confirmation view, replans at confirmation.
@@ -91,11 +133,15 @@ function M.new(mod,game,guided,de,session)
       local children={};for _,child in ipairs(g.children)do children[#children+1]={label=child.label,group=child,help=child.help}end
       return push(make('vasc_content_category_'..g.id,g.label,children,function(row)if row.group then groupsMenu(row.group)end end,g.help))
     end
-    local rows={}
+    local function rows()
+    for _,fresh in ipairs(session.model:groups())do if fresh.id==g.id then g=fresh end end
+    local result={}
     for _,p in ipairs(g.packages) do
       local first,last=p.id:match("dex(%d+)%-(%d+)")
       local label=first and (tonumber(first).."-"..tonumber(last)) or p.id
-      rows[#rows+1]={label=label,right=p.statusLabel,package=p,help=g.help}
+      result[#result+1]={label=label,right=p.statusLabel,package=p,help=g.help}
+    end
+    return result
     end
     push(make("vasc_content_group_"..g.id,g.label,rows,function(row)if row.package then packageMenu(row.package)end end,g.help))
   end
