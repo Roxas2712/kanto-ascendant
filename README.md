@@ -1,4 +1,4 @@
-# Kanto Ascendant 6.7.11-rc.1
+# Kanto Ascendant 6.7.11
 
 Public release candidate — manual preserving desktop installation.
 
