@@ -1,0 +1,19 @@
+{
+  "moves": 919,
+  "learnRows": 618051,
+  "learnPokemon": 1268,
+  "abilities": 314,
+  "itemsGen1To3": 344,
+  "reviewedLaterItems": [
+    "FOCUS_SASH"
+  ],
+  "heldItemSpeciesForms": 352,
+  "gen2HeldVersions": 3,
+  "historicalStatRows": 235,
+  "historicalStatsSource": {
+    "url": "https://raw.githubusercontent.com/PokeAPI/pokeapi/d4f9a4af58ade123fbc0558f68b1c69daa97d9e4/data/v2/csv/pokemon_stats_past.csv",
+    "sha256": "0a074d9581369c1df13d8d4f4015fd7215b896c5dfb58107f3b529f7156950d2"
+  },
+  "sourceCommit": "d4f9a4af58ade123fbc0558f68b1c69daa97d9e4",
+  "runtimeBytes": 1126571
+}

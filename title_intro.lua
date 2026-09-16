@@ -14,11 +14,34 @@ return function(mod, characters)
   local Font = require("src.render.Font")
   local GameVersion = require("src.core.GameVersion")
   local Logger = require("src.core.Logger")
-  local M = { order = { "GREEN", "BLUE", "RED" } }
+  local M = {
+    order = { "GREEN", "BLUE", "RED" },
+    owner = "kasc.title-intro-static-compositor",
+    animationOwner = "kasc.animated-title-core-prep/v1",
+  }
+  local trainerAnimation
+  local trainerAnimationFailed = false
+  local visualThemes
+
+  -- The optional 6.6 preparation Card gets one deliberately narrow adapter.
+  -- TitleState remains the sole compositor owner, and no presentation-registry
+  -- or species-pool seam is exposed here.
+  function M.setTrainerAnimation(controller)
+    trainerAnimation = controller
+    trainerAnimationFailed = false
+    return controller ~= nil
+  end
+
+  -- The visual-theme Card owns only a defensive palette transform. This
+  -- adapter deliberately shares no trainer, draw, input or music authority.
+  function M.setVisualThemes(controller)
+    visualThemes = controller
+    return controller ~= nil
+  end
 
   local LEGACY_SENTINEL = "__kantoAscendantTrainerCycle"
   local STATE_KEY = "__kantoAscendantTitleIntroState"
-  local INSTALL_VERSION = 2
+  local INSTALL_VERSION = 3
 
   -- UPDATE5 used a permanent boolean as its only install receipt.  A 0.1.86
   -- hot import therefore saw the old wrapper and returned before it could add
@@ -186,6 +209,7 @@ return function(mod, characters)
   local originalNew = TitleState.new
   local originalUpdate = TitleState.update
   local originalDraw = TitleState.draw
+  local originalOpenMenu = TitleState.openMenu
   local originalCurrentSprite = TitleState.currentSprite
   local originalSgbPalettes = TitleState.sgbPalettes
 
@@ -204,6 +228,27 @@ return function(mod, characters)
     self.kaTitlePairId = entry.id .. ":" .. tostring(species)
     self.player = entry.image
     self.__ascendantCrystalV15Title = nil
+    if not trainerAnimationFailed and trainerAnimation
+        and type(trainerAnimation.applyTitle) == "function" then
+      local ok, problem = pcall(trainerAnimation.applyTitle,
+        self, entry.id, self.kaTitlePairId, entry.image)
+      -- The controller owns only a post-palette overlay.  The classic image
+      -- always stays in TitleState.player for OFF, engine/provider and asset
+      -- fallback, and for every non-title consumer of this screen.
+      self.player = entry.image
+      if not ok then
+        trainerAnimationFailed = true
+        if type(trainerAnimation.failSession) == "function" then
+          pcall(trainerAnimation.failSession, problem)
+        end
+        if type(trainerAnimation.resetTitle) == "function" then
+          pcall(trainerAnimation.resetTitle, self, entry.image)
+        end
+        Logger.warn(
+          "Kanto Ascendant title animation failed closed to static: %s",
+          tostring(problem))
+      end
+    end
     return true
   end
 
@@ -228,7 +273,30 @@ return function(mod, characters)
   -- obvious once full-colour trainer/monster art was added.  Preserve every
   -- ink colour and zone boundary, changing only shade zero to actual white.
   function TitleState:sgbPalettes(game)
-    return whiteUiZones(originalSgbPalettes(self, game))
+    local classic = whiteUiZones(originalSgbPalettes(self, game))
+    if not (visualThemes
+        and type(visualThemes.applyTitlePalettes) == "function") then
+      return classic
+    end
+    local ok, themed, receipt = pcall(visualThemes.applyTitlePalettes,
+      classic, {
+        identity = self.kaTitleTrainerId,
+        pairId = self.kaTitlePairId,
+        yellowLayout = self.yellowLayout == true,
+      })
+    if ok and type(themed) == "table" then
+      self.__ascendantVisualTitleThemeReceipt66 = receipt
+      return themed
+    end
+    if type(visualThemes.failSession) == "function" then
+      pcall(visualThemes.failSession,
+        ok and "invalid-theme-result" or themed)
+    end
+    self.__ascendantVisualTitleThemeReceipt66 = {
+      status = "fallback", theme = "classic",
+      reason = ok and "invalid-theme-result" or tostring(themed),
+    }
+    return classic
   end
 
   -- Preserve the resolver's true-colour bit.  The final Crystal-v1.5 title
@@ -236,6 +304,7 @@ return function(mod, characters)
   -- here used to send its fallback full-colour PNG through the Gen-I title
   -- palette (the reported white/orange birds and starters).
   function TitleState:currentSprite()
+    if self.kaTitleOverlaySuppressed66 then return nil, false end
     return originalCurrentSprite(self)
   end
 
@@ -253,8 +322,10 @@ return function(mod, characters)
     -- of the option; only Green is the newly added title participant.
     local greenVisual = characters.definition("GREEN").visuals.front
     local blueVisual = characters.definition("BLUE").visuals.front
-    local green = titleSlot(tryCutout(runtimePath(greenVisual and greenVisual.path)))
-    local blue = titleSlot(tryCutout(runtimePath(blueVisual and blueVisual.path)))
+    local green = titleSlot(tryCutout(runtimePath(greenVisual and greenVisual.path))
+      or tryCutout(runtimePath(greenVisual and greenVisual.fallbackPath)))
+    local blue = titleSlot(tryCutout(runtimePath(blueVisual and blueVisual.path))
+      or tryCutout(runtimePath(blueVisual and blueVisual.fallbackPath)))
     local trainers = {
       { id = "GREEN", image = green, source = "ascendant" },
       { id = "BLUE", image = blue, source = "ascendant" },
@@ -282,6 +353,14 @@ return function(mod, characters)
   end
 
   function TitleState:update(dt)
+    -- A patched-engine title overlay is frozen below Menu/New Game.  Restore
+    -- the exact classic trainer on the first tick back without selecting a new
+    -- variant or consuming an animation tick.
+    if self.kaTitleOverlaySuppressed66 then
+      self.kaTitleOverlaySuppressed66 = nil
+      self.player = self.kaTitleSuppressedPlayer66
+      self.kaTitleSuppressedPlayer66 = nil
+    end
     local cycleBefore = self.cycleIndex
     local speciesBefore = self.cycleSpecies
       and self.cycleSpecies[cycleBefore] or nil
@@ -292,24 +371,233 @@ return function(mod, characters)
     -- reset it more than once.  Advance only when TitleState actually selected
     -- another species.  Keep that engine-owned pick and publish it with the
     -- next trainer in one operation before draw.
+    local pairChanged = false
     if self.kaTitleAtomicCycle and self.cycleIndex ~= cycleBefore
         and speciesAfter ~= speciesBefore then
       local nextTrainer = self.kaTitleTrainerIndex % #self.kaTitleTrainers + 1
       publishTitleIdentity(self, nextTrainer, speciesAfter)
       self.kaTitlePhase = "pair"
+      pairChanged = true
+    end
+    -- One TitleState update is one engine tick.  The pair-change tick owns
+    -- frame 1 and is intentionally not counted as a playback tick as well.
+    if self.kaTitleAtomicCycle and not pairChanged
+        and not trainerAnimationFailed and trainerAnimation
+        and type(trainerAnimation.advanceTitle) == "function" then
+      local ok, problem = pcall(trainerAnimation.advanceTitle, self, 1)
+      if not ok then
+        trainerAnimationFailed = true
+        if type(trainerAnimation.failSession) == "function" then
+          pcall(trainerAnimation.failSession, problem)
+        end
+        local entry = self.kaTitleTrainers
+          and self.kaTitleTrainers[self.kaTitleTrainerIndex]
+        self.player = entry and entry.image or self.player
+        if type(trainerAnimation.resetTitle) == "function" then
+          pcall(trainerAnimation.resetTitle, self, self.player)
+        end
+        Logger.warn(
+          "Kanto Ascendant title animation failed closed to static: %s",
+          tostring(problem))
+      end
     end
   end
 
-  -- Keep the native paired compositor intact.  In particular, do not clear
-  -- `player`, `playerQuads` or `ballQuad`: those fields are the trainer half
-  -- of the same frame in which `currentSprite()` supplies the animated
-  -- Crystal Pokemon.
+  -- Gen1Recomp 0.2.56 made the post-palette UI redraw queue part of the
+  -- stock renderer, but deliberately kept it at virtual-pixel scale.  The
+  -- earlier reviewed companion exposed the same queue with explicit sx/sy
+  -- parameters and a capability marker.  Accept both contracts: use the
+  -- authored 128px master directly on the scaled contract and a cached 64px
+  -- logical / 128px physical high-density canvas on the stock contract.
+  -- Older engines that expose
+  -- neither complete queue shape still fail closed to the classic trainer.
+  local function redrawApi()
+    local ok, PaletteFX = pcall(require, "src.render.PaletteFX")
+    if not (ok and type(PaletteFX.markUiSpriteRedraw) == "function") then
+      return nil
+    end
+    if PaletteFX.uiSpriteRedrawScaleSupported == true then
+      return PaletteFX, "scaled"
+    end
+    if type(PaletteFX.uiSpriteRedraws) == "function" then
+      return PaletteFX, "stock"
+    end
+    return nil
+  end
+
+  local stockFrameCache = setmetatable({}, { __mode = "k" })
+
+  local function stockRedrawFrame(image, scale)
+    local cached = stockFrameCache[image]
+    if cached and cached.scale == scale then return cached.image end
+    if not (love.graphics.newCanvas and love.graphics.setCanvas
+        and love.graphics.draw) then return nil end
+    local okSize, width, height = pcall(image.getDimensions, image)
+    if not okSize then return nil end
+    local targetWidth = math.max(1, math.floor(width * scale + 0.5))
+    local targetHeight = math.max(1, math.floor(height * scale + 0.5))
+    local prior = love.graphics.getCanvas and love.graphics.getCanvas() or nil
+    local dpiScale = 1 / scale
+    local ok, canvas = pcall(love.graphics.newCanvas,
+      targetWidth, targetHeight, { dpiscale = dpiScale })
+    if not (ok and canvas) then return nil end
+    if type(canvas.setFilter) == "function" then
+      pcall(canvas.setFilter, canvas, "nearest", "nearest")
+    end
+    local rendered, problem = xpcall(function()
+      love.graphics.setCanvas(canvas)
+      love.graphics.clear(0, 0, 0, 0)
+      love.graphics.setColor(1, 1, 1, 1)
+      love.graphics.draw(image, 0, 0, 0, scale, scale)
+    end, errorMessage)
+    love.graphics.setCanvas(prior)
+    love.graphics.setColor(1, 1, 1, 1)
+    if not rendered then return nil, problem end
+    stockFrameCache[image] = { scale = scale, image = canvas }
+    return canvas
+  end
+
+  local function retireOptionalAnimation(screen, staticImage, reason)
+    trainerAnimationFailed = true
+    -- Late capability/queue failures can arrive while another wrapper has put
+    -- the HD frame in `player`. Prefer the provider-owned Classic reference;
+    -- never bless that transient animation frame as the reset image.
+    local state = screen
+      and rawget(screen, "__ascendantTitleTrainerAnimation67") or nil
+    local classicImage = staticImage
+      or screen and rawget(screen, "__ascendantTitleTrainerStatic67")
+      or state and state.staticImage
+      or screen and screen.player
+    if trainerAnimation and type(trainerAnimation.failSession) == "function" then
+      pcall(trainerAnimation.failSession, reason)
+    end
+    if trainerAnimation and type(trainerAnimation.resetTitle) == "function" then
+      pcall(trainerAnimation.resetTitle, screen, classicImage)
+    elseif screen then
+      screen.__ascendantTitleTrainerAnimation67 = nil
+      screen.__ascendantTitleTrainerStatic67 = nil
+      if classicImage ~= nil then screen.player = classicImage end
+    end
+  end
+
+  function TitleState:openMenu()
+    local animation = rawget(self, "__ascendantTitleTrainerAnimation67")
+    -- Bare 0.1.90, OFF, missing assets and missing provider are byte-for-byte
+    -- the established 6.6 path, including the original openMenu call.
+    if type(animation) ~= "table" or animation.trueColor ~= true then
+      return originalOpenMenu(self)
+    end
+    if not redrawApi() then
+      retireOptionalAnimation(self, nil, "engine-capability-unavailable")
+      return originalOpenMenu(self)
+    end
+    local persistent = self.player
+    self.kaTitleOverlaySuppressed66 = true
+    self.kaTitleSuppressedPlayer66 = persistent
+    self.player = nil
+    local ok, problem = xpcall(function()
+      originalOpenMenu(self)
+    end, errorMessage)
+    if not ok then
+      self.kaTitleOverlaySuppressed66 = nil
+      self.kaTitleSuppressedPlayer66 = nil
+      self.player = persistent
+      error(problem, 0)
+    end
+  end
+
+  local function queueHdTrainer(animation, PaletteFX, redrawMode)
+    local image = animation.image
+    if not (image and type(image.getDimensions) == "function") then
+      return false
+    end
+    local okSize, width, height = pcall(image.getDimensions, image)
+    if not okSize or width ~= 128 or height ~= 128 then return false end
+    local scale = tonumber(animation.drawScale) or 0.5
+    local x = tonumber(animation.drawX) or 82
+    local y = tonumber(animation.drawY) or 68
+    if redrawMode == "stock" then
+      image = stockRedrawFrame(image, scale)
+      if not image then return false end
+      local redraws = PaletteFX.uiSpriteRedraws()
+      if type(redraws) ~= "table" then return false end
+      local before = #redraws
+      local okQueue = pcall(PaletteFX.markUiSpriteRedraw,
+        image, nil, x, y)
+      return okQueue and #redraws == before + 1
+    end
+    local okQueue, queued = pcall(PaletteFX.markUiSpriteRedraw,
+      image, nil, x, y, scale, scale)
+    return okQueue and queued == true
+  end
+
+  -- Only an active animation on the patched 0.1.90 companion enters the
+  -- post-palette overlay transaction.  Every fallback calls the pre-Card
+  -- native compositor with all fields untouched.
   local function drawNativeTitle(screen)
-    return originalDraw(screen)
+    if screen.kaTitleOverlaySuppressed66 then return originalDraw(screen) end
+    local animation = rawget(screen, "__ascendantTitleTrainerAnimation67")
+    local PaletteFX, redrawMode
+    if type(animation) == "table" and animation.trueColor == true then
+      PaletteFX, redrawMode = redrawApi()
+    end
+    if not PaletteFX then
+      if type(animation) == "table" then
+        retireOptionalAnimation(screen, nil,
+          "engine-capability-unavailable")
+      end
+      return originalDraw(screen)
+    end
+
+    local player, playerQuads, ballQuad = screen.player,
+      screen.playerQuads, screen.ballQuad
+    local first, second, third
+    local queued = false
+    screen.player, screen.playerQuads, screen.ballQuad = nil, nil, nil
+    local ok, problem = xpcall(function()
+      first, second, third = originalDraw(screen)
+      queued = queueHdTrainer(animation, PaletteFX, redrawMode)
+    end, errorMessage)
+    screen.player, screen.playerQuads, screen.ballQuad =
+      player, playerQuads, ballQuad
+    if not ok then error(problem, 0) end
+    if not queued then
+      -- A capability marker without a usable UI-pass queue is an incomplete
+      -- companion, not permission to omit the trainer or crash the title.
+      -- Retire only this optional animation state and repaint once through the
+      -- exact static compositor with every classic field restored.
+      retireOptionalAnimation(screen, nil, "ui-redraw-unavailable")
+      return originalDraw(screen)
+    end
+    return first, second, third
+  end
+
+  local function drawSuppressedTitle(screen)
+    if not screen.title then return drawNativeTitle(screen) end
+    local footer = screen.title.copyrightText
+    local germanFullRibbon = screen.title.germanFullVersionRibbon
+    local player, playerQuads, ballQuad = screen.player,
+      screen.playerQuads, screen.ballQuad
+    screen.title.copyrightText = ""
+    screen.title.germanFullVersionRibbon = false
+    screen.player, screen.playerQuads, screen.ballQuad = nil, nil, nil
+    local first, second, third
+    local ok, problem = xpcall(function()
+      first, second, third = originalDraw(screen)
+    end, errorMessage)
+    screen.title.copyrightText = footer
+    screen.title.germanFullVersionRibbon = germanFullRibbon
+    screen.player, screen.playerQuads, screen.ballQuad =
+      player, playerQuads, ballQuad
+    if not ok then error(problem, 0) end
+    return first, second, third
   end
 
   function TitleState:draw()
     recoverForeignYellowLogo(self)
+    if self.kaTitleOverlaySuppressed66 then
+      return drawSuppressedTitle(self)
+    end
     local footer = self.title and self.title.copyrightText
     if not footer or footer == "" then return drawNativeTitle(self) end
     -- Suppress TitleState's vanilla x=1 footer, then redraw the mod name at
@@ -348,6 +636,7 @@ return function(mod, characters)
       new = originalNew,
       update = originalUpdate,
       draw = originalDraw,
+      openMenu = originalOpenMenu,
       currentSprite = originalCurrentSprite,
       sgbPalettes = originalSgbPalettes,
     },
@@ -355,6 +644,7 @@ return function(mod, characters)
       new = TitleState.new,
       update = TitleState.update,
       draw = TitleState.draw,
+      openMenu = TitleState.openMenu,
       currentSprite = TitleState.currentSprite,
       sgbPalettes = TitleState.sgbPalettes,
     },

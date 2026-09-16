@@ -12,8 +12,24 @@ return function(mod, opts)
   local i18n = opts.i18n
   local journey = opts.journey
   local beyondKanto = opts.beyondKanto or opts.johtoBoundary
+  local generationRules = opts.generationRules
+  local fieldTech = opts.fieldTech
   local placement = assert(opts.placement, "runtime NPC placement missing")
   local J = { game = nil }
+
+  local function speciesAllowed(game, species)
+    if not (generationRules
+        and type(generationRules.speciesAvailable) == "function") then
+      return true
+    end
+    game = game or J.game
+    local def = game and game.data and game.data.pokemon
+      and game.data.pokemon[species]
+    if type(def) ~= "table" then return false end
+    local ok, allowed = pcall(
+      generationRules.speciesAvailable, game, species, def)
+    return ok and allowed == true
+  end
 
   local function tr(en, de)
     return i18n and i18n.text(en, de) or en
@@ -143,6 +159,9 @@ return function(mod, opts)
     if beyondKanto and type(beyondKanto.isActive) == "function"
         and not beyondKanto.isActive(game or J.game) then
       return false, "beyond-kanto-sealed"
+    end
+    if not speciesAllowed(game, "CHIKORITA") then
+      return false, "generation-profile"
     end
     if not postgame.hasHallOfFame(game and game.save) then
       return false, "hall"
@@ -314,7 +333,8 @@ return function(mod, opts)
     local byDex = {}
     for id, def in pairs(game and game.data and game.data.pokemon or {}) do
       local dex = tonumber(def.dex)
-      if dex and dex >= 1 and dex <= 251 and not byDex[dex] then
+      if dex and dex >= 1 and dex <= 251 and not byDex[dex]
+          and speciesAllowed(game, id) then
         byDex[dex] = id
       end
     end
@@ -448,6 +468,10 @@ return function(mod, opts)
     if ascendant and ascendant.evaluateAchievements then
       ascendant.evaluateAchievements(game)
     end
+    -- The battle controller reports only the committed Gold run. Field Tech
+    -- owns exact-once entitlement, migration and full-Bag FIFO delivery.
+    local tm54 = fieldTech and type(fieldTech.afterGoldWin) == "function"
+      and fieldTech.afterGoldWin(game) or nil
     local title = first and tr(
       "TITLE EARNED:\nKANTO ASCENDANT\fA golden star now\nmarks your TRAINER CARD.",
       "TITEL ERHALTEN:\nKANTO ASCENDANT\fEin goldener Stern ziert\nnun deinen TRAINERPASS.")
@@ -457,7 +481,8 @@ return function(mod, opts)
     local cadence = delivered and tr(
       "To challenge them again,\ndefeat the ELITE FOUR\nand CHAMPION once more.",
       "Für eine neue Herausforderung\nbesiege TOP VIER und\nCHAMPION erneut.") or nil
-    return title .. (reward and "\f" .. reward or "")
+    return title .. (tm54 and "\f" .. tm54 or "")
+      .. (reward and "\f" .. reward or "")
       .. (cadence and "\f" .. cadence or ""), delivered
   end
 

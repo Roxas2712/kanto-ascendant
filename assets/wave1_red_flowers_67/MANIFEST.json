@@ -1,0 +1,918 @@
+{
+  "schema": "kasc.wave1-red-flowers/v1",
+  "scope": "Only red base 669/670/671. Existing forms, Gen1/2, Gorochu and Megas untouched.",
+  "sets": [
+    {
+      "dex": 669,
+      "slot": 669,
+      "romDex": 670,
+      "name": "Flab\u00e9b\u00e9",
+      "side": "front",
+      "variant": "normal",
+      "geometry": {
+        "sourceUnion": [
+          10,
+          7,
+          54,
+          57
+        ],
+        "stage": [
+          56,
+          56
+        ],
+        "body": [
+          44,
+          50
+        ]
+      },
+      "durations": [
+        450,
+        333,
+        383,
+        83
+      ],
+      "inputs": [
+        {
+          "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0669/front-normal-01.png",
+          "sha256": "d83f53a1eb466071cbf2e66f6cdfde24878d185de8b0aa2394a45939d2327276"
+        },
+        {
+          "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0669/front-normal-00.png",
+          "sha256": "72f1fd6b3805a0e0f5d7e57c807b42f1cf3331d380eb926b2a280a2192e760c3"
+        }
+      ],
+      "outputs": [
+        {
+          "path": "assets/wave1_red_flowers_67/669/front/normal/001.png",
+          "sha256": "16201c99df6f275ffeec85e93668bb5832cc69ed6d1c6b00ddc27b4871278a07"
+        },
+        {
+          "path": "assets/wave1_red_flowers_67/669/front/normal/002.png",
+          "sha256": "55e3ed0b59f07b26e4eef6c4ca38832856c3d11ae14f52bf309dc551ba868f1a"
+        },
+        {
+          "path": "assets/wave1_red_flowers_67/669/front/normal/003.png",
+          "sha256": "16201c99df6f275ffeec85e93668bb5832cc69ed6d1c6b00ddc27b4871278a07"
+        },
+        {
+          "path": "assets/wave1_red_flowers_67/669/front/normal/004.png",
+          "sha256": "55e3ed0b59f07b26e4eef6c4ca38832856c3d11ae14f52bf309dc551ba868f1a"
+        }
+      ]
+    },
+    {
+      "dex": 669,
+      "slot": 669,
+      "romDex": 670,
+      "name": "Flab\u00e9b\u00e9",
+      "side": "voxel",
+      "variant": "normal",
+      "geometry": {
+        "sourceUnion": [
+          10,
+          7,
+          54,
+          57
+        ],
+        "stage": [
+          64,
+          64
+        ],
+        "body": [
+          44,
+          50
+        ]
+      },
+      "durations": [
+        450,
+        333,
+        383,
+        83
+      ],
+      "inputs": [
+        {
+          "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0669/front-normal-01.png",
+          "sha256": "d83f53a1eb466071cbf2e66f6cdfde24878d185de8b0aa2394a45939d2327276"
+        },
+        {
+          "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0669/front-normal-00.png",
+          "sha256": "72f1fd6b3805a0e0f5d7e57c807b42f1cf3331d380eb926b2a280a2192e760c3"
+        }
+      ],
+      "outputs": [
+        {
+          "path": "assets/wave1_red_flowers_67/669/voxel/normal/001.png",
+          "sha256": "0aa44c56871ad85cba248f963cd7d00cee2f19c6df4ead78261f8f77c7082e9b"
+        },
+        {
+          "path": "assets/wave1_red_flowers_67/669/voxel/normal/002.png",
+          "sha256": "5ecc96e4f3804492fa27fc5ffde09478310a09228f767636691298655303da3e"
+        },
+        {
+          "path": "assets/wave1_red_flowers_67/669/voxel/normal/003.png",
+          "sha256": "0aa44c56871ad85cba248f963cd7d00cee2f19c6df4ead78261f8f77c7082e9b"
+        },
+        {
+          "path": "assets/wave1_red_flowers_67/669/voxel/normal/004.png",
+          "sha256": "5ecc96e4f3804492fa27fc5ffde09478310a09228f767636691298655303da3e"
+        }
+      ]
+    },
+    {
+      "dex": 669,
+      "slot": 669,
+      "romDex": 670,
+      "name": "Flab\u00e9b\u00e9",
+      "side": "back",
+      "variant": "normal",
+      "geometry": {
+        "sourceUnion": [
+          2,
+          0,
+          42,
+          26
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          32,
+          21
+        ],
+        "visibleRows": 32,
+        "sourceUpperBodyCrop": [
+          11,
+          11,
+          53,
+          37
+        ]
+      },
+      "durations": [
+        1000
+      ],
+      "inputs": [
+        {
+          "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0669/back-normal-00.png",
+          "sha256": "11a224703806243494c8ed33c033c8230d4ebd0d22db4bf10e4e6683da10008c"
+        }
+      ],
+      "outputs": [
+        {
+          "path": "assets/wave1_red_flowers_67/669/back/normal/001.png",
+          "sha256": "c0f45845c70fe7bb30b7d5260de93ceb419b2d799477e87ea7e6c35f59f5e12b"
+        }
+      ]
+    },
+    {
+      "dex": 669,
+      "slot": 669,
+      "romDex": 670,
+      "name": "Flab\u00e9b\u00e9",
+      "side": "front",
+      "variant": "shiny",
+      "geometry": {
+        "sourceUnion": [
+          10,
+          7,
+          54,
+          57
+        ],
+        "stage": [
+          56,
+          56
+        ],
+        "body": [
+          44,
+          50
+        ]
+      },
+      "durations": [
+        450,
+        333,
+        383,
+        83
+      ],
+      "inputs": [
+        {
+          "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0669/front-shiny-01.png",
+          "sha256": "a17d4c617a6617033fa443dbefdaca39a116f8d80cc6f7cee72c8cb34ac1ad4a"
+        },
+        {
+          "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0669/front-shiny-00.png",
+          "sha256": "15ef7eaa60e6772c77bd93978e6d5fbb9f07a6c281c9ab774d530766abe25c20"
+        }
+      ],
+      "outputs": [
+        {
+          "path": "assets/wave1_red_flowers_67/669/front/shiny/001.png",
+          "sha256": "979e63e5dc3745e3e00b897b57b48c66b70d85cd47f97630cba5e4b92d5a2a1e"
+        },
+        {
+          "path": "assets/wave1_red_flowers_67/669/front/shiny/002.png",
+          "sha256": "a22944bed0404bd16e803fd0b93052eee4b221194ceb7fbfdc57b9edb8a65e23"
+        },
+        {
+          "path": "assets/wave1_red_flowers_67/669/front/shiny/003.png",
+          "sha256": "979e63e5dc3745e3e00b897b57b48c66b70d85cd47f97630cba5e4b92d5a2a1e"
+        },
+        {
+          "path": "assets/wave1_red_flowers_67/669/front/shiny/004.png",
+          "sha256": "a22944bed0404bd16e803fd0b93052eee4b221194ceb7fbfdc57b9edb8a65e23"
+        }
+      ]
+    },
+    {
+      "dex": 669,
+      "slot": 669,
+      "romDex": 670,
+      "name": "Flab\u00e9b\u00e9",
+      "side": "voxel",
+      "variant": "shiny",
+      "geometry": {
+        "sourceUnion": [
+          10,
+          7,
+          54,
+          57
+        ],
+        "stage": [
+          64,
+          64
+        ],
+        "body": [
+          44,
+          50
+        ]
+      },
+      "durations": [
+        450,
+        333,
+        383,
+        83
+      ],
+      "inputs": [
+        {
+          "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0669/front-shiny-01.png",
+          "sha256": "a17d4c617a6617033fa443dbefdaca39a116f8d80cc6f7cee72c8cb34ac1ad4a"
+        },
+        {
+          "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0669/front-shiny-00.png",
+          "sha256": "15ef7eaa60e6772c77bd93978e6d5fbb9f07a6c281c9ab774d530766abe25c20"
+        }
+      ],
+      "outputs": [
+        {
+          "path": "assets/wave1_red_flowers_67/669/voxel/shiny/001.png",
+          "sha256": "2edd9c0ba5f697399e0c151a48be5c50cebe9e49e5d5ca40c50ae6f3b798d5be"
+        },
+        {
+          "path": "assets/wave1_red_flowers_67/669/voxel/shiny/002.png",
+          "sha256": "83e7fbf526e1260292efcefb250707c45ae6f7ccb74bfd63348f484c539db38b"
+        },
+        {
+          "path": "assets/wave1_red_flowers_67/669/voxel/shiny/003.png",
+          "sha256": "2edd9c0ba5f697399e0c151a48be5c50cebe9e49e5d5ca40c50ae6f3b798d5be"
+        },
+        {
+          "path": "assets/wave1_red_flowers_67/669/voxel/shiny/004.png",
+          "sha256": "83e7fbf526e1260292efcefb250707c45ae6f7ccb74bfd63348f484c539db38b"
+        }
+      ]
+    },
+    {
+      "dex": 669,
+      "slot": 669,
+      "romDex": 670,
+      "name": "Flab\u00e9b\u00e9",
+      "side": "back",
+      "variant": "shiny",
+      "geometry": {
+        "sourceUnion": [
+          2,
+          0,
+          42,
+          26
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          32,
+          21
+        ],
+        "visibleRows": 32,
+        "sourceUpperBodyCrop": [
+          11,
+          11,
+          53,
+          37
+        ]
+      },
+      "durations": [
+        1000
+      ],
+      "inputs": [
+        {
+          "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0669/back-shiny-00.png",
+          "sha256": "1909c44e7eca110a087bfb03cf116a53635969c33c0e2e430e6a7bb314207e68"
+        }
+      ],
+      "outputs": [
+        {
+          "path": "assets/wave1_red_flowers_67/669/back/shiny/001.png",
+          "sha256": "6e86614494d91653f19284527e21a040b3875710a2b76b23a221dc89b7402fad"
+        }
+      ]
+    },
+    {
+      "dex": 670,
+      "slot": 670,
+      "romDex": 671,
+      "name": "Floette",
+      "side": "front",
+      "variant": "normal",
+      "geometry": {
+        "sourceUnion": [
+          8,
+          2,
+          56,
+          60
+        ],
+        "stage": [
+          56,
+          56
+        ],
+        "body": [
+          46,
+          56
+        ]
+      },
+      "durations": [
+        417,
+        833,
+        83
+      ],
+      "inputs": [
+        {
+          "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0670/front-normal-00.png",
+          "sha256": "e280b5fb070c0fc07bf4e98ad6c075dd53837df27845a3ece0012d018133f582"
+        },
+        {
+          "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0670/front-normal-01.png",
+          "sha256": "8303a6ca3f4968b2c328b629becbe0f44f20aa83773a55613912159470045b1a"
+        }
+      ],
+      "outputs": [
+        {
+          "path": "assets/wave1_red_flowers_67/670/front/normal/001.png",
+          "sha256": "14295222bbbb370ba5695efb19b495cf9f277e70d51a2d22132a49a85e0e81db"
+        },
+        {
+          "path": "assets/wave1_red_flowers_67/670/front/normal/002.png",
+          "sha256": "91f02ed3c5333cdcd67ef5ac60f8e1b06cb3a56356afd3162f5a60fb634609e1"
+        },
+        {
+          "path": "assets/wave1_red_flowers_67/670/front/normal/003.png",
+          "sha256": "14295222bbbb370ba5695efb19b495cf9f277e70d51a2d22132a49a85e0e81db"
+        }
+      ]
+    },
+    {
+      "dex": 670,
+      "slot": 670,
+      "romDex": 671,
+      "name": "Floette",
+      "side": "voxel",
+      "variant": "normal",
+      "geometry": {
+        "sourceUnion": [
+          8,
+          2,
+          56,
+          60
+        ],
+        "stage": [
+          64,
+          64
+        ],
+        "body": [
+          46,
+          56
+        ]
+      },
+      "durations": [
+        417,
+        833,
+        83
+      ],
+      "inputs": [
+        {
+          "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0670/front-normal-00.png",
+          "sha256": "e280b5fb070c0fc07bf4e98ad6c075dd53837df27845a3ece0012d018133f582"
+        },
+        {
+          "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0670/front-normal-01.png",
+          "sha256": "8303a6ca3f4968b2c328b629becbe0f44f20aa83773a55613912159470045b1a"
+        }
+      ],
+      "outputs": [
+        {
+          "path": "assets/wave1_red_flowers_67/670/voxel/normal/001.png",
+          "sha256": "1493a3fcfcf33fc24b5588b7105758df1042dba7247fbdb28674baf227aeea38"
+        },
+        {
+          "path": "assets/wave1_red_flowers_67/670/voxel/normal/002.png",
+          "sha256": "6e8ef58df25aeb348ff30d85d74fa3b5feb64c50331f0563b8f78a8ed3f3f700"
+        },
+        {
+          "path": "assets/wave1_red_flowers_67/670/voxel/normal/003.png",
+          "sha256": "1493a3fcfcf33fc24b5588b7105758df1042dba7247fbdb28674baf227aeea38"
+        }
+      ]
+    },
+    {
+      "dex": 670,
+      "slot": 670,
+      "romDex": 671,
+      "name": "Floette",
+      "side": "back",
+      "variant": "normal",
+      "geometry": {
+        "sourceUnion": [
+          0,
+          0,
+          48,
+          42
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          32,
+          28
+        ],
+        "visibleRows": 32,
+        "sourceUpperBodyCrop": [
+          8,
+          14,
+          56,
+          56
+        ]
+      },
+      "durations": [
+        1000
+      ],
+      "inputs": [
+        {
+          "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0670/back-normal-00.png",
+          "sha256": "1fc769717dc39f44b56cac12adfad25342d889bf05c2e0aea2d03c3776b95bdd"
+        }
+      ],
+      "outputs": [
+        {
+          "path": "assets/wave1_red_flowers_67/670/back/normal/001.png",
+          "sha256": "5451b0979c24fa893404edda31709dfa6db8d0d350d07c18813c1b5aa975718d"
+        }
+      ]
+    },
+    {
+      "dex": 670,
+      "slot": 670,
+      "romDex": 671,
+      "name": "Floette",
+      "side": "front",
+      "variant": "shiny",
+      "geometry": {
+        "sourceUnion": [
+          8,
+          2,
+          56,
+          60
+        ],
+        "stage": [
+          56,
+          56
+        ],
+        "body": [
+          46,
+          56
+        ]
+      },
+      "durations": [
+        417,
+        833,
+        83
+      ],
+      "inputs": [
+        {
+          "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0670/front-shiny-00.png",
+          "sha256": "7a197bf2366e17af79e6283f84d08fa1a4ec03a283451bad4bd88d40a22e7756"
+        },
+        {
+          "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0670/front-shiny-01.png",
+          "sha256": "554cbd8e7c6e77ab3fcc73ec333012d64ba19c7722cb233d0224a4e373c6ad8b"
+        }
+      ],
+      "outputs": [
+        {
+          "path": "assets/wave1_red_flowers_67/670/front/shiny/001.png",
+          "sha256": "fb2f249fd7b62437dde3da84926d0eee377f0994dc0dd8ba73b53669f1c7d0ab"
+        },
+        {
+          "path": "assets/wave1_red_flowers_67/670/front/shiny/002.png",
+          "sha256": "fa8ba6d320631cd64bac5a03e70c147069fa5ea4c7ed204b6fb42dc4c5aac194"
+        },
+        {
+          "path": "assets/wave1_red_flowers_67/670/front/shiny/003.png",
+          "sha256": "fb2f249fd7b62437dde3da84926d0eee377f0994dc0dd8ba73b53669f1c7d0ab"
+        }
+      ]
+    },
+    {
+      "dex": 670,
+      "slot": 670,
+      "romDex": 671,
+      "name": "Floette",
+      "side": "voxel",
+      "variant": "shiny",
+      "geometry": {
+        "sourceUnion": [
+          8,
+          2,
+          56,
+          60
+        ],
+        "stage": [
+          64,
+          64
+        ],
+        "body": [
+          46,
+          56
+        ]
+      },
+      "durations": [
+        417,
+        833,
+        83
+      ],
+      "inputs": [
+        {
+          "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0670/front-shiny-00.png",
+          "sha256": "7a197bf2366e17af79e6283f84d08fa1a4ec03a283451bad4bd88d40a22e7756"
+        },
+        {
+          "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0670/front-shiny-01.png",
+          "sha256": "554cbd8e7c6e77ab3fcc73ec333012d64ba19c7722cb233d0224a4e373c6ad8b"
+        }
+      ],
+      "outputs": [
+        {
+          "path": "assets/wave1_red_flowers_67/670/voxel/shiny/001.png",
+          "sha256": "cb74b00de7052f07c7887ebc6fa454406c949a911588be66f8ab55f58e836b35"
+        },
+        {
+          "path": "assets/wave1_red_flowers_67/670/voxel/shiny/002.png",
+          "sha256": "68f1b208593a083d5dc8ab60af1a4c966ab4da6c35483d4d2c22f71029a9b745"
+        },
+        {
+          "path": "assets/wave1_red_flowers_67/670/voxel/shiny/003.png",
+          "sha256": "cb74b00de7052f07c7887ebc6fa454406c949a911588be66f8ab55f58e836b35"
+        }
+      ]
+    },
+    {
+      "dex": 670,
+      "slot": 670,
+      "romDex": 671,
+      "name": "Floette",
+      "side": "back",
+      "variant": "shiny",
+      "geometry": {
+        "sourceUnion": [
+          0,
+          0,
+          48,
+          42
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          32,
+          28
+        ],
+        "visibleRows": 32,
+        "sourceUpperBodyCrop": [
+          8,
+          14,
+          56,
+          56
+        ]
+      },
+      "durations": [
+        1000
+      ],
+      "inputs": [
+        {
+          "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0670/back-shiny-00.png",
+          "sha256": "28db04ff17f0c3daff8fd1c669a0bb4d62fbba596f1797665737b218e3dd7d90"
+        }
+      ],
+      "outputs": [
+        {
+          "path": "assets/wave1_red_flowers_67/670/back/shiny/001.png",
+          "sha256": "4d86204ee8349d11d737fa396109d009283b5d1f37f4741484dcf6f0edc1c2ac"
+        }
+      ]
+    },
+    {
+      "dex": 671,
+      "slot": 671,
+      "romDex": 672,
+      "name": "Florges",
+      "side": "front",
+      "variant": "normal",
+      "geometry": {
+        "sourceUnion": [
+          11,
+          8,
+          54,
+          61
+        ],
+        "stage": [
+          56,
+          56
+        ],
+        "body": [
+          43,
+          53
+        ]
+      },
+      "durations": [
+        750,
+        83
+      ],
+      "inputs": [
+        {
+          "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0671/front-normal-01.png",
+          "sha256": "2cf249e7a2bb07e59948b5039b60d1dc02771cef88b1e61b2c9f7b9682c6d49b"
+        },
+        {
+          "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0671/front-normal-00.png",
+          "sha256": "6a9184aebcee55996b8a79125af9d7caebf89cfbcf35c4afe66666af1573b20e"
+        }
+      ],
+      "outputs": [
+        {
+          "path": "assets/wave1_red_flowers_67/671/front/normal/001.png",
+          "sha256": "36e7607440bf416a06bc435cf0b0453c813cd31b2a5bb211c60f9d8ff09f7cdc"
+        },
+        {
+          "path": "assets/wave1_red_flowers_67/671/front/normal/002.png",
+          "sha256": "b70bef0890e021a248276b306d88caa41850411af9fbe76ba8f95f540209b392"
+        }
+      ]
+    },
+    {
+      "dex": 671,
+      "slot": 671,
+      "romDex": 672,
+      "name": "Florges",
+      "side": "voxel",
+      "variant": "normal",
+      "geometry": {
+        "sourceUnion": [
+          11,
+          8,
+          54,
+          61
+        ],
+        "stage": [
+          64,
+          64
+        ],
+        "body": [
+          43,
+          53
+        ]
+      },
+      "durations": [
+        750,
+        83
+      ],
+      "inputs": [
+        {
+          "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0671/front-normal-01.png",
+          "sha256": "2cf249e7a2bb07e59948b5039b60d1dc02771cef88b1e61b2c9f7b9682c6d49b"
+        },
+        {
+          "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0671/front-normal-00.png",
+          "sha256": "6a9184aebcee55996b8a79125af9d7caebf89cfbcf35c4afe66666af1573b20e"
+        }
+      ],
+      "outputs": [
+        {
+          "path": "assets/wave1_red_flowers_67/671/voxel/normal/001.png",
+          "sha256": "02ed1d2f816c20fe61fe914f2a6cefcd0dbe8673e80d3423371fcb9bd09a4aa8"
+        },
+        {
+          "path": "assets/wave1_red_flowers_67/671/voxel/normal/002.png",
+          "sha256": "d1c7f479fbbfdcbc8622acb615b7fdeb6dba40a2948150f2214da20ec0c9f97d"
+        }
+      ]
+    },
+    {
+      "dex": 671,
+      "slot": 671,
+      "romDex": 672,
+      "name": "Florges",
+      "side": "back",
+      "variant": "normal",
+      "geometry": {
+        "sourceUnion": [
+          0,
+          0,
+          48,
+          42
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          32,
+          28
+        ],
+        "visibleRows": 32,
+        "sourceUpperBodyCrop": [
+          8,
+          8,
+          56,
+          50
+        ]
+      },
+      "durations": [
+        1000
+      ],
+      "inputs": [
+        {
+          "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0671/back-normal-00.png",
+          "sha256": "539a5d98c31baed028293849197d5a955758a3001d894418c427c437e61736ca"
+        }
+      ],
+      "outputs": [
+        {
+          "path": "assets/wave1_red_flowers_67/671/back/normal/001.png",
+          "sha256": "a7dd75f7a795dab9f698453dec3f8ee30f2e4c81073bcbb219132dddbb74e1b1"
+        }
+      ]
+    },
+    {
+      "dex": 671,
+      "slot": 671,
+      "romDex": 672,
+      "name": "Florges",
+      "side": "front",
+      "variant": "shiny",
+      "geometry": {
+        "sourceUnion": [
+          11,
+          8,
+          54,
+          61
+        ],
+        "stage": [
+          56,
+          56
+        ],
+        "body": [
+          43,
+          53
+        ]
+      },
+      "durations": [
+        750,
+        83
+      ],
+      "inputs": [
+        {
+          "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0671/front-shiny-01.png",
+          "sha256": "c47669998f748061deae9dc7009dffb4978a345619e3fa8884056c7767ab9eec"
+        },
+        {
+          "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0671/front-shiny-00.png",
+          "sha256": "0cfecd67d7b3b01285028fae989f4a02da877b05f7978c025b6e7e701c8eddce"
+        }
+      ],
+      "outputs": [
+        {
+          "path": "assets/wave1_red_flowers_67/671/front/shiny/001.png",
+          "sha256": "c186a18bca516a3edd705e6e54a47c1b0282005ecb038566932301bcd93aa235"
+        },
+        {
+          "path": "assets/wave1_red_flowers_67/671/front/shiny/002.png",
+          "sha256": "0288d30b7f9e09c645f3a97ee96b37ed4565e9f60418813c81a53c493617a382"
+        }
+      ]
+    },
+    {
+      "dex": 671,
+      "slot": 671,
+      "romDex": 672,
+      "name": "Florges",
+      "side": "voxel",
+      "variant": "shiny",
+      "geometry": {
+        "sourceUnion": [
+          11,
+          8,
+          54,
+          61
+        ],
+        "stage": [
+          64,
+          64
+        ],
+        "body": [
+          43,
+          53
+        ]
+      },
+      "durations": [
+        750,
+        83
+      ],
+      "inputs": [
+        {
+          "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0671/front-shiny-01.png",
+          "sha256": "c47669998f748061deae9dc7009dffb4978a345619e3fa8884056c7767ab9eec"
+        },
+        {
+          "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0671/front-shiny-00.png",
+          "sha256": "0cfecd67d7b3b01285028fae989f4a02da877b05f7978c025b6e7e701c8eddce"
+        }
+      ],
+      "outputs": [
+        {
+          "path": "assets/wave1_red_flowers_67/671/voxel/shiny/001.png",
+          "sha256": "3c36f7e5701802ff1c5f3ff242cac779ac672792dd848391ec7a0a0541ce18d1"
+        },
+        {
+          "path": "assets/wave1_red_flowers_67/671/voxel/shiny/002.png",
+          "sha256": "3d4fd5ada4e99962fc66a9569d27e31375717e5b5d83431cb772a26053d97965"
+        }
+      ]
+    },
+    {
+      "dex": 671,
+      "slot": 671,
+      "romDex": 672,
+      "name": "Florges",
+      "side": "back",
+      "variant": "shiny",
+      "geometry": {
+        "sourceUnion": [
+          0,
+          0,
+          48,
+          42
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          32,
+          28
+        ],
+        "visibleRows": 32,
+        "sourceUpperBodyCrop": [
+          8,
+          8,
+          56,
+          50
+        ]
+      },
+      "durations": [
+        1000
+      ],
+      "inputs": [
+        {
+          "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0671/back-shiny-00.png",
+          "sha256": "642b4ca8f4fc2c64c140fd95811e3c5695f20779ca9636e5d340c38ace92595d"
+        }
+      ],
+      "outputs": [
+        {
+          "path": "assets/wave1_red_flowers_67/671/back/shiny/001.png",
+          "sha256": "7fb8dc53996c2241a226c6f66d134bd5f72a85e933956b23ba796c038ffe8cc5"
+        }
+      ]
+    }
+  ]
+}

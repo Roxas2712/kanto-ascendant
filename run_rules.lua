@@ -6,6 +6,7 @@ return function(mod, opts)
   local shinySystem = opts.shinySystem
   local mythicSafety = opts.mythicSafety
   local beyondKanto = opts.beyondKanto or opts.johtoBoundary
+  local generationRules = opts.generationRules
   local R = { game = nil, pool = {}, byId = {}, roots = {}, stages = {},
     pendingWild = {} }
   local RUN_RULES_VERSION = 4
@@ -36,6 +37,20 @@ return function(mod, opts)
   local function boundaryActive(game)
     return not beyondKanto or type(beyondKanto.isActive) ~= "function"
       or beyondKanto.isActive(game or R.game)
+  end
+
+  local function profileSpeciesAllowed(game, species)
+    if not (generationRules
+        and type(generationRules.speciesAvailable) == "function") then
+      return true
+    end
+    game = game or R.game
+    local def = game and game.data and game.data.pokemon
+      and game.data.pokemon[species]
+    if type(def) ~= "table" then return false end
+    local ok, allowed = pcall(
+      generationRules.speciesAvailable, game, species, def)
+    return ok and allowed == true
   end
 
   local function boundaryState(game)
@@ -643,12 +658,13 @@ return function(mod, opts)
     return value
   end
 
-  local function speciesCandidates(original, settings)
+  local function speciesCandidates(original, settings, game)
     local source = R.byId[original]
     if not source then return {} end
     local candidates = {}
     for _, row in ipairs(R.pool) do
-      if (settings.legendary or not LEGENDARY[row.id]) then
+      if profileSpeciesAllowed(game, row.id)
+          and (settings.legendary or not LEGENDARY[row.id]) then
         local stageOK = not settings.balanced
           or R.stages[row.id] == R.stages[original]
         local bstOK = not settings.balanced
@@ -658,7 +674,8 @@ return function(mod, opts)
     end
     if #candidates == 0 then
       for _, row in ipairs(R.pool) do
-        if settings.legendary or not LEGENDARY[row.id] then
+        if profileSpeciesAllowed(game, row.id)
+            and (settings.legendary or not LEGENDARY[row.id]) then
           candidates[#candidates + 1] = row
         end
       end
@@ -670,24 +687,32 @@ return function(mod, opts)
     local settings = s.randomizer
     local key = settings.consistent and original or (category .. ":" .. original)
     local mapped = s.mappings.species[key]
-    if mapped and R.byId[mapped] then return mapped end
+    local dormantMapping = mapped and R.byId[mapped]
+      and not profileSpeciesAllowed(R.game, mapped)
+    if mapped and R.byId[mapped] and not dormantMapping then return mapped end
     local sourceAllowed = R.byId[original] ~= nil
-    if sourceAllowed and LEGENDARY[original] and not settings.legendary then
+    if sourceAllowed and profileSpeciesAllowed(R.game, original)
+        and LEGENDARY[original] and not settings.legendary then
       return original
     end
-    local candidates = sourceAllowed and speciesCandidates(original, settings) or {}
+    local candidates = sourceAllowed
+      and speciesCandidates(original, settings, R.game) or {}
     if #candidates == 0 then
       -- An inherited or third-party source may sit outside the currently
       -- selected save's boundary. Never pass it through unchanged: choose a
       -- deterministic member of the live, boundary-filtered pool instead.
       for _, row in ipairs(R.pool) do
-        if settings.legendary or not LEGENDARY[row.id] then
+        if profileSpeciesAllowed(R.game, row.id)
+            and (settings.legendary or not LEGENDARY[row.id]) then
           candidates[#candidates + 1] = row
         end
       end
     end
     if #candidates == 0 then return nil end
     mapped = candidates[hash(s.seed, "species:" .. key) % #candidates + 1].id
+    -- Manual downshifts project a temporary legal replacement. Preserve the
+    -- durable mapping so switching back restores the exact earlier result.
+    if dormantMapping then return mapped end
     s.mappings.species[key] = mapped
     if s.locked and type(s.finalRules) == "table" then
       s.finalRules.mappings = type(s.finalRules.mappings) == "table"
@@ -762,6 +787,13 @@ return function(mod, opts)
 
   local function protectedBattle(battle)
     if not battle or battle.demo or battle.scriptedEncounter then return true end
+    -- Private Classic Link never consumes or mutates a player's local
+    -- Nuzlocke state. The link simulation runs on disposable party copies;
+    -- recording a faint there as a permanent save death would violate that
+    -- boundary even when both peers share identical static battle data.
+    if battle.kind == "link" or battle.ascendantNoSaveMechanics == true then
+      return true
+    end
     if battle.ascendantMythicProtected then return true end
     return mythicSafety and mythicSafety.classify
       and mythicSafety.classify(battle) ~= nil or false

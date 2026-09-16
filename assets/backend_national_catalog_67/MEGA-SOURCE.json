@@ -1,0 +1,784 @@
+{
+  "schema": "kasc.backend-mega-catalog/v1",
+  "entries": {
+    "form:10033": {
+      "sourceId": "venusaurmega",
+      "baseKey": "dex:3",
+      "existingProfileId": "VENUSAUR",
+      "stone": "VENUSAURITE",
+      "stoneLabel": "Venusaurite",
+      "requiredMove": false
+    },
+    "form:10034": {
+      "sourceId": "charizardmegax",
+      "baseKey": "dex:6",
+      "existingProfileId": "CHARIZARD_X",
+      "stone": "CHARIZARDITE_X",
+      "stoneLabel": "Charizardite X",
+      "requiredMove": false
+    },
+    "form:10035": {
+      "sourceId": "charizardmegay",
+      "baseKey": "dex:6",
+      "existingProfileId": "CHARIZARD_Y",
+      "stone": "CHARIZARDITE_Y",
+      "stoneLabel": "Charizardite Y",
+      "requiredMove": false
+    },
+    "form:10036": {
+      "sourceId": "blastoisemega",
+      "baseKey": "dex:9",
+      "existingProfileId": "BLASTOISE",
+      "stone": "BLASTOISINITE",
+      "stoneLabel": "Blastoisinite",
+      "requiredMove": false
+    },
+    "form:10037": {
+      "sourceId": "alakazammega",
+      "baseKey": "dex:65",
+      "existingProfileId": "ALAKAZAM",
+      "stone": "ALAKAZITE",
+      "stoneLabel": "Alakazite",
+      "requiredMove": false
+    },
+    "form:10038": {
+      "sourceId": "gengarmega",
+      "baseKey": "dex:94",
+      "existingProfileId": "GENGAR",
+      "stone": "GENGARITE",
+      "stoneLabel": "Gengarite",
+      "requiredMove": false
+    },
+    "form:10039": {
+      "sourceId": "kangaskhanmega",
+      "baseKey": "dex:115",
+      "existingProfileId": "KANGASKHAN",
+      "stone": "KANGASKHANITE",
+      "stoneLabel": "Kangaskhanite",
+      "requiredMove": false
+    },
+    "form:10040": {
+      "sourceId": "pinsirmega",
+      "baseKey": "dex:127",
+      "existingProfileId": "PINSIR",
+      "stone": "PINSIRITE",
+      "stoneLabel": "Pinsirite",
+      "requiredMove": false
+    },
+    "form:10041": {
+      "sourceId": "gyaradosmega",
+      "baseKey": "dex:130",
+      "existingProfileId": "GYARADOS",
+      "stone": "GYARADOSITE",
+      "stoneLabel": "Gyaradosite",
+      "requiredMove": false
+    },
+    "form:10042": {
+      "sourceId": "aerodactylmega",
+      "baseKey": "dex:142",
+      "existingProfileId": "AERODACTYL",
+      "stone": "AERODACTYLITE",
+      "stoneLabel": "Aerodactylite",
+      "requiredMove": false
+    },
+    "form:10043": {
+      "sourceId": "mewtwomegax",
+      "baseKey": "dex:150",
+      "existingProfileId": "MEWTWO_X",
+      "stone": "MEWTWONITE_X",
+      "stoneLabel": "Mewtwonite X",
+      "requiredMove": false
+    },
+    "form:10044": {
+      "sourceId": "mewtwomegay",
+      "baseKey": "dex:150",
+      "existingProfileId": "MEWTWO_Y",
+      "stone": "MEWTWONITE_Y",
+      "stoneLabel": "Mewtwonite Y",
+      "requiredMove": false
+    },
+    "form:10045": {
+      "sourceId": "ampharosmega",
+      "baseKey": "dex:181",
+      "existingProfileId": "AMPHAROS",
+      "stone": "AMPHAROSITE",
+      "stoneLabel": "Ampharosite",
+      "requiredMove": false
+    },
+    "form:10046": {
+      "sourceId": "scizormega",
+      "baseKey": "dex:212",
+      "existingProfileId": "SCIZOR",
+      "stone": "SCIZORITE",
+      "stoneLabel": "Scizorite",
+      "requiredMove": false
+    },
+    "form:10047": {
+      "sourceId": "heracrossmega",
+      "baseKey": "dex:214",
+      "existingProfileId": "HERACROSS",
+      "stone": "HERACRONITE",
+      "stoneLabel": "Heracronite",
+      "requiredMove": false
+    },
+    "form:10048": {
+      "sourceId": "houndoommega",
+      "baseKey": "dex:229",
+      "existingProfileId": "HOUNDOOM",
+      "stone": "HOUNDOOMINITE",
+      "stoneLabel": "Houndoominite",
+      "requiredMove": false
+    },
+    "form:10049": {
+      "sourceId": "tyranitarmega",
+      "baseKey": "dex:248",
+      "existingProfileId": "TYRANITAR",
+      "stone": "TYRANITARITE",
+      "stoneLabel": "Tyranitarite",
+      "requiredMove": false
+    },
+    "form:10050": {
+      "sourceId": "blazikenmega",
+      "baseKey": "dex:257",
+      "existingProfileId": "BLAZIKEN",
+      "stone": "BLAZIKENITE",
+      "stoneLabel": "Blazikenite",
+      "requiredMove": false
+    },
+    "form:10051": {
+      "sourceId": "gardevoirmega",
+      "baseKey": "dex:282",
+      "existingProfileId": "GARDEVOIR",
+      "stone": "GARDEVOIRITE",
+      "stoneLabel": "Gardevoirite",
+      "requiredMove": false
+    },
+    "form:10052": {
+      "sourceId": "mawilemega",
+      "baseKey": "dex:303",
+      "existingProfileId": "MAWILE",
+      "stone": "MAWILITE",
+      "stoneLabel": "Mawilite",
+      "requiredMove": false
+    },
+    "form:10053": {
+      "sourceId": "aggronmega",
+      "baseKey": "dex:306",
+      "existingProfileId": "AGGRON",
+      "stone": "AGGRONITE",
+      "stoneLabel": "Aggronite",
+      "requiredMove": false
+    },
+    "form:10054": {
+      "sourceId": "medichammega",
+      "baseKey": "dex:308",
+      "existingProfileId": "MEDICHAM",
+      "stone": "MEDICHAMITE",
+      "stoneLabel": "Medichamite",
+      "requiredMove": false
+    },
+    "form:10055": {
+      "sourceId": "manectricmega",
+      "baseKey": "dex:310",
+      "existingProfileId": "MANECTRIC",
+      "stone": "MANECTITE",
+      "stoneLabel": "Manectite",
+      "requiredMove": false
+    },
+    "form:10056": {
+      "sourceId": "banettemega",
+      "baseKey": "dex:354",
+      "existingProfileId": "BANETTE",
+      "stone": "BANETTITE",
+      "stoneLabel": "Banettite",
+      "requiredMove": false
+    },
+    "form:10057": {
+      "sourceId": "absolmega",
+      "baseKey": "dex:359",
+      "existingProfileId": "ABSOL",
+      "stone": "ABSOLITE",
+      "stoneLabel": "Absolite",
+      "requiredMove": false
+    },
+    "form:10058": {
+      "sourceId": "garchompmega",
+      "baseKey": "dex:445",
+      "existingProfileId": "GARCHOMP",
+      "stone": "GARCHOMPITE",
+      "stoneLabel": "Garchompite",
+      "requiredMove": false
+    },
+    "form:10059": {
+      "sourceId": "lucariomega",
+      "baseKey": "dex:448",
+      "existingProfileId": "LUCARIO",
+      "stone": "LUCARIONITE",
+      "stoneLabel": "Lucarionite",
+      "requiredMove": false
+    },
+    "form:10060": {
+      "sourceId": "abomasnowmega",
+      "baseKey": "dex:460",
+      "existingProfileId": "ABOMASNOW",
+      "stone": "ABOMASITE",
+      "stoneLabel": "Abomasite",
+      "requiredMove": false
+    },
+    "form:10062": {
+      "sourceId": "latiasmega",
+      "baseKey": "dex:380",
+      "existingProfileId": "LATIAS",
+      "stone": "LATIASITE",
+      "stoneLabel": "Latiasite",
+      "requiredMove": false
+    },
+    "form:10063": {
+      "sourceId": "latiosmega",
+      "baseKey": "dex:381",
+      "existingProfileId": "LATIOS",
+      "stone": "LATIOSITE",
+      "stoneLabel": "Latiosite",
+      "requiredMove": false
+    },
+    "form:10064": {
+      "sourceId": "swampertmega",
+      "baseKey": "dex:260",
+      "existingProfileId": "SWAMPERT",
+      "stone": "SWAMPERTITE",
+      "stoneLabel": "Swampertite",
+      "requiredMove": false
+    },
+    "form:10065": {
+      "sourceId": "sceptilemega",
+      "baseKey": "dex:254",
+      "existingProfileId": "SCEPTILE",
+      "stone": "SCEPTILITE",
+      "stoneLabel": "Sceptilite",
+      "requiredMove": false
+    },
+    "form:10066": {
+      "sourceId": "sableyemega",
+      "baseKey": "dex:302",
+      "existingProfileId": "SABLEYE",
+      "stone": "SABLENITE",
+      "stoneLabel": "Sablenite",
+      "requiredMove": false
+    },
+    "form:10067": {
+      "sourceId": "altariamega",
+      "baseKey": "dex:334",
+      "existingProfileId": "ALTARIA",
+      "stone": "ALTARIANITE",
+      "stoneLabel": "Altarianite",
+      "requiredMove": false
+    },
+    "form:10068": {
+      "sourceId": "gallademega",
+      "baseKey": "dex:475",
+      "existingProfileId": "GALLADE",
+      "stone": "GALLADITE",
+      "stoneLabel": "Galladite",
+      "requiredMove": false
+    },
+    "form:10069": {
+      "sourceId": "audinomega",
+      "baseKey": "dex:531",
+      "existingProfileId": "AUDINO",
+      "stone": "AUDINITE",
+      "stoneLabel": "Audinite",
+      "requiredMove": false
+    },
+    "form:10070": {
+      "sourceId": "sharpedomega",
+      "baseKey": "dex:319",
+      "existingProfileId": "SHARPEDO",
+      "stone": "SHARPEDONITE",
+      "stoneLabel": "Sharpedonite",
+      "requiredMove": false
+    },
+    "form:10071": {
+      "sourceId": "slowbromega",
+      "baseKey": "dex:80",
+      "existingProfileId": "SLOWBRO",
+      "stone": "SLOWBRONITE",
+      "stoneLabel": "Slowbronite",
+      "requiredMove": false
+    },
+    "form:10072": {
+      "sourceId": "steelixmega",
+      "baseKey": "dex:208",
+      "existingProfileId": "STEELIX",
+      "stone": "STEELIXITE",
+      "stoneLabel": "Steelixite",
+      "requiredMove": false
+    },
+    "form:10073": {
+      "sourceId": "pidgeotmega",
+      "baseKey": "dex:18",
+      "existingProfileId": "PIDGEOT",
+      "stone": "PIDGEOTITE",
+      "stoneLabel": "Pidgeotite",
+      "requiredMove": false
+    },
+    "form:10074": {
+      "sourceId": "glaliemega",
+      "baseKey": "dex:362",
+      "existingProfileId": "GLALIE",
+      "stone": "GLALITITE",
+      "stoneLabel": "Glalitite",
+      "requiredMove": false
+    },
+    "form:10075": {
+      "sourceId": "dianciemega",
+      "baseKey": "dex:719",
+      "existingProfileId": "DIANCIE",
+      "stone": "DIANCITE",
+      "stoneLabel": "Diancite",
+      "requiredMove": false
+    },
+    "form:10076": {
+      "sourceId": "metagrossmega",
+      "baseKey": "dex:376",
+      "existingProfileId": "METAGROSS",
+      "stone": "METAGROSSITE",
+      "stoneLabel": "Metagrossite",
+      "requiredMove": false
+    },
+    "form:10079": {
+      "sourceId": "rayquazamega",
+      "baseKey": "dex:384",
+      "existingProfileId": "RAYQUAZA",
+      "stone": false,
+      "stoneLabel": false,
+      "requiredMove": "DRAGON_ASCENT"
+    },
+    "form:10087": {
+      "sourceId": "cameruptmega",
+      "baseKey": "dex:323",
+      "existingProfileId": "CAMERUPT",
+      "stone": "CAMERUPTITE",
+      "stoneLabel": "Cameruptite",
+      "requiredMove": false
+    },
+    "form:10088": {
+      "sourceId": "lopunnymega",
+      "baseKey": "dex:428",
+      "existingProfileId": "LOPUNNY",
+      "stone": "LOPUNNITE",
+      "stoneLabel": "Lopunnite",
+      "requiredMove": false
+    },
+    "form:10089": {
+      "sourceId": "salamencemega",
+      "baseKey": "dex:373",
+      "existingProfileId": "SALAMENCE",
+      "stone": "SALAMENCITE",
+      "stoneLabel": "Salamencite",
+      "requiredMove": false
+    },
+    "form:10090": {
+      "sourceId": "beedrillmega",
+      "baseKey": "dex:15",
+      "existingProfileId": "BEEDRILL",
+      "stone": "BEEDRILLITE",
+      "stoneLabel": "Beedrillite",
+      "requiredMove": false
+    },
+    "form:10278": {
+      "sourceId": "clefablemega",
+      "baseKey": "dex:36",
+      "existingProfileId": "CLEFABLE",
+      "stone": "CLEFABLITE",
+      "stoneLabel": "Clefablite",
+      "requiredMove": false
+    },
+    "form:10279": {
+      "sourceId": "victreebelmega",
+      "baseKey": "dex:71",
+      "existingProfileId": "VICTREEBEL",
+      "stone": "VICTREEBELITE",
+      "stoneLabel": "Victreebelite",
+      "requiredMove": false
+    },
+    "form:10280": {
+      "sourceId": "starmiemega",
+      "baseKey": "dex:121",
+      "existingProfileId": "STARMIE",
+      "stone": "STARMINITE",
+      "stoneLabel": "Starminite",
+      "requiredMove": false
+    },
+    "form:10281": {
+      "sourceId": "dragonitemega",
+      "baseKey": "dex:149",
+      "existingProfileId": "DRAGONITE",
+      "stone": "DRAGONINITE",
+      "stoneLabel": "Dragoninite",
+      "requiredMove": false
+    },
+    "form:10282": {
+      "sourceId": "meganiummega",
+      "baseKey": "dex:154",
+      "existingProfileId": "MEGANIUM",
+      "stone": "MEGANIUMITE",
+      "stoneLabel": "Meganiumite",
+      "requiredMove": false
+    },
+    "form:10283": {
+      "sourceId": "feraligatrmega",
+      "baseKey": "dex:160",
+      "existingProfileId": "FERALIGATR",
+      "stone": "FERALIGITE",
+      "stoneLabel": "Feraligite",
+      "requiredMove": false
+    },
+    "form:10284": {
+      "sourceId": "skarmorymega",
+      "baseKey": "dex:227",
+      "existingProfileId": "SKARMORY",
+      "stone": "SKARMORITE",
+      "stoneLabel": "Skarmorite",
+      "requiredMove": false
+    },
+    "form:10285": {
+      "sourceId": "froslassmega",
+      "baseKey": "dex:478",
+      "existingProfileId": "FROSLASS",
+      "stone": "FROSLASSITE",
+      "stoneLabel": "Froslassite",
+      "requiredMove": false
+    },
+    "form:10286": {
+      "sourceId": "emboarmega",
+      "baseKey": "dex:500",
+      "existingProfileId": "EMBOAR",
+      "stone": "EMBOARITE",
+      "stoneLabel": "Emboarite",
+      "requiredMove": false
+    },
+    "form:10287": {
+      "sourceId": "excadrillmega",
+      "baseKey": "dex:530",
+      "existingProfileId": "EXCADRILL",
+      "stone": "EXCADRITE",
+      "stoneLabel": "Excadrite",
+      "requiredMove": false
+    },
+    "form:10288": {
+      "sourceId": "scolipedemega",
+      "baseKey": "dex:545",
+      "existingProfileId": "SCOLIPEDE",
+      "stone": "SCOLIPITE",
+      "stoneLabel": "Scolipite",
+      "requiredMove": false
+    },
+    "form:10289": {
+      "sourceId": "scraftymega",
+      "baseKey": "dex:560",
+      "existingProfileId": "SCRAFTY",
+      "stone": "SCRAFTINITE",
+      "stoneLabel": "Scraftinite",
+      "requiredMove": false
+    },
+    "form:10290": {
+      "sourceId": "eelektrossmega",
+      "baseKey": "dex:604",
+      "existingProfileId": "EELEKTROSS",
+      "stone": "EELEKTROSSITE",
+      "stoneLabel": "Eelektrossite",
+      "requiredMove": false
+    },
+    "form:10291": {
+      "sourceId": "chandeluremega",
+      "baseKey": "dex:609",
+      "existingProfileId": "CHANDELURE",
+      "stone": "CHANDELURITE",
+      "stoneLabel": "Chandelurite",
+      "requiredMove": false
+    },
+    "form:10292": {
+      "sourceId": "chesnaughtmega",
+      "baseKey": "dex:652",
+      "existingProfileId": "CHESNAUGHT",
+      "stone": "CHESNAUGHTITE",
+      "stoneLabel": "Chesnaughtite",
+      "requiredMove": false
+    },
+    "form:10293": {
+      "sourceId": "delphoxmega",
+      "baseKey": "dex:655",
+      "existingProfileId": "DELPHOX",
+      "stone": "DELPHOXITE",
+      "stoneLabel": "Delphoxite",
+      "requiredMove": false
+    },
+    "form:10294": {
+      "sourceId": "greninjamega",
+      "baseKey": "dex:658",
+      "existingProfileId": "GRENINJA",
+      "stone": "GRENINJITE",
+      "stoneLabel": "Greninjite",
+      "requiredMove": false
+    },
+    "form:10295": {
+      "sourceId": "pyroarmega",
+      "baseKey": "dex:668",
+      "existingProfileId": "PYROAR",
+      "stone": "PYROARITE",
+      "stoneLabel": "Pyroarite",
+      "requiredMove": false
+    },
+    "form:10296": {
+      "sourceId": "floettemega",
+      "baseKey": "form:10061",
+      "existingProfileId": "FLOETTE",
+      "stone": "FLOETTITE",
+      "stoneLabel": "Floettite",
+      "requiredMove": false
+    },
+    "form:10297": {
+      "sourceId": "malamarmega",
+      "baseKey": "dex:687",
+      "existingProfileId": "MALAMAR",
+      "stone": "MALAMARITE",
+      "stoneLabel": "Malamarite",
+      "requiredMove": false
+    },
+    "form:10298": {
+      "sourceId": "barbaraclemega",
+      "baseKey": "dex:689",
+      "existingProfileId": "BARBARACLE",
+      "stone": "BARBARACITE",
+      "stoneLabel": "Barbaracite",
+      "requiredMove": false
+    },
+    "form:10299": {
+      "sourceId": "dragalgemega",
+      "baseKey": "dex:691",
+      "existingProfileId": "DRAGALGE",
+      "stone": "DRAGALGITE",
+      "stoneLabel": "Dragalgite",
+      "requiredMove": false
+    },
+    "form:10300": {
+      "sourceId": "hawluchamega",
+      "baseKey": "dex:701",
+      "existingProfileId": "HAWLUCHA",
+      "stone": "HAWLUCHANITE",
+      "stoneLabel": "Hawluchanite",
+      "requiredMove": false
+    },
+    "form:10301": {
+      "sourceId": "zygardemega",
+      "baseKey": "dex:718",
+      "existingProfileId": "ZYGARDE",
+      "stone": "ZYGARDITE",
+      "stoneLabel": "Zygardite",
+      "requiredMove": false
+    },
+    "form:10302": {
+      "sourceId": "drampamega",
+      "baseKey": "dex:780",
+      "existingProfileId": "DRAMPA",
+      "stone": "DRAMPANITE",
+      "stoneLabel": "Drampanite",
+      "requiredMove": false
+    },
+    "form:10303": {
+      "sourceId": "falinksmega",
+      "baseKey": "dex:870",
+      "existingProfileId": "FALINKS",
+      "stone": "FALINKSITE",
+      "stoneLabel": "Falinksite",
+      "requiredMove": false
+    },
+    "form:10304": {
+      "sourceId": "raichumegax",
+      "baseKey": "dex:26",
+      "existingProfileId": "RAICHU_X",
+      "stone": "RAICHUNITE_X",
+      "stoneLabel": "Raichunite X",
+      "requiredMove": false
+    },
+    "form:10305": {
+      "sourceId": "raichumegay",
+      "baseKey": "dex:26",
+      "existingProfileId": "RAICHU_Y",
+      "stone": "RAICHUNITE_Y",
+      "stoneLabel": "Raichunite Y",
+      "requiredMove": false
+    },
+    "form:10306": {
+      "sourceId": "chimechomega",
+      "baseKey": "dex:358",
+      "existingProfileId": "CHIMECHO",
+      "stone": "CHIMECHITE",
+      "stoneLabel": "Chimechite",
+      "requiredMove": false
+    },
+    "form:10307": {
+      "sourceId": "absolmegaz",
+      "baseKey": "dex:359",
+      "existingProfileId": "ABSOL_Z",
+      "stone": "ABSOLITE_Z",
+      "stoneLabel": "Absolite Z",
+      "requiredMove": false
+    },
+    "form:10308": {
+      "sourceId": "staraptormega",
+      "baseKey": "dex:398",
+      "existingProfileId": "STARAPTOR",
+      "stone": "STARAPTITE",
+      "stoneLabel": "Staraptite",
+      "requiredMove": false
+    },
+    "form:10309": {
+      "sourceId": "garchompmegaz",
+      "baseKey": "dex:445",
+      "existingProfileId": "GARCHOMP_Z",
+      "stone": "GARCHOMPITE_Z",
+      "stoneLabel": "Garchompite Z",
+      "requiredMove": false
+    },
+    "form:10310": {
+      "sourceId": "lucariomegaz",
+      "baseKey": "dex:448",
+      "existingProfileId": "LUCARIO_Z",
+      "stone": "LUCARIONITE_Z",
+      "stoneLabel": "Lucarionite Z",
+      "requiredMove": false
+    },
+    "form:10311": {
+      "sourceId": "heatranmega",
+      "baseKey": "dex:485",
+      "existingProfileId": "HEATRAN",
+      "stone": "HEATRANITE",
+      "stoneLabel": "Heatranite",
+      "requiredMove": false
+    },
+    "form:10312": {
+      "sourceId": "darkraimega",
+      "baseKey": "dex:491",
+      "existingProfileId": "DARKRAI",
+      "stone": "DARKRANITE",
+      "stoneLabel": "Darkranite",
+      "requiredMove": false
+    },
+    "form:10313": {
+      "sourceId": "golurkmega",
+      "baseKey": "dex:623",
+      "existingProfileId": "GOLURK",
+      "stone": "GOLURKITE",
+      "stoneLabel": "Golurkite",
+      "requiredMove": false
+    },
+    "form:10314": {
+      "sourceId": "meowsticmmega",
+      "baseKey": "dex:678",
+      "existingProfileId": "MEOWSTIC_MALE",
+      "stone": "MEOWSTICITE",
+      "stoneLabel": "Meowsticite",
+      "requiredMove": false
+    },
+    "form:10315": {
+      "sourceId": "crabominablemega",
+      "baseKey": "dex:740",
+      "existingProfileId": "CRABOMINABLE",
+      "stone": "CRABOMINITE",
+      "stoneLabel": "Crabominite",
+      "requiredMove": false
+    },
+    "form:10316": {
+      "sourceId": "golisopodmega",
+      "baseKey": "dex:768",
+      "existingProfileId": "GOLISOPOD",
+      "stone": "GOLISOPITE",
+      "stoneLabel": "Golisopite",
+      "requiredMove": false
+    },
+    "form:10317": {
+      "sourceId": "magearnamega",
+      "baseKey": "dex:801",
+      "existingProfileId": "MAGEARNA",
+      "stone": "MAGEARNITE",
+      "stoneLabel": "Magearnite",
+      "requiredMove": false
+    },
+    "form:10318": {
+      "sourceId": "magearnaoriginalmega",
+      "baseKey": "form:10147",
+      "existingProfileId": "MAGEARNA_ORIGINAL",
+      "stone": "MAGEARNITE",
+      "stoneLabel": "Magearnite",
+      "requiredMove": false
+    },
+    "form:10319": {
+      "sourceId": "zeraoramega",
+      "baseKey": "dex:807",
+      "existingProfileId": "ZERAORA",
+      "stone": "ZERAORITE",
+      "stoneLabel": "Zeraorite",
+      "requiredMove": false
+    },
+    "form:10320": {
+      "sourceId": "scovillainmega",
+      "baseKey": "dex:952",
+      "existingProfileId": "SCOVILLAIN",
+      "stone": "SCOVILLAINITE",
+      "stoneLabel": "Scovillainite",
+      "requiredMove": false
+    },
+    "form:10321": {
+      "sourceId": "glimmoramega",
+      "baseKey": "dex:970",
+      "existingProfileId": "GLIMMORA",
+      "stone": "GLIMMORANITE",
+      "stoneLabel": "Glimmoranite",
+      "requiredMove": false
+    },
+    "form:10322": {
+      "sourceId": "tatsugiricurlymega",
+      "baseKey": "dex:978",
+      "existingProfileId": "TATSUGIRI_CURLY",
+      "stone": "TATSUGIRINITE",
+      "stoneLabel": "Tatsugirinite",
+      "requiredMove": false
+    },
+    "form:10323": {
+      "sourceId": "tatsugiridroopymega",
+      "baseKey": "form:10258",
+      "existingProfileId": "TATSUGIRI_DROOPY",
+      "stone": "TATSUGIRINITE",
+      "stoneLabel": "Tatsugirinite",
+      "requiredMove": false
+    },
+    "form:10324": {
+      "sourceId": "tatsugiristretchymega",
+      "baseKey": "form:10259",
+      "existingProfileId": "TATSUGIRI_STRETCHY",
+      "stone": "TATSUGIRINITE",
+      "stoneLabel": "Tatsugirinite",
+      "requiredMove": false
+    },
+    "form:10325": {
+      "sourceId": "baxcaliburmega",
+      "baseKey": "dex:998",
+      "existingProfileId": "BAXCALIBUR",
+      "stone": "BAXCALIBRITE",
+      "stoneLabel": "Baxcalibrite",
+      "requiredMove": false
+    },
+    "form:10326": {
+      "sourceId": "meowsticfmega",
+      "baseKey": "form:10025",
+      "existingProfileId": "MEOWSTIC_FEMALE",
+      "stone": "MEOWSTICITE",
+      "stoneLabel": "Meowsticite",
+      "requiredMove": false
+    }
+  },
+  "commit": "6b4bc34e44cc2541929cc4b8fff96e756ab3f268",
+  "source": "https://github.com/smogon/pokemon-showdown/blob/6b4bc34e44cc2541929cc4b8fff96e756ab3f268/data/pokedex.ts",
+  "sha256": "0e5de661ed6183386c7f23c9b9061b67bb97d407d72db3a86b37c93f4faf6704"
+}

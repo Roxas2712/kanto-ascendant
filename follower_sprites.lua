@@ -232,7 +232,7 @@ return function(mod, opts)
 
   local fallback = absolute(kantoRelative(25))
   local content = mod.content and mod.content.sprites
-  if content then
+  if content and walkerReadable(kantoRelative(25)) then
     local def = {
       id = R.spriteId, image = fallback, frames = 6,
       walker = true, trueColor = true,

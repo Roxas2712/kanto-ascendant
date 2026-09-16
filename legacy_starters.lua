@@ -18,6 +18,9 @@ return function(mod, opts)
   local johto = assert(opts.johto, "legacy partners need Johto catalogue")
   local i18n = opts.i18n
   local beyondKanto = opts.beyondKanto or opts.johtoBoundary
+  local hoennAcquisition = opts.hoennAcquisition
+  local randomPartners = opts.randomPartners
+  local globalBabies = opts.globalBabies
   local L = {
     installed = false,
     game = nil,
@@ -40,9 +43,12 @@ return function(mod, opts)
   local PARTNER_MARKER = "_ascendantLegacyJourneyPartner"
 
   local HERO = {
-    RED = { species = "TORCHIC", flag = "EVENT_CHOSE_CHARMANDER" },
-    BLUE = { species = "MUDKIP", flag = "EVENT_CHOSE_SQUIRTLE" },
-    GREEN = { species = "TREECKO", flag = "EVENT_CHOSE_BULBASAUR" },
+    RED = { species = "TORCHIC", nameEn = "TORCHIC", nameDe = "FLEMMLI",
+      heroEn = "RED", heroDe = "ROT", flag = "EVENT_CHOSE_CHARMANDER" },
+    BLUE = { species = "MUDKIP", nameEn = "MUDKIP", nameDe = "HYDROPI",
+      heroEn = "BLUE", heroDe = "BLAU", flag = "EVENT_CHOSE_SQUIRTLE" },
+    GREEN = { species = "TREECKO", nameEn = "TREECKO", nameDe = "GECKARBOR",
+      heroEn = "GREEN", heroDe = "GRÜN", flag = "EVENT_CHOSE_BULBASAUR" },
   }
   -- A regular, durable path completion also contributes that character's
   -- Hoenn starter to Oak's reusable catalogue in later Legacy lives. Keep
@@ -57,6 +63,33 @@ return function(mod, opts)
   for _, row in ipairs(HOENN_CATALOG_ORDER) do
     HOENN_CATALOG_KEY[row.species] = row.key
   end
+  local HABITAT_CATALOG_ORDER = {
+    { species = "TURTWIG", generation = "gen4", dex = 387 },
+    { species = "SNIVY", generation = "gen5", dex = 495 },
+    { species = "CHESPIN", generation = "gen6", dex = 650 },
+    { species = "ROWLET", generation = "gen7", dex = 722 },
+    { species = "CHIMCHAR", generation = "gen4", dex = 390 },
+    { species = "PIPLUP", generation = "gen4", dex = 393 },
+    { species = "TEPIG", generation = "gen5", dex = 498 },
+    { species = "OSHAWOTT", generation = "gen5", dex = 501 },
+    { species = "FENNEKIN", generation = "gen6", dex = 653 },
+    { species = "FROAKIE", generation = "gen6", dex = 656 },
+    { species = "LITTEN", generation = "gen7", dex = 725 },
+    { species = "POPPLIO", generation = "gen7", dex = 728 },
+  }
+  local HABITAT_CATALOG = {}
+  for _, row in ipairs(HABITAT_CATALOG_ORDER) do
+    HABITAT_CATALOG[row.species] = row
+  end
+  local RANDOM_STARTER_ORDER = {
+    "BULBASAUR", "CHARMANDER", "SQUIRTLE", "PIKACHU",
+    "CHIKORITA", "CYNDAQUIL", "TOTODILE",
+    "TREECKO", "TORCHIC", "MUDKIP",
+    "TURTWIG", "CHIMCHAR", "PIPLUP",
+    "SNIVY", "TEPIG", "OSHAWOTT",
+    "CHESPIN", "FENNEKIN", "FROAKIE",
+    "ROWLET", "LITTEN", "POPPLIO",
+  }
 
   -- Legendary and mythical partners are the capstone reward for completing
   -- all three character-bound Legacy paths.  They deliberately remain part
@@ -328,6 +361,32 @@ return function(mod, opts)
     return type(completed) == "table" and completed[key] == true
   end
 
+  local function durableCatalogHabitat(save, species)
+    local expected = HABITAT_CATALOG[tostring(species or ""):upper()]
+    if not expected then return false end
+    local profile = durableArchiveProfile()
+    local rows = profile and profile.starterDiscoveryUnlocks
+    local receipt = type(rows) == "table" and rows[expected.species]
+    return type(receipt) == "table" and receipt.caught == true
+      and receipt.unlocked == true
+      and receipt.generation == expected.generation
+  end
+
+  local function durableCatalogCaughtHoenn(save, species)
+    species = tostring(species or ""):upper()
+    local authored = false
+    for _, row in ipairs(type(hoennAcquisition) == "table"
+        and hoennAcquisition.traceFamilies or {}) do
+      if row.id == species then authored = true break end
+    end
+    if not authored then return false end
+    local profile = durableArchiveProfile()
+    local rows = profile and profile.hoennDiscoveryUnlocks
+    local receipt = type(rows) == "table" and rows[species]
+    return type(receipt) == "table" and receipt.caught == true
+      and receipt.unlocked == true
+  end
+
   local function listHasMove(rows, wanted)
     for _, row in ipairs(type(rows) == "table" and rows or {}) do
       local id = type(row) == "table" and (row.move or row.id) or row
@@ -492,6 +551,83 @@ return function(mod, opts)
           }
         end
       end
+      for _, reward in ipairs(type(hoennAcquisition) == "table"
+          and hoennAcquisition.traceFamilies or {}) do
+        local id = reward.id
+        local def = game.data.pokemon and game.data.pokemon[id]
+        local sourceDex = math.floor(tonumber(def and
+          (def.sourceDex or def.dex)) or 0)
+        local drawable = false
+        if def and durableCatalogCaughtHoenn(game.save, id) then
+          local path = crystalSpritePath(game, id)
+          drawable = type(path) == "string" and path ~= ""
+        end
+        if def and sourceDex >= 252 and sourceDex <= 386 and drawable then
+          rows[#rows + 1] = {
+            id = id, def = def, dex = sourceDex, caughtHoenn = true,
+          }
+        end
+      end
+      for _, reward in ipairs(HABITAT_CATALOG_ORDER) do
+        local id, dex = reward.species, reward.dex
+        local def = game.data.pokemon and game.data.pokemon[id]
+        local drawable = false
+        if def and durableCatalogHabitat(game.save, id) then
+          local path = crystalSpritePath(game, id)
+          drawable = type(path) == "string" and path ~= ""
+        end
+        local sourceDex = math.floor(tonumber(def and
+          (def.sourceDex or def.dex)) or 0)
+        if def and sourceDex == dex and drawable then
+          rows[#rows + 1] = {
+            id = id, def = def, dex = dex,
+            habitatUnlock = true, generation = reward.generation,
+          }
+        end
+      end
+    end
+    return rows
+  end
+
+  -- Random NG+ is intentionally narrower than Oak's general partner list:
+  -- only first-stage, authored regional starters enter it.  The normal
+  -- catalogue remains the unlock authority for Johto, Hoenn and the twelve
+  -- habitat starters; Pikachu is added explicitly because it is Yellow's
+  -- authored starter even though the Gen-II base-family catalogue uses Pichu.
+  local function randomStarterRows(game)
+    local available, rows = {}, {}
+    for _, row in ipairs(canonicalRows(game, "balanced")) do
+      available[row.id] = row
+    end
+    local pikachu = game.data.pokemon and game.data.pokemon.PIKACHU
+    if pikachu then
+      local path = crystalSpritePath(game, "PIKACHU")
+      if type(path) == "string" and path ~= "" then
+        available.PIKACHU = { id="PIKACHU", def=pikachu, dex=pikachu.dex }
+      end
+    end
+    for _, species in ipairs(RANDOM_STARTER_ORDER) do
+      if available[species] then rows[#rows + 1] = available[species] end
+    end
+    return rows
+  end
+
+  -- The global lane is the currently available free catalogue minus every
+  -- legendary/mythical capstone. canonicalRows already guarantees a real,
+  -- drawable, unlocked base form and excludes evolutions and imported forms.
+  local function randomGlobalRows(game)
+    local rows, seen = {}, {}
+    for _, row in ipairs(canonicalRows(game, "free")) do
+      if not LEGACY_ELITE_IDS[row.id] then
+        rows[#rows + 1], seen[row.id] = row, true
+      end
+    end
+    if globalBabies and type(globalBabies.rows) == "function" then
+      for _, row in ipairs(globalBabies.rows(game)) do
+        if not seen[row.id] and not LEGACY_ELITE_IDS[row.id] then
+          rows[#rows + 1], seen[row.id] = row, true
+        end
+      end
     end
     return rows
   end
@@ -544,6 +680,7 @@ return function(mod, opts)
       partnerChosenAtCycle = s.partnerChosenAtCycle,
       rivalBallTaken = s.rivalBallTaken,
       rivalPartner = copy(s.rivalPartner),
+      randomPartnerReceipt = copy(s.randomPartnerReceipt),
       introPhase = s.introPhase, labLocked = s.labLocked,
       legacyStarter = save.legacyStarter,
       rivalStarter = save.rivalStarter,
@@ -567,6 +704,7 @@ return function(mod, opts)
     s.partnerChosenAtCycle = old.partnerChosenAtCycle
     s.rivalBallTaken = old.rivalBallTaken
     s.rivalPartner = copy(old.rivalPartner)
+    s.randomPartnerReceipt = copy(old.randomPartnerReceipt)
     s.introPhase, s.labLocked = old.introPhase, old.labLocked
     save.legacyStarter = old.legacyStarter
     save.rivalStarter = old.rivalStarter
@@ -592,14 +730,15 @@ return function(mod, opts)
       flags.EVENT_CHOSE_PIKACHU = true
       return
     end
-    if source == "yellow_catalog" then return end
+    if source == "yellow_catalog"
+        or tostring(source):find("^yellow_random") then return end
     flags[heroChoice(save).flag] = true
   end
 
   -- The durable game save is authoritative.  Archive synchronization runs
   -- only after that save succeeds and is retried on later save/load events;
   -- a filesystem failure can therefore never make a second partner legal.
-  function L.choose(game, species, mode, ball, source)
+  function L.choose(game, species, mode, ball, source, randomReceipt)
     local ok, why = legacyPrerequisite(game)
     if not ok then return false, why end
     local def = game.data.pokemon and game.data.pokemon[species]
@@ -615,6 +754,14 @@ return function(mod, opts)
       and partnerDexMax(game.save) == 251
       and ball == "catalog"
       and (source == "catalog" or source == "yellow_catalog")
+    local durableHabitatCatalog = durableCatalogHabitat(game.save, species)
+      and partnerDexMax(game.save) == 251
+      and ball == "catalog"
+      and (source == "catalog" or source == "yellow_catalog")
+    local durableCaughtHoenn = durableCatalogCaughtHoenn(game.save, species)
+      and partnerDexMax(game.save) == 251
+      and ball == "catalog"
+      and (source == "catalog" or source == "yellow_catalog")
     if mode == "hoenn" then
       if dex > 151 and not beyondActive(game.save) then
         return false, "beyond-kanto-sealed"
@@ -626,17 +773,33 @@ return function(mod, opts)
         return false, "wrong hero Hoenn partner"
       end
     elseif mode == "balanced" then
-      if not durableHoennCatalog and (dex < 1
+      if not durableHoennCatalog and not durableHabitatCatalog
+          and not durableCaughtHoenn and (dex < 1
           or dex > partnerDexMax(game.save)
           or not BALANCED_PARTNER_IDS[species]) then
         return false, "partner is not in Balanced Choice"
       end
     elseif mode == "free" then
-      if not durableHoennCatalog and (dex < 1
+      if not durableHoennCatalog and not durableHabitatCatalog
+          and not durableCaughtHoenn and (dex < 1
           or dex > partnerDexMax(game.save)
           or not PARTNER_ALLOWLIST[species]
           or CANONICAL_ORDER[dex] ~= species) then
         return false, "partner is not a legal base #001-251 species"
+      end
+    elseif mode == "random" then
+      if not (randomPartners and randomPartners.enabled
+          and randomPartners.enabled()) then
+        return false, "random-partner-card-disabled"
+      end
+      local poolKind = type(randomReceipt) == "table"
+        and randomReceipt.poolKind or "starter"
+      local rows = poolKind == "global"
+        and randomGlobalRows(game) or randomStarterRows(game)
+      local valid, randomWhy = randomPartners.validate(randomReceipt,
+        rows, opts.rival, poolKind)
+      if not valid or randomReceipt.playerSpecies ~= species then
+        return false, randomWhy or "random-player-receipt-mismatch"
       end
     elseif source ~= "yellow_pikachu" then
       return false, "unknown partner mode"
@@ -678,10 +841,14 @@ return function(mod, opts)
     s.partnerChosen = true
     s.partnerBall = ball
     s.partnerChosenAtCycle = tonumber(s.cycle) or 0
+    if mode == "random" then
+      s.randomPartnerReceipt = copy(randomReceipt)
+    end
     game.save.legacyStarter = species
     game.save.flags.EVENT_GOT_STARTER = true
     setVanillaBranch(game.save, source)
     if source == "yellow_catalog" or source == "yellow_hoenn"
+        or tostring(source):find("^yellow_random")
         or source == "yellow_pikachu" then
       s.rivalBallTaken = true
       game.save.flags.KA_LEGACY_RIVAL_BALL_TAKEN = true
@@ -1181,6 +1348,11 @@ return function(mod, opts)
     self.rows = config.rows or canonicalRows(game, self.mode)
     self.index = math.max(1, math.min(#self.rows, config.index or 1))
     self.error = nil
+    self.__kantoAscendantLayout = true
+    self.__kantoAscendantStyle = "oras-partner-catalog"
+    self.ascendantHelp = tr(
+      "LEFT/RIGHT browse. SELECT changes the pool. B returns without saving.",
+      "LINKS/RECHTS blättern. SELECT wechselt den Pool. B geht ohne Speichern zurück.")
     if self.rows[self.index] then loadSprite(game, self.rows[self.index]) end
     return self
   end
@@ -1261,13 +1433,10 @@ return function(mod, opts)
 
   function Catalog:sgbPalettes(game)
     local P = require("src.render.PaletteFX")
-    local row = self:current()
-    local base = P.pal(game.data, "BROWNMON")
-    if not base then return nil end
-    return {
-      P.whole(base),
-      P.zone(P.monPal(game.data, row and row.id), 1, 4, 8, 11),
-    }
+    -- The ORAS shell and its Crystal/HD preview are authored RGB. Applying
+    -- the former BROWNMON whole-screen palette here would turn the navy UI
+    -- orange for a frame before the next menu opened.
+    return { P.trueColorZone(0, 0, 19, 17) }
   end
 
   function Catalog:draw()
@@ -1283,48 +1452,79 @@ return function(mod, opts)
       return value:sub(1, spans[fit].to) .. suffix
     end
     local row = self:current()
-    love.graphics.setColor(1, 1, 1, 1)
+    local navy = { 0.025, 0.075, 0.14, 1 }
+    local blue = { 0.12, 0.35, 0.65, 1 }
+    local cyan = { 0.24, 0.55, 0.82, 1 }
+    local red = { 0.78, 0.20, 0.22, 1 }
+    local orange = { 0.90, 0.45, 0.12, 1 }
+    local coolWhite = { 0.94, 0.97, 1.00, 1 }
+    local paleBlue = { 0.82, 0.89, 0.96, 1 }
+    local ink = { 0.08, 0.12, 0.19, 1 }
+    local function color(value)
+      love.graphics.setColor(value[1], value[2], value[3], value[4])
+    end
+    local function panel(x, y, w, h, fill, border)
+      color(fill)
+      love.graphics.rectangle("fill", x, y, w, h)
+      color(border)
+      love.graphics.rectangle("line", x + .5, y + .5, w - 1, h - 1)
+    end
+
+    -- Full-screen VASC/ORAS shell. Text-bearing areas use cool plaques
+    -- because the native tile font is black-only. The surrounding field and
+    -- rails stay navy/blue and never reproduce the old yellow catalogue.
+    color(navy)
     love.graphics.rectangle("fill", 0, 0, 160, 144)
-    love.graphics.setColor(0, 0, 0, 1)
-    Font.drawBox(0, 0, 20, 18)
-    Font.draw(tr("OAK'S CATALOG", "EICHS KATALOG"), 8, 8)
+    color(blue); love.graphics.rectangle("fill", 0, 0, 160, 19)
+    color(cyan); love.graphics.rectangle("fill", 0, 16, 160, 3)
+    color(orange); love.graphics.rectangle("fill", 0, 0, 8, 18)
+    color(red); love.graphics.rectangle("fill", 0, 15, 8, 4)
+    panel(9, 2, 148, 14, coolWhite, orange)
+    color(ink)
+    Font.draw(tr("OAK'S CATALOG", "EICHS KATALOG"), 12, 5)
     local filter = self.mode == "free" and tr("FREE", "FREI")
       or self.mode == "balanced" and tr("BALANCED", "AUSGEWOGEN")
       or tr("HOENN PARTNER", "HOENN-PARTNER")
-    Font.draw(fitted(filter, 144), 8, 22)
+    panel(3, 21, 154, 102, coolWhite, blue)
+    color(paleBlue); love.graphics.rectangle("fill", 6, 24, 148, 13)
+    color(ink)
+    Font.draw(fitted(filter, 108), 9, 27)
+    Font.draw(("%d/%d"):format(self.index, #self.rows), 123, 27)
     if not row then
-      Font.draw(tr("NO LEGAL PARTNERS", "KEINE GÜLTIGEN PARTNER"), 8, 56)
+      Font.draw(tr("NO LEGAL PARTNERS", "KEINE GÜLTIGEN PARTNER"), 10, 64)
       return
     end
     loadSprite(self.game, row)
     if row.sprite then
       local w, h = row.sprite:getDimensions()
-      local x, y = 8 + math.floor((56 - w) / 2), 34 + math.max(0, 56 - h)
+      local x, y = 9 + math.floor((58 - w) / 2), 43 + math.max(0, 55 - h)
       love.graphics.setColor(1, 1, 1, 1)
       love.graphics.draw(row.sprite, x, y)
       if row.trueColor then
         require("src.render.PaletteFX").markTrueColor(x, y, w, h)
       end
     end
-    love.graphics.setColor(0, 0, 0, 1)
-    Font.draw(("No.%03d"):format(row.dex), 72, 36)
-    Font.draw(fitted(row.def.name or row.id, 80), 72, 48)
-    Font.draw(tr("TYPE", "TYP"), 72, 62)
+    color(ink)
+    Font.draw(("No.%03d"):format(row.dex), 73, 43)
+    Font.draw(fitted(row.def.name or row.id, 78), 73, 55)
+    Font.draw(tr("TYPE", "TYP"), 73, 65)
     local typeText = typesLabel(row.def)
     local typeA, typeB = typeText:match("^(.-) / (.-)$")
-    Font.draw(fitted(typeA or typeText, 80), 72, 72)
-    if typeB then Font.draw(fitted(typeB, 80), 72, 82) end
-    Font.draw(tr("GROWTH", "TEMPO"), 72, 94)
+    Font.draw(fitted(typeA or typeText, 78), 73, 75)
+    if typeB then Font.draw(fitted(typeB, 78), 73, 85) end
+    Font.draw(tr("GROWTH", "TEMPO"), 73, 93)
     local growth = growthLabel(row.def)
     local growthA, growthB = growth:match("^(.-) / (.-)$")
-    Font.draw(fitted(growthA or growth, 80), 72, 104)
-    if growthB then Font.draw(fitted(growthB, 80), 72, 114) end
-    Font.draw(("%d/%d"):format(self.index, #self.rows), 8, 98)
+    Font.draw(fitted(growthA or growth, 78), 73, 103)
+    if growthB then Font.draw(fitted(growthB, 78), 73, 113) end
+    color(blue); love.graphics.rectangle("fill", 3, 127, 154, 14)
+    panel(5, 129, 150, 12, coolWhite, cyan)
+    color(ink)
     if self.error then
-      Font.draw(fitted(self.error, 144), 8, 128)
+      Font.draw(fitted(self.error, 144), 8, 132)
     else
       Font.draw(self.modeLocked and tr("A OK  B BACK", "A OK  B ZURÜCK")
-        or tr("L/R A  SEL MODE B", "L/R A  SEL MODUS B"), 8, 128)
+        or tr("L/R A  SEL MODE B", "L/R A  SEL MODUS B"), 8, 132)
     end
     love.graphics.setColor(1, 1, 1, 1)
   end
@@ -1483,6 +1683,108 @@ return function(mod, opts)
     return c
   end
 
+  local function randomAvailable()
+    return randomPartners and randomPartners.enabled
+      and randomPartners.enabled() == true
+  end
+
+  local function confirmRandom(game, c, source, poolKind)
+    poolKind = poolKind == "global" and "global" or "starter"
+    local global = poolKind == "global"
+    pushText(game, tr(
+      global and "RANDOM GLOBAL?\nBoth are drawn from\nall unlocked bases.\fThe result is saved\nand cannot change."
+        or "RANDOM STARTER POOL?\nBoth are drawn\nseparately.\fThe result is saved\nand cannot change.",
+      global and "ZUFALL GLOBAL?\nBeide kommen aus allen\nfreien Grundformen.\fDas Ergebnis wird\ngespeichert und bleibt."
+        or "ZUFALL STARTERPOOL?\nBeide werden getrennt\nausgelost.\fDas Ergebnis wird\ngespeichert und bleibt."), nil, {
+      defaultNo = true,
+      choice = function(yes)
+        if not yes then return end
+        local receipt, prepareErr = randomPartners.prepare(
+          global and randomGlobalRows(game) or randomStarterRows(game),
+          opts.rival, poolKind)
+        if not receipt then
+          hint(game, c.done, tr(
+            global and "OAK: No unlocked\nglobal partner is\navailable yet."
+              or "OAK: No unlocked\nrandom starter is\navailable yet.",
+            global and "EICH: Noch ist keine\nfreie Grundform\nverfügbar."
+              or "EICH: Noch ist kein\nZufallsstarter\nfreigeschaltet."))
+          return
+        end
+        local ok, err = L.choose(game, receipt.playerSpecies, "random",
+          "catalog", source, receipt)
+        if not ok then
+          hint(game, c.done, tr(
+            "OAK: The draw could\nnot be saved.\fNothing changed;\ntry again.",
+            "EICH: Die Auslosung\nließ sich nicht speichern.\fNichts änderte sich;\nversuche es erneut."))
+          if mod.log and mod.log.warn then
+            mod.log:warn("Legacy random partner failed: %s",
+              tostring(err or prepareErr))
+          end
+          return
+        end
+        c:onPartnerChosen(receipt.playerSpecies, "catalog")
+      end,
+    })
+  end
+
+  local function openCatalogChoice(game, c, source)
+    if not randomAvailable() then
+      game.stack:push(Catalog.new(game, c, {
+        mode = "balanced", ball = "catalog", source = source,
+      }))
+      return
+    end
+    local ListMenu = mod.ui.KantoListMenu or mod.ui.ListMenu
+    local rows = {
+      {
+        label = tr("OAK CATALOG", "EICHS KATALOG"), value = "catalog",
+        help = tr(
+          "Choose one available partner yourself. The result is permanent for this journey.",
+          "Wähle selbst einen verfügbaren Partner. Die Wahl gilt dauerhaft für diese Reise."),
+      },
+      {
+        label = tr("RANDOM STARTER POOL", "ZUFALL STARTERPOOL"),
+        value = "random_starter",
+        help = tr(
+          "Draw your starter and the rival's starter independently from the currently unlocked starter pool.",
+          "Lost deinen Starter und den Starter des Rivalen unabhängig aus dem derzeit freigeschalteten Starterpool aus."),
+      },
+      {
+        label = tr("RANDOM GLOBAL", "ZUFALL GLOBAL"),
+        value = "random_global",
+        help = tr(
+          "Draw both partners independently from all unlocked non-legendary base forms, including eligible later babies. Evolutions stay logical.",
+          "Lost beide Partner unabhängig aus allen freigeschalteten nichtlegendären Grundformen aus, einschließlich passender späterer Babyformen. Entwicklungen bleiben logisch."),
+      },
+    }
+    local menu
+    menu = ListMenu.new(game, tr("OAK: YOUR PARTNER", "EICH: DEIN PARTNER"),
+      rows, {
+        ascendantFocusHelp = function(item) return item and item.help end,
+        footer = tr("A:SELECT  SEL:HELP  B:BACK",
+          "A:WAHL  SEL:HILFE  B:ZURÜCK"),
+        onChoose = function(item)
+          if not item then return end
+          if game.stack:top() == menu then game.stack:pop() end
+          if item.value == "random_starter" then
+            confirmRandom(game, c, source == "yellow_catalog"
+              and "yellow_random_starter" or "catalog_random_starter",
+              "starter")
+          elseif item.value == "random_global" then
+            confirmRandom(game, c, source == "yellow_catalog"
+              and "yellow_random_global" or "catalog_random_global",
+              "global")
+          else
+            game.stack:push(Catalog.new(game, c, {
+              mode = "balanced", ball = "catalog", source = source,
+            }))
+          end
+        end,
+        onCancel = c.done,
+      })
+    game.stack:push(menu)
+  end
+
   local function openChoice(game, ow, npc, done, kind)
     local ok = legacyPrerequisite(game)
     if not ok then
@@ -1512,9 +1814,7 @@ return function(mod, opts)
           source = "hoenn_ball",
         }))
       else
-        game.stack:push(Catalog.new(game, c, {
-          mode = "balanced", ball = "catalog", source = "catalog",
-        }))
+        openCatalogChoice(game, c, "catalog")
       end
       end)
     end, function()
@@ -1564,17 +1864,62 @@ return function(mod, opts)
     end
     local ListMenu = mod.ui.KantoListMenu or mod.ui.ListMenu
     local hero = heroChoice(game.save)
+    local heroName = tr(hero.heroEn, hero.heroDe)
+    local hoennName = tr(hero.nameEn, hero.nameDe)
+    local hoennReady = hoennUnlocked(game.save) and beyondActive(game.save)
     local rows = {
-      { label = tr("PIKACHU SPECIAL", "PIKACHU-SPEZIAL"), value = "pikachu" },
-      { label = hoennUnlocked(game.save)
-          and beyondActive(game.save) and hero.species
-          or tr("HOENN [LOCKED]", "HOENN [GESP.]"),
-        value = "hoenn" },
-      { label = tr("OAK CATALOG", "EICHS KATALOG"), value = "catalog" },
+      {
+        label = tr("PIKACHU SPECIAL", "PIKACHU-SPEZIAL"),
+        value = "pikachu",
+        help = tr(
+          "Keep Yellow's fixed partner Pikachu. Its bond reactions and later THUNDERHEART path stay active.",
+          "Behalte Gelbs festes Partner-Pikachu. Seine Bindungsreaktionen und der spätere DONNERHERZ-Weg bleiben aktiv."),
+      },
+      { label = hoennReady and hoennName
+          or (hoennName .. tr(" [LOCKED]", " [GESP.]")),
+        value = "hoenn",
+        help = hoennReady
+          and tr(("Take %s as %s's fixed Hoenn partner. This choice lasts for the whole journey.")
+              :format(hoennName, heroName),
+            ("Nimm %s als festen Hoenn-Partner von %s. Diese Wahl gilt für den ganzen Durchlauf.")
+              :format(hoennName, heroName))
+          or tr(("%s for %s is locked. Complete this character's Hoenn path and activate Beyond Kanto.")
+              :format(hoennName, heroName),
+            ("%s für %s ist gesperrt. Schließe den Hoenn-Pfad dieser Figur ab und aktiviere Beyond Kanto.")
+              :format(hoennName, heroName)),
+      },
+      {
+        label = tr("OAK CATALOG", "EICHS KATALOG"),
+        value = "catalog",
+        help = tr(
+          "Open Oak's available partner catalogue and choose one partner for this journey.",
+          "Öffne Eichs verfügbare Partnerliste und wähle einen Partner für diese Reise."),
+      },
     }
+    if randomAvailable() then
+      rows[#rows + 1] = {
+        label = tr("RANDOM STARTER POOL", "ZUFALL STARTERPOOL"),
+        value = "random_starter",
+        help = tr(
+          "Draw your starter and the rival's starter independently from the currently unlocked starter pool.",
+          "Lost deinen Starter und den Starter des Rivalen unabhängig aus dem derzeit freigeschalteten Starterpool aus."),
+      }
+      rows[#rows + 1] = {
+        label = tr("RANDOM GLOBAL", "ZUFALL GLOBAL"),
+        value = "random_global",
+        help = tr(
+          "Draw both partners independently from all unlocked non-legendary base forms, including eligible later babies. Evolutions stay logical.",
+          "Lost beide Partner unabhängig aus allen freigeschalteten nichtlegendären Grundformen aus, einschließlich passender späterer Babyformen. Entwicklungen bleiben logisch."),
+      }
+    end
     local menu
     menu = ListMenu.new(game, tr("OAK: YOUR PARTNER", "EICH: DEIN PARTNER"),
       rows, {
+        ascendantFocusHelp = function(item)
+          return item and item.help
+        end,
+        footer = tr("A:SELECT  SEL:HELP  B:BACK",
+          "A:WAHL  SEL:HILFE  B:ZURÜCK"),
         onChoose = function(item)
           if not item then return end
           if item.value == "hoenn" and not hoennUnlocked(game.save) then
@@ -1603,10 +1948,14 @@ return function(mod, opts)
               rows = { { id = hero.species, def = def, dex = def.dex } },
               source = "yellow_hoenn",
             }))
-          else
+          elseif item.value == "catalog" then
             game.stack:push(Catalog.new(game, c, {
               mode = "balanced", ball = "catalog", source = "yellow_catalog",
             }))
+          elseif item.value == "random_starter" then
+            confirmRandom(game, c, "yellow_random_starter", "starter")
+          else
+            confirmRandom(game, c, "yellow_random_global", "global")
           end
         end,
         onCancel = done,
@@ -1798,12 +2147,24 @@ return function(mod, opts)
     if L.game then L.refresh(L.game) end
   end, 4200)
   L.rows = canonicalRows
+  L.randomStarterRows = randomStarterRows
+  L.randomGlobalRows = randomGlobalRows
+  function L.setGlobalBabyProvider(provider)
+    assert(type(provider) == "table" and type(provider.rows) == "function",
+      "global baby provider needs rows(game)")
+    globalBabies = provider
+    return true
+  end
+  L.randomStarterOrder = copy(RANDOM_STARTER_ORDER)
   L.growthLabel = growthLabel
   L.typesLabel = typesLabel
   L.heroChoice = heroChoice
   L.hoennUnlocked = hoennUnlocked
   L.durableCatalogHoenn = durableCatalogHoenn
+  L.durableCatalogCaughtHoenn = durableCatalogCaughtHoenn
+  L.durableCatalogHabitat = durableCatalogHabitat
   L.hoennCatalogOrder = copy(HOENN_CATALOG_ORDER)
+  L.habitatCatalogOrder = copy(HABITAT_CATALOG_ORDER)
   L.legendaryUnlocked = durableThreePathsComplete
   L.legendaryIds = copy(LEGACY_ELITE_IDS)
   L.legendaryOrder = copy(LEGACY_ELITE_ORDER)

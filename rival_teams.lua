@@ -8,6 +8,8 @@
 
 return function(mod, characters)
   local R = {}
+  local difficultyContracts
+  local activeGame
   local RIVAL_CLASSES = {
     OPP_RIVAL1 = true, OPP_RIVAL2 = true, OPP_RIVAL3 = true,
   }
@@ -150,16 +152,43 @@ return function(mod, characters)
     }
   end
 
-  function R.resolve(rival, oppClass, partyIndex, original, isYellow)
+  function R.resolve(rival, oppClass, partyIndex, original, isYellow, game)
     if not RIVAL_CLASSES[oppClass] then return original end
+    -- Yellow's Pikachu/Eevee ownership is gameplay state, not a trainer-
+    -- portrait trait.  Applying Red's or Green's identity roster here can
+    -- give the visible Red a second copy of the player's Pikachu and can
+    -- replace Yellow's edition-owned Eevee progression.  The dedicated
+    -- legacy_rival_partner layer handles only that Eevee slot after this
+    -- pass, so preserve the complete registered Yellow party here.
+    if isYellow then return original end
     rival = tostring(rival or "BLUE"):upper()
+    local candidate = original
     if rival == "RED" then
-      return redTeam(oppClass, partyIndex, original, isYellow)
+      candidate = redTeam(oppClass, partyIndex, original, isYellow)
+    elseif rival == "GREEN" then
+      candidate = greenTeam(oppClass, partyIndex, original, isYellow)
     end
-    if rival == "GREEN" then
-      return greenTeam(oppClass, partyIndex, original, isYellow)
+    -- The shared contract depends on edition, badges and run rules from the
+    -- live save. Pure roster queries (menu previews, tests and level-cap
+    -- planning) deliberately remain data-only until game.ready supplied that
+    -- context; treating a missing save as "early" would reject every authored
+    -- six-member endgame rival team.
+    if game and difficultyContracts
+        and type(difficultyContracts.validatePlan) == "function" then
+      local ok = difficultyContracts.validatePlan(
+        "story_rival", game, candidate)
+      if not ok then return original end
     end
-    return original
+    return candidate
+  end
+
+  function R.setDifficultyContracts(provider)
+    if type(provider) ~= "table"
+        or type(provider.validatePlan) ~= "function" then
+      return false, "invalid_contract_provider"
+    end
+    difficultyContracts = provider
+    return true
   end
 
   function R.team(oppClass, partyIndex, original)
@@ -167,7 +196,7 @@ return function(mod, characters)
     if not (state and state.enabled) then return original end
     local isYellow = require("src.core.GameVersion").isYellow()
     return R.resolve(state.rival_character, oppClass, partyIndex, original,
-      isYellow)
+      isYellow, activeGame)
   end
 
   function R.restoreTowerMusic(ev)
@@ -199,6 +228,9 @@ return function(mod, characters)
     end, 90)
 
   mod.events:on("battle.ended", R.restoreTowerMusic)
+  mod.events:on("game.ready", function(ev)
+    activeGame = ev and ev.game or activeGame
+  end, 1000)
 
   return R
 end

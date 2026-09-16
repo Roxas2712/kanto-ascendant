@@ -20,6 +20,7 @@ return function(mod, opts)
   local signalsHub = opts.signalsHub
   local legacyPaths = opts.legacyPaths
   local beyondKanto = opts.beyondKanto or opts.johtoBoundary
+  local rocketRecovery = opts.rocketRecovery
   local Q = { game = nil }
 
   local function tr(en, de)
@@ -196,6 +197,29 @@ return function(mod, opts)
     local legacyObjective = legacyPaths and legacyPaths.objective
       and legacyPaths.objective(game)
     if legacyObjective then return legacyObjective end
+    local recovery = rocketRecovery and rocketRecovery.objective
+      and rocketRecovery.objective(game)
+    if recovery then
+      local location = type(recovery.location) == "table"
+        and tr(recovery.location.en, recovery.location.de)
+        or tostring(recovery.location or "KANTO")
+      if recovery.phase == "capture" and recovery.capture then
+        return row("rocket_recovery:" .. tostring(recovery.id) .. ":capture",
+          tr("ROCKET RESCUE", "ROCKET-RETTUNG"), location,
+          recovery.totalFights, recovery.totalFights,
+          tr(("Break the containment field and catch the confiscated POKéMON.\fVault %d/%d remains sealed until the rescue is complete.")
+              :format(recovery.instance, recovery.totalInstances),
+            ("Brich das Eindämmungsfeld und fange das beschlagnahmte POKéMON.\fDepot %d/%d bleibt bis zur Rettung versiegelt.")
+              :format(recovery.instance, recovery.totalInstances)))
+      end
+      return row("rocket_recovery:" .. tostring(recovery.id),
+        tr("ROCKET RECOVERY RAID", "ROCKET-RÜCKHOLRAID"), location,
+        math.max(0, (recovery.fight or 1) - 1), recovery.totalFights,
+        tr(("Rescue the held POKéMON.\fVault %d/%d; defeat\nall guards without\nhealing or escape.")
+            :format(recovery.instance, recovery.totalInstances),
+          ("Rette die festgehaltenen POKéMON.\fDepot %d/%d; besiege\nalle Wachen ohne\nHeilung oder Flucht.")
+            :format(recovery.instance, recovery.totalInstances)))
+    end
     if not (game and postgame.hasHallOfFame(game.save)) then
       return row("champion",
         tr("BECOME CHAMPION", "WERDE CHAMP"),

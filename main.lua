@@ -248,6 +248,18 @@ local function isPrizeLine(text)
 end
 
 return function(mod)
+  -- Required 6.6 infrastructure: create the bounded KASC session before any
+  -- migration, option or feature module can emit a warning. This mirrors the
+  -- existing mod.log instance but never replaces its host-facing semantics.
+  mod.exports = mod.exports or {}
+  mod.exports.optionalPokemonAssets = loadSibling(mod, "PokemonOptionalAssets.lua")
+  mod.exports.supportSessionLog =
+    loadSibling(mod, "support_session_log.lua")(mod)
+  if not mod.exports.supportSessionLog.boot()
+      and mod.log and type(mod.log.warn) == "function" then
+    mod.log:warn("KASC bounded support log unavailable")
+  end
+
   -- Must run before any option is read or save migration is registered.
   -- 6.5 corrects the historical trainer_rematch identity collision while
   -- preserving old options/save data and an RC9 rollback shadow.
@@ -270,7 +282,29 @@ return function(mod)
     end
   end, 10000)
 
+  -- One explicit acquisition authority owns every Hoenn family and its
+  -- Red/Green/Blue third before any encounter or UI consumer is created.
+  mod.exports.hoennAcquisition67Data = loadSibling(
+    mod, "hoenn_acquisition_67_data.lua")
   local i18n = loadSibling(mod, "localization.lua")(mod)
+  -- KASC-66-GEN3-PROGRESSION-UNLOCKS uses one save-local discovery state for
+  -- all twelve starter habitats. The TRACE FINDER is registered before the
+  -- content graph freezes and earned only through ordinary rematch wins.
+  mod.exports.discoveryCore = loadSibling(mod, "discovery_core.lua").create(
+    mod, {
+      state = loadSibling(mod, "discovery_state.lua"),
+      starters = loadSibling(mod, "starter_discovery.lua"),
+      overlay = loadSibling(mod, "encounter_overlay.lua"),
+      hoenn = loadSibling(mod, "hoenn_discovery.lua"),
+      hoennData = mod.exports.hoennAcquisition67Data,
+    })
+  mod.exports.hoennFieldAccess = loadSibling(
+    mod, "hoenn_field_access_67.lua")(mod, {
+      i18n = i18n,
+      acquisition = mod.exports.hoennAcquisition67Data,
+    })
+  mod.exports.explorationDevice = loadSibling(
+    mod, "exploration_device.lua")(mod, { i18n = i18n })
   local restProfiles = loadSibling(mod, "rematch_break_profiles.lua")
   mod.exports.rematchBreakProfiles = restProfiles
   -- KASC dialogue must never auto-scroll a third visible Gen-I text row.
@@ -295,18 +329,29 @@ return function(mod)
     assert(prepared, "renderer compatibility preparation failed: "
       .. tostring(why))
   end)
-  mod.exports.rendererBattleHud = loadSibling(
-    mod, "renderer_battle_hud.lua")(mod, {
-      voxelRenderer = mod.exports.voxelRendererCompat,
-    })
+  mod.exports.fullscreenUiCard = loadSibling(mod, "kasc_fullscreen_ui_card.lua")(mod, i18n)
+  assert(mod.exports.fullscreenUiCard.install())
   local ascendantUi = loadSibling(mod, "ascendant_ui.lua")(
     mod, { i18n = i18n })
   -- A separate widget facade keeps vanilla/third-party lists untouched.
   -- Every Kanto Ascendant feature explicitly asks for this presentation.
   mod.ui.KantoListMenu = ascendantUi.ListMenu
   mod.exports.ascendantUi = ascendantUi
+  -- Card-owned presentation seam: KASC marks and explains every ordinary
+  -- feature list. VASC may lift that public contract into ORAS fullscreen;
+  -- KASC now carries the same fullscreen renderer locally, including solo.
+  assert(mod.exports.supportSessionLog.registerSegment({
+    cardId="KASC-66-FULLSCREEN-ORAS-MENU-SHELL", version="v1",
+    schema="kasc/fullscreen-menu-shell/v1",
+    owner="kasc.fullscreen-menu-shell/v1", active=true,
+    dependencyStatus="vasc-optional",
+    providerStatus="kasc-focus-help-markers-ready",
+    buildReceiptId="fullscreen-oras-menu-shell",
+    rollbackReceiptId="KASC_66_FULLSCREEN_ORAS_MENU_SHELL_ROLLBACK",
+  }))
   -- KA-INTERNAL: LEGACY-JOURNEY-001
   local legacyJourney = loadSibling(mod, "legacy_journey.lua")(mod, {
+    equipmentRewards = loadSibling(mod, "equipment_rewards_67.lua"),
     i18n = i18n,
     makeArchive = loadSibling(mod, "legacy_archive.lua"),
     -- The Signals hub is constructed later, but the callback runs only after
@@ -321,11 +366,34 @@ return function(mod)
     end,
   })
   mod.exports.legacyJourney = legacyJourney
+  -- 66-ROCKET-RECOVERY-RAIDS owns only the raid/custody segment. Local Box
+  -- custody is crash-safe; the Legacy fallback uses the archive's public
+  -- lease API and never edits vault rows directly.
+  mod.exports.rocketRecoveryCustody67 = loadSibling(
+    mod, "rocket_recovery_custody_67.lua")(mod)
+  mod.exports.rocketRecoverySources67 = loadSibling(
+    mod, "rocket_recovery_sources_67.lua")(mod, {
+      archive = legacyJourney.archive,
+      localCustody = mod.exports.rocketRecoveryCustody67,
+    })
+  mod.exports.surpriseTitles67Data = loadSibling(mod,
+    "surprise_titles_67_data.lua")
+  mod.exports.surpriseDialogueMatrix67 = loadSibling(mod,
+    "surprise_dialogue_matrix_67.lua")(mod, { i18n = i18n })
+  mod.exports.surpriseTrainers67 = loadSibling(mod,
+    "surprise_trainers_67.lua")(mod, {
+      i18n = i18n,
+      data = mod.exports.surpriseTitles67Data,
+      archive = legacyJourney.archive,
+      dialogue = mod.exports.surpriseDialogueMatrix67,
+    })
   local legacyWanderers = loadSibling(mod, "legacy_wanderers.lua")(mod, {
     i18n = i18n, journey = legacyJourney,
+    surprise = mod.exports.surpriseTrainers67,
     -- Rematch rewards is constructed later because its UI depends on the
     -- complete option schema. Resolve it lazily when a Wanderer reward rolls.
     rewards = function() return mod.exports.rematchRewards end,
+    equipmentRewards = function() return mod.exports.equipmentRewards67 end,
   })
   mod.exports.legacyWanderers = legacyWanderers
   local legacyPathsData = loadSibling(mod, "legacy_paths_data.lua")
@@ -415,8 +483,25 @@ return function(mod)
     trainerVoxelPortraits = trainerVoxelPortraits,
     frlgTrainerPack = frlgTrainerPack,
     voxelRenderer = mod.exports.voxelRendererCompat,
+    -- World Rank registers later in this entry chunk. Keep this lookup
+    -- late-bound and fail-closed so reserved guest class IDs prove nothing.
+    worldRankGuestAuthority = function(classId, game)
+      local guests = mod.exports and mod.exports.worldRankTournamentGuests
+      if type(guests) == "table"
+          and type(guests.authority) == "function" then
+        return guests.authority(classId, game)
+      end
+      return nil, "guest-authority-unavailable"
+    end,
   })
   mod.exports.extendedCharacters = extendedCharacters
+  mod.exports.baldCrewCharacter67 = loadSibling(mod, "bald_crew_67_character.lua")(mod)
+  mod.exports.baldCrewCharacter67.register()
+  mod.exports.baldCrewMaleCharacter67 = loadSibling(mod, "bald_crew_67_male_character.lua")(mod, {
+    data = loadSibling(mod, "bald_crew_67_data.lua"),
+    makeCharacter = loadSibling(mod, "bald_crew_67_character.lua"),
+  })
+  mod.exports.baldCrewMaleCharacter67.register()
   -- Casey's default Ascendant back remains the compact Gen-I asset.
   mod.content.battle_sprite_scales:register("KA_GREEN_TRAINER_BACK", {
     path = mod.path .. "/assets/characters/green_back.png",
@@ -451,11 +536,34 @@ return function(mod)
     i18n = i18n,
   })
   mod.exports.titleIntro = loadSibling(mod, "title_intro.lua")(mod, extendedCharacters)
+  -- KASC-66-ANIMATED-TITLE-CORE-PREP owns only the optional trainer overlay.
+  -- The registry is private to this Card: no title species pools or alternate
+  -- compositor are registered here, and the existing 6.6 title remains owner.
+  local titleTrainerRegistry = loadSibling(mod,
+    "presentation_sprite_registry.lua")(mod)
+  mod.exports.titleTrainerAnimation67 = loadSibling(mod,
+    "title_trainer_animation_67.lua")(mod, {
+      registry = titleTrainerRegistry,
+    })
+  assert(mod.exports.titleIntro.setTrainerAnimation(
+    mod.exports.titleTrainerAnimation67),
+    "animated title trainer adapter registration failed")
+  -- KASC-66-VISUAL-TITLE-THEMES is an asset-free palette provider. It does
+  -- not own title composition, trainer timing, music, input or any Engine
+  -- hook; the existing TitleState palette adapter remains the sole caller.
+  mod.exports.titleVisualThemes66 = loadSibling(mod,
+    "title_visual_themes_66.lua")(mod)
+  assert(mod.exports.titleIntro.setVisualThemes(
+    mod.exports.titleVisualThemes66),
+    "visual title theme adapter registration failed")
   local recruitment = loadSibling(mod, "trainer_recruits.lua")
   local rematchRosterAuthority = loadSibling(mod,
     "rematch_roster_authority.lua")
   mod.exports.rematchRosterAuthority = rematchRosterAuthority
   local loot = loadSibling(mod, "rematch_loot.lua")
+  mod.exports.equipmentRewards67 = loadSibling(mod, "equipment_rewards_67.lua")
+  mod.exports.equipmentRewards67.registerSupport(mod.exports.supportSessionLog)
+  loot.bindEquipmentRewards(mod.exports.equipmentRewards67)
   local function installedMod(id)
     local ok, handle = pcall(mod.find, id)
     return ok and handle ~= nil
@@ -471,7 +579,9 @@ return function(mod)
   end
   if not installedMod("quality_of_life") then
     local installQuality = loadSibling(mod, "quality_of_life.lua")
-    if type(installQuality) == "function" then installQuality(mod) end
+    if type(installQuality) == "function" then
+      mod.exports.qualityOfLife = installQuality(mod)
+    end
   else
     mod.exports.externalQualityOfLife = true
   end
@@ -486,6 +596,14 @@ return function(mod)
   -- higher-priority content layer restores the original visible text; the
   -- runtime constructor guard lives in follower_compat.lua.
   local GameVersion = require("src.core.GameVersion")
+  -- Yellow's vanilla Oak script treats two owned species as proof that the
+  -- Pokédex already exists. Legacy withdrawal breaks that invariant, so C14
+  -- owns one narrowly scoped story-command compatibility guard.
+  mod.exports.legacyNgplusProgression = loadSibling(
+    mod, "legacy_ngplus_progression.lua")(mod, {
+      journey = legacyJourney,
+      gameVersion = GameVersion,
+    })
   local yellowMtMoonFossilDialogue = loadSibling(
     mod, "yellow_mtmoon_fossil_dialogue.lua")({
       gameVersion = GameVersion,
@@ -524,6 +642,20 @@ return function(mod)
         { menuLabel("VERY HARD", "SEHR SCHWER"), "very_hard" },
         { menuLabel("EXTREME", "EXTREM"), "extreme" },
       } },
+    { key = "story_difficulty_rosters",
+      label = menuLabel("DIFFICULTY ROSTERS", "SCHWIERIGKEITS-TEAMS"),
+      type = "toggle", default = true },
+    { key = "battle_generation_mode",
+      label = menuLabel("BATTLE GENERATION", "KAMPF-GENERATION"),
+      type = "choice", default = "auto",
+      choices = {
+        { "AUTO", "auto" },
+        { menuLabel("OFF", "AUS"), "off" },
+        { "GEN I", "gen1" }, { "GEN II", "gen2" },
+        { "GEN III", "gen3" }, { "GEN IV", "gen4" },
+        { "GEN V", "gen5" }, { "GEN VI", "gen6" },
+        { "GEN VII", "gen7" },
+      } },
     { key = "adaptive_trainer_levels",
       label = menuLabel("ADAPTIVE TRAINER-LV", "ADAPTIVE TRAINER-LV"),
       -- AUTO is classic on Standard and follows the documented target gaps
@@ -535,8 +667,8 @@ return function(mod)
         { menuLabel("OFF", "AUS"), "off" },
         { "-2", "-2" },
         { menuLabel("MATCH", "GLEICH"), "0" },
-        { "+2", "2" }, { "+4", "4" },
-        { "+6", "6" }, { "+8", "8" },
+        { "PLUS 2", "2" }, { "PLUS 4", "4" },
+        { "PLUS 6", "6" }, { "PLUS 8", "8" },
       } },
     { key = "wild_level_scaling",
       label = menuLabel("WILD LEVEL SCALING", "WILD-LEVEL-SKALIERUNG"),
@@ -590,6 +722,56 @@ return function(mod)
         { menuLabel("NORMAL", "NORMAL"), "normal" },
         { menuLabel("OFTEN", "OFT"), "often" },
       } },
+    { key = "surprise_dialogue_matrix",
+      label = menuLabel("WANDERER DIALOGUE", "WANDERER-DIALOGE"),
+      type = "toggle", default = true },
+    { key = "surprise_trainer_mega",
+      label = menuLabel("WANDERER MEGA", "WANDERER-MEGA"),
+      type = "toggle", default = true },
+    { key = "surprise_team_fairness",
+      label = menuLabel("WANDERER FAIRNESS", "WANDERER-FAIRNESS"),
+      type = "toggle", default = true },
+    { key = "hoenn_encounters",
+      label = menuLabel("HOENN ENCOUNTERS", "HOENN-BEGEGNUNGEN"),
+      type = "toggle", default = true },
+    { key = "hoenn_level_mode",
+      label = menuLabel("HOENN LEVELS", "HOENN-LEVEL"),
+      type = "choice", default = "route",
+      choices = {
+        { menuLabel("ROUTE", "ROUTE"), "route" },
+        { menuLabel("BADGES", "ORDEN"), "badges" },
+        { menuLabel("PARTY", "TEAM"), "party" },
+      } },
+    { key = "hoenn_trace_presentation",
+      label = menuLabel("HOENN TRACE MOMENT", "HOENN-SPURMOMENT"),
+      type = "toggle", default = true },
+    { key = "hoenn_roamers",
+      label = menuLabel("EON ROAMERS", "ÄON-WANDERER"),
+      type = "toggle", default = true },
+    { key = "hoenn_roamer_flee",
+      label = menuLabel("EON FLEE", "ÄON-FLUCHT"),
+      type = "toggle", default = true },
+    { key = "hoenn_regi_sanctums",
+      label = menuLabel("REGI SANCTUMS", "REGI-SANKTUARIEN"),
+      type = "toggle", default = true },
+    { key = "hoenn_moltres_volcano",
+      label = menuLabel("MOLTRES VOLCANO", "LAVADOS-VULKAN"),
+      type = "toggle", default = true },
+    { key = "hoenn_endgame_access_puzzles",
+      label = menuLabel("ENDGAME ACCESS", "ENDGAME-ZUGÄNGE"),
+      type = "toggle", default = true },
+    { key = "hoenn_legend_portals",
+      label = menuLabel("HOENN PORTALS", "HOENN-PORTALE"),
+      type = "toggle", default = true },
+    { key = "hoenn_birth_island",
+      label = menuLabel("BIRTH ISLAND", "ENTSTEHUNGSINSEL"),
+      type = "toggle", default = true },
+    { key = "hoenn_jirachi_finale",
+      label = menuLabel("JIRACHI FINALE", "JIRACHI-FINALE"),
+      type = "toggle", default = true },
+    { key = "starter_habitats_enabled",
+      label = menuLabel("STARTER HABITATS", "STARTER-HABITATE"),
+      type = "toggle", default = true },
     { key = "kanto_151",
       label = menuLabel("KANTO 151 RESTART", "KANTO 151 NEUST."),
       type = "choice", default = "ascendant",
@@ -625,6 +807,26 @@ return function(mod)
     { key = "crystal_animation",
       label = menuLabel("CRYSTAL ANIMATION", "KRISTALL-ANIMATION"),
       type = "toggle", default = true },
+    { key = "non_crystal_pixel_2d",
+      label = menuLabel("NEW SPECIES 2D STILLS", "NEUE ARTEN 2D-STANDBILD"),
+      type = "toggle", default = true },
+    { key = "classic_2d_sprite_connector",
+      label = menuLabel("2D SPRITE TRACK", "2D-SPRITE-SPUR"),
+      type = "toggle", default = true },
+    { key = "legacy_random_partners",
+      label = menuLabel("NG+ RANDOM PARTNERS", "NG+ ZUFALLSPARTNER"),
+      type = "toggle", default = true },
+    { key = "legacy_global_babies",
+      label = menuLabel("GLOBAL RANDOM BABIES", "GLOBAL-ZUFALL BABYS"),
+      type = "toggle", default = true },
+    { key = "non_crystal_voxel_animations",
+      label = menuLabel("NEW SPECIES VOXEL ANIM.", "NEUE ARTEN VOXEL-ANIM."),
+      type = "toggle", default = true },
+    { key = "mega_sprite_collection", label = menuLabel("MEGA COLLECTION", "MEGA-SAMMLUNG"),
+      type = "choice", default = "current", choices = {
+        { menuLabel("CURRENT KASC", "AKTUELLES KASC"), "current" },
+        { menuLabel("ORIGINALS 30 AUG", "ORIGINALE 30. AUG"), "original-20260830" },
+      } },
     { key = "pokemon_sprite_style",
       label = menuLabel("POKéMON SPRITE STYLE", "POKéMON-SPRITESTIL"),
       -- Fresh 6.5 profiles start with the complete Crystal presentation,
@@ -637,7 +839,7 @@ return function(mod)
         { "CRYSTAL 2D", "crystal" },
       } },
     { key = "character_sprite_style",
-      label = menuLabel("FIELD CHARACTERS", "FELD-FIGUREN"),
+      label = menuLabel("FIELD CHARACTERS", "SPIELERFIGUREN"),
       type = "choice", default = "crystal",
       choices = {
         { "ASCENDANT FIELD", "ascendant" },
@@ -649,6 +851,24 @@ return function(mod)
       choices = {
         { "CRYSTAL HD", "crystal_hd" },
         { menuLabel("ORIGINAL", "ORIGINAL"), "original" },
+      } },
+    { key = "animated_title_trainers",
+      label = menuLabel("ANIMATED TITLE TRAINERS",
+        "ANIMIERTE TITELTRAINER"),
+      -- The 6.6 RC enables the reviewed animation for new profiles and for
+      -- existing profiles that have no value yet.  The engine resolves a
+      -- missing key through this default without overwriting a saved choice;
+      -- an explicit OFF therefore remains authoritative across upgrades.
+      type = "toggle", default = true },
+    { key = "title_visual_theme",
+      label = menuLabel("TITLE THEME", "TITELDESIGN"),
+      -- The asset-free Theme Card is deliberately opt-in visually. Missing
+      -- and invalid saved values resolve to the exact current 6.6 title.
+      type = "choice", default = "classic",
+      choices = {
+        { menuLabel("CLASSIC", "KLASSISCH"), "classic" },
+        { menuLabel("TRAINER TRIO", "TRAINER-TRIO"), "trio" },
+        { menuLabel("MONO STAGE", "MONO-BÜHNE"), "mono" },
       } },
     { key = "sprite_style_battle",
       label = menuLabel("SPRITES IN BATTLE", "SPRITES IM KAMPF"),
@@ -786,41 +1006,43 @@ return function(mod)
       type = "choice", default = "mixed",
       choices = {
         { menuLabel("KANTO ONLY", "NUR KANTO"), "kanto" },
-        { menuLabel("KANTO + JOHTO", "KANTO + JOHTO"), "mixed" },
+        -- The bundled Gen-I UI font has no plus glyph.  Keep the same meaning
+        -- while ensuring the selected value is fully legible on every port.
+        { menuLabel("KANTO / JOHTO", "KANTO / JOHTO"), "mixed" },
         { menuLabel("JOHTO ONLY", "NUR JOHTO"), "johto" },
       } },
     { key = "johto_level_bonus",
-      label = menuLabel("JOHTO LEVEL BONUS", "JOHTO-LEVELBONUS"),
+      label = menuLabel("JOHTO LEVEL BONUS", "JOHTO-ANSTIEG"),
       type = "choice", default = "2_8",
       choices = {
         { menuLabel("ROUTE AVG PLUS 2 TO 8", "ROUTENMITTEL PLUS 2 BIS 8"), "2_8" },
         { menuLabel("ROUTE AVG PLUS 2 TO 5", "ROUTENMITTEL PLUS 2 BIS 5"), "2_5" },
       } },
     { key = "ascendant_useful_bag",
-      label = menuLabel("ASCENDANT BAG", "ASCENDANT-BEUTEL"),
+      label = menuLabel("ASCENDANT BAG", "KASC-BEUTEL"),
       type = "toggle", default = true },
     { key = "ascendant_bag_mode",
-      label = menuLabel("ASCENDANT BAG MODE", "ASCENDANT-BEUTELMODUS"),
+      label = menuLabel("ASCENDANT BAG MODE", "BEUTEL-DESIGN"),
       type = "choice", default = "pockets",
       choices = {
         { menuLabel("OFF / EXTERNAL MOD", "AUS / EXTERNE MOD"), "off" },
         { menuLabel("GAME DEFAULT", "SPIELSTANDARD"), "standard" },
-        { menuLabel("KASC SKIN", "KASC-SKIN"), "skin" },
-        { menuLabel("KASC SKIN / 999 SLOTS", "KASC-SKIN / 999 PLÄTZE"), "expanded" },
-        { menuLabel("FIRERED POCKETS / 999", "FIRERED-FÄCHER / 999"), "pockets" },
+        { menuLabel("KASC SKIN", "KASC"), "skin" },
+        { menuLabel("KASC SKIN / 999 SLOTS", "KASC (999)"), "expanded" },
+        { menuLabel("FIRERED POCKETS / 999", "FEUERROT (999)"), "pockets" },
       } },
     { key = "ascendant_quick_select",
       label = menuLabel("QUICK SELECT", "SCHNELLWAHL"),
       type = "toggle", default = true },
     { key = "ascendant_qol",
-      label = menuLabel("ASCENDANT QOL", "ASCENDANT-QOL"),
+      label = menuLabel("ASCENDANT QOL", "KOMFORTHILFEN"),
       type = "toggle", default = true },
     -- These four rows must remain in the final schema. quality_of_life.lua
     -- registers them before this full Ascendant schema is defined; omitting
     -- them here made untouched profiles resolve EASY INTERACTIONS to nil,
     -- even though its submenu displayed the intended ON default.
     { key = "qol_exp_bar",
-      label = menuLabel("BATTLE EXP BAR", "KAMPF-EP-LEISTE"),
+      label = menuLabel("BATTLE EXP BAR", "EP-LEISTE"),
       type = "choice", default = "blue",
       choices = {
         { menuLabel("OFF", "AUS"), "off" },
@@ -848,24 +1070,27 @@ return function(mod)
         { menuLabel("ON (3 SECONDS)", "AN (3 SEKUNDEN)"), 3 },
       } },
     { key = "modern_storage_ui",
-      label = menuLabel("MENU SKINS MASTER", "MENÜ-SKINS HAUPTSCHALTER"),
+      label = menuLabel("MENU SKINS MASTER", "MENÜ-DESIGN"),
       type = "toggle", default = true },
     { key = "pc_interface_style",
       label = menuLabel("PC INTERFACE", "PC-OBERFLÄCHE"),
-      type = "choice", default = "firered",
+      type = "choice", default = "oras_fullscreen",
       choices = {
+        { "ORAS FULLSCREEN", "oras_fullscreen" },
         { "FIRERED / LEAFGREEN", "firered" },
         { "KANTO ASCENDANT", "ascendant" },
         { menuLabel("GAME DEFAULT", "SPIELSTANDARD"), "default" },
+        { "FIRERED / LEAFGREEN WIDE", "firered_wide" },
       } },
     { key = "legacy_bank_interface_style",
-      label = menuLabel("LEGACY BANK UI", "VERMÄCHTNIS-BANK"),
+      label = menuLabel("LEGACY BANK UI", "BANK-ANSICHT"),
       type = "choice", default = "follow_pc",
       choices = {
-        { menuLabel("FOLLOW PC INTERFACE", "PC-OBERFLÄCHE FOLGEN"),
+        { menuLabel("FOLLOW PC INTERFACE", "WIE PC"),
           "follow_pc" },
         { "FIRERED / LEAFGREEN", "firered" },
         { "KANTO ASCENDANT", "ascendant" },
+        { "FIRERED / LEAFGREEN WIDE", "firered_wide" },
       } },
     { key = "catch_destination",
       label = menuLabel("CATCH DESTINATION", "FANGZIEL"),
@@ -992,10 +1217,25 @@ return function(mod)
       type = "toggle", default = true },
     { key = "event_rosette", label = menuLabel("EVENT ROSETTE", "EVENT-ROSETTE"),
       type = "toggle", default = true },
+    { key = "gift_codes_enabled",
+      label = menuLabel("GIFT CODES", "GESCHENKCODES"),
+      type = "toggle", default = true },
     { key = "rocket_story", label = menuLabel("ROCKET STORY", "ROCKET-STORY"),
+      type = "toggle", default = true },
+    { key = "rocket_raids",
+      label = menuLabel("ROCKET RECOVERY", "ROCKET-RÜCKHOLUNG"),
+      type = "toggle", default = true },
+    { key = "late_species_67",
+      label = menuLabel("LATE SPECIES", "SPÄT-ARTEN"),
+      type = "toggle", default = true },
+    { key = "fairy_affection_67",
+      label = menuLabel("FAIRY EVOLUTION", "FEEN-ENTWICKLUNG"),
       type = "toggle", default = true },
     { key = "grand_tournament",
       label = menuLabel("BATTLE FRONTIER", "KAMPF-FRONTIER"),
+      type = "toggle", default = true },
+    { key = "life_of_rival",
+      label = menuLabel("A RIVAL'S LIFE", "RIVALENLEBEN"),
       type = "toggle", default = true },
     { key = "follower_count",
       label = menuLabel("FOLLOWER COUNT", "BEGLEITER-ANZAHL"),
@@ -1045,6 +1285,64 @@ return function(mod)
   end
   idMigration.applyOptionDefaults(ascendantOptionSchema)
   mod.options:define(ascendantOptionSchema)
+  mod.exports.legacy65CardInventory = loadSibling(
+    mod, "legacy_65_card_inventory.lua")(mod, {
+      supportLog=mod.exports.supportSessionLog,
+    })
+  mod.exports.hoennOptionalCards67 = loadSibling(
+    mod, "hoenn_optional_cards_67.lua")(mod, {
+      supportLog = mod.exports.supportSessionLog,
+    })
+  -- One save-local authority controls the active type, species and legal
+  -- move epoch. AUTO follows authenticated progression; manual downgrades
+  -- preserve newer moves losslessly on the Pokemon itself.
+  mod.exports.generationTypeProjection = loadSibling(
+    mod, "generation_type_projection.lua")
+  mod.exports.generationTypeMatchups67 = loadSibling(mod,"generation_type_matchups_67.lua")
+  mod.exports.generationMoveCatalog67Data = loadSibling(
+    mod, "generation_move_catalog_67_data.lua")
+  mod.exports.generationLearnsets67Data = loadSibling(
+    mod, "generation_learnsets_67_data.lua")
+  mod.exports.generationMachines67Data = loadSibling(
+    mod, "generation_machines_67_data.lua")
+  mod.exports.generationEvidence = loadSibling(
+    mod, "generation_evidence.lua")(mod)
+  mod.exports.generationMigration = loadSibling(
+    mod, "generation_migration.lua")(mod)
+  mod.exports.generationMoveMemory = loadSibling(
+    mod, "generation_move_memory.lua")(mod)
+  mod.exports.generationRulesReceipts = loadSibling(
+    mod, "generation_rules_receipt.lua")(mod)
+  mod.exports.generationRules = loadSibling(mod, "generation_rules.lua")(
+    mod, {
+      -- The assembled Wave-1 package supplies the Gen-VII effect owners.
+      -- Keep the standalone controller fail-closed for partial consumers;
+      -- AUTO still advances only with actual ownership/progress evidence.
+      capabilities = { generation7 = true },
+      evidence = mod.exports.generationEvidence,
+      migration = mod.exports.generationMigration,
+      moveMemory = mod.exports.generationMoveMemory,
+      typeProjection = mod.exports.generationTypeProjection,
+      typeMatchups = mod.exports.generationTypeMatchups67,
+      receipts = mod.exports.generationRulesReceipts,
+      moveCatalog = mod.exports.generationMoveCatalog67Data,
+      supportLog = mod.exports.supportSessionLog,
+    })
+  mod.exports.generationCheckpoint67 = loadSibling(mod, "generation_checkpoint_67.lua")(
+    mod, { rules = mod.exports.generationRules, supportLog = mod.exports.supportSessionLog })
+  mod.exports.difficultyTeamContracts67 = loadSibling(
+    mod, "difficulty_team_contracts_67.lua")(mod, {
+      generationRules = mod.exports.generationRules,
+      supportLog = mod.exports.supportSessionLog,
+    })
+  assert(mod.exports.rivalTeams.setDifficultyContracts(
+    mod.exports.difficultyTeamContracts67),
+    "rival difficulty-contract binding failed")
+  assert(mod.exports.hoennFieldAccess.setGenerationRules(
+    mod.exports.generationRules),
+    "Hoenn field access generation-rules binding failed")
+  assert(legacyWanderers.setGenerationRules(mod.exports.generationRules),
+    "Legacy Wanderers generation-rules binding failed")
   assert(restProfiles.install(mod))
   mod.exports.migrateRestProfileOptions = function(game, fresh)
     return restProfiles.migrateGameOptions(mod.id, game, fresh)
@@ -1052,6 +1350,12 @@ return function(mod)
 
   local makeOptionHelp = loadSibling(mod, "option_help.lua")
   local optionHelp = makeOptionHelp(i18n)
+  mod.exports.classicLink = loadSibling(mod, "classic_link.lua")(mod, {
+    i18n = i18n,
+    generationRules = mod.exports.generationRules,
+    wireAdapter = loadSibling(mod, "classic_link_wire_67.lua")(),
+  })
+  assert(mod.exports.classicLink.installUi(ascendantUi))
   local makeRematchRewards = loadSibling(mod, "rematch_rewards.lua")
   local rematchRewards = makeRematchRewards(mod, {
     i18n = i18n,
@@ -1060,7 +1364,10 @@ return function(mod)
     optionHelp = optionHelp,
     ascendantUi = ascendantUi,
     legacyWanderers = legacyWanderers,
+    hoennFieldAccess = mod.exports.hoennFieldAccess,
     restProfiles = restProfiles,
+    classicLink = mod.exports.classicLink,
+    generationRules = mod.exports.generationRules,
   })
   mod.exports.rematchRewards = rematchRewards
   mod.exports.optionHelp = optionHelp
@@ -1123,10 +1430,20 @@ return function(mod)
   -- surface.  Defer detection until the loader has resolved all manifests,
   -- then install only the features that do not have an external owner.
   mod.events:once("mods.loaded", function()
+    -- KASC owns this local lifecycle; VASC exposes only the public PokemonUi
+    -- Host-v1 capability it consumes.  The card performs no save/story work
+    -- and remains a fail-open optional presentation binding.
+    local makeVascLegacyBankCard = loadSibling(
+      mod, "vasc_legacy_bank_card.lua")
+    local vascLegacyBankCard = makeVascLegacyBankCard(mod)
     local installStorage = loadSibling(mod, "modern_storage_ui.lua")
     if type(installStorage) == "function" then
-      installStorage(mod, { i18n = i18n })
+      installStorage(mod, {
+        i18n = i18n,
+        vascLegacyBankCard = vascLegacyBankCard,
+      })
     end
+    mod.exports.fullscreenUiCard.active = not mod.exports.fullscreenUiCard.usesVasc()
     local installCatchDestination = loadSibling(mod, "catch_destination.lua")
     if type(installCatchDestination) == "function" then
       installCatchDestination(mod, { i18n = i18n })
@@ -1215,7 +1532,21 @@ return function(mod)
   -- original 151. Keep it on exports to avoid another top-level LuaJIT local.
   mod.exports.beyondKanto = loadSibling(mod, "johto_unleashed.lua")(mod, {
     i18n = i18n, johtoData = johtoData,
+    generationRules = mod.exports.generationRules,
   })
+  mod.exports.generationRules.setCurrentDataProvider(function(game, epoch)
+    local active, migrated, witness = mod.exports.beyondKanto.sync(
+      game, game and game.save, "generation-profile-sync")
+    if mod.exports.starterSpecies67
+        and type(mod.exports.starterSpecies67.refreshMoves) == "function" then
+      mod.exports.starterSpecies67.refreshMoves(game, epoch)
+    end
+    if mod.exports.generationLearnsets67
+        and type(mod.exports.generationLearnsets67.apply) == "function" then
+      mod.exports.generationLearnsets67.apply(game, epoch)
+    end
+    return active, migrated, witness
+  end)
   legacyWanderers.setBeyondKantoBoundary(mod.exports.beyondKanto)
   if legacyJourney.archive and legacyJourney.archive.setWithdrawalGate then
     legacyJourney.archive.setWithdrawalGate(function(save, mon)
@@ -1223,7 +1554,11 @@ return function(mod)
     end)
   end
   local makeAscendantMenu = loadSibling(mod, "ascendant_menu.lua")
-  local ascendantMenu = makeAscendantMenu(mod, { i18n = i18n })
+  local ascendantMenu = makeAscendantMenu(mod, {
+    i18n = i18n,
+    ascendantUi = ascendantUi,
+    supportLog = mod.exports.supportSessionLog,
+  })
   mod.exports.ascendantMenu = ascendantMenu
   local makeSpriteAssets = loadSibling(mod, "sprite_assets.lua")
   local spriteAssets = makeSpriteAssets(mod)
@@ -1238,13 +1573,22 @@ return function(mod)
   mod.exports.johtoAudio = johtoAudio
   local legacyHoenn = loadSibling(mod, "legacy_hoenn.lua")(mod, { i18n = i18n })
   mod.exports.legacyHoenn = legacyHoenn
+  mod.exports.legacyRandomPartners67 = loadSibling(
+    mod, "legacy_random_partners_67.lua")(mod, {
+      supportLog = mod.exports.supportSessionLog,
+    })
   local hevoSpeciesData = loadSibling(mod, "hevo_species_data.lua")
   -- Existing HEVO content uses this package registry as its source of truth.
   -- Store it on exports so this dense factory gains no additional local.
   mod.exports.hevoPackages = loadSibling(mod, "hevo_packages.lua")(mod, {
     i18n = i18n, enabled = contentEnabled, journey = legacyJourney,
     beyondKanto = mod.exports.beyondKanto,
+    generationRules = mod.exports.generationRules,
   })
+  mod.exports.eeveeFieldSpots67 = loadSibling(
+    mod, "eevee_field_spots_67.lua")(mod, {
+      packages = mod.exports.hevoPackages,
+    })
   local hevoSpecies = loadSibling(mod, "hevo_species.lua")(mod, {
     i18n = i18n, data = hevoSpeciesData, packages = mod.exports.hevoPackages,
     enabled = contentEnabled,
@@ -1262,8 +1606,14 @@ return function(mod)
     i18n = i18n, journey = legacyJourney, hoenn = legacyHoenn,
     rival = mod.exports.legacyRivalPartner, johto = johtoData,
     beyondKanto = mod.exports.beyondKanto,
+    hoennAcquisition = mod.exports.hoennAcquisition67Data,
+    randomPartners = mod.exports.legacyRandomPartners67,
   })
   mod.exports.legacyStarters = legacyStarters
+  assert(mod.exports.hoennFieldAccess.setLegacyStarters(legacyStarters),
+    "Hoenn field access needs Legacy starter authority")
+  assert(mod.exports.hoennFieldAccess.setLegacyProgression(legacyJourney),
+    "Hoenn field access needs Legacy progression authority")
   local registerGorochu = loadSibling(mod, "gorochu.lua")
   local gorochu = registerGorochu(mod, { i18n = i18n })
   if gorochu.available then CRYSTAL_ASSETS.GOROCHU = "gorochu" end
@@ -1280,11 +1630,26 @@ return function(mod)
   local fieldTech = makeFieldTech(mod, {
     i18n = i18n,
     contentEnabled = contentEnabled,
+    generationRules = mod.exports.generationRules,
   })
   mod.exports.fieldTech = fieldTech
+  mod.exports.generationMoveCatalog67 = loadSibling(
+    mod, "generation_move_catalog_67.lua")(mod, {
+      data = mod.exports.generationMoveCatalog67Data,
+      i18n = i18n,
+    })
+  mod.exports.generationMachines67 = loadSibling(
+    mod, "generation_machines_67.lua")(mod, {
+      data = mod.exports.generationMachines67Data,
+      generationRules = mod.exports.generationRules,
+    })
+  assert(fieldTech.setGenerationMachines(mod.exports.generationMachines67),
+    "generation machine archive binding failed")
   if mod.exports.hevoPackages and mod.exports.hevoPackages.attachFieldTech then
     assert(mod.exports.hevoPackages.attachFieldTech(fieldTech))
   end
+  mod.exports.hoennRoamers67 = loadSibling(mod, "hoenn_roamers_67.lua")(
+    mod, { fieldAccess = mod.exports.hoennFieldAccess, i18n = i18n })
   local makePostgameEvents = loadSibling(mod, "postgame_events.lua")
   local makePostgame = loadSibling(mod, "postgame.lua")
   local postgame = makePostgame(mod, postgameData, {
@@ -1302,14 +1667,165 @@ return function(mod)
     end,
   })
   mod.exports.postgame = postgame
+  -- The four native depots and their rewards are registered before the
+  -- content graph freezes. Generation-aware TM selection fails closed to the
+  -- Gen-I pool until a later generation-rules owner is present.
+  mod.exports.rocketRecoveryRaids67Data = loadSibling(
+    mod, "rocket_recovery_raids_67_data.lua")
+  mod.exports.rocketRecoveryRewards67 = loadSibling(
+    mod, "rocket_recovery_rewards_67.lua")(mod, {
+      data = mod.exports.rocketRecoveryRaids67Data,
+      equipmentRewards = mod.exports.equipmentRewards67,
+      generationRules = mod.exports.generationRules,
+    })
+  mod.exports.rocketRecoveryRaids67 = loadSibling(
+    mod, "rocket_recovery_raids_67.lua")(mod, {
+      sources = mod.exports.rocketRecoverySources67,
+      generationRules = mod.exports.generationRules,
+      data = mod.exports.rocketRecoveryRaids67Data,
+      supportLog = mod.exports.supportSessionLog,
+      captureAvailable = function(game, row)
+        local provider = mod.exports.lateSpecies67
+        return provider ~= nil
+          and type(provider.raidCaptureAvailable) == "function"
+          and provider.raidCaptureAvailable(game, row) == true
+      end,
+    })
+  mod.exports.rocketRecoveryRaids67.bindRewards({
+    awardPlan = function(game, key, plan)
+      return mod.exports.rocketRecoveryRewards67.awardPlan(game, key, plan)
+    end,
+  })
+  mod.exports.rocketRecoveryRaids67Content = loadSibling(
+    mod, "rocket_recovery_raids_67_content.lua")(mod, {
+      maps = loadSibling(mod, "rocket_recovery_raids_67_maps.lua"),
+      data = mod.exports.rocketRecoveryRaids67Data,
+    })
+  assert(mod.exports.rocketRecoveryRaids67Content.register())
+  mod.exports.rocketRecoveryRaids67Runtime = loadSibling(
+    mod, "rocket_recovery_raids_67_runtime.lua")(mod, {
+      raids = mod.exports.rocketRecoveryRaids67,
+      data = mod.exports.rocketRecoveryRaids67Data,
+      maps = mod.exports.rocketRecoveryRaids67Content.maps,
+      content = mod.exports.rocketRecoveryRaids67Content,
+      postgame = postgame,
+      i18n = i18n,
+      generationRules = mod.exports.generationRules,
+      trainerPool = function() return mod.exports.trainerGenerationPool67 end,
+    })
   mod.exports.postgameData = postgameData
   mod.exports.johtoData = johtoData
   local breedingData = loadSibling(mod, "breeding_data.lua")
   local eggMoves = loadSibling(mod, "egg_moves.lua")
+  mod.exports.generationLearnsets67 = loadSibling(
+    mod, "generation_learnsets_67.lua")(mod, {
+      data = mod.exports.generationLearnsets67Data,
+      generationRules = mod.exports.generationRules,
+      eggMoves = eggMoves,
+      fieldTech = fieldTech,
+    })
+  mod.exports.surpriseTeamFairness67 = loadSibling(
+    mod, "surprise_team_fairness_67.lua")(mod, {
+      learnsets = mod.exports.generationLearnsets67,
+      generationRules = mod.exports.generationRules,
+    })
+  assert(legacyWanderers.setFairnessProvider(
+    mod.exports.surpriseTeamFairness67))
+  mod.exports.generationBattleGate67 = loadSibling(
+    mod, "generation_battle_gate_67.lua")(mod, {
+      generationRules = mod.exports.generationRules,
+      i18n = i18n,
+      equipmentCheckpoint = function(game)
+        local equipment = mod.exports.pokemonEquipment67
+        if equipment then return equipment.checkpoint(game) end
+      end,
+    })
+  -- KASC-66-HOENN-DEX-252-386: reuse the fifteen established owners and
+  -- register only the 120 still-missing identities.  Canonical Hoenn
+  -- #261-279 receive collision-safe runtime ids because that range already
+  -- belongs to the private HEVO catalogue in 6.6 saves.
+  mod.exports.hoennSpecies67Data = loadSibling(
+    mod, "hoenn_species_67_data.lua")
+  mod.exports.hoennDexCompletion67 = loadSibling(
+    mod, "hoenn_dex_completion_67.lua")(mod, {
+      data = mod.exports.hoennSpecies67Data,
+      journey = legacyJourney,
+      generationRules = mod.exports.generationRules,
+      bankBridge = function() return mod.exports.legacyBankBridge end,
+    })
+  mod.exports.hoennSpecies67RuntimeData = loadSibling(
+    mod, "hoenn_species_67_runtime_data.lua")
+  mod.exports.hoennSpecies67 = loadSibling(mod, "hoenn_species_67.lua")(
+    mod, {
+      data = mod.exports.hoennSpecies67Data,
+      runtimeData = mod.exports.hoennSpecies67RuntimeData,
+      breedingData = breedingData,
+      eggMoves = eggMoves,
+      hevoPackages = mod.exports.hevoPackages,
+      i18n = i18n,
+      enabled = contentEnabled,
+    })
+  mod.exports.legacyGlobalBabies67Data = loadSibling(
+    mod, "legacy_global_babies_67_data.lua")
+  mod.exports.legacyGlobalBabies67 = loadSibling(
+    mod, "legacy_global_babies_67.lua")(mod, {
+      data = mod.exports.legacyGlobalBabies67Data,
+      generationRules = mod.exports.generationRules,
+      i18n = i18n,
+      supportLog = mod.exports.supportSessionLog,
+    })
+  assert(legacyStarters.setGlobalBabyProvider(
+    mod.exports.legacyGlobalBabies67))
+  mod.exports.hoennEndgameRunEvents67 = loadSibling(
+    mod, "hoenn_endgame_run_events_67.lua")(mod)
+  mod.exports.hoennEndgameEditorGeometry67 = loadSibling(
+    mod, "hoenn_endgame_editor_geometry_67.lua")
+  mod.exports.hoennEndgameTilesets67 = loadSibling(
+    mod, "hoenn_endgame_tilesets_67.lua")(mod, {
+      json = loadSibling(mod, "world_rank_json.lua"),
+    })
+  if contentEnabled then assert(mod.exports.hoennEndgameTilesets67.register()) end
+  mod.exports.hoennResearchSanctums67 = loadSibling(
+    mod, "hoenn_research_sanctums_67.lua")(mod, {
+      dex = mod.exports.hoennDexCompletion67,
+      generationRules = mod.exports.generationRules,
+      fieldAccess = mod.exports.hoennFieldAccess,
+      runEvents = mod.exports.hoennEndgameRunEvents67,
+      postgame = postgame,
+      geometry = mod.exports.hoennEndgameEditorGeometry67,
+      fieldTech = fieldTech,
+      i18n = i18n,
+    })
+  if contentEnabled then
+    assert(mod.exports.hoennResearchSanctums67.register())
+  end
+  mod.exports.hoennMoltresVolcano67 = loadSibling(
+    mod, "hoenn_moltres_volcano_67.lua")(mod, {
+      postgame = postgame,
+      runEvents = mod.exports.hoennEndgameRunEvents67,
+      geometry = mod.exports.hoennEndgameEditorGeometry67,
+      volcanoTileset = mod.exports.hoennEndgameTilesets67.VOLCANO_ID,
+      regirockComplete = function(game)
+        return mod.exports.hoennResearchSanctums67
+          and mod.exports.hoennResearchSanctums67.eventComplete(game,"REGIROCK")
+      end,
+      i18n = i18n,
+    })
+  if contentEnabled then assert(mod.exports.hoennMoltresVolcano67.register()) end
+  mod.exports.hoennBattleSurrounds67 = loadSibling(
+    mod, "hoenn_battle_surrounds_67.lua")(mod)
+  -- Register the map-only letterbox after the load set is complete; game.ready
+  -- below supplies the live stack so battles and menus can be excluded.
+  mod.events:once("mods.loaded", function()
+    if contentEnabled and mod.exports.hoennBattleSurrounds67 then
+      assert(mod.exports.hoennBattleSurrounds67.install())
+    end
+  end)
   local pokemonGender = loadSibling(mod, "pokemon_gender.lua")(mod, {
     breedingData = breedingData,
+    backendGender = loadSibling(mod, "wave1_backend_gender_67_data.lua"),
+    digest = loadSibling(mod, "legacy_bank_sha256.lua"),
     voxelRenderer = mod.exports.voxelRendererCompat,
-    rendererBattleHud = mod.exports.rendererBattleHud,
   })
   mod.exports.pokemonGender = pokemonGender
   -- P1 Apricorn Balls are installed here (after the canonical Gen-II gender
@@ -1344,18 +1860,33 @@ return function(mod)
     eggMoves = eggMoves,
     pokemonGender = pokemonGender,
     hatchAnimation = eggHatchAnimation,
+    abilities = function() return mod.exports.pokemonAbilityBinding67 end,
+    hatchStepRate = function(game)
+      local owner=mod.exports.pokemonHatchAbilities67
+      return owner and owner.stepRate(game) or 1
+    end,
+    giftEggAllowed = function(game,mon)
+      local archive=mod.exports.eventArchive
+      return archive and archive.giftEggHatchAllowed(mon) or false
+    end,
     fieldTech = fieldTech,
     hevoPackages = mod.exports.hevoPackages,
     beyondKanto = mod.exports.beyondKanto,
+    generationRules = mod.exports.generationRules,
   })
   local makeMegaEvolution = loadSibling(mod, "mega_evolution.lua")
   local megaAnimationData = loadSibling(mod, "mega_animation_data.lua")
+  mod.exports.megaSpriteCollections = loadSibling(mod, "MegaSpriteCollection.lua").new(
+    mod, loadSibling(mod, "MegaOriginalData.lua"))
   local megaEvolution = makeMegaEvolution(mod, {
+    spriteCollection = mod.exports.megaSpriteCollections,
     postgame = postgame,
+    journey = legacyJourney,
     i18n = i18n,
     contentEnabled = contentEnabled,
     animationData = megaAnimationData,
     voxelRenderer = mod.exports.voxelRendererCompat,
+    linkPolicy = mod.exports.classicLink,
   })
   daycare.setMega(megaEvolution)
   local makeShinySystem = loadSibling(mod, "shiny_system.lua")
@@ -1379,12 +1910,6 @@ return function(mod)
   })
   gorochuCatalogueOverlay.register()
   mod.exports.gorochuCatalogueOverlay = gorochuCatalogueOverlay
-  local makeDramalessCameraCompat =
-    loadSibling(mod, "dramaless_camera_compat.lua")
-  local dramalessCameraCompat = makeDramalessCameraCompat(mod, {
-    voxelRenderer = mod.exports.voxelRendererCompat,
-  })
-  mod.exports.dramalessCameraCompat = dramalessCameraCompat
   -- Reviewed DRAMALESS 1.6.2-ST.190.1 and Battle Art 1.9.0/1.9.2 predate a
   -- native wall-decal module. Keep HEVO's fissures bound to real wall planes
   -- without modifying either separately installed renderer; future/native
@@ -1399,20 +1924,42 @@ return function(mod)
   local trueColorWorldCompat = loadSibling(mod,
     "truecolor_world_compat.lua")()
   mod.exports.trueColorWorldCompat = trueColorWorldCompat
-  local makeDramalessCameraOption =
-    loadSibling(mod, "dramaless_camera_option.lua")
-  local dramalessCameraOption = makeDramalessCameraOption(mod, {
-    camera = menuLabel("VOXEL BATTLE CAMERA", "VOXEL-KAMPFKAMERA"),
-    fork = menuLabel("VOXEL DEFAULT", "VOXEL-STANDARD"),
-    classic = menuLabel("CLASSIC VOXEL", "KLASSISCHES VOXEL"),
-    wide = menuLabel("WIDE VOXEL", "WEITES VOXEL"),
-    voxelRenderer = mod.exports.voxelRendererCompat,
-  })
-  dramalessCameraOption.install()
-  mod.exports.dramalessCameraOption = dramalessCameraOption
+  -- Load the Gen-IV--VII starter catalogue before the animation controller
+  -- scans its guest identities. Registration follows immediately after that
+  -- controller is built, still before the engine freezes content.
+  mod.exports.starterSpecies67Data = loadSibling(
+    mod, "starter_species_67_data.lua")
+  mod.exports.fairyAffection67Data = loadSibling(
+    mod, "fairy_affection_67_data.lua")
+  mod.exports.lateSpecies67Data = loadSibling(
+    mod, "late_species_67_data.lua")
+  mod.exports.starterRuntimeDexes = (function()
+    local guests = {}
+    for _, species in ipairs(mod.exports.starterSpecies67Data.order or {}) do
+      local row = mod.exports.starterSpecies67Data.species[species]
+      assert(row and tonumber(row.sourceDex),
+        "starter runtime animation dex missing: " .. tostring(species))
+      guests[tonumber(row.sourceDex)] = true
+    end
+    return guests
+  end)()
+  mod.exports.lateSpeciesRuntimeDexes = (function()
+    local guests = {}
+    for _, species in ipairs(mod.exports.lateSpecies67Data.order or {}) do
+      local row = mod.exports.lateSpecies67Data.species[species]
+      assert(row and tonumber(row.dex),
+        "late species runtime animation dex missing: " .. tostring(species))
+      guests[tonumber(row.dex)] = true
+    end
+    return guests
+  end)()
   local crystalAnimationData = loadSibling(mod, "crystal_animation_data.lua")
   crystalAnimationData.grayscale = loadSibling(
     mod, "crystal_animation_data_grayscale.lua")
+  -- The filenames and 7000-range IDs retain their audited source lineage;
+  -- ownership and release metadata belong to the selected 6.6 Alola segment.
+  mod.exports.alolaGiftForms66Data = loadSibling(
+    mod, "alola_forms_67_data.lua")
   local function readOptionalAnimationData(filename)
     local body = mod:read(filename)
     if not body then return {} end
@@ -1425,6 +1972,81 @@ return function(mod)
   -- omitted. Release/package gates require it in the 6.5 artifact.
   local extendedCrystalAnimationData = readOptionalAnimationData(
     "extended_crystal_animation_data.lua")
+  -- All #252-386 front/back normal/shiny Emerald clocks are merged into the
+  -- existing animation controller; no second battle renderer is introduced.
+  extendedCrystalAnimationData.emeraldHoenn = loadSibling(
+    mod, "emerald_hoenn_animation_data.lua")
+  extendedCrystalAnimationData.starterFamilies = loadSibling(
+    mod, "starter_animation_data.lua")
+  extendedCrystalAnimationData.fairyAffection = loadSibling(
+    mod, "fairy_affection_animation_data.lua")
+  extendedCrystalAnimationData.lateSpecies = loadSibling(
+    mod, "late_species_animation_data.lua")
+  local nonCrystalHdAnimationData = loadSibling(
+    mod, "non_crystal_hd_animation_data.lua")
+  nonCrystalHdAnimationData = loadSibling(mod,"authored_crystal_library_67.lua")(
+    nonCrystalHdAnimationData,loadSibling(mod,"authored_crystal_67_data.lua"),"voxel")
+  mod.exports.finalCrystalArt67={data=loadSibling(mod,"final_crystal_art_67_data.lua"),
+    merge=loadSibling(mod,"final_crystal_art_67.lua")}
+  nonCrystalHdAnimationData=mod.exports.finalCrystalArt67.merge(
+    nonCrystalHdAnimationData,mod.exports.finalCrystalArt67.data,"voxel")
+  do -- Keep optional merge temporaries below Lua's per-function local limit.
+    local spriteRepairData=readOptionalAnimationData("sprite_repair_67_data.lua")
+    local gen3CrystalData=readOptionalAnimationData("gen3_crystal_art_67_data.lua")
+    if gen3CrystalData.schema then
+      spriteRepairData=loadSibling(mod,"gen3_crystal_art_67.lua")(spriteRepairData,gen3CrystalData)
+    end
+    -- The early #641 rear was explicitly rejected as too coarse. Preserve
+    -- its reviewed front/voxel lanes, but let the existing live backend
+    -- supply both backs. No new bitmap or global renderer change.
+    if spriteRepairData.entries and spriteRepairData.entries["641"] then
+      local rear=spriteRepairData.entries["641"]
+      rear.pixel.back=nil;rear.pixel.backShiny=nil
+      rear.native.back=nil;rear.native.backShiny=nil
+    end
+    mod.exports.spriteRepair67=loadSibling(mod,"sprite_repair_67.lua")(mod,spriteRepairData)
+  end
+  nonCrystalHdAnimationData=mod.exports.spriteRepair67.legacy(nonCrystalHdAnimationData,"voxel")
+  local nonCrystalPixel2DData = loadSibling(
+    mod, "non_crystal_pixel_2d_data.lua")
+  local classic2DGen2ifiedData = loadSibling(
+    mod, "classic_2d_gen2ified_data.lua")
+  -- The separate sprite-catalog task supplies a complete canonical
+  -- #252-721 Gen-2-style library. Runtime rows keep their collision-safe
+  -- private dex, but resolve artwork by sourceDex.
+  mod.exports.classic2DGen2ifiedLibrary67 = loadSibling(
+    mod, "classic_2d_gen2ified_library_67.lua")(
+      nonCrystalPixel2DData, classic2DGen2ifiedData)
+  mod.exports.wave1StaticRears67 = loadSibling(mod, "wave1_static_rears_67.lua")(mod, {
+    data = nonCrystalPixel2DData,
+    neo = loadSibling(mod, "neo_crystal_2d_67_data.lua"),
+    authored = loadSibling(mod, "authored_crystal_67_data.lua"),
+  })
+  mod.exports.finalCrystalArt67.voxelFallback=mod.exports.finalCrystalArt67.merge(
+    nonCrystalPixel2DData,mod.exports.finalCrystalArt67.data,"fallback")
+  mod.exports.finalCrystalArt67.voxelFallback=mod.exports.spriteRepair67.legacy(
+    mod.exports.finalCrystalArt67.voxelFallback,"fallback")
+  nonCrystalPixel2DData=mod.exports.spriteRepair67.legacy(nonCrystalPixel2DData,"pixel")
+  -- Construct the VASC animation Card only after the canonical #252+ static
+  -- overlay has mutated this shared table. Missing/single-frame Neo variants
+  -- can therefore fall back to the exact reviewed 2D front without reviving
+  -- the old 3DS-style provider or touching classic battle backs.
+  mod.exports.nonCrystalHdSprites67 = loadSibling(
+    mod, "non_crystal_hd_sprites_67.lua")(mod, {
+      additionalArtRegistrar = loadSibling(mod, "backend_gift_art_67.lua"),
+      data = nonCrystalHdAnimationData,
+      fallbackData = mod.exports.finalCrystalArt67.voxelFallback,
+      shinySystem = shinySystem,
+      voxelRenderer = mod.exports.voxelRendererCompat,
+      supportLog = mod.exports.supportSessionLog,
+    })
+  mod.exports.nonCrystalPixel2DSprites67 = loadSibling(
+    mod, "non_crystal_pixel_2d_sprites_67.lua")(mod, {
+      data = nonCrystalPixel2DData,
+      supportLog = mod.exports.supportSessionLog,
+    })
+  mod.exports.alolaGiftAnimation66 = loadSibling(
+    mod, "alola_animation_data.lua")
   crystalAnimationData.back = crystalAnimationData.back or {
     normal = {}, shiny = {},
   }
@@ -1439,6 +2061,51 @@ return function(mod)
     for dex, timing in pairs(rear) do
       crystalAnimationData.back[variant][dex] = timing
     end
+    for dex, timing in pairs(
+        extendedCrystalAnimationData.emeraldHoenn[variant] or {}) do
+      crystalAnimationData[variant][dex] = timing
+    end
+    local emeraldRear = extendedCrystalAnimationData.emeraldHoenn.back
+      and extendedCrystalAnimationData.emeraldHoenn.back[variant] or {}
+    for dex, timing in pairs(emeraldRear) do
+      crystalAnimationData.back[variant][dex] = timing
+    end
+    for dex, timing in pairs(
+        extendedCrystalAnimationData.starterFamilies[variant] or {}) do
+      crystalAnimationData[variant][dex] = timing
+    end
+    local starterRear = extendedCrystalAnimationData.starterFamilies.back
+      and extendedCrystalAnimationData.starterFamilies.back[variant] or {}
+    for dex, timing in pairs(starterRear) do
+      crystalAnimationData.back[variant][dex] = timing
+    end
+    for dex, timing in pairs(
+        extendedCrystalAnimationData.fairyAffection[variant] or {}) do
+      crystalAnimationData[variant][dex] = timing
+    end
+    local fairyRear = extendedCrystalAnimationData.fairyAffection.back
+      and extendedCrystalAnimationData.fairyAffection.back[variant] or {}
+    for dex, timing in pairs(fairyRear) do
+      crystalAnimationData.back[variant][dex] = timing
+    end
+    for dex, timing in pairs(
+        extendedCrystalAnimationData.lateSpecies[variant] or {}) do
+      crystalAnimationData[variant][dex] = timing
+    end
+    local lateRear = extendedCrystalAnimationData.lateSpecies.back
+      and extendedCrystalAnimationData.lateSpecies.back[variant] or {}
+    for dex, timing in pairs(lateRear) do
+      crystalAnimationData.back[variant][dex] = timing
+    end
+    for dex, timing in pairs(
+        mod.exports.alolaGiftAnimation66[variant] or {}) do
+      crystalAnimationData[variant][dex] = timing
+    end
+    local alolaRear = mod.exports.alolaGiftAnimation66.back
+      and mod.exports.alolaGiftAnimation66.back[variant] or {}
+    for dex, timing in pairs(alolaRear) do
+      crystalAnimationData.back[variant][dex] = timing
+    end
   end
   crystalAnimationData.normal[tostring(gorochu.dex)] =
     gorochu.animationDurations
@@ -1451,27 +2118,100 @@ return function(mod)
   crystalAnimationData.back.grayscale[tostring(gorochu.dex)] =
     gorochu.animationDurations
   local makeCrystalAnimation = loadSibling(mod, "crystal_animation.lua")
+  mod.exports.classic2DSpriteConnector67=loadSibling(
+    mod,"classic_2d_sprite_connector_67.lua")(mod,{
+      supportLog=mod.exports.supportSessionLog,
+    })
   local crystalAnimation = makeCrystalAnimation(mod, {
+    additionalArtRegistrar = loadSibling(mod, "backend_gift_art_67.lua"),
+    additionalVoxelArtRegistrar = mod.exports.nonCrystalHdSprites67.registerAdditionalArt,
     animationData = crystalAnimationData,
+    voxelAnimationData = mod.exports.nonCrystalHdSprites67.data,
+    pixel2DData = mod.exports.nonCrystalPixel2DSprites67.data,
+    voxelFallbackData = mod.exports.finalCrystalArt67.voxelFallback,
+    neo2DData = mod.exports.spriteRepair67.legacy(mod.exports.finalCrystalArt67.merge(loadSibling(mod,"authored_crystal_library_67.lua")(
+      loadSibling(mod,"neo_crystal_2d_67_data.lua"),
+      loadSibling(mod,"authored_crystal_67_data.lua"),"native"),mod.exports.finalCrystalArt67.data,"native"),"native"),
     shinySystem = shinySystem,
     megaEvolution = megaEvolution,
+    voxelRenderer = mod.exports.voxelRendererCompat,
+    classic2DConnector=mod.exports.classic2DSpriteConnector67,
     speciesOrder = johtoData.order,
-    guestDexes = {
-      [gorochu.dex] = true,
-      [252] = true, [253] = true, [254] = true,
-      [255] = true, [256] = true, [257] = true,
-      [258] = true, [259] = true, [260] = true,
-      [261] = true, [262] = true, [263] = true,
-      [264] = true, [265] = true, [266] = true,
-      [267] = true, [268] = true, [269] = true,
-      [270] = true, [271] = true, [272] = true,
-      [273] = true, [274] = true, [275] = true,
-      [276] = true, [277] = true, [278] = true,
-      [279] = true,
-    },
+    guestDexes = mod.exports.hoennSpecies67.animationDexes((function()
+      local guests = {
+        [gorochu.dex] = true,
+        [700] = true,
+        [252] = true, [253] = true, [254] = true,
+        [255] = true, [256] = true, [257] = true,
+        [258] = true, [259] = true, [260] = true,
+        [261] = true, [262] = true, [263] = true,
+        [264] = true, [265] = true, [266] = true,
+        [267] = true, [268] = true, [269] = true,
+        [270] = true, [271] = true, [272] = true,
+        [273] = true, [274] = true, [275] = true,
+        [276] = true, [277] = true, [278] = true,
+        [279] = true,
+        [7019] = true, [7020] = true, [7026] = true,
+        [7027] = true, [7028] = true, [7037] = true,
+        [7038] = true, [7050] = true, [7051] = true,
+        [7052] = true, [7053] = true, [7074] = true,
+        [7075] = true, [7076] = true, [7088] = true,
+        [7089] = true, [7103] = true, [7105] = true,
+      }
+      for dex in pairs(mod.exports.starterRuntimeDexes) do
+        guests[dex] = true
+      end
+      for dex in pairs(mod.exports.lateSpeciesRuntimeDexes) do
+        guests[dex] = true
+      end
+      for _, species in ipairs(
+          mod.exports.legacyGlobalBabies67Data.order or {}) do
+        local row = mod.exports.legacyGlobalBabies67Data.species[species]
+        guests[assert(tonumber(row and row.sourceDex),
+          "global baby runtime dex missing: " .. tostring(species))] = true
+      end
+      return guests
+    end)()),
     classicGuestDexes = { [gorochu.dex] = true },
   })
   mod.exports.extendedSpeciesRuntime.bind({ crystalAnimation = crystalAnimation })
+  mod.exports.starterSpecies67 = loadSibling(mod, "starter_species_67.lua")(
+    mod, {
+      data = mod.exports.starterSpecies67Data,
+      beyondKanto = mod.exports.beyondKanto,
+      i18n = i18n,
+      shinySystem = shinySystem,
+      crystalAnimation = crystalAnimation,
+      generationRules = mod.exports.generationRules,
+    })
+  mod.exports.alolaGiftForms66 = loadSibling(mod, "alola_forms_67.lua")(
+    mod, {
+      data = mod.exports.alolaGiftForms66Data,
+      i18n = i18n,
+      shinySystem = shinySystem,
+      crystalAnimation = crystalAnimation,
+      enabled = contentEnabled,
+    })
+  mod.exports.fairyAffection67 = loadSibling(mod, "fairy_affection_67.lua")(
+    mod, {
+      data = mod.exports.fairyAffection67Data,
+      i18n = i18n,
+      generationRules = mod.exports.generationRules,
+      shinySystem = shinySystem,
+      crystalAnimation = crystalAnimation,
+      enabled = contentEnabled and mod.options:get("fairy_affection_67") ~= false,
+      supportLog = mod.exports.supportSessionLog,
+    })
+  mod.exports.lateSpecies67 = loadSibling(mod, "late_species_67.lua")(
+    mod, {
+      data = mod.exports.lateSpecies67Data,
+      pokemonGender = pokemonGender,
+      i18n = i18n,
+      shinySystem = shinySystem,
+      crystalAnimation = crystalAnimation,
+      enabled = contentEnabled and mod.options:get("late_species_67") ~= false,
+      supportLog = mod.exports.supportSessionLog,
+    })
   local crystalV15 = loadSibling(mod, "crystal_v15_features.lua")(mod, {
     crystalAnimation = crystalAnimation,
     shinySystem = shinySystem,
@@ -1481,6 +2221,11 @@ return function(mod)
   mod.exports.daycare = daycare
   mod.exports.breedingData = breedingData
   mod.exports.megaEvolution = megaEvolution
+  mod.exports.surpriseMega67 = loadSibling(mod,
+    "surprise_mega_67.lua")(mod, {
+      mega = megaEvolution, postgame = postgame, i18n = i18n,
+    })
+  assert(legacyWanderers.setMegaProvider(mod.exports.surpriseMega67))
   mod.exports.shinySystem = shinySystem
   mod.exports.crystalAnimation = crystalAnimation
   mod.exports.crystalV15 = crystalV15
@@ -1538,7 +2283,46 @@ return function(mod)
     voxelRenderer = mod.exports.voxelRendererCompat,
     beyondKanto = mod.exports.beyondKanto,
   })
+  mod.exports.hoennLegendPortals67 = loadSibling(
+    mod, "hoenn_legend_portals_67.lua")(mod, {
+      dex = mod.exports.hoennDexCompletion67,
+      journey = legacyJourney,
+      skyTileset = mod.exports.hoennEndgameTilesets67.ID,
+      geometry = mod.exports.hoennEndgameEditorGeometry67,
+      i18n = i18n,
+    })
+  assert(mod.exports.hoennLegendPortals67.bindShared(
+    mod.exports.hiddenEvolutionCampaign.load().shared))
+  mod.exports.hoennBirthIsland67 = loadSibling(
+    mod, "hoenn_birth_island_67.lua")(mod, {
+      dex = mod.exports.hoennDexCompletion67,
+      runEvents = mod.exports.hoennEndgameRunEvents67,
+      i18n = i18n,
+    })
+  mod.exports.hoennJirachiFinale67 = loadSibling(
+    mod, "hoenn_jirachi_finale_67.lua")(mod, {
+      dex = mod.exports.hoennDexCompletion67,
+      journey = legacyJourney, i18n = i18n,
+    })
+  -- The physical Hoenn access Card is registered before content freezes;
+  -- its shared collision-aware placement authority is reused by all later
+  -- wandering/event NPC owners.
+  mod.exports.runtimeNpcPlacement = mod.exports.runtimeNpcPlacement
+    or loadSibling(mod, "runtime_npc_placement.lua")(mod)
+  mod.exports.hoennEndgameAccess67 = loadSibling(
+    mod, "hoenn_endgame_access_67.lua")(mod, {
+      regis = mod.exports.hoennResearchSanctums67,
+      moltres = mod.exports.hoennMoltresVolcano67,
+      birth = mod.exports.hoennBirthIsland67,
+      placement = mod.exports.runtimeNpcPlacement,
+      postgame = postgame,
+      i18n = i18n,
+    })
   if contentEnabled then
+    assert(mod.exports.hoennLegendPortals67.register())
+    assert(mod.exports.hoennBirthIsland67.register())
+    assert(mod.exports.hoennJirachiFinale67.register())
+    assert(mod.exports.hoennEndgameAccess67.register())
     assert(mod.exports.hiddenEvolutionCampaign.register())
     if mod.exports.hevoPackages.enabled then
       assert(mod.exports.hevoPackages.registerFieldAltar(
@@ -1550,6 +2334,7 @@ return function(mod)
       assert(mod.exports.hevoPackages.registerFieldAltar(
         "KA_HEVO_GREEN_RAYQUAZA_SHRINE", "TEXT_KA_HEVO_MOSS_ALTAR",
         "moss_field", { x = 39, y = 7 }))
+      assert(mod.exports.eeveeFieldSpots67.register())
     end
     if fieldTech and fieldTech.registerMapPolicyProvider then
       assert(fieldTech.registerMapPolicyProvider("hidden_evolution_campaign",
@@ -1606,12 +2391,34 @@ return function(mod)
   for _, species in ipairs(hevoSpecies.order) do
     extendedFollowerOrder[#extendedFollowerOrder + 1] = species
   end
+  for _, species in ipairs(mod.exports.hoennSpecies67.registeredOrder) do
+    extendedFollowerOrder[#extendedFollowerOrder + 1] = species
+  end
+  for _, species in ipairs(mod.exports.starterSpecies67.order) do
+    extendedFollowerOrder[#extendedFollowerOrder + 1] = species
+  end
+  for _, species in ipairs(mod.exports.fairyAffection67.order) do
+    extendedFollowerOrder[#extendedFollowerOrder + 1] = species
+  end
+  for _, species in ipairs(mod.exports.lateSpecies67.order) do
+    extendedFollowerOrder[#extendedFollowerOrder + 1] = species
+  end
   local followerSprites = makeFollowerSprites(mod, {
     spriteAssets = spriteAssets,
     shinySystem = shinySystem,
     johtoData = { order = extendedFollowerOrder },
     extendedRuntime = mod.exports.extendedSpeciesRuntime,
   })
+  assert(mod.exports.fairyAffection67.bind({
+    shinySystem = shinySystem,
+    crystalAnimation = crystalAnimation,
+    followerSprites = followerSprites,
+  }))
+  assert(mod.exports.lateSpecies67.bind({
+    shinySystem = shinySystem,
+    crystalAnimation = crystalAnimation,
+    followerSprites = followerSprites,
+  }))
   local kantoSpecies = loadSibling(mod, "kanto_species.lua")
   if spriteAssets and type(spriteAssets.setKantoSpecies) == "function" then
     spriteAssets.setKantoSpecies(kantoSpecies)
@@ -1640,6 +2447,21 @@ return function(mod)
     followerSprites = followerSprites,
     partyIcons = partyIcons,
   })
+  mod.exports.hoennSpecies67.bind({
+    shinySystem = shinySystem,
+    followerSprites = followerSprites,
+    partyIcons = partyIcons,
+  })
+  mod.exports.starterSpecies67.bind({
+    shinySystem = shinySystem,
+    followerSprites = followerSprites,
+    crystalAnimation = crystalAnimation,
+  })
+  mod.exports.alolaGiftForms66.bind({
+    shinySystem = shinySystem,
+    followerSprites = followerSprites,
+    crystalAnimation = crystalAnimation,
+  })
   local johtoEncounterLevels =
     loadSibling(mod, "johto_encounter_levels.lua")
   do
@@ -1650,8 +2472,8 @@ return function(mod)
       johtoEncounterLevels.setBonusRange(2, 8)
     end
   end
-  mod.exports.runtimeNpcPlacement = loadSibling(
-    mod, "runtime_npc_placement.lua")(mod)
+  mod.exports.runtimeNpcPlacement = mod.exports.runtimeNpcPlacement
+    or loadSibling(mod, "runtime_npc_placement.lua")(mod)
   local makeJohtoResearch = loadSibling(mod, "johto_research.lua")
   local johtoResearch = makeJohtoResearch(mod, {
     data = johtoData,
@@ -1667,11 +2489,30 @@ return function(mod)
   recruitment.configureJohto(johtoData.order, function(species)
     return johtoResearch.isRecruitFamilyEligible(species)
   end)
-  recruitment.configureEvolutionAvailability(function(target)
-    if not mod.exports.beyondKanto.isActive() then return false end
+  assert(recruitment.configureSpeciesAvailability(function(game, species, def)
+    return mod.exports.generationRules.speciesAvailable(game, species, def)
+  end))
+  recruitment.configureEvolutionAvailability(function(target, from, row, context)
     if target == "GOROCHU" then
+      if not mod.exports.beyondKanto.isActive() then return false end
       local s = gorochu and gorochu.state and gorochu.state(false)
       return s and s.playerEvolved == true or false
+    end
+    local game=context and context.game
+    local def=game and game.data and game.data.pokemon[target]
+    local national=def and tonumber(def.sourceDex or def.nationalDex or def.dex)
+    if national and national>=152 and national<=1025 and not def.isMega
+        and not def.isGigantamax and not def.regionalForm then
+      return mod.exports.generationRules.speciesAvailable(game,target,def)
+    end
+    if not mod.exports.beyondKanto.isActive() then return false end
+    local core = mod.exports.discoveryCore
+    local hoenn = core and core.Hoenn
+    local family = hoenn and hoenn.familyForSpecies
+      and select(1, hoenn.familyForSpecies(target))
+    if family and core.state and type(core.state.status) == "function" then
+      local status = core.state.status("hoenn", family)
+      if status == "sighted" or status == "unlocked" then return true end
     end
     return johtoResearch.isSpeciesResearched(target)
       or johtoResearch.isRecruitFamilyEligible(target)
@@ -1701,6 +2542,7 @@ return function(mod)
     -- old launcher SIGNAL START values are intentionally ignored.
     startPolicyOptions = false,
     johtoBoundary = mod.exports.beyondKanto,
+    generationRules = mod.exports.generationRules,
     onOakCall = function(game, text, onDone)
       if signalsHub then
         return signalsHub.showOakCall(game, text, onDone)
@@ -1728,6 +2570,7 @@ return function(mod)
     content = signalsContent,
     johtoSignals = johtoSignals,
     beyondKanto = mod.exports.beyondKanto,
+    generationRules = mod.exports.generationRules,
     i18n = i18n,
   })
   local prismModule = loadSibling(mod, "driftglass_prisms.lua")
@@ -1746,6 +2589,7 @@ return function(mod)
   end
   local masteryModule = loadSibling(mod, "rematch_mastery.lua")
   local rematchMastery = masteryModule.create({
+    generationRules = mod.exports.generationRules,
     resonanceRules = driftglassPrisms.resonanceRules,
     -- Extended trainer moves share the repaired-Receiver boundary. Crown
     -- signature attacks additionally require their exact Field-Tech reward;
@@ -1767,6 +2611,142 @@ return function(mod)
   mod.exports.rematchMastery = rematchMastery
   local rematchAI = loadSibling(mod, "rematch_ai.lua")(mod)
   mod.exports.rematchAI = rematchAI
+  mod.exports.opponentSmartAI67 = loadSibling(mod,
+    "opponent_smart_ai_67.lua")(mod, {
+      useful = rematchAI, rules = mod.exports.generationRules,
+      blockedStatus = function(b,who,status)
+        local effects=mod.exports.pokemonAbilityEffects67
+        return effects and effects.blockStatus(b,who,status)~=nil or false
+      end,
+      noUsefulMove = function(b,user,target,move)
+        local laser=mod.exports.pokemonLaserFocus67
+        if move.id=='LASER_FOCUS'and laser and laser.active(b,user)then return true end
+        local protection=mod.exports.pokemonProtection67
+        if protection and protection.noUseful(b,user,move)then return true end
+        local screens=mod.exports.pokemonScreens67
+        if screens and screens.noUseful(b,user,move)then return true end
+        local dualStatus=mod.exports.pokemonDualStatus67
+        if dualStatus and dualStatus.noUseful(b,user,target,move)then return true end
+        local sap=mod.exports.pokemonStrengthSap67
+        if sap and sap.noUseful(b,user,target,move)then return true end
+        local speedSwap=mod.exports.pokemonSpeedSwap67
+        if speedSwap and speedSwap.noUseful(b,user,target,move)then return true end
+        local firstAction=mod.exports.pokemonFirstAction67
+        if firstAction and firstAction.noUseful(b,user,target,move)then return true end
+        local burnUp=mod.exports.pokemonBurnUp67
+        if burnUp and burnUp.noUseful(b,user,target,move)then return true end
+        local ion=mod.exports.pokemonIonDeluge67
+        if ion and ion.noUseful(b,user,target,move)then return true end
+        local gear=mod.exports.pokemonGearUp67
+        if gear and gear.noUseful(b,user,target,move)then return true end
+        local spotlight=mod.exports.pokemonSpotlight67
+        if spotlight and spotlight.noUseful(b,user,target,move)then return true end
+        local instruct=mod.exports.pokemonInstruct67
+        if instruct and instruct.noUseful(b,user,target,move)then return true end
+        local psychUp=mod.exports.pokemonPsychUp67
+        if psychUp and psychUp.noUseful(b,user,target,move)then return true end
+        local baton=mod.exports.pokemonBatonPass67
+        if baton and baton.noUseful(b,user,target,move)then return true end
+        local healBlock=mod.exports.pokemonHealBlock67
+        if healBlock and healBlock.noUseful(b,user,target,move)then return true end
+        local rootRecovery=mod.exports.pokemonRootRecovery67
+        if rootRecovery and rootRecovery.noUseful(b,user,target,move)then return true end
+        local stockpile=mod.exports.pokemonStockpile67
+        if stockpile and stockpile.noUseful(b,user,target,move)then return true end
+        local future=mod.exports.pokemonFutureStrikes67
+        if future and future.noUseful(b,user,target,move)then return true end
+        local randomStrength=mod.exports.pokemonRandomStrength67
+        if randomStrength and randomStrength.noUseful(b,user,target,move)then return true end
+        local heldProjectiles=mod.exports.pokemonHeldProjectiles67
+        if heldProjectiles and heldProjectiles.noUseful(b,user,target,move)then return true end
+        local partyMultihit=mod.exports.pokemonPartyMultihit67
+        if partyMultihit and partyMultihit.noUseful(b,user,target,move)then return true end
+        local moveLock=mod.exports.pokemonMoveLock67
+        if moveLock and moveLock.noUseful(b,user,target,move)then return true end
+        local statExchange=mod.exports.pokemonStatExchange67
+        if statExchange and statExchange.noUseful(b,user,target,move)then return true end
+        local abilityControl=mod.exports.pokemonAbilityControl67
+        if abilityControl and abilityControl.noUseful(b,user,target,move)then return true end
+        local powerTrick=mod.exports.pokemonPowerTrick67
+        if powerTrick and powerTrick.noUseful(b,user,target,move)then return true end
+        local hazards=mod.exports.pokemonEntryHazards67
+        if hazards and hazards.noUseful(b,user,target,move)then return true end
+        local hpExchange=mod.exports.pokemonHpExchange67
+        if hpExchange and hpExchange.noUseful(b,user,target,move)then return true end
+        local teamRecovery=mod.exports.pokemonTeamRecovery67
+        if teamRecovery and teamRecovery.noUseful(b,user,target,move)then return true end
+        local rooms=mod.exports.pokemonBattleRooms67
+        if rooms and rooms.noUseful(b,user,target,move)then return true end
+        local grudge=mod.exports.pokemonGrudge67
+        if grudge and grudge.noUseful(b,user,target,move)then return true end
+        local wish=mod.exports.pokemonDeferredHealing67
+        if wish and wish.noUseful(b,user,target,move)then return true end
+        local fatal=mod.exports.pokemonFatalConditions67
+        if fatal and fatal.noUseful(b,user,target,move)then return true end
+        local called=mod.exports.pokemonCalledMoves67
+        if called and called.noUseful(b,user,target,move)then return true end
+        local memory=mod.exports.pokemonTargetMemory67
+        if memory and memory.noUseful(b,user,target,move)then return true end
+        local sketch=mod.exports.pokemonSketch67
+        if sketch and sketch.noUseful(b,user,target,move)then return true end
+        local redirect=mod.exports.pokemonMoveRedirection67
+        if redirect and redirect.noUseful(b,user,target,move)then return true end
+        local conditionalUse=mod.exports.pokemonConditionalUse67
+        if conditionalUse and conditionalUse.noUseful(b,user,target,move)then return true end
+        local statusStrikes=mod.exports.pokemonStatusStrikes67
+        if statusStrikes and statusStrikes.noUseful(b,user,target,move)then return true end
+        local typeChanges=mod.exports.pokemonTypeChanges67
+        if typeChanges and typeChanges.noUseful(b,user,target,move)then return true end
+        local identification=mod.exports.pokemonIdentification67
+        if identification and identification.noUseful(b,user,target,move)then return true end
+        local bodyUtilities=mod.exports.pokemonBodyUtilities67
+        if bodyUtilities and bodyUtilities.noUseful(b,user,target,move)then return true end
+        local sports=mod.exports.pokemonSports67
+        if sports and sports.noUseful(b,user,target,move)then return true end
+        local sideGuards=mod.exports.pokemonSideGuards67
+        if sideGuards and sideGuards.noUseful(b,user,target,move)then return true end
+        for _,name in ipairs({'pokemonLuckyChant67','pokemonPsychoShift67','pokemonCelebration67','pokemonSinglesSupport67'})do
+          local owner=mod.exports[name]
+          if owner and owner.noUseful(b,user,target,move)then return true end
+        end
+        local caster=mod.exports.pokemonCasterStrikes67
+        if caster and caster.noUseful(b,user,target,move)then return true end
+        local recipients=mod.exports.pokemonStageRecipients67
+        if recipients and recipients.noUseful(b,user,target,move)then return true end
+        local itemAccess=mod.exports.pokemonItemAccess67
+        if itemAccess and itemAccess.noUseful(b,user,target,move)then return true end
+        local interruptions=mod.exports.pokemonFieldInterruptions67
+        if interruptions and interruptions.noUseful(b,user,target,move)then return true end
+        local goggles=mod.exports.pokemonSafetyGoggles67
+        if goggles and goggles.blocksPowder(b,user,target,move)then return true end
+        local sky=mod.exports.pokemonSkyDrop67
+        if sky and sky.noUseful(b,user,target,move)then return true end
+        local pivot=mod.exports.pokemonPivotMoves67
+        if pivot and pivot.noUseful(b,user,target,move)then return true end
+        local elevation=mod.exports.pokemonGrounding67
+        if elevation and elevation.noUseful(b,user,target,move)then return true end
+        local escapeLock=mod.exports.pokemonEscapeLock67
+        if escapeLock and escapeLock.noUseful(b,user,target,move)then return true end
+        local recycle=mod.exports.pokemonRecycle67
+        if move.id=='RECYCLE'and recycle then return not recycle.canCast(b,user)end
+        local transfer=mod.exports.pokemonItemTransfer67
+        if transfer and(move.id=='TRICK'or move.id=='SWITCHEROO')then
+          return mod.exports.pokemonAbilityEffects67.moveScope(b,user,target,true,
+            function()
+              return not transfer.canSwap(b,user,target)
+                or mod.exports.pokemonPriorityAbilities67.blocks({battle=b,user=user,target=target,move=move})
+            end,move)
+        end
+        local weather=mod.exports.pokemonWeather67
+        if move.id=='REST' and weather and weather.leafGuard(b,user)
+            and weather.epoch(b)>=5 then return true end
+        local sleep=mod.exports.pokemonDelayedSleep67
+        if move.id=='YAWN' and sleep and not sleep.pending then
+          return not sleep.canCast(b,user,target)
+        end
+        return false
+      end,
+    })
   local yellowGymMoveFidelity = loadSibling(mod,
     "yellow_gym_move_fidelity.lua")
   local storyGymDifficulty = loadSibling(mod,
@@ -1776,6 +2756,7 @@ return function(mod)
       yellowFidelity = yellowGymMoveFidelity,
       johtoUnlocked = johtoTrainerMovesUnlocked,
       resonanceRules = driftglassPrisms.resonanceRules,
+      difficultyContracts = mod.exports.difficultyTeamContracts67,
     })
   mod.exports.storyGymDifficulty = storyGymDifficulty
   legacyWanderers.setMasteryProvider(rematchMastery)
@@ -1787,6 +2768,29 @@ return function(mod)
   mod.exports.adaptiveTrainerLevels = loadSibling(
     mod, "adaptive_trainer_levels.lua")(mod, {
       difficulty = difficulty,
+      difficultyContracts = mod.exports.difficultyTeamContracts67,
+    })
+  mod.exports.storyLevelCap = loadSibling(mod, "story_level_cap.lua")(mod, {
+    gameVersion = GameVersion,
+    storyGym = storyGymDifficulty,
+    difficulty = difficulty,
+    adaptiveTrainerLevels = mod.exports.adaptiveTrainerLevels,
+    rivalTeams = mod.exports.rivalTeams,
+    rivalIdentity = function()
+      -- Battle composition falls back to the authored BLUE/vanilla roster
+      -- while the optional character selector is disabled. A stale saved
+      -- RED/GREEN choice must not make the projected cap diverge from the
+      -- team the trainer.party hook will actually use.
+      if not extendedCharacters.isEnabled() then return "BLUE" end
+      return extendedCharacters.getRivalCharacter()
+    end,
+    postgame = postgame,
+    postgameData = postgameData,
+  })
+  daycare.setLevelCap(mod.exports.storyLevelCap)
+  mod.exports.storyLevelCapMenu = loadSibling(
+    mod, "story_level_cap_menu.lua")(mod, {
+      i18n = i18n, controller = mod.exports.storyLevelCap,
     })
   local bicycleSelect = loadSibling(mod, "bicycle_select.lua")(mod, {
     i18n = i18n,
@@ -1808,8 +2812,31 @@ return function(mod)
     shinySystem = shinySystem,
     mythicSafety = mythicSafety,
     beyondKanto = mod.exports.beyondKanto,
+    generationRules = mod.exports.generationRules,
   })
   mod.exports.runRules = runRules
+  -- Wanderer victories reveal only the active character's Hoenn third. A
+  -- native encounter is replaced transactionally and counts as seen/caught
+  -- only after the exact wild battle reaches the engine.
+  mod.exports.discoveryCore.hoenn = mod.exports.discoveryCore.Hoenn.attach(
+    mod, {
+      state = mod.exports.discoveryCore.state,
+      legacyHoenn = legacyHoenn,
+      extendedSpeciesRuntime = mod.exports.extendedSpeciesRuntime,
+      hoennSpecies67 = mod.exports.hoennSpecies67,
+      fieldAccess = mod.exports.hoennFieldAccess,
+      legacyStarters = legacyStarters,
+      legacyJourney = legacyJourney,
+      runRules = runRules,
+      generationRules = mod.exports.generationRules,
+    })
+  mod.exports.hoennTraceMusic67 = loadSibling(
+    mod, "hoenn_trace_music_67.lua")(mod)
+  mod.exports.hoennTracePresentation67 = loadSibling(
+    mod, "hoenn_trace_presentation_67.lua")(mod, {
+      i18n = i18n,
+      musicId = mod.exports.hoennTraceMusic67.id,
+    })
   local dojoPrizes = loadSibling(mod, "dojo_prizes.lua")(mod, {
     i18n = i18n,
   })
@@ -1849,6 +2876,114 @@ return function(mod)
     { x = 5, y = 5 },                    -- fresh-run scripted landing
   }, "Ascendant Oak's Lab scripted position")
   mod.exports.wildsSpawnSafety = wildsSpawnSafety
+  -- Access V3.1 is inert outside a Legacy run. Each edge reveal requires a
+  -- traced starter family and writes a monotonic archive receipt before the
+  -- corresponding compact habitat can be entered.
+  mod.exports.hiddenAccessReveal = loadSibling(
+    mod, "hidden_access_reveal.lua")(mod, mod.exports.explorationDevice, {
+      isNewGamePlus = function(game)
+        return legacyJourney.isActive(game and game.save) == true
+      end,
+      prerequisite = function(game, def)
+        local gate = def and def.eligibility or {}
+        if gate.kind == "starter" then
+          local state = mod.exports.discoveryCore
+            and mod.exports.discoveryCore.state
+          local status = state and state.status
+            and state.status(gate.generation, gate.family) or "unseen"
+          return status == "sighted" or status == "trace"
+            or status == "caught" or status == "unlocked"
+        end
+        local profile = legacyJourney.profile()
+        local completed = profile and profile.completedPaths or {}
+        local save = game and game.save
+        local active = legacyJourney.activeCharacter(save)
+        local function hasCurrentSeal(character)
+          if type(character) ~= "string" or active ~= character
+              or type(legacyJourney.currentHevoSeal) ~= "function" then
+            return false
+          end
+          local ok, sealed, owner = pcall(
+            legacyJourney.currentHevoSeal, save, character)
+          return ok and sealed == true and owner == character
+        end
+        if gate.kind == "profile_legend" then
+          return hasCurrentSeal(gate.profile)
+        end
+        if gate.kind == "jirachi_convergence" then
+          return completed.red == true and completed.blue == true
+            and completed.green == true and profile
+            and profile.legacyPass == true and hasCurrentSeal(active)
+        end
+        return false, "unknown Access V3.1 prerequisite"
+      end,
+      durableReceipts = {
+        all = function()
+          return legacyJourney.hiddenAccessReceipts()
+        end,
+        isOpen = function(id)
+          return legacyJourney.hiddenAccessIsOpen(id)
+        end,
+        markOpen = function(id, receipt, game)
+          return legacyJourney.markHiddenAccessOpen(
+            game and game.save, id, receipt)
+        end,
+      },
+      reserveWilds = function(mapId, cells, id)
+        return wildsSpawnSafety.reserveCells(
+          mapId, cells, "Access V3.1 " .. tostring(id))
+      end,
+      featureAvailable = function(_, def)
+        local destination = def and def.handoff and def.handoff.destination
+        local mapId = destination and destination.map
+        if type(mapId) == "string"
+            and mapId:match("^KA_HABITAT_") then
+          return mod.options:get("starter_habitats_enabled") ~= false
+        end
+        return true
+      end,
+      prepareHandoff = function(game, def)
+        local habitats = mod.exports.starterHabitats
+        local destination = def and def.handoff and def.handoff.destination
+        if not (habitats and destination and habitats.maps
+            and habitats.maps[destination.map]) then return true end
+        return habitats.prepareHandoff(
+          game, def.id, def.mapId, destination.map)
+      end,
+      rollbackHandoff = function(game, def, token, reason)
+        local habitats = mod.exports.starterHabitats
+        local destination = def and def.handoff and def.handoff.destination
+        if not (habitats and destination and habitats.maps
+            and habitats.maps[destination.map]) then return false end
+        return habitats.rollbackHandoff(game, token, reason)
+      end,
+    })
+  assert(mod.exports.hiddenAccessReveal.register(),
+    "Access V3.1 definition registration failed")
+  assert(mod.exports.hiddenAccessReveal.registerInteractions(),
+    "Access V3.1 interaction registration failed")
+  mod.exports.starterHabitats = loadSibling(
+    mod, "starter_habitats_loader.lua")(mod, {
+      loadSibling = loadSibling,
+      discoveryCore = mod.exports.discoveryCore,
+      legacyJourney = legacyJourney,
+      explorationDevice = mod.exports.explorationDevice,
+      wildsSpawnSafety = wildsSpawnSafety,
+      hiddenAccessReveal = mod.exports.hiddenAccessReveal,
+      signalsWilds = signalsWilds,
+      shinySystem = shinySystem,
+      generationRules = mod.exports.generationRules,
+      i18n = i18n,
+      speciesAuthority = mod.exports.starterSpecies67,
+      supportLog = mod.exports.supportSessionLog,
+      onSpeciesAvailabilityChanged = function(game)
+        if mod.exports.wildsCompat
+            and type(mod.exports.wildsCompat.refreshVisible) == "function" then
+          mod.exports.wildsCompat.refreshVisible(
+            "starter habitat species authority changed")
+        end
+      end,
+    })
   local makeWildsCompat = loadSibling(mod, "wilds_compat.lua")
   local wildsCompat = makeWildsCompat(mod, {
     johtoResearch = johtoResearch,
@@ -1861,6 +2996,7 @@ return function(mod)
     encounterLevels = johtoEncounterLevels,
     voxelRenderer = mod.exports.voxelRendererCompat,
     spawnSafety = wildsSpawnSafety,
+    generationRules = mod.exports.generationRules,
   })
   mod.exports.wildsCompat = wildsCompat
   -- A clean Ascendant install must own a working visible-spawn provider.
@@ -1873,6 +3009,892 @@ return function(mod)
     spawnSafety = wildsSpawnSafety,
   })
   mod.exports.internalWilds = internalWilds
+  mod.exports.starterSpecies67.attachWilds(internalWilds.exports)
+  -- Backend fact authority only. Does not change Dex size, encounter pools,
+  -- existing species definitions or the user's selected generation profile.
+  mod.exports.backendNationalCatalog67 = loadSibling(mod,
+    "backend_national_catalog_67_data.lua")
+  mod.exports.backendGenerationRules67 = loadSibling(mod,
+    "backend_generation_rules_67.lua")({
+      data = loadSibling(mod, "backend_generation_rules_67_data.lua"),
+      catalog = mod.exports.backendNationalCatalog67,
+      formLearnsetOverrides = loadSibling(mod, "backend_form_learnset_overrides_67_data.lua"),
+      supportLog = mod.exports.supportSessionLog,
+      load = function(path) return loadSibling(mod, path) end,
+    })
+  mod.exports.backendLaterMoves67 = loadSibling(mod, "backend_later_moves_67.lua")(mod, {
+    facts = mod.exports.backendGenerationRules67, i18n = i18n,
+    supportLog = mod.exports.supportSessionLog,
+  })
+  mod.exports.pokemonLaserFocus67=loadSibling(mod,"pokemon_laser_focus_67.lua")(mod,{
+    facts=mod.exports.backendGenerationRules67,i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonLaserFocus67.validateCheckpoint)
+  mod.exports.pokemonThroatChop67=loadSibling(mod,"pokemon_throat_chop_67.lua")(mod,{
+    facts=mod.exports.backendGenerationRules67,i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonThroatChop67.validateCheckpoint)
+  mod.exports.pokemonStagePower67=loadSibling(mod,"pokemon_stage_power_67.lua")(mod,{
+    facts=mod.exports.backendGenerationRules67,i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.pokemonStompingTantrum67=loadSibling(mod,"pokemon_stomping_tantrum_67.lua")(mod,{
+    facts=mod.exports.backendGenerationRules67,i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonStompingTantrum67.validateCheckpoint)
+  mod.exports.pokemonScreens67=loadSibling(mod,"pokemon_screens_67.lua")(mod,{
+    facts=mod.exports.backendGenerationRules67,i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonScreens67.validateCheckpoint)
+  mod.exports.pokemonDualStatus67=loadSibling(mod,"pokemon_dual_status_67.lua")(mod,{
+    facts=mod.exports.backendGenerationRules67,i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.pokemonStrengthSap67=loadSibling(mod,"pokemon_strength_sap_67.lua")(mod,{
+    facts=mod.exports.backendGenerationRules67,i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.pokemonNaturesMadness67=loadSibling(mod,"pokemon_natures_madness_67.lua")(mod,{
+    facts=mod.exports.backendGenerationRules67,i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.pokemonAbilityBypassMoves67=loadSibling(mod,"pokemon_ability_bypass_moves_67.lua")(mod,{
+    facts=mod.exports.backendGenerationRules67,i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.pokemonSpeedSwap67=loadSibling(mod,"pokemon_speed_swap_67.lua")(mod,{
+    facts=mod.exports.backendGenerationRules67,i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.pokemonStageBypass67=loadSibling(mod,"pokemon_stage_bypass_67.lua")(mod,{
+    facts=mod.exports.backendGenerationRules67,i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.pokemonFirstAction67=loadSibling(mod,"pokemon_first_action_67.lua")(mod,{
+    facts=mod.exports.backendGenerationRules67,i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonFirstAction67.validateCheckpoint)
+  mod.exports.generationCheckpoint67.addContinuation(mod.exports.pokemonFirstAction67.resume)
+  mod.exports.pokemonEscapeLock67=loadSibling(mod,"pokemon_escape_lock_67.lua")(mod,{
+    facts=mod.exports.backendGenerationRules67,i18n=i18n,supportLog=mod.exports.supportSessionLog,
+    catalog=mod.exports.generationMoveCatalog67,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonEscapeLock67.validateCheckpoint)
+  mod.exports.pokemonCleansingHits67=loadSibling(mod,"pokemon_cleansing_hits_67.lua")(mod,{
+    facts=mod.exports.backendGenerationRules67,i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.pokemonPartnerHits67=loadSibling(mod,"pokemon_partner_hits_67.lua")(mod,{
+    facts=mod.exports.backendGenerationRules67,i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.pokemonDoubleIronBash67=loadSibling(mod,"pokemon_double_iron_bash_67.lua")(mod,{
+    facts=mod.exports.backendGenerationRules67,i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.pokemonBurnUp67=loadSibling(mod,"pokemon_burn_up_67.lua")(mod,{
+    facts=mod.exports.backendGenerationRules67,i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.pokemonIonDeluge67=loadSibling(mod,"pokemon_ion_deluge_67.lua")(mod,{
+    facts=mod.exports.backendGenerationRules67,catalog=mod.exports.generationMoveCatalog67,
+    i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonIonDeluge67.validateCheckpoint)
+  mod.exports.pokemonSpectralThief67=loadSibling(mod,"pokemon_spectral_thief_67.lua")(mod,{
+    facts=mod.exports.backendGenerationRules67,i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.pokemonMindBlown67=loadSibling(mod,"pokemon_mind_blown_67.lua")(mod,{
+    facts=mod.exports.backendGenerationRules67,i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.pokemonGearUp67=loadSibling(mod,"pokemon_gear_up_67.lua")(mod,{
+    facts=mod.exports.backendGenerationRules67,i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.pokemonPollenPuff67=loadSibling(mod,"pokemon_pollen_puff_67.lua")(mod,{
+    facts=mod.exports.backendGenerationRules67,i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.pokemonPreparedMoves67=loadSibling(mod,"pokemon_prepared_moves_67.lua")(mod,{
+    facts=mod.exports.backendGenerationRules67,i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonPreparedMoves67.validateCheckpoint)
+  mod.exports.pokemonSpotlight67=loadSibling(mod,"pokemon_spotlight_67.lua")(mod,{
+    facts=mod.exports.backendGenerationRules67,i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.backendMoveAnimationArt67 = loadSibling(mod,
+    "backend_move_animation_art_67.lua")(mod, { moves = mod.exports.backendLaterMoves67 })
+  mod.exports.wave1DragonCheer67 = loadSibling(mod, "wave1_dragon_cheer_67.lua")(mod, {
+    facts = mod.exports.backendGenerationRules67, i18n = i18n,
+  })
+  mod.exports.wave1BarbBarrage67 = loadSibling(mod, "wave1_barb_barrage_67.lua")(mod, {
+    facts = mod.exports.backendGenerationRules67, i18n = i18n,
+  })
+  mod.exports.backendGiftSpecies67 = loadSibling(mod,
+    "backend_gift_species_67.lua")(mod, {
+      catalog = mod.exports.backendNationalCatalog67,
+      facts = mod.exports.backendGenerationRules67,
+      art = (function()
+        local art = loadSibling(mod, "backend_national_art_67_data.lua")
+        mod.exports.wave1RockruffFormsArt67 = loadSibling(mod, "wave1_rockruff_forms_art_67.lua")(mod, {
+          art = art, catalog = mod.exports.backendNationalCatalog67,
+          selected = loadSibling(mod, "wave1_rockruff_forms_art_67_data.lua"),
+        })
+        mod.exports.wave1VespiquenShiny67 = loadSibling(mod, "wave1_vespiquen_shiny_67.lua")(mod, {
+          art = art, selected = loadSibling(mod, "wave1_vespiquen_shiny_67_data.lua"),
+        })
+        mod.exports.wave1BackendRears67 = loadSibling(mod, "wave1_backend_rears_67.lua")(mod, {
+          art = art, selected = loadSibling(mod, "wave1_backend_rears_67_data.lua"),
+        })
+        mod.exports.wave1BackendFronts67 = loadSibling(mod, "wave1_backend_fronts_67.lua")(mod, {
+          art = art,
+        })
+        mod.exports.wave1MeowsticFront67 = loadSibling(mod, "wave1_meowstic_front_67.lua")(mod, {
+          art = art, selected = loadSibling(mod, "wave1_meowstic_front_67_data.lua"),
+        })
+        mod.exports.wave1RedFlowerArt67 = loadSibling(mod, "wave1_red_flower_art_67.lua")(mod, {
+          art = art, selected = loadSibling(mod, "wave1_red_flower_art_67_data.lua"),
+        })
+        return mod.exports.spriteRepair67.backend(art)
+      end)(),
+      sprites = mod.exports.crystalAnimation,
+      i18n = i18n,
+    })
+  mod.exports.trainerGenerationPool67 = loadSibling(mod, "trainer_generation_pool_67.lua")(mod, {
+    catalog = mod.exports.backendNationalCatalog67,
+    species = mod.exports.backendGiftSpecies67,
+    rules = mod.exports.generationRules,
+    supportLog = mod.exports.supportSessionLog,
+  })
+  recruitment.configureOrdinarySpecies(mod.exports.trainerGenerationPool67.ordinary)
+  mod.exports.wave1Happiny67 = loadSibling(mod, "wave1_happiny_67.lua")(mod, {
+    i18n = i18n, timeMode = mod.exports.johtoAudio.timeMode,
+  })
+  mod.exports.wave1EvolutionItems67 = loadSibling(mod, "wave1_evolution_items_67.lua")(mod, {
+    i18n = i18n,
+  })
+  mod.exports.backendGiftEvolutions67 = loadSibling(mod,
+    "backend_gift_evolutions_67.lua")(mod, {
+      species = mod.exports.backendGiftSpecies67,
+      i18n = i18n,
+      timeMode = mod.exports.johtoAudio.timeMode,
+      gender = pokemonGender,
+      dawn = mod.exports.lateSpecies67,
+      data = (function()
+        local combined = loadSibling(mod, "backend_gift_evolution_block1_67_data.lua")
+        for _, number in ipairs({2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28}) do
+          local nextBlock = loadSibling(mod, "backend_gift_evolution_block" .. number .. "_67_data.lua")
+          assert(nextBlock.schema == combined.schema and nextBlock.sourceCommit == combined.sourceCommit,
+            "gift evolution source blocks disagree")
+          for _, edge in ipairs(nextBlock.edges) do combined.edges[#combined.edges + 1] = edge end
+        end
+        return combined
+      end)(),
+    })
+  mod.exports.evolutionDialogueSurface67 = loadSibling(mod,
+    "evolution_dialogue_surface_67.lua")(mod, {supportLog=mod.exports.supportSessionLog})
+  mod.exports.wave1Burmy67 = loadSibling(mod, "wave1_burmy_67.lua")(mod, {
+    rules = loadSibling(mod, "wave1_burmy_cloak_rules_67.lua"),
+    art = loadSibling(mod, "wave1_burmy_cloak_art_67_data.lua"),
+    species = mod.exports.backendGiftSpecies67, gender = pokemonGender, i18n = i18n,
+    sprites = mod.exports.crystalAnimation, fronts = mod.exports.nonCrystalHdSprites67,
+  })
+  mod.exports.wave1Cries67 = loadSibling(mod, "wave1_cries_67.lua")(mod, {
+    species = mod.exports.backendGiftSpecies67,
+    data = loadSibling(mod, "wave1_cries_67_data.lua"),
+  })
+  mod.exports.wave1GenderFamilies67 = loadSibling(mod, "wave1_gender_families_67.lua")(mod, {
+    data = loadSibling(mod, "wave1_gender_families_67_data.lua"),
+    species = mod.exports.backendGiftSpecies67, gender = pokemonGender, i18n = i18n,
+    sprites = mod.exports.crystalAnimation, fronts = mod.exports.nonCrystalHdSprites67,
+  })
+  mod.exports.gen3GenderArt67=loadSibling(mod,"gen3_gender_art_67.lua")(mod,{
+    data=readOptionalAnimationData("gen3_gender_art_67_data.lua"), gender=pokemonGender,
+    sprites=mod.exports.crystalAnimation, fronts=mod.exports.nonCrystalHdSprites67,
+    shiny=shinySystem,
+  })
+  mod.exports.laterGenderArt67=loadSibling(mod,"later_gender_art_67.lua")(mod,{
+    data=readOptionalAnimationData("later_gender_art_67_data.lua"), gender=pokemonGender,
+    sprites=mod.exports.crystalAnimation, fronts=mod.exports.nonCrystalHdSprites67,
+    shiny=shinySystem,
+  })
+  mod.exports.wave1RegionalLevels67 = loadSibling(mod, "wave1_regional_levels_67.lua")(mod, {
+    data = loadSibling(mod, "wave1_regional_levels_67_data.lua"),
+    species = mod.exports.backendGiftSpecies67, i18n = i18n,
+    timeMode = mod.exports.johtoAudio.timeMode,
+  })
+  mod.exports.wave1Rockruff67 = loadSibling(mod, "wave1_rockruff_67.lua")(mod, {
+    species = mod.exports.backendGiftSpecies67, i18n = i18n,
+    timeMode = mod.exports.johtoAudio.timeMode, isDusk = mod.exports.johtoAudio.isDusk,
+  })
+  mod.exports.wave1GalarIce67 = loadSibling(mod, "wave1_galar_ice_67.lua")(mod, {
+    species = mod.exports.backendGiftSpecies67, i18n = i18n,
+  })
+  mod.exports.wave1Kubfu67 = loadSibling(mod, "wave1_kubfu_67.lua")(mod, {
+    species = mod.exports.backendGiftSpecies67, i18n = i18n,
+  })
+  mod.exports.wave1Overqwil67 = loadSibling(mod, "wave1_overqwil_67.lua")(mod, {
+    species = mod.exports.backendGiftSpecies67, i18n = i18n,
+  })
+  mod.exports.wave1Tea67 = loadSibling(mod, "wave1_tea_67.lua")(mod, {
+    species = mod.exports.backendGiftSpecies67, i18n = i18n,
+  })
+  mod.exports.wave1LinkingCord67 = loadSibling(mod, "wave1_linking_cord_67.lua")(mod, {
+    species = mod.exports.backendGiftSpecies67, i18n = i18n,
+  })
+  mod.exports.wave1PairedLink67 = loadSibling(mod, "wave1_paired_link_67.lua")(mod, {
+    species = mod.exports.backendGiftSpecies67, cord = mod.exports.wave1LinkingCord67,
+    i18n = i18n, digest = loadSibling(mod, "legacy_bank_sha256.lua"),
+  })
+  mod.exports.pokemonAlolaEvolutions67=loadSibling(mod,"pokemon_alola_evolutions_67.lua")(mod,{
+    alola=mod.exports.alolaGiftForms66,species=mod.exports.backendGiftSpecies67,
+    rules=mod.exports.generationRules,friendship=mod.exports.backendGiftEvolutions67,
+    timeMode=mod.exports.johtoAudio.timeMode,i18n=i18n,
+  })
+  mod.exports.wave1Inkay67 = loadSibling(mod, "wave1_inkay_67.lua")(mod, {
+    species = mod.exports.backendGiftSpecies67, i18n = i18n,
+    rules = mod.exports.generationRules,
+  })
+  mod.exports.wave1Sliggoo67 = loadSibling(mod, "wave1_sliggoo_67.lua")(mod, {
+    species = mod.exports.backendGiftSpecies67, i18n = i18n,
+    rules = mod.exports.generationRules, renderer = mod.exports.voxelRendererCompat,
+  })
+  mod.exports.wave1Sneasler67 = loadSibling(mod, "wave1_sneasler_67.lua")(mod, {
+    species = mod.exports.backendGiftSpecies67, i18n = i18n,
+    timeMode = mod.exports.johtoAudio.timeMode,
+  })
+  mod.exports.wave1Shedinja67 = loadSibling(mod, "wave1_shedinja_67.lua")(mod, {
+    hoenn = mod.exports.hoennSpecies67, digest = loadSibling(mod, "legacy_bank_sha256.lua"),
+  })
+  mod.exports.wave1Cosmoem67 = loadSibling(mod, "wave1_cosmoem_67.lua")(mod, {
+    species = mod.exports.backendGiftSpecies67, i18n = i18n,
+    timeMode = mod.exports.johtoAudio.timeMode,
+  })
+  mod.exports.wave1Sirfetchd67 = loadSibling(mod, "wave1_sirfetchd_67.lua")(mod, {
+    species = mod.exports.backendGiftSpecies67, i18n = i18n,
+  })
+  mod.exports.backendLiveLearnsets67 = loadSibling(mod, "backend_live_learnsets_67.lua")({
+    species = mod.exports.backendGiftSpecies67, rules = mod.exports.generationRules,
+    catalog = mod.exports.backendNationalCatalog67, eggMoves = eggMoves,
+    fieldTech = fieldTech, edition = function() return GameVersion.get() end,
+  })
+  mod.exports.generationLearnsets67.setBackendProvider(mod.exports.backendLiveLearnsets67)
+  mod.exports.generationRules.setLiveLearnsetProvider(mod.exports.backendLiveLearnsets67.apply)
+  mod.exports.generationRules.setOwnedGiftMoveCompatibilityProvider(
+    function(game,mon,id,epoch)
+      if mod.exports.backendLiveLearnsets67.giftMoveCompatible(game,mon,id,epoch)then return true end
+      local sketch=mod.exports.pokemonSketch67
+      return sketch and sketch.legalCopiedMove(game,mon,id,epoch)==true or false
+    end)
+  fieldTech.setReminderMoveAvailability(function(game, mon, move)
+    local resolved = mod.exports.generationRules.resolve(game)
+    return mod.exports.generationRules.monMoveAvailable(game, mon, move,
+      resolved.activeEpoch, resolved.extensionsEnabled)
+  end)
+  mod.exports.backendLiveMoveRules67 = loadSibling(mod, "backend_live_move_rules_67.lua")({
+    facts = mod.exports.backendGenerationRules67,
+    species = mod.exports.backendGiftSpecies67,
+    supportLog = mod.exports.supportSessionLog,
+  })
+  mod.exports.generationRules.setLiveMoveProvider(mod.exports.backendLiveMoveRules67.apply)
+  mod.exports.backendMoveAccuracy67 = loadSibling(mod, "backend_move_accuracy_67.lua")(mod, {
+    facts = mod.exports.backendGenerationRules67, species = mod.exports.backendGiftSpecies67,
+    rules = mod.exports.generationRules, supportLog = mod.exports.supportSessionLog,
+  })
+  mod.exports.backendSplitSpecial67 = loadSibling(mod, "backend_split_special_67.lua")(mod, {
+    facts = mod.exports.backendGenerationRules67, species = mod.exports.backendGiftSpecies67,
+    rules = mod.exports.generationRules, supportLog = mod.exports.supportSessionLog, i18n = i18n,
+    abilities = function() return mod.exports.pokemonAbilityEffects67 end,
+  })
+  mod.exports.pokemonBattleIdentity67 = loadSibling(mod, "pokemon_battle_identity_67.lua")(mod, {i18n=i18n})
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonBattleIdentity67.validateCheckpoint)
+  mod.exports.generationCheckpoint67.addContinuation(function(b)
+    local bonds=mod.exports.pokemonBondForms67
+    if bonds then bonds.resume(b)end
+    local transformations=mod.exports.pokemonLateTransformations67
+    if transformations then transformations.resume(b)end
+  end)
+  mod.exports.generationCheckpoint67.addContinuation(mod.exports.pokemonBattleIdentity67.resume)
+  mod.exports.backendCriticalRules67 = loadSibling(mod, "backend_critical_rules_67.lua")(mod, {
+    facts = mod.exports.backendGenerationRules67, species = mod.exports.backendGiftSpecies67,
+    rules = mod.exports.generationRules, damage = loadSibling(mod, "pokemon_damage_math_67.lua"),
+    abilities = function() return mod.exports.pokemonAbilityEffects67 end,
+    identity = mod.exports.pokemonBattleIdentity67,
+    i18n = i18n,
+    held = function(mon,b,w) return mod.exports.pokemonEquipment67.battleHeldId(mon,b,w) end,
+    supportLog = mod.exports.supportSessionLog,
+  })
+  mod.exports.generationMoveCatalog67.setStatResolver(
+    mod.exports.backendSplitSpecial67.changes, mod.exports.backendSplitSpecial67.changeStage)
+  mod.exports.backendMegaForms67 = loadSibling(mod, "backend_mega_forms_67.lua")({
+    mega = megaEvolution, catalog = mod.exports.backendNationalCatalog67,
+    species = mod.exports.backendGiftSpecies67,
+    metadata = loadSibling(mod, "backend_mega_catalog_67_data.lua"),
+    art = loadSibling(mod, "backend_national_art_67_data.lua"), i18n = i18n,
+  })
+  mod.exports.backendGigantamaxForms67 = loadSibling(mod, "backend_gigantamax_forms_67.lua")({
+    catalog = mod.exports.backendNationalCatalog67, species = mod.exports.backendGiftSpecies67,
+    metadata = loadSibling(mod, "backend_gigantamax_catalog_67_data.lua"),
+    art = loadSibling(mod, "backend_national_art_67_data.lua"),
+    read = function(path) return mod:read(path) end,
+    declaredImage = mod.exports.optionalPokemonAssets.allowPending,
+  })
+  mod.exports.pokemonAbilityBinding67 = loadSibling(mod,
+    "pokemon_ability_binding_67.lua")({
+      megaKey = mod.exports.backendMegaForms67.abilityKey,
+      facts = mod.exports.backendGenerationRules67,
+      catalog = mod.exports.backendNationalCatalog67,
+      digest = loadSibling(mod, "legacy_bank_sha256.lua"),
+      supports = function(game, id, epoch)
+        local effects = mod.exports.pokemonAbilityEffects67
+        return effects and effects.supportsAbility(game, id, epoch) or false
+      end,
+    })
+  mod.exports.pokemonEquipment67 = loadSibling(mod,
+    "pokemon_equipment_runtime_67.lua")(mod, {
+      help = loadSibling(mod, "pokemon_equipment_help_67.lua").withSource(
+        loadSibling(mod, "pokemon_ability_help_67_data.lua"),function(kind,id,gen)
+          local historical=mod.exports.pokemonHistoricalField67
+          local goggles=mod.exports.pokemonSafetyGoggles67
+          return kind=='ability'and historical and historical.describeAbility(id,gen)
+            or kind=='item'and goggles and goggles.itemHelp(id)or nil
+        end),
+      rules = mod.exports.generationRules,
+      facts = mod.exports.backendGenerationRules67,
+      evidence = mod.exports.generationEvidence,
+      abilities = mod.exports.pokemonAbilityBinding67,
+      i18n = i18n,
+      makeCore = loadSibling(mod, "pokemon_equipment_67.lua"),
+      digest = loadSibling(mod, "legacy_bank_sha256.lua"),
+      effects = function()
+        return {supportsItem = function(game,id,epoch)
+          local recovery = mod.exports.pokemonEquipmentEffects67
+          local berries = mod.exports.pokemonModernBerries67
+          local boost = mod.exports.pokemonEquipmentTypeBoost67
+          local heldStats = mod.exports.pokemonHeldStats67
+          local typeItems = mod.exports.pokemonTypeItems67
+          local choice = mod.exports.pokemonChoiceItems67
+          local contact = mod.exports.pokemonContactAbilities67
+          local lifeOrb = mod.exports.pokemonLifeOrb67
+          local gems = mod.exports.pokemonGems67
+          local critical = mod.exports.backendCriticalRules67
+          local survival = mod.exports.pokemonLethalHitSurvival67
+          local smoke = mod.exports.pokemonSmokeBall67
+          local weather = mod.exports.pokemonWeather67
+          local grounding = mod.exports.pokemonGrounding67
+          local trapping = mod.exports.backendPartialTrapping67
+          local infatuation = mod.exports.pokemonInfatuation67
+          local screens = mod.exports.pokemonScreens67
+          local sap = mod.exports.pokemonStrengthSap67
+          local transformations = mod.exports.pokemonLateTransformations67
+          local goggles = mod.exports.pokemonSafetyGoggles67
+          return recovery and recovery.supportsItem(game,id,epoch)
+            or berries and berries.supportsItem(game,id,epoch)
+            or boost and boost.supportsItem(game,id,epoch)
+            or heldStats and heldStats.supportsItem(game,id,epoch)
+            or typeItems and typeItems.supportsItem(game,id,epoch)
+            or choice and choice.supportsItem(game,id,epoch)
+            or contact and contact.supportsItem(game,id,epoch)
+            or lifeOrb and lifeOrb.supportsItem(game,id,epoch)
+            or gems and gems.supportsItem(game,id,epoch)
+            or critical and critical.supportsItem(game,id,epoch)
+            or survival and survival.supportsItem(game,id,epoch)
+            or smoke and smoke.supportsItem(game,id,epoch)
+            or weather and weather.supportsItem(game,id,epoch)
+            or grounding and grounding.supportsItem(game,id,epoch)
+            or trapping and trapping.supportsItem(game,id,epoch)
+            or infatuation and infatuation.supportsItem(game,id,epoch)
+            or screens and screens.supportsItem(game,id,epoch)
+            or sap and sap.supportsItem(game,id,epoch)
+            or transformations and transformations.supportsItem(game,id,epoch)
+            or goggles and goggles.supportsItem(game,id,epoch) or false
+        end}
+      end,
+      supportLog = mod.exports.supportSessionLog,
+    })
+  mod.exports.pokemonAbilityEffects67 = loadSibling(mod,
+    -- Item effects use the explicit battle-aware view; storage/transfer
+    -- queries without battle context continue to read real possession.
+    "pokemon_ability_effects_67.lua")(mod, {
+      split = mod.exports.backendSplitSpecial67,
+      held = mod.exports.pokemonEquipment67.battleHeldId,
+      gender = pokemonGender,
+      rules = mod.exports.generationRules,
+      abilities = mod.exports.pokemonAbilityBinding67,
+      temporaryAbilityKey = function(b,w)
+        local transformations=mod.exports.pokemonLateTransformations67
+        return transformations and transformations.abilityKey(b,w)
+      end,
+      facts = mod.exports.backendGenerationRules67,
+      species = mod.exports.backendGiftSpecies67,
+      i18n = i18n,
+    })
+  mod.exports.backendFlinchEffects67 = loadSibling(mod, "backend_flinch_effects_67.lua")(mod, {
+    facts = mod.exports.backendGenerationRules67, species = mod.exports.backendGiftSpecies67,
+    rules = mod.exports.generationRules, supportLog = mod.exports.supportSessionLog,
+    abilities = function() return mod.exports.pokemonAbilityEffects67 end,
+  })
+  mod.exports.backendStatusRules67 = loadSibling(mod, "backend_status_rules_67.lua")(mod, {
+    facts = mod.exports.backendGenerationRules67, species = mod.exports.backendGiftSpecies67,
+    rules = mod.exports.generationRules, supportLog = mod.exports.supportSessionLog,
+    abilities = function() return mod.exports.pokemonAbilityEffects67 end,
+  })
+  mod.exports.backendSecondaryConditions67 = loadSibling(mod, "backend_secondary_conditions_67.lua")(mod, {
+    facts = mod.exports.backendGenerationRules67, species = mod.exports.backendGiftSpecies67,
+    status = mod.exports.backendStatusRules67, supportLog = mod.exports.supportSessionLog,i18n=i18n,
+    abilities = function() return mod.exports.pokemonAbilityEffects67 end,
+  })
+  mod.exports.pokemonStatusLifecycle67 = loadSibling(mod, "pokemon_status_lifecycle_67.lua")(mod, {
+    abilities = mod.exports.pokemonAbilityEffects67, status = mod.exports.backendStatusRules67,
+    sleepMoves = function() return mod.exports.pokemonSleepMoves67 end,
+    i18n = i18n, supportLog = mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonStatusLifecycle67.validateCheckpoint)
+  mod.exports.pokemonPoisonHeal67 = loadSibling(mod, "pokemon_poison_heal_67.lua")(mod, {
+    abilities = mod.exports.pokemonAbilityEffects67, status = mod.exports.backendStatusRules67,
+    i18n = i18n, supportLog = mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonPoisonHeal67.validateCheckpoint)
+  mod.exports.pokemonDrainRules67 = loadSibling(mod, "pokemon_drain_rules_67.lua")(mod, {
+    abilities = mod.exports.pokemonAbilityEffects67, status = mod.exports.backendStatusRules67,
+    facts = mod.exports.backendGenerationRules67, species = mod.exports.backendGiftSpecies67,
+    i18n = i18n, supportLog = mod.exports.supportSessionLog,
+  })
+  mod.exports.pokemonPPRules67 = loadSibling(mod, "pokemon_pp_rules_67.lua")(mod, {
+    status = mod.exports.backendStatusRules67, supportLog = mod.exports.supportSessionLog, i18n = i18n,
+  })
+  mod.exports.pokemonSynchronize67 = loadSibling(mod, "pokemon_synchronize_67.lua")(mod, {
+    abilities = mod.exports.pokemonAbilityEffects67, status = mod.exports.backendStatusRules67,
+    i18n = i18n, supportLog = mod.exports.supportSessionLog,
+  })
+  mod.exports.pokemonPressure67 = loadSibling(mod, "pokemon_pressure_67.lua")(mod, {
+    abilities = mod.exports.pokemonAbilityEffects67, pp = mod.exports.pokemonPPRules67,
+    facts = mod.exports.backendGenerationRules67, species = mod.exports.backendGiftSpecies67,
+    supportLog = mod.exports.supportSessionLog,
+  })
+  mod.exports.pokemonSleepMoves67 = loadSibling(mod, "pokemon_sleep_moves_67.lua")(mod, {
+    abilities = mod.exports.pokemonAbilityEffects67,
+    lifecycle = mod.exports.pokemonStatusLifecycle67, facts = mod.exports.backendGenerationRules67,
+    species = mod.exports.backendGiftSpecies67, i18n = i18n,
+    supportLog = mod.exports.supportSessionLog,
+    catalog = mod.exports.generationMoveCatalog67,
+  })
+  mod.exports.pokemonPriorityAbilities67 = loadSibling(mod, "pokemon_priority_abilities_67.lua")(mod, {
+    abilities = mod.exports.pokemonAbilityEffects67, status = mod.exports.backendStatusRules67,
+    facts = mod.exports.backendGenerationRules67, species = mod.exports.backendGiftSpecies67, i18n = i18n,
+    supportLog = mod.exports.supportSessionLog,
+  })
+  mod.exports.pokemonInfatuation67 = loadSibling(mod, "pokemon_infatuation_67.lua")(mod, {
+    abilities = mod.exports.pokemonAbilityEffects67, gender = pokemonGender,
+    status = mod.exports.backendStatusRules67, i18n = i18n,
+    held = mod.exports.pokemonEquipment67.battleHeldId,
+    supportLog = mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonInfatuation67.validateCheckpoint)
+  mod.exports.pokemonDisable67 = loadSibling(mod, "pokemon_disable_67.lua")(mod, {
+    abilities = mod.exports.pokemonAbilityEffects67,
+    status = mod.exports.backendStatusRules67, priority = mod.exports.pokemonPriorityAbilities67,
+    i18n = i18n, supportLog = mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonDisable67.validateCheckpoint)
+  mod.exports.pokemonContactAbilities67 = loadSibling(mod, "pokemon_contact_abilities_67.lua")(mod, {
+    held = mod.exports.pokemonEquipment67.battleHeldId,
+    disable = mod.exports.pokemonDisable67,
+    berries = function() return mod.exports.pokemonModernBerries67 end,
+    split = mod.exports.backendSplitSpecial67,
+    abilities = mod.exports.pokemonAbilityEffects67, facts = mod.exports.backendGenerationRules67,
+    species = mod.exports.backendGiftSpecies67, status = mod.exports.backendStatusRules67,
+    infatuation = mod.exports.pokemonInfatuation67,
+    i18n = i18n, supportLog = mod.exports.supportSessionLog,
+  })
+  mod.exports.pokemonHatchAbilities67 = loadSibling(mod, "pokemon_hatch_abilities_67.lua")(mod, {
+    abilities = mod.exports.pokemonAbilityBinding67, rules = mod.exports.generationRules,
+    supportLog = mod.exports.supportSessionLog,
+  })
+  mod.exports.pokemonFlashFire67 = loadSibling(mod, "pokemon_flash_fire_67.lua")(mod, {
+    abilities = mod.exports.pokemonAbilityEffects67, status = mod.exports.backendStatusRules67,
+    species = mod.exports.backendGiftSpecies67, i18n = i18n, supportLog = mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonFlashFire67.validateCheckpoint)
+  mod.exports.pokemonTypeAbsorption67 = loadSibling(mod, "pokemon_type_absorption_67.lua")(mod, {
+    abilities = mod.exports.pokemonAbilityEffects67, status = mod.exports.backendStatusRules67,
+    split = mod.exports.backendSplitSpecial67,
+    facts = mod.exports.backendGenerationRules67,
+    species = mod.exports.backendGiftSpecies67, i18n = i18n, supportLog = mod.exports.supportSessionLog,
+  })
+  mod.exports.pokemonWonderGuard67 = loadSibling(mod, "pokemon_wonder_guard_67.lua")(mod, {
+    abilities = mod.exports.pokemonAbilityEffects67, status = mod.exports.backendStatusRules67,
+    species = mod.exports.backendGiftSpecies67, i18n = i18n,
+  })
+  mod.exports.generationMoveCatalog67.setSecondaryChanceResolver(
+    mod.exports.pokemonAbilityEffects67.secondaryChance)
+  mod.exports.backendPartialTrapping67 = loadSibling(mod, "backend_partial_trapping_67.lua")(mod, {
+    abilities = mod.exports.pokemonAbilityEffects67,
+    held = mod.exports.pokemonEquipment67.battleHeldId,
+    grounding = function() return mod.exports.pokemonGrounding67 end,
+    facts = mod.exports.backendGenerationRules67, species = mod.exports.backendGiftSpecies67,
+    status = mod.exports.backendStatusRules67, critical = mod.exports.backendCriticalRules67,
+    i18n = i18n, supportLog = mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(
+    mod.exports.backendPartialTrapping67.validateCheckpoint)
+  mod.exports.pokemonWeather67 = loadSibling(mod, "pokemon_weather_67.lua")(mod, {
+    status = mod.exports.backendStatusRules67, abilities = mod.exports.pokemonAbilityEffects67,
+    lifecycle = mod.exports.pokemonStatusLifecycle67,
+    species = mod.exports.backendGiftSpecies67, catalog = mod.exports.generationMoveCatalog67,
+    held = mod.exports.pokemonEquipment67.battleHeldId, i18n = i18n,
+    supportLog = mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonWeather67.validateCheckpoint)
+  mod.exports.castformWeather67 = loadSibling(mod, 'castform_weather_67.lua')(mod, {
+    selection=loadSibling(mod,'castform_selection_67.lua'),
+    species=mod.exports.backendGiftSpecies67,
+    catalog=loadSibling(mod,'backend_national_catalog_67_data.lua'),
+    art=loadSibling(mod,'backend_national_art_67_data.lua'),
+    weather=mod.exports.pokemonWeather67,abilities=mod.exports.pokemonAbilityEffects67,
+    sprites=mod.exports.crystalAnimation,fronts=mod.exports.nonCrystalHdSprites67,
+  })
+  mod.exports.pokemonDelayedSleep67 = loadSibling(mod, "pokemon_delayed_sleep_67.lua")(mod, {
+    status = mod.exports.backendStatusRules67, abilities = mod.exports.pokemonAbilityEffects67,
+    weather = mod.exports.pokemonWeather67, catalog = mod.exports.generationMoveCatalog67,
+    i18n = i18n, supportLog = mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonDelayedSleep67.validateCheckpoint)
+  mod.exports.pokemonEquipmentEffects67 = loadSibling(mod,
+    "pokemon_held_hp_67.lua")(mod, {
+      abilities = mod.exports.pokemonAbilityEffects67,
+      rules = mod.exports.generationRules,
+      facts = mod.exports.backendGenerationRules67,
+      held = mod.exports.pokemonEquipment67.battleHeldId,
+      i18n = i18n,
+    })
+  mod.exports.pokemonModernBerries67 = loadSibling(mod,
+    "pokemon_held_berries_67.lua")(mod, {
+      split = mod.exports.backendSplitSpecial67,
+      abilities = mod.exports.pokemonAbilityEffects67,
+      rules = mod.exports.generationRules,
+      facts = mod.exports.backendGenerationRules67,
+      held = mod.exports.pokemonEquipment67.battleHeldId,
+      i18n = i18n,
+    })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonEquipmentEffects67.validateCheckpoint)
+  mod.exports.pokemonHarvest67 = loadSibling(mod, "pokemon_harvest_67.lua")(mod, {
+    abilities = mod.exports.pokemonAbilityEffects67, status = mod.exports.backendStatusRules67,
+    held = mod.exports.pokemonEquipment67.heldId, weather = mod.exports.pokemonWeather67,
+    berries = mod.exports.pokemonModernBerries67, legacy = mod.exports.pokemonEquipmentEffects67,
+    speed = function(b, w)
+      local choice = mod.exports.pokemonChoiceItems67
+      return choice and choice.speed(b, w) or mod.exports.pokemonWeather67.speed(b, w)
+    end,
+    i18n = i18n, supportLog = mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonHarvest67.validateCheckpoint)
+  mod.exports.pokemonRecycle67 = loadSibling(mod, "pokemon_recycle_67.lua")(mod, {
+    consumption = mod.exports.pokemonHarvest67,
+    catalog = mod.exports.generationMoveCatalog67,
+    i18n = i18n, supportLog = mod.exports.supportSessionLog,
+  })
+  mod.exports.pokemonLethalHitSurvival67 = loadSibling(mod,
+    "pokemon_lethal_hit_survival_67.lua")(mod, {
+      protection = function() return mod.exports.pokemonProtection67 end,
+      rules = mod.exports.generationRules, facts = mod.exports.backendGenerationRules67,
+      held = mod.exports.pokemonEquipment67.battleHeldId,
+      abilities = mod.exports.pokemonAbilityEffects67, i18n = i18n,
+    })
+  mod.exports.backendMultihit67 = loadSibling(mod, "backend_multihit_67.lua")(mod, {
+    abilities = mod.exports.pokemonAbilityEffects67,
+    facts = mod.exports.backendGenerationRules67, species = mod.exports.backendGiftSpecies67,
+    status = mod.exports.backendStatusRules67, supportLog = mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonModernBerries67.validateCheckpoint)
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonAbilityEffects67.validateCheckpoint)
+  mod.exports.pokemonWildEquipment67 = loadSibling(mod,
+    "pokemon_equipment_wild_67.lua")(mod, {
+      rules = mod.exports.generationRules,
+      facts = mod.exports.backendGenerationRules67,
+      abilities = mod.exports.pokemonAbilityBinding67,
+      held = mod.exports.pokemonEquipment67.battleHeldId,
+      digest = loadSibling(mod, "legacy_bank_sha256.lua"),
+      i18n = i18n,
+      origin = function(battle)
+        local wilds = mod.exports.internalWilds
+        local logic = wilds and wilds.exports and wilds.exports.logic
+        local pending = logic and logic.pendingBattle
+        if not pending or pending.species ~= battle.enemy.mon.species then return nil end
+        local meta = battle.game.save.meta or {}
+        local identity = meta.playthroughId or meta.saveIdentity
+        if not identity then return nil end
+        return table.concat({identity,tostring(logic.activeMapId),
+          tostring(pending.id),pending.species}, ':')
+      end,
+    })
+  mod.exports.pokemonEquipmentTypeBoost67 = loadSibling(mod,
+    "pokemon_equipment_type_boost_67.lua")(mod, {
+      rules = mod.exports.generationRules,
+      facts = mod.exports.backendGenerationRules67,
+      held = mod.exports.pokemonEquipment67.battleHeldId,
+      damage = loadSibling(mod, "pokemon_damage_math_67.lua"),
+    })
+  mod.exports.pokemonHeldStats67 = loadSibling(mod, "pokemon_held_stats_67.lua")(mod, {
+    i18n = i18n,
+    rules = mod.exports.generationRules, species = mod.exports.backendGiftSpecies67,
+    catalog = mod.exports.backendNationalCatalog67, held = mod.exports.pokemonEquipment67.battleHeldId,
+    identity = mod.exports.pokemonBattleIdentity67,
+  })
+  mod.exports.pokemonChoiceItems67 = loadSibling(mod, "pokemon_choice_items_67.lua")(mod, {
+    status = mod.exports.backendStatusRules67, weather = mod.exports.pokemonWeather67,
+    held = mod.exports.pokemonEquipment67.battleHeldId, facts = mod.exports.backendGenerationRules67,
+    i18n = i18n, supportLog = mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonChoiceItems67.validateCheckpoint)
+  mod.exports.pokemonItemTransfer67 = loadSibling(mod, "pokemon_item_transfer_67.lua")(mod, {
+    abilities = mod.exports.pokemonAbilityEffects67, status = mod.exports.backendStatusRules67,
+    held = mod.exports.pokemonEquipment67.battleHeldId, contact = mod.exports.pokemonContactAbilities67,
+    choice = function() return mod.exports.pokemonChoiceItems67 end,
+    species = mod.exports.backendGiftSpecies67, catalog = mod.exports.backendNationalCatalog67,
+    priority = mod.exports.pokemonPriorityAbilities67, moves = mod.exports.generationMoveCatalog67,
+    consumption = mod.exports.pokemonHarvest67,
+    i18n = i18n, supportLog = mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonItemTransfer67.validateCheckpoint)
+  mod.exports.pokemonLifeOrb67 = loadSibling(mod, "pokemon_life_orb_67.lua")(mod, {
+    survival=mod.exports.pokemonLethalHitSurvival67,
+    abilities=mod.exports.pokemonAbilityEffects67, status=mod.exports.backendStatusRules67,
+    held=mod.exports.pokemonEquipment67.battleHeldId, facts=mod.exports.backendGenerationRules67,
+    contact=mod.exports.pokemonContactAbilities67, i18n=i18n, supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.pokemonGems67 = loadSibling(mod, "pokemon_gems_67.lua")(mod, {
+    survival=mod.exports.pokemonLethalHitSurvival67,
+    abilities=mod.exports.pokemonAbilityEffects67, status=mod.exports.backendStatusRules67,
+    held=mod.exports.pokemonEquipment67.battleHeldId, weather=mod.exports.pokemonWeather67,
+    i18n=i18n, supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.pokemonMoveRestrictions67 = loadSibling(mod, "pokemon_move_restrictions_67.lua")(mod, {
+    split = mod.exports.backendSplitSpecial67,
+    status = mod.exports.backendStatusRules67, abilities = mod.exports.pokemonAbilityEffects67,
+    infatuation = mod.exports.pokemonInfatuation67, choice = mod.exports.pokemonChoiceItems67,
+    priority = mod.exports.pokemonPriorityAbilities67, catalog = mod.exports.generationMoveCatalog67,
+    grounding = function() return mod.exports.pokemonGrounding67 end,
+    i18n = i18n, supportLog = mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonMoveRestrictions67.validateCheckpoint)
+  mod.exports.backendVariablePower67 = loadSibling(mod, "backend_variable_power_67.lua")(mod, {
+    held=mod.exports.pokemonEquipment67.battleHeldId, gems=function()return mod.exports.pokemonGems67 end,
+    conversion=function()return mod.exports.pokemonMoveConversion67 end,
+    status = mod.exports.backendStatusRules67, abilities = mod.exports.pokemonAbilityEffects67,
+    choice = mod.exports.pokemonChoiceItems67, binding = mod.exports.pokemonAbilityBinding67,
+    identity = mod.exports.pokemonBattleIdentity67, catalog = mod.exports.backendNationalCatalog67,
+    species = mod.exports.backendGiftSpecies67, supportLog = mod.exports.supportSessionLog,
+  })
+  mod.exports.pokemonGrounding67 = loadSibling(mod, "pokemon_grounding_67.lua")(mod, {
+    held = mod.exports.pokemonEquipment67.battleHeldId,
+    abilities = mod.exports.pokemonAbilityEffects67, status = mod.exports.backendStatusRules67,
+    facts = mod.exports.backendGenerationRules67, species = mod.exports.backendGiftSpecies67,
+    binding = mod.exports.pokemonAbilityBinding67, catalog = mod.exports.backendNationalCatalog67,
+    moves = mod.exports.generationMoveCatalog67, priority = mod.exports.pokemonPriorityAbilities67,
+    i18n = i18n, supportLog = mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonGrounding67.validateCheckpoint)
+  mod.exports.pokemonMoveConversion67 = loadSibling(mod, "pokemon_move_conversion_67.lua")(mod, {
+    i18n = i18n,
+    status = mod.exports.backendStatusRules67, abilities = mod.exports.pokemonAbilityEffects67,
+    facts = mod.exports.backendGenerationRules67, species = mod.exports.backendGiftSpecies67,
+  })
+  mod.exports.pokemonHealingMoves67 = loadSibling(mod, "pokemon_healing_moves_67.lua")(mod, {
+    status = mod.exports.backendStatusRules67, abilities = mod.exports.pokemonAbilityEffects67,
+    facts = mod.exports.backendGenerationRules67, species = mod.exports.backendGiftSpecies67,
+    priority = mod.exports.pokemonPriorityAbilities67, weather = mod.exports.pokemonWeather67,
+    lifecycle = mod.exports.pokemonStatusLifecycle67, i18n = i18n,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonHealingMoves67.validateCheckpoint)
+  mod.exports.pokemonHealBlock67=loadSibling(mod,"pokemon_heal_block_67.lua")(mod,{
+    facts=mod.exports.backendGenerationRules67,species=mod.exports.backendGiftSpecies67,
+    catalog=mod.exports.generationMoveCatalog67,i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonHealBlock67.validateCheckpoint)
+  mod.exports.pokemonRootRecovery67=loadSibling(mod,"pokemon_root_recovery_67.lua")(mod,{
+    facts=mod.exports.backendGenerationRules67,catalog=mod.exports.generationMoveCatalog67,
+    ringComposer=loadSibling(mod,"root_recovery_ring_67.lua"),
+    i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonRootRecovery67.validateCheckpoint)
+  mod.exports.generationCheckpoint67.addContinuation(mod.exports.pokemonRootRecovery67.bindPresentation)
+  mod.exports.pokemonTerrain67 = loadSibling(mod, "pokemon_terrain_67.lua")(mod, {
+    status = mod.exports.backendStatusRules67, abilities = mod.exports.pokemonAbilityEffects67,
+    facts = mod.exports.backendGenerationRules67, weather = mod.exports.pokemonWeather67,
+    grounding = mod.exports.pokemonGrounding67, moves = mod.exports.generationMoveCatalog67, i18n = i18n,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonTerrain67.validateCheckpoint)
+  mod.exports.pokemonProtection67 = loadSibling(mod, "pokemon_protection_67.lua")(mod, {
+    status=mod.exports.backendStatusRules67, abilities=mod.exports.pokemonAbilityEffects67,
+    facts=mod.exports.backendGenerationRules67, species=mod.exports.backendGiftSpecies67,
+    contact=mod.exports.pokemonContactAbilities67, split=mod.exports.backendSplitSpecial67,
+    moves=mod.exports.generationMoveCatalog67, i18n=i18n, supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonProtection67.validateCheckpoint)
+  mod.exports.pokemonImposter67 = loadSibling(mod,"pokemon_imposter_67.lua")(mod,{
+    abilities=mod.exports.pokemonAbilityEffects67, identity=mod.exports.pokemonBattleIdentity67,
+    status=mod.exports.backendStatusRules67, i18n=i18n, supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonImposter67.validateCheckpoint)
+  mod.exports.pokemonForcedSwitch67=loadSibling(mod,'pokemon_forced_switch_67.lua')(mod,{
+    abilities=mod.exports.pokemonAbilityEffects67,status=mod.exports.backendStatusRules67,
+    facts=mod.exports.backendGenerationRules67,species=mod.exports.backendGiftSpecies67,
+    priority=mod.exports.pokemonPriorityAbilities67,protection=mod.exports.pokemonProtection67,
+    berries=mod.exports.pokemonModernBerries67,i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonForcedSwitch67.validateCheckpoint)
+  mod.exports.pokemonEmergencyExit67=loadSibling(mod,'pokemon_emergency_exit_67.lua')(mod,{
+    abilities=mod.exports.pokemonAbilityEffects67,switching=mod.exports.pokemonForcedSwitch67,
+    berries=mod.exports.pokemonModernBerries67,i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonEmergencyExit67.validateCheckpoint)
+  mod.exports.pokemonComatose67=loadSibling(mod,'pokemon_comatose_67.lua')(mod,{
+    abilities=mod.exports.pokemonAbilityEffects67,status=mod.exports.backendStatusRules67,
+    species=mod.exports.backendGiftSpecies67,lifecycle=mod.exports.pokemonStatusLifecycle67,
+    catalog=mod.exports.generationMoveCatalog67,i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonComatose67.validateCheckpoint)
+  mod.exports.pokemonSmokeBall67 = loadSibling(mod, "pokemon_smoke_ball_67.lua")(mod, {
+    facts = mod.exports.backendGenerationRules67, rules = mod.exports.generationRules,
+    held = mod.exports.pokemonEquipment67.battleHeldId, i18n = i18n,
+    trapping = function() return mod.exports.backendPartialTrapping67 end,
+  })
+  mod.exports.pokemonHeldEffect67=loadSibling(mod,'pokemon_held_effect_67.lua')(mod,{
+    held=mod.exports.pokemonEquipment67.heldId,
+    abilities=mod.exports.pokemonAbilityEffects67,
+    status=mod.exports.backendStatusRules67,species=mod.exports.backendGiftSpecies67,
+    i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.pokemonMagicBounce67=loadSibling(mod,'pokemon_magic_bounce_67.lua')(mod,{
+    abilities=mod.exports.pokemonAbilityEffects67,status=mod.exports.backendStatusRules67,
+    facts=mod.exports.backendGenerationRules67,species=mod.exports.backendGiftSpecies67,
+    conversion=mod.exports.pokemonMoveConversion67,
+    protection=mod.exports.pokemonProtection67,i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonMagicBounce67.validateCheckpoint)
+  mod.exports.pokemonDancer67=loadSibling(mod,'pokemon_dancer_67.lua')(mod,{
+    abilities=mod.exports.pokemonAbilityEffects67,status=mod.exports.backendStatusRules67,
+    facts=mod.exports.backendGenerationRules67,species=mod.exports.backendGiftSpecies67,
+    i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonDancer67.validateCheckpoint)
+  mod.exports.pokemonHPForms67=loadSibling(mod,'pokemon_hp_forms_67.lua')(mod,{
+    abilities=mod.exports.pokemonAbilityEffects67,status=mod.exports.backendStatusRules67,
+    facts=mod.exports.backendGenerationRules67,species=mod.exports.backendGiftSpecies67,
+    catalog=mod.exports.backendNationalCatalog67,identity=mod.exports.pokemonBattleIdentity67,
+    art=mod.exports.spriteRepair67.backend(loadSibling(mod,'backend_national_art_67_data.lua')),
+    sprites=mod.exports.crystalAnimation,fronts=mod.exports.nonCrystalHdSprites67,
+    i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonHPForms67.validateCheckpoint)
+  mod.exports.generationCheckpoint67.addContinuation(mod.exports.pokemonHPForms67.resume)
+  mod.exports.pokemonBondForms67=loadSibling(mod,'pokemon_bond_forms_67.lua')(mod,{
+    forms=mod.exports.pokemonHPForms67,identity=mod.exports.pokemonBattleIdentity67,
+    species=mod.exports.backendGiftSpecies67,catalog=mod.exports.backendNationalCatalog67,
+    facts=mod.exports.backendGenerationRules67,abilities=mod.exports.pokemonAbilityEffects67,
+    status=mod.exports.backendStatusRules67,i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonBondForms67.validateCheckpoint)
+  mod.exports.pokemonLateTransformations67=loadSibling(mod,'pokemon_late_transformations_67.lua')(mod,{
+    forms=mod.exports.pokemonHPForms67,identity=mod.exports.pokemonBattleIdentity67,
+    species=mod.exports.backendGiftSpecies67,catalog=mod.exports.backendNationalCatalog67,
+    facts=mod.exports.backendGenerationRules67,status=mod.exports.backendStatusRules67,
+    held=mod.exports.pokemonEquipment67.heldId,i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonLateTransformations67.validateCheckpoint)
+  mod.exports.pokemonLateAbilityPower67=loadSibling(mod,'pokemon_late_ability_power_67.lua')(mod,{
+    status=mod.exports.backendStatusRules67,abilities=mod.exports.pokemonAbilityEffects67,
+    terrain=mod.exports.pokemonTerrain67,damage=loadSibling(mod,'pokemon_damage_math_67.lua'),
+    supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.pokemonPrimalWeather67=loadSibling(mod,'pokemon_primal_weather_67.lua')(mod,{
+    weather=mod.exports.pokemonWeather67,abilities=mod.exports.pokemonAbilityEffects67,
+    i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonPrimalWeather67.validateCheckpoint)
+  mod.exports.pokemonStanceChange67=loadSibling(mod,'pokemon_stance_change_67.lua')(mod,{
+    forms=mod.exports.pokemonHPForms67,identity=mod.exports.pokemonBattleIdentity67,
+    species=mod.exports.backendGiftSpecies67,abilities=mod.exports.pokemonAbilityEffects67,
+    status=mod.exports.backendStatusRules67,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonStanceChange67.validateCheckpoint)
+  mod.exports.pokemonDisguise67=loadSibling(mod,'pokemon_disguise_67.lua')(mod,{
+    forms=mod.exports.pokemonHPForms67,identity=mod.exports.pokemonBattleIdentity67,
+    species=mod.exports.backendGiftSpecies67,abilities=mod.exports.pokemonAbilityEffects67,
+    status=mod.exports.backendStatusRules67,i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonDisguise67.validateCheckpoint)
+  mod.exports.pokemonFlowerGift67=loadSibling(mod,'pokemon_flower_gift_67.lua')(mod,{
+    forms=mod.exports.pokemonHPForms67,identity=mod.exports.pokemonBattleIdentity67,
+    species=mod.exports.backendGiftSpecies67,abilities=mod.exports.pokemonAbilityEffects67,
+    weather=mod.exports.pokemonWeather67,status=mod.exports.backendStatusRules67,
+    supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.pokemonPlusMinus67=loadSibling(mod,'pokemon_plus_minus_67.lua')(mod,{
+    abilities=mod.exports.pokemonAbilityEffects67,status=mod.exports.backendStatusRules67,
+    supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.pokemonAllyDamage67=loadSibling(mod,'pokemon_ally_damage_67.lua')(mod,{
+    abilities=mod.exports.pokemonAbilityEffects67,status=mod.exports.backendStatusRules67,
+    active=mod.exports.pokemonPlusMinus67.active,i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.pokemonHealer67=loadSibling(mod,'pokemon_healer_67.lua')(mod,{
+    abilities=mod.exports.pokemonAbilityEffects67,status=mod.exports.backendStatusRules67,
+    active=mod.exports.pokemonPlusMinus67.active,weather=mod.exports.pokemonWeather67,
+    lifecycle=mod.exports.pokemonStatusLifecycle67,
+    speed=function(b,w)
+      local choice=mod.exports.pokemonChoiceItems67
+      return choice and choice.speed(b,w)or mod.exports.pokemonWeather67.speed(b,w)
+    end,
+    i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonHealer67.validateCheckpoint)
+  mod.exports.pokemonReceiver67=loadSibling(mod,'pokemon_receiver_67.lua')(mod,{
+    abilities=mod.exports.pokemonAbilityEffects67,status=mod.exports.backendStatusRules67,
+    i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.pokemonSymbiosis67=loadSibling(mod,'pokemon_symbiosis_67.lua')(mod,{
+    abilities=mod.exports.pokemonAbilityEffects67,status=mod.exports.backendStatusRules67,
+    consumption=mod.exports.pokemonHarvest67,transfer=mod.exports.pokemonItemTransfer67,
+    active=mod.exports.pokemonPlusMinus67.active,held=mod.exports.pokemonEquipment67.heldId,
+    pending=function(w)return mod.exports.pokemonForcedSwitch67.isPending(w)
+      or mod.exports.pokemonEmergencyExit67.isPending(w)end,
+    speed=function(b,w)return mod.exports.pokemonChoiceItems67.speed(b,w)end,
+    i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.pokemonHoneyGather67=loadSibling(mod,'pokemon_honey_gather_67.lua')(mod,{
+    binding=mod.exports.pokemonAbilityBinding67,status=mod.exports.backendStatusRules67,
+    held=mod.exports.pokemonEquipment67.heldId,i18n=i18n,
+    supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.pokemonPickup67=loadSibling(mod,'pokemon_pickup_67.lua')(mod,{
+    tables=loadSibling(mod,'pokemon_pickup_tables_67.lua'),facts=mod.exports.backendGenerationRules67,
+    binding=mod.exports.pokemonAbilityBinding67,abilities=mod.exports.pokemonAbilityEffects67,
+    status=mod.exports.backendStatusRules67,consumption=mod.exports.pokemonHarvest67,
+    transfer=mod.exports.pokemonItemTransfer67,held=mod.exports.pokemonEquipment67.heldId,
+    choice=function()return mod.exports.pokemonChoiceItems67 end,
+    i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonPickup67.validateCheckpoint)
+  mod.exports.pokemonIlluminate67=loadSibling(mod,'pokemon_illuminate_67.lua')(mod,{
+    rules=mod.exports.generationRules,binding=mod.exports.pokemonAbilityBinding67,
+    supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.pokemonHistoricalField67=loadSibling(mod,'pokemon_historical_field_67.lua')(mod,{
+    illuminate=mod.exports.pokemonIlluminate67,rules=mod.exports.generationRules,
+    binding=mod.exports.pokemonAbilityBinding67,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.pokemonIllusion67=loadSibling(mod,'pokemon_illusion_67.lua')(mod,{
+    abilities=mod.exports.pokemonAbilityEffects67,identity=mod.exports.pokemonBattleIdentity67,
+    status=mod.exports.backendStatusRules67,rules=mod.exports.generationRules,
+    renderer=mod.exports.voxelRendererCompat,
+    i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonIllusion67.validateCheckpoint)
+  mod.exports.generationCheckpoint67.addContinuation(mod.exports.pokemonIllusion67.resume)
+  mod.exports.pokemonTypeItems67=loadSibling(mod,'pokemon_type_items_67.lua')(mod,{
+    forms=mod.exports.pokemonHPForms67,identity=mod.exports.pokemonBattleIdentity67,
+    binding=mod.exports.pokemonAbilityBinding67,
+    healing=mod.exports.pokemonHealingMoves67,
+    species=mod.exports.backendGiftSpecies67,abilities=mod.exports.pokemonAbilityEffects67,
+    status=mod.exports.backendStatusRules67,rules=mod.exports.generationRules,
+    held=mod.exports.pokemonEquipment67.heldId,effectiveHeld=mod.exports.pokemonEquipment67.battleHeldId,
+    art=loadSibling(mod,'pokemon_type_item_art_67_data.lua'),
+    i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonTypeItems67.validateCheckpoint)
+  mod.exports.generationCheckpoint67.addContinuation(mod.exports.pokemonTypeItems67.sync)
+  mod.exports.pokemonSummaryStats67=loadSibling(mod,'pokemon_summary_stats_67.lua')(mod,{
+    split=mod.exports.backendSplitSpecial67,i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
   local ascendantData = loadSibling(mod, "ascendant_data.lua")
   local makeAscendant = loadSibling(mod, "ascendant.lua")
   local ascendant
@@ -1883,9 +3905,390 @@ return function(mod)
     postgame = postgame,
     i18n = i18n,
     placement = mod.exports.runtimeNpcPlacement,
+    generationEpoch = function(game)
+      local profile=mod.exports.generationRules.resolve(game)
+      return profile and profile.activeEpoch or 1
+    end,
+    prepareGiftEgg = function(game,mon,profile,receipt)
+      local binding=mod.exports.pokemonAbilityBinding67
+      if not binding or not receipt then return false,'egg_binding_unavailable' end
+      local epoch=mon.eventDistribution.learnsetGeneration or profile.originGeneration
+      mon._kascAbility67=binding.reserveEgg(game,mon.species,nil,false,
+        epoch,receipt.digest)
+      return type(mon._kascAbility67)=='table','egg_binding_unavailable'
+    end,
+    prepareGiftGender = function(game,mon,receipt)
+      return pokemonGender.bindGift(game,mon,receipt)
+    end,
   })
+  mod.exports.pokemonInstruct67=loadSibling(mod,"pokemon_instruct_67.lua")(mod,{
+    facts=mod.exports.backendGenerationRules67,species=mod.exports.backendGiftSpecies67,
+    i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonInstruct67.validateCheckpoint)
+  mod.exports.pokemonMirrorCoat67=loadSibling(mod,"pokemon_mirror_coat_67.lua")(mod,{
+    facts=mod.exports.backendGenerationRules67,i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonMirrorCoat67.validateCheckpoint)
+  mod.exports.pokemonPsychUp67=loadSibling(mod,"pokemon_psych_up_67.lua")(mod,{
+    facts=mod.exports.backendGenerationRules67,moves=mod.exports.generationMoveCatalog67,
+    i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.pokemonBatonPass67=loadSibling(mod,"pokemon_baton_pass_67.lua")(mod,{
+    facts=mod.exports.backendGenerationRules67,species=mod.exports.backendGiftSpecies67,
+    catalog=mod.exports.generationMoveCatalog67,i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonBatonPass67.validateCheckpoint)
+  mod.exports.pokemonPpHpPower67=loadSibling(mod,'pokemon_pp_hp_power_67.lua')(mod,{
+    rules=mod.exports.generationRules,facts=mod.exports.backendGenerationRules67,
+    pp=mod.exports.pokemonPPRules67,pressure=mod.exports.pokemonPressure67,
+    abilities=mod.exports.pokemonAbilityEffects67,i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonPpHpPower67.validateCheckpoint)
+  mod.exports.pokemonFriendshipPower67=loadSibling(mod,'pokemon_friendship_power_67.lua')(mod,{
+    rules=mod.exports.generationRules,facts=mod.exports.backendGenerationRules67,
+    i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.pokemonParentalBond67=loadSibling(mod,'pokemon_parental_bond_67.lua')(mod,{
+    facts=mod.exports.backendGenerationRules67,species=mod.exports.backendGiftSpecies67,
+    status=mod.exports.backendStatusRules67,abilities=mod.exports.pokemonAbilityEffects67,
+    berries=mod.exports.pokemonModernBerries67,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonParentalBond67.validateCheckpoint)
+  mod.exports.pokemonBodyCounter67=loadSibling(mod,'pokemon_body_counter_67.lua')(mod,{
+    rules=mod.exports.generationRules,facts=mod.exports.backendGenerationRules67,
+    i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonBodyCounter67.validateCheckpoint)
+  mod.exports.pokemonStockpile67=loadSibling(mod,'pokemon_stockpile_67.lua')(mod,{
+    rules=mod.exports.generationRules,facts=mod.exports.backendGenerationRules67,
+    species=mod.exports.backendGiftSpecies67,catalog=mod.exports.generationMoveCatalog67,
+    damage=loadSibling(mod,'pokemon_damage_math_67.lua'),
+    i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonStockpile67.validateCheckpoint)
+  mod.exports.pokemonFutureStrikes67=loadSibling(mod,'pokemon_future_strikes_67.lua')(mod,{
+    abilities=mod.exports.pokemonAbilityEffects67,weather=mod.exports.pokemonWeather67,
+    status=mod.exports.backendStatusRules67,rules=mod.exports.generationRules,
+    facts=mod.exports.backendGenerationRules67,species=mod.exports.backendGiftSpecies67,
+    split=mod.exports.backendSplitSpecial67,contact=mod.exports.pokemonContactAbilities67,
+    i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonFutureStrikes67.validateCheckpoint)
+  mod.exports.pokemonRandomStrength67=loadSibling(mod,'pokemon_random_strength_67.lua')(mod,{
+    rules=mod.exports.generationRules,facts=mod.exports.backendGenerationRules67,
+    species=mod.exports.backendGiftSpecies67,damage=loadSibling(mod,'pokemon_damage_math_67.lua'),
+    i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonRandomStrength67.validateCheckpoint)
+  mod.exports.pokemonHeldProjectiles67=loadSibling(mod,'pokemon_held_projectiles_67.lua')(mod,{
+    data=loadSibling(mod,'pokemon_held_projectiles_67_data.lua'),
+    rules=mod.exports.generationRules,facts=mod.exports.backendGenerationRules67,
+    abilities=mod.exports.pokemonAbilityEffects67,split=mod.exports.backendSplitSpecial67,
+    held=mod.exports.pokemonEquipment67.heldId,heldEffect=mod.exports.pokemonHeldEffect67,
+    transfer=mod.exports.pokemonItemTransfer67,i18n=i18n,supportLog=supportLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonHeldProjectiles67.validateCheckpoint)
+  mod.exports.pokemonPartyMultihit67=loadSibling(mod,'pokemon_party_multihit_67.lua')(mod,{
+    rules=mod.exports.generationRules,facts=mod.exports.backendGenerationRules67,
+    species=mod.exports.backendGiftSpecies67,identity=mod.exports.pokemonBattleIdentity67,
+    abilities=mod.exports.pokemonAbilityEffects67,berries=mod.exports.pokemonModernBerries67,
+    i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonPartyMultihit67.validateCheckpoint)
+  mod.exports.pokemonConditionalPower67=loadSibling(mod,'pokemon_conditional_power_67.lua')(mod,{
+    rules=mod.exports.generationRules,facts=mod.exports.backendGenerationRules67,
+    species=mod.exports.backendGiftSpecies67,damage=loadSibling(mod,'pokemon_damage_math_67.lua'),
+    i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonConditionalPower67.validateCheckpoint)
+  mod.exports.pokemonMoveLock67=loadSibling(mod,'pokemon_move_lock_67.lua')(mod,{
+    rules=mod.exports.generationRules,facts=mod.exports.backendGenerationRules67,
+    abilities=mod.exports.pokemonAbilityEffects67,moves=mod.exports.generationMoveCatalog67,
+    i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonMoveLock67.validateCheckpoint)
+  mod.exports.pokemonStatExchange67=loadSibling(mod,'pokemon_stat_exchange_67.lua')(mod,{
+    rules=mod.exports.generationRules,facts=mod.exports.backendGenerationRules67,
+    abilities=mod.exports.pokemonAbilityEffects67,moves=mod.exports.generationMoveCatalog67,
+    i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonStatExchange67.validateCheckpoint)
+  mod.exports.pokemonRollingCombo67=loadSibling(mod,'pokemon_rolling_combo_67.lua')(mod,{
+    rules=mod.exports.generationRules,facts=mod.exports.backendGenerationRules67,
+    species=mod.exports.backendGiftSpecies67,abilities=mod.exports.pokemonAbilityEffects67,
+    i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonRollingCombo67.validateCheckpoint)
+  mod.exports.pokemonAbilityControl67=loadSibling(mod,'pokemon_ability_control_67.lua')(mod,{
+    rules=mod.exports.generationRules,facts=mod.exports.backendGenerationRules67,
+    species=mod.exports.backendGiftSpecies67,abilities=mod.exports.pokemonAbilityEffects67,
+    catalog=mod.exports.generationMoveCatalog67,i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonAbilityControl67.validateCheckpoint)
+  mod.exports.pokemonPowerTrick67=loadSibling(mod,'pokemon_power_trick_67.lua')(mod,{
+    rules=mod.exports.generationRules,facts=mod.exports.backendGenerationRules67,
+    species=mod.exports.backendGiftSpecies67,identity=mod.exports.pokemonBattleIdentity67,
+    catalog=mod.exports.generationMoveCatalog67,i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonPowerTrick67.validateCheckpoint)
+  mod.exports.pokemonEntryHazards67=loadSibling(mod,'pokemon_entry_hazards_67.lua')(mod,{
+    rules=mod.exports.generationRules,facts=mod.exports.backendGenerationRules67,
+    abilities=mod.exports.pokemonAbilityEffects67,split=mod.exports.backendSplitSpecial67,
+    moves=mod.exports.generationMoveCatalog67,i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonEntryHazards67.validateCheckpoint)
+  mod.exports.pokemonHpExchange67=loadSibling(mod,'pokemon_hp_exchange_67.lua')(mod,{
+    rules=mod.exports.generationRules,facts=mod.exports.backendGenerationRules67,
+    abilities=mod.exports.pokemonAbilityEffects67,catalog=mod.exports.generationMoveCatalog67,
+    i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonHpExchange67.validateCheckpoint)
+  mod.exports.pokemonTeamRecovery67=loadSibling(mod,'pokemon_team_recovery_67.lua')(mod,{
+    abilities=mod.exports.pokemonAbilityEffects67,binding=mod.exports.pokemonAbilityBinding67,
+    rules=mod.exports.generationRules,facts=mod.exports.backendGenerationRules67,
+    species=mod.exports.backendGiftSpecies67,catalog=mod.exports.generationMoveCatalog67,
+    i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonTeamRecovery67.validateCheckpoint)
+  mod.exports.generationCheckpoint67.addContinuation(function(b)
+    mod.exports.pokemonTeamRecovery67.switched({battle=b,battler=b.player})
+    mod.exports.pokemonTeamRecovery67.switched({battle=b,battler=b.enemy})
+  end)
+  mod.exports.pokemonBattleRooms67=loadSibling(mod,'pokemon_battle_rooms_67.lua')(mod,{
+    rules=mod.exports.generationRules,facts=mod.exports.backendGenerationRules67,
+    catalog=mod.exports.generationMoveCatalog67,weather=mod.exports.pokemonWeather67,
+    held=mod.exports.pokemonEquipment67.heldId,heldEffect=mod.exports.pokemonHeldEffect67,
+    i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonBattleRooms67.validateCheckpoint)
+  mod.exports.pokemonGrudge67=loadSibling(mod,'pokemon_grudge_67.lua')(mod,{
+    rules=mod.exports.generationRules,facts=mod.exports.backendGenerationRules67,
+    moves=mod.exports.generationMoveCatalog67,i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonGrudge67.validateCheckpoint)
+  mod.exports.pokemonDeferredHealing67=loadSibling(mod,'pokemon_deferred_healing_67.lua')(mod,{
+    rules=mod.exports.generationRules,facts=mod.exports.backendGenerationRules67,
+    species=mod.exports.backendGiftSpecies67,catalog=mod.exports.generationMoveCatalog67,
+    lifecycle=mod.exports.pokemonStatusLifecycle67,i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonDeferredHealing67.validateCheckpoint)
+  mod.exports.pokemonFatalConditions67=loadSibling(mod,'pokemon_fatal_conditions_67.lua')(mod,{
+    rules=mod.exports.generationRules,facts=mod.exports.backendGenerationRules67,
+    abilities=mod.exports.pokemonAbilityEffects67,species=mod.exports.backendGiftSpecies67,
+    catalog=mod.exports.generationMoveCatalog67,i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonFatalConditions67.validateCheckpoint)
+  mod.exports.pokemonHiddenPower67=loadSibling(mod,'pokemon_hidden_power_67.lua')(mod,{
+    rules=mod.exports.generationRules,facts=mod.exports.backendGenerationRules67,
+    genetics=daycare.breedingIVs,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonHiddenPower67.validateCheckpoint)
+  mod.exports.pokemonCalledMoves67=loadSibling(mod,'pokemon_called_moves_67.lua')(mod,{
+    rules=mod.exports.generationRules,facts=mod.exports.backendGenerationRules67,
+    species=mod.exports.backendGiftSpecies67,moves=mod.exports.generationMoveCatalog67,
+    damage=loadSibling(mod,'pokemon_damage_math_67.lua'),i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonCalledMoves67.validateCheckpoint)
+  mod.exports.generationCheckpoint67.addContinuation(mod.exports.pokemonCalledMoves67.resume)
+  mod.exports.pokemonTargetMemory67=loadSibling(mod,'pokemon_target_memory_67.lua')(mod,{
+    rules=mod.exports.generationRules,facts=mod.exports.backendGenerationRules67,
+    species=mod.exports.backendGiftSpecies67,catalog=mod.exports.generationMoveCatalog67,
+    abilities=mod.exports.pokemonAbilityEffects67,priority=mod.exports.pokemonPriorityAbilities67,
+    protection=mod.exports.pokemonProtection67,i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonTargetMemory67.validateCheckpoint)
+  mod.exports.pokemonSketch67=loadSibling(mod,'pokemon_sketch_67.lua')(mod,{
+    rules=mod.exports.generationRules,facts=mod.exports.backendGenerationRules67,
+    species=mod.exports.backendGiftSpecies67,catalog=mod.exports.generationMoveCatalog67,
+    abilities=mod.exports.pokemonAbilityEffects67,i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonSketch67.validateCheckpoint)
+  mod.exports.pokemonMoveRedirection67=loadSibling(mod,'pokemon_move_redirection_67.lua')(mod,{
+    rules=mod.exports.generationRules,facts=mod.exports.backendGenerationRules67,
+    species=mod.exports.backendGiftSpecies67,moves=mod.exports.generationMoveCatalog67,
+    abilities=mod.exports.pokemonAbilityEffects67,i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonMoveRedirection67.validateCheckpoint)
+  mod.exports.pokemonSpecialEffectiveness67=loadSibling(mod,'pokemon_special_effectiveness_67.lua')(mod,{
+    rules=mod.exports.generationRules,facts=mod.exports.backendGenerationRules67,
+    species=mod.exports.backendGiftSpecies67,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonSpecialEffectiveness67.validateCheckpoint)
+  mod.exports.pokemonConditionalUse67=loadSibling(mod,'pokemon_conditional_use_67.lua')(mod,{
+    rules=mod.exports.generationRules,facts=mod.exports.backendGenerationRules67,
+    species=mod.exports.backendGiftSpecies67,abilities=mod.exports.pokemonAbilityEffects67,
+    held=mod.exports.pokemonEquipment67.heldId,i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonConditionalUse67.validateCheckpoint)
+  mod.exports.generationCheckpoint67.addContinuation(mod.exports.pokemonConditionalUse67.resume)
+  mod.exports.pokemonStatusStrikes67=loadSibling(mod,'pokemon_status_strikes_67.lua')(mod,{
+    rules=mod.exports.generationRules,facts=mod.exports.backendGenerationRules67,
+    i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonStatusStrikes67.validateCheckpoint)
+  mod.exports.pokemonTypeChanges67=loadSibling(mod,'pokemon_type_changes_67.lua')(mod,{
+    rules=mod.exports.generationRules,facts=mod.exports.backendGenerationRules67,
+    species=mod.exports.backendGiftSpecies67,catalog=mod.exports.generationMoveCatalog67,
+    abilities=mod.exports.pokemonAbilityEffects67,priority=mod.exports.pokemonPriorityAbilities67,
+    protection=mod.exports.pokemonProtection67,i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonTypeChanges67.validateCheckpoint)
+  mod.exports.pokemonSecretPower67=loadSibling(mod,'pokemon_secret_power_67.lua')(mod,{
+    rules=mod.exports.generationRules,facts=mod.exports.backendGenerationRules67,
+    species=mod.exports.backendGiftSpecies67,abilities=mod.exports.pokemonAbilityEffects67,
+    split=mod.exports.backendSplitSpecial67,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonSecretPower67.validateCheckpoint)
+  mod.exports.generationCheckpoint67.addContinuation(mod.exports.pokemonSecretPower67.resume)
+  mod.exports.pokemonIdentification67=loadSibling(mod,'pokemon_identification_67.lua')(mod,{
+    rules=mod.exports.generationRules,facts=mod.exports.backendGenerationRules67,
+    species=mod.exports.backendGiftSpecies67,moves=mod.exports.generationMoveCatalog67,
+    i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonIdentification67.validateCheckpoint)
+  mod.exports.pokemonBodyUtilities67=loadSibling(mod,'pokemon_body_utilities_67.lua')(mod,{
+    rules=mod.exports.generationRules,facts=mod.exports.backendGenerationRules67,
+    species=mod.exports.backendGiftSpecies67,catalog=mod.exports.generationMoveCatalog67,
+    abilities=mod.exports.pokemonAbilityEffects67,variable=mod.exports.backendVariablePower67,
+    damage=loadSibling(mod,'pokemon_damage_math_67.lua'),i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonBodyUtilities67.validateCheckpoint)
+  mod.exports.pokemonSports67=loadSibling(mod,'pokemon_sports_67.lua')(mod,{
+    rules=mod.exports.generationRules,facts=mod.exports.backendGenerationRules67,
+    species=mod.exports.backendGiftSpecies67,catalog=mod.exports.generationMoveCatalog67,
+    damage=loadSibling(mod,'pokemon_damage_math_67.lua'),i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonSports67.validateCheckpoint)
+  mod.exports.pokemonSideGuards67=loadSibling(mod,'pokemon_side_guards_67.lua')(mod,{
+    rules=mod.exports.generationRules,facts=mod.exports.backendGenerationRules67,
+    species=mod.exports.backendGiftSpecies67,moves=mod.exports.generationMoveCatalog67,
+    i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonSideGuards67.validateCheckpoint)
+  for _,card in ipairs({{'pokemonLuckyChant67','pokemon_lucky_chant_67.lua'},
+      {'pokemonPsychoShift67','pokemon_psycho_shift_67.lua'},
+      {'pokemonCelebration67','pokemon_celebration_67.lua'}})do
+    local owner=loadSibling(mod,card[2])(mod,{
+      rules=mod.exports.generationRules,facts=mod.exports.backendGenerationRules67,
+      species=mod.exports.backendGiftSpecies67,catalog=mod.exports.generationMoveCatalog67,
+      abilities=mod.exports.pokemonAbilityEffects67,i18n=i18n,supportLog=mod.exports.supportSessionLog,
+    })
+    mod.exports[card[1]]=owner
+    mod.exports.generationCheckpoint67.addValidator(owner.validateCheckpoint)
+  end
+  mod.exports.pokemonSinglesSupport67=loadSibling(mod,'pokemon_singles_support_67.lua')(mod,{
+    facts=mod.exports.backendGenerationRules67,species=mod.exports.backendGiftSpecies67,
+    catalog=mod.exports.generationMoveCatalog67,i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.pokemonStageRecipients67=loadSibling(mod,'pokemon_stage_recipients_67.lua')(mod,{
+    rules=mod.exports.generationRules,facts=mod.exports.backendGenerationRules67,
+    species=mod.exports.backendGiftSpecies67,moves=mod.exports.generationMoveCatalog67,
+    i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonStageRecipients67.validateCheckpoint)
+  mod.exports.pokemonCasterStrikes67=loadSibling(mod,'pokemon_caster_strikes_67.lua')(mod,{
+    rules=mod.exports.generationRules,facts=mod.exports.backendGenerationRules67,
+    species=mod.exports.backendGiftSpecies67,identity=mod.exports.pokemonBattleIdentity67,
+    catalog=mod.exports.backendNationalCatalog67,split=mod.exports.backendSplitSpecial67,
+    i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonCasterStrikes67.validateCheckpoint)
+  mod.exports.pokemonItemAccess67=loadSibling(mod,'pokemon_item_access_67.lua')(mod,{
+    rules=mod.exports.generationRules,facts=mod.exports.backendGenerationRules67,
+    species=mod.exports.backendGiftSpecies67,transfer=mod.exports.pokemonItemTransfer67,
+    held=mod.exports.pokemonEquipment67.heldId,heldEffect=mod.exports.pokemonHeldEffect67,
+    catalog=mod.exports.generationMoveCatalog67,i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonItemAccess67.validateCheckpoint)
+  mod.exports.pokemonSafetyGoggles67=loadSibling(mod,'pokemon_safety_goggles_67.lua')(mod,{
+    rules=mod.exports.generationRules,facts=mod.exports.backendGenerationRules67,
+    species=mod.exports.backendGiftSpecies67,held=mod.exports.pokemonEquipment67.battleHeldId,
+    projectileSource=loadSibling(mod,'pokemon_held_projectiles_67_data.lua'),
+    i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonSafetyGoggles67.validateCheckpoint)
+  mod.exports.pokemonFieldInterruptions67=loadSibling(mod,'pokemon_field_interruptions_67.lua')(mod,{
+    rules=mod.exports.generationRules,facts=mod.exports.backendGenerationRules67,
+    species=mod.exports.backendGiftSpecies67,catalog=mod.exports.generationMoveCatalog67,
+    abilities=mod.exports.pokemonAbilityEffects67,protection=mod.exports.pokemonProtection67,
+    priority=mod.exports.pokemonPriorityAbilities67,held=mod.exports.pokemonEquipment67.battleHeldId,
+    powderShield=function()return mod.exports.pokemonSafetyGoggles67 end,
+    i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonFieldInterruptions67.validateCheckpoint)
+  mod.exports.pokemonSkyDrop67=loadSibling(mod,'pokemon_sky_drop_67.lua')(mod,{
+    rules=mod.exports.generationRules,facts=mod.exports.backendGenerationRules67,
+    species=mod.exports.backendGiftSpecies67,i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonSkyDrop67.validateCheckpoint)
+  mod.exports.generationCheckpoint67.addContinuation(mod.exports.pokemonSkyDrop67.resume)
+  mod.exports.pokemonPivotMoves67=loadSibling(mod,'pokemon_pivot_moves_67.lua')(mod,{
+    rules=mod.exports.generationRules,facts=mod.exports.backendGenerationRules67,
+    species=mod.exports.backendGiftSpecies67,catalog=mod.exports.generationMoveCatalog67,
+    abilities=mod.exports.pokemonAbilityEffects67,protection=mod.exports.pokemonProtection67,
+    priority=mod.exports.pokemonPriorityAbilities67,i18n=i18n,supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonPivotMoves67.validateCheckpoint)
+  mod.exports.pokemonPursuit67=loadSibling(mod,'pokemon_pursuit_67.lua')(mod,{
+    rules=mod.exports.generationRules,facts=mod.exports.backendGenerationRules67,
+    species=mod.exports.backendGiftSpecies67,abilities=mod.exports.pokemonAbilityEffects67,
+    supportLog=mod.exports.supportSessionLog,
+  })
+  mod.exports.generationCheckpoint67.addValidator(mod.exports.pokemonPursuit67.validateCheckpoint)
+  mod.exports.backendGiftProfiles67 = loadSibling(mod,
+    "backend_gift_profiles_67.lua")({
+      species = mod.exports.backendGiftSpecies67,
+      catalog = mod.exports.backendNationalCatalog67,
+      mega = mod.exports.backendMegaForms67,
+      megaMetadata = loadSibling(mod, "backend_mega_catalog_67_data.lua"),
+      gigantamax = mod.exports.backendGigantamaxForms67,
+      gigantamaxMetadata = loadSibling(mod, "backend_gigantamax_catalog_67_data.lua"),
+    })
+  assert(eventArchive.registerGiftProfiles(mod.exports.backendGiftProfiles67.profiles)
+    == #mod.exports.backendGiftProfiles67.profiles,
+    "backend Gift Code profile registration incomplete")
+  assert(eventArchive.registerGiftProfiles(
+    mod.exports.alolaGiftForms66.giftProfiles()) == 18,
+    "6.6 Alola Gift Code profile registration incomplete")
   mod.exports.eventArchive = eventArchive
   mod.exports.eventData = eventData
+  -- 6.6 selected segment: the runtime sees digest-only campaign metadata.
+  -- Plaintext tester codes remain outside the repository and package. Keep
+  -- the controller on exports so this already dense factory consumes no new
+  -- LuaJIT local slots.
+  mod.exports.giftCodeCatalog = loadSibling(mod, "gift_code_catalog.lua")
+  mod.exports.crossGenerationGiftProfiles66 = loadSibling(
+    mod, "cross_generation_gift_profiles_66.lua")
+  assert(mod.exports.crossGenerationGiftProfiles66.register(
+    eventArchive, mod.exports.giftCodeCatalog),
+    "6.6 cross-generation Gift Code profile registration incomplete")
+  assert(mod.exports.generationRules.setOwnedGiftBattleCompatibilityProvider(
+    function(_, mon)
+      return eventArchive.battleCompatibleGift(mon)
+    end), "event-gift battle compatibility binding failed")
+  mod.exports.alolaGiftCodeCatalog66 = loadSibling(
+    mod, "alola_gift_code_catalog.lua")
+  for _, campaign in ipairs(
+      mod.exports.alolaGiftCodeCatalog66.campaigns or {}) do
+    mod.exports.giftCodeCatalog.campaigns[
+      #mod.exports.giftCodeCatalog.campaigns + 1] = campaign
+  end
+  mod.exports.backendGiftCodeCatalog67 = loadSibling(mod,
+    "backend_gift_code_catalog_67.lua")
+  for _, campaign in ipairs(mod.exports.backendGiftCodeCatalog67.campaigns) do
+    mod.exports.giftCodeCatalog.campaigns[#mod.exports.giftCodeCatalog.campaigns+1]=campaign
+  end
+  mod.exports.spriteGiftContent = loadSibling(mod, "SpriteGiftConnector.lua").new(mod, eventArchive, i18n)
+  mod.exports.giftCodes = loadSibling(mod, "gift_codes.lua")(mod, {
+    spriteContent = mod.exports.spriteGiftContent,
+    catalog = mod.exports.giftCodeCatalog,
+    eventArchive = eventArchive,
+    sharedArchive = legacyJourney.archive,
+    followerSprites = followerSprites,
+    i18n = i18n,
+    supportLog = mod.exports.supportSessionLog,
+  })
 
   -- Official Crystal battle art is bundled for all 251 species. Johto keeps
   -- its named front/back pack, while Kanto's numbered back pack completes the
@@ -1968,6 +4371,31 @@ return function(mod)
       and ctx.data.pokemon[ctx.species]
     local dex = def and tonumber(def.dex)
     local name = ctx and CRYSTAL_ASSETS[ctx.species]
+
+    if mod.exports.laterGenderArt67 and mod.exports.laterGenderArt67.staticSprite then
+      local cosmetic=mod.exports.laterGenderArt67.staticSprite(path,requestedPath,ctx)
+      if cosmetic then ctx.trueColor=true;return cosmetic end
+    end
+    if mod.exports.gen3GenderArt67 and mod.exports.gen3GenderArt67.staticSprite then
+      local cosmetic=mod.exports.gen3GenderArt67.staticSprite(path,requestedPath,ctx)
+      if cosmetic then ctx.trueColor=true;return cosmetic end
+    end
+    if mod.exports.wave1GenderFamilies67 and mod.exports.wave1GenderFamilies67.staticSprite then
+      local cosmetic = mod.exports.wave1GenderFamilies67.staticSprite(path, requestedPath, ctx)
+      if cosmetic then return cosmetic, true end
+    end
+    if mod.exports.wave1Burmy67 and mod.exports.wave1Burmy67.staticSprite then
+      local cosmetic = mod.exports.wave1Burmy67.staticSprite(path, requestedPath, ctx)
+      if cosmetic then ctx.trueColor = true; return cosmetic end
+    end
+    if mod.exports.backendGiftSpecies67 then
+      local backendStatic = mod.exports.backendGiftSpecies67.staticSprite(path, requestedPath, ctx)
+      if backendStatic then ctx.trueColor = true; return backendStatic end
+    end
+    if mod.exports.legacyGlobalBabies67 then
+      local babyStatic = mod.exports.legacyGlobalBabies67.staticSprite(path, requestedPath, ctx)
+      if babyStatic then ctx.trueColor = true; return babyStatic end
+    end
 
     -- Ascendant's #252-279 catalogue has one deliberately split identity:
     -- private `dex` is save/menu ordering, while sourceDex is reserved for
@@ -2345,6 +4773,7 @@ return function(mod)
     i18n = i18n,
     johtoResearch = johtoResearch,
     beyondKanto = mod.exports.beyondKanto,
+    generationRules = mod.exports.generationRules,
     showMenu = false,
   })
   signalsHub.setWorldEvents(worldEvents)
@@ -2362,6 +4791,7 @@ return function(mod)
     kantoCompletion = kantoCompletion,
     legacyPaths = legacyPaths,
     placement = mod.exports.runtimeNpcPlacement,
+    rocketRecovery = mod.exports.rocketRecoveryRaids67,
   })
   eventArchive.setAscendant(ascendant)
   postgame.extension = ascendant
@@ -2395,7 +4825,9 @@ return function(mod)
     i18n = i18n,
     journey = legacyJourney,
     beyondKanto = mod.exports.beyondKanto,
+    generationRules = mod.exports.generationRules,
     placement = mod.exports.runtimeNpcPlacement,
+    fieldTech = fieldTech,
   })
   ascendant.setJohtoMasters(johtoMasters)
   mod.exports.johtoMasters = johtoMasters
@@ -2416,7 +4848,12 @@ return function(mod)
   mod.exports.johtoMastersPassages = johtoMasters.passages
 
   local makeDexProgress = loadSibling(mod, "dex_progress.lua")
+  mod.exports.maximumDex67 = loadSibling(mod, "maximum_dex_67.lua")({
+    catalog = mod.exports.backendNationalCatalog67,
+    species = mod.exports.backendGiftSpecies67,
+  })
   local dexProgress = makeDexProgress(mod, {
+    maximumDex = mod.exports.maximumDex67,
     i18n = i18n,
     postgame = postgame,
     johtoData = johtoData,
@@ -2425,6 +4862,10 @@ return function(mod)
     beyondKanto = mod.exports.beyondKanto,
   })
   mod.exports.dexProgress = dexProgress
+  mod.exports.maximumDexSurface67 = loadSibling(mod, "maximum_dex_surface_67.lua")(mod, {
+    dex = dexProgress, maximum = mod.exports.maximumDex67, i18n = i18n,
+  })
+  dexProgress.bindMaximumSurface(mod.exports.maximumDexSurface67)
   if signalsHub and type(signalsHub.setDexProgress) == "function" then
     signalsHub.setDexProgress(dexProgress)
   end
@@ -2456,6 +4897,7 @@ return function(mod)
 
   local makeResearchAtlas = loadSibling(mod, "research_atlas.lua")
   local researchAtlas = makeResearchAtlas(mod, {
+    generationRules = mod.exports.generationRules,
     i18n = i18n,
     postgame = postgame,
     ascendant = ascendant,
@@ -2479,6 +4921,7 @@ return function(mod)
     i18n = i18n,
     dialoguePagination = dialoguePagination,
     beyondKanto = mod.exports.beyondKanto,
+    generationRules = mod.exports.generationRules,
     stepClock = playerStepClock,
     placement = mod.exports.runtimeNpcPlacement,
     awardFrontierPoints = function(amount)
@@ -2511,6 +4954,7 @@ return function(mod)
     signalsHub = signalsHub,
     legacyPaths = legacyPaths,
     beyondKanto = mod.exports.beyondKanto,
+    rocketRecovery = mod.exports.rocketRecoveryRaids67,
   })
   ascendant.setQuestTracker(questTracker)
   researchAtlas.setQuestTracker(questTracker)
@@ -2538,13 +4982,251 @@ return function(mod)
     legacyJourney = legacyJourney,
   })
   mod.exports.legacyHall = legacyHall
+  legacyHall.setExtraTitleProvider(mod.exports.surpriseTrainers67)
+  mod.exports.surpriseTrainers67.bindHall(legacyHall)
+  mod.exports.titleAuthority67 = legacyHall
   legacyWanderers.setTitleProvider(legacyHall)
 
+  -- 66-WORLD-RANK: isolated tournament controller. Keep the controllers on
+  -- the Hall namespace so this Lua 5.1 entry chunk stays below its local cap.
+  legacyHall.worldRankData = loadSibling(mod, "ngplus_tournament_data.lua")
+  legacyHall.worldRankGuests = loadSibling(
+    mod, "ngplus_tournament_guests.lua")(mod, {
+      json = loadSibling(mod, "world_rank_json.lua"),
+      i18n = i18n,
+      battleTheme = "Music_KA_GSC_RivalBattle",
+    })
+  -- Each optional identity registers independently and remains unavailable
+  -- unless all four approved visual surfaces and its exact team are valid.
+  legacyHall.worldRankGuests.register()
+  mod.exports.worldRankTournamentGuests = legacyHall.worldRankGuests
+  legacyHall.worldRankOpponentAuthority = function(classId, game)
+    if classId == "OPP_CYNTHIA_KA" or classId == "OPP_ASH_KA" then
+      return legacyHall.worldRankGuests.authority(classId, game)
+    end
+    local record = game and game.data and game.data.trainers
+      and game.data.trainers[classId]
+    local spriteId = legacyHall.worldRankData.trainerOverworldSprites
+      and legacyHall.worldRankData.trainerOverworldSprites[classId]
+    if not (type(record) == "table" and type(spriteId) == "string"
+        and type(record.pic) == "string" and record.pic ~= ""
+        and type(game.data.sprites) == "table"
+        and game.data.sprites[spriteId] ~= nil) then
+      return nil
+    end
+    return {
+      class = classId,
+      trainerRecord = record,
+      battlePortrait = { id = record.pic, registered = true },
+      overworldSprite = { id = spriteId, registered = true },
+    }
+  end
+  -- This fail-closed adapter is visible only until the concrete reward
+  -- transaction below is fully constructed.
+  legacyHall.worldRankRewardAdapter = {
+    status = function()
+      return { ready = false, pending = true, status = "adapter_pending" }
+    end,
+    pendingModel = function(_, queue)
+      return {
+        pending = type(queue) == "table" and #queue > 0,
+        pendingCount = type(queue) == "table" and #queue or 0,
+        text = i18n.text(
+          "A sealed World Rank prize is waiting for delivery.",
+          "Ein versiegelter Weltrang-Preis wartet auf Zustellung."),
+      }
+    end,
+    reconcile = function() return false, "adapter_pending" end,
+  }
+  mod.exports.worldRankTournamentRewardAdapter =
+    legacyHall.worldRankRewardAdapter
+  legacyHall.worldRank = loadSibling(mod, "ngplus_tournament.lua")(mod, {
+    data = legacyHall.worldRankData,
+    i18n = i18n,
+    generationRules = mod.exports.generationRules,
+    supportLog = mod.exports.supportSessionLog,
+    journey = legacyJourney,
+    edition = function() return GameVersion.get() end,
+    profile = function(game)
+      local save = game and game.save or {}
+      local meta = type(save.meta) == "table" and save.meta or {}
+      return meta.playthroughId or meta.profileId or meta.slotId
+        or save.playthroughId or save.profileId or "native"
+    end,
+    hallCount = function(game)
+      return #(game and game.save and game.save.hallOfFame or {})
+    end,
+    language = function() return mod.exports.language() end,
+    legacyState = function()
+      return legacyJourney.archive.worldRankState()
+    end,
+    legacyUnlocked = function()
+      local state = legacyJourney.archive.worldRankState()
+      return type(state) == "table" and state.unlocked == true
+    end,
+    markLegacyUnlocked = function(game)
+      return legacyJourney.archive.markWorldRankUnlocked(game and game.save)
+    end,
+    opponentAuthority = legacyHall.worldRankOpponentAuthority,
+    formatAuthority = function(game, formatId)
+      local authority = legacyHall.worldRankRosters
+      if authority and type(authority.formatAuthority) == "function" then
+        return authority.formatAuthority(game, formatId)
+      end
+    end,
+    opponentClass = function(game, formatId, rank, token)
+      local authority = legacyHall.worldRankRosters
+      if authority and type(authority.opponentClass) == "function" then
+        return authority.opponentClass(game, formatId, rank, token)
+      end
+    end,
+    rewardPendingModel = function(game, queue)
+      local adapter = mod.exports.worldRankTournamentRewards
+        or legacyHall.worldRankRewardAdapter
+      local pending = adapter and (adapter.pendingModel or adapter.status)
+      if type(pending) == "function" then return pending(game, queue) end
+    end,
+  })
+  mod.exports.hoennTournamentEncounters67 = loadSibling(
+    mod, "hoenn_tournament_encounters_67.lua")(mod, {
+      acquisition = mod.exports.hoennAcquisition67Data,
+      discoveryCore = mod.exports.discoveryCore,
+      legacyProfile = legacyJourney.profile,
+      generationRules = mod.exports.generationRules,
+      forceShiny = function(mon, definition)
+        return shinySystem and shinySystem.forceMon
+          and shinySystem.forceMon(mon, definition) == true
+      end,
+    })
+  legacyHall.worldRankRewards = loadSibling(
+    mod, "ngplus_tournament_rewards.lua")(mod, {
+      data = legacyHall.worldRankData,
+      equipmentRewards = mod.exports.equipmentRewards67,
+      generationRules = mod.exports.generationRules,
+      tournament = legacyHall.worldRank,
+      archive = legacyJourney.archive,
+      i18n = i18n,
+      discoveryAuthority = function(game, species)
+        local pokedex = game and game.save and game.save.pokedex or {}
+        local seen = type(pokedex.seen) == "table" and pokedex.seen or {}
+        local owned = type(pokedex.owned) == "table" and pokedex.owned or {}
+        return seen[species] == true or owned[species] == true
+      end,
+      speciesReady = mod.exports.hoennTournamentEncounters67
+        .ordinaryRewardEligible,
+      onDelivered = mod.exports.hoennTournamentEncounters67
+        .onTournamentDelivered,
+      forceShiny = function(mon, definition)
+        return shinySystem and shinySystem.forceMon
+          and shinySystem.forceMon(mon, definition) == true
+      end,
+      isShiny = function(mon)
+        return shinySystem and shinySystem.isShiny
+          and shinySystem.isShiny(mon) == true
+      end,
+      grantTitle = function(_, id)
+        local state = ascendant.state(false)
+        if type(state) == "table" and type(state.achievements) == "table"
+            and state.achievements[id] == true then return true end
+        ascendant.unlockAchievement(id)
+        state = ascendant.state(false)
+        return type(state) == "table" and type(state.achievements) == "table"
+          and state.achievements[id] == true
+      end,
+      linkActive = function(game)
+        return game and (game.linkSession ~= nil and game.linkSession ~= false
+          or type(game.linkNet) == "table"
+            and game.linkNet.closed ~= true) or false
+      end,
+    })
+  mod.exports.worldRankTournamentRewards = legacyHall.worldRankRewards
+  legacyHall.worldRankRosters = loadSibling(
+    mod, "ngplus_tournament_rosters.lua")({
+      data = legacyHall.worldRankData,
+      tournament = legacyHall.worldRank,
+      generationRules = mod.exports.generationRules,
+      trainerAuthority = legacyHall.worldRankOpponentAuthority,
+      canonicalSpecies = mod.exports.trainerGenerationPool67.canonical,
+      megaAuthority = function(_, species)
+        local rows = megaEvolution and megaEvolution.formsBySpecies
+          and megaEvolution.formsBySpecies[species]
+        local profile = type(rows) == "table" and rows[1] or nil
+        if not (profile and profile.stone and profile.id) then return nil end
+        return { stone = profile.stone, form = profile.id }
+      end,
+    })
+  legacyHall.worldRankPolicy = loadSibling(
+    mod, "ngplus_tournament_battle_policy.lua")({
+      text = function(en, de) return i18n.text(en, de) end,
+    })
+  legacyHall.worldRankRuntime = loadSibling(
+    mod, "ngplus_tournament_runtime.lua")(mod, {
+      tournament = legacyHall.worldRank,
+      data = legacyHall.worldRankData,
+      rosters = legacyHall.worldRankRosters,
+      policy = legacyHall.worldRankPolicy,
+      placement = mod.exports.runtimeNpcPlacement,
+      postgame = postgame,
+      i18n = i18n,
+      opponentAuthority = legacyHall.worldRankOpponentAuthority,
+      rewardAdapter = function()
+        return mod.exports.worldRankTournamentRewards
+          or legacyHall.worldRankRewardAdapter
+      end,
+    })
+  mod.exports.worldRankTournament = legacyHall.worldRank
+  mod.exports.worldRankTournamentData = legacyHall.worldRankData
+  mod.exports.worldRankTournamentRosters = legacyHall.worldRankRosters
+
+  -- The separately owned habitat card now supplies the rumor dependencies;
+  -- ordinary rival meetings keep their existing scheduler and team authority.
+  mod.exports.rivalTeamProgression = loadSibling(
+    mod, "rival_team_progression.lua")({
+      supportLog = mod.exports.supportSessionLog,
+    })
+  legacyHall.lifeOfRivalCard67 = loadSibling(
+    mod, "life_of_rival_card_67.lua")(mod, {
+      load = function(filename) return loadSibling(mod, filename) end,
+      supportLog = mod.exports.supportSessionLog,
+      life = {
+        i18n = i18n,
+        gameVersion = GameVersion,
+        characters = extendedCharacters,
+        postgame = postgame,
+        rivalTeams = mod.exports.rivalTeams,
+        teamProgression = mod.exports.rivalTeamProgression,
+        wanderers = legacyWanderers,
+        spawnSafety = wildsSpawnSafety,
+        titles = legacyHall,
+        journey = legacyJourney,
+        beyondKanto = mod.exports.beyondKanto,
+        generationRules = mod.exports.generationRules,
+        rumorsEnabled = true,
+        observationSources = {mod.exports.hoennRoamers67,postgame,mythicSignals},
+        explorationDevice = mod.exports.explorationDevice,
+        hiddenAccessReveal = mod.exports.hiddenAccessReveal,
+        starterHabitats = mod.exports.starterHabitats,
+        dialogues = loadSibling(mod, "life_of_rival_dialogue_data.lua"),
+      },
+      parallel = {
+        i18n = i18n,
+        characters = extendedCharacters,
+        postgame = postgame,
+        spawnSafety = wildsSpawnSafety,
+        data = loadSibling(mod, "life_of_rival_journey_data.lua"),
+      },
+    })
+  mod.exports.lifeOfRivalCard67 = legacyHall.lifeOfRivalCard67
+  mod.exports.lifeOfRival = legacyHall.lifeOfRivalCard67.life
+  mod.exports.rivalParallelJourney = legacyHall.lifeOfRivalCard67.parallel
+  assert(mod.exports.explorationDevice.setNoTargetHint(function(game)
+    return mod.exports.lifeOfRival.traceFinderQuestHint(game)
+  end), "TRACE FINDER starter-rumor hint binding failed")
+
   -- The native Trainer Card is authored on the fixed 160x144 UI canvas.
-  -- Keep it as the input/error fallback, but present the standard card at
-  -- window resolution so the already-bundled 128px portraits and leader art
-  -- remain genuinely high resolution.  Collection/unlock/matchup cards stay
-  -- outside this bounded 6.5.7 replacement.
+  -- Keep it as the final input/error fallback, but retain one standard-card
+  -- owner at window resolution so the already-bundled 128px portraits and
+  -- leader art remain genuinely high resolution.
   local makeTrainerCardHDStandard = loadSibling(
     mod, "trainer_card_hd_standard.lua")
   local trainerCardHDStandard = makeTrainerCardHDStandard(mod, {
@@ -2553,6 +5235,45 @@ return function(mod)
     legacyHall = legacyHall,
   })
   mod.exports.trainerCardHDStandard = trainerCardHDStandard
+
+  -- 66-HD-TRAINER-CARD-COLLECTION owns only catalogue/save/presentation
+  -- policy. It delegates the effective screen and final-window pass to the
+  -- existing HD-standard owner, which remains the immediate error fallback.
+  -- Hang the two objects off legacyHall to avoid consuming entry-chunk locals
+  -- near Lua 5.1's local-variable ceiling.
+  legacyHall.trainerCards = loadSibling(mod,
+    "trainer_card_collection.lua")(mod, {
+      baldCrew = true,
+      i18n = i18n,
+      postgame = postgame,
+      ascendant = ascendant,
+      legacyHall = legacyHall,
+      worldRankTournament = legacyHall.worldRank,
+      showWorldRankDialogue = function(game, text, done, receipt)
+        return legacyHall.worldRankRuntime.presentText(
+          game, text, done, receipt)
+      end,
+    })
+  legacyHall.trainerCardHD = loadSibling(mod,
+    "trainer_card_hd_renderer.lua")(mod, {
+      collection = legacyHall.trainerCards,
+      i18n = i18n,
+      characters = extendedCharacters,
+      standardFallback = trainerCardHDStandard,
+    })
+  mod.exports.trainerCardCollection = legacyHall.trainerCards
+  mod.exports.trainerCardHDRenderer = legacyHall.trainerCardHD
+  mod.exports.baldCrew67 = loadSibling(mod, "bald_crew_67_card.lua")(mod, {
+    load = function(name) return loadSibling(mod, name) end,
+    i18n = i18n, cards = legacyHall.trainerCards, hall = legacyHall,
+    titles = mod.exports.surpriseTrainers67, supportLog = mod.exports.supportSessionLog,
+  })
+  assert(mod.exports.baldCrew67.register(), "Bald Crew content registration failed")
+  mod.exports.rocketRecoveryRaids67.bindRewards({
+    awardTrainerCard = function(id, reason, game)
+      return legacyHall.trainerCards.award(id, reason, game)
+    end,
+  })
 
   local function trainerKey(overworld, npc)
     if npc and npc.id then return tostring(npc.id) end
@@ -2915,9 +5636,8 @@ return function(mod)
         rematchNumber = (state.rematches or 0) + 1,
         edition = GameVersion.get(), storage = mod.storage,
       })
-      local rematchTeam, generation = recruitment.expand(
-        game.data, team, d.trainerClass,
-        key, progress, boost, mod.options:get("team_growth") ~= false, {
+      local recruitmentOptions = {
+          game = game,
           selections = state.recruitFamilies,
           recentHistory = state.recruitHistory,
           originalStages = state.originalStages,
@@ -2929,7 +5649,23 @@ return function(mod)
           random = deps.rematchRandom,
           seed = rosterAuthority,
           deferCommit = true,
-        })
+        }
+      local rematchTeam, generation = recruitment.expand(
+        game.data, team, d.trainerClass,
+        key, progress, boost, mod.options:get("team_growth") ~= false,
+        recruitmentOptions)
+      -- The rematch builder owns growth and recruits, but the shared 6.7
+      -- contract owns the final lane boundary. A malformed, overfull or
+      -- generation-illegal optional plan falls back to the trainer's exact
+      -- registered team before preview, warning text or save writes occur.
+      local teamContracts = mod.exports.difficultyTeamContracts67
+      if teamContracts and type(teamContracts.validatePlan) == "function" then
+        local legal = teamContracts.validatePlan(
+          "expert_rematch", game, rematchTeam)
+        if not legal then
+          rematchTeam, generation = team, nil
+        end
+      end
       -- Freeze one pure level plan before showing a warning. The exact same
       -- targets are later applied to the battle. In adaptive mode numeric B
       -- is suppressed, while the progress value above still owns ranks,
@@ -2960,6 +5696,26 @@ return function(mod)
           plannedPreview = plannedTeam
           if plannedReport.mode == "adaptive" then
             frozenTeam, frozenReport = plannedTeam, plannedReport
+          end
+        end
+      end
+      -- Evolution gates must use the same final levels as the battle, also
+      -- when adaptive scaling raises or lowers the provisional rematch boost.
+      if generation and plannedPreview then
+        recruitmentOptions.targetLevels = {}
+        for i, row in ipairs(plannedPreview) do
+          recruitmentOptions.targetLevels[i] = row.level
+        end
+        local finalTeam, finalGeneration = recruitment.expand(
+          game.data, team, d.trainerClass, key, progress, boost,
+          mod.options:get("team_growth") ~= false, recruitmentOptions)
+        local legal = not teamContracts or not teamContracts.validatePlan
+          or teamContracts.validatePlan("expert_rematch", game, finalTeam)
+        if legal and #finalTeam == #rematchTeam then
+          rematchTeam, generation = finalTeam, finalGeneration
+          for i, row in ipairs(finalTeam) do
+            plannedPreview[i].species = row.species
+            if frozenTeam then frozenTeam[i].species = row.species end
           end
         end
       end
@@ -3041,6 +5797,8 @@ return function(mod)
           end
           if result == "win" then
             addReward(fieldTech and fieldTech.afterRematch(game, b))
+            addReward(mod.exports.explorationDevice
+              and mod.exports.explorationDevice.afterRematch(game, b))
             addReward(rematchRewards.afterWin(game, b, state, deps))
             addReward(johtoResearch.afterRematch(game, b))
             addReward(shinySystem and shinySystem.afterRematch(game, b))
@@ -3097,12 +5855,19 @@ return function(mod)
   local function install(game, deps)
     activeGame = game
     restProfiles.bindGame(game)
+    assert(mod.exports.generationRules.install(game))
+    mod.exports.pokemonIlluminate67.install(game)
     deps = deps or {}
     local Overworld = deps.overworld or require("src.world.OverworldController")
     local BattleState = deps.battleState or require("src.battle.BattleState")
     local TextBox = deps.textBox or require("src.render.TextBox")
     local Runtime = deps.runtime or require("src.mods.Runtime")
     local mapScripts = deps.mapScripts or require("data.scripts.init")
+    assert(mod.exports.generationBattleGate67.install(game, {
+      battleState = BattleState, textBox = TextBox,
+      runtime = Runtime, partyMenu = deps.partyMenu,
+      music = deps.music,
+    }))
 
     -- Engine 0.1.96/0.1.98 omit only Yellow's Mt. Moon fossil Super Nerd
     -- trainer header. Repair the exact imported data shape before any talk,
@@ -3116,16 +5881,46 @@ return function(mod)
     if johtoAudio then johtoAudio.install(game) end
     if gorochu then gorochu.install(game, deps) end
     if megaEvolution then megaEvolution.install(game, deps) end
+    if mod.exports.pokemonLateTransformations67 then mod.exports.pokemonLateTransformations67.install()end
     if gorochuVisuals then gorochuVisuals.install(game) end
     if trueColorWorldCompat then trueColorWorldCompat.install() end
-    if dramalessCameraCompat then dramalessCameraCompat.install(game) end
     if mod.exports.rendererWallDecalsCompat then
       mod.exports.rendererWallDecalsCompat.install(game)
     end
+    if contentEnabled and mod.exports.hoennBattleSurrounds67 then
+      assert(mod.exports.hoennBattleSurrounds67.install(game))
+    end
     if kantoCompletion then kantoCompletion.install(game, deps) end
+    if mod.exports.explorationDevice then
+      mod.exports.explorationDevice.install(game, deps)
+    end
+    if mod.exports.hiddenAccessReveal then
+      local accessOk, accessWhy = mod.exports.hiddenAccessReveal.install(game)
+      assert(accessOk, "Access V3.1 install failed: " .. tostring(accessWhy))
+    end
     if fieldTech then fieldTech.install(game, deps) end
     if contentEnabled and mod.exports.hiddenEvolutionCampaign then
       mod.exports.hiddenEvolutionCampaign.install(game, deps)
+    end
+    if contentEnabled and mod.exports.hoennLegendPortals67 then
+      assert(mod.exports.hoennLegendPortals67.install(game, {
+        battleState = BattleState,
+      }))
+    end
+    if contentEnabled and mod.exports.hoennBirthIsland67 then
+      assert(mod.exports.hoennBirthIsland67.install(game, {
+        battleState = BattleState, mapScripts = mapScripts,
+      }))
+    end
+    if contentEnabled and mod.exports.hoennJirachiFinale67 then
+      assert(mod.exports.hoennJirachiFinale67.install(game, {
+        battleState = BattleState, mapScripts = mapScripts,
+      }))
+    end
+    if contentEnabled and mod.exports.hoennEndgameAccess67 then
+      assert(mod.exports.hoennEndgameAccess67.install(game, {
+        mapScripts = mapScripts,
+      }))
     end
     if frontierExchange then frontierExchange.install(game, deps) end
     if daycare then daycare.install(game, deps) end
@@ -3134,17 +5929,72 @@ return function(mod)
     if mod.exports.extendedSpeciesRuntime then
       mod.exports.extendedSpeciesRuntime.install(game)
     end
+    if mod.exports.lateSpecies67 then
+      mod.exports.lateSpecies67.install(game)
+    end
+    if mod.exports.alolaGiftForms66 then
+      mod.exports.alolaGiftForms66.install(game)
+    end
     if crystalAnimation then crystalAnimation.install(game, deps) end
+    if mod.exports.nonCrystalHdSprites67 then
+      mod.exports.nonCrystalHdSprites67.install(game, {
+        battleState=BattleState,
+      })
+    end
+    if mod.exports.pokemonIllusion67 then mod.exports.pokemonIllusion67.install(game)end
+    if mod.exports.pokemonTypeItems67 then mod.exports.pokemonTypeItems67.install(game)end
     if crystalV15 then crystalV15.install(game, deps) end
     if ascendant then ascendant.install(game, deps) end
+    if mod.exports.rocketRecoveryRaids67 then
+      mod.exports.rocketRecoveryRaids67.install(game)
+    end
+    if mod.exports.rocketRecoveryRaids67Runtime then
+      mod.exports.rocketRecoveryRaids67Runtime.install(game)
+    end
+    if mod.exports.baldCrewCharacter67 then mod.exports.baldCrewCharacter67.install() end
+    if mod.exports.baldCrewMaleCharacter67 then mod.exports.baldCrewMaleCharacter67.install() end
+    if mod.exports.baldCrew67 then assert(mod.exports.baldCrew67.install(game)) end
+    if mod.exports.rocketRecoveryRewards67 then
+      mod.exports.rocketRecoveryRewards67.install(game)
+    end
     if eventArchive then eventArchive.install(game, deps) end
+    if mod.exports.giftCodes then mod.exports.giftCodes.install(game) end
     if johtoResearch then johtoResearch.install(game, deps) end
     if legacyHoenn then legacyHoenn.install(game) end
     if mod.exports.hevoPackages then mod.exports.hevoPackages.install(game) end
     if hevoSpecies then hevoSpecies.install(game) end
+    if mod.exports.hoennSpecies67 then
+      mod.exports.hoennSpecies67.install(game)
+    end
+    if mod.exports.hoennDexCompletion67 then
+      mod.exports.hoennDexCompletion67.sync(game)
+    end
+    if mod.exports.hoennResearchSanctums67 then
+      assert(mod.exports.hoennResearchSanctums67.install(game, {
+        battleState = BattleState, mapScripts = mapScripts,
+      }))
+    end
+    if mod.exports.hoennMoltresVolcano67 then
+      assert(mod.exports.hoennMoltresVolcano67.install(game, {
+        battleState = BattleState, mapScripts = mapScripts,
+      }))
+    end
+    if mod.exports.fairyAffection67 then
+      assert(mod.exports.fairyAffection67.install(game))
+    end
     if legacyStarters then legacyStarters.install(game, {
       mapScripts = mapScripts,
     }) end
+    if mod.exports.hoennFieldAccess then
+      assert(mod.exports.hoennFieldAccess.install(game, {
+        mapScripts = mapScripts,
+        placement = mod.exports.runtimeNpcPlacement,
+        textBox = TextBox,
+      }), "Hoenn field access install failed")
+    end
+    if mod.exports.hoennRoamers67 then
+      mod.exports.hoennRoamers67.install(game, { battleState = BattleState })
+    end
     if signalsState then signalsState.install(game) end
     if johtoSignals and johtoSignals.game ~= game then
       -- CONTINUE adopts its selected save only after game.ready. Deferring
@@ -3157,6 +6007,12 @@ return function(mod)
       stats = deps.stats,
     }) end
     if driftglassPrisms then driftglassPrisms.install(game) end
+    if mod.exports.starterSpecies67 then
+      mod.exports.starterSpecies67.install(game)
+    end
+    if mod.exports.starterHabitats and mod.exports.hiddenAccessReveal then
+      assert(mod.exports.starterHabitats.install(game))
+    end
     if signalsHub then signalsHub.install(game) end
     if wildsCompat then wildsCompat.install(game, {
       random = deps.wildsRandom,
@@ -3174,7 +6030,24 @@ return function(mod)
     if questTracker then questTracker.install(game, deps) end
     if onboarding then onboarding.install(game, deps) end
     if legacyHall then legacyHall.install(game, deps) end
+    if legacyHall and legacyHall.worldRank then
+      legacyHall.worldRank.install(game)
+      mod.exports.hoennTournamentEncounters67.install(game)
+      legacyHall.worldRankPolicy.install({
+        battleState = BattleState,
+        bagMenu = require("src.ui.BagMenu"),
+        itemEffects = require("src.inventory.ItemEffects"),
+      })
+      legacyHall.worldRankRewards.install(game)
+      legacyHall.worldRankRuntime.install(game)
+    end
     if trainerCardHDStandard then trainerCardHDStandard.install(game) end
+    if legacyHall and legacyHall.trainerCards then
+      legacyHall.trainerCards.install(game)
+    end
+    if legacyHall and legacyHall.trainerCardHD then
+      legacyHall.trainerCardHD.install(game)
+    end
     if followerCompat then followerCompat.install(game) end
     if yellowPartner then yellowPartner.install(game, deps) end
     if followerConfig then followerConfig.install(game, singleFollower) end
@@ -3296,6 +6169,65 @@ return function(mod)
     -- paths untouched.  The additional item-or-money roll happens only in
     -- rematchRewards.afterWin and therefore cannot replace ordinary winnings.
   end
+  -- Move owners have all registered by this point. The Day-Care retained the
+  -- shared table by reference, so this late reconciliation is save-neutral.
+  mod.exports.hoennSpecies67.reconcileEggMoves()
+  mod.exports.pokemonThroatChop67.install()
+  mod.exports.pokemonStompingTantrum67.install()
+  mod.exports.pokemonFirstAction67.install()
+  mod.exports.pokemonMindBlown67.install()
+  mod.exports.pokemonHealBlock67.install()
+  mod.exports.pokemonPreparedMoves67.install()
+  mod.exports.pokemonMirrorCoat67.install()
+  mod.exports.pokemonInstruct67.install()
+  mod.exports.pokemonParentalBond67.install()
+  mod.exports.pokemonPrimalWeather67.install()
+  mod.exports.pokemonLateAbilityPower67.install()
+  mod.exports.pokemonPpHpPower67.install()
+  mod.exports.pokemonFriendshipPower67.install()
+  mod.exports.pokemonBodyCounter67.install()
+  mod.exports.pokemonStockpile67.install()
+  mod.exports.pokemonFutureStrikes67.install()
+  mod.exports.pokemonRandomStrength67.install()
+  mod.exports.pokemonHeldProjectiles67.install()
+  mod.exports.pokemonPartyMultihit67.install()
+  mod.exports.pokemonConditionalPower67.install()
+  mod.exports.pokemonMoveLock67.install()
+  mod.exports.pokemonStatExchange67.install()
+  mod.exports.pokemonRollingCombo67.install()
+  mod.exports.pokemonAbilityControl67.install()
+  mod.exports.pokemonPowerTrick67.install()
+  mod.exports.pokemonEntryHazards67.install()
+  mod.exports.pokemonHpExchange67.install()
+  mod.exports.pokemonTeamRecovery67.install()
+  mod.exports.pokemonBattleRooms67.install()
+  mod.exports.pokemonGrudge67.install()
+  mod.exports.pokemonDeferredHealing67.install()
+  mod.exports.pokemonFatalConditions67.install()
+  mod.exports.pokemonHiddenPower67.install()
+  mod.exports.pokemonCalledMoves67.install()
+  mod.exports.pokemonTargetMemory67.install()
+  mod.exports.pokemonSketch67.install()
+  mod.exports.pokemonMoveRedirection67.install()
+  mod.exports.pokemonSpecialEffectiveness67.install()
+  mod.exports.pokemonConditionalUse67.install()
+  mod.exports.pokemonStatusStrikes67.install()
+  mod.exports.pokemonTypeChanges67.install()
+  mod.exports.pokemonSecretPower67.install()
+  mod.exports.pokemonIdentification67.install()
+  mod.exports.pokemonBodyUtilities67.install()
+  mod.exports.pokemonSports67.install()
+  mod.exports.pokemonSideGuards67.install()
+  mod.exports.pokemonLuckyChant67.install()
+  mod.exports.pokemonPsychoShift67.install()
+  mod.exports.pokemonCelebration67.install()
+  mod.exports.pokemonCasterStrikes67.install()
+  mod.exports.pokemonItemAccess67.install()
+  mod.exports.pokemonFieldInterruptions67.install()
+  mod.exports.pokemonSafetyGoggles67.install()
+  mod.exports.pokemonPursuit67.install()
+  mod.exports.pokemonPivotMoves67.install()
+  mod.exports.pokemonSkyDrop67.install()
   mod.exports.install = install
 
   mod.events:on("world.stepped", function()
@@ -3319,11 +6251,23 @@ return function(mod)
     -- Sound cache entry created by an earlier follower/UI lookup.
     if johtoAudio and activeGame then johtoAudio.install(activeGame) end
     if gorochu and activeGame then gorochu.installAudio(activeGame) end
-    if mod.save:get("trainer_step_clock") == nil then
-      mod.save:set("trainer_step_clock", playerStepClock())
+    -- Keep saved deadlines in their original accelerated timeline when a
+    -- historical slot has no separate clock yet. Literal walking stays intact.
+    local clockBucket = {
+      step_clock = mod.save:get("step_clock"),
+      trainer_step_clock = mod.save:get("trainer_step_clock"),
+      trainers = mod.save:get("trainers"),
+    }
+    if loadSibling(mod, "rematch_clock.lua").recover(clockBucket) then
+      mod.save:set("trainer_step_clock", clockBucket.trainer_step_clock)
     end
     seedDefeatedTrainers(ev.save)
     migrateRestTimers()
+    -- CONTINUE replaces the slot after game.ready. Rebind/recover only after
+    -- the selected save and its per-profile mod bucket have become current.
+    if mod.exports.baldCrew67 and activeGame then
+      assert(mod.exports.baldCrew67.install(activeGame))
+    end
   end)
 
   mod.events:on("game.ready", function(ev)

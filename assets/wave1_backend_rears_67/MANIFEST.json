@@ -1,0 +1,2434 @@
+{
+  "schema": "kasc.wave1-backend-rears/v1",
+  "scope": "Forty-one base species. Original rears plus missing Crystal static rear slots. Other sides and forms unchanged.",
+  "sets": [
+    {
+      "dex": 412,
+      "side": "back",
+      "provider": "existing PokeAPI rear reference, before auto-devamp",
+      "source": "/Users/maarten/Documents/Recompile/jphyper-gen2ified-backsprites/references/pokeapi/normal/0412.png",
+      "sourceSha256": "d4a8d68f4aac56b15f183bf7149b3c6b5b6b69903525c7763b189b031b760dc9",
+      "output": "assets/wave1_backend_rears_67/412/normal/001.png",
+      "sha256": "20c51ea59c5871f798c883a1bd1895e33f37bcc27f873a7b59b1387b95a9db17",
+      "geometry": {
+        "sourceUnion": [
+          1,
+          0,
+          25,
+          30
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          24,
+          30
+        ],
+        "visibleRows": 32,
+        "sourceUpperBodyCrop": [
+          36,
+          26,
+          61,
+          56
+        ]
+      }
+    },
+    {
+      "dex": 412,
+      "side": "backShiny",
+      "provider": "existing PokeAPI rear reference, before auto-devamp",
+      "source": "/Users/maarten/Documents/Recompile/jphyper-gen2ified-backsprites/references/pokeapi/shiny/0412.png",
+      "sourceSha256": "c11d17a0edace862802db1126455783189ed70fda47b2bfabf53499feb1182b9",
+      "output": "assets/wave1_backend_rears_67/412/shiny/001.png",
+      "sha256": "0b369dbf0c4925c3ea574bb1045b71954947f275310c9796d91731a968d170f9",
+      "geometry": {
+        "sourceUnion": [
+          1,
+          0,
+          25,
+          30
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          24,
+          30
+        ],
+        "visibleRows": 32,
+        "sourceUpperBodyCrop": [
+          36,
+          26,
+          61,
+          56
+        ]
+      }
+    },
+    {
+      "dex": 413,
+      "side": "back",
+      "provider": "existing PokeAPI rear reference, before auto-devamp",
+      "source": "/Users/maarten/Documents/Recompile/jphyper-gen2ified-backsprites/references/pokeapi/normal/0413.png",
+      "sourceSha256": "f43494969958b1db156a44733732f8f53cfb07852791342050165f594f140cd8",
+      "output": "assets/wave1_backend_rears_67/413/normal/001.png",
+      "sha256": "48641b7fc4aa83ca48dc2ecfcc473968264aa7a588937fb9b95838a71f660611",
+      "geometry": {
+        "sourceUnion": [
+          0,
+          0,
+          43,
+          36
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          32,
+          27
+        ],
+        "visibleRows": 32,
+        "sourceUpperBodyCrop": [
+          26,
+          24,
+          69,
+          60
+        ]
+      }
+    },
+    {
+      "dex": 413,
+      "side": "backShiny",
+      "provider": "existing PokeAPI rear reference, before auto-devamp",
+      "source": "/Users/maarten/Documents/Recompile/jphyper-gen2ified-backsprites/references/pokeapi/shiny/0413.png",
+      "sourceSha256": "4ee1df97e50e1bfc5f251ee33030aea1f6982051295add977f517dffbbd685d8",
+      "output": "assets/wave1_backend_rears_67/413/shiny/001.png",
+      "sha256": "04758799ca10a25121a44d2f50f377ff6771ccbe3d8fc7adeaecaed14708d59e",
+      "geometry": {
+        "sourceUnion": [
+          0,
+          0,
+          43,
+          36
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          32,
+          27
+        ],
+        "visibleRows": 32,
+        "sourceUpperBodyCrop": [
+          26,
+          24,
+          69,
+          60
+        ]
+      }
+    },
+    {
+      "dex": 414,
+      "side": "back",
+      "provider": "existing PokeAPI rear reference, before auto-devamp",
+      "source": "/Users/maarten/Documents/Recompile/jphyper-gen2ified-backsprites/references/pokeapi/normal/0414.png",
+      "sourceSha256": "a263b4349534aecefd487510d062774f5bff88b56b9fa9c50c00b552f2d25e73",
+      "output": "assets/wave1_backend_rears_67/414/normal/001.png",
+      "sha256": "06b3264a620c20ff874cba82289711f51c4513df6a35619cbe3ef86e0e94b346",
+      "geometry": {
+        "sourceUnion": [
+          0,
+          5,
+          40,
+          34
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          32,
+          23
+        ],
+        "visibleRows": 32,
+        "sourceUpperBodyCrop": [
+          26,
+          23,
+          66,
+          57
+        ]
+      }
+    },
+    {
+      "dex": 414,
+      "side": "backShiny",
+      "provider": "existing PokeAPI rear reference, before auto-devamp",
+      "source": "/Users/maarten/Documents/Recompile/jphyper-gen2ified-backsprites/references/pokeapi/shiny/0414.png",
+      "sourceSha256": "3732935e5b0707191f3dd7b24f92e54bc4093a330a570080287fa61858c150b7",
+      "output": "assets/wave1_backend_rears_67/414/shiny/001.png",
+      "sha256": "85f2ce8de5abf8c9de50c83a57e0b1093f8d7298f99b726863ae6c2a383be9eb",
+      "geometry": {
+        "sourceUnion": [
+          0,
+          5,
+          40,
+          34
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          32,
+          23
+        ],
+        "visibleRows": 32,
+        "sourceUpperBodyCrop": [
+          26,
+          23,
+          66,
+          57
+        ]
+      }
+    },
+    {
+      "dex": 415,
+      "side": "back",
+      "provider": "existing PokeAPI rear reference, before auto-devamp",
+      "source": "/Users/maarten/Documents/Recompile/jphyper-gen2ified-backsprites/references/pokeapi/normal/0415.png",
+      "sourceSha256": "b77e21f70c7f1cc9dffe3ddde4775abbb42775fafb46540aaf69c561dbff538c",
+      "output": "assets/wave1_backend_rears_67/415/normal/001.png",
+      "sha256": "20b34269dacfd150c93beaa5869f49ce5d6a79fe07073bcb436d98f10224b0b5",
+      "geometry": {
+        "sourceUnion": [
+          0,
+          0,
+          60,
+          33
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          32,
+          18
+        ],
+        "visibleRows": 32,
+        "sourceUpperBodyCrop": [
+          18,
+          32,
+          78,
+          65
+        ]
+      }
+    },
+    {
+      "dex": 415,
+      "side": "backShiny",
+      "provider": "existing PokeAPI rear reference, before auto-devamp",
+      "source": "/Users/maarten/Documents/Recompile/jphyper-gen2ified-backsprites/references/pokeapi/shiny/0415.png",
+      "sourceSha256": "6d812c14c24f4e1eac7c4a2a30a97d4e7c7d5a0e63874cee80b334ba3e387796",
+      "output": "assets/wave1_backend_rears_67/415/shiny/001.png",
+      "sha256": "7fed4df10918da400e5d1e03ccbf3a538b4d901e0f13ee31acd0979a95473816",
+      "geometry": {
+        "sourceUnion": [
+          0,
+          0,
+          60,
+          33
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          32,
+          18
+        ],
+        "visibleRows": 32,
+        "sourceUpperBodyCrop": [
+          18,
+          32,
+          78,
+          65
+        ]
+      }
+    },
+    {
+      "dex": 416,
+      "side": "back",
+      "provider": "existing PokeAPI rear reference, before auto-devamp",
+      "source": "/Users/maarten/Documents/Recompile/jphyper-gen2ified-backsprites/references/pokeapi/normal/0416.png",
+      "sourceSha256": "5a541bbacd35afbe3a380d8d054ccc09d300e12727044d45138d2911d490bfd0",
+      "output": "assets/wave1_backend_rears_67/416/normal/001.png",
+      "sha256": "3c8320eeb48be4e35d2c6f69344c72473ba34f72bd6ffc7820be1b82f7ecec24",
+      "geometry": {
+        "sourceUnion": [
+          0,
+          0,
+          52,
+          26
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          32,
+          16
+        ],
+        "visibleRows": 32,
+        "sourceUpperBodyCrop": [
+          21,
+          19,
+          75,
+          45
+        ]
+      }
+    },
+    {
+      "dex": 416,
+      "side": "backShiny",
+      "provider": "existing PokeAPI rear reference, before auto-devamp",
+      "source": "/Users/maarten/Documents/Recompile/jphyper-gen2ified-backsprites/references/pokeapi/shiny/0416.png",
+      "sourceSha256": "a26ac3d4714076e2af055083691ce94e37e354550635670875c266e3618cdcf9",
+      "output": "assets/wave1_backend_rears_67/416/shiny/001.png",
+      "sha256": "84cbbc808d7eb6c6312d12676b229888258ff22ca4f8e6f0d3687c72abec58e7",
+      "geometry": {
+        "sourceUnion": [
+          0,
+          0,
+          52,
+          26
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          32,
+          16
+        ],
+        "visibleRows": 32,
+        "sourceUpperBodyCrop": [
+          21,
+          19,
+          75,
+          45
+        ]
+      }
+    },
+    {
+      "dex": 427,
+      "side": "back",
+      "provider": "existing PokeAPI rear reference, before auto-devamp",
+      "source": "/Users/maarten/Documents/Recompile/jphyper-gen2ified-backsprites/references/pokeapi/normal/0427.png",
+      "sourceSha256": "a33b4a28b0c7341f264f167ad1e6cf7f3c203e5d8a78b990f48af58fe76cfec9",
+      "output": "assets/wave1_backend_rears_67/427/normal/001.png",
+      "sha256": "2063570651ef55346d75fc1ab9cc9a4dd19f33201c22399c08800570d171c34a",
+      "geometry": {
+        "sourceUnion": [
+          0,
+          0,
+          34,
+          37
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          34,
+          37
+        ],
+        "sourceUpperBodyCrop": [
+          34,
+          16,
+          68,
+          53
+        ]
+      }
+    },
+    {
+      "dex": 427,
+      "side": "backShiny",
+      "provider": "existing PokeAPI rear reference, before auto-devamp",
+      "source": "/Users/maarten/Documents/Recompile/jphyper-gen2ified-backsprites/references/pokeapi/shiny/0427.png",
+      "sourceSha256": "068ea17f1a9dfb8cdbd4f9676511c839e03e101a11d87364f05c8fb02056accd",
+      "output": "assets/wave1_backend_rears_67/427/shiny/001.png",
+      "sha256": "8fb07f188a446a8c4bfc0826c0c7a24dc6ee01b0c7a3d38d55be8d44c238727f",
+      "geometry": {
+        "sourceUnion": [
+          0,
+          0,
+          34,
+          37
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          34,
+          37
+        ],
+        "sourceUpperBodyCrop": [
+          34,
+          16,
+          68,
+          53
+        ]
+      }
+    },
+    {
+      "dex": 428,
+      "side": "back",
+      "provider": "existing PokeAPI rear reference, before auto-devamp",
+      "source": "/Users/maarten/Documents/Recompile/jphyper-gen2ified-backsprites/references/pokeapi/normal/0428.png",
+      "sourceSha256": "0d8b9e4930f668efcc0d73e7cb48dfb92e963fa4b77af69936c00b6bb9f4eee7",
+      "output": "assets/wave1_backend_rears_67/428/normal/001.png",
+      "sha256": "9b49992935e7d947413fab4c686e89d97d4198e13b03341e1b96f48958478ba5",
+      "geometry": {
+        "sourceUnion": [
+          2,
+          0,
+          51,
+          34
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          48,
+          33
+        ],
+        "sourceUpperBodyCrop": [
+          21,
+          17,
+          75,
+          51
+        ]
+      }
+    },
+    {
+      "dex": 428,
+      "side": "backShiny",
+      "provider": "existing PokeAPI rear reference, before auto-devamp",
+      "source": "/Users/maarten/Documents/Recompile/jphyper-gen2ified-backsprites/references/pokeapi/shiny/0428.png",
+      "sourceSha256": "bcdc09cc879321f3a583af1a7dff4f40dd849d3686943f344cdbd004f9c6a7ad",
+      "output": "assets/wave1_backend_rears_67/428/shiny/001.png",
+      "sha256": "6fe352be7e87d978c933d4b60ec286266d0ffabd85ac0e2f8bbdc2fb9fc9fd02",
+      "geometry": {
+        "sourceUnion": [
+          2,
+          0,
+          51,
+          34
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          48,
+          33
+        ],
+        "sourceUpperBodyCrop": [
+          21,
+          17,
+          75,
+          51
+        ]
+      }
+    },
+    {
+      "dex": 447,
+      "side": "back",
+      "provider": "existing selected rear master, first frame only",
+      "source": "/Users/maarten/Documents/Recompile/.worktrees/kasc-66-legacy-bank-67-complete-20260904/assets/neo_crystal_2d_67/authored/pokewilds/447/back/normal/001.png",
+      "sourceSha256": "ecd311c4fce601f392f74800cce35af8a28a8d7b219936c0f8c2e3ab411af9da",
+      "output": "assets/wave1_backend_rears_67/447/normal/001.png",
+      "sha256": "8fbdbbe2f79f56a491952ed2a16cc7b8ddd580c929a0f70f744db5fd619abe6b",
+      "geometry": {
+        "sourceUnion": [
+          0,
+          0,
+          48,
+          48
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          48,
+          48
+        ]
+      }
+    },
+    {
+      "dex": 447,
+      "side": "backShiny",
+      "provider": "existing selected rear master, first frame only",
+      "source": "/Users/maarten/Documents/Recompile/.worktrees/kasc-66-legacy-bank-67-complete-20260904/assets/neo_crystal_2d_67/authored/pokewilds/447/back/shiny/001.png",
+      "sourceSha256": "189d3cd5b2875b2eb2b9f9a566cac0b57b3d9151d8c5ee7de9600d9ada63fba0",
+      "output": "assets/wave1_backend_rears_67/447/shiny/001.png",
+      "sha256": "7ad6511abe91f5d38f04a218a8aafaea09c3e5101814ef438e849865988606a5",
+      "geometry": {
+        "sourceUnion": [
+          0,
+          0,
+          48,
+          48
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          48,
+          48
+        ]
+      }
+    },
+    {
+      "dex": 448,
+      "side": "back",
+      "provider": "existing selected rear master, first frame only",
+      "source": "/Users/maarten/Documents/Recompile/.worktrees/kasc-66-legacy-bank-67-complete-20260904/assets/neo_crystal_2d_67/authored/pokewilds/448/back/normal/001.png",
+      "sourceSha256": "30863297a2c27b132cf68b806a7084ced0372f748b1b9f0ab712dbf1abedde66",
+      "output": "assets/wave1_backend_rears_67/448/normal/001.png",
+      "sha256": "d10195d076ccea71ba9f0f0c3e5e12ae513447dc2c96798f91107ff1dd3e44c1",
+      "geometry": {
+        "sourceUnion": [
+          2,
+          0,
+          45,
+          48
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          43,
+          48
+        ]
+      }
+    },
+    {
+      "dex": 448,
+      "side": "backShiny",
+      "provider": "existing selected rear master, first frame only",
+      "source": "/Users/maarten/Documents/Recompile/.worktrees/kasc-66-legacy-bank-67-complete-20260904/assets/neo_crystal_2d_67/authored/pokewilds/448/back/shiny/001.png",
+      "sourceSha256": "52d7033f6ec81031afac096ba30ccdefee490d1b5609593a588c598a4c2f5493",
+      "output": "assets/wave1_backend_rears_67/448/shiny/001.png",
+      "sha256": "1081aa76a14e0020d8d0d9742d417ae19cdb8b975d18dcbe2d204bde9e9dbb9d",
+      "geometry": {
+        "sourceUnion": [
+          2,
+          0,
+          45,
+          48
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          43,
+          48
+        ]
+      }
+    },
+    {
+      "dex": 527,
+      "side": "back",
+      "provider": "existing PokeAPI rear reference, before auto-devamp",
+      "source": "/Users/maarten/Documents/Recompile/jphyper-gen2ified-backsprites/references/pokeapi/normal/0527.png",
+      "sourceSha256": "1e730dcfb926e83b67db6b3d2ea7b8780cb8f8f6781ab1db303cd4127558c2d4",
+      "output": "assets/wave1_backend_rears_67/527/normal/001.png",
+      "sha256": "aa496789ad3c5a56483d93595cb692e0324fc512191fee73e3657f0b2e3df59c",
+      "geometry": {
+        "sourceUnion": [
+          0,
+          0,
+          58,
+          20
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          48,
+          17
+        ],
+        "sourceUpperBodyCrop": [
+          19,
+          34,
+          77,
+          54
+        ]
+      }
+    },
+    {
+      "dex": 527,
+      "side": "backShiny",
+      "provider": "existing PokeAPI rear reference, before auto-devamp",
+      "source": "/Users/maarten/Documents/Recompile/jphyper-gen2ified-backsprites/references/pokeapi/shiny/0527.png",
+      "sourceSha256": "0da1cc6ad0021ced848e257e4e91b25506bc0faf67622b81c58c3a0d6c930938",
+      "output": "assets/wave1_backend_rears_67/527/shiny/001.png",
+      "sha256": "1c832c586bb07618aed1e0d2f0de0475c1a3bf9e0e258634001b5ffc3f5ab0c8",
+      "geometry": {
+        "sourceUnion": [
+          0,
+          0,
+          58,
+          20
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          48,
+          17
+        ],
+        "sourceUpperBodyCrop": [
+          19,
+          34,
+          77,
+          54
+        ]
+      }
+    },
+    {
+      "dex": 528,
+      "side": "back",
+      "provider": "existing PokeAPI rear reference, before auto-devamp",
+      "source": "/Users/maarten/Documents/Recompile/jphyper-gen2ified-backsprites/references/pokeapi/normal/0528.png",
+      "sourceSha256": "35aacd9240522deff2450bff4f71e9b544241936e7417a49da4cc835fcb8a1d1",
+      "output": "assets/wave1_backend_rears_67/528/normal/001.png",
+      "sha256": "3881d890f06d88d3a00a45cbfc63eecd97203957cc8246e5f163af6005584b78",
+      "geometry": {
+        "sourceUnion": [
+          0,
+          0,
+          95,
+          46
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          48,
+          23
+        ],
+        "sourceUpperBodyCrop": [
+          0,
+          20,
+          95,
+          66
+        ]
+      }
+    },
+    {
+      "dex": 528,
+      "side": "backShiny",
+      "provider": "existing PokeAPI rear reference, before auto-devamp",
+      "source": "/Users/maarten/Documents/Recompile/jphyper-gen2ified-backsprites/references/pokeapi/shiny/0528.png",
+      "sourceSha256": "08bc54eddc4138ad6cfd3255d2ea546af36a9bb253c089ccc73a80cbd7e41434",
+      "output": "assets/wave1_backend_rears_67/528/shiny/001.png",
+      "sha256": "2d5f55b874c267791164c4cd2cad68cda9ee58bf2c3b627c14175e7b66dfdb72",
+      "geometry": {
+        "sourceUnion": [
+          0,
+          0,
+          95,
+          46
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          48,
+          23
+        ],
+        "sourceUpperBodyCrop": [
+          0,
+          20,
+          95,
+          66
+        ]
+      }
+    },
+    {
+      "dex": 541,
+      "side": "back",
+      "provider": "existing PokeAPI rear reference, before auto-devamp",
+      "source": "/Users/maarten/Documents/Recompile/jphyper-gen2ified-backsprites/references/pokeapi/normal/0541.png",
+      "sourceSha256": "9c1009e80fe6948f58d2682909e65f1314090a5a66d38ef3be96b12efc721298",
+      "output": "assets/wave1_backend_rears_67/541/normal/001.png",
+      "sha256": "365cb1b73a306bf29417cb3740aea9a08c4e9fcca9f56523aac0340c3f8d9e33",
+      "geometry": {
+        "sourceUnion": [
+          11,
+          0,
+          41,
+          30
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          30,
+          30
+        ],
+        "sourceUpperBodyCrop": [
+          20,
+          25,
+          69,
+          55
+        ]
+      }
+    },
+    {
+      "dex": 541,
+      "side": "backShiny",
+      "provider": "existing PokeAPI rear reference, before auto-devamp",
+      "source": "/Users/maarten/Documents/Recompile/jphyper-gen2ified-backsprites/references/pokeapi/shiny/0541.png",
+      "sourceSha256": "8c0f2718b9b78ba185ca8a15ffa1ca20d5113e9ad47c15972ae3cb09f830663f",
+      "output": "assets/wave1_backend_rears_67/541/shiny/001.png",
+      "sha256": "6ac5ac28a2a58cfa68f7f2ba363597f372d1d194a37a43feff86eae80b82c80c",
+      "geometry": {
+        "sourceUnion": [
+          11,
+          0,
+          41,
+          30
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          30,
+          30
+        ],
+        "sourceUpperBodyCrop": [
+          20,
+          25,
+          69,
+          55
+        ]
+      }
+    },
+    {
+      "dex": 542,
+      "side": "back",
+      "provider": "existing PokeAPI rear reference, before auto-devamp",
+      "source": "/Users/maarten/Documents/Recompile/jphyper-gen2ified-backsprites/references/pokeapi/normal/0542.png",
+      "sourceSha256": "af09fc66c160f12a569120d00f54dff0ed52261036b9c4229e700b36546a20e8",
+      "output": "assets/wave1_backend_rears_67/542/normal/001.png",
+      "sha256": "1916f3b006facfd82838228d4da854b0566731064657d8f4365ddc9855964cb6",
+      "geometry": {
+        "sourceUnion": [
+          0,
+          0,
+          42,
+          50
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          27,
+          32
+        ],
+        "visibleRows": 32,
+        "sourceUpperBodyCrop": [
+          30,
+          11,
+          72,
+          61
+        ]
+      }
+    },
+    {
+      "dex": 542,
+      "side": "backShiny",
+      "provider": "existing PokeAPI rear reference, before auto-devamp",
+      "source": "/Users/maarten/Documents/Recompile/jphyper-gen2ified-backsprites/references/pokeapi/shiny/0542.png",
+      "sourceSha256": "10296445ebff797fc2dece930ab19c4c1ee7dc6a79779bfef91e19ba9c60e6d9",
+      "output": "assets/wave1_backend_rears_67/542/shiny/001.png",
+      "sha256": "845612c14256c0834f426f231220256d5aec4fa24dd35c7ec398aceb8edf9855",
+      "geometry": {
+        "sourceUnion": [
+          0,
+          0,
+          42,
+          50
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          27,
+          32
+        ],
+        "visibleRows": 32,
+        "sourceUpperBodyCrop": [
+          30,
+          11,
+          72,
+          61
+        ]
+      }
+    },
+    {
+      "dex": 554,
+      "side": "back",
+      "provider": "existing selected rear master, first frame only",
+      "source": "/Users/maarten/Documents/Recompile/.worktrees/kasc-66-legacy-bank-67-complete-20260904/assets/neo_crystal_2d_67/authored/pokewilds/554/back/normal/001.png",
+      "sourceSha256": "b02ef464e0cf98d628eee83c035555246bdaf0bf0a3a851f4dfd8489ba36c55c",
+      "output": "assets/wave1_backend_rears_67/554/normal/001.png",
+      "sha256": "ae6d4acf9dd72661bd1e39a4a0c653e426fa2385f85cd0f98a19376c556df61e",
+      "geometry": {
+        "sourceUnion": [
+          0,
+          0,
+          47,
+          41
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          47,
+          41
+        ]
+      }
+    },
+    {
+      "dex": 554,
+      "side": "backShiny",
+      "provider": "existing selected rear master, first frame only",
+      "source": "/Users/maarten/Documents/Recompile/.worktrees/kasc-66-legacy-bank-67-complete-20260904/assets/neo_crystal_2d_67/authored/pokewilds/554/back/shiny/001.png",
+      "sourceSha256": "7b2ef7ab0e4c158aceed76c7552bd548dcea2c2c1dd8833f7f29760d0c5208c2",
+      "output": "assets/wave1_backend_rears_67/554/shiny/001.png",
+      "sha256": "864c9f941763fc1dbaf9e7bf07b41b839b64d2364e3df69605938a2ca1e41bae",
+      "geometry": {
+        "sourceUnion": [
+          0,
+          0,
+          47,
+          41
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          47,
+          41
+        ]
+      }
+    },
+    {
+      "dex": 555,
+      "side": "back",
+      "provider": "provided canonical Neo static rear",
+      "source": "/Users/maarten/Documents/Recompile/private-sets/Gen2-all-neo-current/crystal-integration/assets/crystal_animated/back/normal/555/001.png",
+      "sourceSha256": "30ab2685bca7518cdcdf3091dcc58acea98121ae4a97170a2d4a8095782850d7",
+      "output": "assets/wave1_backend_rears_67/555/normal/001.png",
+      "sha256": "7a02d8262bfadae9e89d94f2d762fe524f67b37d971fb8c529e52aa5365956c5",
+      "geometry": {
+        "sourceUnion": [
+          24,
+          37,
+          72,
+          76
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          48,
+          39
+        ]
+      }
+    },
+    {
+      "dex": 555,
+      "side": "backShiny",
+      "provider": "provided canonical Neo static rear",
+      "source": "/Users/maarten/Documents/Recompile/private-sets/Gen2-all-neo-current/crystal-integration/assets/crystal_animated/back/shiny/555/001.png",
+      "sourceSha256": "740a271253898639e8a59ce931fb42b6b83c351d16fe4041022af0a59fd8d3fb",
+      "output": "assets/wave1_backend_rears_67/555/shiny/001.png",
+      "sha256": "66aa6e55897a6030ffe856f209a095979a2242b7ea5cc39925a6ec1c6a20ffa1",
+      "geometry": {
+        "sourceUnion": [
+          24,
+          37,
+          72,
+          76
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          48,
+          39
+        ]
+      }
+    },
+    {
+      "dex": 570,
+      "side": "back",
+      "provider": "provided canonical Neo static rear",
+      "source": "/Users/maarten/Documents/Recompile/private-sets/Gen2-all-neo-current/crystal-integration/assets/crystal_animated/back/normal/570/001.png",
+      "sourceSha256": "ca8cf866ecda0c99d22994351889e5695bb08df3f356b45c5ab38929528ce324",
+      "output": "assets/wave1_backend_rears_67/570/normal/001.png",
+      "sha256": "4cda5f50ddf1c2e09c140a04166f78732dbe6f92bdf54fb23be5acdf3e270f38",
+      "geometry": {
+        "sourceUnion": [
+          30,
+          38,
+          67,
+          76
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          37,
+          38
+        ]
+      }
+    },
+    {
+      "dex": 570,
+      "side": "backShiny",
+      "provider": "provided canonical Neo static rear",
+      "source": "/Users/maarten/Documents/Recompile/private-sets/Gen2-all-neo-current/crystal-integration/assets/crystal_animated/back/shiny/570/001.png",
+      "sourceSha256": "bf5554fc9c5581386e366804c93905f50d5088fc7b025fb6da30f8ebb59b180c",
+      "output": "assets/wave1_backend_rears_67/570/shiny/001.png",
+      "sha256": "2f1a9f02966c80211663cd100e9a9e295dd613af477b73715773f8d8da131a95",
+      "geometry": {
+        "sourceUnion": [
+          30,
+          38,
+          67,
+          76
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          37,
+          38
+        ]
+      }
+    },
+    {
+      "dex": 571,
+      "side": "back",
+      "provider": "existing selected rear master, first frame only",
+      "source": "/Users/maarten/Documents/Recompile/.worktrees/kasc-66-legacy-bank-67-complete-20260904/assets/neo_crystal_2d_67/authored/pokewilds/571/back/normal/001.png",
+      "sourceSha256": "c116f2a358e1f6bc59843a558fe4f10927ca6b38964c5a09e5762f0784f505e3",
+      "output": "assets/wave1_backend_rears_67/571/normal/001.png",
+      "sha256": "6e5e5ab1731a9a6f3cc910c01246f57199574fcb4443440670989bedc6bae102",
+      "geometry": {
+        "sourceUnion": [
+          1,
+          0,
+          47,
+          37
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          46,
+          37
+        ]
+      }
+    },
+    {
+      "dex": 571,
+      "side": "backShiny",
+      "provider": "existing selected rear master, first frame only",
+      "source": "/Users/maarten/Documents/Recompile/.worktrees/kasc-66-legacy-bank-67-complete-20260904/assets/backend_national_catalog_67/neo-animations/571/back/shiny/001.png",
+      "sourceSha256": "783dc0b9ea2d94ca8accb024f115bd46f56aaa24e50aef9035d089030cb36804",
+      "output": "assets/wave1_backend_rears_67/571/shiny/001.png",
+      "sha256": "219eeb452f66836dc7bf800ebf07eed3c4ae358b2aa4e8faaa8d09bc9dfc7994",
+      "geometry": {
+        "sourceUnion": [
+          0,
+          1,
+          45,
+          48
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          45,
+          47
+        ]
+      }
+    },
+    {
+      "dex": 627,
+      "side": "back",
+      "provider": "existing selected rear master, first frame only",
+      "source": "/Users/maarten/Documents/Recompile/.worktrees/kasc-66-legacy-bank-67-complete-20260904/assets/backend_national_catalog_67/lazarus-animations/627/back/normal/001.png",
+      "sourceSha256": "5295d993b35d50349a4aa43535a6dc3048142ec304c6fe732bd7e5c3e74bcbc1",
+      "output": "assets/wave1_backend_rears_67/627/normal/001.png",
+      "sha256": "5295d993b35d50349a4aa43535a6dc3048142ec304c6fe732bd7e5c3e74bcbc1",
+      "geometry": {
+        "sourceUnion": [
+          3,
+          0,
+          44,
+          48
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          41,
+          48
+        ]
+      }
+    },
+    {
+      "dex": 627,
+      "side": "backShiny",
+      "provider": "existing selected rear master, first frame only",
+      "source": "/Users/maarten/Documents/Recompile/.worktrees/kasc-66-legacy-bank-67-complete-20260904/assets/backend_national_catalog_67/lazarus-animations/627/back/shiny/001.png",
+      "sourceSha256": "5df44034cfb45e760fa46fb384c778551329f1e089081af553e20779a9233c4a",
+      "output": "assets/wave1_backend_rears_67/627/shiny/001.png",
+      "sha256": "5df44034cfb45e760fa46fb384c778551329f1e089081af553e20779a9233c4a",
+      "geometry": {
+        "sourceUnion": [
+          3,
+          0,
+          44,
+          48
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          41,
+          48
+        ]
+      }
+    },
+    {
+      "dex": 628,
+      "side": "back",
+      "provider": "existing selected rear master, first frame only",
+      "source": "/Users/maarten/Documents/Recompile/.worktrees/kasc-66-legacy-bank-67-complete-20260904/assets/backend_national_catalog_67/lazarus-animations/628/back/normal/001.png",
+      "sourceSha256": "d8b615c828837c2ef3ef39cbd2c191ff9f8bc2029321bf944660e3cc133a082a",
+      "output": "assets/wave1_backend_rears_67/628/normal/001.png",
+      "sha256": "d8b615c828837c2ef3ef39cbd2c191ff9f8bc2029321bf944660e3cc133a082a",
+      "geometry": {
+        "sourceUnion": [
+          0,
+          0,
+          48,
+          39
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          48,
+          39
+        ]
+      }
+    },
+    {
+      "dex": 628,
+      "side": "backShiny",
+      "provider": "existing selected rear master, first frame only",
+      "source": "/Users/maarten/Documents/Recompile/.worktrees/kasc-66-legacy-bank-67-complete-20260904/assets/backend_national_catalog_67/lazarus-animations/628/back/shiny/001.png",
+      "sourceSha256": "12c5ce5af261d7854a6a35f3abca7fd294aad0cd3916509a66d59b060ce09d28",
+      "output": "assets/wave1_backend_rears_67/628/shiny/001.png",
+      "sha256": "12c5ce5af261d7854a6a35f3abca7fd294aad0cd3916509a66d59b060ce09d28",
+      "geometry": {
+        "sourceUnion": [
+          0,
+          0,
+          48,
+          39
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          48,
+          39
+        ]
+      }
+    },
+    {
+      "dex": 665,
+      "side": "back",
+      "provider": "existing PokeAPI rear reference, before auto-devamp",
+      "source": "/Users/maarten/Documents/Recompile/jphyper-gen2ified-backsprites/references/pokeapi/normal/0665.png",
+      "sourceSha256": "b13b2a957f868e3af8d22b5dc3718b61ff8652a9ef9a09270b3700f6230913d5",
+      "output": "assets/wave1_backend_rears_67/665/normal/001.png",
+      "sha256": "b472712cedc9cdaa24150657d15c23599a475e36890914869b53502ae2f45f80",
+      "geometry": {
+        "sourceUnion": [
+          31,
+          30,
+          65,
+          65
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          34,
+          35
+        ]
+      }
+    },
+    {
+      "dex": 665,
+      "side": "backShiny",
+      "provider": "existing PokeAPI rear reference, before auto-devamp",
+      "source": "/Users/maarten/Documents/Recompile/jphyper-gen2ified-backsprites/references/pokeapi/shiny/0665.png",
+      "sourceSha256": "c73cf662c1ba049418f904ab287429cf2606dd38110efd3a30acf44a6efde775",
+      "output": "assets/wave1_backend_rears_67/665/shiny/001.png",
+      "sha256": "1163e2bd271e82b0abbf791583eebe9bba25683fce942e5588fba94826f1de98",
+      "geometry": {
+        "sourceUnion": [
+          31,
+          30,
+          65,
+          65
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          34,
+          35
+        ]
+      }
+    },
+    {
+      "dex": 666,
+      "side": "back",
+      "provider": "existing PokeAPI rear reference, before auto-devamp",
+      "source": "/Users/maarten/Documents/Recompile/jphyper-gen2ified-backsprites/references/pokeapi/normal/0666.png",
+      "sourceSha256": "e3890ae93a3829d918e369da257facd195f4cf26ec4d409651546004cd319c32",
+      "output": "assets/wave1_backend_rears_67/666/normal/001.png",
+      "sha256": "7bf3faf52e11394935d02d9e25b571fe18a32ebea5851f70ca58105260fb4920",
+      "geometry": {
+        "sourceUnion": [
+          14,
+          14,
+          81,
+          81
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          48,
+          48
+        ]
+      }
+    },
+    {
+      "dex": 666,
+      "side": "backShiny",
+      "provider": "existing PokeAPI rear reference, before auto-devamp",
+      "source": "/Users/maarten/Documents/Recompile/jphyper-gen2ified-backsprites/references/pokeapi/shiny/0666.png",
+      "sourceSha256": "76266c9520ea66213ef96f9995c7a6718e56450df7f72916f9c8afa372dcce4e",
+      "output": "assets/wave1_backend_rears_67/666/shiny/001.png",
+      "sha256": "84ec95c068269f957b87c69af718729dc1a94be9b73601793ac20632594bbf79",
+      "geometry": {
+        "sourceUnion": [
+          14,
+          14,
+          81,
+          81
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          48,
+          48
+        ]
+      }
+    },
+    {
+      "dex": 674,
+      "side": "back",
+      "provider": "existing PokeAPI rear reference, before auto-devamp",
+      "source": "/Users/maarten/Documents/Recompile/jphyper-gen2ified-backsprites/references/pokeapi/normal/0674.png",
+      "sourceSha256": "2ba98f4443ab7c39974eaacd046976a64dec1b71f12dfc6ed8a4c34e7f9da174",
+      "output": "assets/wave1_backend_rears_67/674/normal/001.png",
+      "sha256": "6c08ee811c1ed97512ece887a3f07e7904ce41c6db358f60c5cb6480d3c3be4d",
+      "geometry": {
+        "sourceUnion": [
+          1,
+          1,
+          28,
+          29
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          27,
+          28
+        ],
+        "visibleRows": 32,
+        "sourceUpperBodyCrop": [
+          33,
+          26,
+          62,
+          55
+        ]
+      }
+    },
+    {
+      "dex": 674,
+      "side": "backShiny",
+      "provider": "existing PokeAPI rear reference, before auto-devamp",
+      "source": "/Users/maarten/Documents/Recompile/jphyper-gen2ified-backsprites/references/pokeapi/shiny/0674.png",
+      "sourceSha256": "08498f365bfd95051194a66e99727a331122b417ed4d30d9ccf72db899d40e53",
+      "output": "assets/wave1_backend_rears_67/674/shiny/001.png",
+      "sha256": "27bbab075c076d3391754f3e2dee3d7be12100deda5aa58ae1160ae59164658c",
+      "geometry": {
+        "sourceUnion": [
+          1,
+          1,
+          28,
+          29
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          27,
+          28
+        ],
+        "visibleRows": 32,
+        "sourceUpperBodyCrop": [
+          33,
+          26,
+          62,
+          55
+        ]
+      }
+    },
+    {
+      "dex": 675,
+      "side": "back",
+      "provider": "existing PokeAPI rear reference, before auto-devamp",
+      "source": "/Users/maarten/Documents/Recompile/jphyper-gen2ified-backsprites/references/pokeapi/normal/0675.png",
+      "sourceSha256": "05ca71d50066a03b9df82e36837f738085fb1d1ea7974625f01e24bac21c5a53",
+      "output": "assets/wave1_backend_rears_67/675/normal/001.png",
+      "sha256": "772b035ea40d708f2738542272ffc3c19796472771cfb66f0d20cc542a49122b",
+      "geometry": {
+        "sourceUnion": [
+          0,
+          2,
+          46,
+          38
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          32,
+          25
+        ],
+        "visibleRows": 32,
+        "sourceUpperBodyCrop": [
+          35,
+          7,
+          82,
+          45
+        ]
+      }
+    },
+    {
+      "dex": 675,
+      "side": "backShiny",
+      "provider": "existing PokeAPI rear reference, before auto-devamp",
+      "source": "/Users/maarten/Documents/Recompile/jphyper-gen2ified-backsprites/references/pokeapi/shiny/0675.png",
+      "sourceSha256": "68f90e4fc1949f90cf8800e8a04530b0bb76dd65e5220ed826421b564ad2f0ba",
+      "output": "assets/wave1_backend_rears_67/675/shiny/001.png",
+      "sha256": "4c41787a03a735834489478d9d42e76cca0f04d51523d6673ebc902808fd22f8",
+      "geometry": {
+        "sourceUnion": [
+          0,
+          2,
+          46,
+          38
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          32,
+          25
+        ],
+        "visibleRows": 32,
+        "sourceUpperBodyCrop": [
+          35,
+          7,
+          82,
+          45
+        ]
+      }
+    },
+    {
+      "dex": 696,
+      "side": "back",
+      "provider": "existing PokeAPI rear reference, before auto-devamp",
+      "source": "/Users/maarten/Documents/Recompile/jphyper-gen2ified-backsprites/references/pokeapi/normal/0696.png",
+      "sourceSha256": "ea49528aa82f032ada7cdb68b0958a56834309958cf3f5f98c844706d7417a2a",
+      "output": "assets/wave1_backend_rears_67/696/normal/001.png",
+      "sha256": "c134811d411d686eced993eb2821c09aff1c8c0b00a13ccc2a045ccc475f2645",
+      "geometry": {
+        "sourceUnion": [
+          0,
+          0,
+          39,
+          31
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          32,
+          25
+        ],
+        "visibleRows": 32,
+        "sourceUpperBodyCrop": [
+          39,
+          25,
+          78,
+          56
+        ]
+      }
+    },
+    {
+      "dex": 696,
+      "side": "backShiny",
+      "provider": "existing PokeAPI rear reference, before auto-devamp",
+      "source": "/Users/maarten/Documents/Recompile/jphyper-gen2ified-backsprites/references/pokeapi/shiny/0696.png",
+      "sourceSha256": "a6f2d0c7b10cd11c36104fabe343757fd67a09189fa0167a5f2344533098c781",
+      "output": "assets/wave1_backend_rears_67/696/shiny/001.png",
+      "sha256": "027d4f303059c04e58b1ab161c2bc27fba45a973b4d7cca9195a5d5a9e2429bf",
+      "geometry": {
+        "sourceUnion": [
+          0,
+          0,
+          39,
+          31
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          32,
+          25
+        ],
+        "visibleRows": 32,
+        "sourceUpperBodyCrop": [
+          39,
+          25,
+          78,
+          56
+        ]
+      }
+    },
+    {
+      "dex": 697,
+      "side": "back",
+      "provider": "existing PokeAPI rear reference, before auto-devamp",
+      "source": "/Users/maarten/Documents/Recompile/jphyper-gen2ified-backsprites/references/pokeapi/normal/0697.png",
+      "sourceSha256": "2ca0920e3306b198d5478814ef5104e7658c7bad050b984aad70397196845ae3",
+      "output": "assets/wave1_backend_rears_67/697/normal/001.png",
+      "sha256": "f958408072daa1adcc32e477bf78bc3b0883cfd16f27ac5ccf65eedc97552b79",
+      "geometry": {
+        "sourceUnion": [
+          0,
+          0,
+          50,
+          50
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          32,
+          32
+        ],
+        "visibleRows": 32,
+        "sourceUpperBodyCrop": [
+          44,
+          10,
+          94,
+          60
+        ]
+      }
+    },
+    {
+      "dex": 697,
+      "side": "backShiny",
+      "provider": "existing PokeAPI rear reference, before auto-devamp",
+      "source": "/Users/maarten/Documents/Recompile/jphyper-gen2ified-backsprites/references/pokeapi/shiny/0697.png",
+      "sourceSha256": "8a1dba2acbdcb89ffd2209476a4cb3efee0fdff3d53a5deb0c552d5bae532714",
+      "output": "assets/wave1_backend_rears_67/697/shiny/001.png",
+      "sha256": "b66457c424df5d8ffb8d1c453bb2249c9d59974ec9bb64236ec819de4382d738",
+      "geometry": {
+        "sourceUnion": [
+          0,
+          0,
+          50,
+          50
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          32,
+          32
+        ],
+        "visibleRows": 32,
+        "sourceUpperBodyCrop": [
+          44,
+          10,
+          94,
+          60
+        ]
+      }
+    },
+    {
+      "dex": 698,
+      "side": "back",
+      "provider": "existing PokeAPI rear reference, before auto-devamp",
+      "source": "/Users/maarten/Documents/Recompile/jphyper-gen2ified-backsprites/references/pokeapi/normal/0698.png",
+      "sourceSha256": "87f00392e195da597c21f9d9d7bdfc26ea9276b58357f8c2d1255237dca709b4",
+      "output": "assets/wave1_backend_rears_67/698/normal/001.png",
+      "sha256": "f609d2f8d5a87a29c3b2e9874c3f77962ba198f379e2b801f0ee62b9bbbf4b8d",
+      "geometry": {
+        "sourceUnion": [
+          0,
+          0,
+          37,
+          37
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          32,
+          32
+        ],
+        "visibleRows": 32,
+        "sourceUpperBodyCrop": [
+          29,
+          20,
+          66,
+          57
+        ]
+      }
+    },
+    {
+      "dex": 698,
+      "side": "backShiny",
+      "provider": "existing PokeAPI rear reference, before auto-devamp",
+      "source": "/Users/maarten/Documents/Recompile/jphyper-gen2ified-backsprites/references/pokeapi/shiny/0698.png",
+      "sourceSha256": "3e511b792d3ef40d52582d6aaddb7113ef18fa8249fff8726927965931c77124",
+      "output": "assets/wave1_backend_rears_67/698/shiny/001.png",
+      "sha256": "71c1735f9f6053c70d237ed74ed97108fcee726a44dc937af83ec8c6128a07aa",
+      "geometry": {
+        "sourceUnion": [
+          0,
+          0,
+          37,
+          37
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          32,
+          32
+        ],
+        "visibleRows": 32,
+        "sourceUpperBodyCrop": [
+          29,
+          20,
+          66,
+          57
+        ]
+      }
+    },
+    {
+      "dex": 699,
+      "side": "back",
+      "provider": "existing PokeAPI rear reference, before auto-devamp",
+      "source": "/Users/maarten/Documents/Recompile/jphyper-gen2ified-backsprites/references/pokeapi/normal/0699.png",
+      "sourceSha256": "80fc7471361783acca0c42c1260b96cd15c445d9be3ee5eeda4114b12ac174b7",
+      "output": "assets/wave1_backend_rears_67/699/normal/001.png",
+      "sha256": "8dc67fa63920ad01da3d27e156fbfacf066b1dbd890f1284b7113414429d4afe",
+      "geometry": {
+        "sourceUnion": [
+          0,
+          0,
+          44,
+          58
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          24,
+          32
+        ],
+        "visibleRows": 32,
+        "sourceUpperBodyCrop": [
+          43,
+          4,
+          87,
+          62
+        ]
+      }
+    },
+    {
+      "dex": 699,
+      "side": "backShiny",
+      "provider": "existing PokeAPI rear reference, before auto-devamp",
+      "source": "/Users/maarten/Documents/Recompile/jphyper-gen2ified-backsprites/references/pokeapi/shiny/0699.png",
+      "sourceSha256": "6d1c298c2517c1ede5b2ce557d1ebd03216d24be39ef4174ce4492750a180059",
+      "output": "assets/wave1_backend_rears_67/699/shiny/001.png",
+      "sha256": "48eb663c468638a980646a22b64509fd10d67d4c1766239b350c8120e05cf10c",
+      "geometry": {
+        "sourceUnion": [
+          0,
+          0,
+          44,
+          58
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          24,
+          32
+        ],
+        "visibleRows": 32,
+        "sourceUpperBodyCrop": [
+          43,
+          4,
+          87,
+          62
+        ]
+      }
+    },
+    {
+      "dex": 705,
+      "side": "back",
+      "provider": "existing selected rear master, first frame only",
+      "source": "/Users/maarten/Documents/Recompile/.worktrees/kasc-66-legacy-bank-67-complete-20260904/assets/backend_national_catalog_67/lazarus-animations/705/back/normal/001.png",
+      "sourceSha256": "a54a13603c1a78149d94e06d9ca7ea74890f57ff6991af53c382ea5b84833988",
+      "output": "assets/wave1_backend_rears_67/705/normal/001.png",
+      "sha256": "eb4d3548aabc330f302e22751eadae899a25af70f4c31a33b9eb402bb3b0e890",
+      "geometry": {
+        "sourceUnion": [
+          0,
+          0,
+          47,
+          48
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          47,
+          48
+        ]
+      }
+    },
+    {
+      "dex": 705,
+      "side": "backShiny",
+      "provider": "existing selected rear master, first frame only",
+      "source": "/Users/maarten/Documents/Recompile/.worktrees/kasc-66-legacy-bank-67-complete-20260904/assets/backend_national_catalog_67/lazarus-animations/705/back/shiny/001.png",
+      "sourceSha256": "4af0e959b2f91013c0855afd2c126439ccc0562dc2453a9fed1884aa92696f3b",
+      "output": "assets/wave1_backend_rears_67/705/shiny/001.png",
+      "sha256": "4af0e959b2f91013c0855afd2c126439ccc0562dc2453a9fed1884aa92696f3b",
+      "geometry": {
+        "sourceUnion": [
+          0,
+          0,
+          47,
+          48
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          47,
+          48
+        ]
+      }
+    },
+    {
+      "dex": 734,
+      "side": "back",
+      "provider": "existing pinned PokeAPI rear master",
+      "source": "/Users/maarten/Documents/Recompile/.worktrees/kasc-66-legacy-bank-67-complete-20260904/qa/backend-national-catalog-20260907/art-source/734-back.png",
+      "sourceSha256": "a2ea3bf2c19d0df3c14ea104767cb580d0a120dcd16ebf3202ec53a2c0d14dd8",
+      "output": "assets/wave1_backend_rears_67/734/normal/001.png",
+      "sha256": "11ec7cf86092ce1e759f0048ee5e95f168cdcd81b605072f9726633cdc45ae29",
+      "geometry": {
+        "sourceUnion": [
+          0,
+          0,
+          39,
+          23
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          32,
+          19
+        ],
+        "visibleRows": 32,
+        "sourceUpperBodyCrop": [
+          41,
+          30,
+          80,
+          53
+        ]
+      }
+    },
+    {
+      "dex": 734,
+      "side": "backShiny",
+      "provider": "existing pinned PokeAPI rear master",
+      "source": "/Users/maarten/Documents/Recompile/.worktrees/kasc-66-legacy-bank-67-complete-20260904/qa/backend-national-catalog-20260907/art-source/734-backShiny.png",
+      "sourceSha256": "43f94b6c60f2a4cc00a2f04571472446d83efc87d52f71c5f9e26946bfcf3e05",
+      "output": "assets/wave1_backend_rears_67/734/shiny/001.png",
+      "sha256": "9857aee1557f84b7fafd8389a4e4ca54031d04672c41b853467cb71aac38cfdd",
+      "geometry": {
+        "sourceUnion": [
+          0,
+          0,
+          39,
+          23
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          32,
+          19
+        ],
+        "visibleRows": 32,
+        "sourceUpperBodyCrop": [
+          41,
+          30,
+          80,
+          53
+        ]
+      }
+    },
+    {
+      "dex": 739,
+      "side": "back",
+      "provider": "existing pinned PokeAPI rear master",
+      "source": "/Users/maarten/Documents/Recompile/.worktrees/kasc-66-legacy-bank-67-complete-20260904/qa/backend-national-catalog-20260907/art-source/739-back.png",
+      "sourceSha256": "58d6719771ba057a7a1b5de3287495c43b75570c7778d3c332d9c1f573416b8a",
+      "output": "assets/wave1_backend_rears_67/739/normal/001.png",
+      "sha256": "028c9fd69128b69b104590013afd2873a990c8ebcd3dba4af58cab263d44c272",
+      "geometry": {
+        "sourceUnion": [
+          5,
+          0,
+          69,
+          41
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          48,
+          31
+        ],
+        "sourceUpperBodyCrop": [
+          14,
+          21,
+          83,
+          62
+        ]
+      }
+    },
+    {
+      "dex": 739,
+      "side": "backShiny",
+      "provider": "existing pinned PokeAPI rear master",
+      "source": "/Users/maarten/Documents/Recompile/.worktrees/kasc-66-legacy-bank-67-complete-20260904/qa/backend-national-catalog-20260907/art-source/739-backShiny.png",
+      "sourceSha256": "e0d784874355a8a97b7ec733f3f74656aef908472de776b77f5b00ce1d57f405",
+      "output": "assets/wave1_backend_rears_67/739/shiny/001.png",
+      "sha256": "6d6bca90c01474d825ae6ab0e771ced221c522e2b4f184c57a11226e70a4ec5e",
+      "geometry": {
+        "sourceUnion": [
+          5,
+          0,
+          69,
+          41
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          48,
+          31
+        ],
+        "sourceUpperBodyCrop": [
+          14,
+          21,
+          83,
+          62
+        ]
+      }
+    },
+    {
+      "dex": 740,
+      "side": "back",
+      "provider": "existing pinned PokeAPI rear master",
+      "source": "/Users/maarten/Documents/Recompile/.worktrees/kasc-66-legacy-bank-67-complete-20260904/qa/backend-national-catalog-20260907/art-source/740-back.png",
+      "sourceSha256": "d624aaa6703455ed2b76ac7a386f6a3108ced331253283fc05ab058d763b90fb",
+      "output": "assets/wave1_backend_rears_67/740/normal/001.png",
+      "sha256": "1cc6c039a650a42923a7e16af24bce720199826be068966ea68febeac76b54e9",
+      "geometry": {
+        "sourceUnion": [
+          0,
+          0,
+          93,
+          66
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          48,
+          34
+        ],
+        "sourceUpperBodyCrop": [
+          1,
+          7,
+          94,
+          73
+        ]
+      }
+    },
+    {
+      "dex": 740,
+      "side": "backShiny",
+      "provider": "existing pinned PokeAPI rear master",
+      "source": "/Users/maarten/Documents/Recompile/.worktrees/kasc-66-legacy-bank-67-complete-20260904/qa/backend-national-catalog-20260907/art-source/740-backShiny.png",
+      "sourceSha256": "d98b6246c7dcb949403068c0dad55f68963e0a4479c3fccdfff1a762a964ca8d",
+      "output": "assets/wave1_backend_rears_67/740/shiny/001.png",
+      "sha256": "7fc5aacc09eef4ca49171813bd8328f31b3a9d9b4801e3eb9d664fa23888baa2",
+      "geometry": {
+        "sourceUnion": [
+          0,
+          0,
+          95,
+          66
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          48,
+          33
+        ],
+        "sourceUpperBodyCrop": [
+          1,
+          7,
+          96,
+          73
+        ]
+      }
+    },
+    {
+      "dex": 757,
+      "side": "back",
+      "provider": "existing pinned PokeAPI rear master",
+      "source": "/Users/maarten/Documents/Recompile/.worktrees/kasc-66-legacy-bank-67-complete-20260904/qa/backend-national-catalog-20260907/art-source/757-back.png",
+      "sourceSha256": "d0958b260022e7b000cfdc7ff22e34afffd807684f313f8a4425be1869a6996d",
+      "output": "assets/wave1_backend_rears_67/757/normal/001.png",
+      "sha256": "343b06c7b2f1330388ec545f6dbe5b603118c3535a341b6713df0234d63b8238",
+      "geometry": {
+        "sourceUnion": [
+          0,
+          1,
+          37,
+          29
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          32,
+          24
+        ],
+        "visibleRows": 32,
+        "sourceUpperBodyCrop": [
+          38,
+          28,
+          77,
+          57
+        ]
+      }
+    },
+    {
+      "dex": 757,
+      "side": "backShiny",
+      "provider": "existing pinned PokeAPI rear master",
+      "source": "/Users/maarten/Documents/Recompile/.worktrees/kasc-66-legacy-bank-67-complete-20260904/qa/backend-national-catalog-20260907/art-source/757-backShiny.png",
+      "sourceSha256": "7fac336ea552169c0ec042123422732c4e96b5a9632094ec9efa29be8e7d61b7",
+      "output": "assets/wave1_backend_rears_67/757/shiny/001.png",
+      "sha256": "111f4d54b394e0e7b038962cc2b5a029fb4f3b38ae00ea1b501b7f607e674fd6",
+      "geometry": {
+        "sourceUnion": [
+          0,
+          1,
+          37,
+          29
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          32,
+          24
+        ],
+        "visibleRows": 32,
+        "sourceUpperBodyCrop": [
+          38,
+          28,
+          77,
+          57
+        ]
+      }
+    },
+    {
+      "dex": 758,
+      "side": "back",
+      "provider": "existing pinned PokeAPI rear master",
+      "source": "/Users/maarten/Documents/Recompile/.worktrees/kasc-66-legacy-bank-67-complete-20260904/qa/backend-national-catalog-20260907/art-source/758-back.png",
+      "sourceSha256": "78ddd1e6cda75f7f27c19a5c732eb1badbdd2ca75cfac344b98eea489dd0696f",
+      "output": "assets/wave1_backend_rears_67/758/normal/001.png",
+      "sha256": "513a6b62dc37de6271519cbf559dccf032aaf779b9d0d861419a420c489f5c0e",
+      "geometry": {
+        "sourceUnion": [
+          1,
+          1,
+          27,
+          35
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          24,
+          32
+        ],
+        "visibleRows": 32,
+        "sourceUpperBodyCrop": [
+          40,
+          15,
+          70,
+          50
+        ]
+      }
+    },
+    {
+      "dex": 758,
+      "side": "backShiny",
+      "provider": "existing pinned PokeAPI rear master",
+      "source": "/Users/maarten/Documents/Recompile/.worktrees/kasc-66-legacy-bank-67-complete-20260904/qa/backend-national-catalog-20260907/art-source/758-backShiny.png",
+      "sourceSha256": "7aca3c9a5607c7b4a86187287bc459cd72f28b8e63763e5cd70856b9f8177b34",
+      "output": "assets/wave1_backend_rears_67/758/shiny/001.png",
+      "sha256": "6fa5904ff127191711948d016c2bd6e42cd7f8bffa99297488407bc060098d3f",
+      "geometry": {
+        "sourceUnion": [
+          1,
+          1,
+          27,
+          35
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          24,
+          32
+        ],
+        "visibleRows": 32,
+        "sourceUpperBodyCrop": [
+          40,
+          15,
+          70,
+          50
+        ]
+      }
+    },
+    {
+      "dex": 790,
+      "side": "back",
+      "provider": "existing pinned PokeAPI rear master",
+      "source": "/Users/maarten/Documents/Recompile/.worktrees/kasc-66-legacy-bank-67-complete-20260904/qa/backend-national-catalog-20260907/art-source/790-back.png",
+      "sourceSha256": "c74fed504eeb245bc7037f6004dfbba5a0c0949d5be1b04f0fa2623d5eebb8c2",
+      "output": "assets/wave1_backend_rears_67/790/normal/001.png",
+      "sha256": "3465516ac349f19793f192cb55483b9693816a210e93d24bf0f5992f631f0683",
+      "geometry": {
+        "sourceUnion": [
+          25,
+          30,
+          67,
+          67
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          42,
+          37
+        ]
+      }
+    },
+    {
+      "dex": 790,
+      "side": "backShiny",
+      "provider": "existing pinned PokeAPI rear master",
+      "source": "/Users/maarten/Documents/Recompile/.worktrees/kasc-66-legacy-bank-67-complete-20260904/qa/backend-national-catalog-20260907/art-source/790-backShiny.png",
+      "sourceSha256": "08dca06a0a1e1081464a0cfe73665df6f6c73bd7939125a652feda7b4f69ae4a",
+      "output": "assets/wave1_backend_rears_67/790/shiny/001.png",
+      "sha256": "db52135b8317089d8375ec91c82cca0ddafdf9547ab66b2ce428ea6295566ab8",
+      "geometry": {
+        "sourceUnion": [
+          25,
+          30,
+          67,
+          67
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          42,
+          37
+        ]
+      }
+    },
+    {
+      "dex": 884,
+      "side": "back",
+      "provider": "existing pinned PokeAPI rear master",
+      "source": "/Users/maarten/Documents/Recompile/.worktrees/kasc-66-legacy-bank-67-complete-20260904/qa/backend-national-catalog-20260907/art-source/884-back.png",
+      "sourceSha256": "4b17e6908d3e8f2661b16e5b71fad9439217f888a3cfcfc37282ed847bd77be8",
+      "output": "assets/wave1_backend_rears_67/884/normal/001.png",
+      "sha256": "c0f00c4c4f682162b80f91e55e19f375ca3bdc7af299df8ef54701d1194be6ae",
+      "geometry": {
+        "sourceUnion": [
+          5,
+          0,
+          67,
+          52
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          48,
+          40
+        ],
+        "sourceUpperBodyCrop": [
+          16,
+          9,
+          83,
+          61
+        ]
+      }
+    },
+    {
+      "dex": 884,
+      "side": "backShiny",
+      "provider": "existing pinned PokeAPI rear master",
+      "source": "/Users/maarten/Documents/Recompile/.worktrees/kasc-66-legacy-bank-67-complete-20260904/qa/backend-national-catalog-20260907/art-source/884-backShiny.png",
+      "sourceSha256": "9ba382e01e1eaaea94c721a1caef951bf0079e350681efbddfca45bd7d1a0b1f",
+      "output": "assets/wave1_backend_rears_67/884/shiny/001.png",
+      "sha256": "8d2d095ddaf4c8d9abce88a1cb3d97173cbee71a8a47ce3aa4663a6b31af599b",
+      "geometry": {
+        "sourceUnion": [
+          5,
+          0,
+          67,
+          52
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          48,
+          40
+        ],
+        "sourceUpperBodyCrop": [
+          16,
+          9,
+          83,
+          61
+        ]
+      }
+    },
+    {
+      "dex": 935,
+      "side": "back",
+      "provider": "existing pinned PokeAPI rear master",
+      "source": "/Users/maarten/Documents/Recompile/.worktrees/kasc-66-legacy-bank-67-complete-20260904/qa/backend-national-catalog-20260907/art-source/935-back.png",
+      "sourceSha256": "6004527befb01379208460153a5c3e5c4f0cedb31274c0d9991d73f17f87a624",
+      "output": "assets/wave1_backend_rears_67/935/normal/001.png",
+      "sha256": "351755ca484b09e5991e3c0e0e17db249fe902d72f5cb578a07fd0815983f264",
+      "geometry": {
+        "sourceUnion": [
+          1,
+          0,
+          23,
+          26
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          22,
+          26
+        ],
+        "sourceUpperBodyCrop": [
+          36,
+          22,
+          59,
+          48
+        ]
+      }
+    },
+    {
+      "dex": 935,
+      "side": "backShiny",
+      "provider": "existing pinned PokeAPI rear master",
+      "source": "/Users/maarten/Documents/Recompile/.worktrees/kasc-66-legacy-bank-67-complete-20260904/qa/backend-national-catalog-20260907/art-source/935-backShiny.png",
+      "sourceSha256": "debb24bfaa82193f2ee7af8da57700abdba550bbb9280d35cd14ca90483c12ee",
+      "output": "assets/wave1_backend_rears_67/935/shiny/001.png",
+      "sha256": "f4fbdefb25d5d7cfd61025050a2ecb1c9df3a4b2aea15f3dd7abfaa39fe055c5",
+      "geometry": {
+        "sourceUnion": [
+          1,
+          0,
+          23,
+          26
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          22,
+          26
+        ],
+        "sourceUpperBodyCrop": [
+          36,
+          22,
+          59,
+          48
+        ]
+      }
+    },
+    {
+      "dex": 936,
+      "side": "back",
+      "provider": "existing pinned PokeAPI rear master",
+      "source": "/Users/maarten/Documents/Recompile/.worktrees/kasc-66-legacy-bank-67-complete-20260904/qa/backend-national-catalog-20260907/art-source/936-back.png",
+      "sourceSha256": "75825785aa904b13b6b003a79375738b23aea87c9eecd00b640111250b7aa85d",
+      "output": "assets/wave1_backend_rears_67/936/normal/001.png",
+      "sha256": "ad70cba044ca5090884d1fce49abb33a4fe8d6d420adb24ac03b5739b325d1bf",
+      "geometry": {
+        "sourceUnion": [
+          0,
+          0,
+          47,
+          39
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          47,
+          39
+        ],
+        "sourceUpperBodyCrop": [
+          24,
+          9,
+          71,
+          48
+        ]
+      }
+    },
+    {
+      "dex": 936,
+      "side": "backShiny",
+      "provider": "existing pinned PokeAPI rear master",
+      "source": "/Users/maarten/Documents/Recompile/.worktrees/kasc-66-legacy-bank-67-complete-20260904/qa/backend-national-catalog-20260907/art-source/936-backShiny.png",
+      "sourceSha256": "75825785aa904b13b6b003a79375738b23aea87c9eecd00b640111250b7aa85d",
+      "output": "assets/wave1_backend_rears_67/936/shiny/001.png",
+      "sha256": "ad70cba044ca5090884d1fce49abb33a4fe8d6d420adb24ac03b5739b325d1bf",
+      "geometry": {
+        "sourceUnion": [
+          0,
+          0,
+          47,
+          39
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          47,
+          39
+        ],
+        "sourceUpperBodyCrop": [
+          24,
+          9,
+          71,
+          48
+        ]
+      }
+    },
+    {
+      "dex": 937,
+      "side": "back",
+      "provider": "existing pinned PokeAPI rear master",
+      "source": "/Users/maarten/Documents/Recompile/.worktrees/kasc-66-legacy-bank-67-complete-20260904/qa/backend-national-catalog-20260907/art-source/937-back.png",
+      "sourceSha256": "61e02b557e827ad4241a2303b90911a72bf62919866a4d9faacb1d48124c27f9",
+      "output": "assets/wave1_backend_rears_67/937/normal/001.png",
+      "sha256": "a25378418d9a04459078a28be7cef339f1a7bae6bfee0454f8c53fddbbec0912",
+      "geometry": {
+        "sourceUnion": [
+          10,
+          0,
+          48,
+          40
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          38,
+          40
+        ],
+        "sourceUpperBodyCrop": [
+          18,
+          8,
+          78,
+          48
+        ]
+      }
+    },
+    {
+      "dex": 937,
+      "side": "backShiny",
+      "provider": "existing pinned PokeAPI rear master",
+      "source": "/Users/maarten/Documents/Recompile/.worktrees/kasc-66-legacy-bank-67-complete-20260904/qa/backend-national-catalog-20260907/art-source/937-backShiny.png",
+      "sourceSha256": "61e02b557e827ad4241a2303b90911a72bf62919866a4d9faacb1d48124c27f9",
+      "output": "assets/wave1_backend_rears_67/937/shiny/001.png",
+      "sha256": "a25378418d9a04459078a28be7cef339f1a7bae6bfee0454f8c53fddbbec0912",
+      "geometry": {
+        "sourceUnion": [
+          10,
+          0,
+          48,
+          40
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          38,
+          40
+        ],
+        "sourceUpperBodyCrop": [
+          18,
+          8,
+          78,
+          48
+        ]
+      }
+    },
+    {
+      "dex": 974,
+      "side": "back",
+      "provider": "existing pinned PokeAPI rear master",
+      "source": "/Users/maarten/Documents/Recompile/.worktrees/kasc-66-legacy-bank-67-complete-20260904/qa/backend-national-catalog-20260907/art-source/974-back.png",
+      "sourceSha256": "d420d3af88bf710bb6af7b26f3a2f62cb35acb5888d7970dcbba48a57f5b1386",
+      "output": "assets/wave1_backend_rears_67/974/normal/001.png",
+      "sha256": "163eba395c3a02d9eaddf99899b12799b5aa511d1fbd75f586c8eecb7f668c82",
+      "geometry": {
+        "sourceUnion": [
+          0,
+          0,
+          59,
+          22
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          48,
+          18
+        ],
+        "sourceUpperBodyCrop": [
+          11,
+          26,
+          84,
+          48
+        ]
+      }
+    },
+    {
+      "dex": 974,
+      "side": "backShiny",
+      "provider": "existing pinned PokeAPI rear master",
+      "source": "/Users/maarten/Documents/Recompile/.worktrees/kasc-66-legacy-bank-67-complete-20260904/qa/backend-national-catalog-20260907/art-source/974-backShiny.png",
+      "sourceSha256": "05f7cba09a882ca8954a7f576c2b38249f2aa76b5a15674b1d11542e8f31a2f6",
+      "output": "assets/wave1_backend_rears_67/974/shiny/001.png",
+      "sha256": "8c1d42bef7150c6c40b93ddb487e62f9dc3bbfccbb00780f10a46cf7b9d4d390",
+      "geometry": {
+        "sourceUnion": [
+          0,
+          0,
+          59,
+          22
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          48,
+          18
+        ],
+        "sourceUpperBodyCrop": [
+          11,
+          26,
+          84,
+          48
+        ]
+      }
+    },
+    {
+      "dex": 975,
+      "side": "back",
+      "provider": "existing pinned PokeAPI rear master",
+      "source": "/Users/maarten/Documents/Recompile/.worktrees/kasc-66-legacy-bank-67-complete-20260904/qa/backend-national-catalog-20260907/art-source/975-back.png",
+      "sourceSha256": "02d97054ba75bdef57c1cda39485833890cb9fcc9e2494584df59b378eff0a26",
+      "output": "assets/wave1_backend_rears_67/975/normal/001.png",
+      "sha256": "397d339ef0262162dc90a62e4df0051fc51d6609aef82eec827fcb20ede803fb",
+      "geometry": {
+        "sourceUnion": [
+          2,
+          0,
+          79,
+          29
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          48,
+          18
+        ],
+        "sourceUpperBodyCrop": [
+          0,
+          19,
+          96,
+          48
+        ]
+      }
+    },
+    {
+      "dex": 975,
+      "side": "backShiny",
+      "provider": "existing pinned PokeAPI rear master",
+      "source": "/Users/maarten/Documents/Recompile/.worktrees/kasc-66-legacy-bank-67-complete-20260904/qa/backend-national-catalog-20260907/art-source/975-backShiny.png",
+      "sourceSha256": "ae45d498fb41ff137b86baf0382fcfdcb224292da5860b61033796ba05631a63",
+      "output": "assets/wave1_backend_rears_67/975/shiny/001.png",
+      "sha256": "024d300bd1149e259dbaf8eb53431e5d6b6fc8407e91d92c8f57cff583ba944d",
+      "geometry": {
+        "sourceUnion": [
+          2,
+          0,
+          79,
+          29
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          48,
+          18
+        ],
+        "sourceUpperBodyCrop": [
+          0,
+          19,
+          96,
+          48
+        ]
+      }
+    },
+    {
+      "dex": 1018,
+      "side": "back",
+      "provider": "existing pinned PokeAPI rear master",
+      "source": "/Users/maarten/Documents/Recompile/.worktrees/kasc-66-legacy-bank-67-complete-20260904/qa/backend-national-catalog-20260907/art-source/1018-back.png",
+      "sourceSha256": "f6d383874bdf72765ece20d7b954de4d51062cdc897605b79c5eb8c61de83847",
+      "output": "assets/wave1_backend_rears_67/1018/normal/001.png",
+      "sha256": "4d6f3d0ab1fd74585b385e68a055051e6ffd3df6e71181a3ebc16f17544768aa",
+      "geometry": {
+        "sourceUnion": [
+          0,
+          0,
+          63,
+          46
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          48,
+          35
+        ],
+        "sourceUpperBodyCrop": [
+          14,
+          2,
+          81,
+          48
+        ]
+      }
+    },
+    {
+      "dex": 1018,
+      "side": "backShiny",
+      "provider": "existing pinned PokeAPI rear master",
+      "source": "/Users/maarten/Documents/Recompile/.worktrees/kasc-66-legacy-bank-67-complete-20260904/qa/backend-national-catalog-20260907/art-source/1018-backShiny.png",
+      "sourceSha256": "1e030bd2df4011a70a923b0849fea3cdb72d3114d7b30f8f8a4ce58af41cb5db",
+      "output": "assets/wave1_backend_rears_67/1018/shiny/001.png",
+      "sha256": "99bd7bc24bc827ab4eb2f24d814cb664988c83fb1ca4e42b7f66bb8050b76ca5",
+      "geometry": {
+        "sourceUnion": [
+          0,
+          0,
+          63,
+          46
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          48,
+          35
+        ],
+        "sourceUpperBodyCrop": [
+          14,
+          2,
+          81,
+          48
+        ]
+      }
+    }
+  ]
+}

@@ -8,8 +8,10 @@
 return function(mod, opts)
   opts = opts or {}
   local i18n = opts.i18n
+  local generationMachines
+  local reminderMoveAvailability
   local F = { game = nil, ITEM = "FIELD_KIT" }
-  local SAVE_VERSION = 2
+  local SAVE_VERSION = 3
   local reminderProviders = {}
   local reminderProviderOrder = {}
   local mapPolicyProviders = {}
@@ -41,6 +43,16 @@ return function(mod, opts)
       item = "TM_BLAST_BURN", move = "BLAST_BURN", number = 52,
       en = "BLAST BURN", de = "LOHEKANONADE",
     },
+  }
+
+  -- Gold's machine extends the Gen-I catalog rather than replacing TM41.
+  -- It is a Gen-II-authored machine with one exact starter-family allowlist.
+  local GOLD_TM = {
+    item = "TM_THUNDERPUNCH", move = "THUNDERPUNCH", number = 54,
+    generation = 2, en = "THUNDERPUNCH", de = "DONNERSCHLAG",
+  }
+  local TM54_FAMILY = {
+    "CYNDAQUIL", "QUILAVA", "TYPHLOSION",
   }
 
   local SIGNATURE_MOVE_ORDER = {
@@ -363,6 +375,16 @@ return function(mod, opts)
     return i18n and i18n.text(en, de) or en
   end
 
+  local function goldDefeated()
+    local s = mod.save:get("johto_masters")
+    if type(s) ~= "table" then return false end
+    local passage = type(s.passages) == "table" and s.passages.gold or nil
+    return tonumber(s.clears) and tonumber(s.clears) > 0
+      or tonumber(s.connectedClears) and tonumber(s.connectedClears) > 0
+      or type(s.masterWins) == "table" and s.masterWins.gold == true
+      or type(passage) == "table" and passage.status == "cleared"
+  end
+
   local function state(create)
     local s = mod.save:get("field_tech")
     if type(s) ~= "table" and create ~= false then
@@ -395,10 +417,10 @@ return function(mod, opts)
       -- Version 1 could retain one blocked TM and stopped counting wins
       -- until it was delivered. Preserve that entitlement as the first
       -- entry of the new FIFO queue.
-      if previousVersion < SAVE_VERSION and type(s.pendingTM) == "string" then
+      if previousVersion < 2 and type(s.pendingTM) == "string" then
         table.insert(queue, 1, s.pendingTM)
       end
-      if previousVersion < SAVE_VERSION then
+      if previousVersion < 2 then
         -- Version 1 recorded a failed Crown hand-off as "unlocked" but
         -- required another boss win. Convert that proof into the permanent
         -- entitlement promised by version 2.
@@ -415,7 +437,7 @@ return function(mod, opts)
       s.pendingTM = nil
       s.archivedTMs = type(s.archivedTMs) == "table"
         and s.archivedTMs or {}
-      if previousVersion < SAVE_VERSION then
+      if previousVersion < 2 then
         -- The old implementation counted the very first TM as a completed
         -- cycle. Every later wrap was otherwise correct, so remove exactly
         -- that phantom round and seed the earned-TM map once game data is
@@ -507,12 +529,34 @@ return function(mod, opts)
         effect = "HYPER_BEAM_EFFECT", anim = row.anim,
       })
     end
+    if not mod.content.moves:get(GOLD_TM.move) then
+      -- Some supported fixtures do not expose Crystal's move table. Register
+      -- the canonical Gen-II move for TM54's first player-facing acquisition.
+      mod.content.moves:register(GOLD_TM.move, {
+        id = GOLD_TM.move, name = tr(GOLD_TM.en, GOLD_TM.de), type = "ELECTRIC",
+        power = 75, accuracy = 100, pp = 15, category = "special",
+        effect = "PARALYZE_SIDE_EFFECT1",
+      })
+    end
     for _, row in pairs(SIGNATURE_TMS) do
       mod.content.items:register(row.item, {
         id = row.item, name = ("TM%02d"):format(row.number),
         price = 7500, tossable = true, needsTarget = true,
         machine = { kind = "TM", move = row.move, number = row.number },
       })
+    end
+    mod.content.items:register(GOLD_TM.item, {
+      id = GOLD_TM.item, name = ("TM%02d"):format(GOLD_TM.number),
+      price = 7500, tossable = true, needsTarget = true,
+      machine = { kind = "TM", move = GOLD_TM.move, number = GOLD_TM.number },
+    })
+    for _, species in ipairs(TM54_FAMILY) do
+      local def = mod.content.pokemon:get(species)
+      if def then
+        mod.content.pokemon:patch(species, {
+          tmhm = machineCompatibility(def, GOLD_TM.move, true),
+        })
+      end
     end
     mod.content.items:register(F.ITEM, {
       id = F.ITEM, name = tr("FIELD KIT", "FELD-KIT"),
@@ -530,11 +574,20 @@ return function(mod, opts)
   local function renewableTMs(game)
     local s = state()
     local rows = {}
+    local function isSignature(id)
+      if id == GOLD_TM.item then return true end
+      for _, row in pairs(SIGNATURE_TMS) do
+        if row.item == id then return true end
+      end
+      return false
+    end
     for id, def in pairs(game and game.data and game.data.items or {}) do
       local machine = def.machine
-      if machine and machine.kind == "TM" then
+      local generationAllowed = not generationMachines
+        or generationMachines.available(game, id, def)
+      if machine and machine.kind == "TM" and generationAllowed then
         local number = tonumber(machine.number) or 999
-        local signature = number > 50
+        local signature = isSignature(id)
         if not signature or s.signatureAwarded[id] then
           rows[#rows + 1] = { id = id, number = number }
         end
@@ -550,7 +603,8 @@ return function(mod, opts)
         or math.min(s.tmCursor, #rows)
       for index = 1, earned do
         local row = rows[index]
-        if row and (row.number <= 50 or s.signatureAwarded[row.id]) then
+        if row and (not isSignature(row.id)
+            or s.signatureAwarded[row.id]) then
           s.archivedTMs[row.id] = true
         end
       end
@@ -700,6 +754,61 @@ return function(mod, opts)
         row.number),
       ("TM%02d ist sicher für\ndich verwahrt.\fSchaffe Platz und nutze\ndie Route-5-Maschine."):format(
         row.number))
+  end
+
+  function F.afterGoldWin(game)
+    local s = state()
+    s.signatureUnlocked[GOLD_TM.item] = true
+    if s.signatureAwarded[GOLD_TM.item] then
+      local delivered = deliverPendingTMs(game, s, false)
+      persist(s)
+      return delivered
+    end
+    -- The entitlement is durable even when Bag capacity forces FIFO delivery.
+    s.signatureAwarded[GOLD_TM.item] = true
+    local _, received = reserveOrDeliverTM(game, s, GOLD_TM.item)
+    if received then
+      return tr(
+        "GOLD: My TYPHLOSION has\na trick worth sharing.\fYou received TM54!\fTHUNDERPUNCH\ncan be taught to\nthe CYNDAQUIL family.",
+        "GOLD: Mein TORNUPTO\nkennt einen guten Trick.\fDu erhältst TM54!\fDONNERSCHLAG kann\ndie FEURIGEL-\nFamilie lernen.")
+    end
+    return tr(
+      "GOLD: TM54 is yours, but\nyour BAG is full.\fTHUNDERPUNCH is\nsafely reserved in\nthe Route 5 TM ARCHIVE.",
+      "GOLD: TM54 gehört dir,\ndoch dein BEUTEL ist voll.\fDONNERSCHLAG ist\nsicher im TM-ARCHIV\nauf Route 5 reserviert.")
+  end
+
+  function F.reconcileGoldTM(game)
+    local s = state()
+    if goldDefeated() and not s.signatureAwarded[GOLD_TM.item] then
+      s.signatureUnlocked[GOLD_TM.item] = true
+      s.signatureAwarded[GOLD_TM.item] = true
+      reserveOrDeliverTM(game, s, GOLD_TM.item)
+    end
+    return deliverPendingTMs(game, s, false)
+  end
+
+  -- Preserve the exact lawful acquisition on the individual Pokémon. A
+  -- future generation-profile consumer can hide/restore it without widening
+  -- the global Reminder allowlist.
+  function F.recordTM54Acquisition(mon)
+    if type(mon) ~= "table" then return false end
+    local family, learned = false, false
+    for _, species in ipairs(TM54_FAMILY) do
+      if species == mon.species then family = true break end
+    end
+    for _, move in ipairs(mon.moves or {}) do
+      if (type(move) == "table" and move.id or move) == GOLD_TM.move then
+        learned = true break
+      end
+    end
+    if not family or not learned then return false end
+    mon.moveProvenance = type(mon.moveProvenance) == "table"
+      and mon.moveProvenance or {}
+    mon.moveProvenance[GOLD_TM.move] = {
+      kind = "machine", item = GOLD_TM.item, number = GOLD_TM.number,
+      generation = GOLD_TM.generation, legacyMove = true,
+    }
+    return true
   end
 
   local function message(game, text, done)
@@ -856,7 +965,7 @@ return function(mod, opts)
     local quickSelect = mod.exports and mod.exports.quickSelect
     if quickSelect and type(quickSelect.activateTool) == "function" then
       local inventory = game and game.save and game.save.inventory or {}
-      for _, itemId in ipairs({ "BICYCLE", "ITEMFINDER" }) do
+      for _, itemId in ipairs({ "BICYCLE", "ITEMFINDER", "TRACE_FINDER" }) do
         if (tonumber(inventory[itemId]) or 0) > 0 then
           local item = game.data.items and game.data.items[itemId]
           rows[#rows + 1] = {
@@ -899,9 +1008,31 @@ return function(mod, opts)
     flashRow.label=flashDef and flashDef.name or flashRow.label or "FLASH"
     flashRow.action=nil
     flashRow.onSelect=function(_, menuGame)
+      local stack=menuGame and menuGame.stack
+      local menu=ctx and ctx.menu
+      -- Engine 0.2.56 does not yet include `menu` in ui.party.submenu's
+      -- context.  Capture only the live, input-owning PartyMenu through the
+      -- public stack before the feedback TextBox is pushed.  The structural
+      -- checks are deliberately narrow: an unrelated screen must never be
+      -- popped just because it happens to be underneath this callback.
+      if not menu and stack and type(stack.top)=="function" then
+        local candidate=stack:top()
+        if type(candidate)=="table" and candidate.game==menuGame
+            and candidate.isOpaque==true and candidate.submenu==true
+            and type(candidate.subItems)=="table"
+            and type(candidate.index)=="number"
+            and type(candidate.update)=="function"
+            and type(candidate.close)=="function" then
+          menu=candidate
+        end
+      end
       resistedFlash(menuGame, policy.flashBlockReason, function()
-        if ctx and ctx.menu and type(ctx.menu.close)=="function" then
-          ctx.menu:close()
+        -- TextBox pops itself before onDone.  Close only the exact menu
+        -- captured above and only while it is again the public stack owner.
+        if menu and type(menu.close)=="function"
+            and (not stack or type(stack.top)~="function"
+              or stack:top()==menu) then
+          menu:close()
         end
       end)
     end
@@ -1080,6 +1211,13 @@ return function(mod, opts)
     return true
   end
 
+  function F.setGenerationMachines(owner)
+    assert(type(owner) == "table" and type(owner.available) == "function",
+      "generation machine authority required")
+    generationMachines = owner
+    return true
+  end
+
   -- Map packages may grant narrowly-scoped Field Kit exceptions without
   -- changing vanilla map classification or another package's policy.
   function F.registerMapPolicyProvider(id, provider)
@@ -1091,9 +1229,13 @@ return function(mod, opts)
     return true
   end
 
-  -- Only moves with a species-level source or per-Pokémon evidence are
-  -- eligible. This deliberately does not turn every compatible TM into a
-  -- free move tutor.
+  function F.setReminderMoveAvailability(provider)
+    assert(type(provider)=='function','reminder move availability required')
+    reminderMoveAvailability=provider
+  end
+
+  -- Species/history providers supply learning rights. Saved memories and
+  -- event receipts must still respect the active era or owned-gift exception.
   local function reminderMoves(game, mon)
     local def = mon and game and game.data and game.data.pokemon
       and game.data.pokemon[mon.species]
@@ -1102,6 +1244,7 @@ return function(mod, opts)
     local function add(moveId, source)
       if type(moveId) ~= "string" or seen[moveId] or knowsMove(mon, moveId)
           or not (game.data.moves and game.data.moves[moveId]) then return end
+      if reminderMoveAvailability and not reminderMoveAvailability(game,mon,moveId) then return end
       seen[moveId] = true
       rows[#rows + 1] = { id = moveId, source = source }
     end
@@ -1173,6 +1316,7 @@ return function(mod, opts)
       memory = tr("MEMORY", "ERINN."),
       crown = tr("CROWN", "KRONE"),
       resonance = tr("JOHTO", "JOHTO"),
+      tutor = tr("TUTOR", "TUTOR"),
     }
     return labels[source] or source
   end
@@ -1298,6 +1442,7 @@ return function(mod, opts)
     -- keeps partial #252-260 registrations completely ineligible.
     F.syncStarterFamilies(game.data)
     local s = state()
+    F.reconcileGoldTM(game)
     if game.save.inventory and game.save.inventory.FIELD_KIT then
       s.kit = true
       persist(s)
@@ -1320,6 +1465,21 @@ return function(mod, opts)
           return originalChoose(item, menu)
         end
         return list
+      end
+    end
+
+    -- BagMenu confirms every successful machine teach through the vanilla
+    -- USEDTMHM happiness callback.  That callback runs after both teaching
+    -- branches: the direct insert used below four moves and the replacement
+    -- menu used at four moves.  MoveLearnMenu alone cannot see the former.
+    local PikachuFollower = require("src.world.PikachuFollower")
+    if not PikachuFollower._ascendantTM54ProvenanceWrapped then
+      PikachuFollower._ascendantTM54ProvenanceWrapped = true
+      local vanillaHappiness = PikachuFollower.modifyHappiness
+      PikachuFollower.modifyHappiness = function(save, reason, mon, ...)
+        local result = vanillaHappiness(save, reason, mon, ...)
+        if reason == "USEDTMHM" then F.recordTM54Acquisition(mon) end
+        return result
       end
     end
 
@@ -1361,6 +1521,9 @@ return function(mod, opts)
             recordRememberedMove(menu.mon, moveId)
           end
         end
+        if not before[GOLD_TM.move] and after[GOLD_TM.move] then
+          F.recordTM54Acquisition(menu.mon)
+        end
         return result
       end
     end
@@ -1382,6 +1545,8 @@ return function(mod, opts)
     return nextArchiveRow(game, state())
   end
   F.signatureTMs = SIGNATURE_TMS
+  F.goldTM = GOLD_TM
+  F.tm54Family = TM54_FAMILY
   F.starterFamilies = STARTER_FAMILIES
   F.signatureMoveAllowed = signatureMoveAllowed
   return F

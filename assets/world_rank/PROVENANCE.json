@@ -1,0 +1,119 @@
+{
+  "approved": true,
+  "guests": {
+    "ASH": {
+      "approved": true,
+      "assets": {
+        "front": {
+          "approved": true,
+          "designSource": "openai-imagegen-user-approved-master",
+          "path": "assets/world_rank/battle/ash_front.png",
+          "sha256": "ebc53731afdb96b54d81a6d7746a8d4c58a3f9ab1b1ad6e9d284ee7fc3ccdfb6",
+          "sourceRole": "battleMaster",
+          "sourceSha256": "b19232ce16d91b7cee3f6b72708dd8f00c086e53bbdf224a0945f0c0c9124c77",
+          "transform": "imagegen-rgb1254-connected-light-bg-alpha-crop-lanczos-direct64-front-24color-v1",
+          "visualStatus": "approved-by-maintainer-2026-08-19"
+        },
+        "voxel128": {
+          "approved": true,
+          "designSource": "openai-imagegen-user-approved-master",
+          "path": "assets/world_rank/battle/ash_voxel_front_hd.png",
+          "sha256": "141766ab6b2d1f3ff190515ea30f53c89affe88bb6cf19b0cb4e376ffa79f53b",
+          "sourceRole": "battleMaster",
+          "sourceSha256": "b19232ce16d91b7cee3f6b72708dd8f00c086e53bbdf224a0945f0c0c9124c77",
+          "transform": "imagegen-rgb1254-connected-light-bg-alpha-crop-lanczos-direct128-48color-v1",
+          "visualStatus": "approved-by-maintainer-2026-08-19"
+        },
+        "voxel64": {
+          "approved": true,
+          "designSource": "openai-imagegen-user-approved-master",
+          "path": "assets/world_rank/battle/ash_voxel_front.png",
+          "sha256": "56a2847cb6d62a54b37be4294ed416329d07dbf6126e75a2ccf5b19461526b8e",
+          "sourceRole": "battleMaster",
+          "sourceSha256": "b19232ce16d91b7cee3f6b72708dd8f00c086e53bbdf224a0945f0c0c9124c77",
+          "transform": "imagegen-rgb1254-connected-light-bg-alpha-crop-lanczos-direct64-voxel-24color-v1",
+          "visualStatus": "approved-by-maintainer-2026-08-19"
+        },
+        "walk": {
+          "approved": true,
+          "path": "assets/world_rank/field/ash_walk.png",
+          "sha256": "32deaeb9a5b00c26af5ca494e016b794f10e6661054adb60b1d4733528734536",
+          "sourceRole": "overworld",
+          "sourceSha256": "2db5316ae83033f26ffc075d7811a00c8784017026cd5fec050c7355ab41a504",
+          "transform": "pokengine-rpgm32-box-native16-six-pose-15color-v2",
+          "visualStatus": "approved-by-maintainer-2026-08-20"
+        }
+      },
+      "character": "ASH",
+      "class": "OPP_ASH_KA",
+      "sourceAuthority": "mixed:pokengine-017tfvr5-overworld+imagegen-approved-battle-master",
+      "team": "KA_WORLD_RANK_ASH_TEAM_V1",
+      "visualStatus": "approved-by-maintainer-2026-08-20"
+    },
+    "CYNTHIA": {
+      "approved": true,
+      "assets": {
+        "front": {
+          "approved": true,
+          "designSource": "openai-imagegen-user-approved-master",
+          "path": "assets/world_rank/battle/cynthia_front.png",
+          "sha256": "4a74f2fc96dbbefc019a012feefec111da1168d3b1903e220426cf2061ee440e",
+          "sourceRole": "battleMaster",
+          "sourceSha256": "679b34241bffa557b6af7ba18746b4eab038aa78ad7da7678a4cd10f44efa31f",
+          "transform": "imagegen-rgb1254-connected-light-bg-alpha-crop-lanczos-direct64-front-24color-v1",
+          "visualStatus": "approved-by-maintainer-2026-08-19"
+        },
+        "voxel128": {
+          "approved": true,
+          "designSource": "openai-imagegen-user-approved-master",
+          "path": "assets/world_rank/battle/cynthia_voxel_front_hd.png",
+          "sha256": "3305a473dc7baf94b2e18a3fba547892b8112a21203065b248f0a0d1aa32cfca",
+          "sourceRole": "battleMaster",
+          "sourceSha256": "679b34241bffa557b6af7ba18746b4eab038aa78ad7da7678a4cd10f44efa31f",
+          "transform": "imagegen-rgb1254-connected-light-bg-alpha-crop-lanczos-direct128-48color-v1",
+          "visualStatus": "approved-by-maintainer-2026-08-19"
+        },
+        "voxel64": {
+          "approved": true,
+          "designSource": "openai-imagegen-user-approved-master",
+          "path": "assets/world_rank/battle/cynthia_voxel_front.png",
+          "sha256": "7b82b2056b166acc7d9a416e3861522da09cda7900f5e0769de60ee5358910c4",
+          "sourceRole": "battleMaster",
+          "sourceSha256": "679b34241bffa557b6af7ba18746b4eab038aa78ad7da7678a4cd10f44efa31f",
+          "transform": "imagegen-rgb1254-connected-light-bg-alpha-crop-lanczos-direct64-voxel-24color-v1",
+          "visualStatus": "approved-by-maintainer-2026-08-19"
+        },
+        "walk": {
+          "approved": true,
+          "path": "assets/world_rank/field/cynthia_walk.png",
+          "sha256": "ca220c3d2b0bee6ed21ad2297f903ac38382bbedfc1e575ae139d1a867a0feb8",
+          "sourceRole": "overworld",
+          "sourceSha256": "42da32f344be5b697c39910bd1be19057f3e5b1673cfb179a3e055c75f1215be",
+          "transform": "pokengine-rpgm32-box-native16-six-pose-15color-v2",
+          "visualStatus": "approved-by-maintainer-2026-08-20"
+        }
+      },
+      "character": "CYNTHIA",
+      "class": "OPP_CYNTHIA_KA",
+      "sourceAuthority": "mixed:pokengine-01jcwxjo-overworld+imagegen-approved-battle-master",
+      "team": "KA_WORLD_RANK_CYNTHIA_TEAM_V1",
+      "visualStatus": "approved-by-maintainer-2026-08-20"
+    }
+  },
+  "maintainerApproval": {
+    "date": "2026-08-20",
+    "decision": "approved",
+    "scope": "cynthia-ash-all-four-surfaces"
+  },
+  "ownership": "credited-mixed-authority-derivative-with-imagegen-battle-art",
+  "permission": "mixed-credited-noncommercial-and-imagegen-fan-art",
+  "policy": "see per-surface source receipts",
+  "schema": "kanto-ascendant-world-rank-guests/v1",
+  "transforms": {
+    "front": "imagegen-rgb1254-connected-light-bg-alpha-crop-lanczos-direct64-front-24color-v1",
+    "voxel128": "imagegen-rgb1254-connected-light-bg-alpha-crop-lanczos-direct128-48color-v1",
+    "voxel64": "imagegen-rgb1254-connected-light-bg-alpha-crop-lanczos-direct64-voxel-24color-v1",
+    "walk": "pokengine-rpgm32-box-native16-six-pose-15color-v2"
+  },
+  "visualStatus": "approved-by-maintainer-2026-08-20"
+}

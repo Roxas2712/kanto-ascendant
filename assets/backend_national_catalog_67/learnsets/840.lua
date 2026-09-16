@@ -1,0 +1,2 @@
+-- Version-specific learn sources, never cumulative.
+return {["20"]={{1,1,"WITHDRAW",1},{1,1,"ASTONISH",2},{2,0,"DEFENSE_CURL",0},{2,0,"RECYCLE",0},{2,0,"ROLLOUT",0},{2,0,"SUCKER_PUNCH",0},{3,0,"DRACO_METEOR",0},{3,0,"GRASSY_GLIDE",0},{4,0,"ATTRACT",0}},["25"]={{1,1,"ASTONISH",1},{1,1,"WITHDRAW",2},{2,0,"DEFENSE_CURL",0},{2,0,"RECYCLE",0},{2,0,"ROLLOUT",0},{2,0,"SUCKER_PUNCH",0},{4,0,"POUNCE",0},{4,0,"TERA_BLAST",0}}}

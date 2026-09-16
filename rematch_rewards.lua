@@ -8,7 +8,10 @@ return function(mod, opts)
   local optionHelp = opts.optionHelp
   local ascendantUi = opts.ascendantUi
   local legacyWanderers = opts.legacyWanderers
+  local hoennFieldAccess = opts.hoennFieldAccess
   local restProfiles = opts.restProfiles
+  local classicLink = opts.classicLink
+  local generationRules = opts.generationRules
   local R = {
     MULTIPLIER_ITEM = "ASCENDANT_EXP_MULTIPLIER",
     STATE_VERSION = 2,
@@ -480,12 +483,16 @@ return function(mod, opts)
     if mode ~= "off" and not masterAwarded and not holder.pendingLoot then
       local team = battle and battle.enemyParty or {}
       local level100 = allLevel100(team)
+      local resolvedGeneration = generationRules
+        and generationRules.resolve(game) or nil
       local context = {
         level100 = level100,
         averageLevel = loot.averageLevel(team),
         masteryWins = battle and (battle.postgameMasteryWins
           or (battle.rematchMastery and battle.rematchMastery.masteryWins))
           or holder.masteryWins or 0,
+        activeEpoch = resolvedGeneration and resolvedGeneration.activeEpoch
+          or 1,
       }
       local normalRoll = randomRoll(deps, "normal", 1, loot.ROLL_MAX)
       local reward = loot.select(normalRoll, mode, context, game.data)
@@ -605,7 +612,9 @@ return function(mod, opts)
 
   local CATEGORY = {
     language = "system",
-    difficulty = "core", adaptive_trainer_levels = "core",
+    difficulty = "core", battle_generation_mode = "core",
+    story_difficulty_rosters = "core",
+    adaptive_trainer_levels = "core",
     wild_level_scaling = "core",
     kanto_151 = "core", ascendant_rules = "core",
     rare_item_lock = "capture",
@@ -613,10 +622,26 @@ return function(mod, opts)
     rest_max = "rematch", level_gain = "rematch",
     team_growth = "rematch", loot_mode = "rematch",
     legacy_wanderer_frequency = "legacy",
+    surprise_dialogue_matrix = "adventure",
+    surprise_trainer_mega = "adventure",
+    surprise_team_fairness = "adventure",
+    hoenn_encounters = "hoenn", hoenn_level_mode = "hoenn",
+    hoenn_trace_presentation = "hoenn",
+    hoenn_roamers = "hoenn", hoenn_roamer_flee = "hoenn",
+    hoenn_regi_sanctums = "hoenn", hoenn_moltres_volcano = "hoenn",
+    hoenn_endgame_access_puzzles = "hoenn",
+    hoenn_legend_portals = "hoenn", hoenn_birth_island = "hoenn",
+    hoenn_jirachi_finale = "hoenn",
     vision_encounters = "adventure", shiny_hunts = "adventure",
     shiny_event = "adventure",
     mega_evolution = "adventure", mega_opponents = "adventure",
-    rocket_story = "adventure", grand_tournament = "adventure",
+    rocket_story = "adventure", rocket_raids = "adventure",
+    late_species_67 = "adventure", fairy_affection_67 = "adventure",
+    grand_tournament = "adventure", life_of_rival = "adventure",
+    gift_codes_enabled = "heritage",
+    starter_habitats_enabled = "adventure",
+    legacy_random_partners = "adventure",
+    legacy_global_babies = "adventure",
     johto_time = "johto", johto_signals_enable = "johto",
     johto_signals_start = "johto", johto_level_bonus = "johto",
     mythic_signals = "johto", mew_profile = "johto",
@@ -652,6 +677,9 @@ return function(mod, opts)
     dex_sprite_style = "visuals", party_icon_style = "visuals",
     crystal_animation = "visuals",
     pokemon_sprite_style = "visual_pokemon",
+    non_crystal_pixel_2d = "visual_pokemon",
+    classic_2d_sprite_connector = "visual_pokemon",
+    non_crystal_voxel_animations = "visual_pokemon",
     sprite_style_battle = "visual_pokemon",
     sprite_style_summary = "visual_pokemon",
     sprite_style_dex = "visual_pokemon",
@@ -659,6 +687,8 @@ return function(mod, opts)
     sprite_style_scenes = "visual_pokemon",
     character_sprite_style = "visual_characters",
     trainer_portrait_style = "visual_characters",
+    animated_title_trainers = "visual_characters",
+    title_visual_theme = "visual_characters",
     shiny_effects = "visuals", event_rosette = "visuals",
     modern_ball_skins = "visuals",
     ascendant_useful_bag = "menus", ascendant_bag_mode = "menus",
@@ -708,7 +738,8 @@ return function(mod, opts)
       end
       local gap = ({ high = 1, hard = 2, very_hard = 3, extreme = 4 })[
         optionValue(game, "difficulty") or "standard"]
-      return gap and ("AUTO:+" .. tostring(gap)) or tr("AUTO:OFF", "AUTO:AUS")
+      return gap and ("AUTO PLUS " .. tostring(gap))
+        or tr("AUTO:OFF", "AUTO:AUS")
     end
     if row.type == "toggle" then return value == false and tr("OFF", "AUS") or tr("ON", "AN") end
     for _, choice in ipairs(row.choices or {}) do
@@ -746,6 +777,14 @@ return function(mod, opts)
       for _, choice in ipairs(row.choices or {}) do values[#values + 1] = choice[2] end
       value = stepValue(values, current == nil and row.default or current,
         direction)
+    end
+    if row.key == "battle_generation_mode" and generationRules
+        and type(generationRules.switchMode) == "function" then
+      local ok = generationRules.switchMode(game, value)
+      if not ok then
+        return schemaValueLabel(game, row,
+          optionValue(game, row.key) or row.default)
+      end
     end
     setOption(game, row.key, value)
     return schemaValueLabel(game, row, value)
@@ -826,6 +865,7 @@ return function(mod, opts)
       title, rows, {
         pageJump = false,
         footer = rowFooter(rows[1]),
+        ascendantFocusHelp = function(item) return item and item.help end,
         onSelectKey = function(item)
           if item and item.help and ascendantUi then
             ascendantUi.showHelp(game, item.label, item.help)
@@ -885,10 +925,15 @@ return function(mod, opts)
     return list
   end
 
-  local function registerCategory(name, category, title)
+  local function registerCategory(name, category, title, trailingRows)
     mod.content.screens:register(name, { new = function(game, args)
-      return newOptionsList(game, title, optionRows(game, category),
-        category, args)
+      local rows = optionRows(game, category)
+      local extras = type(trailingRows) == "function"
+        and trailingRows(game) or trailingRows
+      for _, row in ipairs(extras or {}) do
+        rows[#rows + 1] = row
+      end
+      return newOptionsList(game, title, rows, category, args)
     end })
   end
 
@@ -911,7 +956,15 @@ return function(mod, opts)
   end
 
   registerCategory("AscendantCoreOptions", "core",
-    tr("CORE RULES", "GRUNDREGELN"))
+    tr("CORE RULES", "GRUNDREGELN"), function()
+      return {
+        submenu("story_level_cap",
+          tr("STORY LEVEL CAP", "STORY-LEVEL-CAP"),
+          "AscendantStoryLevelCap", tr(
+            "Set an optional level limit that follows story progress or uses your own values.",
+            "Lege optional eine Levelgrenze fest, die dem Story-Fortschritt folgt oder eigene Werte nutzt.")),
+      }
+    end)
   registerCategory("AscendantRematchOptions", "rematch",
     tr("REMATCH", "REVANCHEN"))
   registerCategory("AscendantLegacyOptions", "legacy",
@@ -945,6 +998,8 @@ return function(mod, opts)
     tr("JOHTO / TOWNS", "JOHTO / STÄDTE"))
   registerCategory("AscendantJohtoOptions", "johto",
     tr("JOHTO / SIGNALS", "JOHTO / SIGNALE"))
+  registerCategory("AscendantHoennOptions", "hoenn",
+    tr("HOENN FIELD", "HOENN-FELD"))
   registerCategory("AscendantLegendOptions", "legends",
     tr("LEGENDS", "LEGENDEN"))
   registerCategory("AscendantHeritageOptions", "heritage",
@@ -975,6 +1030,15 @@ return function(mod, opts)
           return legacyWanderers
             and type(legacyWanderers.legacyRunEnabled) == "function"
             and legacyWanderers.legacyRunEnabled(game)
+        end),
+      submenu("hoenn", tr("HOENN FIELD", "HOENN-FELD"),
+        "AscendantHoennOptions", tr(
+          "Rare Hoenn habitats and their safe encounter-level behavior.",
+          "Seltene Hoenn-Habitate und ihre sichere Begegnungslevel-Regelung."),
+        function(game)
+          return hoennFieldAccess
+            and type(hoennFieldAccess.hasDex) == "function"
+            and hoennFieldAccess.hasDex(game)
         end),
       submenu("training", tr("EXP / TRAINING", "EP / TRAINING"),
         "AscendantTrainingOptions", tr(
@@ -1041,25 +1105,36 @@ return function(mod, opts)
 
   mod.content.screens:register("AscendantOptionsRoot", {
     new = function(game)
+      local rows = {
+        { value = "gameplay", label = tr("GAMEPLAY", "GAMEPLAY"), screen = "AscendantGameplayOptions",
+          help = tr("Core rules, rematches, training, capture flow and controls.",
+            "Grundregeln, Revanchen, Training, Fangablauf und Steuerung.") },
+        { value = "content", label = tr("WORLD / CONTENT", "WELT / INHALTE"), screen = "AscendantContentOptions",
+          help = tr("Living Regions, Johto signals, quests, legends and events.",
+            "Lebende Regionen, Johto-Signale, Missionen, Legenden und Events.") },
+        { value = "visuals", label = tr("VISUALS", "GRAFIK"), screen = "AscendantVisualOptions",
+          help = tr("Battle, Dex, character and menu sprite presentation.",
+            "Darstellung von Kampf-, Dex-, Figuren- und Menügrafiken.") },
+        { value = "followers", label = tr("FOLLOWERS", "BEGLEITER"), screen = "AscendantFollowerOptions",
+          help = tr("Number, order and presentation of following party Pokémon.",
+            "Anzahl, Reihenfolge und Darstellung der folgenden Team-Pokémon.") },
+        { value = "comfort", label = tr("QOL / MENUS", "KOMFORT / MENÜS"), screen = "AscendantComfortOptions",
+          help = tr("Quality-of-life helpers, Bag layout and menu behavior.",
+            "Komforthilfen, Beutelaufteilung und Menüverhalten.") },
+      }
+      if classicLink then
+        rows[#rows + 1] = {
+          value = "kasc_link", label = tr("KASC LINK", "KASC LINK"),
+          screen = "AscendantLinkMenu",
+          help = tr(
+            "Private room-code battle and trade with exact engine, data and mod compatibility.",
+            "Privater Raumcode-Kampf und -Tausch mit exakt passender Engine, Datenbasis und Mods."),
+        }
+      end
       return (mod.ui.KantoListMenu or mod.ui.ListMenu).new(game,
-        tr("ASCENDANT OPTIONS", "ASCENDANT-OPTIONEN"), {
-          { value = "gameplay", label = tr("GAMEPLAY", "GAMEPLAY"), screen = "AscendantGameplayOptions",
-            help = tr("Core rules, rematches, training, capture flow and controls.",
-              "Grundregeln, Revanchen, Training, Fangablauf und Steuerung.") },
-          { value = "content", label = tr("WORLD / CONTENT", "WELT / INHALTE"), screen = "AscendantContentOptions",
-            help = tr("Living Regions, Johto signals, quests, legends and events.",
-              "Lebende Regionen, Johto-Signale, Missionen, Legenden und Events.") },
-          { value = "visuals", label = tr("VISUALS", "GRAFIK"), screen = "AscendantVisualOptions",
-            help = tr("Battle, Dex, character and menu sprite presentation.",
-              "Darstellung von Kampf-, Dex-, Figuren- und Menügrafiken.") },
-          { value = "followers", label = tr("FOLLOWERS", "BEGLEITER"), screen = "AscendantFollowerOptions",
-            help = tr("Number, order and presentation of following party Pokémon.",
-              "Anzahl, Reihenfolge und Darstellung der folgenden Team-Pokémon.") },
-          { value = "comfort", label = tr("QOL / MENUS", "KOMFORT / MENÜS"), screen = "AscendantComfortOptions",
-            help = tr("Quality-of-life helpers, Bag layout and menu behavior.",
-              "Komforthilfen, Beutelaufteilung und Menüverhalten.") },
-        }, {
+        tr("ASCENDANT OPTIONS", "KASC-EINSTELLUNGEN"), rows, {
           footer = tr("A:OPEN SEL:HELP", "A:AUF SEL:HILFE"),
+          ascendantFocusHelp = function(item) return item and item.help end,
           onSelectKey = function(item)
             if item and item.help and ascendantUi then
               ascendantUi.showHelp(game, item.label, item.help)
@@ -1076,7 +1151,10 @@ return function(mod, opts)
     local out = nextItems(game, items)
     out[#out + 1] = {
       label = tr("OPTIONS", "OPTIONEN"),
-      ascendantLabel = tr("OPTIONS", "OPTIONEN"),
+      ascendantLabel = tr("SETTINGS", "EINSTELLUNGEN"),
+      ascendantHelp = tr(
+        "Configure rules, content, graphics, followers and comfort helpers.",
+        "Regeln, Inhalte, Grafik, Begleiter und Komforthilfen einstellen."),
       ascendantMenu = true, ascendantKey = "options", ascendantOrder = 1,
       onSelect = function() mod.ui.push(game, "AscendantOptionsRoot") end,
     }

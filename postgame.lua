@@ -313,9 +313,12 @@ return function(mod, data, opts)
       and requiredCaught(s, save, { "LUGIA", "HO_OH" })
   end
 
-  local function legendaryAvailable(species, s, save)
-    if ADDED_LEGEND_OPTIONS[species] and not beyondActive(save) then
-      return false
+  local function legendaryAvailable(species, s, save, peek)
+    if ADDED_LEGEND_OPTIONS[species] then
+      local active
+      if peek then active=not beyondKanto or beyondKanto.peekIsActive and beyondKanto.peekIsActive(save)
+      else active=beyondActive(save)end
+      if not active then return false end
     end
     local setting = legendSetting(species)
     if setting == "off" then return false end
@@ -326,6 +329,21 @@ return function(mod, data, opts)
     if species == "HO_OH" then return beastsCaught(s, save) end
     if species == "CELEBI" then return crownUnlocked(s, save) end
     return false
+  end
+
+  function controller.observations(game,mapId)
+    local out={}
+    if not controller.contentEnabled or not game or not game.save then return out end
+    local s=mod.save:get('postgame')
+    if not (type(s)=='table' and s.apexChampion and type(s.roamers)=='table')then return out end
+    for species in pairs(data.roamers)do
+      if s.roamers[species]==mapId and legendaryAvailable(species,s,game.save,true)
+          and not caught(s,game.save,species)then
+        out[#out+1]={species=species,mapId=mapId,source='postgame_roamer',kind='roamer'}
+      end
+    end
+    table.sort(out,function(a,b)return a.species<b.species end)
+    return out
   end
 
   enabledTeam = function(team)
@@ -512,7 +530,7 @@ return function(mod, data, opts)
 
   local function finalizeForcedBattle(game, battle, intended, context)
     context = context or {}
-    intended = copyTeam(enabledTeam(intended))
+    intended = copyTeam(context.preserveAuthoredRoster and intended or enabledTeam(intended))
     if battle and battle.trainerPartyHookFallback then
       context.fallback = true
       context.fallbackReason = battle.trainerPartyHookFallbackReason
@@ -574,7 +592,14 @@ return function(mod, data, opts)
     assert(trainer, "unknown trainer class " .. tostring(class))
     assert(type(trainer.parties) == "table",
       "trainer " .. tostring(class) .. " has no party registry")
-    local intended = copyTeam(enabledTeam(team))
+    context = context or {}
+    -- Fixed, maintainer-submitted Crew boss teams deliberately include
+    -- Gorochu. The ordinary discovery/randomizer filters remain unchanged.
+    -- This opt-in never comes from generic trainer battle flags.
+    context.preserveAuthoredRoster = context.preserveAuthoredRoster == true
+      and tier == "bald_crew" and type(context.source) == "string"
+      and context.source:match("^bald_crew:") ~= nil
+    local intended = copyTeam(context.preserveAuthoredRoster and team or enabledTeam(team))
     local requireRegistered = type(BattleState.makeBattler) == "function"
     assert(validPartyDefinition(game, intended, requireRegistered),
       "invalid forced trainer party for " .. tostring(class))
@@ -597,7 +622,11 @@ return function(mod, data, opts)
     local resolved = Runtime.call("trainer.party",
       function(_, _, party) return party end,
       class, 1, copyTeam(intended))
-    if not validPartyDefinition(game, resolved, requireRegistered)
+    if context.preserveAuthoredRoster and not samePartySignature(resolved, intended) then
+      resolved = copyTeam(intended)
+      context.fallback = true
+      context.fallbackReason = "authored_crew_roster"
+    elseif not validPartyDefinition(game, resolved, requireRegistered)
         or #resolved ~= #intended then
       resolved = copyTeam(intended)
       context.fallback = true
@@ -744,7 +773,17 @@ return function(mod, data, opts)
     for species, def in pairs(data.staticLegends) do
       local setting = legendSetting(species)
       local visible
-      if setting == "off" then
+      -- The optional Hoenn volcano Card relocates MOLTRES and owns both its
+      -- new encounter and the old Victory Road object's visibility.  Letting
+      -- the generic postgame owner restore that old object here makes the two
+      -- owners alternate false/true on every nested map.entered reload.
+      local relocation = species == "MOLTRES" and mod.exports
+        and mod.exports.hoennMoltresVolcano67
+      local relocated = relocation and type(relocation.available) == "function"
+        and relocation.available(game) == true
+      if relocated then
+        visible = false
+      elseif setting == "off" then
         visible = false
       elseif setting == "vanilla" then
         visible = not owns(game.save, species)
@@ -1619,6 +1658,7 @@ return function(mod, data, opts)
   controller.currentRivalIdentity = currentRivalIdentity
   controller.applyStoryOakDialogue = applyStoryOakDialogue
   controller.applyEliteDialogue = applyEliteDialogue
+  controller.syncPersistentObjects = syncPersistentObjects
   controller.events = events
   controller.ensureTrophySign = ensureTrophySign
   controller.ensureHuntRival = ensureHuntRival

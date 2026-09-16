@@ -1,0 +1,12 @@
+{
+  "schema": "ascendant.authored-blue/v1",
+  "removeExactHashes": {
+    "assets/sources/characters/frlg_blue_front.png": "796ff5c0f55b53a86f765f43855660bda90e89b6efb7f319a42f642574ead5df",
+    "assets/characters/crystal_chars/blue_front.png": "504ed474759f11f4cd231083a2c75bd8e472e6aecfb66d9224439652f5254346"
+  },
+  "retain": {
+    "assets/characters/crystal_chars/blue_voxel_front.png": "8780eb313c2803ffa3c0ad40eef85cd51f6c3042834b274afa5718897c077ee5"
+  },
+  "reason": "Replace confirmed FRLG Blue front with existing authored Blue; native ROM-derived ORIGINAL stays available.",
+  "runtimePatch": "extended_characters.lua"
+}

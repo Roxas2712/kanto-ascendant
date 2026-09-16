@@ -9,6 +9,25 @@ return function(i18n)
   end
 
   local exact = {
+    SACHET = { "Spritzee: hold it, then use a Linking Cord. Both consumed on evolution. No battle bonus.", "Parfi: tragen lassen, dann Verbindungsschnur anwenden. Beides wird bei der Entwicklung verbraucht. Kein Kampfbonus." },
+    WHIPPED_DREAM = { "Swirlix: hold it, then use a Linking Cord. Both consumed on evolution. No battle bonus.", "Flauschling: tragen lassen, dann Verbindungsschnur anwenden. Beides wird bei der Entwicklung verbraucht. Kein Kampfbonus." },
+    RAZOR_CLAW = { "Hisuian Sneasel: hold it and level up by day. Ordinary Sneasel: existing Bag evolution. Consumed on evolution.", "Hisui-Sniebel: tragen und tagsüber aufleveln. Normales Sniebel: bestehende Beutel-Entwicklung. Verbrauch bei Entwicklung." },
+    LINKING_CORD = { "Solo trade evolution; keeps size. Spritzee must hold a Sachet, Swirlix a Whipped Dream. Cord and required held item are consumed.", "Solo-Tauschentwicklung; Größe bleibt erhalten. Parfi benötigt einen getragenen Duftbeutel, Flauschling ein Sahnehäubchen. Schnur und benötigtes Trageitem werden verbraucht." },
+    SCROLL_OF_DARKNESS = { "Use on Kubfu: Urshifu, Single Strike Style. Consumed once.", "Auf Dakuma: Wulaosu im fokussierten Stil. Einmaliger Verbrauch." },
+    SCROLL_OF_WATERS = { "Use on Kubfu: Urshifu, Rapid Strike Style. Consumed once.", "Auf Dakuma: Wulaosu im fließenden Stil. Einmaliger Verbrauch." },
+    CRACKED_POT = { "Use on Phony Sinistea: Polteageist. Consumed once.", "Auf Fatalitee (Fälschung): Entwicklung zu Mortipot. Einmaliger Verbrauch." },
+    UNREMARKABLE_TEACUP = { "Use on Counterfeit Poltchageist: Sinistcha. Consumed once.", "Auf Mortcha (Fälschung): Entwicklung zu Fatalitcha. Einmaliger Verbrauch." },
+    DAWN_STONE = { "Male Kirlia evolves into Gallade; female Snorunt into Froslass. Consumed once.", "Männliches Kirlia wird zu Galagladi; weibliches Schneppke zu Frosdedje. Einmaliger Verbrauch." },
+    AUSPICIOUS_ARMOR = { "Use on Charcadet: evolves into Armarouge. Consumed once.", "Auf Knarbon anwenden: wird zu Crimanzo. Einmaliger Verbrauch." },
+    MALICIOUS_ARMOR = { "Use on Charcadet: evolves into Ceruledge. Consumed once.", "Auf Knarbon anwenden: wird zu Azugladis. Einmaliger Verbrauch." },
+    TART_APPLE = { "Use on Applin: evolves into Flapple. Consumed once.", "Auf Knapfel anwenden: wird zu Drapfel. Einmaliger Verbrauch." },
+    SWEET_APPLE = { "Use on Applin: evolves into Appletun. Consumed once.", "Auf Knapfel anwenden: wird zu Schlapfel. Einmaliger Verbrauch." },
+    SYRUPY_APPLE = { "Use on Applin: evolves into Dipplin. Consumed once.", "Auf Knapfel anwenden: wird zu Sirapfel. Einmaliger Verbrauch." },
+    ICE_STONE = { "Cetoddle becomes Cetitan; Crabrawler becomes Crabominable; Galarian Darumaka becomes Galarian Darmanitan. Consumed once.", "Flaniwal wird zu Kolowal; Krabbox zu Krawell; Galar-Flampion zu Galar-Flampivian. Einmaliger Verbrauch." },
+    METAL_ALLOY = { "Use on Duraludon: evolves into Archaludon. Consumed once.", "Auf Duraludon anwenden: wird zu Briduradon. Einmaliger Verbrauch." },
+    PRISM_SCALE = { "Use on Feebas: evolves into Milotic. Consumed once.", "Auf Barschwa anwenden: wird zu Milotic. Einmaliger Verbrauch." },
+    DEEP_SEA_TOOTH = { "Use on Clamperl: evolves into Huntail. Consumed once.", "Auf Perlu anwenden: wird zu Aalabyss. Einmaliger Verbrauch." },
+    DEEP_SEA_SCALE = { "Use on Clamperl: evolves into Gorebyss. Consumed once.", "Auf Perlu anwenden: wird zu Saganabyss. Einmaliger Verbrauch." },
     POTION = { "Restores 20 HP.", "Stellt 20 KP wieder her." },
     SUPER_POTION = { "Restores 50 HP.", "Stellt 50 KP wieder her." },
     HYPER_POTION = { "Restores 200 HP.", "Stellt 200 KP wieder her." },
@@ -64,6 +83,9 @@ return function(i18n)
     RESONANCE_SEAL = { "Records resonance discovered during signal research.", "Speichert Resonanz aus der Signalforschung." },
     SHINY_CHARM = { "Improves supported Ascendant shiny hunts.", "Verbessert unterstützte Ascendant-Shiny-Jagden." },
     FIELD_KIT = { "Uses owned HMs in the field without taking a move slot.", "Nutzt erhaltene VMs im Feld, ohne einen Attackenplatz zu belegen." },
+    TRACE_FINDER = { "Tracks sealed paths without revealing their map locations.", "Spürt versiegelte Pfade auf, ohne ihre Kartenorte zu verraten." },
+    HOENN_HONEY = { "Its gentle scent attracts very rare Hoenn visitors after the Hoenn Dex is received.", "Sein sanfter Duft lockt nach Erhalt des Hoenn-Dex sehr seltene Gäste aus Hoenn an." },
+    HOENN_DEX = { "Records Hoenn species and reveals their hidden Ascendant field controls.", "Erfasst Hoenn-Arten und schaltet ihre verborgenen Ascendant-Feldoptionen frei." },
     MEGA_RING = { "Allows Mega Evolution when the matching stone is owned.", "Erlaubt Mega-Entwicklung mit dem passenden Mega-Stein." },
     MEGA_STONE_CASE = { "Stores and manages Ascendant Mega Stones.", "Bewahrt Ascendant-Mega-Steine auf und verwaltet sie." },
     ASCENDANT_EXP_MULTIPLIER = { "Opens the unlocked Ascendant EXP multiplier setting.", "Öffnet Ascendants freigeschaltete EP-Multiplikator-Einstellung." },
@@ -74,6 +96,7 @@ return function(i18n)
     KINGS_ROCK = { "Triggers evolution for certain Pokémon.", "Löst bei bestimmten Pokémon eine Entwicklung aus." },
     DRAGON_SCALE = { "Triggers Seadra's evolution into Kingdra.", "Löst Seedrakings Entwicklung aus Seemon aus." },
     UPGRADE = { "Triggers Porygon's evolution into Porygon2.", "Löst Porygons Entwicklung zu Porygon2 aus." },
+    AFFECTION_RIBBON = { "Evolves Eevee into Sylveon while Generation VI rules are active.", "Entwickelt Evoli bei aktiven Gen-VI-Regeln zu Feelinara." },
   }
 
   local balls = {
@@ -94,6 +117,18 @@ return function(i18n)
   local H = {}
   function H.describe(game, id)
     local def = game and game.data and game.data.items and game.data.items[id]
+    if id == "HOENN_HONEY" then
+      local save = game and game.save or {}
+      local carried = (tonumber((save.inventory or {})[id]) or 0) > 0
+      if carried then
+        return tr(
+          "Smells wonderful. Even your Pokémon find the scent magical. Carry it to attract very rare Hoenn visitors.",
+          "Duftet herrlich. Selbst Deine Pokémon finden den Geruch magisch. Führe ihn mit Dir, um sehr seltene Hoenn-Gäste anzulocken.")
+      end
+      return tr(
+        "Stored in the PC, its scent cannot attract Hoenn Pokémon. Carry the jar with you to make it work.",
+        "Im PC kann sein Duft keine Hoenn-Pokémon anlocken. Führe das Glas mit Dir, damit es wirkt.")
+    end
     if def and def.machine then
       local move = game.data.moves and game.data.moves[def.machine.move]
       local moveName = move and move.name or def.machine.move

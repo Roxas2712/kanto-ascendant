@@ -33,4 +33,5 @@ return function(mod)
     feature.install(mod, services)
   end
   services.battle:install()
+  return services
 end

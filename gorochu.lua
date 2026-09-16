@@ -267,6 +267,9 @@ return function(mod, opts)
       id = G.id,
       name = "GOROCHU",
       dex = G.dex,
+      -- Ascendant's restored Kanto guest, not a Gen-VI/IX species merely
+      -- because its collision-free catalogue number is above the base Dex.
+      originGeneration = 1,
       types = { "ELECTRIC" },
       baseStats = {
         hp = 85, attack = 135, defense = 90, speed = 125, special = 125,

@@ -612,6 +612,18 @@ return function(mod, opts)
           x = site.fissure.x, y = site.fissure.y,
           text = "TEXT_KA_HEVO_FISSURE_" .. key,
         })
+        -- WorldAPI keeps `passable` on the authored runtime definition, but
+        -- older/current Gen-I NPC constructors do not copy that field onto
+        -- the live entity which Collision.occupied actually reads.  Apply
+        -- the documented handle operation as well so the invisible wall
+        -- anchor never becomes a second, blocking object in the live map.
+        -- This remains harmless on engines which already preserve the field.
+        if id ~= nil and mod.world.npc then
+          local handle = mod.world:npc(site.map, id)
+          if handle and handle.setPassable then
+            handle:setPassable(true)
+          end
+        end
         spawned = id ~= nil or spawned
       end
     end

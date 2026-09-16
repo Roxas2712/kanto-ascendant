@@ -56,6 +56,9 @@ return function(mod, opts)
   local masteryProvider = opts.mastery
   local clockProvider = opts.clock
   local beyondKanto = opts.beyondKanto or opts.johtoBoundary
+  local generationRules = opts.generationRules
+  local megaProvider = opts.mega
+  local fairnessProvider = opts.fairness
 
   local function beyondActive(game)
     return not beyondKanto or type(beyondKanto.isActive) ~= "function"
@@ -63,9 +66,15 @@ return function(mod, opts)
   end
 
   local function speciesAllowed(game, species)
+    game = game or W.game
     local pokemon = game and game.data and game.data.pokemon or {}
     if type(species) ~= "string" or type(pokemon[species]) ~= "table" then
       return false
+    end
+    if generationRules and type(generationRules.speciesAvailable) == "function" then
+      local ok, allowed = pcall(
+        generationRules.speciesAvailable, game, species, pokemon[species])
+      return ok and allowed == true
     end
     if beyondActive(game) then return true end
     local dex
@@ -250,6 +259,46 @@ return function(mod, opts)
     }
   end
 
+  local function normalizeSurprise(row)
+    if type(row) ~= "table" or type(row.token) ~= "string"
+        or row.token == "" then return nil end
+    local completedPaths = {}
+    for key, value in pairs(type(row.completedPaths) == "table"
+        and row.completedPaths or {}) do
+      if type(key) == "string" and value == true then completedPaths[key] = true end
+    end
+    local partyTypes, seenTypes = {}, {}
+    for _, value in ipairs(type(row.partyTypes) == "table"
+        and row.partyTypes or {}) do
+      local kind = type(value) == "string" and value:upper() or nil
+      if kind and kind ~= "" and not seenTypes[kind] then
+        seenTypes[kind] = true
+        partyTypes[#partyTypes + 1] = kind
+      end
+    end
+    local proofs = {}
+    for key, value in pairs(type(row.proofs) == "table"
+        and row.proofs or {}) do
+      if type(key) == "string" and type(value) == "boolean" then
+        proofs[key] = value
+      end
+    end
+    return {
+      token = row.token,
+      mapId = type(row.mapId) == "string" and row.mapId or nil,
+      class = type(row.class) == "string" and row.class or nil,
+      legacyCycle = integer(row.legacyCycle),
+      legacyPass = row.legacyPass == true,
+      mythic = row.mythic == true,
+      legend = row.legend == true,
+      discovery = row.discovery == true,
+      research = row.research == true,
+      completedPaths = completedPaths,
+      partyTypes = partyTypes,
+      proofs = proofs,
+    }
+  end
+
   local function normalizeFrequency(value)
     return W.FREQUENCY_PROFILES[value] and value or "normal"
   end
@@ -313,6 +362,13 @@ return function(mod, opts)
       end
     end
     s.pendingRewards = pending
+    local pendingSurprise = {}
+    for token, row in pairs(type(s.pendingSurprise) == "table"
+        and s.pendingSurprise or {}) do
+      row = normalizeSurprise(row)
+      if row and row.token == token then pendingSurprise[token] = row end
+    end
+    s.pendingSurprise = pendingSurprise
     s.due = s.due == true
     s.frequency = normalizeFrequency(s.frequency)
     s.cadenceMode = s.cadenceMode == "encore" and "encore" or "normal"
@@ -434,6 +490,23 @@ return function(mod, opts)
       "Beyond-Kanto boundary must be a table")
     beyondKanto = boundary
     return beyondKanto ~= nil
+  end
+
+  function W.setMegaProvider(provider)
+    megaProvider = type(provider) == "table" and provider or nil
+    return megaProvider ~= nil
+  end
+
+  function W.setFairnessProvider(provider)
+    fairnessProvider = type(provider) == "table" and provider or nil
+    return fairnessProvider ~= nil
+  end
+
+  function W.setGenerationRules(rules)
+    assert(rules == nil or type(rules) == "table",
+      "Generation rules must be a table")
+    generationRules = rules
+    return generationRules ~= nil
   end
 
   local function currentProvider(provider)
@@ -1005,6 +1078,7 @@ return function(mod, opts)
       local expanded, generation = recruitment.expand(game.data, source,
         archetype.class, "legacy-wanderer:" .. archetype.class,
         growth.progress, boost, true, {
+          game = game,
           selections = progressState.recruitFamilies,
           recentHistory = progressState.recruitHistory,
           originalStages = progressState.originalStages,
@@ -1036,6 +1110,13 @@ return function(mod, opts)
     end
     if #team == 0 then return nil end
     while #team < tier.teamSize do team[#team + 1] = copy(team[#team]) end
+    if fairnessProvider and type(fairnessProvider.enforce) == "function" then
+      local ok, reviewed, report = pcall(fairnessProvider.enforce, game, team)
+      if not (ok and type(reviewed) == "table" and #reviewed > 0) then
+        return nil
+      end
+      team, tier.fairness = reviewed, report
+    end
     if advance ~= false then s.rotation[archetype.class] = cursor + 1 end
     tier.rotation = cursor
     tier.sourceParty = partyIndex
@@ -1058,6 +1139,9 @@ return function(mod, opts)
 
   function W.setSurpriseProvider(provider)
     surpriseProvider = type(provider) == "table" and provider or nil
+    -- Repaired awards are delivered on the next safe world step, where their
+    -- announcement can be shown. Reconciling here would unlock a title while
+    -- silently discarding the returned text.
     return surpriseProvider ~= nil
   end
 
@@ -1476,10 +1560,11 @@ return function(mod, opts)
     local ids = {}
     local kantoBalls = {
       POKE_BALL = true, GREAT_BALL = true, ULTRA_BALL = true,
-      MASTER_BALL = true, SAFARI_BALL = true,
+      MASTER_BALL = true,
     }
     for id, def in pairs(game and game.data and game.data.items or {}) do
-      if itemIsBall(game, id, def)
+      -- Safari supplies belong to the Safari Zone, not road-trial loot.
+      if id ~= "SAFARI_BALL" and itemIsBall(game, id, def)
           and (beyondActive(game) or kantoBalls[id] == true) then
         ids[#ids + 1] = id
       end
@@ -1541,7 +1626,8 @@ return function(mod, opts)
       local move = machine and machine.move
       local moveDef = data.moves and data.moves[move]
       local generation = W.machineGeneration(def, machine, moveDef)
-      if machine and machine.kind == "TM" and type(move) == "string"
+      if machine and machine.kind == "TM" and id ~= "TM_THUNDERPUNCH"
+          and type(move) == "string"
           and moveEffective(moveDef) and generation
           and speciesLearnsMachine(game, move) then
         rows[#rows + 1] = {
@@ -1586,7 +1672,7 @@ return function(mod, opts)
     if apricorn then
       rows = { { qty = 1, weight = 4 }, { qty = 2, weight = 1 } }
     elseif not rows then
-      rows = { { qty = 1, weight = id == "SAFARI_BALL" and 1 or 2 } }
+      rows = { { qty = 1, weight = 2 } }
     end
     for _, spec in ipairs(rows) do
       pool[#pool + 1] = {
@@ -1609,6 +1695,21 @@ return function(mod, opts)
         item = machine.item, qty = 1, kind = "tm",
         move = machine.move, generation = machine.generation, weight = 1,
       }
+    end
+    local equipment=currentProvider(opts.equipmentRewards)
+    if equipment and generationRules then
+      local bucket=game.save and game.save.modData and game.save.modData[mod.id]
+      local resolved=bucket and bucket[generationRules.SAVE_KEY]
+      local additions=equipment.pool(game.data,{activeEpoch=resolved and resolved.activeEpoch or 1})
+      if #additions>0 then
+        -- Preserve integer RNG tickets without inflating the number of
+        -- equipment items merely because more species/items were installed.
+        for _,row in ipairs(pool)do row.weight=row.weight*100 end
+        for _,row in ipairs(additions)do
+          pool[#pool+1]={item=row.item,qty=row.qty,kind='equipment',
+            weight=math.max(1,math.floor(row.weight*100+0.5))}
+        end
+      end
     end
     table.sort(pool, function(a, b)
       if a.kind == b.kind and a.item == b.item then return a.qty < b.qty end
@@ -1853,7 +1954,12 @@ return function(mod, opts)
     local pending = pendingParty
     if pending and pending.class == oppClass and pending.index == partyIndex then
       pending.visited = true
-      return nextParty(oppClass, partyIndex, copy(pending.team))
+      local team = copy(pending.team)
+      -- The road trial already resolved its level from the usable party.
+      -- Other trainer hooks still own species/moves, but Difficulty must not
+      -- add its authored-trainer offset to this adaptive target a second time.
+      for _, row in ipairs(team) do row.kaWandererTargetLevel = row.level end
+      return nextParty(oppClass, partyIndex, team)
     end
     return nextParty(oppClass, partyIndex, party)
   end, 5000)
@@ -1969,6 +2075,12 @@ return function(mod, opts)
     local reward = W.selectReward(game)
     local token = "legacy-wanderer:" .. tostring(s.nextToken)
     s.nextToken = s.nextToken + 1
+    local megaPlan
+    if megaProvider and type(megaProvider.plan) == "function" then
+      local ok, planned = pcall(
+        megaProvider.plan, game, token, team, tier)
+      if ok and type(planned) == "table" then megaPlan = planned end
+    end
     s.encounter = {
       token = token,
       class = archetype.class,
@@ -1979,6 +2091,7 @@ return function(mod, opts)
       team = copy(team), tier = copy(tier),
       expBonusPercent = expPercent,
       reward = reward and copy(reward) or nil,
+      mega = megaPlan and copy(megaPlan) or nil,
     }
     persist(s)
     return s.encounter, true
@@ -2054,6 +2167,123 @@ return function(mod, opts)
       .. "\f" .. nextLine
   end
 
+  local function surpriseContext(game, encounter)
+    local legacy = journey.state and journey.state(game and game.save) or {}
+    local profile = journey.profile and journey.profile(game and game.save) or {}
+    local save = game and game.save or {}
+    local pokemon = game and game.data and game.data.pokemon or {}
+    local partyTypes, seenTypes = {}, {}
+    for _, mon in ipairs(type(save.party) == "table" and save.party or {}) do
+      local def = type(mon) == "table" and pokemon[mon.species] or nil
+      if type(def) == "table" and mon.isEgg ~= true then
+        for _, value in ipairs(type(def.types) == "table" and def.types or {}) do
+          local kind = type(value) == "string" and value:upper() or nil
+          if kind and kind ~= "" and not seenTypes[kind] then
+            seenTypes[kind] = true
+            partyTypes[#partyTypes + 1] = kind
+          end
+        end
+      end
+    end
+
+    local modData = type(save.modData) == "table" and save.modData or {}
+    local bucket = type(modData[mod.id]) == "table" and modData[mod.id] or {}
+    local persistent = type(bucket.hevo_persistent) == "table"
+      and bucket.hevo_persistent or {}
+    local receipts = type(persistent.secretUnlocks) == "table"
+      and persistent.secretUnlocks or {}
+    local proofs = {
+      groudonCaught = receipts.KA_LEGEND_CAPTURE_GROUDON == true,
+      kyogreCaught = receipts.KA_LEGEND_CAPTURE_KYOGRE == true,
+      rayquazaCaught = receipts.KA_LEGEND_CAPTURE_RAYQUAZA == true,
+      jirachiCaught = receipts.KA_LEGEND_CAPTURE_JIRACHI == true,
+      livingPokedex = false,
+    }
+    local owned = save.pokedex and type(save.pokedex.owned) == "table"
+      and save.pokedex.owned or {}
+    local ownedDex = {}
+    for species, def in pairs(pokemon) do
+      local dex = type(def) == "table" and tonumber(def.dex) or nil
+      if dex and dex >= 1 and dex <= 251 and owned[species] then
+        ownedDex[math.floor(dex)] = true
+      end
+    end
+    proofs.livingPokedex = true
+    for dex = 1, 251 do
+      if not ownedDex[dex] then
+        proofs.livingPokedex = false
+        break
+      end
+    end
+    return normalizeSurprise({
+      token = encounter and encounter.token,
+      mapId = encounter and encounter.mapId,
+      class = encounter and (encounter.class
+        or encounter.archetype and encounter.archetype.class),
+      legacyCycle = legacy and legacy.cycle,
+      legacyPass = profile and profile.legacyPass == true,
+      completedPaths = profile and profile.completedPaths,
+      mythic = encounter and encounter.mythic == true,
+      legend = encounter and encounter.legend == true,
+      discovery = encounter and encounter.discovery == true,
+      research = encounter and encounter.research == true,
+      partyTypes = partyTypes,
+      proofs = proofs,
+    })
+  end
+
+  local function surpriseAwardText(award)
+    if not award then return nil end
+    if surpriseProvider and type(surpriseProvider.awardText) == "function" then
+      local ok, text = pcall(surpriseProvider.awardText, award)
+      if ok and type(text) == "string" and text ~= "" then return text end
+    end
+    local name = type(award) == "table" and award.id or nil
+    return type(name) == "string" and tr("NEW TITLE: ", "NEUER TITEL: ")
+      .. name or nil
+  end
+
+  local function processSurprise(game, s, context)
+    context = normalizeSurprise(context)
+    if not context then return nil, "invalid" end
+    if not (surpriseProvider
+        and type(surpriseProvider.recordWin) == "function") then
+      s.pendingSurprise[context.token] = context
+      persist(s)
+      return nil, "unavailable"
+    end
+    local ok, award, reason, committed = pcall(
+      surpriseProvider.recordWin, game, context)
+    if not ok then
+      s.pendingSurprise[context.token] = context
+      persist(s)
+      return nil, "provider-error"
+    end
+    if committed == true or reason == "duplicate" then
+      s.pendingSurprise[context.token] = nil
+      persist(s)
+      return surpriseAwardText(award), reason
+    end
+    s.pendingSurprise[context.token] = context
+    persist(s)
+    return nil, reason or "uncommitted"
+  end
+
+  function W.reconcileSurprise(game, s)
+    s = s or state()
+    local tokens = {}
+    for token in pairs(s.pendingSurprise or {}) do tokens[#tokens + 1] = token end
+    table.sort(tokens)
+    local resolved, texts = 0, {}
+    for _, token in ipairs(tokens) do
+      local before = s.pendingSurprise[token]
+      local text = processSurprise(game, s, before)
+      if before and s.pendingSurprise[token] == nil then resolved = resolved + 1 end
+      if text then texts[#texts + 1] = text end
+    end
+    return resolved, texts
+  end
+
   function W.resolveEncounter(game, s, encounter, result)
     s = s or state()
     encounter = encounter or s.encounter
@@ -2092,13 +2322,15 @@ return function(mod, opts)
       end
     end
     s.wins, s.streak, s.marks = s.wins + 1, s.streak + 1, s.marks + 1
+    local titleText = processSurprise(game, s,
+      surpriseContext(game, encounter))
     -- A recovery win restores the intended edge gradually instead of
     -- snapping a struggling player straight back to maximum difficulty.
     s.lossRelief = math.max(0, integer(s.lossRelief) - 1)
     s.encounter = nil
     scheduleAfterWin(game, s, encounter)
     persist(s)
-    return placement or "no_reward", rewardReason, specialText
+    return placement or "no_reward", rewardReason, specialText, titleText
   end
 
   local function releaseEncounterLock(active)
@@ -2159,6 +2391,10 @@ return function(mod, opts)
     battle.ascendantLegacyHealItemCap = active.tier.targetLevel >= 80
       and active.tier.lossRelief == 0 and 1 or 0
     battle.ascendantLegacyHealItemUses = 0
+    if active.mega and megaProvider and type(megaProvider.apply) == "function" then
+      local ok, applied = pcall(megaProvider.apply, game, battle, active)
+      if not (ok and applied == true) then active.mega = nil end
+    end
     battle.introText = tr("The road trial\nbegins!",
       "Die Wegprüfung\nbeginnt!")
     battle.endBattleText = tr("Road trial\ncomplete!",
@@ -2203,6 +2439,18 @@ return function(mod, opts)
     if not made or not box then return false end
     local pushed, accepted = pcall(game.stack.push, game.stack, box)
     return pushed and accepted ~= false
+  end
+
+  function W.encounterIntroText(active)
+    local text = W.challengeText(active)
+    if active and active.mega and megaProvider
+        and type(megaProvider.telegraph) == "function" then
+      local ok, warning = pcall(megaProvider.telegraph, active.mega)
+      if ok and type(warning) == "string" and warning ~= "" then
+        return warning .. "\f" .. text
+      end
+    end
+    return text
   end
 
   local function showOutcome(active)
@@ -2473,6 +2721,7 @@ return function(mod, opts)
       team = copy(encounter.team), tier = copy(encounter.tier),
       expBonusPercent = encounter.expBonusPercent,
       reward = encounter.reward and copy(encounter.reward) or nil,
+      mega = encounter.mega and copy(encounter.mega) or nil,
       path = approach.path,
       spawnX = approach.x, spawnY = approach.y,
     }
@@ -2485,7 +2734,7 @@ return function(mod, opts)
       onDone = function()
         if W.active ~= active then return cleanup(active) end
         game.stack:push(require("src.render.TextBox").new(game,
-          W.challengeText(active), function() walkPath(active, 1) end))
+          W.encounterIntroText(active), function() walkPath(active, 1) end))
       end,
     }
     return true
@@ -2553,6 +2802,10 @@ return function(mod, opts)
         return
       end
     end
+    if contextSafe(game) and next(s.pendingSurprise) ~= nil then
+      local _, texts = W.reconcileSurprise(game, s)
+      if texts[1] and pushText(game, texts[1]) then return end
+    end
     if frequency == "never" then return end
     local due = W.advanceCadence(s, ev and ev.mapId)
     persist(s)
@@ -2571,11 +2824,15 @@ return function(mod, opts)
       cleanup(active)
       return
     end
-    local placement, _, specialText = W.resolveEncounter(
+    local placement, _, specialText, titleText = W.resolveEncounter(
       active.game, s, encounter, ev.result)
     if ev.result == "win" and placement and placement ~= "no_reward" then
-      active.rewardText = specialText or W.rewardText(active.game,
+      local itemText = specialText or W.rewardText(active.game,
         encounter.reward, placement)
+      active.rewardText = titleText and itemText
+        and (itemText .. "\f" .. titleText) or titleText or itemText
+    elseif ev.result == "win" and titleText then
+      active.rewardText = titleText
     elseif ev.result ~= "win" and placement == "resolved_loss" then
       active.lossText = W.lossText(s.lossRelief)
     end

@@ -1,8 +1,0 @@
-{
-  "id": "overworld_wild_spawns",
-  "name": "Standalone Wilds Replacement Probe",
-  "version": "2.0.0",
-  "api": 2,
-  "entry": "main.lua",
-  "profile": "content"
-}

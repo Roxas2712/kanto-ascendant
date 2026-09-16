@@ -40,6 +40,20 @@ return function(mod, opts)
   local chimeData
   local chimeSources = {}
   local derived = {}
+
+  local function externalHudOwned(battle)
+    local qualityOfLife = type(mod.exports) == "table"
+      and mod.exports.qualityOfLife or nil
+    local battleOverlays = type(qualityOfLife) == "table"
+      and qualityOfLife.battle or nil
+    if type(battleOverlays) ~= "table"
+        or type(battleOverlays.externalHudOwned) ~= "function" then
+      return false
+    end
+    local ok, owned = pcall(
+      battleOverlays.externalHudOwned, battleOverlays, battle)
+    return ok and owned == true
+  end
   -- Kept split because this is only a recognizer for the transform output,
   -- never a runtime read of the player's imported cache.
   local SOURCE_PREFIX = "assets/" .. "generated/"
@@ -88,6 +102,8 @@ return function(mod, opts)
   end
 
   function S.isShiny(mon)
+    local illusion=mod.exports and mod.exports.pokemonIllusion67
+    if illusion and illusion.renderMon then mon=illusion.renderMon(mon)end
     if type(mon) ~= "table" then return false end
     if mon.shiny == true then return true end
     local dvs = mon.dvs
@@ -434,6 +450,7 @@ return function(mod, opts)
     nextOverlay(battle)
     if mod.options:get("shiny_effects") == false
         or not (battle and love and love.graphics) then return end
+    local replacementHudOwnsFrame = externalHudOwned(battle)
     local effects = battleEffects[battle]
     if not effects then
       effects = { announced = setmetatable({}, { __mode = "k" }), age = {} }
@@ -441,27 +458,36 @@ return function(mod, opts)
     end
     for _, side in ipairs({ "enemy", "player" }) do
       local battler = battle[side]
-      if battler and not S.externalActive(battler.mon)
-          and S.isShiny(battler.mon) and visible(battle, side) then
+      local identity=mod.exports and mod.exports.pokemonBattleIdentity67
+      local mon=battler and (identity and identity.presentationMon
+        and identity.presentationMon(battle,battler)or battler.mon)
+      -- Sparkles describe the visible body, never disclose the saved
+      -- Pokémon behind Illusion. Catch/Dex records still use real identity.
+      if mon and not S.externalActive(mon)
+          and S.isShiny(mon) and visible(battle, side) then
         if not effects.announced[battler] then
           effects.announced[battler] = true
           effects.age[battler] = battle.frame or 0
-          playChime(battler.mon)
+          playChime(mon)
         end
-        local x, y = markerPosition(battle, side)
-        drawIcon(x, y, true)
-        local age = (battle.frame or 0) - (effects.age[battler] or 0)
-        if age < 48 then
-          local radius = 10 + age * 0.5
-          for n = 0, 3 do
-            local angle = n * math.pi / 2 + age * 0.08
-            drawIcon(x + math.floor(math.cos(angle) * radius),
-              y + math.floor(math.sin(angle) * radius), true)
+        if not replacementHudOwnsFrame then
+          local x, y = markerPosition(battle, side)
+          drawIcon(x, y, true)
+          local age = (battle.frame or 0) - (effects.age[battler] or 0)
+          if age < 48 then
+            local radius = 10 + age * 0.5
+            for n = 0, 3 do
+              local angle = n * math.pi / 2 + age * 0.08
+              drawIcon(x + math.floor(math.cos(angle) * radius),
+                y + math.floor(math.sin(angle) * radius), true)
+            end
           end
         end
       end
     end
-    love.graphics.setColor(1, 1, 1, 1)
+    if not replacementHudOwnsFrame then
+      love.graphics.setColor(1, 1, 1, 1)
+    end
     reapChimes()
   end, 80)
 
@@ -720,6 +746,13 @@ return function(mod, opts)
       local newBoxMenu = BoxMenu.new
       BoxMenu.new = function(boxGame)
         local menu = newBoxMenu(boxGame)
+        -- A registered VASC PokemonUi Host owns release semantics and visuals
+        -- for this concrete screen. Its immutable host receipt is the
+        -- cross-mod boundary; do not reach through it as though it were the
+        -- engine's native BoxMenu.
+        if type(menu) == "table" and type(menu.__pokemonUiHostV1) == "table" then
+          return menu
+        end
         local releaseItem = menu and menu.items and menu.items[3]
         if not releaseItem then return menu end
         releaseItem.onSelect = function()

@@ -1,0 +1,16 @@
+{
+  "schema": "kasc.legacy-global-babies-audio/v1",
+  "source": "PokeAPI/cries",
+  "commit": "ef687b18f0ce17169b4b4c09175819f7ade92f0f",
+  "sourcePath": "cries/pokemon/legacy",
+  "license": "POKEAPI-CRIES-LICENSE",
+  "files": {
+    "406.ogg": "22564c86a7cb7a8e80861fa923e3deac0f3401aec5b0015e9f55747cdf6c0527",
+    "433.ogg": "c9a1cc15fc3c3dd9c7c47a98fa09995bdee6abefe0285f60e420bada7990462c",
+    "438.ogg": "053bae0887a154b7be06af433909f7884e6728e0ce4a0491ae4109338ef4d1e3",
+    "439.ogg": "03a217ce1617d014f301dfbd097f955867ae59420b3274a76859eb2134163773",
+    "440.ogg": "e3b220ed23384adcfc86eb2b54731be3f750c5e812d220a56bffd567ba567796",
+    "446.ogg": "b2b8912ac9f6afbe4ba938ee3d754224e925d930e39dba8ae44b0457df33d163",
+    "458.ogg": "49e23255b41ba52bb65c893abb8fda312ced41a52759b0b23c520ed17026003d"
+  }
+}

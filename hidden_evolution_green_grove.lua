@@ -590,6 +590,11 @@ return function(mod, opts)
     path{{19,17},{23,17},{23,21},{29,21}}
     path{{37,21},{41,21},{41,17},{37,17},{37,13}}
     path{{47,13},{43,13},{43,9},{47,9},{47,7}}
+    -- The moss-field altar is registered by the package bootstrap at 39,7.
+    -- Keep its underlying cell and two approaches on this GREEN-only loop so
+    -- the post-reward altar can be reached by ordinary movement. Rejoining at
+    -- 43,9 also leaves the base map valid before the package injects its NPC.
+    path{{47,7},{39,7},{39,9},{43,9}}
     path{{11,27},{9,27}};path{{31,21},{31,23}}
     path{{43,13},{43,11},{45,11}}
     pocket(6,17);pocket(11,10);pocket(20,8)

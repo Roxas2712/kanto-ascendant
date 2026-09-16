@@ -1,0 +1,805 @@
+{
+  "schema": "kasc.wave1-rockruff-form-art/v1",
+  "romSha256": "d756b2783dede0bb2c534d1f07713bef733cf53500388e3912f14220a7e16e97",
+  "policy": "Three exact form animations only; Original fallback, game stats and protected art unchanged.",
+  "forms": [
+    {
+      "key": "form:10126",
+      "slot": 1173,
+      "identifier": "lycanroc-midnight",
+      "sets": [
+        {
+          "side": "front",
+          "variant": "normal",
+          "geometry": {
+            "sourceUnion": [
+              7,
+              6,
+              60,
+              62
+            ],
+            "stage": [
+              56,
+              56
+            ],
+            "body": [
+              53,
+              56
+            ]
+          },
+          "root": "assets/wave1_rockruff_forms_67/10126/front/normal",
+          "durations": [
+            500,
+            83
+          ],
+          "animated": true,
+          "scale": 1,
+          "sha256": [
+            "12309de13aa8dbe06d102f7162a95a0899b25feea2e90c4157f093f5a85afc15",
+            "18f49d2b3d65df238d921ba9bbb8fc5b3d0b2c01929fb83bab6ed5e1af5f86e3"
+          ],
+          "sources": [
+            {
+              "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1173/front-normal-01.png",
+              "sha256": "b6bc3a0b8d5b4f6c881ec34ac36d4b12fdcf92860e5fc700e24913634434b153"
+            },
+            {
+              "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1173/front-normal-00.png",
+              "sha256": "786b9a531d59ed523e686aea94f470300876d575d3802edc0095240ccb4add5d"
+            }
+          ]
+        },
+        {
+          "side": "back",
+          "variant": "normal",
+          "geometry": {
+            "sourceUnion": [
+              7,
+              16,
+              57,
+              58
+            ],
+            "stage": [
+              48,
+              48
+            ],
+            "body": [
+              48,
+              40
+            ]
+          },
+          "root": "assets/wave1_rockruff_forms_67/10126/back/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sha256": [
+            "757116a1846861370d8931c460d58f7d7cdaf548bb6ce73ec7d1538ffab2a575"
+          ],
+          "sources": [
+            {
+              "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1173/back-normal-00.png",
+              "sha256": "e01f47de0a45a81a044dd290cfd8cd2b269175e3171ffe71fb6089d5bd082508"
+            }
+          ]
+        },
+        {
+          "side": "voxel",
+          "variant": "normal",
+          "geometry": {
+            "sourceUnion": [
+              7,
+              6,
+              60,
+              62
+            ],
+            "stage": [
+              64,
+              64
+            ],
+            "body": [
+              53,
+              56
+            ]
+          },
+          "root": "assets/wave1_rockruff_forms_67/10126/voxel/normal",
+          "durations": [
+            500,
+            83
+          ],
+          "animated": true,
+          "scale": 1.5,
+          "sha256": [
+            "ce05f6b75ea3fa202e6d1fb75f9244756bcd14396dbc407b03229b5e2e94c02f",
+            "db96d513ead22b2ed9e6c68e3ac2efe395e8bf6cc48cfb75ca1961d90ebda320"
+          ],
+          "sources": [
+            {
+              "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1173/front-normal-01.png",
+              "sha256": "b6bc3a0b8d5b4f6c881ec34ac36d4b12fdcf92860e5fc700e24913634434b153"
+            },
+            {
+              "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1173/front-normal-00.png",
+              "sha256": "786b9a531d59ed523e686aea94f470300876d575d3802edc0095240ccb4add5d"
+            }
+          ]
+        },
+        {
+          "side": "front",
+          "variant": "shiny",
+          "geometry": {
+            "sourceUnion": [
+              7,
+              6,
+              60,
+              62
+            ],
+            "stage": [
+              56,
+              56
+            ],
+            "body": [
+              53,
+              56
+            ]
+          },
+          "root": "assets/wave1_rockruff_forms_67/10126/front/shiny",
+          "durations": [
+            500,
+            83
+          ],
+          "animated": true,
+          "scale": 1,
+          "sha256": [
+            "8230cdef6cb81b363c510f0d437e8249e03cc957b91cafb9ced521b00284dd40",
+            "f47e97b11dbcb9c168817f25f8448b0f145a3935398a94efd84b134445d429c7"
+          ],
+          "sources": [
+            {
+              "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1173/front-shiny-01.png",
+              "sha256": "73fffcc31224dc381a1df1df31dd048073a868b4d0f6a7192cf436fa2ae6f4b0"
+            },
+            {
+              "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1173/front-shiny-00.png",
+              "sha256": "d3b351a9bc12fbe183739e75d7dacf0a3073618b4f2462e494bd374b0eeea6d5"
+            }
+          ]
+        },
+        {
+          "side": "back",
+          "variant": "shiny",
+          "geometry": {
+            "sourceUnion": [
+              7,
+              16,
+              57,
+              58
+            ],
+            "stage": [
+              48,
+              48
+            ],
+            "body": [
+              48,
+              40
+            ]
+          },
+          "root": "assets/wave1_rockruff_forms_67/10126/back/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sha256": [
+            "5a0c56efa4634f7a20223f68f3172c0840dba67aff39c011d57a7e835b4016ab"
+          ],
+          "sources": [
+            {
+              "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1173/back-shiny-00.png",
+              "sha256": "0235ec5f5ec7fc24a9cf10a1176f59fbac537e457b3000a5c8861c0b10ac1d9c"
+            }
+          ]
+        },
+        {
+          "side": "voxel",
+          "variant": "shiny",
+          "geometry": {
+            "sourceUnion": [
+              7,
+              6,
+              60,
+              62
+            ],
+            "stage": [
+              64,
+              64
+            ],
+            "body": [
+              53,
+              56
+            ]
+          },
+          "root": "assets/wave1_rockruff_forms_67/10126/voxel/shiny",
+          "durations": [
+            500,
+            83
+          ],
+          "animated": true,
+          "scale": 1.5,
+          "sha256": [
+            "90c9a7cd4141f3166fa20481e52fc696ed3a7e0b90ac2f43d2695f46795e3a26",
+            "e46a3ee2be335e1692311d7929a3d3ce6481c4d24c7ec45c0a0afa67e2f6d19b"
+          ],
+          "sources": [
+            {
+              "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1173/front-shiny-01.png",
+              "sha256": "73fffcc31224dc381a1df1df31dd048073a868b4d0f6a7192cf436fa2ae6f4b0"
+            },
+            {
+              "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1173/front-shiny-00.png",
+              "sha256": "d3b351a9bc12fbe183739e75d7dacf0a3073618b4f2462e494bd374b0eeea6d5"
+            }
+          ]
+        }
+      ],
+      "identityBasis": "Inspected form silhouette; exact catalogue ID and fixed pinned ROM slot. Not inferred from ROM Dex number.",
+      "romStatsNotImported": [
+        95,
+        115,
+        90,
+        82,
+        40,
+        85
+      ]
+    },
+    {
+      "key": "form:10151",
+      "slot": 1172,
+      "identifier": "rockruff-own-tempo",
+      "sets": [
+        {
+          "side": "front",
+          "variant": "normal",
+          "geometry": {
+            "sourceUnion": [
+              12,
+              11,
+              54,
+              51
+            ],
+            "stage": [
+              56,
+              56
+            ],
+            "body": [
+              42,
+              40
+            ]
+          },
+          "root": "assets/wave1_rockruff_forms_67/10151/front/normal",
+          "durations": [
+            150,
+            133,
+            133,
+            83
+          ],
+          "animated": true,
+          "scale": 1,
+          "sha256": [
+            "71f87576557c554af63921229ad21210433fb0afbf21e2a32ac4d4dccfec89c1",
+            "d6ecc822222682156815f858284e45e0467137f3a17391d8823d6493761bba03",
+            "71f87576557c554af63921229ad21210433fb0afbf21e2a32ac4d4dccfec89c1",
+            "d6ecc822222682156815f858284e45e0467137f3a17391d8823d6493761bba03"
+          ],
+          "sources": [
+            {
+              "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1172/front-normal-01.png",
+              "sha256": "5cfc3d72a1424aae6d06594012555e3557542e6636dd04705598265f6f700bcd"
+            },
+            {
+              "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1172/front-normal-00.png",
+              "sha256": "11b0c1c68b075bf4642feab697e438d489e0f3698189bed33b0e8cceb0f1d8a2"
+            },
+            {
+              "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1172/front-normal-01.png",
+              "sha256": "5cfc3d72a1424aae6d06594012555e3557542e6636dd04705598265f6f700bcd"
+            },
+            {
+              "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1172/front-normal-00.png",
+              "sha256": "11b0c1c68b075bf4642feab697e438d489e0f3698189bed33b0e8cceb0f1d8a2"
+            }
+          ]
+        },
+        {
+          "side": "back",
+          "variant": "normal",
+          "geometry": {
+            "sourceUnion": [
+              9,
+              25,
+              55,
+              57
+            ],
+            "stage": [
+              48,
+              48
+            ],
+            "body": [
+              46,
+              32
+            ]
+          },
+          "root": "assets/wave1_rockruff_forms_67/10151/back/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sha256": [
+            "a79ce4611c2ee67912da4482d03d586bcd3165799f64cc77f90f7b74818f6b28"
+          ],
+          "sources": [
+            {
+              "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1172/back-normal-00.png",
+              "sha256": "4de47076611a5bd42e82aab5d8d32305ae82ae589a1e6f3ff893417f12b3f216"
+            }
+          ]
+        },
+        {
+          "side": "voxel",
+          "variant": "normal",
+          "geometry": {
+            "sourceUnion": [
+              12,
+              11,
+              54,
+              51
+            ],
+            "stage": [
+              64,
+              64
+            ],
+            "body": [
+              42,
+              40
+            ]
+          },
+          "root": "assets/wave1_rockruff_forms_67/10151/voxel/normal",
+          "durations": [
+            150,
+            133,
+            133,
+            83
+          ],
+          "animated": true,
+          "scale": 1.5,
+          "sha256": [
+            "78544a508e9f54e7e819ab21fda41ba5193de19dc56fb181145cc307f2b2d2bf",
+            "301bdde0acfc61573d575fb99b574db3768ec49840f2fea5a4b56fab6f365733",
+            "78544a508e9f54e7e819ab21fda41ba5193de19dc56fb181145cc307f2b2d2bf",
+            "301bdde0acfc61573d575fb99b574db3768ec49840f2fea5a4b56fab6f365733"
+          ],
+          "sources": [
+            {
+              "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1172/front-normal-01.png",
+              "sha256": "5cfc3d72a1424aae6d06594012555e3557542e6636dd04705598265f6f700bcd"
+            },
+            {
+              "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1172/front-normal-00.png",
+              "sha256": "11b0c1c68b075bf4642feab697e438d489e0f3698189bed33b0e8cceb0f1d8a2"
+            },
+            {
+              "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1172/front-normal-01.png",
+              "sha256": "5cfc3d72a1424aae6d06594012555e3557542e6636dd04705598265f6f700bcd"
+            },
+            {
+              "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1172/front-normal-00.png",
+              "sha256": "11b0c1c68b075bf4642feab697e438d489e0f3698189bed33b0e8cceb0f1d8a2"
+            }
+          ]
+        },
+        {
+          "side": "front",
+          "variant": "shiny",
+          "geometry": {
+            "sourceUnion": [
+              12,
+              11,
+              54,
+              51
+            ],
+            "stage": [
+              56,
+              56
+            ],
+            "body": [
+              42,
+              40
+            ]
+          },
+          "root": "assets/wave1_rockruff_forms_67/10151/front/shiny",
+          "durations": [
+            150,
+            133,
+            133,
+            83
+          ],
+          "animated": true,
+          "scale": 1,
+          "sha256": [
+            "18feff6893ceaf331c2dd614e8aa728c9e09c3dc7bcebc553eaa5f035902dfea",
+            "5d57cca9b3f540a9655fcb6318dff724a2e7e827bfb7b54ab59fd5742d0bc3aa",
+            "18feff6893ceaf331c2dd614e8aa728c9e09c3dc7bcebc553eaa5f035902dfea",
+            "5d57cca9b3f540a9655fcb6318dff724a2e7e827bfb7b54ab59fd5742d0bc3aa"
+          ],
+          "sources": [
+            {
+              "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1172/front-shiny-01.png",
+              "sha256": "07ab5244c9a4cefbc32f020aa4c7294b2e298f2d500d9f0c9b0fbce16bdf9a74"
+            },
+            {
+              "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1172/front-shiny-00.png",
+              "sha256": "bd9ba35d961f0cd8c031a599a2a1a369ee7020251423340a2209cce8ae447c52"
+            },
+            {
+              "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1172/front-shiny-01.png",
+              "sha256": "07ab5244c9a4cefbc32f020aa4c7294b2e298f2d500d9f0c9b0fbce16bdf9a74"
+            },
+            {
+              "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1172/front-shiny-00.png",
+              "sha256": "bd9ba35d961f0cd8c031a599a2a1a369ee7020251423340a2209cce8ae447c52"
+            }
+          ]
+        },
+        {
+          "side": "back",
+          "variant": "shiny",
+          "geometry": {
+            "sourceUnion": [
+              9,
+              25,
+              55,
+              57
+            ],
+            "stage": [
+              48,
+              48
+            ],
+            "body": [
+              46,
+              32
+            ]
+          },
+          "root": "assets/wave1_rockruff_forms_67/10151/back/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sha256": [
+            "5df7a1582d5d36a29a32b0a2b61182eb0287dafca1664b412962d87040f7c5cc"
+          ],
+          "sources": [
+            {
+              "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1172/back-shiny-00.png",
+              "sha256": "ab2afef5700abab2dbc07a41a469934546dbeb07ac0aa16afed32d6a703297d4"
+            }
+          ]
+        },
+        {
+          "side": "voxel",
+          "variant": "shiny",
+          "geometry": {
+            "sourceUnion": [
+              12,
+              11,
+              54,
+              51
+            ],
+            "stage": [
+              64,
+              64
+            ],
+            "body": [
+              42,
+              40
+            ]
+          },
+          "root": "assets/wave1_rockruff_forms_67/10151/voxel/shiny",
+          "durations": [
+            150,
+            133,
+            133,
+            83
+          ],
+          "animated": true,
+          "scale": 1.5,
+          "sha256": [
+            "866c3c8578bd284eb9c33918363c5c99b87491af409757f0471420cce0c6a7f9",
+            "17661fa5960de83c485ec923b9e29314b3c0a53cc18fd50cb1c0c394664b25ca",
+            "866c3c8578bd284eb9c33918363c5c99b87491af409757f0471420cce0c6a7f9",
+            "17661fa5960de83c485ec923b9e29314b3c0a53cc18fd50cb1c0c394664b25ca"
+          ],
+          "sources": [
+            {
+              "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1172/front-shiny-01.png",
+              "sha256": "07ab5244c9a4cefbc32f020aa4c7294b2e298f2d500d9f0c9b0fbce16bdf9a74"
+            },
+            {
+              "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1172/front-shiny-00.png",
+              "sha256": "bd9ba35d961f0cd8c031a599a2a1a369ee7020251423340a2209cce8ae447c52"
+            },
+            {
+              "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1172/front-shiny-01.png",
+              "sha256": "07ab5244c9a4cefbc32f020aa4c7294b2e298f2d500d9f0c9b0fbce16bdf9a74"
+            },
+            {
+              "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1172/front-shiny-00.png",
+              "sha256": "bd9ba35d961f0cd8c031a599a2a1a369ee7020251423340a2209cce8ae447c52"
+            }
+          ]
+        }
+      ],
+      "identityBasis": "Inspected form silhouette; exact catalogue ID and fixed pinned ROM slot. Not inferred from ROM Dex number.",
+      "romStatsNotImported": [
+        45,
+        65,
+        40,
+        60,
+        30,
+        40
+      ]
+    },
+    {
+      "key": "form:10152",
+      "slot": 1174,
+      "identifier": "lycanroc-dusk",
+      "sets": [
+        {
+          "side": "front",
+          "variant": "normal",
+          "geometry": {
+            "sourceUnion": [
+              4,
+              3,
+              62,
+              58
+            ],
+            "stage": [
+              56,
+              56
+            ],
+            "body": [
+              56,
+              53
+            ]
+          },
+          "root": "assets/wave1_rockruff_forms_67/10152/front/normal",
+          "durations": [
+            667,
+            83
+          ],
+          "animated": true,
+          "scale": 1,
+          "sha256": [
+            "0933db0cd5f9dd26966d0de7186a36ce7d4e4ffd566cc67752768a59e9271389",
+            "7e644ac37b402583f4fd8c401ba149b12b7e9edab7daf1838b477e97991f695d"
+          ],
+          "sources": [
+            {
+              "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1174/front-normal-01.png",
+              "sha256": "a0d273d2bbfb8a13cfe868cd4562d1dd89e58a9c5e805012c9c1c30aeb0d672f"
+            },
+            {
+              "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1174/front-normal-00.png",
+              "sha256": "ae28cd9d0c4b2641c81d40afc24a0f5e0f0a24b3736c66ead5d34259d2c81555"
+            }
+          ]
+        },
+        {
+          "side": "back",
+          "variant": "normal",
+          "geometry": {
+            "sourceUnion": [
+              7,
+              18,
+              56,
+              58
+            ],
+            "stage": [
+              48,
+              48
+            ],
+            "body": [
+              48,
+              39
+            ]
+          },
+          "root": "assets/wave1_rockruff_forms_67/10152/back/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sha256": [
+            "e0e52082b288a38ae242c6bd636312a1827541bba4bf48a42f849e8da47a3d7f"
+          ],
+          "sources": [
+            {
+              "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1174/back-normal-00.png",
+              "sha256": "5fc5e05a3d411c6d7645a33e73db24fd2751e7d3fbed5fc016639f9bfeb7786a"
+            }
+          ]
+        },
+        {
+          "side": "voxel",
+          "variant": "normal",
+          "geometry": {
+            "sourceUnion": [
+              4,
+              3,
+              62,
+              58
+            ],
+            "stage": [
+              64,
+              64
+            ],
+            "body": [
+              56,
+              53
+            ]
+          },
+          "root": "assets/wave1_rockruff_forms_67/10152/voxel/normal",
+          "durations": [
+            667,
+            83
+          ],
+          "animated": true,
+          "scale": 1.5,
+          "sha256": [
+            "c7fb6f5f7f96797eb73b87902612e3a6df52e48a3bd0ceb67e82ca2d1f0ba205",
+            "d0a2acb3e16c716cb4ca9d839b9adbf53c909e79174f0e7462c11742f963b582"
+          ],
+          "sources": [
+            {
+              "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1174/front-normal-01.png",
+              "sha256": "a0d273d2bbfb8a13cfe868cd4562d1dd89e58a9c5e805012c9c1c30aeb0d672f"
+            },
+            {
+              "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1174/front-normal-00.png",
+              "sha256": "ae28cd9d0c4b2641c81d40afc24a0f5e0f0a24b3736c66ead5d34259d2c81555"
+            }
+          ]
+        },
+        {
+          "side": "front",
+          "variant": "shiny",
+          "geometry": {
+            "sourceUnion": [
+              4,
+              3,
+              62,
+              58
+            ],
+            "stage": [
+              56,
+              56
+            ],
+            "body": [
+              56,
+              53
+            ]
+          },
+          "root": "assets/wave1_rockruff_forms_67/10152/front/shiny",
+          "durations": [
+            667,
+            83
+          ],
+          "animated": true,
+          "scale": 1,
+          "sha256": [
+            "2e24c17885479fdffa7aabb0d6d81480a9b8326d23bc7011efff99c43dfd8774",
+            "f0a7ff684c7c5b7c79873e3338c9e0fe4d726676d82666a73900a7b071079c05"
+          ],
+          "sources": [
+            {
+              "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1174/front-shiny-01.png",
+              "sha256": "dc09048c69015e9e114030b75d75e73571ccbf638d8d4d35536e3b51138b78f5"
+            },
+            {
+              "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1174/front-shiny-00.png",
+              "sha256": "eadb42040a282974c8cd9a12f19269278ccb99db6cf71bf0d59298fbb3083a5e"
+            }
+          ]
+        },
+        {
+          "side": "back",
+          "variant": "shiny",
+          "geometry": {
+            "sourceUnion": [
+              7,
+              18,
+              56,
+              58
+            ],
+            "stage": [
+              48,
+              48
+            ],
+            "body": [
+              48,
+              39
+            ]
+          },
+          "root": "assets/wave1_rockruff_forms_67/10152/back/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sha256": [
+            "05212402cfba599a42151c01e64a3696d21bcab9c95766c86f8072590434aa25"
+          ],
+          "sources": [
+            {
+              "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1174/back-shiny-00.png",
+              "sha256": "fa4206b9bfc0e160dae18641982b196375d02e163a156be83df092ec144623d5"
+            }
+          ]
+        },
+        {
+          "side": "voxel",
+          "variant": "shiny",
+          "geometry": {
+            "sourceUnion": [
+              4,
+              3,
+              62,
+              58
+            ],
+            "stage": [
+              64,
+              64
+            ],
+            "body": [
+              56,
+              53
+            ]
+          },
+          "root": "assets/wave1_rockruff_forms_67/10152/voxel/shiny",
+          "durations": [
+            667,
+            83
+          ],
+          "animated": true,
+          "scale": 1.5,
+          "sha256": [
+            "89b36e19f9eb37d54e1437b39993aa612656122d9519c12c6abdf8f976f8db76",
+            "4d2330170df493d6436a902c629afdb12eb7a4a9f4182bc068c76b082c668d46"
+          ],
+          "sources": [
+            {
+              "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1174/front-shiny-01.png",
+              "sha256": "dc09048c69015e9e114030b75d75e73571ccbf638d8d4d35536e3b51138b78f5"
+            },
+            {
+              "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1174/front-shiny-00.png",
+              "sha256": "eadb42040a282974c8cd9a12f19269278ccb99db6cf71bf0d59298fbb3083a5e"
+            }
+          ]
+        }
+      ],
+      "identityBasis": "Inspected form silhouette; exact catalogue ID and fixed pinned ROM slot. Not inferred from ROM Dex number.",
+      "romStatsNotImported": [
+        75,
+        117,
+        80,
+        105,
+        55,
+        75
+      ]
+    }
+  ]
+}

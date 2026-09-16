@@ -1,0 +1,19 @@
+Classic 2D Gen-2-style library, National Dex #252-721
+
+Front sprites:
+  Jphyper, "Gen2-ified PokeSprites" regional sheets
+  https://www.deviantart.com/jphyper/gallery/59184304/sprite-modification
+
+Back sprites:
+  Exact per-file source and credit are recorded in RUNTIME-MANIFEST.json.
+  The selected set includes credited PeanutellaXO contributions, a separately
+  documented Volcanion composition pilot, and mechanically reduced PokeAPI
+  reference candidates. Mechanically reduced backs still require visible
+  manual quality review before they may be called final artwork.
+
+Excluded:
+  Mega forms and Gorochu are not part of this library. The quarantined
+  SageDeoxys package was not copied, read as an image reference, or used as
+  generation input because its supplied terms prohibit AI use.
+
+Pokémon and official designs belong to their respective rights holders.

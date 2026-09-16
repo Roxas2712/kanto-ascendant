@@ -91,6 +91,28 @@ A.achievements = {
       "FACTORY ARCHITECT", "FABRIK-ARCHITEKT") },
   { id = "sea_champion", title = text(
       "SEA CHAMPION", "MEERES-CHAMP") },
+  { id = "world_rank_verdant", title = text(
+      "VERDANT SOVEREIGN", "GRÜNER SOUVERÄN") },
+  { id = "world_rank_dynamo", title = text(
+      "DYNAMO SOVEREIGN", "DYNAMO-SOUVERÄN") },
+  { id = "world_rank_dragon", title = text(
+      "DRAGON CROWN", "DRACHENKRONE") },
+  { id = "world_rank_inferno", title = text(
+      "INFERNO SOVEREIGN", "INFERNO-SOUVERÄN") },
+  { id = "world_rank_tidal_frost", title = text(
+      "TIDAL SOVEREIGN", "FLUT-SOUVERÄN") },
+  { id = "world_rank_bedrock", title = text(
+      "BEDROCK SOVEREIGN", "FELS-SOUVERÄN") },
+  { id = "world_rank_mind_shadow", title = text(
+      "SHADOW MIND", "SCHATTENGEIST") },
+  { id = "world_rank_valor", title = text(
+      "VALOR SOVEREIGN", "MUT-SOUVERÄN") },
+  { id = "world_rank_wing_venom", title = text(
+      "VENOM WING", "GIFTFLÜGEL") },
+  { id = "world_rank_gold", title = text(
+      "GOLD STANDARD", "GOLDSTANDARD") },
+  { id = "world_rank_sinnoh", title = text(
+      "SINNOH SUMMIT", "SINNOH-GIPFEL") },
 }
 
 A.gymQuests = {
@@ -354,7 +376,7 @@ A.rocket = {
     name = "KANTO_ASCENDANT_ROCKET_SILPH",
     textId = "MOD_KANTO_ASCENDANT_ROCKET_SILPH",
     sprite = "SPRITE_ROCKET", class = "OPP_ROCKET",
-    preferred = { { 7, 8 }, { 8, 8 }, { 6, 8 } },
+    preferred = { { 11, 7 }, { 11, 6 }, { 11, 8 } },
     before = text(
       "ROCKET ADMIN: We are\nnot stealing POKéMON.\fWe are mapping the\npower that commands\nthem.",
       "ROCKET-ADMIN: Wir\nstehlen keine POKéMON.\fWir kartieren die\nMacht, die sie lenkt."),
@@ -376,7 +398,7 @@ A.rocket = {
     name = "KANTO_ASCENDANT_ROCKET_TOWER",
     textId = "MOD_KANTO_ASCENDANT_ROCKET_TOWER",
     sprite = "SPRITE_ROCKET", class = "OPP_ROCKET",
-    preferred = { { 8, 10 }, { 9, 10 }, { 7, 10 } },
+    preferred = { { 11, 6 }, { 10, 5 }, { 11, 5 } },
     before = text(
       "ROCKET EXECUTIVE: The\nspirits showed us a\nperfect genetic echo.\fGiovanni will make it\nobey.",
       "ROCKET-BOSS: Die\nGeister zeigten uns\nein perfektes Gen-Echo.\fGiovanni wird es\nbeherrschen."),

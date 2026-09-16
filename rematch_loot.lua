@@ -7,6 +7,13 @@
 -- never eligible ordinary loot.
 
 local L = {}
+local equipmentRewards
+
+function L.bindEquipmentRewards(provider)
+  assert(type(provider)=='table' and type(provider.pool)=='function',
+    'equipment reward pool provider required')
+  equipmentRewards=provider
+end
 
 L.ROLL_MAX = 100000
 L.SPECIAL = {
@@ -124,18 +131,22 @@ end
 -- item-shaped records exist for bag/evolution compatibility only and must
 -- never enter generic loot. The explicit metadata flags keep this contract
 -- useful for future research rewards too.
-local function genericEvolutionLootAllowed(data, id)
+local function genericEvolutionLootAllowed(data, id, activeEpoch)
   local def = data and data.items and data.items[id]
   if not def or tostring(id):match("^HEVO_") then return false end
+  local origin = math.max(1, math.floor(tonumber(def.originEpoch
+    or def.originGeneration) or 1))
   return def.lootExcluded ~= true and def.progressionItem ~= true
+    and (activeEpoch == nil or origin <= activeEpoch)
 end
 
-local function evolutionItems(data)
+local function evolutionItems(data, activeEpoch)
   local ids = {}
   for _, def in pairs((data and data.pokemon) or {}) do
     for _, evolution in ipairs(def.evolutions or {}) do
       if evolution.method == "ITEM"
-          and genericEvolutionLootAllowed(data, evolution.item) then
+          and genericEvolutionLootAllowed(data, evolution.item,
+            activeEpoch) then
         ids[evolution.item] = true
       end
     end
@@ -174,7 +185,7 @@ function L.pool(data, ctx)
   -- Ascendant's Gen-II evolution registry is authoritative.  Any supported
   -- item evolution absent from the native five stones joins automatically;
   -- unsupported placeholders never do.
-  for id in pairs(evolutionItems(data)) do
+  for id in pairs(evolutionItems(data, tonumber(ctx.activeEpoch))) do
     if not seenEvolution[id] then
       rows[#rows + 1] = {
         item = id, qty = 1, weight = 1.5, category = "evolution",
@@ -191,6 +202,18 @@ function L.pool(data, ctx)
       rows[#rows + 1] = {
         item = id, qty = 1, weight = 2, category = "ball",
       }
+    end
+  end
+
+  if equipmentRewards then
+    local existing={}
+    for _,row in ipairs(rows)do existing[row.item]=true end
+    for _,row in ipairs(equipmentRewards.pool(data,ctx))do
+      -- Item-evolution entries already have a drop route. Never double-weight
+      -- a Metal Coat or another existing reward through its second use.
+      if not existing[row.item] then
+        rows[#rows+1]=copy(row);existing[row.item]=true
+      end
     end
   end
 

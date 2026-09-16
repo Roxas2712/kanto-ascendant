@@ -135,6 +135,7 @@ return function(mod, opts)
   local i18n = opts.i18n
   local dialoguePagination = opts.dialoguePagination
   local beyondKanto = opts.beyondKanto or opts.johtoBoundary
+  local generationRules = opts.generationRules
   local placement = assert(opts.placement, "runtime NPC placement missing")
   local G = { game = nil }
   local activeFactory
@@ -204,6 +205,12 @@ return function(mod, opts)
   local function speciesAllowed(game, species)
     local def = game and game.data and game.data.pokemon
       and game.data.pokemon[species]
+    if type(def) ~= "table" then return false end
+    if generationRules and type(generationRules.speciesAvailable) == "function" then
+      local ok, allowed = pcall(
+        generationRules.speciesAvailable, game, species, def)
+      return ok and allowed == true
+    end
     local dex = def and tonumber(def.dex)
     return dex and dex >= 1 and dex <= maxDex(game) or false
   end

@@ -47,6 +47,11 @@
 -- other option-row mods use) when it is too wide for the row window.
 
 local Bag = require("src.inventory.Bag")
+local unpackValues = table.unpack or unpack
+
+local function packed(...)
+  return { n=select("#", ...), ... }
+end
 
 local PROTECTED_TOSS_ITEMS = {
   MASTER_BALL = true, RARE_CANDY = true, PP_UP = true,
@@ -187,12 +192,104 @@ local function adjacentPocket(from, dir)
   return ((from - 1 + dir) % n) + 1
 end
 
+local function boundedInteger(value, fallback)
+  value = tonumber(value)
+  if not value or value ~= value or value == math.huge
+      or value == -math.huge then return fallback end
+  return math.floor(value)
+end
+
+local function clamp(value, low, high)
+  if value < low then return low end
+  if value > high then return high end
+  return value
+end
+
+-- Cursor state is UI-only and keyed by the stable item id. Index and scroll
+-- are retained as bounded fallbacks for an item that was consumed, deposited
+-- or removed while another pocket was open. The remembered cursor row lets a
+-- surviving item keep its visual position when the hidden order is resorted.
+local function rememberPocketNavigation(list)
+  local navigation = list.__pocketNavigation
+  local pocket = POCKETS[list.__pocketIndex or 1]
+  if type(navigation) ~= "table" or not pocket then return end
+  local items, ids = list.items or {}, list.__pocketIds or {}
+  local count = #items
+  local index = count > 0
+    and clamp(boundedInteger(list.index, 1), 1, count) or 1
+  local rows = math.max(1, boundedInteger(list.rows, 7))
+  local maxScroll = math.max(0, count - rows)
+  local scroll = count > 0
+    and clamp(boundedInteger(list.scroll, 0), 0, maxScroll) or 0
+  if count > 0 then
+    if index <= scroll then scroll = index - 1 end
+    if index > scroll + rows then scroll = index - rows end
+    scroll = clamp(scroll, 0, maxScroll)
+  end
+  local selected = items[index]
+  local selectedId = selected and selected.value or nil
+  local projected = selectedId == nil
+  for _, id in ipairs(ids) do
+    if id == selectedId then projected = true break end
+  end
+  local prior = navigation.pockets[pocket.id]
+  if not projected and type(prior) == "table" then
+    selectedId = prior.item
+  end
+  navigation.pockets[pocket.id] = {
+    item=selectedId, index=index, scroll=scroll,
+    row=count > 0 and clamp(index - scroll, 1, rows) or 1,
+    rows=rows,
+  }
+  navigation.lastPocket = pocket.id
+end
+
+local function restorePocketNavigation(list, items, ids)
+  local navigation = list.__pocketNavigation
+  local pocket = POCKETS[list.__pocketIndex or 1]
+  local memory = type(navigation) == "table" and pocket
+    and navigation.pockets[pocket.id] or nil
+  local count = #items
+  if count == 0 then
+    list.index, list.scroll = 1, 0
+    return
+  end
+
+  local index
+  if type(memory) == "table" and memory.item ~= nil then
+    for candidate, id in ipairs(ids) do
+      if id == memory.item then index = candidate break end
+    end
+  end
+  index = index or clamp(boundedInteger(memory and memory.index, 1), 1, count)
+
+  local rows = math.max(1, boundedInteger(memory and memory.rows,
+    boundedInteger(list.rows, 7)))
+  local maxScroll = math.max(0, count - rows)
+  local scroll
+  if type(memory) == "table" and memory.item ~= nil
+      and ids[index] == memory.item
+      and index ~= boundedInteger(memory.index, index) then
+    local row = clamp(boundedInteger(memory.row,
+      boundedInteger(memory.index, index)
+        - boundedInteger(memory.scroll, 0)), 1, rows)
+    scroll = index - row
+  else
+    scroll = boundedInteger(memory and memory.scroll, 0)
+  end
+  scroll = clamp(scroll, 0, maxScroll)
+  if index <= scroll then scroll = index - 1 end
+  if index > scroll + rows then scroll = index - rows end
+  list.index, list.scroll = index, clamp(scroll, 0, maxScroll)
+end
+
 -- Move a pocketed list to the neighbouring pocket (wraps).  In a battle
 -- bag (`list.__battle` set) the unusable pockets are skipped, so L/R
 -- cycles only through the battle-usable ones.  Mutates the ListMenu in
 -- place: clears any pending SELECT-swap and re-projects its rows from the
 -- hidden bag.  `list.__project` is installed by decorate().
 local function switchPocket(list, dir)
+  rememberPocketNavigation(list)
   list.swapIndex = nil
   list.__ascendantMoveMode = nil
   list.__ascendantMoveItem = nil
@@ -204,8 +301,7 @@ local function switchPocket(list, dir)
       and (POCKETS[i].id ~= "key" or list.__battleKeyItems == true)))
     or i == list.__pocketIndex -- safety: never spin forever
   list.__pocketIndex = i
-  list.__project()
-  list.index = 1
+  list.__project(true)
 end
 
 -- Pure: the sorted id list for `mode` ("name" | "count") over the hidden
@@ -303,10 +399,32 @@ end
 local function reorderItems(items, order)
   local rank = {}
   for i, id in ipairs(order) do rank[id] = i end
+  local originalIndex = {}
+  for i, item in ipairs(items) do originalIndex[item] = i end
   table.sort(items, function(a, b)
-    local ra, rb = rank[a.value], rank[b.value]
-    if ra == rb then return a.value < b.value end
-    return (ra or math.huge) < (rb or math.huge)
+    -- Do not use Lua's `condition and value or nil` idiom here: a cooperative
+    -- extension is allowed to use the literal boolean `false` as an id, and
+    -- that idiom would collapse it into the value-less command-row class.
+    local av, bv
+    if type(a) == "table" then av = a.value end
+    if type(b) == "table" then bv = b.value end
+    local ra, rb = rank[av], rank[bv]
+    if ra ~= rb then return (ra or math.huge) < (rb or math.huge) end
+
+    -- Cooperative ListMenu hooks may append a command/cancel row without an
+    -- item id.  The live Player-PC deposit screen can therefore contain a
+    -- value-less row alongside normal string ids.  Keep identified rows ahead
+    -- of those compatibility rows and retain the latter's incoming order;
+    -- comparing `nil < "POTION"` was the crash reported from 6.5.17.
+    local ak = av ~= nil and (type(av) .. ":" .. tostring(av)) or nil
+    local bk = bv ~= nil and (type(bv) .. ":" .. tostring(bv)) or nil
+    if ak ~= bk then
+      if ak == nil then return false end
+      if bk == nil then return true end
+      return ak < bk
+    end
+    return (originalIndex[a] or math.huge)
+      < (originalIndex[b] or math.huge)
   end)
 end
 
@@ -519,17 +637,23 @@ end
 -- opts: a truthy `opts.battle` (BattleState) marks a battle bag, which
 -- opens on BATTLE ITEMS and skips the unusable pockets when cycling.
 local function decorate(list, game, session, opts)
-  -- pocket view starts on ITEMS
-  list.__pocketIndex = 1
-  list.wrap = true -- Up on the first / Down on the last item wraps
+  local navigation = session.navigation or { pockets={} }
+  navigation.pockets = type(navigation.pockets) == "table"
+    and navigation.pockets or {}
+  list.__pocketNavigation = navigation
+  local rememberedPocket = POCKET_INDEX[navigation.lastPocket or ""]
   list.__battle = opts and opts.battle or nil -- battle bags cycle tighter
+  -- A new field session resumes its last pocket. Battle bags deliberately
+  -- keep their established BATTLE ITEMS priority and use an isolated session.
+  list.__pocketIndex = list.__battle and 1 or rememberedPocket or 1
+  list.wrap = true -- Up on the first / Down on the last item wraps
 
-  -- Re-project the visible pocket from the hidden bag, preserving the
-  -- currently selected item when it is still in this pocket.
-  local function project()
+  -- Re-project the visible pocket from the hidden bag. The stable remembered
+  -- item wins; a removed item falls back to its bounded former seat.
+  local function project(useRememberedNavigation)
     local pocket = POCKETS[list.__pocketIndex]
+    if not useRememberedNavigation then rememberPocketNavigation(list) end
     local order = hiddenOrder(game.save)
-    local curId = list.items[list.index] and list.items[list.index].value
     local items, ids = {}, {}
     for _, id in ipairs(order) do
       local pocketId = classify(game.data, id)
@@ -550,12 +674,8 @@ local function decorate(list, game, session, opts)
     list.items, list.__pocketIds = items, ids
     list.title = bagTr(list, pocket.label,
       POCKET_LABELS_DE[pocket.id] or pocket.label)
-    if curId then
-      for i, id in ipairs(ids) do
-        if id == curId then list.index = i break end
-      end
-    end
-    list.index = math.max(1, math.min(list.index, #items))
+    restorePocketNavigation(list, items, ids)
+    rememberPocketNavigation(list)
   end
   list.__project = project
   list.__battleKeyItems = list.__battle ~= nil
@@ -701,18 +821,22 @@ local function decorate(list, game, session, opts)
     local matches = #self.items == #self.__pocketIds
     if matches then
       for i = 1, #self.items do
-        if self.items[i].value ~= self.__pocketIds[i] then
+        if self.items[i].value ~= self.__pocketIds[i]
+            or self.items[i].right ~= "x" .. (game.save.inventory[self.items[i].value] or 0) then
           matches = false
           break
         end
       end
     end
-    if not matches then self.__project() end
-    return vanillaUpdate(self, dt)
+    if not matches then self.__project(true) end
+    local results = packed(vanillaUpdate(self, dt))
+    rememberPocketNavigation(self)
+    return unpackValues(results, 1, results.n)
   end
 
   local vanillaClose = list.close
   list.close = function(self, ...)
+    rememberPocketNavigation(self)
     if session.active == self then session.active = nil end
     return vanillaClose(self, ...)
   end
@@ -731,24 +855,25 @@ local function decorate(list, game, session, opts)
     for _, pid in ipairs(BATTLE_START_PRIORITY) do
       if pid ~= "key" or list.__battleKeyItems then
         list.__pocketIndex = POCKET_INDEX[pid]
-        project()
+        project(true)
         if #list.items > 0 then break end
       end
     end
   else
-    project()
+    project(true)
     -- A field bag used to look broken when its default ITEMS pocket was
     -- empty even though another pocket contained medicine, balls or key
     -- items. Land on the first non-empty pocket on open; L/R navigation
     -- still exposes every pocket, including an intentionally empty ITEMS.
-    if #list.items == 0 then
+    if not rememberedPocket and #list.items == 0 then
       for i = 2, #POCKETS do
         list.__pocketIndex = i
-        project()
+        project(true)
         if #list.items > 0 then break end
       end
     end
   end
+  rememberPocketNavigation(list)
   return list
 end
 
@@ -777,8 +902,10 @@ local function decoratePcList(list, game)
   -- the full "TM14 BLIZZARD" like the bag (prefix stays pinned when the
   -- move name ticks)
   for _, it in ipairs(list.items) do
-    local label, prefixW, prefix, move = labelForItem(game.data, it.value)
-    it.label, it.prefix, it.prefixW, it.move = label, prefix, prefixW, move
+    if it.value ~= nil then
+      local label, prefixW, prefix, move = labelForItem(game.data, it.value)
+      it.label, it.prefix, it.prefixW, it.move = label, prefix, prefixW, move
+    end
   end
   -- and let labels that overflow their row window scroll as a ticker
   decorateTickers(list)
@@ -830,11 +957,23 @@ return function(mod, opts)
   local actionSurface = mod.ui
     and (mod.ui.KantoListMenu or mod.ui.ListMenu)
   local currentSession
-  local function newSession()
+  local fieldNavigationByGame = setmetatable({}, { __mode="k" })
+  local function newSession(game, opts)
+    local navigation
+    if opts and opts.battle then
+      navigation = { pockets={} }
+    else
+      navigation = fieldNavigationByGame[game]
+      if type(navigation) ~= "table" then
+        navigation = { pockets={} }
+        fieldNavigationByGame[game] = navigation
+      end
+    end
     return {
       active = nil,
       wantActions = false,
       actionsOpen = false,
+      navigation = navigation,
       actionListFactory = actionSurface and function(game, title, rows, opts)
       return actionSurface.new(game, title, rows, opts)
       end or nil,
@@ -853,7 +992,7 @@ return function(mod, opts)
   mod.content.screens:override("BagMenu", {
     new = function(game, opts)
       local VanillaBagMenu = require("src.ui.BagMenu")
-      local session = newSession()
+      local session = newSession(game, opts)
       local list = decorate(VanillaBagMenu.new(game, opts), game, session, opts)
       list = fireRedSkin.decorate(list, game, POCKETS)
       currentSession = session

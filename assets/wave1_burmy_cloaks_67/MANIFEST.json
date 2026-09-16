@@ -1,0 +1,336 @@
+{
+  "schema": "kasc.burmy-cloak-art-proof/v1",
+  "sourceReceiptSha256": "778d730fb374e95b8bd25be415940bae394e3af4b156b75d74aa063e128c449c",
+  "animation": false,
+  "pokemonRegistryAdditions": 0,
+  "sets": [
+    {
+      "source": "412-sandy-front.png",
+      "sourceSha256": "3d28901e6c7d705f77b75eecf229d502b77a24e85b70f8da44d800ccefeede65",
+      "path": "assets/wave1_burmy_cloaks_67/sandy/front-normal.png",
+      "sha256": "07b4dd17b62e7c50fbb0b8482f6949c31f94faf22414f848050a9b6e7fcb0f79",
+      "geometry": {
+        "sourceUnion": [
+          36,
+          28,
+          60,
+          68
+        ],
+        "stage": [
+          56,
+          56
+        ],
+        "body": [
+          24,
+          40
+        ]
+      },
+      "pokemonId": 412,
+      "sourceFormId": 10034,
+      "animated": false
+    },
+    {
+      "source": "412-sandy-front.png",
+      "sourceSha256": "3d28901e6c7d705f77b75eecf229d502b77a24e85b70f8da44d800ccefeede65",
+      "path": "assets/wave1_burmy_cloaks_67/sandy/voxel-normal.png",
+      "sha256": "0d5f8ce2700fc02a4253c2a300df04acd4b32d19b5b9ecb55d51ee7646f6bc84",
+      "geometry": {
+        "sourceUnion": [
+          36,
+          28,
+          60,
+          68
+        ],
+        "stage": [
+          64,
+          64
+        ],
+        "body": [
+          24,
+          40
+        ]
+      },
+      "pokemonId": 412,
+      "sourceFormId": 10034,
+      "animated": false
+    },
+    {
+      "source": "412-sandy-back.png",
+      "sourceSha256": "db68bb8b5b47778b12e754a63dc726d1661cc6062fc1aa389258df7dc6344ea7",
+      "path": "assets/wave1_burmy_cloaks_67/sandy/back-normal.png",
+      "sha256": "2072d060d401bea9afdf3d651af7410dfdc2174be8b798e7c3b103f61b41a77f",
+      "geometry": {
+        "sourceUnion": [
+          0,
+          0,
+          24,
+          28
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          24,
+          28
+        ],
+        "visibleRows": 32,
+        "sourceUpperBodyCrop": [
+          36,
+          28,
+          60,
+          56
+        ]
+      },
+      "pokemonId": 412,
+      "sourceFormId": 10034,
+      "animated": false
+    },
+    {
+      "source": "412-sandy-frontShiny.png",
+      "sourceSha256": "53a449ded58049f062ed34d3d8b75f8ff1e44c17a69d3b94ab617e0899af909d",
+      "path": "assets/wave1_burmy_cloaks_67/sandy/front-shiny.png",
+      "sha256": "09cf0f27d682d68703cec65e73e7506fd9e804610dd97935f0797d497d0f87b7",
+      "geometry": {
+        "sourceUnion": [
+          36,
+          28,
+          60,
+          68
+        ],
+        "stage": [
+          56,
+          56
+        ],
+        "body": [
+          24,
+          40
+        ]
+      },
+      "pokemonId": 412,
+      "sourceFormId": 10034,
+      "animated": false
+    },
+    {
+      "source": "412-sandy-frontShiny.png",
+      "sourceSha256": "53a449ded58049f062ed34d3d8b75f8ff1e44c17a69d3b94ab617e0899af909d",
+      "path": "assets/wave1_burmy_cloaks_67/sandy/voxel-shiny.png",
+      "sha256": "d41f82edfa06a56f69c346f98fbe157887006bc0b838c9d785e9a2fee3866303",
+      "geometry": {
+        "sourceUnion": [
+          36,
+          28,
+          60,
+          68
+        ],
+        "stage": [
+          64,
+          64
+        ],
+        "body": [
+          24,
+          40
+        ]
+      },
+      "pokemonId": 412,
+      "sourceFormId": 10034,
+      "animated": false
+    },
+    {
+      "source": "412-sandy-backShiny.png",
+      "sourceSha256": "8274454d9c265449639e4fe4f89330465c725214e3fa179d5421980657950a4d",
+      "path": "assets/wave1_burmy_cloaks_67/sandy/back-shiny.png",
+      "sha256": "13ab7572ae83c8b1276273b6b6429b98c2972b9e4f56dab7e501f4dc99fbc282",
+      "geometry": {
+        "sourceUnion": [
+          0,
+          0,
+          24,
+          28
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          24,
+          28
+        ],
+        "visibleRows": 32,
+        "sourceUpperBodyCrop": [
+          36,
+          28,
+          60,
+          56
+        ]
+      },
+      "pokemonId": 412,
+      "sourceFormId": 10034,
+      "animated": false
+    },
+    {
+      "source": "412-trash-front.png",
+      "sourceSha256": "c20705ee6c37e54c8bbc9df67a5fd62d2b97082d9445565bcd2a331eb9f9e0e7",
+      "path": "assets/wave1_burmy_cloaks_67/trash/front-normal.png",
+      "sha256": "2d7e1f631089e476c0c3ab69a265dec016c1a8754e65fa1be979e6b2d2f5b55c",
+      "geometry": {
+        "sourceUnion": [
+          36,
+          26,
+          59,
+          70
+        ],
+        "stage": [
+          56,
+          56
+        ],
+        "body": [
+          23,
+          44
+        ]
+      },
+      "pokemonId": 412,
+      "sourceFormId": 10035,
+      "animated": false
+    },
+    {
+      "source": "412-trash-front.png",
+      "sourceSha256": "c20705ee6c37e54c8bbc9df67a5fd62d2b97082d9445565bcd2a331eb9f9e0e7",
+      "path": "assets/wave1_burmy_cloaks_67/trash/voxel-normal.png",
+      "sha256": "c2f09e6717835e648a0b5367c3329a5d998b606e4b8dcc7b14ce85aafc83e94e",
+      "geometry": {
+        "sourceUnion": [
+          36,
+          26,
+          59,
+          70
+        ],
+        "stage": [
+          64,
+          64
+        ],
+        "body": [
+          23,
+          44
+        ]
+      },
+      "pokemonId": 412,
+      "sourceFormId": 10035,
+      "animated": false
+    },
+    {
+      "source": "412-trash-back.png",
+      "sourceSha256": "ecf007b2e5384dc957dec9b09d5e3ff6da8789844dd037360943fdadcc341dd0",
+      "path": "assets/wave1_burmy_cloaks_67/trash/back-normal.png",
+      "sha256": "ea31e697326c5343ce64994c976374ae8f0ed9e78ced12c0ba7d2975a131d6b8",
+      "geometry": {
+        "sourceUnion": [
+          0,
+          0,
+          23,
+          30
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          23,
+          30
+        ],
+        "visibleRows": 32,
+        "sourceUpperBodyCrop": [
+          37,
+          26,
+          60,
+          56
+        ]
+      },
+      "pokemonId": 412,
+      "sourceFormId": 10035,
+      "animated": false
+    },
+    {
+      "source": "412-trash-frontShiny.png",
+      "sourceSha256": "663349fb3a18eaf198919eb16efcae782804b7736318fc54f0ff1008cb8f4b05",
+      "path": "assets/wave1_burmy_cloaks_67/trash/front-shiny.png",
+      "sha256": "4c9490f916bb6480a1fc76880f8e5f8485f4f1ecf9e1b40be091541b95c778db",
+      "geometry": {
+        "sourceUnion": [
+          36,
+          26,
+          59,
+          70
+        ],
+        "stage": [
+          56,
+          56
+        ],
+        "body": [
+          23,
+          44
+        ]
+      },
+      "pokemonId": 412,
+      "sourceFormId": 10035,
+      "animated": false
+    },
+    {
+      "source": "412-trash-frontShiny.png",
+      "sourceSha256": "663349fb3a18eaf198919eb16efcae782804b7736318fc54f0ff1008cb8f4b05",
+      "path": "assets/wave1_burmy_cloaks_67/trash/voxel-shiny.png",
+      "sha256": "e4184702f2d177375769e79560411a9f15519540c782d0295af7bf10802a31c0",
+      "geometry": {
+        "sourceUnion": [
+          36,
+          26,
+          59,
+          70
+        ],
+        "stage": [
+          64,
+          64
+        ],
+        "body": [
+          23,
+          44
+        ]
+      },
+      "pokemonId": 412,
+      "sourceFormId": 10035,
+      "animated": false
+    },
+    {
+      "source": "412-trash-backShiny.png",
+      "sourceSha256": "a0888e43771f67a351483407ee0da792d3f895dadba04f31753b81da0b5a36d2",
+      "path": "assets/wave1_burmy_cloaks_67/trash/back-shiny.png",
+      "sha256": "453adcaa912947f3dcadb244c9367c03aaf59f8cba902579e0cc16f9549d08c3",
+      "geometry": {
+        "sourceUnion": [
+          0,
+          0,
+          23,
+          30
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          23,
+          30
+        ],
+        "visibleRows": 32,
+        "sourceUpperBodyCrop": [
+          37,
+          26,
+          60,
+          56
+        ]
+      },
+      "pokemonId": 412,
+      "sourceFormId": 10035,
+      "animated": false
+    }
+  ]
+}

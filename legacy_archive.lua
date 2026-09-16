@@ -27,12 +27,19 @@ return function(opts)
   local backup = filename .. ".bak"
   local witness = filename .. ".tmp"
   local rollback = directory .. "/" .. edition .. "_rollback.lua"
-  local VERSION = 7
+  local VERSION = 9
+  local VAULT_BINDING_VERSION = 1
   local HANDOFF_VERSION = 1
   local STORAGE_BINDING_VERSION = 1
   local FRESH_ORIGIN_VERSION = 1
   local BANK_POLICY_VERSION = 1
   local ITEM_POLICY_VERSION = 1
+  local STARTER_DISCOVERY_FAMILIES = {
+    TURTWIG = "gen4", CHIMCHAR = "gen4", PIPLUP = "gen4",
+    SNIVY = "gen5", TEPIG = "gen5", OSHAWOTT = "gen5",
+    CHESPIN = "gen6", FENNEKIN = "gen6", FROAKIE = "gen6",
+    ROWLET = "gen7", LITTEN = "gen7", POPPLIO = "gen7",
+  }
   local RUN_RULES_SNAPSHOT_VERSION = 1
   local PACTS = {
     journey = true, trainer = true, legacy = true, ascendant = true,
@@ -147,7 +154,7 @@ return function(opts)
     -- Kanto Ascendant current-run/durable receipts.
     SHINY_CHARM = true,
     ASCENDANT_EXP_MULTIPLIER = true,
-    MIGRATION_RECEIVER = true, RESONANCE_SEAL = true,
+    MIGRATION_RECEIVER = true, RESONANCE_SEAL = true, TRACE_FINDER = true,
     ASCENDANT_THUNDERHEART = true, ASCENDANT_THUNDER_TEAR = true,
   }
 
@@ -185,6 +192,12 @@ return function(opts)
   -- Only authored Trainer Card titles may cross a real Legacy Journey reset.
   -- Keeping this allow-list beside the archive boundary prevents a stale mod,
   -- typo or tampered save key from becoming a permanent "phantom" title.
+  -- Ascendant's baseline achievement table is a fixed 17-entry product
+  -- contract. World Rank contributes a separate fixed 11-entry achievement
+  -- owner. Surprise titles share the durable Gallery/archive boundary, but
+  -- must never enter either achievement set after a Legacy reset.
+  local ascendantAchievementTitleIds = {}
+  local worldRankTitleIds = {}
   local achievementTitleIds = {}
   for _, id in ipairs(opts.achievementTitleIds or {
     "rematch_10", "rematch_50", "master_circuit", "apex_champion",
@@ -193,7 +206,20 @@ return function(opts)
     "mew_found", "ascendant", "johto_master", "factory_architect",
     "sea_champion",
   }) do
-    achievementTitleIds[tostring(id)] = true
+    id = tostring(id)
+    ascendantAchievementTitleIds[id] = true
+    achievementTitleIds[id] = true
+  end
+  -- 66-WORLD-RANK owns these eleven fixed completion receipts. They are
+  -- archive-authorized IDs, never a pattern that can admit arbitrary titles.
+  for _, id in ipairs({
+    "world_rank_verdant", "world_rank_dynamo", "world_rank_dragon",
+    "world_rank_inferno", "world_rank_tidal_frost", "world_rank_bedrock",
+    "world_rank_mind_shadow", "world_rank_valor", "world_rank_wing_venom",
+    "world_rank_gold", "world_rank_sinnoh",
+  }) do
+    worldRankTitleIds[id] = true
+    achievementTitleIds[id] = true
   end
   local legacyTitleProgress = {
     legacy_path_red = "red",
@@ -214,6 +240,23 @@ return function(opts)
       or "Legacy Journey cannot access the official mod storage API",
   }
 
+  function A.registerTitleIds(ids)
+    if type(ids) ~= "table" then return false, "title ids must be a table" end
+    for _, id in ipairs(ids) do
+      if type(id) ~= "string" or #id > 80
+          or not id:match("^surprise_[a-z0-9_]+$") then
+        return false, "invalid surprise title id"
+      end
+    end
+    local added = 0
+    for _, id in ipairs(ids) do
+      if not achievementTitleIds[id] then
+        achievementTitleIds[id], added = true, added + 1
+      end
+    end
+    return true, added
+  end
+
   local function copy(value, seen)
     if type(value) ~= "table" then return value end
     seen = seen or {}
@@ -224,6 +267,75 @@ return function(opts)
       result[copy(key, seen)] = copy(child, seen)
     end
     return result
+  end
+
+  local WORLD_RANK_FORMATS = {
+    verdant = true, dynamo = true, dragon = true, inferno = true,
+    tidal_frost = true, bedrock = true, mind_shadow = true, valor = true,
+    wing_venom = true, gold = true, sinnoh = true,
+  }
+  local WORLD_RANK_RECEIPT_FIELDS = {
+    "version", "id", "owner", "formatId", "completionToken", "season",
+    "cash", "ball", "ballCount", "species", "goldJackpot", "titleId",
+    "cardId", "rank", "equipmentItem", "equipmentQty", "equipmentEpoch",
+  }
+
+  local function canonicalWorldRankReceipt(value, expectedId)
+    if type(value) ~= "table" or value.version ~= 1
+        or type(value.id) ~= "string" or value.id == "" or #value.id > 512
+        or expectedId ~= nil and value.id ~= expectedId
+        or type(value.owner) ~= "string" or value.owner == ""
+        or #value.owner > 512
+        or type(value.formatId) ~= "string"
+        or not WORLD_RANK_FORMATS[value.formatId]
+        or type(value.completionToken) ~= "string"
+        or value.completionToken == "" or #value.completionToken > 512
+        or type(value.season) ~= "number"
+        or value.season ~= math.floor(value.season) or value.season < 1
+        or type(value.cash) ~= "number" or value.cash ~= math.floor(value.cash)
+        or value.cash < 0 or value.cash > 999999
+        or type(value.ball) ~= "string" or value.ball == ""
+        or #value.ball > 80
+        or type(value.ballCount) ~= "number"
+        or value.ballCount ~= math.floor(value.ballCount)
+        or value.ballCount < 1 or value.ballCount > 999
+        or type(value.goldJackpot) ~= "boolean"
+        or value.rank ~= 1 then return nil end
+    if value.species ~= nil and (type(value.species) ~= "string"
+        or value.species == "" or #value.species > 80) then return nil end
+    if value.formatId == "gold" then
+      if (value.species ~= nil) ~= (value.goldJackpot == true) then return nil end
+    elseif value.species == nil or value.goldJackpot == true then
+      return nil
+    end
+    if value.titleId ~= nil and (value.titleId ~= "world_rank_"
+        .. value.formatId or not achievementTitleIds[value.titleId]) then
+      return nil
+    end
+    if value.cardId ~= nil
+        and value.cardId ~= "world_rank_" .. value.formatId then return nil end
+    local expectedCash = value.formatId == "gold" and 5000 or 10000
+    if value.cash ~= expectedCash or value.ball ~= "ULTRA_BALL"
+        or value.ballCount ~= 10 then return nil end
+    if value.equipmentItem~=nil or value.equipmentQty~=nil or value.equipmentEpoch~=nil then
+      if not (opts.equipmentRewards and opts.equipmentRewards.validReceiptItem(
+          value.equipmentItem,value.equipmentQty,value.equipmentEpoch)) then return nil end
+    end
+    local out = {}
+    for _, field in ipairs(WORLD_RANK_RECEIPT_FIELDS) do
+      out[field] = value[field]
+    end
+    return out
+  end
+
+  local function sameWorldRankReceipt(left, right)
+    left, right = canonicalWorldRankReceipt(left),
+      canonicalWorldRankReceipt(right)
+    if not left or not right then return false end
+    for _, field in ipairs(WORLD_RANK_RECEIPT_FIELDS) do
+      if left[field] ~= right[field] then return false end
+    end
+    return true
   end
 
   -- Only this compact, data-only contract crosses the source/fresh-save
@@ -352,11 +464,28 @@ return function(opts)
     return ("%08x%08x"):format(a, b)
   end
 
+  local sha256Digest = opts.sha256
+  local function sha256Text(body)
+    if type(sha256Digest) ~= "function" then
+      return nil, "SHA-256 capability unavailable"
+    end
+    local ok, value = pcall(sha256Digest, body)
+    if not ok or type(value) ~= "string"
+        or not value:match("^[0-9a-f]+$") or #value ~= 64 then
+      return nil, "SHA-256 capability returned an invalid digest"
+    end
+    return value
+  end
+
   local function empty()
     return {
       version = VERSION,
       cycle = 0,
       bank = {},
+      bankAuthority = "legacy_archive",
+      itemAuthority = "legacy_archive",
+      bankMigrationPending = true,
+      vaultBinding = nil,
       locker = { items = {}, money = 0 },
       quarantine = { bank = {}, items = {} },
       hallOfLegacy = {},
@@ -369,7 +498,10 @@ return function(opts)
         meta = { RED = false, BLUE = false, GREEN = false },
         packageUnlocks = {}, evolutionUnlocks = {}, permanentItems = {},
         firstGrants = {}, pendingItems = {}, dex = {}, questionIds = {},
-        secretUnlocks = {},
+        secretUnlocks = {}, hiddenAccessReceipts = {},
+        starterDiscoveryUnlocks = {},
+        hoennCharacterPacks = {}, hoennDiscoveryUnlocks = {},
+        hoennDexOwned = {},
       },
       -- Johto Masters is a cross-journey campaign record.  Keep the
       -- authoritative controller bucket here, but never copy transient map
@@ -382,6 +514,10 @@ return function(opts)
         activeRun = false, runSerial = 0, rewardedRunSerial = 0,
         cadenceOwner = nil, lastHallTicket = nil, runTicket = nil,
         passages = {},
+      },
+      worldRankPersistent = {
+        unlocked = false, season = 1, delivered = {}, pending = {},
+        claimed = {}, formats = {}, goldJackpotClaimed = false,
       },
       current = {},
     }
@@ -412,7 +548,10 @@ return function(opts)
           meta = { RED = false, BLUE = false, GREEN = false },
           packageUnlocks = {}, evolutionUnlocks = {}, permanentItems = {},
           firstGrants = {}, pendingItems = {}, dex = {}, questionIds = {},
-          secretUnlocks = {},
+          secretUnlocks = {}, hiddenAccessReceipts = {},
+          starterDiscoveryUnlocks = {},
+          hoennCharacterPacks = {}, hoennDiscoveryUnlocks = {},
+          hoennDexOwned = {},
         }
       end
       a.version = 3
@@ -469,6 +608,25 @@ return function(opts)
       end
       a.version = 7
     end,
+    [7] = function(a)
+      if a.worldRankPersistent == nil then
+        a.worldRankPersistent = {
+          unlocked = false, season = 1, delivered = {}, pending = {},
+          claimed = {}, formats = {}, goldJackpotClaimed = false,
+        }
+      end
+      a.version = 8
+    end,
+    [8] = function(a)
+      -- v9 makes the Bank authority handoff explicit. Loading a v8 archive
+      -- only normalizes it in memory; the shared-vault bridge must first
+      -- create its portable backup and verify the committed vault generation.
+      a.bankAuthority = "legacy_archive"
+      a.itemAuthority = "legacy_archive"
+      a.bankMigrationPending = true
+      a.vaultBinding = nil
+      a.version = 9
+    end,
   }
 
   local function normalizeCurrent(a)
@@ -489,6 +647,35 @@ return function(opts)
     a.version = VERSION
     a.cycle = math.max(0, math.floor(tonumber(a.cycle) or 0))
     a.bank = type(a.bank) == "table" and a.bank or {}
+    local authority = tostring(a.bankAuthority or "legacy_archive")
+    if authority ~= "legacy_archive" and authority ~= "shared_vault" then
+      return nil, "invalid Legacy Bank authority"
+    end
+    a.bankAuthority = authority
+    local itemAuthority = tostring(a.itemAuthority or
+      (authority == "shared_vault" and "shared_vault" or "legacy_archive"))
+    if itemAuthority ~= "legacy_archive" and itemAuthority ~= "shared_vault" then
+      return nil, "invalid Legacy item authority"
+    end
+    a.itemAuthority = itemAuthority
+    if authority == "shared_vault" then
+      local binding = a.vaultBinding
+      if type(binding) ~= "table"
+          or binding.version ~= VAULT_BINDING_VERSION
+          or type(binding.vaultId) ~= "string" or binding.vaultId == ""
+          or type(binding.sourceSha256) ~= "string"
+          or not binding.sourceSha256:match("^[0-9a-f]+$")
+          or #binding.sourceSha256 ~= 64
+          or type(binding.packageSha256) ~= "string"
+          or not binding.packageSha256:match("^[0-9a-f]+$")
+          or #binding.packageSha256 ~= 64
+          or type(binding.receiptId) ~= "string" or binding.receiptId == "" then
+        return nil, "invalid shared-vault binding"
+      end
+      a.vaultBinding = copy(binding)
+    else
+      a.vaultBinding = nil
+    end
     a.locker = type(a.locker) == "table" and a.locker or {}
     a.locker.items = type(a.locker.items) == "table"
       and a.locker.items or {}
@@ -499,6 +686,13 @@ return function(opts)
       and a.quarantine.bank or {}
     a.quarantine.items = type(a.quarantine.items) == "table"
       and a.quarantine.items or {}
+    local pendingSharedRows = #a.bank > 0
+      or next(a.quarantine.bank) ~= nil
+      or next(a.locker.items) ~= nil
+    -- Once authority moved, a completed future Legacy Journey uses these
+    -- fields only as a durable outbox. The PC bridge copies that outbox into
+    -- the bound shared vault and clears it after read-back verification.
+    a.bankMigrationPending = authority == "legacy_archive" or pendingSharedRows
     a.hallOfLegacy = type(a.hallOfLegacy) == "table"
       and a.hallOfLegacy or {}
     for _, entry in ipairs(a.hallOfLegacy) do
@@ -534,6 +728,51 @@ return function(opts)
     end
     a.legacyPass = a.legacyPass == true
     a.titles = type(a.titles) == "table" and a.titles or {}
+    -- Keep a namespaced, data-only shadow that older archive code does not
+    -- interpret but does preserve. If this Card is rolled back temporarily,
+    -- that older allow-list may hide Surprise titles from `titles`; the shadow
+    -- lets a later reinstall restore them without accepting arbitrary IDs.
+    a.titleExtensions = type(a.titleExtensions) == "table"
+      and a.titleExtensions or {}
+    local surpriseExtension = type(a.titleExtensions.surprise) == "table"
+      and a.titleExtensions.surprise or {}
+    local surpriseExtensionVersion = math.max(1, math.floor(
+      tonumber(surpriseExtension.version) or 1))
+    local surpriseExtensionWritable = surpriseExtensionVersion <= 1
+    local preservedSurprise = {}
+    if surpriseExtensionWritable then
+      a.titleExtensions.surprise = surpriseExtension
+      surpriseExtension.version = 1
+      for id, unlocked in pairs(type(surpriseExtension.unlocked) == "table"
+          and surpriseExtension.unlocked or {}) do
+        id = tostring(id)
+        if unlocked == true and id:match("^surprise_[a-z0-9_]+$") then
+          preservedSurprise[id] = true
+        end
+      end
+      for id, unlocked in pairs(type(a.titles.unlocked) == "table"
+          and a.titles.unlocked or {}) do
+        id = tostring(id)
+        if unlocked == true and id:match("^surprise_[a-z0-9_]+$") then
+          preservedSurprise[id] = true
+        end
+      end
+      surpriseExtension.unlocked = preservedSurprise
+      local order, seen = {}, {}
+      for _, id in ipairs(type(surpriseExtension.order) == "table"
+          and surpriseExtension.order or {}) do
+        if preservedSurprise[id] and not seen[id] then
+          seen[id], order[#order + 1] = true, id
+        end
+      end
+      local missing = {}
+      for id in pairs(preservedSurprise) do
+        if not seen[id] then missing[#missing + 1] = id end
+      end
+      table.sort(missing)
+      for _, id in ipairs(missing) do order[#order + 1] = id end
+      surpriseExtension.order = order
+    end
     local unlockedTitles = {}
     for id, unlocked in pairs(type(a.titles.unlocked) == "table"
         and a.titles.unlocked or {}) do
@@ -541,9 +780,18 @@ return function(opts)
         unlockedTitles[tostring(id)] = true
       end
     end
+    for id in pairs(preservedSurprise) do
+      if achievementTitleIds[id] then unlockedTitles[id] = true end
+    end
     a.titles.unlocked = unlockedTitles
     local selectedTitle = type(a.titles.selectedTitle) == "string"
       and a.titles.selectedTitle or nil
+    if not (selectedTitle and unlockedTitles[selectedTitle])
+        and surpriseExtensionWritable
+        and type(surpriseExtension.selectedTitle) == "string"
+        and unlockedTitles[surpriseExtension.selectedTitle] then
+      selectedTitle = surpriseExtension.selectedTitle
+    end
     local legacyProgress = selectedTitle and legacyTitleProgress[selectedTitle]
     local selectedUnlocked = selectedTitle
       and (achievementTitleIds[selectedTitle]
@@ -552,6 +800,10 @@ return function(opts)
         or legacyProgress and legacyProgress ~= "PASS"
           and a.completedPaths[legacyProgress] == true)
     a.titles.selectedTitle = selectedUnlocked and selectedTitle or nil
+    if surpriseExtensionWritable then
+      surpriseExtension.selectedTitle = selectedUnlocked
+          and selectedTitle:match("^surprise_") and selectedTitle or nil
+    end
     a.hevoPersistent = type(a.hevoPersistent) == "table"
       and a.hevoPersistent or {}
     a.hevoPersistent.meta = type(a.hevoPersistent.meta) == "table"
@@ -561,10 +813,69 @@ return function(opts)
     end
     for _, key in ipairs({ "packageUnlocks", "evolutionUnlocks",
       "permanentItems", "firstGrants", "pendingItems", "dex",
-      "questionIds", "secretUnlocks" }) do
+      "questionIds", "secretUnlocks", "hiddenAccessReceipts",
+      "starterDiscoveryUnlocks", "hoennCharacterPacks",
+      "hoennDiscoveryUnlocks", "hoennDexOwned" }) do
       a.hevoPersistent[key] = type(a.hevoPersistent[key]) == "table"
         and a.hevoPersistent[key] or {}
     end
+    local cleanAccessReceipts = {}
+    for id, receipt in pairs(a.hevoPersistent.hiddenAccessReceipts) do
+      if type(id) == "string" and id ~= "" and receipt then
+        cleanAccessReceipts[id] = receipt == true and true or copy(receipt)
+      end
+    end
+    a.hevoPersistent.hiddenAccessReceipts = cleanAccessReceipts
+    local cleanStarterUnlocks = {}
+    for id, receipt in pairs(a.hevoPersistent.starterDiscoveryUnlocks) do
+      id = tostring(id):upper()
+      local generation = STARTER_DISCOVERY_FAMILIES[id]
+      if generation and type(receipt) == "table"
+          and receipt.caught == true and receipt.unlocked == true
+          and receipt.generation == generation then
+        cleanStarterUnlocks[id] = {
+          version = 1, family = id, generation = generation,
+          caught = true, unlocked = true,
+          habitat = type(receipt.habitat) == "string"
+            and receipt.habitat or nil,
+          source = type(receipt.source) == "string"
+            and receipt.source or "starter_habitat_67",
+        }
+      end
+    end
+    a.hevoPersistent.starterDiscoveryUnlocks = cleanStarterUnlocks
+    local cleanHoennPacks = {}
+    for _, character in ipairs({ "RED", "GREEN", "BLUE" }) do
+      if a.hevoPersistent.hoennCharacterPacks[character] == true then
+        cleanHoennPacks[character] = true
+      end
+    end
+    a.hevoPersistent.hoennCharacterPacks = cleanHoennPacks
+    local cleanHoennUnlocks = {}
+    for id, receipt in pairs(a.hevoPersistent.hoennDiscoveryUnlocks) do
+      id = type(id) == "string" and id:upper() or nil
+      if id and id ~= "" and type(receipt) == "table"
+          and receipt.caught == true and receipt.unlocked == true then
+        cleanHoennUnlocks[id] = {
+          version = 1, family = id, caught = true, unlocked = true,
+          traceMap = type(receipt.traceMap) == "string"
+            and receipt.traceMap or nil,
+          character = ({ RED=true, GREEN=true, BLUE=true })[
+            type(receipt.character) == "string"
+              and receipt.character:upper() or ""]
+            and receipt.character:upper() or nil,
+          source = type(receipt.source) == "string"
+            and receipt.source or "hoenn_discovery_67",
+        }
+      end
+    end
+    a.hevoPersistent.hoennDiscoveryUnlocks = cleanHoennUnlocks
+    local cleanHoennDex = {}
+    for id, owned in pairs(a.hevoPersistent.hoennDexOwned) do
+      id = type(id) == "string" and id:upper() or nil
+      if id and id ~= "" and owned == true then cleanHoennDex[id] = true end
+    end
+    a.hevoPersistent.hoennDexOwned = cleanHoennDex
     -- RC23 preview saves recorded the three optional Mega caches as if path
     -- completion itself had found them.  The explicit secret ledger is now
     -- authoritative; this migration removes only those unverifiable flags
@@ -625,6 +936,83 @@ return function(opts)
         math.floor(tonumber(passage.resets) or 0))
       masters.passages[key] = passage
     end
+    a.worldRankPersistent = type(a.worldRankPersistent) == "table"
+      and a.worldRankPersistent or {}
+    local worldRank = a.worldRankPersistent
+    worldRank.unlocked = worldRank.unlocked == true
+    worldRank.season = math.max(1, math.floor(tonumber(worldRank.season) or 1))
+    worldRank.goldJackpotClaimed = worldRank.goldJackpotClaimed == true
+    for _, key in ipairs({ "delivered", "pending", "claimed", "formats" }) do
+      worldRank[key] = type(worldRank[key]) == "table" and worldRank[key] or {}
+    end
+    local delivered = {}
+    for species, value in pairs(worldRank.delivered) do
+      if type(species) == "string" and species ~= "" and value == true then
+        delivered[species] = true
+      end
+    end
+    worldRank.delivered = delivered
+    local claimed, claimedCounts, claimedTitles, claimedCards = {}, {}, {}, {}
+    for id, value in pairs(worldRank.claimed) do
+      local receipt = canonicalWorldRankReceipt(value, id)
+      if receipt then
+        claimed[id] = receipt
+        claimedCounts[receipt.formatId] = (claimedCounts[receipt.formatId] or 0) + 1
+        if receipt.titleId then claimedTitles[receipt.formatId] = true end
+        if receipt.cardId then claimedCards[receipt.formatId] = true end
+        if receipt.titleId then a.titles.unlocked[receipt.titleId] = true end
+        if receipt.goldJackpot then worldRank.goldJackpotClaimed = true end
+        if receipt.species and receipt.season == worldRank.season then
+          worldRank.delivered[receipt.species] = true
+        end
+      elseif type(id) == "string" and id ~= "" and value == true then
+        -- Preserve one-way early candidate receipts without creating rewards.
+        claimed[id] = true
+      else
+        return nil, "corrupt World Rank claimed receipt: " .. tostring(id)
+      end
+    end
+    worldRank.claimed = claimed
+    local pending = {}
+    for id, receipt in pairs(worldRank.pending) do
+      local clean = canonicalWorldRankReceipt(receipt, id)
+      if not clean then
+        return nil, "corrupt World Rank pending receipt: " .. tostring(id)
+      end
+      pending[id] = clean
+    end
+    worldRank.pending = pending
+    local formats = {}
+    for id, value in pairs(worldRank.formats) do
+      if WORLD_RANK_FORMATS[id] and type(value) == "table" then
+        formats[id] = {
+          championships = math.max(0,
+            math.floor(tonumber(value.championships) or 0)),
+          bestRank = math.max(1, math.min(50,
+            math.floor(tonumber(value.bestRank) or 50))),
+          titleClaimed = value.titleClaimed == true,
+          cardClaimed = value.cardClaimed == true,
+          lastReceiptId = type(value.lastReceiptId) == "string"
+            and value.lastReceiptId ~= "" and value.lastReceiptId or nil,
+        }
+      end
+    end
+    for id in pairs(WORLD_RANK_FORMATS) do
+      local count = claimedCounts[id] or 0
+      local history = formats[id]
+      if history or count > 0 then
+        history = history or {
+          championships = 0, bestRank = 50,
+          titleClaimed = false, cardClaimed = false,
+        }
+        history.championships = math.max(history.championships, count)
+        if count > 0 then history.bestRank = 1 end
+        history.titleClaimed = history.titleClaimed or claimedTitles[id] == true
+        history.cardClaimed = history.cardClaimed or claimedCards[id] == true
+        formats[id] = history
+      end
+    end
+    worldRank.formats = formats
     a.current = type(a.current) == "table" and a.current or {}
     a.current.pact = pactId(a.current.pact)
     a.current.bankPolicy = bankPolicyId(
@@ -741,6 +1129,16 @@ return function(opts)
     return reason
   end
 
+  local function markCorruptWorldRank(path, detail)
+    local reason = ("legacy archive %s has corrupt World Rank receipts; "
+      .. "this build is read-only: %s"):format(tostring(path), tostring(detail))
+    A.readOnly = true
+    A.futureVersion = nil
+    A.readOnlyReason = reason
+    log:error(reason)
+    return reason
+  end
+
   local function clearFuture()
     A.readOnly = false
     A.futureVersion = nil
@@ -765,9 +1163,160 @@ return function(opts)
     if not migrated then
       log:error("legacy archive migration failed for " .. path .. ": "
         .. tostring(migrateErr))
+      if tostring(migrateErr):find("corrupt World Rank", 1, true) then
+        return nil, "corrupt_world_rank", value, sourceVersion, migrateErr
+      end
       return nil, "invalid"
     end
     return migrated, nil, nil, sourceVersion
+  end
+
+  local function inspectSlot(name, path)
+    if not fs.getInfo(path) then
+      return { name = name, path = path, status = "absent" }
+    end
+    local body = fs.read(path)
+    if type(body) ~= "string" then
+      return { name = name, path = path, status = "unreadable" }
+    end
+    local bodySha, shaErr = sha256Text(body)
+    if not bodySha then
+      return { name = name, path = path, status = "unverifiable",
+        reason = shaErr }
+    end
+    local raw, decodeErr = SaveSerializer.decode(body)
+    if type(raw) ~= "table" then
+      return { name = name, path = path, status = "invalid",
+        sourceSha256 = bodySha, reason = decodeErr }
+    end
+    local version = schemaVersion(raw)
+    if version > VERSION then
+      return { name = name, path = path, status = "future",
+        sourceVersion = version, sourceSha256 = bodySha }
+    end
+    local normalized, normalizeErr = normalize(copy(raw))
+    if not normalized then
+      return { name = name, path = path, status = "invalid",
+        sourceVersion = version, sourceSha256 = bodySha,
+        reason = normalizeErr }
+    end
+    return { name = name, path = path, status = "valid",
+      sourceVersion = version, sourceSha256 = bodySha,
+      body = body, rawArchive = raw, archive = normalized }
+  end
+
+  function A.inspectBankMigration()
+    local candidates = {
+      main = inspectSlot("main", filename),
+      witness = inspectSlot("witness", witness),
+      backup = inspectSlot("backup", backup),
+    }
+    if candidates.main.status == "future" then
+      return nil, "future_schema", candidates
+    end
+    local source
+    if candidates.main.status == "valid" then
+      source = candidates.main
+    else
+      local valid = {}
+      for _, name in ipairs({ "witness", "backup" }) do
+        if candidates[name].status == "future" then
+          return nil, "future_schema", candidates
+        elseif candidates[name].status == "valid" then
+          valid[#valid + 1] = candidates[name]
+        end
+      end
+      if #valid == 0 then return nil, "archive_not_found", candidates end
+      if #valid == 2 and valid[1].sourceSha256 ~= valid[2].sourceSha256 then
+        return nil, "ambiguous_archive_recovery", candidates
+      end
+      source = valid[1]
+    end
+    return {
+      kind = "legacy_archive_bank_migration_preview",
+      edition = edition,
+      source = source.name,
+      sourcePath = source.path,
+      sourceVersion = source.sourceVersion,
+      sourceSha256 = source.sourceSha256,
+      sourceBody = source.body,
+      rawArchive = copy(source.rawArchive),
+      archive = copy(source.archive),
+      candidates = candidates,
+    }
+  end
+
+  function A.applyBankMigration(preview, binding)
+    if type(preview) ~= "table"
+        or preview.kind ~= "legacy_archive_bank_migration_preview"
+        or type(preview.sourcePath) ~= "string"
+        or type(preview.sourceSha256) ~= "string" then
+      return nil, "invalid_archive_preview"
+    end
+    local current = fs.getInfo(preview.sourcePath)
+      and fs.read(preview.sourcePath) or nil
+    local currentSha = type(current) == "string" and sha256Text(current) or nil
+    if currentSha ~= preview.sourceSha256 then
+      return nil, "archive_source_changed"
+    end
+    if type(binding) ~= "table"
+        or binding.version ~= VAULT_BINDING_VERSION
+        or type(binding.vaultId) ~= "string" or binding.vaultId == ""
+        or binding.sourceSha256 ~= preview.sourceSha256
+        or type(binding.receiptId) ~= "string" or binding.receiptId == ""
+        or type(binding.packageSha256) ~= "string"
+        or not binding.packageSha256:match("^[0-9a-f]+$")
+        or #binding.packageSha256 ~= 64 then
+      return nil, "invalid_vault_binding"
+    end
+    local archive = copy(preview.archive)
+    local priorBinding = archive.vaultBinding
+    if archive.bankAuthority == "shared_vault" then
+      if type(priorBinding) ~= "table"
+          or priorBinding.vaultId ~= binding.vaultId then
+        return nil, "shared_vault_binding_mismatch"
+      end
+    elseif archive.bankAuthority ~= "legacy_archive" then
+      return nil, "invalid_archive_authority"
+    end
+    archive.bank = {}
+    archive.quarantine = type(archive.quarantine) == "table"
+      and archive.quarantine or { bank = {}, items = {} }
+    archive.quarantine.bank = {}
+    archive.bankAuthority = "shared_vault"
+    archive.itemAuthority = "shared_vault"
+    archive.bankMigrationPending = false
+    archive.locker = type(archive.locker) == "table"
+      and archive.locker or { items = {}, money = 0 }
+    archive.locker.items = {}
+    archive.vaultBinding = {
+      version = VAULT_BINDING_VERSION,
+      vaultId = binding.vaultId,
+      sourceSha256 = binding.sourceSha256,
+      packageSha256 = binding.packageSha256,
+      receiptId = binding.receiptId,
+      migratedCount = math.max(0, math.floor(
+        tonumber(priorBinding and priorBinding.migratedCount) or 0))
+        + math.max(0, math.floor(tonumber(binding.migratedCount) or 0)),
+      quarantineCount = math.max(0, math.floor(
+        tonumber(priorBinding and priorBinding.quarantineCount) or 0))
+        + math.max(0, math.floor(tonumber(binding.quarantineCount) or 0)),
+      migratedItemCount = math.max(0, math.floor(
+        tonumber(priorBinding and priorBinding.migratedItemCount) or 0))
+        + math.max(0, math.floor(tonumber(binding.migratedItemCount) or 0)),
+      syncCount = math.max(0, math.floor(
+        tonumber(priorBinding and priorBinding.syncCount) or 0)) + 1,
+      migratedAt = now(),
+    }
+    local written, writeErr = A.write(archive)
+    if not written then return nil, writeErr end
+    local verified, loadErr = A.load()
+    if not verified or verified.bankAuthority ~= "shared_vault"
+        or not verified.vaultBinding
+        or verified.vaultBinding.receiptId ~= binding.receiptId then
+      return nil, "archive_migration_readback_failed", loadErr
+    end
+    return verified
   end
 
   local function ensureDirectory()
@@ -791,17 +1340,22 @@ return function(opts)
 
   function A.write(archive)
     if A.readOnly then return false, A.readOnlyReason end
-    local currentArchive, currentStatus, _, currentVersion = decode(filename)
+    local currentArchive, currentStatus, _, currentVersion, currentErr =
+      decode(filename)
     if currentStatus == "future" then
       return false, markFuture(currentVersion, filename)
+    elseif currentStatus == "corrupt_world_rank" then
+      return false, markCorruptWorldRank(filename, currentErr)
     end
     -- If the primary is absent/corrupt, a future witness or backup may be the
     -- only intact copy. Never create an older primary over that evidence.
     if not currentArchive then
       for _, path in ipairs({ witness, backup }) do
-        local _, fallbackStatus, _, fallbackVersion = decode(path)
+        local _, fallbackStatus, _, fallbackVersion, fallbackErr = decode(path)
         if fallbackStatus == "future" then
           return false, markFuture(fallbackVersion, path)
+        elseif fallbackStatus == "corrupt_world_rank" then
+          return false, markCorruptWorldRank(path, fallbackErr)
         end
       end
     end
@@ -832,14 +1386,17 @@ return function(opts)
   end
 
   function A.load()
-    local archive, status, raw, sourceVersion = decode(filename)
+    local archive, status, raw, sourceVersion, decodeErr = decode(filename)
     if status == "future" then
       local reason = markFuture(sourceVersion, filename)
+      return copy(raw), reason
+    elseif status == "corrupt_world_rank" then
+      local reason = markCorruptWorldRank(filename, decodeErr)
       return copy(raw), reason
     end
     if archive then
       clearFuture()
-      if sourceVersion < VERSION then
+      if sourceVersion < VERSION and sourceVersion ~= 8 then
         local migrated, migrateErr = A.write(archive)
         if migrated then
           log:info(("migrated Vermächtnis archive v%d -> v%d")
@@ -854,9 +1411,12 @@ return function(opts)
 
     local fallbacks = {}
     for _, path in ipairs({ witness, backup }) do
-      archive, status, raw, sourceVersion = decode(path)
+      archive, status, raw, sourceVersion, decodeErr = decode(path)
       if status == "future" then
         local reason = markFuture(sourceVersion, path)
+        return copy(raw), reason
+      elseif status == "corrupt_world_rank" then
+        local reason = markCorruptWorldRank(path, decodeErr)
         return copy(raw), reason
       end
       if archive then
@@ -1280,7 +1840,7 @@ return function(opts)
     end
 
     -- Presence alone is not authority: Stock 0.1.86 can leave a short-written
-    -- main/tmp/bak generation behind.  Treat corrupt-only storage as evidence
+    -- main, temporary or backup generation behind.  Treat corrupt-only storage as evidence
     -- of a damaged archive, never as permission to initialize an empty one.
     local physicalArchive = storageHasArchive()
     local validArchive = storageHasValidArchive()
@@ -1736,14 +2296,63 @@ return function(opts)
     if type(source) == "table" then
       for _, key in ipairs({ "packageUnlocks", "evolutionUnlocks",
         "permanentItems", "firstGrants", "dex", "questionIds",
-        "secretUnlocks" }) do
+        "secretUnlocks", "hoennCharacterPacks", "hoennDexOwned" }) do
         mergeSet(persistent[key], source[key])
+      end
+      for id, receipt in pairs(type(source.hiddenAccessReceipts) == "table"
+          and source.hiddenAccessReceipts or {}) do
+        if type(id) == "string" and id ~= "" and receipt
+            and persistent.hiddenAccessReceipts[id] == nil then
+          persistent.hiddenAccessReceipts[id] = receipt == true
+            and true or copy(receipt)
+        end
       end
       -- Pending grants are a queue, not an unlock set: a successful claim
       -- must be able to clear an archived count instead of monotonic-merging
       -- the item back forever.
       persistent.pendingItems = copy(type(source.pendingItems) == "table"
         and source.pendingItems or {})
+    end
+    -- A caught habitat starter is a Legacy-lineage unlock. Reconcile it from
+    -- the save-local Discovery Core before a reset so a failed archive mirror
+    -- can be retried without losing the earned catalogue entry.
+    local discovery = type(bucket) == "table" and bucket.discovery_core
+    local generations = type(discovery) == "table" and discovery.generations
+    for id, generation in pairs(STARTER_DISCOVERY_FAMILIES) do
+      local gen = type(generations) == "table" and generations[generation]
+      local families = type(gen) == "table" and gen.families
+      local row = type(families) == "table" and families[id]
+      if type(row) == "table" and row.caught == true
+          and row.unlocked == true then
+        persistent.starterDiscoveryUnlocks[id] = {
+          version = 1, family = id, generation = generation,
+          caught = true, unlocked = true, source = "starter_habitat_67",
+        }
+      end
+    end
+    local access = type(bucket) == "table" and bucket.hoenn_field_access_67
+    local pack = type(access) == "table" and access.characterPack
+    pack = type(pack) == "string" and pack:upper() or nil
+    if ({ RED=true, GREEN=true, BLUE=true })[pack]
+        and access.honeyOwned == true then
+      persistent.hoennCharacterPacks[pack] = true
+    end
+    local hoenn = type(generations) == "table" and generations.hoenn
+    local families = type(hoenn) == "table" and hoenn.families
+    for id, row in pairs(type(families) == "table" and families or {}) do
+      id = type(id) == "string" and id:upper() or nil
+      if id and type(row) == "table" and row.caught == true
+          and row.unlocked == true then
+        local existing = persistent.hoennDiscoveryUnlocks[id]
+        persistent.hoennDiscoveryUnlocks[id] = {
+          version = 1, family = id, caught = true, unlocked = true,
+          traceMap = type(row.traceMap) == "string" and row.traceMap
+            or type(existing) == "table" and existing.traceMap or nil,
+          character = pack or type(existing) == "table"
+            and existing.character or currentCharacter(save),
+          source = "hoenn_discovery_67",
+        }
+      end
     end
   end
 
@@ -1853,11 +2462,57 @@ return function(opts)
     local bucket = type(save.modData) == "table" and save.modData[modId]
     local ascendant = type(bucket) == "table" and bucket.ascendant
     local hall = type(bucket) == "table" and bucket.legacy_hall
+    local surprise = type(bucket) == "table"
+      and bucket.surprise_trainers_67
     local source = type(ascendant) == "table" and ascendant.achievements
     for id, unlocked in pairs(type(source) == "table" and source or {}) do
       id = tostring(id)
       if unlocked == true and achievementTitleIds[id] then
         archive.titles.unlocked[id] = true
+      end
+    end
+    for id, unlocked in pairs(type(surprise) == "table"
+        and type(surprise.unlocked) == "table" and surprise.unlocked or {}) do
+      id = tostring(id)
+      if unlocked == true and achievementTitleIds[id] then
+        archive.titles.unlocked[id] = true
+      end
+    end
+    archive.titleExtensions = type(archive.titleExtensions) == "table"
+      and archive.titleExtensions or {}
+    local extension = archive.titleExtensions.surprise
+    if type(extension) ~= "table" then
+      extension = { version = 1, unlocked = {}, order = {} }
+      archive.titleExtensions.surprise = extension
+    end
+    if type(extension) == "table"
+        and math.max(1, math.floor(tonumber(extension.version) or 1)) <= 1 then
+      extension.unlocked = type(extension.unlocked) == "table"
+        and extension.unlocked or {}
+      extension.order = type(extension.order) == "table"
+        and extension.order or {}
+      local seen = {}
+      for _, id in ipairs(extension.order) do seen[id] = true end
+      for _, id in ipairs(type(surprise) == "table"
+          and type(surprise.order) == "table" and surprise.order or {}) do
+        if type(id) == "string" and archive.titles.unlocked[id] == true
+            and id:match("^surprise_") then
+          extension.unlocked[id] = true
+          if not seen[id] then
+            seen[id], extension.order[#extension.order + 1] = true, id
+          end
+        end
+      end
+      local missing = {}
+      for id, unlocked in pairs(archive.titles.unlocked) do
+        if unlocked == true and id:match("^surprise_") then
+          extension.unlocked[id] = true
+          if not seen[id] then missing[#missing + 1] = id end
+        end
+      end
+      table.sort(missing)
+      for _, id in ipairs(missing) do
+        seen[id], extension.order[#extension.order + 1] = true, id
       end
     end
 
@@ -1881,6 +2536,11 @@ return function(opts)
     elseif not titleUnlocked(archive, archive.titles.selectedTitle) then
       archive.titles.selectedTitle = nil
     end
+    if type(extension) == "table"
+        and math.max(1, math.floor(tonumber(extension.version) or 1)) <= 1 then
+      extension.selectedTitle = selected
+          and selected:match("^surprise_") and selected or nil
+    end
     -- Invalid or stale local IDs are ignored. They must not erase a valid
     -- durable archive selection. There is intentionally no implicit clear:
     -- neither legacy_hall nor ascendant currently exposes an explicit
@@ -1894,19 +2554,57 @@ return function(opts)
     local unlocked = {}
     for id, value in pairs(type(ascendant.achievements) == "table"
         and ascendant.achievements or {}) do
-      if value == true and achievementTitleIds[tostring(id)] then
+      if value == true and (ascendantAchievementTitleIds[tostring(id)]
+          or worldRankTitleIds[tostring(id)]) then
         unlocked[tostring(id)] = true
       end
     end
-    mergeSet(unlocked, archive.titles.unlocked)
+    for id, value in pairs(archive.titles.unlocked) do
+      if value == true and (ascendantAchievementTitleIds[tostring(id)]
+          or worldRankTitleIds[tostring(id)]) then
+        unlocked[tostring(id)] = true
+      end
+    end
     ascendant.achievements = unlocked
 
     local selected = titleUnlocked(archive, archive.titles.selectedTitle)
       and archive.titles.selectedTitle or nil
     ascendant.selectedTitle = selected
-    if not (achievementTitleIds[ascendant.latestAchievement]
+    if not ((ascendantAchievementTitleIds[ascendant.latestAchievement]
+          or worldRankTitleIds[ascendant.latestAchievement])
         and unlocked[ascendant.latestAchievement] == true) then
       ascendant.latestAchievement = nil
+    end
+
+    local surprise = type(bucket.surprise_trainers_67) == "table"
+      and bucket.surprise_trainers_67 or {}
+    if math.max(1, math.floor(tonumber(surprise.version) or 1)) <= 1 then
+      bucket.surprise_trainers_67 = surprise
+      surprise.version = 1
+      surprise.unlocked = type(surprise.unlocked) == "table"
+        and surprise.unlocked or {}
+      surprise.order = type(surprise.order) == "table"
+        and surprise.order or {}
+      local seen = {}
+      for _, id in ipairs(surprise.order) do seen[id] = true end
+      local extension = archive.titleExtensions
+        and archive.titleExtensions.surprise
+      for _, id in ipairs(type(extension) == "table"
+          and type(extension.order) == "table" and extension.order or {}) do
+        if archive.titles.unlocked[id] == true and not seen[id] then
+          surprise.unlocked[id] = true
+          surprise.order[#surprise.order + 1], seen[id] = id, true
+        end
+      end
+      for id, value in pairs(archive.titles.unlocked) do
+        if value == true and achievementTitleIds[id]
+            and id:match("^surprise_") then
+          surprise.unlocked[id] = true
+          if not seen[id] then
+            surprise.order[#surprise.order + 1], seen[id] = id, true
+          end
+        end
+      end
     end
 
     local hall = type(bucket.legacy_hall) == "table"
@@ -2042,6 +2740,42 @@ return function(opts)
     end
     local archive, loadErr = mutableArchive()
     if not archive then return nil, loadErr end
+    -- A World Rank controller queue is save-local, while its reserved reward
+    -- receipt is lineage-wide. Never change Legacy owners while either side
+    -- still contains an exact-once transaction.
+    local localBucket = saveBucket(save, false)
+    local localWorldRank = localBucket and localBucket.ngplus_world_rank
+    if localWorldRank ~= nil then
+      if type(localWorldRank) ~= "table" or localWorldRank.version ~= 1
+          or type(localWorldRank.rewardQueue) ~= "table" then
+        return nil, "Legacy Journey blocked: unsupported local World Rank state"
+      end
+      if next(localWorldRank.rewardQueue) ~= nil then
+        return nil,
+          "Legacy Journey blocked: claim pending World Rank champion rewards"
+      end
+    end
+    local localRewards = localBucket and localBucket.ngplus_world_rank_rewards
+    if localRewards ~= nil then
+      if type(localRewards) ~= "table" or localRewards.version ~= 1
+          or type(localRewards.pending) ~= "table"
+          or type(localRewards.applied) ~= "table"
+          or type(localRewards.claimed) ~= "table" then
+        return nil,
+          "Legacy Journey blocked: unsupported local World Rank reward journal"
+      end
+      if next(localRewards.pending) ~= nil
+          or next(localRewards.applied) ~= nil then
+        return nil,
+          "Legacy Journey blocked: claim pending World Rank champion rewards"
+      end
+    end
+    local worldRankPending = type(archive.worldRankPersistent) == "table"
+      and archive.worldRankPersistent.pending or nil
+    if type(worldRankPending) == "table" and next(worldRankPending) ~= nil then
+      return nil,
+        "Legacy Journey blocked: claim pending World Rank champion rewards"
+    end
     if reconcileRegistry(archive) then
       local reconciled, reconcileErr = A.write(archive)
       if not reconciled then return nil, reconcileErr end
@@ -2223,6 +2957,9 @@ return function(opts)
       return false, "inactive", nil, nil
     end
     local archive = A.load()
+    if archive.bankAuthority == "shared_vault" then
+      return false, "shared_vault_authority", nil, nil
+    end
     local current = type(archive.current) == "table" and archive.current or {}
     local ownsCurrent = current.runId == run.runId
     -- The external current-run record is immutable authority for a new-format
@@ -2327,7 +3064,10 @@ return function(opts)
       local ok, err = A.write(snapshot)
       if not ok then return {}, err end
     end
-    A.reconcileLeases(save)
+    local reconciled, reconcileErr = A.reconcileLeases(save)
+    if reconciled ~= true then
+      return {}, reconcileErr or "Legacy lease reconciliation failed"
+    end
     snapshot, loadErr = mutableArchive()
     if not snapshot then return {}, loadErr end
     local rows = {}
@@ -2396,7 +3136,39 @@ return function(opts)
     return A.write(archive)
   end
 
-  function A.leaseMon(save, id)
+  local function selectionIds(ids, allowEmpty)
+    if type(ids) ~= "table" then
+      return nil, "Legacy Pokémon selection is not a table"
+    end
+    local count = 0
+    for key in pairs(ids) do
+      if type(key) ~= "number" or key < 1 or key % 1 ~= 0 then
+        return nil, "Legacy Pokémon selection is not a dense array"
+      end
+      count = count + 1
+    end
+    if count == 0 then
+      return allowEmpty and {} or nil, "no Legacy Pokémon selected"
+    end
+    local requested, seen = {}, {}
+    for index = 1, count do
+      local id = ids[index]
+      if type(id) ~= "string" or id == "" then
+        return nil, "invalid legacy Pokémon id at selection "
+          .. tostring(index)
+      end
+      if seen[id] then return nil, "duplicate legacy Pokémon id" end
+      seen[id], requested[index] = true, id
+    end
+    return requested
+  end
+
+  -- Lease a complete, preflighted selection with one archive write. The
+  -- archive lease is the durable half of the cross-file transaction: if the
+  -- subsequent game-save write never lands, reconcileLeases releases every
+  -- identity together on the next load. No row is marked until all ids,
+  -- withdrawal gates and the active-run owner have been validated.
+  function A.leaseMons(save, ids)
     if not registryReady() then
       return nil, "Legacy registry validation is unavailable"
     end
@@ -2406,44 +3178,101 @@ return function(opts)
     if type(state) ~= "table" or not state.runId then
       return nil, "no active legacy run"
     end
-    A.reconcileLeases(save)
+    local requested, selectionErr = selectionIds(ids, false)
+    if not requested then return nil, selectionErr end
     local archive, loadErr = mutableArchive()
     if not archive then return nil, loadErr end
-    if reconcileRegistry(archive) then
-      local ok, err = A.write(archive)
-      if not ok then return nil, err end
-    end
+    reconcileRegistry(archive)
+    -- Fold stale-lease reconciliation into this candidate instead of writing
+    -- it separately. Thus even a 180-Pokémon transfer has exactly one durable
+    -- archive commit before its one game-save commit.
+    local live = liveLegacyMons(save)
     for _, row in ipairs(archive.bank) do
-      if row.id == id then
-        if row.lease then return nil, "Pokémon is already withdrawn" end
-        if type(withdrawalGate) == "function" then
-          local called, allowed, reason = pcall(
-            withdrawalGate, save, row.mon, row.id)
-          if not called or allowed ~= true then
-            return nil, called and reason
-              or "Legacy Bank withdrawal gate failed"
-          end
+      if type(row) == "table" and row.id then
+        local mon = live[row.id]
+        if mon then
+          row.lease = state.runId
+          row.mon = copy(mon)
+        elseif row.lease == state.runId then
+          row.lease = nil
         end
-        row.lease = state.runId
-        local ok, err = A.write(archive)
-        if not ok then return nil, err end
-        return copy(row.mon)
       end
     end
-    return nil, "unknown legacy Pokémon"
+    local byId = {}
+    for _, row in ipairs(archive.bank) do
+      if type(row) == "table" and type(row.id) == "string" then
+        byId[row.id] = row
+      end
+    end
+    local selected = {}
+    for index, id in ipairs(requested) do
+      local row = byId[id]
+      if not row then return nil, "unknown legacy Pokémon" end
+      if row.lease then return nil, "Pokémon is already withdrawn" end
+      if type(withdrawalGate) == "function" then
+        local called, allowed, reason = pcall(
+          withdrawalGate, save, row.mon, row.id)
+        if not called or allowed ~= true then
+          return nil, called and reason
+            or "Legacy Bank withdrawal gate failed"
+        end
+      end
+      selected[index] = row
+    end
+    local mons = {}
+    for index, row in ipairs(selected) do
+      row.lease = state.runId
+      mons[index] = copy(row.mon)
+    end
+    local ok, err = A.write(archive)
+    if not ok then return nil, err end
+    return mons
   end
 
-  function A.releaseLease(save, id)
+  function A.leaseMon(save, id)
+    if type(id) ~= "string" or id == "" then
+      return nil, "invalid legacy Pokémon id"
+    end
+    local mons, err = A.leaseMons(save, { id })
+    if not mons then return nil, err end
+    return mons[1]
+  end
+
+  -- Roll back one fitted transaction with one archive write as well. The
+  -- complete selection is preflighted before any lease flag is changed.
+  function A.releaseLeases(save, ids)
+    local requested, selectionErr = selectionIds(ids, true)
+    if not requested then return false, selectionErr end
+    if #requested == 0 then return true end
     local state = runState(save)
     local archive, loadErr = mutableArchive()
     if not archive then return false, loadErr end
+    local byId = {}
     for _, row in ipairs(archive.bank) do
-      if row.id == id and (not state or row.lease == state.runId) then
-        row.lease = nil
-        return A.write(archive)
+      if type(row) == "table" and type(row.id) == "string" then
+        byId[row.id] = row
       end
     end
-    return false, "unknown legacy Pokémon"
+    local selected, changed = {}, false
+    for index, id in ipairs(requested) do
+      local row = byId[id]
+      if not row then return false, "unknown legacy Pokémon" end
+      if row.lease ~= nil and (not state or row.lease ~= state.runId) then
+        return false, "Pokémon lease belongs to another run"
+      end
+      selected[index] = row
+      if row.lease ~= nil then changed = true end
+    end
+    if not changed then return true end
+    for _, row in ipairs(selected) do row.lease = nil end
+    return A.write(archive)
+  end
+
+  function A.releaseLease(save, id)
+    if type(id) ~= "string" or id == "" then
+      return false, "invalid legacy Pokémon id"
+    end
+    return A.releaseLeases(save, { id })
   end
 
   function A.stageDeposit(save, mon)
@@ -2829,6 +3658,299 @@ return function(opts)
       and archive.hevoPersistent or {}), err
   end
 
+  -- Access and discovery receipts are monotonic Legacy-lineage facts. Their
+  -- narrow APIs keep habitat controllers away from archive internals.
+  function A.hiddenAccessReceipts()
+    local persistent = A.hevoPersistent()
+    local receipts = type(persistent) == "table"
+      and persistent.hiddenAccessReceipts or nil
+    return copy(type(receipts) == "table" and receipts or {})
+  end
+
+  function A.hiddenAccessIsOpen(id)
+    if type(id) ~= "string" or id == "" then return false end
+    return A.hiddenAccessReceipts()[id] ~= nil
+  end
+
+  function A.starterDiscoveryUnlocks()
+    local persistent = A.hevoPersistent()
+    local rows = type(persistent) == "table"
+      and persistent.starterDiscoveryUnlocks or nil
+    return copy(type(rows) == "table" and rows or {})
+  end
+
+  function A.starterDiscoveryIsUnlocked(id)
+    id = type(id) == "string" and id:upper() or nil
+    local generation = id and STARTER_DISCOVERY_FAMILIES[id]
+    local row = generation and A.starterDiscoveryUnlocks()[id] or nil
+    return type(row) == "table" and row.caught == true
+      and row.unlocked == true and row.generation == generation
+  end
+
+  function A.markStarterDiscoveryUnlocked(save, id, receipt)
+    id = type(id) == "string" and id:upper() or nil
+    local generation = id and STARTER_DISCOVERY_FAMILIES[id]
+    if not generation or type(receipt) ~= "table"
+        or receipt.caught ~= true or receipt.unlocked ~= true
+        or receipt.generation ~= generation then
+      return false, "invalid starter discovery unlock"
+    end
+    local archive, _, activeErr = activeArchive(save)
+    if not archive then return false, activeErr end
+    local persistent = archive.hevoPersistent
+    persistent.starterDiscoveryUnlocks =
+      type(persistent.starterDiscoveryUnlocks) == "table"
+      and persistent.starterDiscoveryUnlocks or {}
+    if persistent.starterDiscoveryUnlocks[id] == nil then
+      persistent.starterDiscoveryUnlocks[id] = {
+        version = 1, family = id, generation = generation,
+        caught = true, unlocked = true,
+        habitat = type(receipt.habitat) == "string" and receipt.habitat or nil,
+        source = type(receipt.source) == "string"
+          and receipt.source or "starter_habitat_67",
+      }
+      local written, writeErr = A.write(archive)
+      if not written then return false, writeErr end
+    end
+    local bucket = saveBucket(save, true)
+    bucket.hevo_persistent = type(bucket.hevo_persistent) == "table"
+      and bucket.hevo_persistent or copy(archive.hevoPersistent)
+    bucket.hevo_persistent.starterDiscoveryUnlocks = copy(
+      archive.hevoPersistent.starterDiscoveryUnlocks)
+    return true
+  end
+
+  function A.syncStarterDiscovery(save, root)
+    local archive, _, activeErr = activeArchive(save)
+    if not archive then return false, activeErr end
+    local bucket = saveBucket(save, true)
+    local previous = bucket.discovery_core
+    bucket.discovery_core = type(root) == "table" and copy(root) or previous
+    mergeHevoPersistent(archive, save)
+    bucket.discovery_core = previous
+    local written, writeErr = A.write(archive)
+    if not written then return false, writeErr end
+    bucket.hevo_persistent = copy(archive.hevoPersistent)
+    return true
+  end
+
+  function A.markHiddenAccessOpen(save, id, receipt)
+    if type(id) ~= "string" or id == "" then
+      return false, "invalid hidden-access id"
+    end
+    local archive, _, activeErr = activeArchive(save)
+    if not archive then return false, activeErr end
+    local persistent = archive.hevoPersistent
+    persistent.hiddenAccessReceipts =
+      type(persistent.hiddenAccessReceipts) == "table"
+      and persistent.hiddenAccessReceipts or {}
+    if persistent.hiddenAccessReceipts[id] ~= nil then return true end
+    persistent.hiddenAccessReceipts[id] = receipt == nil and true
+      or receipt == true and true or copy(receipt)
+    local written, writeErr = A.write(archive)
+    if not written then return false, writeErr end
+    local bucket = saveBucket(save, true)
+    bucket.hevo_persistent = type(bucket.hevo_persistent) == "table"
+      and bucket.hevo_persistent or copy(archive.hevoPersistent)
+    bucket.hevo_persistent.hiddenAccessReceipts =
+      type(bucket.hevo_persistent.hiddenAccessReceipts) == "table"
+      and bucket.hevo_persistent.hiddenAccessReceipts or {}
+    bucket.hevo_persistent.hiddenAccessReceipts[id] =
+      persistent.hiddenAccessReceipts[id] == true and true
+      or copy(persistent.hiddenAccessReceipts[id])
+    return true
+  end
+
+  function A.worldRankState()
+    local archive, err = A.load()
+    if A.readOnly then
+      return nil, err or A.readOnlyReason
+        or "Legacy archive is read-only"
+    end
+    return copy(type(archive.worldRankPersistent) == "table"
+      and archive.worldRankPersistent or {}), err
+  end
+
+  function A.validateWorldRankOwner(save, owner)
+    if type(owner) ~= "string" or owner == "" then
+      return false, "invalid World Rank reward owner"
+    end
+    local archive, run, activeErr = activeArchive(save)
+    if not archive then return false, activeErr end
+    local runId = type(run) == "table" and run.runId or nil
+    if type(runId) ~= "string" or runId == ""
+        or owner:sub(-#runId) ~= runId
+        or owner:sub(-#runId - 1, -#runId - 1) ~= "|" then
+      return false, "reward owner conflicts with active Legacy run"
+    end
+    return true, copy(archive.worldRankPersistent)
+  end
+
+  local function mutateWorldRank(save, mutation)
+    local archive, run, activeErr = activeArchive(save)
+    if not archive then return false, activeErr end
+    local state = archive.worldRankPersistent
+    local ok, reason, changed = mutation(state, run, archive)
+    if ok == false then return false, reason end
+    if changed == false then return true, copy(state) end
+    local written, writeErr = A.write(archive)
+    if not written then return false, writeErr end
+    return true, copy(state)
+  end
+
+  function A.markWorldRankUnlocked(save)
+    return mutateWorldRank(save, function(state)
+      state.unlocked = true
+      return true
+    end)
+  end
+
+  local function validateWorldRankReservation(state, run, receipt)
+    local runId = type(run) == "table" and run.runId or nil
+    if type(runId) ~= "string" or runId == ""
+        or receipt.owner:sub(-#runId) ~= runId
+        or receipt.owner:sub(-#runId - 1, -#runId - 1) ~= "|" then
+      return false, "reward receipt owner conflicts with active Legacy run"
+    end
+    local claimed = state.claimed[receipt.id]
+    if claimed ~= nil then
+      if type(claimed) == "table"
+          and sameWorldRankReceipt(claimed, receipt) then
+        return true, "claimed"
+      end
+      return false, "reward receipt conflicts with claimed archive state"
+    end
+    local current = state.pending[receipt.id]
+    if current and not sameWorldRankReceipt(current, receipt) then
+      return false, "reward receipt conflicts with pending archive state"
+    end
+    if receipt.season ~= state.season then
+      return false, "reward receipt season conflicts with active season"
+    end
+    if receipt.species and state.delivered[receipt.species] == true then
+      return false, "reward species was already delivered this season"
+    end
+    if receipt.goldJackpot and state.goldJackpotClaimed == true then
+      return false, "GOLD lifetime jackpot already claimed"
+    end
+    if current then return true, "pending" end
+    local history = type(state.formats[receipt.formatId]) == "table"
+      and state.formats[receipt.formatId] or {}
+    if receipt.titleId and history.titleClaimed == true then
+      return false, "reward title conflicts with claimed format history"
+    end
+    if receipt.cardId and history.cardClaimed == true then
+      return false, "reward card conflicts with claimed format history"
+    end
+    for pendingId, pending in pairs(state.pending) do
+      if type(pending) == "table" then
+        if receipt.species and pending.species == receipt.species
+            and pending.season == receipt.season then
+          return false, "reward species conflicts with pending archive state"
+        end
+        if pending.formatId == receipt.formatId and pendingId ~= receipt.id
+            and ((receipt.titleId and pending.titleId)
+              or (receipt.cardId and pending.cardId)) then
+          return false,
+            "reward presentation conflicts with pending format history"
+        end
+        if receipt.goldJackpot and pending.goldJackpot then
+          return false, "GOLD jackpot already reserved"
+        end
+      end
+    end
+    return true, "new"
+  end
+
+  function A.validateWorldRankReward(save, receipt)
+    receipt = canonicalWorldRankReceipt(receipt)
+    if not receipt then return false, "invalid reward receipt" end
+    local archive, run, activeErr = activeArchive(save)
+    if not archive then return false, activeErr end
+    local valid, status = validateWorldRankReservation(
+      archive.worldRankPersistent, run, receipt)
+    if not valid then return false, status end
+    return true, status, copy(archive.worldRankPersistent)
+  end
+
+  function A.reserveWorldRankReward(save, receipt)
+    receipt = canonicalWorldRankReceipt(receipt)
+    if not receipt then return false, "invalid reward receipt" end
+    return mutateWorldRank(save, function(state, run)
+      local valid, status = validateWorldRankReservation(state, run, receipt)
+      if not valid then return false, status end
+      if status ~= "new" then return true, nil, false end
+      state.pending[receipt.id] = copy(receipt)
+      return true
+    end)
+  end
+
+  function A.claimWorldRankReward(save, receiptId)
+    if type(receiptId) ~= "string" or receiptId == "" then
+      return false, "invalid reward id"
+    end
+    return mutateWorldRank(save, function(state, run, root)
+      if state.claimed[receiptId] ~= nil then return true, nil, false end
+      local receipt = state.pending[receiptId]
+      if type(receipt) ~= "table" then return false, "reward is not reserved" end
+      receipt = canonicalWorldRankReceipt(receipt, receiptId)
+      if not receipt then return false, "reserved reward receipt is corrupt" end
+      local runId = type(run) == "table" and run.runId or nil
+      if type(runId) ~= "string" or runId == ""
+          or receipt.owner:sub(-#runId) ~= runId
+          or receipt.owner:sub(-#runId - 1, -#runId - 1) ~= "|" then
+        return false, "reserved reward owner conflicts with active Legacy run"
+      end
+      if receipt.season ~= state.season then
+        return false, "reserved reward season conflicts with active season"
+      end
+      if receipt.species and state.delivered[receipt.species] == true then
+        return false, "reserved reward species was already delivered"
+      end
+      if receipt.goldJackpot and state.goldJackpotClaimed == true then
+        return false, "GOLD lifetime jackpot already claimed"
+      end
+      if receipt.species then state.delivered[receipt.species] = true end
+      state.claimed[receiptId] = copy(receipt)
+      if receipt.goldJackpot == true then state.goldJackpotClaimed = true end
+      local history = type(state.formats[receipt.formatId]) == "table"
+        and state.formats[receipt.formatId] or {
+          championships = 0, bestRank = 50,
+          titleClaimed = false, cardClaimed = false,
+        }
+      history.championships = math.max(0,
+        math.floor(tonumber(history.championships) or 0)) + 1
+      history.bestRank = math.min(math.max(1, math.floor(
+        tonumber(history.bestRank) or 50)), receipt.rank)
+      history.titleClaimed = history.titleClaimed == true
+        or receipt.titleId ~= nil
+      history.cardClaimed = history.cardClaimed == true
+        or receipt.cardId ~= nil
+      history.lastReceiptId = receipt.id
+      state.formats[receipt.formatId] = history
+      if receipt.titleId then
+        root.titles = type(root.titles) == "table" and root.titles or {}
+        root.titles.unlocked = type(root.titles.unlocked) == "table"
+          and root.titles.unlocked or {}
+        root.titles.unlocked[receipt.titleId] = true
+      end
+      state.pending[receiptId] = nil
+      return true
+    end)
+  end
+
+  function A.openWorldRankSeason(save, expectedSeason)
+    return mutateWorldRank(save, function(state)
+      if state.season ~= expectedSeason then return false, "season changed" end
+      if next(state.pending) ~= nil then
+        return false, "cannot open a season with pending rewards"
+      end
+      state.season = state.season + 1
+      state.delivered = {}
+      return true
+    end)
+  end
+
   -- Synchronize the durable HEVO package bucket without advancing a path or
   -- starting a new journey. Callers stage and save the live game first, then
   -- use this boundary so a fresh save receives exactly the committed grants.
@@ -3128,6 +4250,16 @@ return function(opts)
       pathSealCycles = copy(pathSealCycles),
       legacyPass = archive.legacyPass == true,
       titles = copy(titles),
+      starterDiscoveryUnlocks = copy(type(archive.hevoPersistent) == "table"
+        and archive.hevoPersistent.starterDiscoveryUnlocks or {}),
+      hoennCharacterPacks = copy(type(archive.hevoPersistent) == "table"
+        and archive.hevoPersistent.hoennCharacterPacks or {}),
+      hoennDiscoveryUnlocks = copy(type(archive.hevoPersistent) == "table"
+        and archive.hevoPersistent.hoennDiscoveryUnlocks or {}),
+      hoennDexOwned = copy(type(archive.hevoPersistent) == "table"
+        and archive.hevoPersistent.hoennDexOwned or {}),
+      secretUnlocks = copy(type(archive.hevoPersistent) == "table"
+        and archive.hevoPersistent.secretUnlocks or {}),
       readOnly = A.readOnly == true,
       futureVersion = A.futureVersion,
     }
@@ -3193,6 +4325,12 @@ return function(opts)
   A.canonicalRunRules = canonicalRunRules
   A.safeRunRulesSnapshot = safeRunRulesSnapshot
   A.runRulesSnapshotVersion = RUN_RULES_SNAPSHOT_VERSION
+  A.vaultBindingVersion = VAULT_BINDING_VERSION
+  function A.bindSha256(digest)
+    if type(digest) ~= "function" then return false end
+    sha256Digest = digest
+    return true
+  end
   function A.bindData(data)
     if type(data) ~= "table" or type(data.pokemon) ~= "table"
         or type(data.items) ~= "table" or type(data.moves) ~= "table" then

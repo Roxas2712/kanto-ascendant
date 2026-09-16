@@ -1,0 +1,16 @@
+{
+  "id": "lavados_vulkan",
+  "name": "Lavados Vulkan",
+  "version": "3.1.8",
+  "api": 2,
+  "entry": "main.lua",
+  "profile": "content",
+  "category": "QUEST",
+  "game_version": ">=0.0.0-dev <2.0.0",
+  "priority": 200,
+  "permissions": [],
+  "dependencies": [],
+  "optional_dependencies": [],
+  "conflicts": [],
+  "description": "Port des pureRGB-Vulkans: Route-21-Insel, CINNABAR_VOLCANO mit Etagen-Rubinen, Bohrer-Sperre und Lavados im Krater."
+}

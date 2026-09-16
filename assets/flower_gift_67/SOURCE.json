@@ -1,0 +1,207 @@
+{
+  "schema": "kasc.flower-gift-art/v1",
+  "sourceSlot": 1061,
+  "nationalDex": 421,
+  "form": "sunshine",
+  "sets": [
+    {
+      "side": "front",
+      "variant": "normal",
+      "root": "assets/flower_gift_67/front/normal",
+      "durations": [
+        100,
+        467,
+        200,
+        467,
+        117,
+        133
+      ],
+      "sha256": [
+        "180981b26f7be0fb1c006246a35b3d5f4b2abbc3007cbd85d9e3dbcda9164a1c",
+        "ba05f552bf3d52276a324d5f008e0326d7ce7c58214811a91cbfff2c5f06a9ef",
+        "180981b26f7be0fb1c006246a35b3d5f4b2abbc3007cbd85d9e3dbcda9164a1c",
+        "ba05f552bf3d52276a324d5f008e0326d7ce7c58214811a91cbfff2c5f06a9ef",
+        "180981b26f7be0fb1c006246a35b3d5f4b2abbc3007cbd85d9e3dbcda9164a1c",
+        "ba05f552bf3d52276a324d5f008e0326d7ce7c58214811a91cbfff2c5f06a9ef"
+      ],
+      "sourceUnion": [
+        11,
+        14,
+        53,
+        52
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        42,
+        38
+      ]
+    },
+    {
+      "side": "back",
+      "variant": "normal",
+      "root": "assets/flower_gift_67/back/normal",
+      "durations": [
+        1000
+      ],
+      "sha256": [
+        "aad920d2dbe6fc785b3ccba5b625a0505e159674afad4a32c7d5891470bc3acc"
+      ],
+      "sourceUnion": [
+        9,
+        16,
+        57,
+        58
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        48,
+        42
+      ]
+    },
+    {
+      "side": "voxel",
+      "variant": "normal",
+      "root": "assets/flower_gift_67/voxel/normal",
+      "durations": [
+        100,
+        467,
+        200,
+        467,
+        117,
+        133
+      ],
+      "sha256": [
+        "4fea043064623a3d79afca046f0da8dffc40c8316a62fdcabf44d730de8f2591",
+        "dea970328a780bf21d0f9cdeea6d2824e25c44442f0ce48c093934a3b1e85db6",
+        "4fea043064623a3d79afca046f0da8dffc40c8316a62fdcabf44d730de8f2591",
+        "dea970328a780bf21d0f9cdeea6d2824e25c44442f0ce48c093934a3b1e85db6",
+        "4fea043064623a3d79afca046f0da8dffc40c8316a62fdcabf44d730de8f2591",
+        "dea970328a780bf21d0f9cdeea6d2824e25c44442f0ce48c093934a3b1e85db6"
+      ],
+      "sourceUnion": [
+        11,
+        14,
+        53,
+        52
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        42,
+        38
+      ]
+    },
+    {
+      "side": "front",
+      "variant": "shiny",
+      "root": "assets/flower_gift_67/front/shiny",
+      "durations": [
+        100,
+        467,
+        200,
+        467,
+        117,
+        133
+      ],
+      "sha256": [
+        "98003eea4c32d3aae74520c7e9b64d9cf027b721ad04c7c37fface553eefbab7",
+        "a38e53d5bb0789ce51e590cf2135c7df4116c8a2ea9bbb59ab594acaf52d0018",
+        "98003eea4c32d3aae74520c7e9b64d9cf027b721ad04c7c37fface553eefbab7",
+        "a38e53d5bb0789ce51e590cf2135c7df4116c8a2ea9bbb59ab594acaf52d0018",
+        "98003eea4c32d3aae74520c7e9b64d9cf027b721ad04c7c37fface553eefbab7",
+        "a38e53d5bb0789ce51e590cf2135c7df4116c8a2ea9bbb59ab594acaf52d0018"
+      ],
+      "sourceUnion": [
+        11,
+        14,
+        53,
+        52
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        42,
+        38
+      ]
+    },
+    {
+      "side": "back",
+      "variant": "shiny",
+      "root": "assets/flower_gift_67/back/shiny",
+      "durations": [
+        1000
+      ],
+      "sha256": [
+        "c0b9f14a45ab01ca0eeef2bd02aa36f794d3091e4cc3f828f35c55fc13ed538f"
+      ],
+      "sourceUnion": [
+        9,
+        16,
+        57,
+        58
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        48,
+        42
+      ]
+    },
+    {
+      "side": "voxel",
+      "variant": "shiny",
+      "root": "assets/flower_gift_67/voxel/shiny",
+      "durations": [
+        100,
+        467,
+        200,
+        467,
+        117,
+        133
+      ],
+      "sha256": [
+        "97018b861601cdc532db551d6eb226a7aec3d1ca2c1623db1b53707032274159",
+        "5265e2b5191ef9898ad534d08c38aa804a2e85fed41ffcaf7e209a7537c9d2e0",
+        "97018b861601cdc532db551d6eb226a7aec3d1ca2c1623db1b53707032274159",
+        "5265e2b5191ef9898ad534d08c38aa804a2e85fed41ffcaf7e209a7537c9d2e0",
+        "97018b861601cdc532db551d6eb226a7aec3d1ca2c1623db1b53707032274159",
+        "5265e2b5191ef9898ad534d08c38aa804a2e85fed41ffcaf7e209a7537c9d2e0"
+      ],
+      "sourceUnion": [
+        11,
+        14,
+        53,
+        52
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        42,
+        38
+      ]
+    }
+  ],
+  "sourceFiles": {
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1061/front-normal-01.png": "1d2628d258d95cc70be4c6f07a544e625ffc4e424c9b77c495a1443c2cef2ff0",
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1061/front-normal-00.png": "eb2944e03835ad199257805baea686bd476e80234a0f7b069b71ae54e0e349b0",
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1061/back-normal-00.png": "8e2c051cc1f9bcbdceddbb0762953e1f2284f1f8c459e63cebca4d28d9d8dbee",
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1061/metadata.json": "cbb3cae6c23c8615bd3f8c5079faa728dd55a0ec6653273619c7089d0f788aae",
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1061/front-shiny-01.png": "9adaf804d55f46dd24ab2c775165870111ad49b24ece7a0feee87579a799f477",
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1061/front-shiny-00.png": "136221e8187740c4cbda248c2be03c8e401b1c14f65f84312a4298aeab79ca46",
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1061/back-shiny-00.png": "01aee82f2ca349b80f3e86f3af96ade3eda58f3eed8f21ed63edde53fa145684"
+  }
+}

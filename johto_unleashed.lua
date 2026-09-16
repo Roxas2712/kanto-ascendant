@@ -11,6 +11,7 @@ return function(mod, opts)
   opts = opts or {}
   local i18n = opts.i18n
   local johto = opts.johtoData or {}
+  local generationRules = opts.generationRules
   local B = {
     SAVE_KEY = "beyond_kanto",
     SCHEMA_VERSION = 1,
@@ -366,6 +367,11 @@ return function(mod, opts)
     return state and state.active == true or false
   end
 
+  function B.peekIsActive(value)
+    local state=rawState(saveOf(value))
+    return type(state)=='table' and (state.active==true or state.irreversible==true) or false
+  end
+
   function B.sealFresh(value, forceFresh)
     local save = saveOf(value)
     if type(save) ~= "table" then return false end
@@ -483,7 +489,12 @@ return function(mod, opts)
     end
     if game and game.data then
       restoreData(game.data)
-      if state.active then applyData(game.data) end
+      local apply = state.active
+      if generationRules
+          and type(generationRules.shouldUseEpoch) == "function" then
+        apply = generationRules.shouldUseEpoch(game, 2, apply)
+      end
+      if apply then applyData(game.data) end
     end
     return state.active == true, migrated, state.migrationWitness, reason
   end
@@ -718,7 +729,11 @@ return function(mod, opts)
         trigger)
       if not B.isActive(game)
           and isBeyondKanto(game, type(evo) == "table" and evo.species) then
-        return false
+        -- A verified gift keeps only its reviewed family-edge entitlement;
+        -- this does not unlock Johto, unrelated species or arbitrary forms.
+        local gifts=mod.exports and mod.exports.backendGiftSpecies67
+        if not (gifts and gifts.giftEvolutionAllowed
+            and gifts.giftEvolutionAllowed(game,mon,evo)) then return false end
       end
       return nextCheck(game, mon, evo, trigger)
     end, 9500)

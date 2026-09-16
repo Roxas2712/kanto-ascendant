@@ -166,6 +166,35 @@ Ascendant Typhlosion is an original Kanto Ascendant fan design. Its front
 flame movement is derived from the bundled Pokémon Crystal #157 animation and
 timing described above.
 
+## Alola regional-form gift sprites
+
+The normal/Shiny front and back animations for the selected Kanto Ascendant
+6.6 Alola gift segment use the public Pokémon Showdown Gen-5-style
+pixel-animation mirrors:
+
+https://play.pokemonshowdown.com/sprites/
+
+Per-form stats and source icons are pinned from the public PokeAPI data and
+sprite mirrors:
+
+https://github.com/PokeAPI/api-data
+
+https://github.com/PokeAPI/sprites
+
+Kanto Ascendant samples each source animation onto a fixed transparent 64×64
+canvas with nearest-neighbour scaling and a stable bottom baseline. It derives
+the menu icons and six-pose follower-compatible sheets from the same
+form-specific material. The complete source-file hashes and resulting
+collision-free runtime IDs are recorded in `alola_forms_67_data.lua`; the
+filename preserves the audited source lineage while the feature is owned by
+the isolated 6.6 segment. Ordinary Kanto forms and their artwork remain
+separate and unchanged.
+
+Pokémon and Pokémon character artwork are © Nintendo / Creatures Inc. / GAME
+FREAK inc. Pokémon Showdown and PokeAPI are credited as the public source
+mirrors; Kanto Ascendant claims no ownership of the underlying characters or
+source artwork.
+
 ## Yellow Jessie, James, and Meowth staged battle art
 
 The Yellow-only staged opponent picture showing Jessie, James, and Meowth is
@@ -326,6 +355,29 @@ performance to Urara Takano. Pokémon Channel and the original audio are
 copyright Nintendo. Kanto Ascendant uses the derived clips only in this
 unofficial, non-commercial fan mod and does not redistribute the full source
 recording.
+
+## Pokémon Studio GameDataPacks — Generation IV–VII starters
+
+The 36 Generation IV–VII starter-family data rows, normal/Shiny battle and
+party artwork, overworld sources and cries are imported from
+`PokemonWorkshop/GameDataPacks`, pack `Gen 7/ultra-sun-ultra-moon`, pinned to
+commit `4bf39fe6ce32d720a03964be4c24e22198ba8de8`. The material remains governed
+by the Pokémon Studio Public License (Attribution, NonCommercial, ShareAlike),
+pinned at commit `6651bce677f34b0518f08d37af7047a839997242`.
+
+Every derived 16×96 walker uses one shared alpha bound, nearest-neighbour
+sampling, centred placement and a bottom-grounded pivot. No bilinear filter,
+repainting or water overlay is used. Piplup and Oshawott use the exact Piplup
+and exact Oshawott normal/Shiny sheets already shipped by the bundled Wilds
+runtime; their detailed notices remain in
+`vendor/wilds_1_12_2/THIRD_PARTY_NOTICES.md`.
+
+The retained upstream credits include veekun, the Smogon X/Y and Sun/Moon
+Sprite Projects, the DS Styled Gen 7+ Pokémon Sprite Repository contributors,
+StarrWolf, the Pokémon Shattered Light Team, Rhyden, Marin, and the individual
+overworld artists recorded in `assets/starter_species_67/SOURCE_BLOBS.tsv`.
+Redistribution remains noncommercial and must retain attribution, modification
+notices and a compatible ShareAlike license.
 
 ## All Pokémon Catchable 151 Mod
 

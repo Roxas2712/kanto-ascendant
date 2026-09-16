@@ -266,7 +266,11 @@ return function(mod, opts)
     local rows, occupied = {}, 0
     local bands, noDrop
     if loot and loot.catalog then
-      bands, noDrop = loot.catalog(game.data, mode, { level100 = false })
+      local bucket=game.save and game.save.modData and game.save.modData[mod.id]
+      local generation=opts.generationRules and bucket
+        and bucket[opts.generationRules.SAVE_KEY]
+      bands, noDrop = loot.catalog(game.data, mode, { level100 = false,
+        activeEpoch=generation and generation.activeEpoch or 1 })
     else
       bands = lootBands[mode] or {}
     end

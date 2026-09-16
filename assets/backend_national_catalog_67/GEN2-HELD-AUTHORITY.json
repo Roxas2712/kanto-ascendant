@@ -1,0 +1,3991 @@
+{
+  "schema": "kasc.gen2-held-authority/v1",
+  "versions": {
+    "4": {
+      "1": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "2": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "3": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "4": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "5": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "6": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "7": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "8": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "9": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "10": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "11": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "12": [
+        "NO_ITEM",
+        "SILVERPOWDER"
+      ],
+      "13": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "14": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "15": [
+        "NO_ITEM",
+        "POISON_BARB"
+      ],
+      "16": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "17": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "18": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "19": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "20": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "21": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "22": [
+        "NO_ITEM",
+        "SHARP_BEAK"
+      ],
+      "23": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "24": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "25": [
+        "NO_ITEM",
+        "BERRY"
+      ],
+      "26": [
+        "NO_ITEM",
+        "BERRY"
+      ],
+      "27": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "28": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "29": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "30": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "31": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "32": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "33": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "34": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "35": [
+        "MYSTERYBERRY",
+        "MOON_STONE"
+      ],
+      "36": [
+        "MYSTERYBERRY",
+        "MOON_STONE"
+      ],
+      "37": [
+        "BURNT_BERRY",
+        "BURNT_BERRY"
+      ],
+      "38": [
+        "BURNT_BERRY",
+        "BURNT_BERRY"
+      ],
+      "39": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "40": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "41": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "42": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "43": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "44": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "45": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "46": [
+        "TINYMUSHROOM",
+        "BIG_MUSHROOM"
+      ],
+      "47": [
+        "TINYMUSHROOM",
+        "BIG_MUSHROOM"
+      ],
+      "48": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "49": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "50": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "51": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "52": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "53": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "54": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "55": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "56": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "57": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "58": [
+        "BURNT_BERRY",
+        "BURNT_BERRY"
+      ],
+      "59": [
+        "BURNT_BERRY",
+        "BURNT_BERRY"
+      ],
+      "60": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "61": [
+        "NO_ITEM",
+        "KINGS_ROCK"
+      ],
+      "62": [
+        "NO_ITEM",
+        "KINGS_ROCK"
+      ],
+      "63": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "64": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "65": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "66": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "67": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "68": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "69": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "70": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "71": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "72": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "73": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "74": [
+        "NO_ITEM",
+        "EVERSTONE"
+      ],
+      "75": [
+        "NO_ITEM",
+        "EVERSTONE"
+      ],
+      "76": [
+        "NO_ITEM",
+        "EVERSTONE"
+      ],
+      "77": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "78": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "79": [
+        "NO_ITEM",
+        "KINGS_ROCK"
+      ],
+      "80": [
+        "NO_ITEM",
+        "KINGS_ROCK"
+      ],
+      "81": [
+        "NO_ITEM",
+        "METAL_COAT"
+      ],
+      "82": [
+        "NO_ITEM",
+        "METAL_COAT"
+      ],
+      "83": [
+        "NO_ITEM",
+        "STICK"
+      ],
+      "84": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "85": [
+        "NO_ITEM",
+        "SHARP_BEAK"
+      ],
+      "86": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "87": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "88": [
+        "NO_ITEM",
+        "NUGGET"
+      ],
+      "89": [
+        "NO_ITEM",
+        "NUGGET"
+      ],
+      "90": [
+        "PEARL",
+        "BIG_PEARL"
+      ],
+      "91": [
+        "PEARL",
+        "BIG_PEARL"
+      ],
+      "92": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "93": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "94": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "95": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "96": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "97": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "98": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "99": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "100": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "101": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "102": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "103": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "104": [
+        "NO_ITEM",
+        "THICK_CLUB"
+      ],
+      "105": [
+        "NO_ITEM",
+        "THICK_CLUB"
+      ],
+      "106": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "107": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "108": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "109": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "110": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "111": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "112": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "113": [
+        "NO_ITEM",
+        "LUCKY_EGG"
+      ],
+      "114": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "115": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "116": [
+        "NO_ITEM",
+        "DRAGON_SCALE"
+      ],
+      "117": [
+        "NO_ITEM",
+        "DRAGON_SCALE"
+      ],
+      "118": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "119": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "120": [
+        "STARDUST",
+        "STAR_PIECE"
+      ],
+      "121": [
+        "STARDUST",
+        "STAR_PIECE"
+      ],
+      "122": [
+        "NO_ITEM",
+        "MYSTERYBERRY"
+      ],
+      "123": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "124": [
+        "ICE_BERRY",
+        "ICE_BERRY"
+      ],
+      "125": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "126": [
+        "BURNT_BERRY",
+        "BURNT_BERRY"
+      ],
+      "127": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "128": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "129": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "130": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "131": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "132": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "133": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "134": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "135": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "136": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "137": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "138": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "139": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "140": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "141": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "142": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "143": [
+        "LEFTOVERS",
+        "LEFTOVERS"
+      ],
+      "144": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "145": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "146": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "147": [
+        "NO_ITEM",
+        "DRAGON_SCALE"
+      ],
+      "148": [
+        "NO_ITEM",
+        "DRAGON_SCALE"
+      ],
+      "149": [
+        "NO_ITEM",
+        "DRAGON_SCALE"
+      ],
+      "150": [
+        "NO_ITEM",
+        "BERSERK_GENE"
+      ],
+      "151": [
+        "NO_ITEM",
+        "MIRACLEBERRY"
+      ],
+      "152": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "153": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "154": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "155": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "156": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "157": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "158": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "159": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "160": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "161": [
+        "NO_ITEM",
+        "BERRY"
+      ],
+      "162": [
+        "BERRY",
+        "GOLD_BERRY"
+      ],
+      "163": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "164": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "165": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "166": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "167": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "168": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "169": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "170": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "171": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "172": [
+        "NO_ITEM",
+        "BERRY"
+      ],
+      "173": [
+        "MYSTERYBERRY",
+        "MOON_STONE"
+      ],
+      "174": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "175": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "176": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "177": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "178": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "179": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "180": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "181": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "182": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "183": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "184": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "185": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "186": [
+        "NO_ITEM",
+        "KINGS_ROCK"
+      ],
+      "187": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "188": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "189": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "190": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "191": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "192": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "193": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "194": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "195": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "196": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "197": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "198": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "199": [
+        "NO_ITEM",
+        "KINGS_ROCK"
+      ],
+      "200": [
+        "NO_ITEM",
+        "SPELL_TAG"
+      ],
+      "201": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "202": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "203": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "204": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "205": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "206": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "207": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "208": [
+        "NO_ITEM",
+        "METAL_COAT"
+      ],
+      "209": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "210": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "211": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "212": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "213": [
+        "BERRY",
+        "BERRY"
+      ],
+      "214": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "215": [
+        "NO_ITEM",
+        "QUICK_CLAW"
+      ],
+      "216": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "217": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "218": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "219": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "220": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "221": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "222": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "223": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "224": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "225": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "226": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "227": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "228": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "229": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "230": [
+        "NO_ITEM",
+        "DRAGON_SCALE"
+      ],
+      "231": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "232": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "233": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "234": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "235": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "236": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "237": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "238": [
+        "ICE_BERRY",
+        "ICE_BERRY"
+      ],
+      "239": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "240": [
+        "BURNT_BERRY",
+        "BURNT_BERRY"
+      ],
+      "241": [
+        "MOOMOO_MILK",
+        "MOOMOO_MILK"
+      ],
+      "242": [
+        "NO_ITEM",
+        "LUCKY_EGG"
+      ],
+      "243": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "244": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "245": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "246": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "247": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "248": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "249": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "250": [
+        "SACRED_ASH",
+        "SACRED_ASH"
+      ],
+      "251": [
+        "NO_ITEM",
+        "MIRACLEBERRY"
+      ]
+    },
+    "5": {
+      "1": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "2": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "3": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "4": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "5": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "6": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "7": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "8": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "9": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "10": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "11": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "12": [
+        "NO_ITEM",
+        "SILVERPOWDER"
+      ],
+      "13": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "14": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "15": [
+        "NO_ITEM",
+        "POISON_BARB"
+      ],
+      "16": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "17": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "18": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "19": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "20": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "21": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "22": [
+        "NO_ITEM",
+        "SHARP_BEAK"
+      ],
+      "23": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "24": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "25": [
+        "NO_ITEM",
+        "BERRY"
+      ],
+      "26": [
+        "NO_ITEM",
+        "BERRY"
+      ],
+      "27": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "28": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "29": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "30": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "31": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "32": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "33": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "34": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "35": [
+        "MYSTERYBERRY",
+        "MOON_STONE"
+      ],
+      "36": [
+        "MYSTERYBERRY",
+        "MOON_STONE"
+      ],
+      "37": [
+        "BURNT_BERRY",
+        "BURNT_BERRY"
+      ],
+      "38": [
+        "BURNT_BERRY",
+        "BURNT_BERRY"
+      ],
+      "39": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "40": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "41": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "42": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "43": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "44": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "45": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "46": [
+        "TINYMUSHROOM",
+        "BIG_MUSHROOM"
+      ],
+      "47": [
+        "TINYMUSHROOM",
+        "BIG_MUSHROOM"
+      ],
+      "48": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "49": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "50": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "51": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "52": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "53": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "54": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "55": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "56": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "57": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "58": [
+        "BURNT_BERRY",
+        "BURNT_BERRY"
+      ],
+      "59": [
+        "BURNT_BERRY",
+        "BURNT_BERRY"
+      ],
+      "60": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "61": [
+        "NO_ITEM",
+        "KINGS_ROCK"
+      ],
+      "62": [
+        "NO_ITEM",
+        "KINGS_ROCK"
+      ],
+      "63": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "64": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "65": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "66": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "67": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "68": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "69": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "70": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "71": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "72": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "73": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "74": [
+        "NO_ITEM",
+        "EVERSTONE"
+      ],
+      "75": [
+        "NO_ITEM",
+        "EVERSTONE"
+      ],
+      "76": [
+        "NO_ITEM",
+        "EVERSTONE"
+      ],
+      "77": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "78": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "79": [
+        "NO_ITEM",
+        "KINGS_ROCK"
+      ],
+      "80": [
+        "NO_ITEM",
+        "KINGS_ROCK"
+      ],
+      "81": [
+        "NO_ITEM",
+        "METAL_COAT"
+      ],
+      "82": [
+        "NO_ITEM",
+        "METAL_COAT"
+      ],
+      "83": [
+        "NO_ITEM",
+        "STICK"
+      ],
+      "84": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "85": [
+        "NO_ITEM",
+        "SHARP_BEAK"
+      ],
+      "86": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "87": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "88": [
+        "NO_ITEM",
+        "NUGGET"
+      ],
+      "89": [
+        "NO_ITEM",
+        "NUGGET"
+      ],
+      "90": [
+        "PEARL",
+        "BIG_PEARL"
+      ],
+      "91": [
+        "PEARL",
+        "BIG_PEARL"
+      ],
+      "92": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "93": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "94": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "95": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "96": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "97": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "98": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "99": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "100": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "101": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "102": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "103": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "104": [
+        "NO_ITEM",
+        "THICK_CLUB"
+      ],
+      "105": [
+        "NO_ITEM",
+        "THICK_CLUB"
+      ],
+      "106": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "107": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "108": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "109": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "110": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "111": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "112": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "113": [
+        "NO_ITEM",
+        "LUCKY_EGG"
+      ],
+      "114": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "115": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "116": [
+        "NO_ITEM",
+        "DRAGON_SCALE"
+      ],
+      "117": [
+        "NO_ITEM",
+        "DRAGON_SCALE"
+      ],
+      "118": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "119": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "120": [
+        "STARDUST",
+        "STAR_PIECE"
+      ],
+      "121": [
+        "STARDUST",
+        "STAR_PIECE"
+      ],
+      "122": [
+        "NO_ITEM",
+        "MYSTERYBERRY"
+      ],
+      "123": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "124": [
+        "ICE_BERRY",
+        "ICE_BERRY"
+      ],
+      "125": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "126": [
+        "BURNT_BERRY",
+        "BURNT_BERRY"
+      ],
+      "127": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "128": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "129": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "130": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "131": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "132": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "133": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "134": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "135": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "136": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "137": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "138": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "139": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "140": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "141": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "142": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "143": [
+        "LEFTOVERS",
+        "LEFTOVERS"
+      ],
+      "144": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "145": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "146": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "147": [
+        "NO_ITEM",
+        "DRAGON_SCALE"
+      ],
+      "148": [
+        "NO_ITEM",
+        "DRAGON_SCALE"
+      ],
+      "149": [
+        "NO_ITEM",
+        "DRAGON_SCALE"
+      ],
+      "150": [
+        "NO_ITEM",
+        "BERSERK_GENE"
+      ],
+      "151": [
+        "NO_ITEM",
+        "MIRACLEBERRY"
+      ],
+      "152": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "153": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "154": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "155": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "156": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "157": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "158": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "159": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "160": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "161": [
+        "NO_ITEM",
+        "BERRY"
+      ],
+      "162": [
+        "BERRY",
+        "GOLD_BERRY"
+      ],
+      "163": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "164": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "165": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "166": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "167": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "168": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "169": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "170": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "171": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "172": [
+        "NO_ITEM",
+        "BERRY"
+      ],
+      "173": [
+        "MYSTERYBERRY",
+        "MOON_STONE"
+      ],
+      "174": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "175": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "176": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "177": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "178": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "179": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "180": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "181": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "182": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "183": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "184": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "185": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "186": [
+        "NO_ITEM",
+        "KINGS_ROCK"
+      ],
+      "187": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "188": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "189": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "190": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "191": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "192": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "193": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "194": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "195": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "196": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "197": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "198": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "199": [
+        "NO_ITEM",
+        "KINGS_ROCK"
+      ],
+      "200": [
+        "NO_ITEM",
+        "SPELL_TAG"
+      ],
+      "201": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "202": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "203": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "204": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "205": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "206": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "207": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "208": [
+        "NO_ITEM",
+        "METAL_COAT"
+      ],
+      "209": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "210": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "211": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "212": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "213": [
+        "BERRY",
+        "BERRY"
+      ],
+      "214": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "215": [
+        "NO_ITEM",
+        "QUICK_CLAW"
+      ],
+      "216": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "217": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "218": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "219": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "220": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "221": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "222": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "223": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "224": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "225": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "226": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "227": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "228": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "229": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "230": [
+        "NO_ITEM",
+        "DRAGON_SCALE"
+      ],
+      "231": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "232": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "233": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "234": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "235": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "236": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "237": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "238": [
+        "ICE_BERRY",
+        "ICE_BERRY"
+      ],
+      "239": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "240": [
+        "BURNT_BERRY",
+        "BURNT_BERRY"
+      ],
+      "241": [
+        "MOOMOO_MILK",
+        "MOOMOO_MILK"
+      ],
+      "242": [
+        "NO_ITEM",
+        "LUCKY_EGG"
+      ],
+      "243": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "244": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "245": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "246": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "247": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "248": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "249": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "250": [
+        "SACRED_ASH",
+        "SACRED_ASH"
+      ],
+      "251": [
+        "NO_ITEM",
+        "MIRACLEBERRY"
+      ]
+    },
+    "6": {
+      "1": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "2": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "3": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "4": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "5": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "6": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "7": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "8": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "9": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "10": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "11": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "12": [
+        "NO_ITEM",
+        "SILVERPOWDER"
+      ],
+      "13": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "14": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "15": [
+        "NO_ITEM",
+        "POISON_BARB"
+      ],
+      "16": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "17": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "18": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "19": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "20": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "21": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "22": [
+        "NO_ITEM",
+        "SHARP_BEAK"
+      ],
+      "23": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "24": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "25": [
+        "NO_ITEM",
+        "BERRY"
+      ],
+      "26": [
+        "NO_ITEM",
+        "BERRY"
+      ],
+      "27": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "28": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "29": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "30": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "31": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "32": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "33": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "34": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "35": [
+        "MYSTERYBERRY",
+        "MOON_STONE"
+      ],
+      "36": [
+        "MYSTERYBERRY",
+        "MOON_STONE"
+      ],
+      "37": [
+        "BURNT_BERRY",
+        "BURNT_BERRY"
+      ],
+      "38": [
+        "BURNT_BERRY",
+        "BURNT_BERRY"
+      ],
+      "39": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "40": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "41": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "42": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "43": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "44": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "45": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "46": [
+        "TINYMUSHROOM",
+        "BIG_MUSHROOM"
+      ],
+      "47": [
+        "TINYMUSHROOM",
+        "BIG_MUSHROOM"
+      ],
+      "48": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "49": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "50": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "51": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "52": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "53": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "54": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "55": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "56": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "57": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "58": [
+        "BURNT_BERRY",
+        "BURNT_BERRY"
+      ],
+      "59": [
+        "BURNT_BERRY",
+        "BURNT_BERRY"
+      ],
+      "60": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "61": [
+        "NO_ITEM",
+        "KINGS_ROCK"
+      ],
+      "62": [
+        "NO_ITEM",
+        "KINGS_ROCK"
+      ],
+      "63": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "64": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "65": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "66": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "67": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "68": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "69": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "70": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "71": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "72": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "73": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "74": [
+        "NO_ITEM",
+        "EVERSTONE"
+      ],
+      "75": [
+        "NO_ITEM",
+        "EVERSTONE"
+      ],
+      "76": [
+        "NO_ITEM",
+        "EVERSTONE"
+      ],
+      "77": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "78": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "79": [
+        "NO_ITEM",
+        "KINGS_ROCK"
+      ],
+      "80": [
+        "NO_ITEM",
+        "KINGS_ROCK"
+      ],
+      "81": [
+        "NO_ITEM",
+        "METAL_COAT"
+      ],
+      "82": [
+        "NO_ITEM",
+        "METAL_COAT"
+      ],
+      "83": [
+        "NO_ITEM",
+        "STICK"
+      ],
+      "84": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "85": [
+        "NO_ITEM",
+        "SHARP_BEAK"
+      ],
+      "86": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "87": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "88": [
+        "NO_ITEM",
+        "NUGGET"
+      ],
+      "89": [
+        "NO_ITEM",
+        "NUGGET"
+      ],
+      "90": [
+        "PEARL",
+        "BIG_PEARL"
+      ],
+      "91": [
+        "PEARL",
+        "BIG_PEARL"
+      ],
+      "92": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "93": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "94": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "95": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "96": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "97": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "98": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "99": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "100": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "101": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "102": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "103": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "104": [
+        "NO_ITEM",
+        "THICK_CLUB"
+      ],
+      "105": [
+        "NO_ITEM",
+        "THICK_CLUB"
+      ],
+      "106": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "107": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "108": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "109": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "110": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "111": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "112": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "113": [
+        "NO_ITEM",
+        "LUCKY_EGG"
+      ],
+      "114": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "115": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "116": [
+        "NO_ITEM",
+        "DRAGON_SCALE"
+      ],
+      "117": [
+        "NO_ITEM",
+        "DRAGON_SCALE"
+      ],
+      "118": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "119": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "120": [
+        "STARDUST",
+        "STAR_PIECE"
+      ],
+      "121": [
+        "STARDUST",
+        "STAR_PIECE"
+      ],
+      "122": [
+        "NO_ITEM",
+        "MYSTERYBERRY"
+      ],
+      "123": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "124": [
+        "ICE_BERRY",
+        "ICE_BERRY"
+      ],
+      "125": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "126": [
+        "BURNT_BERRY",
+        "BURNT_BERRY"
+      ],
+      "127": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "128": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "129": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "130": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "131": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "132": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "133": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "134": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "135": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "136": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "137": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "138": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "139": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "140": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "141": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "142": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "143": [
+        "LEFTOVERS",
+        "LEFTOVERS"
+      ],
+      "144": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "145": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "146": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "147": [
+        "NO_ITEM",
+        "DRAGON_SCALE"
+      ],
+      "148": [
+        "NO_ITEM",
+        "DRAGON_SCALE"
+      ],
+      "149": [
+        "NO_ITEM",
+        "DRAGON_SCALE"
+      ],
+      "150": [
+        "NO_ITEM",
+        "BERSERK_GENE"
+      ],
+      "151": [
+        "NO_ITEM",
+        "MIRACLEBERRY"
+      ],
+      "152": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "153": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "154": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "155": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "156": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "157": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "158": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "159": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "160": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "161": [
+        "NO_ITEM",
+        "BERRY"
+      ],
+      "162": [
+        "BERRY",
+        "GOLD_BERRY"
+      ],
+      "163": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "164": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "165": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "166": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "167": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "168": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "169": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "170": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "171": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "172": [
+        "NO_ITEM",
+        "BERRY"
+      ],
+      "173": [
+        "MYSTERYBERRY",
+        "MOON_STONE"
+      ],
+      "174": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "175": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "176": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "177": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "178": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "179": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "180": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "181": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "182": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "183": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "184": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "185": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "186": [
+        "NO_ITEM",
+        "KINGS_ROCK"
+      ],
+      "187": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "188": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "189": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "190": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "191": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "192": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "193": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "194": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "195": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "196": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "197": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "198": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "199": [
+        "NO_ITEM",
+        "KINGS_ROCK"
+      ],
+      "200": [
+        "NO_ITEM",
+        "SPELL_TAG"
+      ],
+      "201": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "202": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "203": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "204": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "205": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "206": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "207": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "208": [
+        "NO_ITEM",
+        "METAL_COAT"
+      ],
+      "209": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "210": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "211": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "212": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "213": [
+        "BERRY",
+        "BERRY"
+      ],
+      "214": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "215": [
+        "NO_ITEM",
+        "QUICK_CLAW"
+      ],
+      "216": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "217": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "218": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "219": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "220": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "221": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "222": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "223": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "224": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "225": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "226": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "227": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "228": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "229": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "230": [
+        "NO_ITEM",
+        "DRAGON_SCALE"
+      ],
+      "231": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "232": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "233": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "234": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "235": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "236": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "237": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "238": [
+        "ICE_BERRY",
+        "ICE_BERRY"
+      ],
+      "239": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "240": [
+        "BURNT_BERRY",
+        "BURNT_BERRY"
+      ],
+      "241": [
+        "MOOMOO_MILK",
+        "MOOMOO_MILK"
+      ],
+      "242": [
+        "NO_ITEM",
+        "LUCKY_EGG"
+      ],
+      "243": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "244": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "245": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "246": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "247": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "248": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "249": [
+        "NO_ITEM",
+        "NO_ITEM"
+      ],
+      "250": [
+        "SACRED_ASH",
+        "SACRED_ASH"
+      ],
+      "251": [
+        "NO_ITEM",
+        "MIRACLEBERRY"
+      ]
+    }
+  },
+  "items": {
+    "BRIGHTPOWDER": {
+      "id": "BRIGHTPOWDER",
+      "gameIndex": 3,
+      "effect": "HELD_BRIGHTPOWDER",
+      "parameter": 20,
+      "cost": 10,
+      "generation": 2
+    },
+    "MOON_STONE": {
+      "id": "MOON_STONE",
+      "gameIndex": 8,
+      "effect": "HELD_NONE",
+      "parameter": 0,
+      "cost": 0,
+      "generation": 2
+    },
+    "METAL_POWDER": {
+      "id": "METAL_POWDER",
+      "gameIndex": 35,
+      "effect": "HELD_METAL_POWDER",
+      "parameter": 10,
+      "cost": 10,
+      "generation": 2
+    },
+    "NUGGET": {
+      "id": "NUGGET",
+      "gameIndex": 36,
+      "effect": "HELD_NONE",
+      "parameter": 0,
+      "cost": 10000,
+      "generation": 2
+    },
+    "MOOMOO_MILK": {
+      "id": "MOOMOO_MILK",
+      "gameIndex": 72,
+      "effect": "HELD_NONE",
+      "parameter": 100,
+      "cost": 500,
+      "generation": 2
+    },
+    "QUICK_CLAW": {
+      "id": "QUICK_CLAW",
+      "gameIndex": 73,
+      "effect": "HELD_QUICK_CLAW",
+      "parameter": 60,
+      "cost": 100,
+      "generation": 2
+    },
+    "PSNCUREBERRY": {
+      "id": "PSNCUREBERRY",
+      "gameIndex": 74,
+      "effect": "HELD_HEAL_POISON",
+      "parameter": 0,
+      "cost": 10,
+      "generation": 2
+    },
+    "SOFT_SAND": {
+      "id": "SOFT_SAND",
+      "gameIndex": 76,
+      "effect": "HELD_GROUND_BOOST",
+      "parameter": 10,
+      "cost": 100,
+      "generation": 2
+    },
+    "SHARP_BEAK": {
+      "id": "SHARP_BEAK",
+      "gameIndex": 77,
+      "effect": "HELD_FLYING_BOOST",
+      "parameter": 10,
+      "cost": 100,
+      "generation": 2
+    },
+    "PRZCUREBERRY": {
+      "id": "PRZCUREBERRY",
+      "gameIndex": 78,
+      "effect": "HELD_HEAL_PARALYZE",
+      "parameter": 0,
+      "cost": 10,
+      "generation": 2
+    },
+    "BURNT_BERRY": {
+      "id": "BURNT_BERRY",
+      "gameIndex": 79,
+      "effect": "HELD_HEAL_FREEZE",
+      "parameter": 0,
+      "cost": 10,
+      "generation": 2
+    },
+    "ICE_BERRY": {
+      "id": "ICE_BERRY",
+      "gameIndex": 80,
+      "effect": "HELD_HEAL_BURN",
+      "parameter": 0,
+      "cost": 10,
+      "generation": 2
+    },
+    "POISON_BARB": {
+      "id": "POISON_BARB",
+      "gameIndex": 81,
+      "effect": "HELD_POISON_BOOST",
+      "parameter": 10,
+      "cost": 100,
+      "generation": 2
+    },
+    "KINGS_ROCK": {
+      "id": "KINGS_ROCK",
+      "gameIndex": 82,
+      "effect": "HELD_FLINCH",
+      "parameter": 30,
+      "cost": 100,
+      "generation": 2
+    },
+    "BITTER_BERRY": {
+      "id": "BITTER_BERRY",
+      "gameIndex": 83,
+      "effect": "HELD_HEAL_CONFUSION",
+      "parameter": 0,
+      "cost": 10,
+      "generation": 2
+    },
+    "MINT_BERRY": {
+      "id": "MINT_BERRY",
+      "gameIndex": 84,
+      "effect": "HELD_HEAL_SLEEP",
+      "parameter": 0,
+      "cost": 10,
+      "generation": 2
+    },
+    "TINYMUSHROOM": {
+      "id": "TINYMUSHROOM",
+      "gameIndex": 86,
+      "effect": "HELD_NONE",
+      "parameter": 0,
+      "cost": 500,
+      "generation": 2
+    },
+    "BIG_MUSHROOM": {
+      "id": "BIG_MUSHROOM",
+      "gameIndex": 87,
+      "effect": "HELD_NONE",
+      "parameter": 0,
+      "cost": 5000,
+      "generation": 2
+    },
+    "SILVERPOWDER": {
+      "id": "SILVERPOWDER",
+      "gameIndex": 88,
+      "effect": "HELD_BUG_BOOST",
+      "parameter": 10,
+      "cost": 100,
+      "generation": 2
+    },
+    "AMULET_COIN": {
+      "id": "AMULET_COIN",
+      "gameIndex": 91,
+      "effect": "HELD_AMULET_COIN",
+      "parameter": 10,
+      "cost": 100,
+      "generation": 2
+    },
+    "CLEANSE_TAG": {
+      "id": "CLEANSE_TAG",
+      "gameIndex": 94,
+      "effect": "HELD_CLEANSE_TAG",
+      "parameter": 0,
+      "cost": 200,
+      "generation": 2
+    },
+    "MYSTIC_WATER": {
+      "id": "MYSTIC_WATER",
+      "gameIndex": 95,
+      "effect": "HELD_WATER_BOOST",
+      "parameter": 10,
+      "cost": 100,
+      "generation": 2
+    },
+    "TWISTEDSPOON": {
+      "id": "TWISTEDSPOON",
+      "gameIndex": 96,
+      "effect": "HELD_PSYCHIC_BOOST",
+      "parameter": 10,
+      "cost": 100,
+      "generation": 2
+    },
+    "BLACKBELT_I": {
+      "id": "BLACKBELT_I",
+      "gameIndex": 98,
+      "effect": "HELD_FIGHTING_BOOST",
+      "parameter": 10,
+      "cost": 100,
+      "generation": 2
+    },
+    "BLACKGLASSES": {
+      "id": "BLACKGLASSES",
+      "gameIndex": 102,
+      "effect": "HELD_DARK_BOOST",
+      "parameter": 10,
+      "cost": 100,
+      "generation": 2
+    },
+    "PINK_BOW": {
+      "id": "PINK_BOW",
+      "gameIndex": 104,
+      "effect": "HELD_NORMAL_BOOST",
+      "parameter": 10,
+      "cost": 100,
+      "generation": 2
+    },
+    "STICK": {
+      "id": "STICK",
+      "gameIndex": 105,
+      "effect": "HELD_NONE",
+      "parameter": 0,
+      "cost": 200,
+      "generation": 2
+    },
+    "SMOKE_BALL": {
+      "id": "SMOKE_BALL",
+      "gameIndex": 106,
+      "effect": "HELD_ESCAPE",
+      "parameter": 0,
+      "cost": 200,
+      "generation": 2
+    },
+    "NEVERMELTICE": {
+      "id": "NEVERMELTICE",
+      "gameIndex": 107,
+      "effect": "HELD_ICE_BOOST",
+      "parameter": 10,
+      "cost": 100,
+      "generation": 2
+    },
+    "MAGNET": {
+      "id": "MAGNET",
+      "gameIndex": 108,
+      "effect": "HELD_ELECTRIC_BOOST",
+      "parameter": 10,
+      "cost": 100,
+      "generation": 2
+    },
+    "MIRACLEBERRY": {
+      "id": "MIRACLEBERRY",
+      "gameIndex": 109,
+      "effect": "HELD_HEAL_STATUS",
+      "parameter": 0,
+      "cost": 10,
+      "generation": 2
+    },
+    "PEARL": {
+      "id": "PEARL",
+      "gameIndex": 110,
+      "effect": "HELD_NONE",
+      "parameter": 0,
+      "cost": 1400,
+      "generation": 2
+    },
+    "BIG_PEARL": {
+      "id": "BIG_PEARL",
+      "gameIndex": 111,
+      "effect": "HELD_NONE",
+      "parameter": 0,
+      "cost": 7500,
+      "generation": 2
+    },
+    "EVERSTONE": {
+      "id": "EVERSTONE",
+      "gameIndex": 112,
+      "effect": "HELD_NONE",
+      "parameter": 0,
+      "cost": 200,
+      "generation": 2
+    },
+    "SPELL_TAG": {
+      "id": "SPELL_TAG",
+      "gameIndex": 113,
+      "effect": "HELD_GHOST_BOOST",
+      "parameter": 10,
+      "cost": 100,
+      "generation": 2
+    },
+    "MIRACLE_SEED": {
+      "id": "MIRACLE_SEED",
+      "gameIndex": 117,
+      "effect": "HELD_GRASS_BOOST",
+      "parameter": 10,
+      "cost": 100,
+      "generation": 2
+    },
+    "THICK_CLUB": {
+      "id": "THICK_CLUB",
+      "gameIndex": 118,
+      "effect": "HELD_NONE",
+      "parameter": 0,
+      "cost": 500,
+      "generation": 2
+    },
+    "FOCUS_BAND": {
+      "id": "FOCUS_BAND",
+      "gameIndex": 119,
+      "effect": "HELD_FOCUS_BAND",
+      "parameter": 30,
+      "cost": 200,
+      "generation": 2
+    },
+    "HARD_STONE": {
+      "id": "HARD_STONE",
+      "gameIndex": 125,
+      "effect": "HELD_ROCK_BOOST",
+      "parameter": 10,
+      "cost": 100,
+      "generation": 2
+    },
+    "LUCKY_EGG": {
+      "id": "LUCKY_EGG",
+      "gameIndex": 126,
+      "effect": "HELD_NONE",
+      "parameter": 0,
+      "cost": 200,
+      "generation": 2
+    },
+    "STARDUST": {
+      "id": "STARDUST",
+      "gameIndex": 131,
+      "effect": "HELD_NONE",
+      "parameter": 0,
+      "cost": 2000,
+      "generation": 2
+    },
+    "STAR_PIECE": {
+      "id": "STAR_PIECE",
+      "gameIndex": 132,
+      "effect": "HELD_NONE",
+      "parameter": 0,
+      "cost": 9800,
+      "generation": 2
+    },
+    "CHARCOAL": {
+      "id": "CHARCOAL",
+      "gameIndex": 138,
+      "effect": "HELD_FIRE_BOOST",
+      "parameter": 10,
+      "cost": 9800,
+      "generation": 2
+    },
+    "BERRY_JUICE": {
+      "id": "BERRY_JUICE",
+      "gameIndex": 139,
+      "effect": "HELD_BERRY",
+      "parameter": 20,
+      "cost": 100,
+      "generation": 2
+    },
+    "SCOPE_LENS": {
+      "id": "SCOPE_LENS",
+      "gameIndex": 140,
+      "effect": "HELD_CRITICAL_UP",
+      "parameter": 0,
+      "cost": 200,
+      "generation": 2
+    },
+    "METAL_COAT": {
+      "id": "METAL_COAT",
+      "gameIndex": 143,
+      "effect": "HELD_STEEL_BOOST",
+      "parameter": 10,
+      "cost": 100,
+      "generation": 2
+    },
+    "LEFTOVERS": {
+      "id": "LEFTOVERS",
+      "gameIndex": 146,
+      "effect": "HELD_LEFTOVERS",
+      "parameter": 10,
+      "cost": 200,
+      "generation": 2
+    },
+    "MYSTERYBERRY": {
+      "id": "MYSTERYBERRY",
+      "gameIndex": 150,
+      "effect": "HELD_RESTORE_PP",
+      "parameter": -1,
+      "cost": 10,
+      "generation": 2
+    },
+    "DRAGON_SCALE": {
+      "id": "DRAGON_SCALE",
+      "gameIndex": 151,
+      "effect": "HELD_DRAGON_BOOST",
+      "parameter": 10,
+      "cost": 2100,
+      "generation": 2
+    },
+    "BERSERK_GENE": {
+      "id": "BERSERK_GENE",
+      "gameIndex": 152,
+      "effect": "HELD_NONE",
+      "parameter": 0,
+      "cost": 200,
+      "generation": 2
+    },
+    "SACRED_ASH": {
+      "id": "SACRED_ASH",
+      "gameIndex": 156,
+      "effect": "HELD_NONE",
+      "parameter": 0,
+      "cost": 200,
+      "generation": 2
+    },
+    "POLKADOT_BOW": {
+      "id": "POLKADOT_BOW",
+      "gameIndex": 170,
+      "effect": "HELD_NORMAL_BOOST",
+      "parameter": 10,
+      "cost": 100,
+      "generation": 2
+    },
+    "BERRY": {
+      "id": "BERRY",
+      "gameIndex": 173,
+      "effect": "HELD_BERRY",
+      "parameter": 10,
+      "cost": 10,
+      "generation": 2
+    },
+    "GOLD_BERRY": {
+      "id": "GOLD_BERRY",
+      "gameIndex": 174,
+      "effect": "HELD_BERRY",
+      "parameter": 30,
+      "cost": 10,
+      "generation": 2
+    }
+  },
+  "rng": {
+    "range": [
+      0,
+      255
+    ],
+    "noneBelow": 192,
+    "secondItemBelow": 20
+  },
+  "sources": {
+    "pokegold": {
+      "commit": "656583c939d30f920a316177311a502dd222b57c",
+      "url": "https://github.com/pret/pokegold",
+      "files": {
+        "constants/item_constants.asm": "5671ca3f51991e8076667bd50bf405133fc273a92331ae1a14be545c91a981d0",
+        "data/items/attributes.asm": "a0fa60c4c5f70b9849847b865736a8e3faebfc9ff6549e7fb8142dd715271615",
+        "data/pokemon/base_stats/abra.asm": "89ed4da49a757d404aced7cf8faf030d812300370c0c5eb353944afba8dd676e",
+        "data/pokemon/base_stats/aerodactyl.asm": "645dec7583383aa1de667652b14d0772b7840a10b86549bd18b3d6c7eb79c327",
+        "data/pokemon/base_stats/aipom.asm": "ec2120d4db68d0d3140ea4a76ecfdaeb232487f5314f86676f3ee49b0fc79e11",
+        "data/pokemon/base_stats/alakazam.asm": "bf23c626ed6eddc99fd56220b915a9b7d70eb4f8812b8d10e6cf4724d7b941fb",
+        "data/pokemon/base_stats/ampharos.asm": "9bb84a62c8e6aea75a49ac977270f5355bc42582f8d1fd1d5e5bfdfdb0858985",
+        "data/pokemon/base_stats/arbok.asm": "4e91a44c85c30d91d8c6d8278571715da06e238cc618667eb05e07d8e734858c",
+        "data/pokemon/base_stats/arcanine.asm": "54638bd39f716aab70138515cb15739be19b6d2a23fbf3f0aa4b470b6c9e6fbc",
+        "data/pokemon/base_stats/ariados.asm": "783280003dd7811e2bc50b9b36aff5f4fdaa84eb5bdbb48215f5d85141d6e988",
+        "data/pokemon/base_stats/articuno.asm": "1d0a1b7b88010877062f9674d5a75293913b05741a0c4c02391092cff9970fe9",
+        "data/pokemon/base_stats/azumarill.asm": "9fdfc3674b2e8085e228bdb5c393aced46b89c23f312a2932a8fe73af4662288",
+        "data/pokemon/base_stats/bayleef.asm": "edfabc86ff6061af48f6a0c8b88d01efdf148ee72b4a84aa603b53e3dffb2707",
+        "data/pokemon/base_stats/beedrill.asm": "7968984503ce84cc344ea4540cfa14fa5fc74b4469c789e9c911fa42802b260e",
+        "data/pokemon/base_stats/bellossom.asm": "026ca3f21554febfdf4ea88c8138c3cf9353121c01f7d78a7084bec206115e71",
+        "data/pokemon/base_stats/bellsprout.asm": "d3e570b1c149d4680a7498bfdec0d4e36a2d0bf892d28cc8231a69226f0ef4ea",
+        "data/pokemon/base_stats/blastoise.asm": "0eec615ea7e8fc298cbc20805f138b01427d11cc07b2935728d2a1021548f58c",
+        "data/pokemon/base_stats/blissey.asm": "4179de1e4244b966a27365ac1679911ef23b39460ce9273659b4bbb8362e5569",
+        "data/pokemon/base_stats/bulbasaur.asm": "65839e630b5d919b70a74562993f3024a41ae9998b669c3da8591ba2c9d66c1d",
+        "data/pokemon/base_stats/butterfree.asm": "9b61557a35da3c0af0430a8b9b0a0babf4d472076c7fc8e13fef5aa3fc7f2b20",
+        "data/pokemon/base_stats/caterpie.asm": "671aab9b3e19d628b6af5af533d059fe812d84df0f7f587959a7970d300ebb44",
+        "data/pokemon/base_stats/celebi.asm": "341ce50954881d9372639fa09e415812ed226d69276c00ecb24fccb4e905fc1f",
+        "data/pokemon/base_stats/chansey.asm": "8445cf196da7afa35bedb57ea95c72ea7e0bb705cb7c11449d7b38890720ba74",
+        "data/pokemon/base_stats/charizard.asm": "a6b3de0005f715ed20692253701753e1ce97b6f47f05bc93d0bdfb5a000b9a25",
+        "data/pokemon/base_stats/charmander.asm": "9db8a2d6897cab5689dc1164062f1ebda1568a6b7f3761645f4c7683a3c1a23f",
+        "data/pokemon/base_stats/charmeleon.asm": "e7827a029e4881fd3b4ae80015d3e7da604046d39544a22b18bd7f131921e1c6",
+        "data/pokemon/base_stats/chikorita.asm": "a369c4e87b3fed236ab77b6954422413000f89ab0592cb8fdf50994801d618a4",
+        "data/pokemon/base_stats/chinchou.asm": "73cd362afb3754ad88acd336ec7110286ce43235d3c3ea48ab12b0c52ca632d4",
+        "data/pokemon/base_stats/clefable.asm": "960033b829ac710ab0abf87ccfc38d4daf58edda6187ed1bd0d82cc5915609a4",
+        "data/pokemon/base_stats/clefairy.asm": "bfcaee2a075a535e60d670c6695ece75016c8d2340ffdc5dfac910de30e06d2a",
+        "data/pokemon/base_stats/cleffa.asm": "710775188b1f0d33143cfff3db8aede98b2309d21b83cc71c8a79a15e8a3ad60",
+        "data/pokemon/base_stats/cloyster.asm": "01cd5e1379942c76e243cac368f2874e506385bbf6d2deb3bcffa8e19f699c0f",
+        "data/pokemon/base_stats/corsola.asm": "119f2aed16a6b95cb300b3a8279197944403042649ee1ad5770702aa380d778c",
+        "data/pokemon/base_stats/crobat.asm": "68f061be6eaa46ee97125d4e7966aa76919e065d7a171b1dbaf7d404f0d6b3a6",
+        "data/pokemon/base_stats/croconaw.asm": "3683c0468d6ef6d4161c18986af1b1eda73947216d34e8c446c3ee2433f62ca8",
+        "data/pokemon/base_stats/cubone.asm": "ee43955dd441c2972e1bd4f24ec2170818d588ac907a9cf8a9fe9101694862ad",
+        "data/pokemon/base_stats/cyndaquil.asm": "24743a4c2ffca720ffaad33f0457ec1fc552e63585de01790585961c50602a04",
+        "data/pokemon/base_stats/delibird.asm": "e0a9c341ca113b5291aad7ab6c04f07a14f5b06b0671d92248b1225fb81fc13c",
+        "data/pokemon/base_stats/dewgong.asm": "07198045b29572fa89cd6acd00b1ff08b69e87a4bc77677da2e1c2438e5f59fe",
+        "data/pokemon/base_stats/diglett.asm": "64049f369aa9c291b7b37cfc88596b9d7baa86bcc6e273f253e364e9b677b318",
+        "data/pokemon/base_stats/ditto.asm": "c082a76bbe04b8a1a14a6750aed1d8df015fb5f90576cd478a4ab933a152c5ce",
+        "data/pokemon/base_stats/dodrio.asm": "db254581b299bfb573bcc19d84c46a887e7e29602bb4b771a0cebd4111b7dd93",
+        "data/pokemon/base_stats/doduo.asm": "8c49cf0f64171b98e73ebcfbe3feb32006eb4e7ef07397f911c3cf326f967bd1",
+        "data/pokemon/base_stats/donphan.asm": "65e8d50ccfa6a36ece9c0e6bffd803a0ae17550b0dbf58eabb31b986dc158a58",
+        "data/pokemon/base_stats/dragonair.asm": "94f779aa7802c5fa2155434f853af59f5e2f19a62ae2b50b96c4212bd0ffef0e",
+        "data/pokemon/base_stats/dragonite.asm": "fc788e75c27b6086138f35ea2e313cc18f9ff22b768344080a36ccc3a1f8b5f8",
+        "data/pokemon/base_stats/dratini.asm": "f89cfcb4922a2af92f1af51ed5f22b87ba86fb192d2aef4c4517f26f228f1c31",
+        "data/pokemon/base_stats/drowzee.asm": "c500464d2feca856cdc46eb7a6cf40393af7ff386b2308453d83b90c3c19c3a5",
+        "data/pokemon/base_stats/dugtrio.asm": "af18d3f274094f3df90b8c5808568d9cae2f2a52f83a6d31feb3cc6d79596881",
+        "data/pokemon/base_stats/dunsparce.asm": "4e3a1eec520bf1be6b396f9aabc723b3a614c21eb2e1f3b5495692afe9375989",
+        "data/pokemon/base_stats/eevee.asm": "2e557151e9dc2d899325190ff6532a20b60d2d0f6803a1e194986d4b358829ae",
+        "data/pokemon/base_stats/ekans.asm": "5245ad79dfb3ef8230e782934720cdb9a46c12bc9890dced3131f6b23ce1289e",
+        "data/pokemon/base_stats/electabuzz.asm": "37551dc1450bb3a3476a29f6a2568164a58a59ed723e452d217a1752eb9126ab",
+        "data/pokemon/base_stats/electrode.asm": "2f0780f81f7a0c6d29bcc2f2d14f8eed91c727bef204e1d0ce7d0ac1b2016f34",
+        "data/pokemon/base_stats/elekid.asm": "3158c96a04d5132152464904ffaac21668ce89db05678015d40623b350375b0f",
+        "data/pokemon/base_stats/entei.asm": "b7e16b559f2b23fb738d32d6617ff9d21078d06cc06a883f6e99b09f7c06fa88",
+        "data/pokemon/base_stats/espeon.asm": "bb5c0569359205f5a58e96e521da939d8bef43163f6047256d7708225ce5a87f",
+        "data/pokemon/base_stats/exeggcute.asm": "f75e41692df86d4837cf6fc3e1b9a7d2aecf9f2a3c7d116fa37954857593f75c",
+        "data/pokemon/base_stats/exeggutor.asm": "68612d56603d51e2f45c7c2b21f1398774a56061dc593739c9cb2ca2d9739e3b",
+        "data/pokemon/base_stats/farfetch_d.asm": "3d696e0d41cca7d27f6a91229d1ab1fff943566b283b943215dd15c09fc90a47",
+        "data/pokemon/base_stats/fearow.asm": "4d67bd09bc1db135495fcc721c7dd47da4611e8067e984c03826add022e5ff03",
+        "data/pokemon/base_stats/feraligatr.asm": "db8076a71d72947a43c2ff91550b459d8ca24a6c6d3778106de4654ae879f3ab",
+        "data/pokemon/base_stats/flaaffy.asm": "99197a028ab236af258ef0ab6ade2a06ce0defc08e36a0855713d65b2ce59b7e",
+        "data/pokemon/base_stats/flareon.asm": "e5ab92965a42555de53edd1c7883b9271aae2f7325e038d54ace188a806d7f29",
+        "data/pokemon/base_stats/forretress.asm": "187e578067c6593616c7fe1d61e2668def85def747ed192f5cb92c8d74ef1939",
+        "data/pokemon/base_stats/furret.asm": "406c015d974528f2ed1bb06a63d9da39959df450cbae5d75b7587b00078372a7",
+        "data/pokemon/base_stats/gastly.asm": "ec63e38666654d0a07a685d862536c8bf0484b15f6d560da022ec475e85be368",
+        "data/pokemon/base_stats/gengar.asm": "d6a4a43ee77c9bdbef05488caa1ef719f83e9dcc66c2458641d79df3fd1fd11a",
+        "data/pokemon/base_stats/geodude.asm": "87394ce2f51a1609c62ca9d7db16db8e3db49546144b1115a542ba1b5523df6f",
+        "data/pokemon/base_stats/girafarig.asm": "aff12a14923ece7def6c54d585e776d71915de300ce6878104958310fe53fd96",
+        "data/pokemon/base_stats/gligar.asm": "e293e16342ef4a586f2419e70ddbfa5108845a67fe05e2ae8377e16ae0ee696c",
+        "data/pokemon/base_stats/gloom.asm": "b77823271230b3cc3af336233bd3ba0f0f6b8443db86204d434c68e5d8caca66",
+        "data/pokemon/base_stats/golbat.asm": "b606f314adfdab2c3c2101b8648f348a2c383eec37ecf155c2c3285136286ad0",
+        "data/pokemon/base_stats/goldeen.asm": "5b51d42eb4523892b29d110db23ea3d186d4aa1e006f291f5289547e8bdc35c9",
+        "data/pokemon/base_stats/golduck.asm": "8191c6461a87400e64d210ad305071458854a71df70765994435de11c2a17bd9",
+        "data/pokemon/base_stats/golem.asm": "6588a614676a2bc86b2ccd9367b66a59b17fbba2b0041ff3e9c084b930e2aa38",
+        "data/pokemon/base_stats/granbull.asm": "91b4b790218d63b145dc2eeb65a0151ada161afa651eb00eebe2b7823df76d21",
+        "data/pokemon/base_stats/graveler.asm": "966d7274c54144f25e45f276f946e12c7fe5fdcdca9927539357f49392ce5ca2",
+        "data/pokemon/base_stats/grimer.asm": "5bf6d35c17f84169a426909eb0f89725585f5a94d72f4f51a4b694d17ccd45b8",
+        "data/pokemon/base_stats/growlithe.asm": "b0c0f5a8ff35560fff0aefa8f99d75f03d7c97b9058ed04b787ab551b0e60261",
+        "data/pokemon/base_stats/gyarados.asm": "b3d05652feea3cf8aab6d2923ccb6f576efd5c4a180fc93fdc8b8a5b3a9b1072",
+        "data/pokemon/base_stats/haunter.asm": "e7271f328387134b9e53af1ae5e6a9b21826b0c40c5a93417aa708aa8943586d",
+        "data/pokemon/base_stats/heracross.asm": "73e4d7007a42dacbed88f0c24ab67ca0026c0079a0b4704b81a56b935a34adf2",
+        "data/pokemon/base_stats/hitmonchan.asm": "8404e228963d069f974b6e69a992d732cad8586c23839a6e80aab27a2b359801",
+        "data/pokemon/base_stats/hitmonlee.asm": "80d8ac126fa9f7fef23c7b98b1671f81a4ff4a931a2ff833343c6edd7382858b",
+        "data/pokemon/base_stats/hitmontop.asm": "7a75666216c1bb6bf95fcfc8eb4e8a888d5013e690c7c0e58e45146fa0202570",
+        "data/pokemon/base_stats/ho_oh.asm": "e2d62a12349953b45eb34df7292eb997f43ac72522aa0942243dcb3a4d1e802f",
+        "data/pokemon/base_stats/hoothoot.asm": "1bb9326b547f2e21922cb0f831461b1dc814c568bfedcd8bb086ca8066fdced6",
+        "data/pokemon/base_stats/hoppip.asm": "cd70d8731bca33ab7aeb7bf78a4c3d3e3162d22871c6cef09df9096ea17800e3",
+        "data/pokemon/base_stats/horsea.asm": "e678dacf679e0368cce9fae819197438426d9b816ceec9e677870fc0d4897d21",
+        "data/pokemon/base_stats/houndoom.asm": "fa71cf856abe5b6768170c1480ea10cb0839aa2e4ed28ddded2bb749cc1ab1c5",
+        "data/pokemon/base_stats/houndour.asm": "9066e349a3b982279176e3135463ae7a339c1805c5fa5187709b403a28158355",
+        "data/pokemon/base_stats/hypno.asm": "c9fa979ba3e682d7949a53017b66f63351f893fd098d34a34ef88eaee4b85790",
+        "data/pokemon/base_stats/igglybuff.asm": "615373c3b7fe13949a0014a2df613699838a2c9781f7ae2aecce2d31672c5b14",
+        "data/pokemon/base_stats/ivysaur.asm": "f579fdc62fc6e60eddf746cae1a89f0307340b9508ebaf2db7aab5f3a4608957",
+        "data/pokemon/base_stats/jigglypuff.asm": "97e9d59d9710e7b973699f3daf2f83ed7799c865d1c5e7cb1052794d7a3b3841",
+        "data/pokemon/base_stats/jolteon.asm": "4f66275da5f107257b0426d8ad00e98634a56c199700eb2e067e3ab3780a653f",
+        "data/pokemon/base_stats/jumpluff.asm": "fb5045d87e88eede3d85a8f21e8aeae757550d4d26c4c8777705a2c6508d2648",
+        "data/pokemon/base_stats/jynx.asm": "1ce145c3d98bcd647520259779a1d5a3912ef8f19ad7c1f153c8ade0995a8362",
+        "data/pokemon/base_stats/kabuto.asm": "eaba2e87a4b113feef1e3776a2a536a5c248b989b12bdecace8fb94c7bd8fcb9",
+        "data/pokemon/base_stats/kabutops.asm": "4f78e040fb0c9851c1b85703096743af551b13991f6593c2681414fdb45628c0",
+        "data/pokemon/base_stats/kadabra.asm": "c635d1e5b5a9d2af136d187505c8f77a56fefc2561efba12aa6d4df097512090",
+        "data/pokemon/base_stats/kakuna.asm": "ec6f01ebc6d36d3ab7bf10d83428a726fe1c67a2c0ef5706e829257aac41a9b7",
+        "data/pokemon/base_stats/kangaskhan.asm": "182191b3640b37190d6430b9e8bc894fc6a1048665d5f2b5c59fb93219e497ba",
+        "data/pokemon/base_stats/kingdra.asm": "993ba202aadba74c0510b149fb46a54f85fe5a2a08f4d8fd89037fd12e93a37e",
+        "data/pokemon/base_stats/kingler.asm": "47947bc7e5a34980f4ae8a0e794b48c13b557dd6221f6a621e7cc39aa12dff4d",
+        "data/pokemon/base_stats/koffing.asm": "3cbdd7ea495c6be06ae2e7984516c93dfed9300712b70c8920298fde8dfdcf38",
+        "data/pokemon/base_stats/krabby.asm": "34af2747137e11b12c69ffdc0e70c904e0a601ac9d9598275dc2f21d6d7122a2",
+        "data/pokemon/base_stats/lanturn.asm": "baff9d05e5e6fe6473ccafccd4454cd1b29736317dd8f503e30fec7eaaa039f4",
+        "data/pokemon/base_stats/lapras.asm": "a24cb7d2bf456f9c484174a23b6c1ce989804e3ca3745e5bb414eab00e5168aa",
+        "data/pokemon/base_stats/larvitar.asm": "5d7b83470775edb804cb5b45f1462e30c90d30c735f3182f8f3f5c4f98fd965c",
+        "data/pokemon/base_stats/ledian.asm": "fca8a668849ae30cc9e776d0a1ce10fb44108b711e41f6398ea7b55ac92148bc",
+        "data/pokemon/base_stats/ledyba.asm": "b2129a2e8f5bc3cf6a658bde170ec64cc671294006a5401bb59263aa40b43ad5",
+        "data/pokemon/base_stats/lickitung.asm": "be27851a55c4ef7b1ed989f120ba5f67f29c6ff9b58a37eba4ebf924aceb61ba",
+        "data/pokemon/base_stats/lugia.asm": "8056c4e2e5cf765391c5d6a16ae5cf3c8731fb6781967aa6e5bfe24b3311df48",
+        "data/pokemon/base_stats/machamp.asm": "397afb0af954202de1a5ad44eb401c47265fc2e7d48be84acf52a0799fb684d9",
+        "data/pokemon/base_stats/machoke.asm": "86437b2f9946f6239dea7e5f0efa3610563bc6e1493574204a3562716ebd4a12",
+        "data/pokemon/base_stats/machop.asm": "025c1d7868ae9143ee6d159c0b1b90f72eb2f6c6113a7ddd9fdc6040f5ce6eef",
+        "data/pokemon/base_stats/magby.asm": "c851a8b2de511fbea488edf11eaf97ed3766f4f5c6069e7194f79ae835304880",
+        "data/pokemon/base_stats/magcargo.asm": "8d10077a78137feeda519e0e79c15bbf6ac1ab2443781a059354d58cf1c70f7e",
+        "data/pokemon/base_stats/magikarp.asm": "3cc70663564d5859a1d804f3dc3a11e027dd00741b9af25b1c421000866c80d1",
+        "data/pokemon/base_stats/magmar.asm": "9ccdb9f9477bc7e8af347ea431ed504db5935f24d93d3c085d1c0c9b9aa47792",
+        "data/pokemon/base_stats/magnemite.asm": "cbd5ffd63a19a8c71b090a6384d2f265d86272cc05d8e86a083349ca4457be9b",
+        "data/pokemon/base_stats/magneton.asm": "086d7dc7f5b6709ec8c315291d974ed4426e069ebb54d4517807c87e43225af4",
+        "data/pokemon/base_stats/mankey.asm": "8de60a49094033e5bb5b35de0dd8e7c4f6e366724efca50d1f98970f3466ced7",
+        "data/pokemon/base_stats/mantine.asm": "e9d930b0e98b8aed3b457448d67cae6ce05b69ae020d7b1c6f3c957ab497e973",
+        "data/pokemon/base_stats/mareep.asm": "a2e96c23911e64a76410cb36daf166e772a998ea62fd12451909b4d10dc954ff",
+        "data/pokemon/base_stats/marill.asm": "45c987d4c34c8ae09c8e63f34c84f6382f0d53033882fe771f8cc441b2db275d",
+        "data/pokemon/base_stats/marowak.asm": "56b69d9a3b08a724fae584b5c5b6e035897c2b5b5b314cd500f371fb0c1191c1",
+        "data/pokemon/base_stats/meganium.asm": "1c1d163e0cc900f4b61e622ee6d5754f545d5e97f9b8bf023e8167d00a3b216f",
+        "data/pokemon/base_stats/meowth.asm": "c048218c28b320a75a93195ff506398c05e98c0e155f49d098f9dd55d882b55b",
+        "data/pokemon/base_stats/metapod.asm": "7195f004ae6c5ce15d601dc9ef3473cf3e9897da9cbea3409fbd84f7179b5a53",
+        "data/pokemon/base_stats/mew.asm": "2d22d3be1ee48b360bc4062557b7fc2b51c176be35f4e7fdccbbd245d4c47e6c",
+        "data/pokemon/base_stats/mewtwo.asm": "5a1548674776ba4662490464741fcc2a5539f1905df431d3626c52d1e999229a",
+        "data/pokemon/base_stats/miltank.asm": "5fe900b6dd648d8e4491898bd4676e5315fba972953aebee4a91c4963928b242",
+        "data/pokemon/base_stats/misdreavus.asm": "b18db2de1a330a9e554edcdcf5b25f7ef8f502912fc7905baa5bfbc03ad35f4f",
+        "data/pokemon/base_stats/moltres.asm": "2e02da6787434aeb19c17a28b70e63eff77d5ad04a88a810d34c2ccbf301a49a",
+        "data/pokemon/base_stats/mr__mime.asm": "39a3928aaf2da04d029dad0125a8af9d26dce43045a9b6ea507bc10b9e933ad7",
+        "data/pokemon/base_stats/muk.asm": "c04aff87c8af91aed5281f0a412f8aeea7f3eb4f0fff50b73b826facbfd9a843",
+        "data/pokemon/base_stats/murkrow.asm": "f1924905fef2a82293bc1af2369ee8f28de93449b4a2b82a46215c1d76363556",
+        "data/pokemon/base_stats/natu.asm": "3ff0f4066ad6f3870afd1f6c10a5e5f2596ba5d7baf84eca15a66c2f7a4fa29d",
+        "data/pokemon/base_stats/nidoking.asm": "1c7935ca6a7bfc45c8091571697da66560bdef14241c365ee3c8fc206638f60e",
+        "data/pokemon/base_stats/nidoqueen.asm": "c93c27e041fd13d93b49e78b1b535cd1d1ac426d52509417787b8da826900bcf",
+        "data/pokemon/base_stats/nidoran_f.asm": "804b47fa08f144a146d69e8caf01ab66aef02a653b3dd82dd140c16b23a80080",
+        "data/pokemon/base_stats/nidoran_m.asm": "19ce68f1e5b7179ff82b2f8d2a34196bb1a28e9f3c04108ade9eab485dd579ea",
+        "data/pokemon/base_stats/nidorina.asm": "b29501cf49545c9688a57b30f3d9b03243e95b66d850ab303e1d728e64a3e74e",
+        "data/pokemon/base_stats/nidorino.asm": "63f13aea3c6ccafa49fe49e8580204ceae7d35e4c1ea2e7caefb7591482f8ebf",
+        "data/pokemon/base_stats/ninetales.asm": "d14095fa1ae5becfa7417e7e96934b5e39f388c8f073fc39e6a10e6402516fea",
+        "data/pokemon/base_stats/noctowl.asm": "b26f9fbafe6b7f9fd92506aecfac5b8975aff4eec8eb7b54d35317d88d5b158e",
+        "data/pokemon/base_stats/octillery.asm": "76c633829095d18953520d313a762ff12cb2418df1b51caddf05ff41ddb173ac",
+        "data/pokemon/base_stats/oddish.asm": "d37336385c3998ff04dd1ebe91f98cc7f1088bfb6d7fd73dd2d1400ac970d3dc",
+        "data/pokemon/base_stats/omanyte.asm": "c5982dedb9771cc4092c449f0b4f9bdc1b031e6188dd3213b706ed93e6ca43ad",
+        "data/pokemon/base_stats/omastar.asm": "3937aec1ea4684aaa0e4a2cde6c4c80758a057bd406543f6bd487f563db09bda",
+        "data/pokemon/base_stats/onix.asm": "f5aafbc4d8922a6b8fc3d5df3698a1fbc6312cd38f10958a6c558d8e882c9e29",
+        "data/pokemon/base_stats/paras.asm": "9a7128f56020d1c69de246b4f23856a24f5e78b833ccb9a4f0ce40f0d4fdef20",
+        "data/pokemon/base_stats/parasect.asm": "ef15dcc8e59bbe6a0c5e3acae887122cb2dc3917dd35234b00607dacc5b8f6da",
+        "data/pokemon/base_stats/persian.asm": "f41930caa8eb2db8735cbb372f5978efa633a4e3f52d89ac9a878cff7ccfdb9b",
+        "data/pokemon/base_stats/phanpy.asm": "065ab129ff61ab75cb407583bc98801b895b2a54c90157e6f06cccb8f3472b72",
+        "data/pokemon/base_stats/pichu.asm": "923fe804f58fd2d058d39a8e9e6ad238a915c66e2c80d23efb3fade2dd43cdde",
+        "data/pokemon/base_stats/pidgeot.asm": "6c9191877410072aca1a159eadd0bfd2253c316d6632f8ef7549b28290858021",
+        "data/pokemon/base_stats/pidgeotto.asm": "ac8c2bc54242d0f7224b43d48058f18984adcaac773c0eced1baa91250913e85",
+        "data/pokemon/base_stats/pidgey.asm": "aa381f2e5f88715cf84d5f57c7d7c9ac02d78b6bd0cc50bb5ae34196f73d0c9f",
+        "data/pokemon/base_stats/pikachu.asm": "e992a9a0dca305c7bed35d2841a2ba0422467ce920559f9b285cb6be537ea2d8",
+        "data/pokemon/base_stats/piloswine.asm": "c36f9df4f32644e42bccf2c92c680fd69902b460521e17097275d53de3314756",
+        "data/pokemon/base_stats/pineco.asm": "61513d93fdf7879c3be7fccab86ecd1b65d01ee8841e6ed9a6cc9c154cc0d915",
+        "data/pokemon/base_stats/pinsir.asm": "8c0a8e2e3d739ea5ab96a75805485cf72f8132e2f081b9c04f0d0596b3e630b2",
+        "data/pokemon/base_stats/politoed.asm": "d7943a60072834f3706f9b78783575d95f6e821ce8c838e1f70e7aa014e5042d",
+        "data/pokemon/base_stats/poliwag.asm": "b8361a48252c2a8883844c8a5774c1345e48969a236642725962169a1665cf72",
+        "data/pokemon/base_stats/poliwhirl.asm": "33838c1c746e20bbca9ce5dd1de2eb1b429c5157260851f6e160c2026b6fae36",
+        "data/pokemon/base_stats/poliwrath.asm": "c6da6e9e9e1de3eaf67ff32e4af1d9ca17bea5ec2370dd47c655a44fd57049e1",
+        "data/pokemon/base_stats/ponyta.asm": "bce9e844fd1f3e7c78d2c7915a3dd776389aab73b2d9d9ac8e29f43f47c7cded",
+        "data/pokemon/base_stats/porygon.asm": "bda08f4ac00229df341576dfdd4e82caf3df2064cc0699fc07aa420fc44b512a",
+        "data/pokemon/base_stats/porygon2.asm": "ad986c84d21fb2a00049723e5f01c8c29595249aa47fc17e2af663b820920a01",
+        "data/pokemon/base_stats/primeape.asm": "cc9fcdac8c97be04eb811eb8d892160620e994326a4ab98c7eec134f3d2660ad",
+        "data/pokemon/base_stats/psyduck.asm": "f62e28cf3cdd12fa4ec0cc1df5264f6fb563ba44f334024b89f30476249b5f66",
+        "data/pokemon/base_stats/pupitar.asm": "729e41f7e92b2441eb009ccd312a3eb99f308a6b36c3e2a628dfc109d92a7de6",
+        "data/pokemon/base_stats/quagsire.asm": "8faee1679ccf8163c3f9fb4946fadb990baff8a3aec38acc783a4d5031dfd829",
+        "data/pokemon/base_stats/quilava.asm": "6b4e0ac5437ee68d43cddce47c600ff902357a25cb09cc9d84c49aaf0f59fc83",
+        "data/pokemon/base_stats/qwilfish.asm": "4942b28c48bdab63d7a35ff9df59c15c6a49add91dd843318519f584b697e05a",
+        "data/pokemon/base_stats/raichu.asm": "b4d71fa90ffbe60c1807715d745e782b0309e4e8c0ae1fdf3a3123dd23c7692b",
+        "data/pokemon/base_stats/raikou.asm": "1ab602f2d1740b7d57e5d34ff665dbfa317dda636cfd80d974a2410486ece8e0",
+        "data/pokemon/base_stats/rapidash.asm": "6af912c9a2f2a26be29178d748436bf6c178c75b4900753a588037a5e28e4a42",
+        "data/pokemon/base_stats/raticate.asm": "6031fa565a6e42cc3372602b486d53e8bd3507647ee961323e1c00579ffabdde",
+        "data/pokemon/base_stats/rattata.asm": "a016c6a73feb02dcbdbec07ded16ff178f2ac8dc377b17db0416e57cda8b1e68",
+        "data/pokemon/base_stats/remoraid.asm": "308492267bdfe7bc3a62c4ca1cee2886c18e876cf1f2270124eaa6ba37732006",
+        "data/pokemon/base_stats/rhydon.asm": "cd16aebec893b4c9a025b7a5bcb1fa33c439475e93f02638453a408111806b65",
+        "data/pokemon/base_stats/rhyhorn.asm": "31075745d7cd05ebf5558a03286d372326829396d45a3d3a53093fec0ffb84ea",
+        "data/pokemon/base_stats/sandshrew.asm": "8453a0e25617d3ad5764ba2f17b5998c1381305fadc46cc5888ae130f361e2f8",
+        "data/pokemon/base_stats/sandslash.asm": "cc90ba6e1959de9ae85292e683d7ff5a93284b4d35f52b82c1e05b2bfe95aaf2",
+        "data/pokemon/base_stats/scizor.asm": "bd41b5005b9422adb3a6c47c7b94b7f710b4adcdca9a0453b1fafec4b175aaf4",
+        "data/pokemon/base_stats/scyther.asm": "28b9c0d7555207a2c62f7f777a9eb20dc8f807f06fc291aacf3515e65854704a",
+        "data/pokemon/base_stats/seadra.asm": "e28c2739e66c165aa21aaca97befa9b5e9af08779669d47465637cdd60cbbcd0",
+        "data/pokemon/base_stats/seaking.asm": "0a9ac29e643eed0a4f5d29ab3bc4d48eb1ca498669a569b8747dcdee30249767",
+        "data/pokemon/base_stats/seel.asm": "de0c696320f9346eba8b0b5ca9efd3fe033b6d68717a8791b9a119c14228bd50",
+        "data/pokemon/base_stats/sentret.asm": "d19ca239a832f265cbe5a4ae0553e01622008546c72b61c3eb058ee76e98a146",
+        "data/pokemon/base_stats/shellder.asm": "e53f7564ccade5d46fefdc0b515d53ea18b22990784c77cbe520be8a0c5538a6",
+        "data/pokemon/base_stats/shuckle.asm": "039ff5d224d55eda061ed72ddb12dc32ef2af45bb70fe1b06b1735959614efdd",
+        "data/pokemon/base_stats/skarmory.asm": "ecb1319a958d1433d52851c35689cc6fdd8476ba05de385fef7c503715ea968a",
+        "data/pokemon/base_stats/skiploom.asm": "c60c8d6ca2bbfeb86455cc4fdfee420697fef031a2d69c435ff450576a572b9a",
+        "data/pokemon/base_stats/slowbro.asm": "fa0998d50d15171537b6408ef8cbe6874e2135a926a457bbeb95d276b2cb2ff3",
+        "data/pokemon/base_stats/slowking.asm": "f32be06738514a7da65decc2617fb419c994fe4798861f334f59db81d89de80c",
+        "data/pokemon/base_stats/slowpoke.asm": "0f9595d9f6997e1ea9f0849e8517077dd4a942d2926625dab7fd1f0eb4854383",
+        "data/pokemon/base_stats/slugma.asm": "c5abf79ce11ddd2ce01fbd16989a88ed9dc48e72d5e3e433b4c1f0f3df29e699",
+        "data/pokemon/base_stats/smeargle.asm": "55fdea2d3d3829791573c4174d297d47c7706cbcb9cada80c9fd8c4d05e34a8c",
+        "data/pokemon/base_stats/smoochum.asm": "df8ce24cc941034d1b27ed14d139ccd568ebfd22fb91dad08262469cac358d82",
+        "data/pokemon/base_stats/sneasel.asm": "791f38a3e4d435392ad004cd17f560ca635a29d0175440c70843bfa80a6cba48",
+        "data/pokemon/base_stats/snorlax.asm": "3b20774ba016c62c8303126e6952ee55019c117d8aa91cf46b9949c7f7b78baa",
+        "data/pokemon/base_stats/snubbull.asm": "ecd317a1327af0ebb47d73f502115ac7102d8022cd123a3b1432d0bc11e2acea",
+        "data/pokemon/base_stats/spearow.asm": "fcf72e0c696bd7578876aac4e46f132c34f4e31bc097fca05b90f9eb2bfda98f",
+        "data/pokemon/base_stats/spinarak.asm": "f4959cfb1b0c786be92f0bff0245e21421ee3a2b03573efbba077e67db7ea857",
+        "data/pokemon/base_stats/squirtle.asm": "2ad5983ed894649b5d480d9ef6de0f37d0a05f5470cccf6e73d68f1f29b15e0a",
+        "data/pokemon/base_stats/stantler.asm": "4d8019cfa0c16fd81e70fe4e5834be3920d7d7da7255d3c561f428aea3fc5f1b",
+        "data/pokemon/base_stats/starmie.asm": "26dad1e64167738ce996d4efb6f3f4eda2f32c84c778446b6741768f35076806",
+        "data/pokemon/base_stats/staryu.asm": "c648eec41191f3681973831c0767cbbcb4e64d930622c0650cece371206f501f",
+        "data/pokemon/base_stats/steelix.asm": "124243a642c99104e6f3f64acbad61ca9de4adbad8333af7db45643cdfa2799b",
+        "data/pokemon/base_stats/sudowoodo.asm": "7e517a26ba02f108e7a9c13fd3797908f854000e1b4ecb651b1ee4b537a935f0",
+        "data/pokemon/base_stats/suicune.asm": "fbeda5d521c05cb377a3e48c0f2c16a314a06acbfb5d7cbc6cc9529aea6b3c60",
+        "data/pokemon/base_stats/sunflora.asm": "96ee3fe6ef7feefa06552c7eb1ae9350180e2902502dc46ae62fe972f13fabeb",
+        "data/pokemon/base_stats/sunkern.asm": "347198e4d2b0460462d92f1f132d3cb0bafdaf35377a666406face1e5d3a0a5e",
+        "data/pokemon/base_stats/swinub.asm": "e94eed4ac194dd7289b9fdd88d6b3d01ba04ebfdf00f4b6174f2b86c2f7d239c",
+        "data/pokemon/base_stats/tangela.asm": "f947f0ab2e3583ea4183c195b452c7f34dfeced0d90ce2d5feac5c499ba80c2e",
+        "data/pokemon/base_stats/tauros.asm": "e620b445f8107d04061e4d6192116ee4b1bae374887fc13763e2460e3744a682",
+        "data/pokemon/base_stats/teddiursa.asm": "7f4c7b8cf3f09842b3e3a24909a13c13c30f45c415d1fb44b51f9c860821cb27",
+        "data/pokemon/base_stats/tentacool.asm": "060252dc4792206e0319a3293a02d3182cb4bbcfa75395684a5831fbb3b54106",
+        "data/pokemon/base_stats/tentacruel.asm": "1e97e63c41db57eb6bcc9de5b2fff4af57b4184ba451d70994f7aefb08f16068",
+        "data/pokemon/base_stats/togepi.asm": "2e4773c2b6af409120ade4447a12620934061286a8d8af6e59066ba9b16760b5",
+        "data/pokemon/base_stats/togetic.asm": "ba17fb32bb4495d95a2a8156f16556663acee181d432808134014b791a84873d",
+        "data/pokemon/base_stats/totodile.asm": "e5fdf279b230299605f8cfde4ad24dc7e05c636685b042d022add4f74fd0eb7f",
+        "data/pokemon/base_stats/typhlosion.asm": "92b95fa21e57c711f9e39c7823ad8b32473448ba7667db856a281e1142cd9a2f",
+        "data/pokemon/base_stats/tyranitar.asm": "2ed5babdc6c74f8f178d777040e9fb86a3f5889302767d2e4d2292b289cdced5",
+        "data/pokemon/base_stats/tyrogue.asm": "88e0e991c8026f292da8c562ad3bd0108152f8a72e9c60a788bdd2b784e9e449",
+        "data/pokemon/base_stats/umbreon.asm": "ce958837a744d31aefcdba38ff2d0de9e84e4d53db764fa258ae24897f0a23c4",
+        "data/pokemon/base_stats/unown.asm": "c17553c1bb92795b4c9c5a2cf70078d0bdcc2857769de765726e49b92c2ae8d0",
+        "data/pokemon/base_stats/ursaring.asm": "449771256d464fb375d1335eed607bab2e602f36cca30f2cf9a487169f55f7a6",
+        "data/pokemon/base_stats/vaporeon.asm": "b950516af59ffc4d2c0e16e1c286fc5ff1178eba88c474f2cfc7417df70ac03c",
+        "data/pokemon/base_stats/venomoth.asm": "f9578245ccc785f1bb11e1c6860b7aea3ff24c8a8934b4e48fc3b305dc165d20",
+        "data/pokemon/base_stats/venonat.asm": "6499abc66cf47f04f0d9f2ed726d7fb42b8a38ef1ad488cfe3ecf2d8947a756f",
+        "data/pokemon/base_stats/venusaur.asm": "a90fcf713b10806ff1fe4749c67a1497b0ed8fd3b29f9915b0d1e265a0d7d8aa",
+        "data/pokemon/base_stats/victreebel.asm": "b8bfa38f90e772ac63763d2346c13632d7701599523d9211f2172c665eda3bd3",
+        "data/pokemon/base_stats/vileplume.asm": "096117e660966291428f0762bbc1b746b4d4df0032b9d0005d6a673cf829b535",
+        "data/pokemon/base_stats/voltorb.asm": "096f2d8e4df8202ee35ab50055c9777b5ba62af42608e72d8c59798069828408",
+        "data/pokemon/base_stats/vulpix.asm": "6eebb926617734d33b946fe69634d3f26526e1b7c8c21fd2514d6b70e4cd6ae2",
+        "data/pokemon/base_stats/wartortle.asm": "f63d577f4b31effb56cfc6738ba8ddf7a71407cf8c9b8559660f659678de9bb8",
+        "data/pokemon/base_stats/weedle.asm": "9cfd2d0a92d44c10f61e67fcf5b2d9da5981ad2c5cf49d65c40e231f93287f92",
+        "data/pokemon/base_stats/weepinbell.asm": "a7aca19e710dc0f85caf6d6d609050e45d86bf1cd87e8719b6fa67129a680914",
+        "data/pokemon/base_stats/weezing.asm": "7df59a1f07b708199859482eb84b56926730052b5b7c5f77846ecdfe13fefa4b",
+        "data/pokemon/base_stats/wigglytuff.asm": "5575cb473b5656e64f16dd0499f12bea006abd02f39e1b8792df337776f16eed",
+        "data/pokemon/base_stats/wobbuffet.asm": "98f521f6237c49a5b9ea98c0b31d60178d069f9a4da45a680731ae70553cd06e",
+        "data/pokemon/base_stats/wooper.asm": "fb6b9423eff3a99be33f4753ba1b5b92dcf0537c2154a8e17c141aac27158f31",
+        "data/pokemon/base_stats/xatu.asm": "ed41a1d83b7bc062bd97007fa437caa5a7e5e1d7baa766db0271fcd5fcb93a52",
+        "data/pokemon/base_stats/yanma.asm": "b27a96e78888ad9545bea71390ecf126897a4317279042c98d8d8b82cb08a320",
+        "data/pokemon/base_stats/zapdos.asm": "854e6210c11aca07eebefa0588324b59514d53e9cb18a399200c98d748fb9f3c",
+        "data/pokemon/base_stats/zubat.asm": "3546f40bc609374aac887a2a383138560ab0847fab86d4ac2abe6b958d5b5e71",
+        "data/pokemon/base_stats.asm": "ea95a9e32f4566cf4ea6f7a2c9fd5a202cd1ace817051be751e314bc97f0b934",
+        "engine/battle/core.asm": "e3df2ac2d770da8ed3c9595f351a280f9ecc454f9c688d8e482524c9fcacd137",
+        "macros/data.asm": "244e28b91f717f44d6cce2d8de0477c292cdd0e4e62c3e0cd475c802e2aaf6cc"
+      }
+    },
+    "pokecrystal": {
+      "commit": "8e8f7e20052a596371a77022f0392c285e51bbf1",
+      "url": "https://github.com/pret/pokecrystal",
+      "files": {
+        "constants/item_constants.asm": "bb870ffb3448845aa886ede0030a114a7773d7cb6924d2c59acdca0c53a02e58",
+        "data/items/attributes.asm": "54a29126e39628b0a533db7f75ea3e54041a8d0a32ead751c2c3496a5f5838ea",
+        "data/pokemon/base_stats/abra.asm": "6c50664772c54c66e5db3c74b8a28814b25629c133aa0d047dcf1a66bf29b1f2",
+        "data/pokemon/base_stats/aerodactyl.asm": "35da3ece175f94ccac37c9b74d1ce5a5559b73e10fcc26ce2cf9d7316a9e340a",
+        "data/pokemon/base_stats/aipom.asm": "01f6c63c5e7ec926719e60df68c23daef65293fa0df1d6a5c4c6b99f682e51fb",
+        "data/pokemon/base_stats/alakazam.asm": "f182f1fdf6bea24fe7cc36230f6b714a83c869e2d820350e2af484193efd6e2b",
+        "data/pokemon/base_stats/ampharos.asm": "7c9e483dc8bf8c91929bb535cead5b593e2a2ba7b1ff0e4cb9132edaf092dc98",
+        "data/pokemon/base_stats/arbok.asm": "fc45bb0c0bf19119fd8bec92170fbb8fe69035a370ac2b11726cfdbe8e32793b",
+        "data/pokemon/base_stats/arcanine.asm": "9d2ec607155bd48e3b7bba0306fdf460e76e2e5ed9d94f4d48c92c8220fe5914",
+        "data/pokemon/base_stats/ariados.asm": "783280003dd7811e2bc50b9b36aff5f4fdaa84eb5bdbb48215f5d85141d6e988",
+        "data/pokemon/base_stats/articuno.asm": "6de010057364716b9c190de787196d01499540ac3090aa77969a5faa7ce66280",
+        "data/pokemon/base_stats/azumarill.asm": "c356639b523e0d5f15e60181482dfc084085b5dac80ba4b5cdfc4e130ac6955f",
+        "data/pokemon/base_stats/bayleef.asm": "edfabc86ff6061af48f6a0c8b88d01efdf148ee72b4a84aa603b53e3dffb2707",
+        "data/pokemon/base_stats/beedrill.asm": "a9aa5644c53e83414fbea79fddec355421bcdf434c6d3dee2fed17299bd7ad8a",
+        "data/pokemon/base_stats/bellossom.asm": "e0104bf3f3ee5733d25fbab718302669224f9e6664fbe7eb9c5e3786a26f8533",
+        "data/pokemon/base_stats/bellsprout.asm": "b394e7158274f1a802d0166c2fdc129fd925e94a9c3cee026c2b857644e66e41",
+        "data/pokemon/base_stats/blastoise.asm": "a5bc0f44aca2affee9c5524d2aa3d27b95c9f4bd63ccbd06d77f29abbdcbbd9f",
+        "data/pokemon/base_stats/blissey.asm": "3f0f5a7118629a283704b6811c766de8b84a92bddad6c09765c84804f70ffa4a",
+        "data/pokemon/base_stats/bulbasaur.asm": "fe81c8886367ed1c6fd87f4f75bb9b33757dc13f087942928a4b1f72069ce868",
+        "data/pokemon/base_stats/butterfree.asm": "21be3e81069798d6839345b868d9ece49a6a92aebeb2fc79c4bc6ca011887336",
+        "data/pokemon/base_stats/caterpie.asm": "4f5f899e19f47794c1061d2175c00490e78755c44e6e5bca31e1f69c4066b8bb",
+        "data/pokemon/base_stats/celebi.asm": "4186d810feee791c4f1baf0100f974b129a0eecff1446889c7522c0de4b4abc4",
+        "data/pokemon/base_stats/chansey.asm": "169e58f09acb0959a4a25b277eac9cc20f9019de274aae2bfaa1e733b30affda",
+        "data/pokemon/base_stats/charizard.asm": "692bd0dd0870f92e7141595686df6c1f8689233a224b81a0a4c93f4d9ff0687e",
+        "data/pokemon/base_stats/charmander.asm": "ad1b899d3a823a674bb4f5a4f9891c0b76abdbb91d1c6cd60d71faa14e0b7004",
+        "data/pokemon/base_stats/charmeleon.asm": "9a7e68e02e2741eb586d100200e73b5092249bb052ed2fe4fc9c6872de30aa85",
+        "data/pokemon/base_stats/chikorita.asm": "cd0369aeeaff99b703ff1623eed6abf01f089a7bea72e7e9109e2ace675d3705",
+        "data/pokemon/base_stats/chinchou.asm": "1ecdfd2929596216a524ac717427259ec305a66f6792a133d84a348668649035",
+        "data/pokemon/base_stats/clefable.asm": "32a60abcf848179aa6cb483c1fff54ea4b15c206d3184596bdd712e93809a589",
+        "data/pokemon/base_stats/clefairy.asm": "f4b58c174dd9bae590527bcebd55d6f7b2fae04553b8d2dc578d28bfd26d981a",
+        "data/pokemon/base_stats/cleffa.asm": "5d1ccacf64094054c9f3a837cb3d5a5b764121470bbc73de8d76e1b47095f2c9",
+        "data/pokemon/base_stats/cloyster.asm": "f2a642162ccfcc34a44babe0ee3527a5a8d44f13c38392799c4e514cacd7f96b",
+        "data/pokemon/base_stats/corsola.asm": "7fb74bc7559657692b9d3780f8f9f8357c8b959c5a0c1a9a8f6dc52a1facfd7c",
+        "data/pokemon/base_stats/crobat.asm": "0f7057d318a814b0e83e7d81c4024a230e55002741a64a1f0d71cf83a1798bf2",
+        "data/pokemon/base_stats/croconaw.asm": "765e749c6f1a5a5f199b1db2857f921fcd2d5ab4118af369e193332d6f2f133d",
+        "data/pokemon/base_stats/cubone.asm": "2c65b7e6a34bd1953539a812016c30d6742df1de762abd6e59db1bd3fadc6006",
+        "data/pokemon/base_stats/cyndaquil.asm": "cb972b2fa59043446d9495ac4d9b22fa9ef2b0e65bf21e8450c901c1ec0ea8ac",
+        "data/pokemon/base_stats/delibird.asm": "9d7c180cea4040d8fd03752b7b0a962b2de5547baffebdc4726be95473fa8e18",
+        "data/pokemon/base_stats/dewgong.asm": "0b19cfabace7d983c3d109f9ca4e84395ebc6f0242c9ac9bea9fb6a713005ecf",
+        "data/pokemon/base_stats/diglett.asm": "217c54fe6071df38911574e294a31e8e9840e8d5e46f65de80d6a0313af3a51c",
+        "data/pokemon/base_stats/ditto.asm": "36fb75b851b364161650c02e9e549b7649a0d35fe28c29e5306e93350bd9fc86",
+        "data/pokemon/base_stats/dodrio.asm": "8aae72e81a9a9376d412f07aa799d049edb05d8ada313f97d7612d63a2cafd53",
+        "data/pokemon/base_stats/doduo.asm": "569a727b261041f48fd1095db6cec0ad1a8709e346af4da0fd40e5b090b986b1",
+        "data/pokemon/base_stats/donphan.asm": "4192f33e603cac0f21da15162db1ee3caabbe6c8144346e998f15267b28d6515",
+        "data/pokemon/base_stats/dragonair.asm": "0931b968487d44d1b83a81b8a8a7f45e6a65e2cf4b3c9ffe4b0c3bf75158afda",
+        "data/pokemon/base_stats/dragonite.asm": "a07bf8e9398178957f7d59ca607fcdcc7e912b5f096316889e1d16d5ffd62db4",
+        "data/pokemon/base_stats/dratini.asm": "310afdc3f28f30be5c8a80e359e53b83b5702123d22a0e361e531c9bfabd02e0",
+        "data/pokemon/base_stats/drowzee.asm": "80338abba456d33b0fa6f33aa559be44b1d152575199e2ed5ff09aee7b51e83d",
+        "data/pokemon/base_stats/dugtrio.asm": "2a1a1a58ee2ec7f7f35ca86e11064457591d9d4645f087a81ca68cdf7829793a",
+        "data/pokemon/base_stats/dunsparce.asm": "3aa5f6c0c4db8e764f3726e5cfbeae802afd1157d92b7091c5d17ab8d435c297",
+        "data/pokemon/base_stats/eevee.asm": "dc2e8e2ecc1b909e6a690e9e17c3ddafc99416b301389e779f26c7984ddf9c8e",
+        "data/pokemon/base_stats/ekans.asm": "f7e139d4c08bfe64b61b7ba30ae52d4e317658b53a63e0fd86321e10dfe604c1",
+        "data/pokemon/base_stats/electabuzz.asm": "8380d73c0280e593fabe3dddd1a2d62cbc02465e249819eda0eaaf513cdb2ddc",
+        "data/pokemon/base_stats/electrode.asm": "1c1456c55397effda7b412d7c6ee2044385c962293b5b6a20947fbeb525149a1",
+        "data/pokemon/base_stats/elekid.asm": "dbc344946556f66c5c4233cd785c692999c32699427ced8549b4a1b0fe0cdbe1",
+        "data/pokemon/base_stats/entei.asm": "288ebb770559af36d16575b76de9b4c76462aea07a0d2a03b076b94142621cd0",
+        "data/pokemon/base_stats/espeon.asm": "624f1c4157745f947a8b9ced57b8f29be3713ad1c97a623b845e35d3cd723fd4",
+        "data/pokemon/base_stats/exeggcute.asm": "5039b91306e5306db832357340a010077d29ee1ae28de0c1acc0189034ecdcdd",
+        "data/pokemon/base_stats/exeggutor.asm": "99732cb30346e98ce5753a1e0aabc8216640840d6c408de27b790b4bf23274ec",
+        "data/pokemon/base_stats/farfetch_d.asm": "7de392827d6a9e3888b6d797b71375b6e68cd9030ebeaeb945aeee3d3c682ede",
+        "data/pokemon/base_stats/fearow.asm": "da1d786b44cb79542e49dcf8a429e7ecb0e4d010738e85a234959e112f9f934e",
+        "data/pokemon/base_stats/feraligatr.asm": "4d1a0a82d194feb880bbfc304c1be3a909acb17a7de70298a5441576fdf52ffb",
+        "data/pokemon/base_stats/flaaffy.asm": "6da5f5967bcb52559cf00a3ccd42877ac1734b50b78a4957e1c3a0f80adfb181",
+        "data/pokemon/base_stats/flareon.asm": "4bbab6c6bac36215feefca3ef2541dd88a3dc6d06469b2ea50237822f53382e2",
+        "data/pokemon/base_stats/forretress.asm": "9cd61ed1321b1fa004d5142ac7fc13f8cc7a49eecb91af91a79a70658b070e76",
+        "data/pokemon/base_stats/furret.asm": "b3639ca718022ecf6e0c1d2c8aeafea9b35b5ee2a9bfdbb8bbf95df0ced066f6",
+        "data/pokemon/base_stats/gastly.asm": "4209edf1ec927539448a57e72314f7de29b31bd74679cc626c8d64f19fb9cc7b",
+        "data/pokemon/base_stats/gengar.asm": "e7f43d03fa9815862e7aec882e34b4a08eb567575fc52ccb47b6a9a6e2282bda",
+        "data/pokemon/base_stats/geodude.asm": "d7d03847a735679b095a91813ef8866b0f01007e55f17f5eaaa3e4577cf45af2",
+        "data/pokemon/base_stats/girafarig.asm": "5340f5cac1fcd1523f29f72088c402415b083f51a3b05a500bdf5f7f62d89f1b",
+        "data/pokemon/base_stats/gligar.asm": "fec7954155dee2199224a67ef81271bc16a35a677fef97f5ec31348769b6072e",
+        "data/pokemon/base_stats/gloom.asm": "12905f21b4e69f630dca445ac794341be8cd748fc3588915b318479c5d62130c",
+        "data/pokemon/base_stats/golbat.asm": "c804faf0151a3fe5e6b8636d61fe3909fa2c84bab022d56551b13221c7609c63",
+        "data/pokemon/base_stats/goldeen.asm": "3b394e1fdefe429643466b957e6abc2ff887f04c5e3918fd18bba4119718c9fb",
+        "data/pokemon/base_stats/golduck.asm": "4ab0ef80c686167c37c2c1885f8933d2a59b21c76e5ee5206d15179a354d7eb1",
+        "data/pokemon/base_stats/golem.asm": "947f1fd4ccf6fb40f246856e11dd8693f0603ca651c44f602bd6ca6d4ab1319c",
+        "data/pokemon/base_stats/granbull.asm": "b85fb2c833831d7246a28915ef4e4c36255772fe1ea661747a4aee5743b09b22",
+        "data/pokemon/base_stats/graveler.asm": "f15eb5a7ac697ce4c058d9b3bba38440947125fadfc2f3a0b801afce4e01a858",
+        "data/pokemon/base_stats/grimer.asm": "60a90708c251f8fe6c17caa467f8ca69a266aed10c7f88b4d24688d935ca84a4",
+        "data/pokemon/base_stats/growlithe.asm": "23db9968bf13f3aa21f24665616fc7394d6a7b870350f9454c2ab3461468f64f",
+        "data/pokemon/base_stats/gyarados.asm": "f2462123ef104f2c9e48680eac73b3c4fc763526b13a27018fa557398301e8b9",
+        "data/pokemon/base_stats/haunter.asm": "55e1413856d40a82e87f87e5ce784fdb72db30d60b5b4fdf7ac17dc11256c4ef",
+        "data/pokemon/base_stats/heracross.asm": "fb23b501e6ddc4f2349a4c0985649b8944f6da55ac372b568af91579eb733163",
+        "data/pokemon/base_stats/hitmonchan.asm": "f7ab8eba266a83e9a482a69cb4136186edf76c7053bfc528583ddc77e5225025",
+        "data/pokemon/base_stats/hitmonlee.asm": "326d76847f1e8389b9ab348e944a222d851e8a3ac41e3381aad1dc087b231256",
+        "data/pokemon/base_stats/hitmontop.asm": "c6eddff203a85a338dfac7ce6dfc87cd0c4564882ad0f60679e1539103b5346e",
+        "data/pokemon/base_stats/ho_oh.asm": "c7d175531ba6dcffc13701df96078b677c6150f3df7ea64acf5b8ed241de436a",
+        "data/pokemon/base_stats/hoothoot.asm": "317ff68fe25b362f02ee89eae5b3bf297e668327cdcb79fac8e3bee26f050601",
+        "data/pokemon/base_stats/hoppip.asm": "0ed8c7c9a3e43fd292372ae1b518c6ff788bc0bb32959fbd96ea5afc97a37f45",
+        "data/pokemon/base_stats/horsea.asm": "01ed3aec6c8c5a72f91f6eaf2365300e34a320679744ab9e24cd7ea6d9af2fe1",
+        "data/pokemon/base_stats/houndoom.asm": "11280de7ccc49ef0b7f397ee273c69d79f94743aa9571c5cc3678327a462ff54",
+        "data/pokemon/base_stats/houndour.asm": "6ac0ddbe510a9fb48c4fa601bd86011c914dd8e28fb1115894a8ed27044c3f24",
+        "data/pokemon/base_stats/hypno.asm": "79db9a49dfc80111c96df435f5aec3a49a3dbd9a106be70a743b631ae0663e8e",
+        "data/pokemon/base_stats/igglybuff.asm": "49a1a1120c3e6671e04be43606c1f52e3950fd1debb9756fa1d7a13c76fc63e4",
+        "data/pokemon/base_stats/ivysaur.asm": "edad22802e19e7982b28aca52ee783109df0d929f7846eec3e9e1318b67418c9",
+        "data/pokemon/base_stats/jigglypuff.asm": "d6bdd649767888c32e352e84208d030b8496e04251c8f1785732bd7d7cc1cfa8",
+        "data/pokemon/base_stats/jolteon.asm": "1054742382d5051fac9cd72f5baf01436612b10b8dc6424928e3ee1e1991973c",
+        "data/pokemon/base_stats/jumpluff.asm": "51947b205adf5cbec4e0521addc32cd7051f239d65d34bd1a8ed3ed659b4e593",
+        "data/pokemon/base_stats/jynx.asm": "a35642d43cf2662a2b850583d1c4cd500627aa21a7fea8465efb664c42f53f75",
+        "data/pokemon/base_stats/kabuto.asm": "c4f023b2905ce1944860ba1a69f97d7102cc29f42306e49893fe122b3f98d9a0",
+        "data/pokemon/base_stats/kabutops.asm": "e968cab0d2f2e9279206d902eeec68f790c9660d4abb6967395428349036ea22",
+        "data/pokemon/base_stats/kadabra.asm": "31269c497e5ab52b9f2a653bcca02db1f107a9525f701b5754cd130c3db83b38",
+        "data/pokemon/base_stats/kakuna.asm": "c5d886455b12e1ed4f6f4b3550866ed70050c3219e15df03c87a1d46176b07e0",
+        "data/pokemon/base_stats/kangaskhan.asm": "3e3d108e3a003e2dc3ce24679ddaac508e05fe1eab1198b75c8a0e6ead4318de",
+        "data/pokemon/base_stats/kingdra.asm": "56cc3dbb9fe5564e6a7b05af5aaabaa8c96e687a14225e6a2a4aa8e26ffc7daf",
+        "data/pokemon/base_stats/kingler.asm": "29179b2089b97fdfce25e969eb7a6600c984dc0d8503873cf19ae7ec3c28112e",
+        "data/pokemon/base_stats/koffing.asm": "c6fa20a6e43509a36fe72fa74709405306323d0e0f540834afda2613b60430ac",
+        "data/pokemon/base_stats/krabby.asm": "f6929b52ec742ead6ec21b9420a4c6c55d2a123f6af71e50dd897cf50a6aae1e",
+        "data/pokemon/base_stats/lanturn.asm": "5ecbe216a662c0eea7c6a49abf019072efceb82b37259903427394b4d197dec1",
+        "data/pokemon/base_stats/lapras.asm": "d38acc80e4a4e1a4898853f7559d7e49a24342777708dc8e7d02ba84bde89d3c",
+        "data/pokemon/base_stats/larvitar.asm": "0ec044090adc15f51c538819a51b86aaefccd1eb58df5539d31a0f3e01b33fbc",
+        "data/pokemon/base_stats/ledian.asm": "3c56e831dbab5c579ee99f1c73e47907adcf5c130682218269c45d4ea1361bc0",
+        "data/pokemon/base_stats/ledyba.asm": "9b6c69028f3667766ceaa4934d0152a10f8b17b39eb7c28a761d5ac3c99c2c10",
+        "data/pokemon/base_stats/lickitung.asm": "5d31bdf0c904e1350eb280cce880f0a4d157c702cbc6985f86cb2eacd0cbab9c",
+        "data/pokemon/base_stats/lugia.asm": "d7f5352e958b65bc10e7d4a72c25e50854cf5644811f11782c2fc02b62539aab",
+        "data/pokemon/base_stats/machamp.asm": "202fe2d21f5d6254539f5fd761ccc658324a33736404620e52442aa0b5cc46f2",
+        "data/pokemon/base_stats/machoke.asm": "6b1f5cee497141e557bccae1d7e59e6e0eaf6f5ad3c941df16289299153358c5",
+        "data/pokemon/base_stats/machop.asm": "525fed124c8b7e232853cd292291b052200e1a6dce20c0c3abb244e39caaa8fe",
+        "data/pokemon/base_stats/magby.asm": "05921abf2cae3dc34e9b82fd4a25ebbc73f9aeadd0c1c215bee77dfa9ab13b81",
+        "data/pokemon/base_stats/magcargo.asm": "befbd77393f0cbcdd4be55e5b25df95c58ecf7de3412f2393af923c69ee2cf26",
+        "data/pokemon/base_stats/magikarp.asm": "c0823bda58080f7c947850a62a1d00699622231485a56cb1aba6ccec49257e16",
+        "data/pokemon/base_stats/magmar.asm": "eff0fc4a018ebbb9bbbcad601727c2586592aaf0abc2d54ede6b62e9fd7416d9",
+        "data/pokemon/base_stats/magnemite.asm": "25cb1e3dfd7f68a3ece965ebb98e30362794aa9b0e893c2325cf4360d2a02e74",
+        "data/pokemon/base_stats/magneton.asm": "31e702c4ca6bba7453301e13687babcf8fc8d47a6ad0a6637e878294673f991d",
+        "data/pokemon/base_stats/mankey.asm": "d4d8b49b68a5527e5f61496e9a67ea938dbe214bef2a3ed665fef312ec7bcc1e",
+        "data/pokemon/base_stats/mantine.asm": "f6c75881a3298e67b49881b77a05b37bf8fc5869a97a6cd610676365c676e04b",
+        "data/pokemon/base_stats/mareep.asm": "743abe3afe08821ba2ab631496d73c658b0bb61d0830abf9f5b384a0b5e2b1a6",
+        "data/pokemon/base_stats/marill.asm": "aa98cf4669284321bab50ac34e7824985dae50a6583615e707f6883325a64b92",
+        "data/pokemon/base_stats/marowak.asm": "63889cfe54abe1af55580a0e00fb1f714a1e64263b0e822f0f89187df6b4d637",
+        "data/pokemon/base_stats/meganium.asm": "85c53c631f8b6c04f1b577250e901ea54b0268c33c8a15dd91b55ebe7452dad4",
+        "data/pokemon/base_stats/meowth.asm": "da9a55d04e9d84c93afafc589a942d757343afbff26260f463f1fa866e31fc13",
+        "data/pokemon/base_stats/metapod.asm": "802ece054fcb78fa4cf28952aa8e8092bb833ad8fb62d04ecd5a1fcd586933d6",
+        "data/pokemon/base_stats/mew.asm": "b6e5e067836c0eb0af7a77c4be3670648432eb59c17e603b202407c214a5ddf6",
+        "data/pokemon/base_stats/mewtwo.asm": "08997275f78b991dbb2544744fdb972a9bf45b280613a054517dd9aebd3f4841",
+        "data/pokemon/base_stats/miltank.asm": "bafc6c4c7405af8b38d3277b693adce3dffb3ad474c9446a7226b812c241a858",
+        "data/pokemon/base_stats/misdreavus.asm": "cad61226e25f59d861904a50f165a234cb9853e58058afa68d51342a943a6f21",
+        "data/pokemon/base_stats/moltres.asm": "9828d7ae769185d45a74cb9783d1fb4dd13bde45a7b064441b92420967987f6c",
+        "data/pokemon/base_stats/mr__mime.asm": "55745bd4addf2c423e0dbe432d7d03ec5bcaac4a1873674547f3334ff4b46aee",
+        "data/pokemon/base_stats/muk.asm": "17c0f49d9e218178cf685085ca98b9863c2368c2838aa6262b5c03f2c70ebe8f",
+        "data/pokemon/base_stats/murkrow.asm": "9e73260162872630764f52c8cd303c37577f0335a98ed66d52672c767dd0566d",
+        "data/pokemon/base_stats/natu.asm": "faac181f6ab77bb998a2898833bebedfc82377f4d59d652d6f4f76f42558445d",
+        "data/pokemon/base_stats/nidoking.asm": "5a82925346452016bad83f5d2b6ed0e2d1f8412ee9b1fa039c1430bff0ef48a4",
+        "data/pokemon/base_stats/nidoqueen.asm": "ada7fd59113b0d83640d2ec2644a827a8b138641da319a19801f3f9e9e59009d",
+        "data/pokemon/base_stats/nidoran_f.asm": "0891b447eb1cda72aef0773816e5765b997abc828503d20b167dcaea1b8281a9",
+        "data/pokemon/base_stats/nidoran_m.asm": "656f2764a59b04c0f6f595ed74d2ae7d0ce848cd76b90bd7cefa0def0c9420c6",
+        "data/pokemon/base_stats/nidorina.asm": "90bc9fb18dfdaf219868973d2ea72861b46dd29007e4857f3043695a90cf1496",
+        "data/pokemon/base_stats/nidorino.asm": "dd163501527bf9cad3712bef0df92de5c47804499f8a55690cf5b7eeb2d96a3e",
+        "data/pokemon/base_stats/ninetales.asm": "fc4ad7caeb477332613fb7fcbe57525a1a9f4ed9ebe05ede6f82818cb36ba02f",
+        "data/pokemon/base_stats/noctowl.asm": "fca93441644b0204a1e9814e8f424fd96c12db711d5ee2eba164eed5e8c97b2d",
+        "data/pokemon/base_stats/octillery.asm": "83a7cd1b0c84e49df5cc73a7daeb330757dfc054f17f51184086c8bb02171924",
+        "data/pokemon/base_stats/oddish.asm": "0c2eff4f590408b690bba83f9ff4f2caececc45d781064b1d3eaf9ea3ead1fd0",
+        "data/pokemon/base_stats/omanyte.asm": "6eff085d9977b7249365370207ee0498cfc5fe15d06992ad36ccc943ed5266c1",
+        "data/pokemon/base_stats/omastar.asm": "25dac2e58de4077a07432292f7ec388e00e4c2d34b24d1f74720b453cfe98188",
+        "data/pokemon/base_stats/onix.asm": "27a8c96b8546b7b8f98268af4b29576c9549d8d45fb34e58421f6f80c73828f9",
+        "data/pokemon/base_stats/paras.asm": "2f9a10c500b7766e0f1628d7ebdcd27f093c6f292bdc24f8ac010a3873525ddc",
+        "data/pokemon/base_stats/parasect.asm": "9f379f108f3433a919325c6b72f0cd613460d9458e163d818fe98cff01cedb01",
+        "data/pokemon/base_stats/persian.asm": "9152e3ead95c9c1e933656b19868c67d7de0c2395d53496cfd4a990ca4053a4e",
+        "data/pokemon/base_stats/phanpy.asm": "538b4c698d2acb60fe51bb823e02af0f48007a4c4748c90e9403bd76e8d49746",
+        "data/pokemon/base_stats/pichu.asm": "24946c2609c285711981179e57fa225ec77236450bb855049e9edf5979c869a8",
+        "data/pokemon/base_stats/pidgeot.asm": "4551731230e06c95ed1c98ea7c7a23f1c5b0845933cc3dc863a44fa81bd9ca70",
+        "data/pokemon/base_stats/pidgeotto.asm": "43cdeedd7e50fc7730ece08ac364982970a15247e30c351aaf5842495bec71a8",
+        "data/pokemon/base_stats/pidgey.asm": "f8f5647f067a12551a1121d3cd6604642b4c84cb6a18bcf7241b86b7e1a92dc1",
+        "data/pokemon/base_stats/pikachu.asm": "1413e9cbc958332f6567eb8a030df52395c4cbfcec2535b11db90f1067799995",
+        "data/pokemon/base_stats/piloswine.asm": "8a173bc0f1a3974f50058a4a05d6c83e771995561f1da20c2d3e8da83c7e318a",
+        "data/pokemon/base_stats/pineco.asm": "8c3df775722022708e3117831b1b4e5e49811465e1e12bb2f5257abcfe4dce92",
+        "data/pokemon/base_stats/pinsir.asm": "a4cfb066c3c56430ae8a01d55f4ea83e6f2ef956ffa373f7e0c716154d890c5c",
+        "data/pokemon/base_stats/politoed.asm": "bde13b50ab065b18ae5dcc90bc8649dedbdcc4226f0c2bfaa9ed076123171f97",
+        "data/pokemon/base_stats/poliwag.asm": "0d0ea2ba9ce49c5bd3d1ce7130f71e0e61361451cee0f87107f50ab5fdfdbec0",
+        "data/pokemon/base_stats/poliwhirl.asm": "89298e124664eb8e9e0eaa31f54bf4a9a0225fd20bd1393a43201f7f040f9afd",
+        "data/pokemon/base_stats/poliwrath.asm": "68d31869afbdd8cb672266f6b02862c2b146a714d68f1eb3b4bb7c6601e18f73",
+        "data/pokemon/base_stats/ponyta.asm": "cbebdaf2fa5686ebc31e652728262996f54f09aed38f44441659ea340ab59a36",
+        "data/pokemon/base_stats/porygon.asm": "a28d084b71b005fe1e4e0ad853e0614b8427e06a6677cd6363c81a1e9794026d",
+        "data/pokemon/base_stats/porygon2.asm": "257dff6ae4b1f1b5dde7332046d9c3788dd6de07e1d65586cf440969e4be369c",
+        "data/pokemon/base_stats/primeape.asm": "bba1a7aa1832ff0cd253e6a82a78b1adf2dfed96f01f34f3f966597702b74cf6",
+        "data/pokemon/base_stats/psyduck.asm": "0ff08ea17be51836709491f4a6d66bde0f10fb0aac29aef0352730f3da18fe3d",
+        "data/pokemon/base_stats/pupitar.asm": "dac3bf76a4f89951b6a8d7af7945e76b950a8f73fe403b610d4478f393327e7c",
+        "data/pokemon/base_stats/quagsire.asm": "a86a4bc3468710489af0ec261fc55ea1e2a6cfe6ec9dc366ecd3f0db5cdaa4dd",
+        "data/pokemon/base_stats/quilava.asm": "efdc3feee469614794f0d816f7911827e5eabf7d99c7d1b0b16d4af6cd9f8e60",
+        "data/pokemon/base_stats/qwilfish.asm": "9976f220436d08de5b7e5524d30aa457a6fc08a6b64c0d0b04a47740d278ab5b",
+        "data/pokemon/base_stats/raichu.asm": "fec1a590bc515b429eb541c452734ef26bcf5a13d82012761ba666681c043bcf",
+        "data/pokemon/base_stats/raikou.asm": "d4dfb1203a8793617924dacb4667036f8b1ba403c1174a1345edd69bb9222b2d",
+        "data/pokemon/base_stats/rapidash.asm": "16969b6e31ebe4e58cf7c0816f9ecd2485ed6cc727fa4f596b3b2dea544773b7",
+        "data/pokemon/base_stats/raticate.asm": "91c18dc6569883a6e26dc68bfbd948ef494a4b507ec7963672e1cce7116b2bf9",
+        "data/pokemon/base_stats/rattata.asm": "989adf15b1ad98eb8f0233d28a378445c7dc005cfcca416f13ba65f9c4f59d79",
+        "data/pokemon/base_stats/remoraid.asm": "9f869d4be30469defba5da2b76adea07097e9e0d4626ef63b9e353214c54427a",
+        "data/pokemon/base_stats/rhydon.asm": "b0c46d1f23f67b8f9a2a03f8b75f7978330f7a41e6f277a51f9d870924a7aea7",
+        "data/pokemon/base_stats/rhyhorn.asm": "3dbac5fa5f9ef283fb8a2a63228f14f61841a695405533044d47465b0a87c79b",
+        "data/pokemon/base_stats/sandshrew.asm": "a9846d95cda685e34a814bd577292fbd279f5a17e4dda0fc4b86fe69a0495a71",
+        "data/pokemon/base_stats/sandslash.asm": "f7e48ab6044e2e004053501abdc166ca526da173896b3495376a5b5ceaa68d2c",
+        "data/pokemon/base_stats/scizor.asm": "ca471a76945d96cf84b239fb19922d9c5c2570a6538f695a53635868e940bafe",
+        "data/pokemon/base_stats/scyther.asm": "5382052ea2778aa7fe74423eee2b260774f34d6c99a69e6e9752fba196bebfcb",
+        "data/pokemon/base_stats/seadra.asm": "38d511603bce5f4f0e7977bd5ed862dc868fc74f19ece9cb4459d0ba6abf5e46",
+        "data/pokemon/base_stats/seaking.asm": "1572c2449e368a1798839b169845a50a45baa532e9d8855f46ef63010dfdf225",
+        "data/pokemon/base_stats/seel.asm": "6bb407e0be08583df536eb9e9baaf6ef82df80ebee6b2ca341c70c55d0e31806",
+        "data/pokemon/base_stats/sentret.asm": "106b440bc477eb627b49d914bed3498167e61ce2f3bb9c49504c1249616e6603",
+        "data/pokemon/base_stats/shellder.asm": "26083c81f8622dcfd1fd81545971b95d75efdbd46c1c6cdeeb88dd28912539ad",
+        "data/pokemon/base_stats/shuckle.asm": "ff664812a24a925950dc5a1ff5cbf439efc3d0e492b9e7165fb39b24330099c1",
+        "data/pokemon/base_stats/skarmory.asm": "e8046984c7df850b1d2a2b99364d7332a276b312ecff649831e5e02656c6d67c",
+        "data/pokemon/base_stats/skiploom.asm": "2a2404a73569ca7b5216745b7abf046b4186157ef155dba16da2bb78d94e1aae",
+        "data/pokemon/base_stats/slowbro.asm": "97b555ea553e49d6422391414f1035449220c818e95da54440a6c70dca98af82",
+        "data/pokemon/base_stats/slowking.asm": "aed11bd4d51985c526579d5bf0eea16f53437739600e79cb0bded980bf4b535e",
+        "data/pokemon/base_stats/slowpoke.asm": "3cc72baac2c7a97ddf1f184e00c80d91403481a7a5b2883ffcff46834e30dabe",
+        "data/pokemon/base_stats/slugma.asm": "1b7e4610000b0080a02f6118441d6ba7ebf912dc31cf4dbf9bcd1e327628bc88",
+        "data/pokemon/base_stats/smeargle.asm": "c9461ea0f7a27ebb0b5d5b8d82bf112bb04ac6110095d5672f86d17df4cb535c",
+        "data/pokemon/base_stats/smoochum.asm": "7d59c05887ffa4dfeb9bc6a01c39a9f49d91a7c6a435082ec4b89fbf3d9dc616",
+        "data/pokemon/base_stats/sneasel.asm": "9e28d6182573030473fb15b740097cb9bb9a00f3a869ece64b22ab4b7f04ed19",
+        "data/pokemon/base_stats/snorlax.asm": "d7ecf633ba7e8b9115a9c846b858d6e1bfd4945addddbd45437e367498b48fb8",
+        "data/pokemon/base_stats/snubbull.asm": "1e60dd76b448af7fb0433280287ea103dcf69e617178b8339b24cb429a456c6c",
+        "data/pokemon/base_stats/spearow.asm": "939754a9ca7438185bd8f8f477e5b148e6cb46bd976eccbbe514aa3f79ae76c7",
+        "data/pokemon/base_stats/spinarak.asm": "f4959cfb1b0c786be92f0bff0245e21421ee3a2b03573efbba077e67db7ea857",
+        "data/pokemon/base_stats/squirtle.asm": "554061d339cf219ee6856127921521b7b6e3445044307ad7fe81177a93294edd",
+        "data/pokemon/base_stats/stantler.asm": "67be40e446c6ffa1f39d72e5b9b0a0caf8713ce25d4984cfe529937d0cab8149",
+        "data/pokemon/base_stats/starmie.asm": "ae9497a7accecbbddd330cb0494dea91fdf4023cc4ee32cd7b4d0d8db6e8e6b1",
+        "data/pokemon/base_stats/staryu.asm": "beedd1979b6a046d6b5f63da20b112875f3ecbcde8f501bbfeaf9bfd562b3f0b",
+        "data/pokemon/base_stats/steelix.asm": "46c21eb63132776c38b8ae1132e44adcf4b991d30dc3a5fab06758c580b6a830",
+        "data/pokemon/base_stats/sudowoodo.asm": "907872f28d9f732612e57d48055d228b9f709cc110b9dc6d33aa3c918fecc805",
+        "data/pokemon/base_stats/suicune.asm": "af83c34dfa5cfbae96971c7ddb6d88f5d321ab46d8513fb53c4ff44c9b48d8d4",
+        "data/pokemon/base_stats/sunflora.asm": "574fddd9b5ccbff8a83207c7e629d57abf98a2e7322266315800695513bad7a5",
+        "data/pokemon/base_stats/sunkern.asm": "5e327941139af1194fc4acf286a581c1e43c41b262df122af1b6effa930ccd1f",
+        "data/pokemon/base_stats/swinub.asm": "a99ff7dbbc74931aa542f5e7a75e4e840ec6d478cf641bbd1a0238d06f0c85c2",
+        "data/pokemon/base_stats/tangela.asm": "607c5d7dca1aa3669f6f9bab397531b932704234d17ebe3df61cf3cbbd40b87a",
+        "data/pokemon/base_stats/tauros.asm": "96b728405e4833cc09296f77841ff8cd49c77339cbcca98f3c6c9b074d7c502c",
+        "data/pokemon/base_stats/teddiursa.asm": "d6a600bf2160c9db68b2a0a37f0ff30036058b91b1f49e6f18e6d4c6f3393274",
+        "data/pokemon/base_stats/tentacool.asm": "12859b9bfc847ef422f3f60dd98cdba529e30e49d22d9c66ab253e63fe99636e",
+        "data/pokemon/base_stats/tentacruel.asm": "3331012c05b4b4b8da3a861456511f2485f62b309ee09b7777ea6ec4072b1d59",
+        "data/pokemon/base_stats/togepi.asm": "1fd9a128bc4245fa6a6c2c2335510134f9334efabdbb2c7570e1baf445f50f7f",
+        "data/pokemon/base_stats/togetic.asm": "dbf491ac175a16dc0ea3f4bedbf9084590a90255f89e109545e1cc21764d326b",
+        "data/pokemon/base_stats/totodile.asm": "43a7023025d659c117b59f317de90f8714a237a8612da697719fa73d33c4e58d",
+        "data/pokemon/base_stats/typhlosion.asm": "a16b04e4f724fc95249f67c506c11d81a8e13003cba8967c3fabbdad321eaa2f",
+        "data/pokemon/base_stats/tyranitar.asm": "c085641196fe73e8b62f3717a5912a5dcfa7651e154a4112fc9a20f1e62b7dfa",
+        "data/pokemon/base_stats/tyrogue.asm": "3a05afcef96da19286cc2d6005d8367d52b8a4dd1972ad564a12e2fb3d9e6d94",
+        "data/pokemon/base_stats/umbreon.asm": "5622e7f6d7f33494eb29449d82d7042af9e238893cd3a7d937a53b718599c68d",
+        "data/pokemon/base_stats/unown.asm": "c17553c1bb92795b4c9c5a2cf70078d0bdcc2857769de765726e49b92c2ae8d0",
+        "data/pokemon/base_stats/ursaring.asm": "e3ba153c6fc53e4fa9fc284e3b719be60c77912611e3097f073c0d8f4d91cbd9",
+        "data/pokemon/base_stats/vaporeon.asm": "6fd671bbc668542f50e9e0689829c402c3d7bc98b6e1f8fa923656eb59a41f72",
+        "data/pokemon/base_stats/venomoth.asm": "a3ef185892e674c0cdb88714af5aee43ec7df4072ace91f798236787f3809b17",
+        "data/pokemon/base_stats/venonat.asm": "d031d9be4d426c31c30358ce9be48f11a7265639c384111437fcbda4028844cd",
+        "data/pokemon/base_stats/venusaur.asm": "4739da1eb779a956d5d85a4d0ffe14d3ec2e66b36a52efc39667df4a29525d64",
+        "data/pokemon/base_stats/victreebel.asm": "b87e88ee35fb4b663a7e90a6f0b707b099da03ba4d59da03398778676e8b69f3",
+        "data/pokemon/base_stats/vileplume.asm": "bb39c7c8cf6d9255eaf1ec682d96e66a408aa02c6004a798ff5fcda9ee4ab59d",
+        "data/pokemon/base_stats/voltorb.asm": "dcde156028400fa7dcd8cf6e33ec98fb5e877dfe8b96c3dffb7dcf91b3d6bc0e",
+        "data/pokemon/base_stats/vulpix.asm": "7920200827881d43c53afb59bd7b30444b4d0b622f56de1002e63f5a413bf71e",
+        "data/pokemon/base_stats/wartortle.asm": "c96eeb7bf35b250b181ed60b7737a0c8d1779f5e5d54980123099c54bfa36d19",
+        "data/pokemon/base_stats/weedle.asm": "6b496dac58481e47529c391c67a43a61713063932d5a852cb70a377fe8c3600d",
+        "data/pokemon/base_stats/weepinbell.asm": "beab1bc19d0f77296b58a9df917bbed5e297135b4466bd47bfa113fe14af686d",
+        "data/pokemon/base_stats/weezing.asm": "9a770fa6ca613206fc028826137ba26492df21bd4b059da5f4f0ab9bd8d9d973",
+        "data/pokemon/base_stats/wigglytuff.asm": "047a5275459ee0088c364430f8eafc0f5704d9689bae7a5386e30eb577fe2c1d",
+        "data/pokemon/base_stats/wobbuffet.asm": "ff45c95395a53653f4054d9f9f2359677a30c302b211b8161128c4a2caaeba0e",
+        "data/pokemon/base_stats/wooper.asm": "b952619ab28eaca2a8fad2b5e110960356c0e4d82434c9034e4ae1c092aa7d61",
+        "data/pokemon/base_stats/xatu.asm": "e0b6b11452b98157edcbdce7e1f262eefdaef860a043433ccf8862253bad5674",
+        "data/pokemon/base_stats/yanma.asm": "5bda5d246915bbf8b929811d56ea9254e6d7f7fc28bd116f2bf1843cc1fc027f",
+        "data/pokemon/base_stats/zapdos.asm": "012372980032e555f3ba0de0d201d343cf2a6a40c7820773a4befacf13499422",
+        "data/pokemon/base_stats/zubat.asm": "34e0fa2d3e96d3c0d59d6b0b0b3e1900cb90a384052af6158db70038c8e1e8b7",
+        "data/pokemon/base_stats.asm": "fc17c9ca54dce186b699d1c47d7a87467a278371bcb6c7c211209bbbd927b722",
+        "engine/battle/core.asm": "0f5b7011f6206517ca3ee946f82f2a2dcb55120d249673c66d8c9b11723a23c6",
+        "macros/data.asm": "0788679135c4ed5002bdb0ac342f7bdbe54c8ac8c0cc5e94ba2f29b6acfb7ca2"
+      }
+    }
+  }
+}

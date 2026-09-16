@@ -1,5 +1,5 @@
 -- Runtime language selection for Kanto Ascendant. English is the standalone
--- fallback; AUTO follows the active German Red/Blue/Yellow translation mod.
+-- fallback; AUTO follows the active Universal or legacy German translation.
 
 local REMATCH = {
   OPP_YOUNGSTER = "Ich mag Shorts!\nDoch zweimal\nverlier ich nicht!",
@@ -116,7 +116,26 @@ local WARN = {
   OPP_RIVAL3 = "Mein Team ist nun\nviel stärker als\ndeins. Sicher?",
 }
 
+local function universalBootLanguage(mod)
+  local ok, universal = pcall(function()
+    return mod.find("translation-german-universal")
+  end)
+  if not ok or type(universal) ~= "table"
+      or type(universal.exports) ~= "table" then
+    return nil
+  end
+  local language = universal.exports.bootLanguage
+  if language == "de" or language == "en" then return language end
+  return nil
+end
+
 local function detectedGermanMod(mod)
+  -- Universal can deliberately boot in English. Its public export, rather
+  -- than package presence, is therefore the authoritative language signal.
+  local universal = universalBootLanguage(mod)
+  if universal then return universal == "de" end
+
+  -- Retain compatibility with already-installed legacy edition packages.
   local ok, GameVersion = pcall(require, "src.core.GameVersion")
   local version = ok and GameVersion.get() or "red"
   local expected = {

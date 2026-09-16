@@ -18,6 +18,7 @@ return function(mod, opts)
   local content = opts.content or {}
   local johtoSignals = opts.johtoSignals
   local beyondKanto = opts.beyondKanto or opts.johtoBoundary
+  local generationRules = opts.generationRules
   local i18n = opts.i18n
 
   local M = {
@@ -54,9 +55,16 @@ return function(mod, opts)
   end
 
   local function speciesAllowed(game, species)
-    if boundaryActive(game) then return true end
+    game = game or M.game
     local def = game and game.data and game.data.pokemon
       and game.data.pokemon[species]
+    if generationRules and type(generationRules.speciesAvailable) == "function" then
+      if type(def) ~= "table" then return false end
+      local ok, allowed = pcall(
+        generationRules.speciesAvailable, game, species, def)
+      return ok and allowed == true
+    end
+    if boundaryActive(game) then return true end
     local dex = def and tonumber(def.dex)
     if not dex and beyondKanto
         and type(beyondKanto.speciesDex) == "function" then
@@ -360,6 +368,36 @@ return function(mod, opts)
       kaProtected = true,
       kaMythicKind = kind,
     }
+  end
+
+  -- Read availability without RNG, migration, pity advancement, ownership
+  -- reconciliation or installation of a battle ticket.
+  function M.observations(game,mapId)
+    if not optionEnabled() or not hasPokedex(game) or not signalsState.peek then return {} end
+    local snapshot=signalsState.peek('resonance')
+    if not snapshot or tonumber(snapshot.version) and tonumber(snapshot.version)>STATE_VERSION then return {} end
+    local s=normalize(copy(snapshot))
+    local def=game.data and game.data.encounters and game.data.encounters[mapId]
+    local grass=def and def.grass
+    if not grass or (tonumber(grass.rate) or 0)<=0 or type(grass.slots)~='table' then return {} end
+    local native=false
+    for _,slot in ipairs(grass.slots)do
+      if nativeKantoGrass(slot,def,{terrain='grass',mapId=mapId})then native=true;break end
+    end
+    if not native or not s.sealed and s.echoes>=3 then return {} end
+    local out={}
+    for _,species in ipairs(POOL)do
+      local record=game.data.pokemon and game.data.pokemon[species]
+      local allowed=generationRules and generationRules.peekSpeciesAvailable
+        and generationRules.peekSpeciesAvailable(game,species,record)
+      if record and allowed and speciesEnabled(species) and not s.completed[species]
+          and not (game.save.pokedex and game.save.pokedex.owned and game.save.pokedex.owned[species])
+          and (not s.sealed or not s.bound or s.bound.species==species)then
+        out[#out+1]={species=species,mapId=mapId,source='mythic_signals',
+          kind=s.sealed and 'manifestation' or 'echo'}
+      end
+    end
+    return out
   end
 
   local function echoDenominator(snapshot, rolls)

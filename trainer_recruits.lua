@@ -109,14 +109,21 @@ local LEGENDARY = {
   ARTICUNO = true, ZAPDOS = true, MOLTRES = true, MEWTWO = true, MEW = true,
   RAIKOU = true, ENTEI = true, SUICUNE = true, LUGIA = true, HO_OH = true,
   CELEBI = true,
+  REGIROCK = true, REGICE = true, REGISTEEL = true,
+  LATIAS = true, LATIOS = true,
+  KYOGRE = true, GROUDON = true, RAYQUAZA = true,
+  JIRACHI = true, DEOXYS = true,
+  UXIE = true, MESPRIT = true, AZELF = true, DIALGA = true, PALKIA = true,
+  HEATRAN = true, REGIGIGAS = true, GIRATINA = true, CRESSELIA = true,
+  PHIONE = true, MANAPHY = true, DARKRAI = true, SHAYMIN = true, ARCEUS = true,
 }
 
 local TWO_STAGE = {
-  { 50, 50 }, { 40, 60 }, { 30, 70 }, { 20, 80 }, { 10, 90 },
+  { 5, 95 }, { 4, 96 }, { 3, 97 }, { 2, 98 }, { 1, 99 },
 }
 local THREE_STAGE = {
-  { 50, 30, 20 }, { 40, 30, 30 }, { 30, 30, 40 },
-  { 20, 30, 50 }, { 10, 25, 65 }, { 5, 20, 75 }, { 5, 10, 85 },
+  { 1, 4, 95 }, { 1, 3, 96 }, { 1, 2, 97 },
+  { 1, 1, 98 }, { 0, 2, 98 }, { 0, 1, 99 }, { 0, 1, 99 },
 }
 local HISTORY_LIMIT = 3
 
@@ -205,6 +212,7 @@ end
 local function themesFor(pokemon, team, classId)
   local out = {}
   for typeId in pairs(CLASS_THEMES[classId] or {}) do out[typeId] = true end
+  if next(out) ~= nil then return out end
   for _, species in ipairs(POOLS[classId] or {}) do
     local def = pokemon[species]
     for _, typeId in ipairs(def and def.types or {}) do out[typeId] = true end
@@ -216,6 +224,37 @@ local function themesFor(pokemon, team, classId)
     end
   end
   return out
+end
+
+-- Registry presence also includes event-only gifts and private ABI species.
+-- Old packages retain the Sinnoh ceiling. The current canonical pool Card
+-- supplies trainer-only admission separately from owned gift availability.
+local ordinaryProvider
+function R.configureOrdinarySpecies(callback)
+  ordinaryProvider=type(callback)=='function' and callback or nil
+end
+local function ordinarySpecies(def)
+  if ordinaryProvider then return ordinaryProvider(def)==true end
+  if type(def) ~= "table" then return false end
+  if def.giftOnly or def.isMega or def.isGigantamax or def.backendForm
+      or (def.regionalForm ~= nil and def.regionalForm ~= false
+        and def.regionalForm ~= "") then return false end
+  local epoch = tonumber(def.originGeneration or def.originEpoch)
+  if epoch and epoch > 4 then return false end
+  local dex = tonumber(def.sourceDex or def.nationalDex or def.dexNumber
+    or def.dex or def.index)
+  return dex ~= nil and dex == math.floor(dex) and dex >= 1 and dex <= 493
+end
+
+local speciesAvailability = function() return true end
+
+-- Generation profiles are a pool boundary, not just a battle-data visual.
+-- The callback stays optional so this pure roster module remains usable by
+-- older packages and focused tests.
+function R.configureSpeciesAvailability(callback)
+  speciesAvailability = type(callback) == "function" and callback
+    or function() return true end
+  return true
 end
 
 function R.configureJohto(_, eligible)
@@ -234,6 +273,10 @@ local function targetAvailable(pokemon, from, row, context)
   local target = evolutionTarget(row)
   if not target or not pokemon[target] then return false end
   local def = pokemon[target]
+  if (target ~= "GOROCHU" and not ordinarySpecies(def)) or LEGENDARY[target]
+      or not speciesAvailability(context and context.game, target, def) then
+    return false
+  end
   local dex = tonumber(def.dex or def.index)
   if dex and dex <= 151 then return true end
   if dex and dex <= 251 then
@@ -241,13 +284,16 @@ local function targetAvailable(pokemon, from, row, context)
     -- Chikorita must be allowed to mature into Bayleef/Meganium even though
     -- those two IDs do not own separate encounter flags.
     return context and context.familyUnlocked == true
+      or R.evolutionAvailable and R.evolutionAvailable(target,from,row,context)==true
       or availability(target) == true
   end
   if context and context.original == false then
     -- Additional pool members are selected from released family roots. Do
     -- not silently turn a Kanto recruit into a gated custom final form; an
     -- original Raichu may still progress to an unlocked Gorochu generically.
-    return false
+    return context.familyUnlocked == true and (
+      availability(target) == true or R.evolutionAvailable
+        and R.evolutionAvailable(target, from, row, context) == true)
   end
   if R.evolutionAvailable then
     return R.evolutionAvailable(target, from, row, context) == true
@@ -260,6 +306,8 @@ local function reachableStages(pokemon, start, level, context)
   local graph = context.graph or graphFor(pokemon)
   context.familyUnlocked = context.familyUnlocked == true
     or availability(start) == true
+    or R.evolutionAvailable
+      and R.evolutionAvailable(start, nil, nil, { pool = true, game=context.game }) == true
   local stages, seen = { [0] = { start } }, {}
   local function visit(species, depth)
     local key = species .. ":" .. tostring(depth)
@@ -316,9 +364,10 @@ local function evolveOriginal(pokemon, slot, slotIndex, rematchNumber,
     levelBoost, options, update)
   local start = slot.species
   local level = math.min(100, math.max(1,
-    math.floor(tonumber(slot.level) or 1) + levelBoost))
+    math.floor(tonumber(options.targetLevels and options.targetLevels[slotIndex])
+      or (tonumber(slot.level) or 1) + levelBoost)))
   local context = { original = true, slot = slotIndex,
-    rematchNumber = rematchNumber, level = level, graph = options.graph }
+    rematchNumber = rematchNumber, level = level, graph = options.graph, game=options.game }
   local stages, maximum = reachableStages(pokemon, start, level, context)
   local selected = rolledStage(rematchNumber, maximum, options.random,
     tostring(options.seed) .. ":original:" .. tostring(slotIndex)
@@ -348,10 +397,11 @@ local function evolveOriginal(pokemon, slot, slotIndex, rematchNumber,
   return out
 end
 
-local function familyCatalog(pokemon, graph, wanted)
+local function familyCatalog(pokemon, graph, wanted, game)
   local byRoot = {}
   for species, def in pairs(pokemon or {}) do
-    if not LEGENDARY[species] then
+    if not LEGENDARY[species] and ordinarySpecies(def)
+        and speciesAvailability(game, species, def) then
       local root = graph.root(species)
       local row = byRoot[root] or { root = root, members = {} }
       row.members[#row.members + 1] = species
@@ -371,7 +421,9 @@ local function familyCatalog(pokemon, graph, wanted)
     local released = row.kantoSeed ~= nil
     if not released then
       for _, species in ipairs(row.members) do
-        if availability(species) then released = true break end
+        local modern = R.evolutionAvailable
+          and R.evolutionAvailable(species, nil, nil, { pool = true, game=game }) == true
+        if availability(species) or modern then released = true break end
       end
     end
     if released and row.thematic then
@@ -385,8 +437,13 @@ end
 
 local function bestAdditionalSpecies(pokemon, family, level, context)
   local stages, maximum = reachableStages(pokemon, family, level, context)
-  local choices = stages[maximum] or stages[0]
-  return choices[1], maximum
+  for depth = maximum, 0, -1 do
+    for _, species in ipairs(stages[depth] or {}) do
+      if not context.wanted or sharesType(pokemon, species, context.wanted) then
+        return species, depth
+      end
+    end
+  end
 end
 
 local function recentPenalty(species, history)
@@ -434,12 +491,12 @@ local function weightedPick(candidates, history, random, seed)
   return candidates[#candidates]
 end
 
-function R.eligibleJohtoFamilies(data, team, classId)
+function R.eligibleJohtoFamilies(data, team, classId, game)
   local pokemon = data and data.pokemon or {}
   local graph = graphFor(pokemon)
   local wanted = themesFor(pokemon, team, classId)
   local out = {}
-  for _, family in ipairs(familyCatalog(pokemon, graph, wanted)) do
+  for _, family in ipairs(familyCatalog(pokemon, graph, wanted, game)) do
     if not family.kantoSeed then out[#out + 1] = family.seed end
   end
   return out
@@ -487,11 +544,14 @@ function R.expand(data, team, classId, trainerKey, progress, levelBoost, enabled
   local function addFamily(seed)
     if not pokemon[seed] then return end
     local seedDef = pokemon[seed]
+    if not ordinarySpecies(seedDef)
+        or not speciesAvailability(options.game, seed, seedDef) then return end
     local seedDex = tonumber(seedDef.dex or seedDef.index)
     if seedDex and seedDex > 151 and seedDex <= 251
-        and not availability(seed) then return end
+        and not availability(seed) and not (R.evolutionAvailable
+          and R.evolutionAvailable(seed,nil,nil,{pool=true,game=options.game})) then return end
     if seedDex and seedDex > 251 and (not R.evolutionAvailable
-        or not R.evolutionAvailable(seed, nil, nil, { pool = true })) then
+        or not R.evolutionAvailable(seed, nil, nil, { pool = true, game=options.game })) then
       return
     end
     if seedDex and seedDex > 251 and graph.parents[seed]
@@ -502,8 +562,10 @@ function R.expand(data, team, classId, trainerKey, progress, levelBoost, enabled
     sources[#sources + 1] = { root = root, seed = seed }
   end
   for _, seed in ipairs(POOLS[classId] or {}) do addFamily(seed) end
-  for _, row in ipairs(familyCatalog(pokemon, graph, themes)) do addFamily(row.seed) end
-  if #sources == 0 then
+  for _, row in ipairs(familyCatalog(pokemon, graph, themes, options.game)) do
+    addFamily(row.seed)
+  end
+  if #sources == 0 and not POOLS[classId] and not CLASS_THEMES[classId] then
     for species in pairs(pokemon) do addFamily(species) end
   end
 
@@ -514,9 +576,12 @@ function R.expand(data, team, classId, trainerKey, progress, levelBoost, enabled
     local candidates = {}
     for _, source in ipairs(sources) do
       if not chosen[source.root] then
-        local species = bestAdditionalSpecies(pokemon, source.seed, targetLevel,
+        local recruitLevel = tonumber(options.targetLevels
+          and options.targetLevels[#team + recruit]) or targetLevel
+        local species = bestAdditionalSpecies(pokemon, source.seed, recruitLevel,
           { original = false, rematchNumber = rematchNumber,
-            level = targetLevel, graph = graph })
+            level = recruitLevel, graph = graph, game=options.game,
+            wanted = CLASS_THEMES[classId] })
         if species and not LEGENDARY[species] then
           candidates[#candidates + 1] = {
             root = source.root, family = source.seed, species = species,

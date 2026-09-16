@@ -15,14 +15,17 @@ return function(mod, opts)
   local U = {}
   U.colors = {
     ink = { 0.08, 0.12, 0.19, 1 },
-    paper = { 0.96, 0.93, 0.76, 1 },
-    paper2 = { 0.88, 0.83, 0.60, 1 },
-    cream = { 1.00, 0.98, 0.86, 1 },
+    -- Navy VASC/ORAS shell. The Gen-I bitmap font is black-only, therefore
+    -- text remains on cool light plaques instead of the former parchment
+    -- fills. No transition frame should flash the old yellow menu palette.
+    paper = { 0.025, 0.075, 0.14, 1 },
+    paper2 = { 0.82, 0.89, 0.96, 1 },
+    cream = { 0.94, 0.97, 1.00, 1 },
     blue = { 0.12, 0.35, 0.65, 1 },
     blue2 = { 0.24, 0.55, 0.82, 1 },
     blue3 = { 0.07, 0.20, 0.40, 1 },
     orange = { 0.90, 0.45, 0.12, 1 },
-    gold = { 1.00, 0.76, 0.18, 1 },
+    gold = { 0.55, 0.80, 1.00, 1 },
     red = { 0.78, 0.20, 0.22, 1 },
     white = { 1, 1, 1, 1 },
   }
@@ -116,7 +119,8 @@ return function(mod, opts)
     local cancelDisabled = spec.cancelDisabled == true
 
     menu.isOpaque = true
-    menu.rows = math.max(1, math.min(3, #(menu.items or {})))
+    local answerRows = math.max(1, math.min(3, #(menu.items or {})))
+    menu.rows = answerRows
     menu.kascQuestionPrompt = prompt
     menu.kascQuestionPromptVisible = true
     menu.kascQuestionCountdownVisible = seconds ~= nil
@@ -128,8 +132,29 @@ return function(mod, opts)
     menu.kascQuestionStyle = "firered-question"
     menu.__kantoAscendantLayout = true
     menu.__kantoAscendantStyle = menu.kascQuestionStyle
-    menu.sgbPalettes = function()
+    -- The answer phase is not cancellable, so the shared ORAS footer must
+    -- never advertise B/BACK even though the native ListMenu still owns the
+    -- cursor and A callback underneath this presentation.
+    menu.footer = tr("A:SELECT", "A:WAHL")
+    local questionPalettes = function()
       return { PaletteFX.trueColorZone(0, 0, 19, 17) }
+    end
+    local vascReceipt = rawget(menu, "__vascKascMenuSkinBridge")
+    local vascQuestion = type(vascReceipt) == "table"
+      and vascReceipt.schema == "voxel-ascendant/kasc-menu-skin/v1"
+      and type(vascReceipt.fire) == "table"
+      and type(vascReceipt.oras) == "table"
+    menu.kascQuestionOrasFullscreen = vascQuestion
+    if vascQuestion then
+      -- VASC installed a live FireRed/ORAS multiplexer around this exact
+      -- controller. Keep that wrapper intact: only replace its FireRed draw
+      -- slot with the semantic question view. The ORAS slot remains the
+      -- responsive 512x288 focus/help composition selected by the player.
+      vascReceipt.fire.rows = answerRows
+      vascReceipt.fire.style = menu.kascQuestionStyle
+      vascReceipt.fire.sgbPalettes = questionPalettes
+    else
+      menu.sgbPalettes = questionPalettes
     end
 
     local function syncLegacy(self)
@@ -192,7 +217,7 @@ return function(mod, opts)
       end
     end
 
-    menu.draw = function(self)
+    local function drawQuestion(self)
       if not (love and love.graphics) then return end
       local g = love.graphics
       local remaining = math.max(0, math.ceil(self.kascQuestionRemaining or 0))
@@ -249,6 +274,11 @@ return function(mod, opts)
       color(C.ink);Font.draw(tr("A:SELECT", "A:WAHL"), 7, 132)
       g.setColor(1, 1, 1, 1)
     end
+    if vascQuestion then
+      vascReceipt.fire.draw = drawQuestion
+    else
+      menu.draw = drawQuestion
+    end
     return menu
   end
 
@@ -256,6 +286,10 @@ return function(mod, opts)
   HelpPopup.__index = HelpPopup
   HelpPopup.isOpaque = false
   local HELP_LINES_PER_PAGE = 7
+  -- KASC-66-BILINGUAL-HELP-PRESENTATION: session-local acknowledgement only.
+  -- A new game object (including reload) receives the guide again; no save
+  -- bucket or option is written by this presentation owner.
+  local guidedHelpSeen = setmetatable({}, { __mode = "k" })
 
   function HelpPopup.new(game, title, body)
     -- Use nearly the full screen instead of scaling the bitmap font: fractional
@@ -318,6 +352,118 @@ return function(mod, opts)
     return tr("A:SELECT  B:BACK", "A:WAHL  B:ZUR.")
   end
 
+  local function pingPongOffset(time, overflow)
+    if not (overflow and overflow > 0) then return 0 end
+    local hold, speed = 1.2, 6
+    local travel = overflow / speed
+    local cycle = 2 * hold + 2 * travel
+    local phase = (tonumber(time) or 0) % cycle
+    if phase < hold then return 0 end
+    phase = phase - hold
+    if phase < travel then return -phase * speed end
+    phase = phase - travel
+    if phase < hold then return -overflow end
+    return -overflow + (phase - hold) * speed
+  end
+
+  local function focusedHelp(menu)
+    local item = menu.items and menu.items[menu.index]
+    local provider = menu.ascendantFocusHelp
+    if type(provider) == "function" then
+      local ok, value = pcall(provider, item, menu)
+      if ok and value ~= nil then return text(value):gsub("[\r\n]+", " ") end
+    end
+    if item and item.help then return text(item.help):gsub("[\r\n]+", " ") end
+    return tr("Choose an entry. SELECT opens full help.",
+      "Wähle einen Eintrag. SELECT öffnet die ganze Hilfe.")
+  end
+
+  local function drawMarquee(value, x, y, budget, time)
+    value = tostring(value or "")
+    local width = Font.width(value)
+    if width <= budget or not love.graphics.setScissor then
+      Font.draw(truncate(value, budget), x, y)
+      return
+    end
+    love.graphics.setScissor(x, y - 1, budget, 10)
+    Font.draw(value, x + pingPongOffset(time, width - budget), y)
+    love.graphics.setScissor()
+  end
+
+  -- Guided KASC hubs reserve one permanent line for the focused row's plain-
+  -- language explanation. Long text rests at both ends and moves slowly back
+  -- and forth; SELECT still opens the complete paginated help.
+  local function drawFocusHelp(menu)
+    color(C.paper)
+    love.graphics.rectangle("fill", 0, 0, 160, 144)
+    color(C.blue3)
+    love.graphics.rectangle("fill", 0, 0, 160, 18)
+    color(C.blue2)
+    love.graphics.rectangle("fill", 0, 16, 160, 3)
+    color(C.orange)
+    love.graphics.rectangle("fill", 0, 0, 8, 18)
+    color(C.red)
+    love.graphics.rectangle("fill", 0, 15, 8, 4)
+    panel(9, 2, 148, 14, C.cream, C.orange)
+    color(C.ink)
+    Font.draw(truncate(menu.title, 144), 12, 5)
+
+    panel(3, 21, 154, 83, C.cream, C.blue3)
+    if #(menu.items or {}) == 0 then
+      color(C.ink)
+      Font.draw(tr("Nothing here.", "Nichts vorhanden."), 16, 58)
+    end
+    local rows = math.min(menu.rows or 5, 5)
+    for row = 1, rows do
+      local index = (menu.scroll or 0) + row
+      local item = menu.items[index]
+      if not item then break end
+      local y = 25 + (row - 1) * 16
+      if index == menu.index then
+        color(C.gold)
+        love.graphics.rectangle("fill", 6, y - 2, 148, 14)
+        color(C.orange)
+        love.graphics.rectangle("fill", 6, y + 10, 148, 2)
+      elseif row % 2 == 0 then
+        color(C.paper2)
+        love.graphics.rectangle("fill", 6, y - 2, 148, 14)
+      end
+      color(C.ink)
+      local right = truncate(item.right, 64)
+      local rightX = item.right and (151 - Font.width(right)) or 151
+      Font.draw(truncate(item.label, math.max(24, rightX - 22)), 17, y)
+      if item.right then Font.draw(right, rightX, y) end
+      if index == menu.index then
+        Font.drawCode((menu.swapIndex == index or menu.hollowIndex == index)
+          and Theme.cursorHollow or Theme.cursor, 8, y)
+      elseif menu.swapIndex == index then
+        Font.drawCode(Theme.cursorHollow, 8, y)
+      end
+    end
+    if (menu.scroll or 0) > 0 then
+      color(C.red); Font.drawCode(Theme.moreArrow, 145, 4)
+    end
+    if (menu.scroll or 0) + rows < #(menu.items or {}) then
+      color(C.red); Font.drawCode(Theme.moreArrow, 145, 96)
+    end
+
+    panel(3, 106, 154, 18, C.paper2, C.blue3)
+    color(C.blue)
+    love.graphics.rectangle("fill", 4, 107, 152, 3)
+    color(C.ink)
+    local help = focusedHelp(menu)
+    menu.ascendantFocusedHelp = help
+    drawMarquee(help, 7, 112, 146, menu.ascendantFocusTime)
+
+    color(C.blue)
+    love.graphics.rectangle("fill", 3, 127, 154, 14)
+    color(C.blue3)
+    love.graphics.rectangle("fill", 3, 127, 154, 2)
+    panel(5, 129, 150, 12, C.cream, C.orange)
+    color(C.ink)
+    Font.draw(truncate(controls(menu), 146), 7, 131)
+  end
+
   local function draw(menu)
     color(C.paper)
     love.graphics.rectangle("fill", 0, 0, 160, 144)
@@ -357,7 +503,7 @@ return function(mod, opts)
         color(C.orange)
         love.graphics.rectangle("fill", 6, y + 10, 148, 2)
       elseif row % 2 == 0 then
-        color(C.paper)
+        color(C.paper2)
         love.graphics.rectangle("fill", 6, y - 2, 148, 14)
       end
 
@@ -575,6 +721,36 @@ return function(mod, opts)
     return menu
   end
 
+  function U.decorateFocusHelp(menu, provider)
+    if type(menu) ~= "table" then return menu end
+    menu.__kantoAscendantLayout = true
+    menu.__kantoAscendantStyle = "firered-focus-help"
+    menu.__kantoAscendantFocusHelp = true
+    menu.rows = math.min(tonumber(menu.rows) or 5, 5)
+    menu.isOpaque = true
+    menu.ascendantFocusHelp = provider
+    menu.ascendantFocusTime = 0
+    menu.sgbPalettes = function()
+      return { PaletteFX.trueColorZone(0, 0, 19, 17) }
+    end
+    local baseUpdate = menu.update
+    menu.update = function(self, dt)
+      local before = self.index
+      local result = baseUpdate and baseUpdate(self, dt)
+      if self.index ~= before then
+        self.ascendantFocusTime = 0
+      else
+        self.ascendantFocusTime = (self.ascendantFocusTime or 0)
+          + math.max(0, tonumber(dt) or 0)
+      end
+      return result
+    end
+    menu.draw = drawFocusHelp
+    local card = mod.exports and mod.exports.fullscreenUiCard
+    if card then return card.decorateMenu(menu, provider, menu.rows) end
+    return menu
+  end
+
   function U.decorateBag(menu, description)
     if type(menu) ~= "table" then return menu end
     menu.__kantoAscendantLayout = true
@@ -608,7 +784,37 @@ return function(mod, opts)
   U.ListMenu = {
     new = function(game, title, items, listOpts)
       listOpts = listOpts or {}
+      -- Every ordinary KASC-owned feature list publishes a contextual-help
+      -- provider.  VASC's public menu-skin bridge uses this explicit marker
+      -- to lift the screen into its responsive ORAS fullscreen presentation,
+      -- even when the list is opened by story code rather than from the
+      -- ASCENDANT root.  Dialogue boxes, questions, Bag and Legacy storage
+      -- retain their dedicated semantic renderers.
+      local style = tostring(listOpts.ascendantStyle or "")
+      if listOpts.ascendantFocusHelp == nil
+          and listOpts.ascendantLayout ~= false
+          and not listOpts.dialogue and not listOpts.messageBox
+          and (style == "" or style == "firered") then
+        listOpts.ascendantFocusHelp = function(item)
+          if type(item) ~= "table" then
+            return tr("Choose an entry.", "Wähle einen Eintrag.")
+          end
+          if item.help ~= nil and tostring(item.help) ~= "" then
+            return item.help
+          end
+          local label = tostring(item.label or title or "")
+          local right = item.right ~= nil and tostring(item.right) or ""
+          return right ~= "" and (label .. "  " .. right) or label
+        end
+        listOpts.__kascAutoFocusHelp = true
+      end
+      if listOpts.ascendantFocusHelp then
+        listOpts.rows = math.min(tonumber(listOpts.rows) or 5, 5)
+      end
       local menu = mod.ui.ListMenu.new(game, title, items, listOpts)
+      if listOpts.ascendantFocusHelp then
+        return U.decorateFocusHelp(menu, listOpts.ascendantFocusHelp)
+      end
       if listOpts.ascendantStyle == "firered-legacy-storage" then
         return U.decorateLegacyStorage(menu,
           listOpts.ascendantStorageDescription)
@@ -639,8 +845,25 @@ return function(mod, opts)
 
     local choose, timeout = options.onChoose, options.onTimeout
     local menu, callbackResolved
-    local listOptions = { ascendantLayout = false, pageJump = false,
-      rows = #items }
+    local listOptions = {
+      ascendantLayout = true,
+      ascendantStyle = "firered-question",
+      pageJump = false,
+      rows = #items,
+      -- This explicit provider is also the public VASC bridge contract. In
+      -- ORAS FULLSCREEN the choices stay on the left while the complete,
+      -- dynamically timed prompt is readable in the right-hand help pane.
+      ascendantFocusHelp = function(_, current)
+        local body = tostring(prompt)
+        if current and current.kascQuestionCountdownVisible then
+          local remaining = math.max(0,
+            math.ceil(tonumber(current.kascQuestionRemaining) or 0))
+          return tr(("TIME %02ds. "):format(remaining),
+            ("ZEIT %02ds. "):format(remaining)) .. body
+        end
+        return body
+      end,
+    }
     listOptions.onChoose = function(item, current)
       if callbackResolved then return end
       callbackResolved = true
@@ -727,6 +950,78 @@ return function(mod, opts)
     if not (game and game.stack and body and body ~= "") then return false end
     game.stack:push(HelpPopup.new(game, title, body))
     return true
+  end
+
+  function U.guidedList(game, spec)
+    spec = spec or {}
+    local key = assert(spec.key, "guided KASC menu requires a stable key")
+    local title = assert(spec.title, "guided KASC menu requires a title")
+    local body = assert(spec.help, "guided KASC menu requires bilingual help")
+    assert(game and game.stack and type(game.stack.push) == "function",
+      "guided KASC menu requires a game stack")
+
+    local rows = {}
+    for index, item in ipairs(spec.rows or {}) do rows[index] = item end
+    local helpValue = "__kasc_help:" .. tostring(key)
+    rows[#rows + 1] = {
+      label = tr("HELP", "HILFE"), value = helpValue, help = body,
+      __kascFeatureHelp = true,
+    }
+
+    local listOpts = {}
+    for option, value in pairs(spec.options or {}) do listOpts[option] = value end
+    listOpts.ascendantLayout = true
+    listOpts.ascendantStyle = spec.style or listOpts.ascendantStyle or "firered"
+    listOpts.footer = spec.footer
+      or tr("A:SELECT  SEL:HELP", "A:WAHL  SEL:HILFE")
+    local originalChoose = spec.onChoose or listOpts.onChoose
+    local originalSelect = spec.onSelectKey or listOpts.onSelectKey
+    listOpts.onChoose = function(item, menu)
+      if item and item.value == helpValue then
+        return U.showHelp(game, spec.helpTitle or title, body)
+      end
+      if originalChoose then return originalChoose(item, menu) end
+    end
+    listOpts.onSelectKey = function(item, menu)
+      local itemHelp = item and item.help
+      if itemHelp and itemHelp ~= "" then
+        return U.showHelp(game, item.label or spec.helpTitle or title, itemHelp)
+      end
+      if originalSelect then return originalSelect(item, menu) end
+      return U.showHelp(game, spec.helpTitle or title, body)
+    end
+
+    local menu = U.ListMenu.new(game, title, rows, listOpts)
+    menu.__kascGuidedHelpRow = rows[#rows]
+    local baseUpdate = menu.update
+    function menu:showFirstGuide()
+      local stack = game.stack
+      if type(stack.top) == "function" and stack:top() ~= self then
+        return false
+      end
+      local seen = guidedHelpSeen[game]
+      if not seen then
+        seen = {}
+        guidedHelpSeen[game] = seen
+      end
+      if seen[key] then return false end
+      seen[key] = true
+      return U.showHelp(game, spec.helpTitle or title, body)
+    end
+    if type(baseUpdate) == "function" then
+      menu.update = function(self, ...)
+        if self:showFirstGuide() then return end
+        return baseUpdate(self, ...)
+      end
+    end
+    return menu
+  end
+
+  function U.pushGuidedList(game, spec)
+    local menu = U.guidedList(game, spec)
+    game.stack:push(menu)
+    menu:showFirstGuide()
+    return menu
   end
 
   U.HelpPopup = HelpPopup

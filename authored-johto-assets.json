@@ -1,0 +1,50 @@
+{
+  "schema": "ascendant.authored-johto-assets/v1",
+  "assets": [
+    {
+      "character": "gold",
+      "path": "assets/johto_masters/field/gold_walk.png",
+      "before": "30f405b7e5772999195459abb24fbfb570ff2fc293f0fee7daa54c86066e8b81",
+      "after": "d06432448b2b10a61cf45041e80fe0294111a2e9d8844aa78f323a8962bc7613",
+      "sourceMod": "VOXEL_ASCENDANT",
+      "sourcePath": "integrated/ascendant_pokemon_overworld/assets/characters/runtime/npcs/gold-kasc-hd-4x3-walk-sheet-v1.png",
+      "reference": "pokegold/gfx/sprites/chris.png",
+      "originalWasPaletteOnlyConversion": true,
+      "width": 16,
+      "height": 96,
+      "frames": 6,
+      "bundled": true,
+      "dlc": false
+    },
+    {
+      "character": "kris",
+      "path": "assets/johto_masters/field/kris_walk.png",
+      "before": "198120128ffa5b1702f12a063dd817d68b474c295bae8428fc1783f542d2488e",
+      "after": "6fe9ac20971c0965091acafb3429bbfa5efdf70bb5297b2d1df4c782dc210e35",
+      "sourceMod": "VOXEL_ASCENDANT",
+      "sourcePath": "integrated/ascendant_pokemon_overworld/assets/characters/runtime/npcs/kris-kasc-hd-4x3-walk-sheet-v1.png",
+      "reference": "pokecrystal/gfx/sprites/kris.png",
+      "originalWasPaletteOnlyConversion": true,
+      "width": 16,
+      "height": 96,
+      "frames": 6,
+      "bundled": true,
+      "dlc": false
+    },
+    {
+      "character": "silver",
+      "path": "assets/johto_masters/field/silver_walk.png",
+      "before": "f4a0d1cef7dd42e5ab554712cf7cba106407d338a6aee120a0b0a72f68692eaa",
+      "after": "88256b83ecc5bec7bec3888ab7c18250166d8c6fe0681776be71365f8c7101f4",
+      "sourceMod": "VOXEL_ASCENDANT",
+      "sourcePath": "integrated/ascendant_pokemon_overworld/assets/characters/runtime/npcs/silver-kasc-hd-4x3-walk-sheet-v1.png",
+      "reference": "pokegold/gfx/sprites/rival.png",
+      "originalWasPaletteOnlyConversion": true,
+      "width": 16,
+      "height": 96,
+      "frames": 6,
+      "bundled": true,
+      "dlc": false
+    }
+  ]
+}

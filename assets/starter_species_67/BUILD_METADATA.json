@@ -1,0 +1,254 @@
+{
+  "cachedTreeSha256": "757fc85045d37af927236719f62462e399febbdaa7c49f08b619e3858fe23c43",
+  "sourceCommit": "4bf39fe6ce32d720a03964be4c24e22198ba8de8",
+  "sourceFileCount": 360,
+  "sourcePack": "Gen 7/ultra-sun-ultra-moon",
+  "sourceRepository": "PokemonWorkshop/GameDataPacks",
+  "sourceUrl": "https://github.com/PokemonWorkshop/GameDataPacks/tree/4bf39fe6ce32d720a03964be4c24e22198ba8de8/Gen 7/ultra-sun-ultra-moon",
+  "speciesCount": 36,
+  "walkerAuthorities": {
+    "BRAIXEN": {
+      "method": "shared_bbox_nearest",
+      "normalSource": "assets/starter_species_67/source/characters/normal/0654.png",
+      "shinySource": "assets/starter_species_67/source/characters/shiny/0654.png",
+      "transform": "six-pose shared alpha bbox; one centered bottom pivot; NEAREST to 16px"
+    },
+    "BRIONNE": {
+      "method": "shared_bbox_nearest",
+      "normalSource": "assets/starter_species_67/source/characters/normal/0729.png",
+      "shinySource": "assets/starter_species_67/source/characters/shiny/0729.png",
+      "transform": "six-pose shared alpha bbox; one centered bottom pivot; NEAREST to 16px"
+    },
+    "CHESNAUGHT": {
+      "method": "shared_bbox_nearest",
+      "normalSource": "assets/starter_species_67/source/characters/normal/0652.png",
+      "shinySource": "assets/starter_species_67/source/characters/shiny/0652.png",
+      "transform": "six-pose shared alpha bbox; one centered bottom pivot; NEAREST to 16px"
+    },
+    "CHESPIN": {
+      "method": "shared_bbox_nearest",
+      "normalSource": "assets/starter_species_67/source/characters/normal/0650.png",
+      "shinySource": "assets/starter_species_67/source/characters/shiny/0650.png",
+      "transform": "six-pose shared alpha bbox; one centered bottom pivot; NEAREST to 16px"
+    },
+    "CHIMCHAR": {
+      "method": "shared_bbox_nearest",
+      "normalSource": "assets/starter_species_67/source/characters/normal/0390.png",
+      "shinySource": "assets/starter_species_67/source/characters/shiny/0390.png",
+      "transform": "six-pose shared alpha bbox; one centered bottom pivot; NEAREST to 16px"
+    },
+    "DARTRIX": {
+      "method": "shared_bbox_nearest",
+      "normalSource": "assets/starter_species_67/source/characters/normal/0723.png",
+      "shinySource": "assets/starter_species_67/source/characters/shiny/0723.png",
+      "transform": "six-pose shared alpha bbox; one centered bottom pivot; NEAREST to 16px"
+    },
+    "DECIDUEYE": {
+      "method": "shared_bbox_nearest",
+      "normalSource": "assets/starter_species_67/source/characters/normal/0724.png",
+      "shinySource": "assets/starter_species_67/source/characters/shiny/0724.png",
+      "transform": "six-pose shared alpha bbox; one centered bottom pivot; NEAREST to 16px"
+    },
+    "DELPHOX": {
+      "method": "shared_bbox_nearest",
+      "normalSource": "assets/starter_species_67/source/characters/normal/0655.png",
+      "shinySource": "assets/starter_species_67/source/characters/shiny/0655.png",
+      "transform": "six-pose shared alpha bbox; one centered bottom pivot; NEAREST to 16px"
+    },
+    "DEWOTT": {
+      "method": "shared_bbox_nearest",
+      "normalSource": "assets/starter_species_67/source/characters/normal/0502.png",
+      "shinySource": "assets/starter_species_67/source/characters/shiny/0502.png",
+      "transform": "six-pose shared alpha bbox; one centered bottom pivot; NEAREST to 16px"
+    },
+    "EMBOAR": {
+      "method": "shared_bbox_nearest",
+      "normalSource": "assets/starter_species_67/source/characters/normal/0500.png",
+      "shinySource": "assets/starter_species_67/source/characters/shiny/0500.png",
+      "transform": "six-pose shared alpha bbox; one centered bottom pivot; NEAREST to 16px"
+    },
+    "EMPOLEON": {
+      "method": "shared_bbox_nearest",
+      "normalSource": "assets/starter_species_67/source/characters/normal/0395.png",
+      "shinySource": "assets/starter_species_67/source/characters/shiny/0395.png",
+      "transform": "six-pose shared alpha bbox; one centered bottom pivot; NEAREST to 16px"
+    },
+    "FENNEKIN": {
+      "method": "shared_bbox_nearest",
+      "normalSource": "assets/starter_species_67/source/characters/normal/0653.png",
+      "shinySource": "assets/starter_species_67/source/characters/shiny/0653.png",
+      "transform": "six-pose shared alpha bbox; one centered bottom pivot; NEAREST to 16px"
+    },
+    "FROAKIE": {
+      "method": "shared_bbox_nearest",
+      "normalSource": "assets/starter_species_67/source/characters/normal/0656.png",
+      "shinySource": "assets/starter_species_67/source/characters/shiny/0656.png",
+      "transform": "six-pose shared alpha bbox; one centered bottom pivot; NEAREST to 16px"
+    },
+    "FROGADIER": {
+      "method": "shared_bbox_nearest",
+      "normalSource": "assets/starter_species_67/source/characters/normal/0657.png",
+      "shinySource": "assets/starter_species_67/source/characters/shiny/0657.png",
+      "transform": "six-pose shared alpha bbox; one centered bottom pivot; NEAREST to 16px"
+    },
+    "GRENINJA": {
+      "method": "shared_bbox_nearest",
+      "normalSource": "assets/starter_species_67/source/characters/normal/0658.png",
+      "shinySource": "assets/starter_species_67/source/characters/shiny/0658.png",
+      "transform": "six-pose shared alpha bbox; one centered bottom pivot; NEAREST to 16px"
+    },
+    "GROTLE": {
+      "method": "shared_bbox_nearest",
+      "normalSource": "assets/starter_species_67/source/characters/normal/0388.png",
+      "shinySource": "assets/starter_species_67/source/characters/shiny/0388.png",
+      "transform": "six-pose shared alpha bbox; one centered bottom pivot; NEAREST to 16px"
+    },
+    "INCINEROAR": {
+      "method": "shared_bbox_nearest",
+      "normalSource": "assets/starter_species_67/source/characters/normal/0727.png",
+      "shinySource": "assets/starter_species_67/source/characters/shiny/0727.png",
+      "transform": "six-pose shared alpha bbox; one centered bottom pivot; NEAREST to 16px"
+    },
+    "INFERNAPE": {
+      "method": "shared_bbox_nearest",
+      "normalSource": "assets/starter_species_67/source/characters/normal/0392.png",
+      "shinySource": "assets/starter_species_67/source/characters/shiny/0392.png",
+      "transform": "six-pose shared alpha bbox; one centered bottom pivot; NEAREST to 16px"
+    },
+    "LITTEN": {
+      "method": "shared_bbox_nearest",
+      "normalSource": "assets/starter_species_67/source/characters/normal/0725.png",
+      "shinySource": "assets/starter_species_67/source/characters/shiny/0725.png",
+      "transform": "six-pose shared alpha bbox; one centered bottom pivot; NEAREST to 16px"
+    },
+    "MONFERNO": {
+      "method": "shared_bbox_nearest",
+      "normalSource": "assets/starter_species_67/source/characters/normal/0391.png",
+      "shinySource": "assets/starter_species_67/source/characters/shiny/0391.png",
+      "transform": "six-pose shared alpha bbox; one centered bottom pivot; NEAREST to 16px"
+    },
+    "OSHAWOTT": {
+      "method": "bundled_wilds_exact",
+      "normalSource": "vendor/wilds_1_12_2/assets/bundled_runtime/followsprites_runtime/501-normal.png",
+      "shinySource": "vendor/wilds_1_12_2/assets/bundled_runtime/followsprites_runtime/501-shiny.png",
+      "transform": "none; exact bundled 16x96 bytes"
+    },
+    "PIGNITE": {
+      "method": "shared_bbox_nearest",
+      "normalSource": "assets/starter_species_67/source/characters/normal/0499.png",
+      "shinySource": "assets/starter_species_67/source/characters/shiny/0499.png",
+      "transform": "six-pose shared alpha bbox; one centered bottom pivot; NEAREST to 16px"
+    },
+    "PIPLUP": {
+      "method": "bundled_wilds_exact",
+      "normalSource": "vendor/wilds_1_12_2/assets/bundled_runtime/followsprites_runtime/393-normal.png",
+      "shinySource": "vendor/wilds_1_12_2/assets/bundled_runtime/followsprites_runtime/393-shiny.png",
+      "transform": "none; exact bundled 16x96 bytes"
+    },
+    "POPPLIO": {
+      "method": "shared_bbox_nearest",
+      "normalSource": "assets/starter_species_67/source/characters/normal/0728.png",
+      "shinySource": "assets/starter_species_67/source/characters/shiny/0728.png",
+      "transform": "six-pose shared alpha bbox; one centered bottom pivot; NEAREST to 16px"
+    },
+    "PRIMARINA": {
+      "method": "shared_bbox_nearest",
+      "normalSource": "assets/starter_species_67/source/characters/normal/0730.png",
+      "shinySource": "assets/starter_species_67/source/characters/shiny/0730.png",
+      "transform": "six-pose shared alpha bbox; one centered bottom pivot; NEAREST to 16px"
+    },
+    "PRINPLUP": {
+      "method": "shared_bbox_nearest",
+      "normalSource": "assets/starter_species_67/source/characters/normal/0394.png",
+      "shinySource": "assets/starter_species_67/source/characters/shiny/0394.png",
+      "transform": "six-pose shared alpha bbox; one centered bottom pivot; NEAREST to 16px"
+    },
+    "QUILLADIN": {
+      "method": "shared_bbox_nearest",
+      "normalSource": "assets/starter_species_67/source/characters/normal/0651.png",
+      "shinySource": "assets/starter_species_67/source/characters/shiny/0651.png",
+      "transform": "six-pose shared alpha bbox; one centered bottom pivot; NEAREST to 16px"
+    },
+    "ROWLET": {
+      "method": "shared_bbox_nearest",
+      "normalSource": "assets/starter_species_67/source/characters/normal/0722.png",
+      "shinySource": "assets/starter_species_67/source/characters/shiny/0722.png",
+      "transform": "six-pose shared alpha bbox; one centered bottom pivot; NEAREST to 16px"
+    },
+    "SAMUROTT": {
+      "method": "shared_bbox_nearest",
+      "normalSource": "assets/starter_species_67/source/characters/normal/0503.png",
+      "shinySource": "assets/starter_species_67/source/characters/shiny/0503.png",
+      "transform": "six-pose shared alpha bbox; one centered bottom pivot; NEAREST to 16px"
+    },
+    "SERPERIOR": {
+      "method": "shared_bbox_nearest",
+      "normalSource": "assets/starter_species_67/source/characters/normal/0497.png",
+      "shinySource": "assets/starter_species_67/source/characters/shiny/0497.png",
+      "transform": "six-pose shared alpha bbox; one centered bottom pivot; NEAREST to 16px"
+    },
+    "SERVINE": {
+      "method": "shared_bbox_nearest",
+      "normalSource": "assets/starter_species_67/source/characters/normal/0496.png",
+      "shinySource": "assets/starter_species_67/source/characters/shiny/0496.png",
+      "transform": "six-pose shared alpha bbox; one centered bottom pivot; NEAREST to 16px"
+    },
+    "SNIVY": {
+      "method": "shared_bbox_nearest",
+      "normalSource": "assets/starter_species_67/source/characters/normal/0495.png",
+      "shinySource": "assets/starter_species_67/source/characters/shiny/0495.png",
+      "transform": "six-pose shared alpha bbox; one centered bottom pivot; NEAREST to 16px"
+    },
+    "TEPIG": {
+      "method": "shared_bbox_nearest",
+      "normalSource": "assets/starter_species_67/source/characters/normal/0498.png",
+      "shinySource": "assets/starter_species_67/source/characters/shiny/0498.png",
+      "transform": "six-pose shared alpha bbox; one centered bottom pivot; NEAREST to 16px"
+    },
+    "TORRACAT": {
+      "method": "shared_bbox_nearest",
+      "normalSource": "assets/starter_species_67/source/characters/normal/0726.png",
+      "shinySource": "assets/starter_species_67/source/characters/shiny/0726.png",
+      "transform": "six-pose shared alpha bbox; one centered bottom pivot; NEAREST to 16px"
+    },
+    "TORTERRA": {
+      "method": "shared_bbox_nearest",
+      "normalSource": "assets/starter_species_67/source/characters/normal/0389.png",
+      "shinySource": "assets/starter_species_67/source/characters/shiny/0389.png",
+      "transform": "six-pose shared alpha bbox; one centered bottom pivot; NEAREST to 16px"
+    },
+    "TURTWIG": {
+      "method": "shared_bbox_nearest",
+      "normalSource": "assets/starter_species_67/source/characters/normal/0387.png",
+      "shinySource": "assets/starter_species_67/source/characters/shiny/0387.png",
+      "transform": "six-pose shared alpha bbox; one centered bottom pivot; NEAREST to 16px"
+    }
+  },
+  "walkerPoses": [
+    [
+      0,
+      0
+    ],
+    [
+      3,
+      0
+    ],
+    [
+      1,
+      0
+    ],
+    [
+      0,
+      1
+    ],
+    [
+      3,
+      1
+    ],
+    [
+      1,
+      1
+    ]
+  ],
+  "walkerTransform": "mixed 16x96 authority: exact bundled Wilds sheets for PIPLUP/OSHAWOTT; shared-alpha-bbox, centered and bottom-grounded NEAREST for every other Gen-IV--VII starter-family species"
+}

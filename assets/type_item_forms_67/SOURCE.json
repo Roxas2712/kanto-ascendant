@@ -1,0 +1,5040 @@
+{
+  "schema": "kasc.type-item-form-art/v1",
+  "pokeapiRevision": "2ecb4eeacd5a1718621fc30f12772e3f60d830b9",
+  "sources": {
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-fighting-front-normal.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/493-fighting.png",
+      "sha256": "5daeb193d168c67b30e843eab71f051dc7ba2e7c593e06379fe89707fad2674b"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-fighting-front-shiny.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/shiny/493-fighting.png",
+      "sha256": "1ce8ef8574912ba8c9041dc05a6b3aec572377c84b71474cdea901550b7d036d"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-fighting-back-normal.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/back/493-fighting.png",
+      "sha256": "7b8fe79edf261658188fd562549a902ae8aa2bd4dac6f43ffe969c95038dc960"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-fighting-back-shiny.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/back/shiny/493-fighting.png",
+      "sha256": "98a402d6c2fa5bbffd64ae96e7734ad4b83e9a6a55d197c088093defcea08027"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-flying-front-normal.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/493-flying.png",
+      "sha256": "16100d621e9a70932c43e0e897097fc7fdc471e93ca49f26f56faefafde24b62"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-flying-front-shiny.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/shiny/493-flying.png",
+      "sha256": "1afcffcf801ac37f4918fe2169a1d3327cf2c439cb7b6a51232318c6f59d0b77"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-flying-back-normal.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/back/493-flying.png",
+      "sha256": "a01ff31224da78eb7af5b86a86c721422f1a7344ef49ee6896b06e6fd223735c"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-flying-back-shiny.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/back/shiny/493-flying.png",
+      "sha256": "8be8601da16586694c48daed5bf6846d71d9c31ff0968b7e6b92bb0f6e8c568b"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-poison-front-normal.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/493-poison.png",
+      "sha256": "2f6852c75ef26a5b9df9b6265c656940339101fb57ef9950a617a47bd9096ea1"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-poison-front-shiny.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/shiny/493-poison.png",
+      "sha256": "d27d421c4c2f6935ecf59a066193aea41c0bb19089ffc747e56baf97d65ec930"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-poison-back-normal.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/back/493-poison.png",
+      "sha256": "9fdd0a8e9752a8abe2e429d57adc81d73446e06da33e042d5f7c1a89969f20b5"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-poison-back-shiny.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/back/shiny/493-poison.png",
+      "sha256": "722455e317b154a8b1a6ca229ef19bb0043de934de10a4ed858e5a15a0235b5f"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-ground-front-normal.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/493-ground.png",
+      "sha256": "c6b38c34c445de29a3df0387e5a10dd7e62b241dfb0520ea23827ce031327816"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-ground-front-shiny.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/shiny/493-ground.png",
+      "sha256": "a28a40cf004c4dd2c84131df4d4be54f564a6ecd13789d5343360a7de8e32a1b"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-ground-back-normal.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/back/493-ground.png",
+      "sha256": "2c9f52e8d79ea0098d5c137d9280b30d4db0aac61769637b5844c0628edee070"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-ground-back-shiny.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/back/shiny/493-ground.png",
+      "sha256": "bf485a5da904a48559aec6ef7e07fb82d85dd1f6751ae3bb1670d0a2d127f3d8"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-rock-front-normal.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/493-rock.png",
+      "sha256": "d6848674c69479c04e339ffab912b5a3c1c54ed238c69126777725dd872c2d61"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-rock-front-shiny.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/shiny/493-rock.png",
+      "sha256": "9cb0ad9046f4cdd5946300f073dcdeba38796e2152bf3ba4c8913321b89270bb"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-rock-back-normal.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/back/493-rock.png",
+      "sha256": "6976853d4b87047e1936becd3907ff2e221681f9e4c9611f3e023368b56eb99c"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-rock-back-shiny.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/back/shiny/493-rock.png",
+      "sha256": "84f9b17ce5871e06aba46049e94c49787f9ed67891831b5676352a08af3c9433"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-bug-front-normal.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/493-bug.png",
+      "sha256": "31576053eda6ef55d5268aa94d43932ef8c67cb39d354f5de586e96b988a35be"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-bug-front-shiny.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/shiny/493-bug.png",
+      "sha256": "c0878b1e39c7c74ce5bd6b779e1fbe38f1f5a878cea047d56b4ae47f6cf7b4eb"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-bug-back-normal.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/back/493-bug.png",
+      "sha256": "e1f9cd275c9a8a6ffc51ed49ef05a865e22cc08ac6728cfa599015b097d37ceb"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-bug-back-shiny.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/back/shiny/493-bug.png",
+      "sha256": "c3247a45501b89ad6631701fe2f443423cda9cf2d06475403b0f903673bc2932"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-ghost-front-normal.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/493-ghost.png",
+      "sha256": "738ef5a2b4871520d9eb25d83af9da7527d7e5406c35b643bc82b9b843df97a9"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-ghost-front-shiny.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/shiny/493-ghost.png",
+      "sha256": "8b3db658bd59bb60ea101029829804d8573fe54b778ee92cba5d51bbc9474d83"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-ghost-back-normal.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/back/493-ghost.png",
+      "sha256": "143b0e9b688c56b43c3e20539df4c8ac9701e8d5f387e726591a193d9fbc5c7d"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-ghost-back-shiny.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/back/shiny/493-ghost.png",
+      "sha256": "48ada91a505c8836fcdb900e9fe6eac8fef01c7ab1054b63daa1c8334db2b27e"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-steel-front-normal.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/493-steel.png",
+      "sha256": "e1e14a090b8b7a1bc7839a6fe9d0d9c5e92f352c49635a3309fd42fefa078373"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-steel-front-shiny.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/shiny/493-steel.png",
+      "sha256": "567245bd387eda1056f922ebbde9ed6a84f3adb0759eaab761fb5324c585e6b0"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-steel-back-normal.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/back/493-steel.png",
+      "sha256": "0b0ed7ba033404ecb78c9905134b322910411072729f18106553d0c34850f6bb"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-steel-back-shiny.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/back/shiny/493-steel.png",
+      "sha256": "21847ac4f2dc76e8bc070d9d8ed91a2d96fc1f5cc428462dafffbfa6d8f44127"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-fire-front-normal.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/493-fire.png",
+      "sha256": "4d8e84e884290fcd81c380dd46589ffa6b59be121777ba1f4d6b1271ecae5bcb"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-fire-front-shiny.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/shiny/493-fire.png",
+      "sha256": "39d0fa656d15a8a50b00c610dba8535743127b29b29fa95ecff6cc224f78d40c"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-fire-back-normal.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/back/493-fire.png",
+      "sha256": "95782c741fc11dde2345d2abb17fc95cbc18fdd7671e3c976eee6fb6af2a169f"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-fire-back-shiny.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/back/shiny/493-fire.png",
+      "sha256": "1f279d76dad391d2a0f49cb6dfb270846768e99e5ae4825d67e6e1369785cdff"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-water-front-normal.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/493-water.png",
+      "sha256": "6645c2d7aef6a1a000214231bffb9858e00c23b8628f9a9309c24337d600e9d9"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-water-front-shiny.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/shiny/493-water.png",
+      "sha256": "34c177b3098b89228500f28ea55c7319261b9dfa4cceb87b21e1d58a7ed7a3cb"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-water-back-normal.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/back/493-water.png",
+      "sha256": "392c7385924b6c02accd20a1af5752513157542e36fa06f18cff072b57d15015"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-water-back-shiny.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/back/shiny/493-water.png",
+      "sha256": "5c2f642bc2fc44b06ecc2db7d986e648c3dba50e06067fdd11c6e480cc407f8b"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-grass-front-normal.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/493-grass.png",
+      "sha256": "6a422bec8df38394953db9274496a93366d532734b7c49c1951f540472e53034"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-grass-front-shiny.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/shiny/493-grass.png",
+      "sha256": "16b9ff1c920643930049ebc5803609b8980a8374a26d7e93461c5c48a70a302b"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-grass-back-normal.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/back/493-grass.png",
+      "sha256": "b37ce9f55269acd88a98fa039e0ae1516aadda536a7320345b105b8ad828097b"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-grass-back-shiny.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/back/shiny/493-grass.png",
+      "sha256": "013344fe5517c90df7432855e0f7bd3cea6aa65643395f2e94bf8b79d2c05d65"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-electric-front-normal.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/493-electric.png",
+      "sha256": "3278f4d4c4a71cfbb18d3dcde8d49cc7c78b1cf6ae9edc477e63da7ae4d713c3"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-electric-front-shiny.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/shiny/493-electric.png",
+      "sha256": "09b6f756289292e7f8d57fe47c7e097c27ff9397a3865a12b8d410fe331f0643"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-electric-back-normal.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/back/493-electric.png",
+      "sha256": "dca15e9333c28e7d69e80f357f36a5d14398ffb2ce64b49c8118dc139b8fbd0a"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-electric-back-shiny.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/back/shiny/493-electric.png",
+      "sha256": "e5d481e1d000d48b37f0c1ac58c0d597a7c136c04e4ac9464c65b0c0546cdf9c"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-psychic-front-normal.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/493-psychic.png",
+      "sha256": "3441adb55d4187dfb0ffb6c7ec69f9b9a04268fc9fcbc07e9b1d5285df04d8ad"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-psychic-front-shiny.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/shiny/493-psychic.png",
+      "sha256": "c9e39ccef57f8891fed5f1f191a83dade458555295e1176d7bad91fba34648b7"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-psychic-back-normal.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/back/493-psychic.png",
+      "sha256": "2b4d00643f04fb6e73ad9a33bae9a8ca2e990bb78a754ded3282e4c5764a9530"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-psychic-back-shiny.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/back/shiny/493-psychic.png",
+      "sha256": "ae6c1f360f7e79c9c4ef03ca593aa5d9771fb27ca7ea491400638abab6c856bd"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-ice-front-normal.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/493-ice.png",
+      "sha256": "31fb1ebda35b767d27b46c69e5a59a9d4cb1cb79ec159248ab2a833427b8bb3c"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-ice-front-shiny.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/shiny/493-ice.png",
+      "sha256": "cbbbdfdb49897e555aefa402a624ea6b70cd582fb36f1f9b26b160dc4a53150b"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-ice-back-normal.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/back/493-ice.png",
+      "sha256": "d20033d9db9204146d9e6de0ddb792d661f6f7017699ad344a314230595a8533"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-ice-back-shiny.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/back/shiny/493-ice.png",
+      "sha256": "16b649c23c9e1dd1ec7dbc2f1c8a8ad212f00b8870252eb8f9bd8d3adce71cff"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-dragon-front-normal.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/493-dragon.png",
+      "sha256": "dfe47404df3fff5201ae578d9cc9c6baec7afb2aabea0446d2a81f1688f043a0"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-dragon-front-shiny.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/shiny/493-dragon.png",
+      "sha256": "20bc5abfcc214939b22f64c52033081a6294770fd649a64767d3d59d51376949"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-dragon-back-normal.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/back/493-dragon.png",
+      "sha256": "c57a5d6832d76c761ad143be10fe0e93770fe6c716a08e919e1c87a41bdb4bb8"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-dragon-back-shiny.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/back/shiny/493-dragon.png",
+      "sha256": "7809d832228a9e3b4d37d215e76682ca79257d9e42601cb2cd937df615982876"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-dark-front-normal.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/493-dark.png",
+      "sha256": "222b39c5e22cff9a304cf2b070f16f565b19f9d5ca415afe00661f3375b948d5"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-dark-front-shiny.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/shiny/493-dark.png",
+      "sha256": "864efeeac3aaacfe4898a322a61e46f59f560cb86f8eb278505e18e0d19b2cb6"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-dark-back-normal.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/back/493-dark.png",
+      "sha256": "e49a4e94dd0103c1b3067010a10cf5d79309ca35c6e31705e690c2e6188ba6ea"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-dark-back-shiny.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/back/shiny/493-dark.png",
+      "sha256": "1c479a04058fb68ce40deddbfa341a7a5f5300d05b802ccf8e734a6163b9d596"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-fairy-front-normal.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/493-fairy.png",
+      "sha256": "e6be454933b16c9810abaea884bebece8a06d6ce6595179dc322287e73861fb8"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-fairy-front-shiny.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/shiny/493-fairy.png",
+      "sha256": "573992b55333ce2f991a2ad2f42e62b2bb366c85d52cef320ecc6be509a39e44"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-fairy-back-normal.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/back/493-fairy.png",
+      "sha256": "be29d9528b54684367c1444b1681061afff6732a1e553f761794836ef5c56b59"
+    },
+    "qa/gen6-wave15-alignment-20260909/type-system-source/arceus-fairy-back-shiny.png": {
+      "url": "https://raw.githubusercontent.com/PokeAPI/sprites/2ecb4eeacd5a1718621fc30f12772e3f60d830b9/sprites/pokemon/back/shiny/493-fairy.png",
+      "sha256": "ed31f07915059c6dd87b57a334d2063489359bf3d7006636f41a41c96aeeb39c"
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1176/front-normal-00.png": {
+      "sha256": "3c5d278f6b38bc05f02acfd08607d7989408253f904d863eda728d587cb749cf",
+      "slot": 1176
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1176/back-normal-00.png": {
+      "sha256": "6ca5d4c8af27d5733d651df351e3b36a94098b0e44a6768636eb4df9b82a7deb",
+      "slot": 1176
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1176/front-shiny-00.png": {
+      "sha256": "ea977d23683a29c7263d66b82f9cc3009474b995fcd5681e558e9e7b68047843",
+      "slot": 1176
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1176/back-shiny-00.png": {
+      "sha256": "c59c83462111c3773c81376587f7f1d9a9210214c6f8573f248a647cad7e1728",
+      "slot": 1176
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1177/front-normal-00.png": {
+      "sha256": "b74154f01559acbdb5f5a1ce7a225d3d9b5d35cb2a78324a3798e15cabaef350",
+      "slot": 1177
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1177/back-normal-00.png": {
+      "sha256": "b52e5550a788f7d847546640af359f859add64d1437308d9b3951b0e977bc49c",
+      "slot": 1177
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1177/front-shiny-00.png": {
+      "sha256": "e36da4ae39136533b8020f6924131f63b3d48a58e46695847ec1390a633faacc",
+      "slot": 1177
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1177/back-shiny-00.png": {
+      "sha256": "b5f92a5266416863d26962cc4ff7f496f94be1968234dcc5ae63109c0b0c52b4",
+      "slot": 1177
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1178/front-normal-00.png": {
+      "sha256": "355854a97634c25c609675b72ad3ad7d5dc68e36435c5e5d778ac059df7ff668",
+      "slot": 1178
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1178/back-normal-00.png": {
+      "sha256": "60cd17064b81a9a9076b350ac1332e544fba47129579d895e86ca7ea0b5c5fb5",
+      "slot": 1178
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1178/front-shiny-00.png": {
+      "sha256": "1cf154893774b9199d195d3dd8a519b12bb9569b0f4b19a7efbe80e5e28e991c",
+      "slot": 1178
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1178/back-shiny-00.png": {
+      "sha256": "6a5f2a994257a747085061f58d2205d69fa3b0f95d14867ac12ea37936dff74e",
+      "slot": 1178
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1179/front-normal-00.png": {
+      "sha256": "450a6ca3f03f35d14f16dd4ec672f75e68b93481e6f84e24842079901791882c",
+      "slot": 1179
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1179/back-normal-00.png": {
+      "sha256": "855eb9a614964ac94cbd4e5d99ef2f5c6993d4b7101f91adf085381638a95ec2",
+      "slot": 1179
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1179/front-shiny-00.png": {
+      "sha256": "b17d3859c69e509b617622a273a2576c45ade21c2d4a959f802017bc3ec315b9",
+      "slot": 1179
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1179/back-shiny-00.png": {
+      "sha256": "bd52d1010aac3aec9c435ee0da09160c387c8e748a8512b67366a077c8cbd7f0",
+      "slot": 1179
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1180/front-normal-00.png": {
+      "sha256": "fe46656fb6617701b934defb8fba3e12cd202f022935b3db9100b443cefa670e",
+      "slot": 1180
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1180/back-normal-00.png": {
+      "sha256": "2d31551aaf39f2bd504ab75f19db983e665e32430e5d560c3196180467a21b01",
+      "slot": 1180
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1180/front-shiny-00.png": {
+      "sha256": "90137d64e87c69ecec8959c65f8b3dae6e1ee54a231b88b0225ff3acfcb2dcc4",
+      "slot": 1180
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1180/back-shiny-00.png": {
+      "sha256": "dbcb2d503b46f187a08c932b12b1cc7785795158d7806ca2d8eb6d90f45f3d91",
+      "slot": 1180
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1181/front-normal-00.png": {
+      "sha256": "1bc385af9cbc765ccb723f9cb1f1c6d25197e9d3d532186cff3e7097f2ca0fd1",
+      "slot": 1181
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1181/back-normal-00.png": {
+      "sha256": "9e8d271d67d35a6ec254040b1ddfe456b7717d9de3d0ad586b01d341704b4d1a",
+      "slot": 1181
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1181/front-shiny-00.png": {
+      "sha256": "01c667964a4ad3839a06c6319797367aac3bdb1fe7ce197a285c7348168817e4",
+      "slot": 1181
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1181/back-shiny-00.png": {
+      "sha256": "4a9a52e0f10732d8ae0178fb1beca8476ba0b1edb75f0384b3c44bfef13883ae",
+      "slot": 1181
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1182/front-normal-00.png": {
+      "sha256": "c5887377be4e2af80c29f0ee35bed1c7943487d010e3efef664c6698206f42f8",
+      "slot": 1182
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1182/back-normal-00.png": {
+      "sha256": "ba07aa45894dff469c0a3c37e434a36d3419fe3ed6290a30cb16dfdeb7d56412",
+      "slot": 1182
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1182/front-shiny-00.png": {
+      "sha256": "0139da2c2255cea141c7e0b9f9a2ebb41c781b1352dbff211f9678013f8b6832",
+      "slot": 1182
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1182/back-shiny-00.png": {
+      "sha256": "543176f7f7a35cba9129999db5587fcf5c59a4d1495bfca90ab299497c89ee52",
+      "slot": 1182
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1183/front-normal-00.png": {
+      "sha256": "850c214269a77029768e218efce64e51b1cebe42161a852c48de7b61c20a4334",
+      "slot": 1183
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1183/back-normal-00.png": {
+      "sha256": "7dc8ad09a0d486c3d11c52f9d5354f82fc63bfdc9b972537512964b36ade1cb1",
+      "slot": 1183
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1183/front-shiny-00.png": {
+      "sha256": "572a8bf283f0015a341315473a53338ddd237d80a073d33643e3cb69aa71764f",
+      "slot": 1183
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1183/back-shiny-00.png": {
+      "sha256": "868f497203bf266e0c42fbc7b642b2ab322db042a3476699d2ac33adbc7b91bf",
+      "slot": 1183
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1184/front-normal-00.png": {
+      "sha256": "b29f6244a487bc13bbc3f40b502026f5023354932d337c5b5e5d7e5d987d2b10",
+      "slot": 1184
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1184/back-normal-00.png": {
+      "sha256": "a553d84a9df863d90fe08db482763647028e65f9f4b6c7d7f9f02566a28b87a5",
+      "slot": 1184
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1184/front-shiny-00.png": {
+      "sha256": "705b99803a7784d33430d492c5f84cca7e12629aa0f00328f7ea1d2958506962",
+      "slot": 1184
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1184/back-shiny-00.png": {
+      "sha256": "2f4e5153195e1310882242bfbe64f1dc1bd086cc9d6c85d9452f3c5258319533",
+      "slot": 1184
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1185/front-normal-00.png": {
+      "sha256": "269540174cd3644f66d8b654b6e13292e8af8719f0b30f12210d8b8eb773e76f",
+      "slot": 1185
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1185/back-normal-00.png": {
+      "sha256": "c1f98b31fbed7fb5e998c6f79ef6a92390d713307f4c0b4e006d43611216e0f3",
+      "slot": 1185
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1185/front-shiny-00.png": {
+      "sha256": "89d38a33d2db67b7372bdf56ebe4bd4c9ea3b1f021f93fa16a63470f2147b994",
+      "slot": 1185
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1185/back-shiny-00.png": {
+      "sha256": "6a352c2df97e88125823bee58c36660a2c893658c066f8814b60bc83bd110a6b",
+      "slot": 1185
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1186/front-normal-00.png": {
+      "sha256": "cbf6212d9454a277f2c8c0ae9e17bfe69b533f60978165b5ad74ba800c0173d6",
+      "slot": 1186
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1186/back-normal-00.png": {
+      "sha256": "07554eb1a7c7e5f7a815dba3b95a87eabc1bb1dd2ef5ba81de2b2e23d0f3dc47",
+      "slot": 1186
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1186/front-shiny-00.png": {
+      "sha256": "ede444872975b45c84cf2a074a5dd7ec14676e147fc87f1a1b3b293b310ff786",
+      "slot": 1186
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1186/back-shiny-00.png": {
+      "sha256": "91f7f1ae057280d2fed519e16c8bd477080b16f933498b8544b0eb0ed7222a26",
+      "slot": 1186
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1187/front-normal-00.png": {
+      "sha256": "73efdbae4f01a30876ef3c11a0d70b452a72bbb30327eda1b9b8c72a3245dee7",
+      "slot": 1187
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1187/back-normal-00.png": {
+      "sha256": "e9b1c5af4a4163953ba7d54b3aab439e915aada2cef8490586fb60c290062e4e",
+      "slot": 1187
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1187/front-shiny-00.png": {
+      "sha256": "ecb650a55364cba87bc01071d2968a6c1c18334dbd90e290a0747d0fd990a85e",
+      "slot": 1187
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1187/back-shiny-00.png": {
+      "sha256": "fc42c2101b07b86b527d3281ede11e3b0cd6896a4951d3f90555ec63ee279fa5",
+      "slot": 1187
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1188/front-normal-00.png": {
+      "sha256": "704c6000bd7fe00c7d511240d1ea3cb26c29acb55659e033a4e063297d4ccef4",
+      "slot": 1188
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1188/back-normal-00.png": {
+      "sha256": "37592d64627fd56e48740df92080693cc8c3947af4d5f99410414a85c6bedbcb",
+      "slot": 1188
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1188/front-shiny-00.png": {
+      "sha256": "0b6f8b6409deb79459c16d4b0a0cce72647c5d199b1909cf36b43b77f544c06e",
+      "slot": 1188
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1188/back-shiny-00.png": {
+      "sha256": "23ec65492678a6fea973cbc94c30c22bd0103406ef1a7382f5a6e0b2264dc47e",
+      "slot": 1188
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1189/front-normal-00.png": {
+      "sha256": "b21fe8845b77512aa3363b59399e3de15315510c5b01ad7c0f8b033bf618ab1e",
+      "slot": 1189
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1189/back-normal-00.png": {
+      "sha256": "75868916a568abf2e625e79906ae804fd19716de1cc5311e57686ec1d234a001",
+      "slot": 1189
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1189/front-shiny-00.png": {
+      "sha256": "bc4111005c5b3db14fd15f36d0bac7c8ca8fecf581c28258c7f8d1e029409e8f",
+      "slot": 1189
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1189/back-shiny-00.png": {
+      "sha256": "4498910702b6c6f1275f25f2b1af17656c46b34b81903ee689b3834b523cd1ab",
+      "slot": 1189
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1190/front-normal-00.png": {
+      "sha256": "7b0e60f38a98f6f51e38a0b9c7f87f9e1915f62881a626230366651d0b17a252",
+      "slot": 1190
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1190/back-normal-00.png": {
+      "sha256": "8d252f5acfcadc331f4f10c07ce172bde255862d3b27f15eb868f8396788b5bf",
+      "slot": 1190
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1190/front-shiny-00.png": {
+      "sha256": "5170f7af9fb09465296c63842c7b05b3bc51a696b21ab41167627bbe225acf50",
+      "slot": 1190
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1190/back-shiny-00.png": {
+      "sha256": "4ee8a50320a895f59404e1793816a6064a4415cdd42e0ca50dabd477398a234e",
+      "slot": 1190
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1191/front-normal-00.png": {
+      "sha256": "290d64fbc0b7531e5298f3a40a96babc7fb9bf2a821f6520f0b5d321988b6240",
+      "slot": 1191
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1191/back-normal-00.png": {
+      "sha256": "2c1111fc091857dbbd170d1a9a2ec1a03b9914bb9a6eb873495202af91579849",
+      "slot": 1191
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1191/front-shiny-00.png": {
+      "sha256": "08aa957119ee337de2ec2d34247676307621c208566d3ed5bb06cf532149c84c",
+      "slot": 1191
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1191/back-shiny-00.png": {
+      "sha256": "1b283b6b2fed88f96b2af55df23c573292158b78d1961aca522a3feeebf7efde",
+      "slot": 1191
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1192/front-normal-00.png": {
+      "sha256": "51c554368055f592e2510923f24b5294c16ee60a8f19b6e1144ed4e2a20c6585",
+      "slot": 1192
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1192/back-normal-00.png": {
+      "sha256": "de9742bd736a367b315a084ab981e28614068177c3df42e7810e48518ed50cf7",
+      "slot": 1192
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1192/front-shiny-00.png": {
+      "sha256": "0b1e401faadd7fb22bbed6f9ac95677e08d17640ea052fed089f363731af0ad7",
+      "slot": 1192
+    },
+    "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1192/back-shiny-00.png": {
+      "sha256": "e6f433c1aa0a20c6022dcd9757c0d3aeefd2423a5e05b1a595ab61aadf048764",
+      "slot": 1192
+    }
+  },
+  "forms": [
+    {
+      "key": "cosmetic:493:fighting",
+      "side": "front",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/493/fighting/front/normal/001.png",
+      "animated": false,
+      "sha256": "d69426a6f5c107e5dd0b8a967d01dc8de075041fb25206cdc3b8f6917ded509e",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:fighting",
+      "side": "back",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/493/fighting/back/normal/001.png",
+      "animated": false,
+      "sha256": "562c8e857e1c1abc0e4c02af67e9414604378273c30f217577c7e8774660bc41",
+      "sourceUnion": [
+        10,
+        8,
+        76,
+        84
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        42,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:493:fighting",
+      "side": "voxel",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/493/fighting/voxel/normal/001.png",
+      "animated": false,
+      "sha256": "dd5217313f01116247d4907e97cbc58f4308e67f9b0a9b5ff52f607eb4b3c137",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:fighting",
+      "side": "front",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/493/fighting/front/shiny/001.png",
+      "animated": false,
+      "sha256": "31fd712e4f73c5d4bd16c5fd5d43ef416b2d55de0a0da868bf292e739cd7f954",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:fighting",
+      "side": "back",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/493/fighting/back/shiny/001.png",
+      "animated": false,
+      "sha256": "82d9c63253efa51c7d0d64dbbe36c70ac5e5fd2014bd7e76bca69e940a1419b6",
+      "sourceUnion": [
+        10,
+        8,
+        76,
+        84
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        42,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:493:fighting",
+      "side": "voxel",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/493/fighting/voxel/shiny/001.png",
+      "animated": false,
+      "sha256": "b694b3c9c6b667062ee5bf67bfbd352fce01bc2ac7e405f22020eade208fa175",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:flying",
+      "side": "front",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/493/flying/front/normal/001.png",
+      "animated": false,
+      "sha256": "9fa2e7da38a695157c8a3fe5488cd7b3b2e533d207fb1d1beae8e560b0b8a509",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:flying",
+      "side": "back",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/493/flying/back/normal/001.png",
+      "animated": false,
+      "sha256": "3b22715cb695959a6a1050b9d1a365aa8626f22c409c6e1ec007edd9a77d9431",
+      "sourceUnion": [
+        10,
+        8,
+        76,
+        84
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        42,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:493:flying",
+      "side": "voxel",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/493/flying/voxel/normal/001.png",
+      "animated": false,
+      "sha256": "6f373f41644755d3adb3f1e3231bc05341c3425f358aa8f856c712b0905e1ee9",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:flying",
+      "side": "front",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/493/flying/front/shiny/001.png",
+      "animated": false,
+      "sha256": "f0698c89796e92a608879dcf841e89a1747f46d8b2d53e21e7f0060300d28cb9",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:flying",
+      "side": "back",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/493/flying/back/shiny/001.png",
+      "animated": false,
+      "sha256": "e0d7a83621ff4bb213675402a45395f07b129ecc9d9ef71711e099a1a40f54f0",
+      "sourceUnion": [
+        10,
+        8,
+        76,
+        84
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        42,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:493:flying",
+      "side": "voxel",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/493/flying/voxel/shiny/001.png",
+      "animated": false,
+      "sha256": "ca3739b66e850425680fb4a82a4c794171555eff74b8eb2ed54d4d7da28489b2",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:poison",
+      "side": "front",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/493/poison/front/normal/001.png",
+      "animated": false,
+      "sha256": "b7b29473d5f19c6c16c5e53e598e5797ede9eac3fa3c66dc9ba721ba890e617e",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:poison",
+      "side": "back",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/493/poison/back/normal/001.png",
+      "animated": false,
+      "sha256": "a7a16c4b4fbc6e9ecd84176755fab15ed0bc30e832d1c61cf2444b7a8dba136a",
+      "sourceUnion": [
+        10,
+        8,
+        76,
+        84
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        42,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:493:poison",
+      "side": "voxel",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/493/poison/voxel/normal/001.png",
+      "animated": false,
+      "sha256": "ebeb30217cd7b4b1f7d5f56ba78287019d4257da12464f4fa27d63cb07de8845",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:poison",
+      "side": "front",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/493/poison/front/shiny/001.png",
+      "animated": false,
+      "sha256": "89734171d1e2fae6338f11d64f0744a498acf539ca61e0b2bbc7699a81bdbc5d",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:poison",
+      "side": "back",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/493/poison/back/shiny/001.png",
+      "animated": false,
+      "sha256": "da4b00aedd659e3f7be9a5e25827565ddd306237ff4ce3ab5e888fb2a49a64fb",
+      "sourceUnion": [
+        10,
+        8,
+        76,
+        84
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        42,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:493:poison",
+      "side": "voxel",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/493/poison/voxel/shiny/001.png",
+      "animated": false,
+      "sha256": "556afb321da6aed3ee81a32893bbacf2d527b93050fcba5ff7d443dae6a4901f",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:ground",
+      "side": "front",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/493/ground/front/normal/001.png",
+      "animated": false,
+      "sha256": "8037fe6feb28266deca76d3ae1b0dfa213763e8036e2794f5e51b5d4f76b8a5c",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:ground",
+      "side": "back",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/493/ground/back/normal/001.png",
+      "animated": false,
+      "sha256": "1522bba70fa3256f5b902239ac91def05aa6bea4c895f7308705d9d0e2ab3548",
+      "sourceUnion": [
+        10,
+        8,
+        76,
+        84
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        42,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:493:ground",
+      "side": "voxel",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/493/ground/voxel/normal/001.png",
+      "animated": false,
+      "sha256": "b33db82fc916bfdd19f188bd5e2719f7f8ee697b2eba750a7e3455f392596f4f",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:ground",
+      "side": "front",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/493/ground/front/shiny/001.png",
+      "animated": false,
+      "sha256": "29f92ad95f3a7272d36f2ef827f4feed1ff526fdb1929f23747316bd29bd6890",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:ground",
+      "side": "back",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/493/ground/back/shiny/001.png",
+      "animated": false,
+      "sha256": "a787985c3a5494af006bce361d0c7adbfc9233bca3b578460aeeac41883919c3",
+      "sourceUnion": [
+        10,
+        8,
+        76,
+        84
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        42,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:493:ground",
+      "side": "voxel",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/493/ground/voxel/shiny/001.png",
+      "animated": false,
+      "sha256": "5084cdc573d1c82cdcab7cd788a07f477e4c12c31d9cfe2d7862278da1a03bcb",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:rock",
+      "side": "front",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/493/rock/front/normal/001.png",
+      "animated": false,
+      "sha256": "a513039fb5278cdcfcf74efbcb2d69b2e2cb33fd133bb47755a6577372e92693",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:rock",
+      "side": "back",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/493/rock/back/normal/001.png",
+      "animated": false,
+      "sha256": "780fd152f1b527d745eaa13f51e7964db06a504f405f63962c94f2ac25bb970a",
+      "sourceUnion": [
+        10,
+        8,
+        76,
+        84
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        42,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:493:rock",
+      "side": "voxel",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/493/rock/voxel/normal/001.png",
+      "animated": false,
+      "sha256": "c2cb021fdaec647030ade6a10e6cb844bf58c94415bb8563c1f0fb58f485de0a",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:rock",
+      "side": "front",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/493/rock/front/shiny/001.png",
+      "animated": false,
+      "sha256": "9154210da0a1049e27dc4577ecce001193ee35af70f49cd117d84419f923941d",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:rock",
+      "side": "back",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/493/rock/back/shiny/001.png",
+      "animated": false,
+      "sha256": "1404e5cf15675152006f2797114b53df1d1ded7c6e315cae7a4e6a27bed40c57",
+      "sourceUnion": [
+        10,
+        8,
+        76,
+        84
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        42,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:493:rock",
+      "side": "voxel",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/493/rock/voxel/shiny/001.png",
+      "animated": false,
+      "sha256": "b30c66817e6264b008205fb439e252ecd98760154bc3ffaa7522c82180900cc7",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:bug",
+      "side": "front",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/493/bug/front/normal/001.png",
+      "animated": false,
+      "sha256": "3a03da551cbec068e7f1eb872670de327359d286245b484225cf628e8d0e21db",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:bug",
+      "side": "back",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/493/bug/back/normal/001.png",
+      "animated": false,
+      "sha256": "091c9fef677e559cbd31af143ce3911e359af77b9c2db002acc8ebeaa10123c5",
+      "sourceUnion": [
+        10,
+        8,
+        76,
+        84
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        42,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:493:bug",
+      "side": "voxel",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/493/bug/voxel/normal/001.png",
+      "animated": false,
+      "sha256": "fdeea98f66eb9617bd2357984a88998dcba8a613f6470142a68655a212037cd0",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:bug",
+      "side": "front",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/493/bug/front/shiny/001.png",
+      "animated": false,
+      "sha256": "cf133a20694b81039b50fb5bfa47529aaf2a01158f48d04cc3cb41b04d31b98b",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:bug",
+      "side": "back",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/493/bug/back/shiny/001.png",
+      "animated": false,
+      "sha256": "2883e7670ffa71c960fce3da7a80f767fa4e81d496eabb801854840991020206",
+      "sourceUnion": [
+        10,
+        8,
+        76,
+        84
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        42,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:493:bug",
+      "side": "voxel",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/493/bug/voxel/shiny/001.png",
+      "animated": false,
+      "sha256": "4fba34460224a914a3f3ea8f7670ba5ece3ebf25086cc977310ad965ff6fb691",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:ghost",
+      "side": "front",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/493/ghost/front/normal/001.png",
+      "animated": false,
+      "sha256": "18436dc09b71bc45f516f109a1f7bc5c321b359eec0e9ea2d54855ae98ac3dc2",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:ghost",
+      "side": "back",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/493/ghost/back/normal/001.png",
+      "animated": false,
+      "sha256": "fae9cfd4088b487972ddb6b9106357a2352adecb37fd8185810acaf4823e1325",
+      "sourceUnion": [
+        10,
+        8,
+        76,
+        84
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        42,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:493:ghost",
+      "side": "voxel",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/493/ghost/voxel/normal/001.png",
+      "animated": false,
+      "sha256": "af0086111251072a1581d558334654f372a98a7a49f95b8e4fc740ca7f97989a",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:ghost",
+      "side": "front",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/493/ghost/front/shiny/001.png",
+      "animated": false,
+      "sha256": "7f0c3d707d42dff10a900e1eed73c8aeb29a9148edf7dde489f93ec8b34be7c9",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:ghost",
+      "side": "back",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/493/ghost/back/shiny/001.png",
+      "animated": false,
+      "sha256": "7fb427e0d24e21b733a143d50488b2640361c51fcb1b64e88b509c1f700d0a5c",
+      "sourceUnion": [
+        10,
+        8,
+        76,
+        84
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        42,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:493:ghost",
+      "side": "voxel",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/493/ghost/voxel/shiny/001.png",
+      "animated": false,
+      "sha256": "1ef298527a93eefe6b152b2c66612dc224580e75229bbfb7d25a651613c00724",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:steel",
+      "side": "front",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/493/steel/front/normal/001.png",
+      "animated": false,
+      "sha256": "a7bb5c330c75f31deb5aeee056fd4b8914c4b94cefd02b36d41f4c2df1222a21",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:steel",
+      "side": "back",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/493/steel/back/normal/001.png",
+      "animated": false,
+      "sha256": "b56c56cea58989d8e4d6be404ac963181b99b01f6f7d74ecb58b2023ae6a4d8e",
+      "sourceUnion": [
+        10,
+        8,
+        76,
+        84
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        42,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:493:steel",
+      "side": "voxel",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/493/steel/voxel/normal/001.png",
+      "animated": false,
+      "sha256": "58399ae5abc83fa9256abd675f6286cdbce90a736c6192cd22fae8caf7ceaa48",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:steel",
+      "side": "front",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/493/steel/front/shiny/001.png",
+      "animated": false,
+      "sha256": "ad538e0cb24cf8309da800112adb3ff4dae6449c297462daa40c72e051e6fe5b",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:steel",
+      "side": "back",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/493/steel/back/shiny/001.png",
+      "animated": false,
+      "sha256": "f0d721f980f688d36de152e5ba5fe14f931b79e2a605533ac770f2e541ef701d",
+      "sourceUnion": [
+        10,
+        8,
+        76,
+        84
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        42,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:493:steel",
+      "side": "voxel",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/493/steel/voxel/shiny/001.png",
+      "animated": false,
+      "sha256": "99da4c89ca8b37679aed6f67a669902351241cb3e75990e2907305970716d436",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:fire",
+      "side": "front",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/493/fire/front/normal/001.png",
+      "animated": false,
+      "sha256": "13d9259460018fc15ec8a92ab08ddcb90d527a331b93d19fe0f40ee1a734e13b",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:fire",
+      "side": "back",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/493/fire/back/normal/001.png",
+      "animated": false,
+      "sha256": "158348bfbca676744800c9e463b902d1fff1d89722089338d4434e515cf37622",
+      "sourceUnion": [
+        10,
+        8,
+        76,
+        84
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        42,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:493:fire",
+      "side": "voxel",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/493/fire/voxel/normal/001.png",
+      "animated": false,
+      "sha256": "839cb30a0087f5d8eb2defc1bda17efa49abc7ec02b6eb048c9c1bfd65dca31b",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:fire",
+      "side": "front",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/493/fire/front/shiny/001.png",
+      "animated": false,
+      "sha256": "8d255f296ad0d8876b52fe0c47ba4b42fbd9cb92dbc1e07a3dab5e4496b1f55d",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:fire",
+      "side": "back",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/493/fire/back/shiny/001.png",
+      "animated": false,
+      "sha256": "562b676aa4ba7acf5b7c01bcb71d2edc245331e8df90792a839ddc19ce2c7ced",
+      "sourceUnion": [
+        10,
+        8,
+        76,
+        84
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        42,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:493:fire",
+      "side": "voxel",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/493/fire/voxel/shiny/001.png",
+      "animated": false,
+      "sha256": "db89c0e6491663a0bc48e34176e4c238071e14ab6fb17357e23b18e7a6a9bc80",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:water",
+      "side": "front",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/493/water/front/normal/001.png",
+      "animated": false,
+      "sha256": "5c1459e8a2e0b2132ec2d93daa29ce5bc0bb1d48ad8f63ded177b0a1dccd68e8",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:water",
+      "side": "back",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/493/water/back/normal/001.png",
+      "animated": false,
+      "sha256": "b17360774a6e477780f76c5bda4701fd5417b01f137efd78171e8c86ae79891a",
+      "sourceUnion": [
+        10,
+        8,
+        76,
+        84
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        42,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:493:water",
+      "side": "voxel",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/493/water/voxel/normal/001.png",
+      "animated": false,
+      "sha256": "c2e28b59e753846df1be3b01278f85efd9d3d061ee1aa2b10be077410e89f2ba",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:water",
+      "side": "front",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/493/water/front/shiny/001.png",
+      "animated": false,
+      "sha256": "efa4377b5ff12e1f0eaa7255b42936ea05a593226e4bc25e7aeada45d9565846",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:water",
+      "side": "back",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/493/water/back/shiny/001.png",
+      "animated": false,
+      "sha256": "8128540ad813572f4a4e586d020f7f28fcebf26b0ff716331aa549e2b5f1f94f",
+      "sourceUnion": [
+        10,
+        8,
+        76,
+        84
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        42,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:493:water",
+      "side": "voxel",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/493/water/voxel/shiny/001.png",
+      "animated": false,
+      "sha256": "343259ad90b0f239394a05272dd264267a407cf71c7755e931ac6c4585fa5d8b",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:grass",
+      "side": "front",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/493/grass/front/normal/001.png",
+      "animated": false,
+      "sha256": "af347b3c4be0652a63a6802f01ef604e9a94751b5bb8dede4a9694963b3df8b2",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:grass",
+      "side": "back",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/493/grass/back/normal/001.png",
+      "animated": false,
+      "sha256": "4ee2713b8597ac0d683e911ee34ce8de286e3c31cc6c6d1bdf782feaebc71c48",
+      "sourceUnion": [
+        10,
+        8,
+        76,
+        84
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        42,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:493:grass",
+      "side": "voxel",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/493/grass/voxel/normal/001.png",
+      "animated": false,
+      "sha256": "0afb3686055987982cd12348bdc178d6f7dfbf64568a40fe7a7dc7372e36e6f8",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:grass",
+      "side": "front",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/493/grass/front/shiny/001.png",
+      "animated": false,
+      "sha256": "e6203a1445d8462acc0bbef48399d0f43871a35e6bc3e396270b7b47392782c3",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:grass",
+      "side": "back",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/493/grass/back/shiny/001.png",
+      "animated": false,
+      "sha256": "4839c98dbb26325aa9e0072ad8d1ec0f901ca9871f793547293bc045dc113c28",
+      "sourceUnion": [
+        10,
+        8,
+        76,
+        84
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        42,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:493:grass",
+      "side": "voxel",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/493/grass/voxel/shiny/001.png",
+      "animated": false,
+      "sha256": "c1c1e2c86da8f5ee577935c911ebd4dd78919e27a8d7f3d77a353608d2e55db6",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:electric",
+      "side": "front",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/493/electric/front/normal/001.png",
+      "animated": false,
+      "sha256": "575bcdc5e4772028780c21e1bb7c612974136a19174ad39380e2a34f5084d13b",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:electric",
+      "side": "back",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/493/electric/back/normal/001.png",
+      "animated": false,
+      "sha256": "6ccd39839fbb042ef97561cb895658e2ab2bd27b78c7e286713f0d54177e9c71",
+      "sourceUnion": [
+        10,
+        8,
+        76,
+        84
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        42,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:493:electric",
+      "side": "voxel",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/493/electric/voxel/normal/001.png",
+      "animated": false,
+      "sha256": "b39b288e8336fe94171149f452d799a8bfe699e41fcefa4d5d7d72f0acecd71e",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:electric",
+      "side": "front",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/493/electric/front/shiny/001.png",
+      "animated": false,
+      "sha256": "b731cd028d23ac6f373c28f91f8e3c3e6eb20a300d51784a717e15cb3f582043",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:electric",
+      "side": "back",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/493/electric/back/shiny/001.png",
+      "animated": false,
+      "sha256": "6eb8d0e3f28dd16407ac13c7f2f0aecb5a1861e491b5e95e3cf5baa3990808b3",
+      "sourceUnion": [
+        10,
+        8,
+        76,
+        84
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        42,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:493:electric",
+      "side": "voxel",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/493/electric/voxel/shiny/001.png",
+      "animated": false,
+      "sha256": "ae9163ebe4604563b6c62d68ae229eb9842371d2382b92fed42334547f7cfa1e",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:psychic",
+      "side": "front",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/493/psychic/front/normal/001.png",
+      "animated": false,
+      "sha256": "80c0d278d54ea2469d1d8d8f47ca7bbf343b29335855f992ebad5b683b7f9319",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:psychic",
+      "side": "back",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/493/psychic/back/normal/001.png",
+      "animated": false,
+      "sha256": "c73c50fa59dc7ed33e6ac7c1b768edf439e0ab8ef3c21ee19db3f42901c44485",
+      "sourceUnion": [
+        10,
+        8,
+        76,
+        84
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        42,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:493:psychic",
+      "side": "voxel",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/493/psychic/voxel/normal/001.png",
+      "animated": false,
+      "sha256": "a3c585b8ed8c05f9c16bfdb1748ffa8e83a40191f1b0a418a5f1f84efbf27ff8",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:psychic",
+      "side": "front",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/493/psychic/front/shiny/001.png",
+      "animated": false,
+      "sha256": "6fc4a59748f61df88a6e2e6ff7a86baef04cebdb7c73942d12cc2aca18ddea43",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:psychic",
+      "side": "back",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/493/psychic/back/shiny/001.png",
+      "animated": false,
+      "sha256": "99a8b669b3a51f3b041d567acb5b81da0347f4f7096ab57e8ee91ef900ba6285",
+      "sourceUnion": [
+        10,
+        8,
+        76,
+        84
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        42,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:493:psychic",
+      "side": "voxel",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/493/psychic/voxel/shiny/001.png",
+      "animated": false,
+      "sha256": "cf4992c84b6e894a3a3a16b30b1ed80fff72f80db6da0ff5cfc54fb95955f9b0",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:ice",
+      "side": "front",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/493/ice/front/normal/001.png",
+      "animated": false,
+      "sha256": "139dce9cb9382ab4cf544555821ffd5bc60a6165573fc198aa8c4b6754752806",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:ice",
+      "side": "back",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/493/ice/back/normal/001.png",
+      "animated": false,
+      "sha256": "aa67dc0e1cce813a79f1463a97fc7a48c68ef7bec0dac45de095b8a9d19e585b",
+      "sourceUnion": [
+        10,
+        8,
+        76,
+        84
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        42,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:493:ice",
+      "side": "voxel",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/493/ice/voxel/normal/001.png",
+      "animated": false,
+      "sha256": "f520e962da4fd16d4063c180ba125b838e147cf760127d460eaf1219fd0e5be3",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:ice",
+      "side": "front",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/493/ice/front/shiny/001.png",
+      "animated": false,
+      "sha256": "6228bbcc1cc06b64525933d8c713df5bc46386403942cb9d662055bda9eb85c1",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:ice",
+      "side": "back",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/493/ice/back/shiny/001.png",
+      "animated": false,
+      "sha256": "e77392cfe8fc6943edc01957ad469029bf7e30e5b2ee37c4d671745142d6bb54",
+      "sourceUnion": [
+        10,
+        8,
+        76,
+        84
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        42,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:493:ice",
+      "side": "voxel",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/493/ice/voxel/shiny/001.png",
+      "animated": false,
+      "sha256": "9b8c274b22b6ea57c8ec15d115eff0db953af0ee980cb496ea8e10884611e8b6",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:dragon",
+      "side": "front",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/493/dragon/front/normal/001.png",
+      "animated": false,
+      "sha256": "6e99720db49e2d872664a24503330e2d035bfc19f93bc958a499dba5ef77fdcd",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:dragon",
+      "side": "back",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/493/dragon/back/normal/001.png",
+      "animated": false,
+      "sha256": "26ac274ef8ca5a808b29cd2fde5c51a4d1d64992545b8516e710810627a1216a",
+      "sourceUnion": [
+        10,
+        8,
+        76,
+        84
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        42,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:493:dragon",
+      "side": "voxel",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/493/dragon/voxel/normal/001.png",
+      "animated": false,
+      "sha256": "8e2f50b9391b2b3e8d776ca153a32cae86c2634e61b71df9d9d4358f275ad3e3",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:dragon",
+      "side": "front",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/493/dragon/front/shiny/001.png",
+      "animated": false,
+      "sha256": "29ffcfd948e2fd1c38d226da497bf7484293eed961fa80884aefe4cb560d28ed",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:dragon",
+      "side": "back",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/493/dragon/back/shiny/001.png",
+      "animated": false,
+      "sha256": "1128e1f009c6ff04a433bd2ca159969a83867be6f6984a7956696d8d728c4bda",
+      "sourceUnion": [
+        10,
+        8,
+        76,
+        84
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        42,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:493:dragon",
+      "side": "voxel",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/493/dragon/voxel/shiny/001.png",
+      "animated": false,
+      "sha256": "77b067a51da38c4aee1059209acfb126b35a5a220048a36153ac5e98668987aa",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:dark",
+      "side": "front",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/493/dark/front/normal/001.png",
+      "animated": false,
+      "sha256": "ae036c46f284c6e6ffb2508b75b645d2fe4dadb55d9fe315191688359a1e4564",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:dark",
+      "side": "back",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/493/dark/back/normal/001.png",
+      "animated": false,
+      "sha256": "88d7322da1d9f0b720cde27c6e8d3ed325aa1b3c9259629930d0ada802c80e4c",
+      "sourceUnion": [
+        10,
+        8,
+        76,
+        84
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        42,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:493:dark",
+      "side": "voxel",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/493/dark/voxel/normal/001.png",
+      "animated": false,
+      "sha256": "e0ff4267002b04957d4b12806144be962c8995fa957baf30c97e0880ebe85f08",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:dark",
+      "side": "front",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/493/dark/front/shiny/001.png",
+      "animated": false,
+      "sha256": "284fe51ff75f90545aebefd9ee5c3444a12d12655533a37afb8f7de16c1a16a4",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:dark",
+      "side": "back",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/493/dark/back/shiny/001.png",
+      "animated": false,
+      "sha256": "beca3863bdb62255a4df8c11a077412c46b79b697473c1fc290a11e99c28d827",
+      "sourceUnion": [
+        10,
+        8,
+        76,
+        84
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        42,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:493:dark",
+      "side": "voxel",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/493/dark/voxel/shiny/001.png",
+      "animated": false,
+      "sha256": "c56ee0e337d9537aa07a87622d985d71ce712718c27f418405a0693445c510c6",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:fairy",
+      "side": "front",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/493/fairy/front/normal/001.png",
+      "animated": false,
+      "sha256": "73eb5425522a54b7dbcc005914589dc1163fc08bcbdf7eca52f4f87a2b3eced1",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:fairy",
+      "side": "back",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/493/fairy/back/normal/001.png",
+      "animated": false,
+      "sha256": "e758c51d0a836213ddb2d7d2eed17bb8d2f2d9e557656466d4b91857a668de3f",
+      "sourceUnion": [
+        10,
+        8,
+        76,
+        84
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        42,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:493:fairy",
+      "side": "voxel",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/493/fairy/voxel/normal/001.png",
+      "animated": false,
+      "sha256": "c9e75658bbdb9480e64f9997f7c10980160032cf0ad7596da618a160425c438b",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:fairy",
+      "side": "front",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/493/fairy/front/shiny/001.png",
+      "animated": false,
+      "sha256": "e07ecdbb140f7321884cf8b5112d7b20b23ca52caf2d86250723e0ba1e675d89",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:493:fairy",
+      "side": "back",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/493/fairy/back/shiny/001.png",
+      "animated": false,
+      "sha256": "03e1245d02a3d32aeab45c08fb755e55ce41346829c414dff85d402365060e99",
+      "sourceUnion": [
+        10,
+        8,
+        76,
+        84
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        42,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:493:fairy",
+      "side": "voxel",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/493/fairy/voxel/shiny/001.png",
+      "animated": false,
+      "sha256": "cec38ed5ccd6d9365ce5ab0790ddac3aa1654cbbd73909b7cec2235985a0d44e",
+      "sourceUnion": [
+        14,
+        11,
+        82,
+        84
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        52,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:fighting",
+      "side": "front",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/773/fighting/front/normal/001.png",
+      "animated": false,
+      "sha256": "6980a3d54f4a452c0deeb12de1d694a4179eb500bc4365af00ca9eda8dceea87",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:fighting",
+      "side": "back",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/773/fighting/back/normal/001.png",
+      "animated": false,
+      "sha256": "61590f392ab0ec5a796fd9a0c88196bf804dbb49ffa466741ef75d45b855a57b",
+      "sourceUnion": [
+        8,
+        16,
+        53,
+        64
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        45,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:773:fighting",
+      "side": "voxel",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/773/fighting/voxel/normal/001.png",
+      "animated": false,
+      "sha256": "36d8af73cd9363b530e02a68daab1495caa1f5c3fdb9284d6b13d10b38afc2e2",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:fighting",
+      "side": "front",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/773/fighting/front/shiny/001.png",
+      "animated": false,
+      "sha256": "701e29a44e94bfd6d780cc71fe9da8008f7d44a23e48fe9bf05c23c2cb5d02f1",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:fighting",
+      "side": "back",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/773/fighting/back/shiny/001.png",
+      "animated": false,
+      "sha256": "9b22800766bda31f7ad4b66810c4b1058e6cc3d0e5bb8367606d2706d82bef80",
+      "sourceUnion": [
+        8,
+        16,
+        53,
+        64
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        45,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:773:fighting",
+      "side": "voxel",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/773/fighting/voxel/shiny/001.png",
+      "animated": false,
+      "sha256": "e6f3d7fdf4ba2f130647631a93bf183310082566e443a08ed5a1ff40e38c6fa1",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:flying",
+      "side": "front",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/773/flying/front/normal/001.png",
+      "animated": false,
+      "sha256": "79e3eb75901717d12823f8b6a688f8f58bc70f443a4211545ba4c27c2f9f0f13",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:flying",
+      "side": "back",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/773/flying/back/normal/001.png",
+      "animated": false,
+      "sha256": "20b164e38f8a73a7f6e6419397f0f114b4665c714a0b05a8e371e998ae4b03a8",
+      "sourceUnion": [
+        8,
+        16,
+        53,
+        64
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        45,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:773:flying",
+      "side": "voxel",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/773/flying/voxel/normal/001.png",
+      "animated": false,
+      "sha256": "de360674e0d10cca1a582ad22e256caed31c65a03d3d93c2829c10dd7987ba11",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:flying",
+      "side": "front",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/773/flying/front/shiny/001.png",
+      "animated": false,
+      "sha256": "84ab65f9d052d60d0504ac09459758190a63f436f1f25cca982c234d7d6e60a2",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:flying",
+      "side": "back",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/773/flying/back/shiny/001.png",
+      "animated": false,
+      "sha256": "5743ab2410e6279b4cae007fe8747f282642b5c26f99faa5dbcc6612aaa7f32f",
+      "sourceUnion": [
+        8,
+        16,
+        53,
+        64
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        45,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:773:flying",
+      "side": "voxel",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/773/flying/voxel/shiny/001.png",
+      "animated": false,
+      "sha256": "e78b545a7ceda7682246fda69b09d4113df59709e1fb7690636a8c09295a2b18",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:poison",
+      "side": "front",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/773/poison/front/normal/001.png",
+      "animated": false,
+      "sha256": "198993c0cb5a6eb663fbaaa8bfc36bc42d3a74bebf4b7bf1c4b04d7358527ac2",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:poison",
+      "side": "back",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/773/poison/back/normal/001.png",
+      "animated": false,
+      "sha256": "a8d4ba95bd28077990bd1aa81c26d563bc715e8b07014f8e558cc83a228dfd20",
+      "sourceUnion": [
+        8,
+        16,
+        53,
+        64
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        45,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:773:poison",
+      "side": "voxel",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/773/poison/voxel/normal/001.png",
+      "animated": false,
+      "sha256": "e8843b3594fa3173408213c37b4fc1ff31d8c44c50b05345c6cc797d9a42ecef",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:poison",
+      "side": "front",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/773/poison/front/shiny/001.png",
+      "animated": false,
+      "sha256": "6dd8d9954be68c6b2021ca3ab30137b658c3e55f8a1c351b1f1da8aa4fd528b1",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:poison",
+      "side": "back",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/773/poison/back/shiny/001.png",
+      "animated": false,
+      "sha256": "6f9178eb7a23b46bee23f27fcb4e2d41db48ffe12c01f55bbe92e984a489cd9e",
+      "sourceUnion": [
+        8,
+        16,
+        53,
+        64
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        45,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:773:poison",
+      "side": "voxel",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/773/poison/voxel/shiny/001.png",
+      "animated": false,
+      "sha256": "3663df69e7d29c78aee956b332fee81bd05c2f2c77c4c0b89a94795f36a1f4a8",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:ground",
+      "side": "front",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/773/ground/front/normal/001.png",
+      "animated": false,
+      "sha256": "41e54c15bd540125c210d69806fafd28c97f6492b06d8e7d103ffa94be5c8043",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:ground",
+      "side": "back",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/773/ground/back/normal/001.png",
+      "animated": false,
+      "sha256": "8fb5f79c40bd1a05f58ed285edaf70fa58f1754bde4d34d9e9f338367ca42a4c",
+      "sourceUnion": [
+        8,
+        16,
+        53,
+        64
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        45,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:773:ground",
+      "side": "voxel",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/773/ground/voxel/normal/001.png",
+      "animated": false,
+      "sha256": "e4795b7bf6005033dddab5a6a92c463d48c50d33cb6e4cccb8e0a09e28adba2a",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:ground",
+      "side": "front",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/773/ground/front/shiny/001.png",
+      "animated": false,
+      "sha256": "2aa3f4afbd79ad977be0fd26a856ecd535dc0f7cf5c13036178444b858b8fff9",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:ground",
+      "side": "back",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/773/ground/back/shiny/001.png",
+      "animated": false,
+      "sha256": "05ad336483c0b405513433c5f27fe362bf3053b925d51f731d294d598478029b",
+      "sourceUnion": [
+        8,
+        16,
+        53,
+        64
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        45,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:773:ground",
+      "side": "voxel",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/773/ground/voxel/shiny/001.png",
+      "animated": false,
+      "sha256": "ac3831e986e74f64b5a7b597d515b8e04856fe7fef540bb4a463fcf13754505d",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:rock",
+      "side": "front",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/773/rock/front/normal/001.png",
+      "animated": false,
+      "sha256": "17c144508bf412cb611c4b0adc9566501e835b1a45505577f53a4e923bd53ab2",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:rock",
+      "side": "back",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/773/rock/back/normal/001.png",
+      "animated": false,
+      "sha256": "6f9b91cefb67e70dcc5664f753dfe7358fb5c329e46ebd25387c989e17b77b39",
+      "sourceUnion": [
+        8,
+        16,
+        53,
+        64
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        45,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:773:rock",
+      "side": "voxel",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/773/rock/voxel/normal/001.png",
+      "animated": false,
+      "sha256": "d115a56765762507ab50de4d5eee01d84a6cc3c3afafaca246678c2f7a2b039e",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:rock",
+      "side": "front",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/773/rock/front/shiny/001.png",
+      "animated": false,
+      "sha256": "362f85f911d7011aecc44a2e14ad0b8af2faa45fb9baf04ea5c7edd5ecc2549b",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:rock",
+      "side": "back",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/773/rock/back/shiny/001.png",
+      "animated": false,
+      "sha256": "2083494e935eff5d9cfd8d42c8202c709a3a7fe156b3529aa0b3182194d48dac",
+      "sourceUnion": [
+        8,
+        16,
+        53,
+        64
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        45,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:773:rock",
+      "side": "voxel",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/773/rock/voxel/shiny/001.png",
+      "animated": false,
+      "sha256": "1e0ab5c6315a4009fbc753f6373c98753da3b0beaaf0be82f27a0abde32ac1e3",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:bug",
+      "side": "front",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/773/bug/front/normal/001.png",
+      "animated": false,
+      "sha256": "70037d21eb22656e360e0e90a53640d2559c4a5cd583475468951766e306530a",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:bug",
+      "side": "back",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/773/bug/back/normal/001.png",
+      "animated": false,
+      "sha256": "93a2259d0c5f61d312e9d3a09e3bd8789315185829cf4c25316e0447f63a16ca",
+      "sourceUnion": [
+        8,
+        16,
+        53,
+        64
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        45,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:773:bug",
+      "side": "voxel",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/773/bug/voxel/normal/001.png",
+      "animated": false,
+      "sha256": "fbe81ea799a0af542ccf1793e4f75c06bc929c2436bfa91aabc20ad94ba4c9da",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:bug",
+      "side": "front",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/773/bug/front/shiny/001.png",
+      "animated": false,
+      "sha256": "de79f55401c833a49ba446a852aad57fac940bbbb2883cb701f478d4f3be5cc5",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:bug",
+      "side": "back",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/773/bug/back/shiny/001.png",
+      "animated": false,
+      "sha256": "e76f10a2d2739e65261487d1eda6097bb9b72bca55f1986fd3844cb1909fd32f",
+      "sourceUnion": [
+        8,
+        16,
+        53,
+        64
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        45,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:773:bug",
+      "side": "voxel",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/773/bug/voxel/shiny/001.png",
+      "animated": false,
+      "sha256": "f765b1fe69c41a34ded4beba79383961958e2d0fd686b13aef1dfb65eb39ca9f",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:ghost",
+      "side": "front",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/773/ghost/front/normal/001.png",
+      "animated": false,
+      "sha256": "f57403f9257f1385d05a74bcb0b3d762fccd2d70e7d3e421a71226744980515e",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:ghost",
+      "side": "back",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/773/ghost/back/normal/001.png",
+      "animated": false,
+      "sha256": "7ca011a1929099dc889573a9f1a6d9b22a97bcb4f575fda7ec980cf40d75d833",
+      "sourceUnion": [
+        8,
+        16,
+        53,
+        64
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        45,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:773:ghost",
+      "side": "voxel",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/773/ghost/voxel/normal/001.png",
+      "animated": false,
+      "sha256": "90df22ba5f211473861ae8bba46e7c2d5aabec5d4ea25a227ac58f71a350e5d1",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:ghost",
+      "side": "front",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/773/ghost/front/shiny/001.png",
+      "animated": false,
+      "sha256": "0d44db188677487fce80fa30c582dfa93ab0f501b5ec1db5b1582a356c4d9827",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:ghost",
+      "side": "back",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/773/ghost/back/shiny/001.png",
+      "animated": false,
+      "sha256": "21e3e236e95a571da0368f26b7111e89448fd6efeb8355c9e6b855d9d529ee77",
+      "sourceUnion": [
+        8,
+        16,
+        53,
+        64
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        45,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:773:ghost",
+      "side": "voxel",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/773/ghost/voxel/shiny/001.png",
+      "animated": false,
+      "sha256": "547f832d6f23fe58ede075bd1d4fc8ba809152d9062f055e90aaf914929c64ca",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:steel",
+      "side": "front",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/773/steel/front/normal/001.png",
+      "animated": false,
+      "sha256": "7592ce35fc4870117db108a8873225ce2a72356d15d3064b49749582a0169847",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:steel",
+      "side": "back",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/773/steel/back/normal/001.png",
+      "animated": false,
+      "sha256": "aabed73b177114031056d3e717635c6ba6d5764e0fbdcd99cf2baadacbbfebe3",
+      "sourceUnion": [
+        8,
+        16,
+        53,
+        64
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        45,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:773:steel",
+      "side": "voxel",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/773/steel/voxel/normal/001.png",
+      "animated": false,
+      "sha256": "641be2eb34452c93f9545c8ee1135c1554bb64697c0e9841f3c80ef6114d0c06",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:steel",
+      "side": "front",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/773/steel/front/shiny/001.png",
+      "animated": false,
+      "sha256": "5a37b0d9d0e5a83174b47fe2568ebb50d77fe7407d5d7c6dbd1ed89fa9ee28c9",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:steel",
+      "side": "back",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/773/steel/back/shiny/001.png",
+      "animated": false,
+      "sha256": "4a7584fd821bff9c7f839c826576d8642b7929e72ed8ead2b731a24d648c54cb",
+      "sourceUnion": [
+        8,
+        16,
+        53,
+        64
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        45,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:773:steel",
+      "side": "voxel",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/773/steel/voxel/shiny/001.png",
+      "animated": false,
+      "sha256": "6782bed78925b54d8ddf3c3b7932c0e434df72d294fe857daa99b3344b98ea62",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:fire",
+      "side": "front",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/773/fire/front/normal/001.png",
+      "animated": false,
+      "sha256": "72b049740b2bfc06434e46256c860af7204cdc5071534d4f2e0a04c85359bcd3",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:fire",
+      "side": "back",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/773/fire/back/normal/001.png",
+      "animated": false,
+      "sha256": "11b82e509961176d536d9eceda29db78c6ca3732ee59111200ccf79729f330bd",
+      "sourceUnion": [
+        8,
+        16,
+        53,
+        64
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        45,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:773:fire",
+      "side": "voxel",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/773/fire/voxel/normal/001.png",
+      "animated": false,
+      "sha256": "92ac23a1156e8fa5afb44d1eef9d2a1ac8d335a521b91d65a724151c72e436dc",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:fire",
+      "side": "front",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/773/fire/front/shiny/001.png",
+      "animated": false,
+      "sha256": "1d1a83dfae9bca86c70dd2edb7946556b9b2cabca4aa526d9f7acf51c448b28d",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:fire",
+      "side": "back",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/773/fire/back/shiny/001.png",
+      "animated": false,
+      "sha256": "02aa2fc9ff87b66702b9a3733c8da9b6ebde07885a6e8dca33ff33f02cab365e",
+      "sourceUnion": [
+        8,
+        16,
+        53,
+        64
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        45,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:773:fire",
+      "side": "voxel",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/773/fire/voxel/shiny/001.png",
+      "animated": false,
+      "sha256": "a0851f3e8e34bff50ee90f6e784d50e3b3087fc32a338d7e99b494cae94bbc87",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:water",
+      "side": "front",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/773/water/front/normal/001.png",
+      "animated": false,
+      "sha256": "9c43bec71d304f341cafbc4e0e99d6a6bc59e8631659faffafd5a49670e33c54",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:water",
+      "side": "back",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/773/water/back/normal/001.png",
+      "animated": false,
+      "sha256": "84f4a3001342dfd01f1b6d7fe1672706f15c7974922f9f0403721af36a81b848",
+      "sourceUnion": [
+        8,
+        16,
+        53,
+        64
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        45,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:773:water",
+      "side": "voxel",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/773/water/voxel/normal/001.png",
+      "animated": false,
+      "sha256": "6bf8704347d7642b3e639bf74aa437e42ca7a064cd6ed2a85ec5207ae5aec146",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:water",
+      "side": "front",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/773/water/front/shiny/001.png",
+      "animated": false,
+      "sha256": "9ef958c670a0792b7c53bf76da6e7e6d391d0847baa24c76b5737f870b6cf815",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:water",
+      "side": "back",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/773/water/back/shiny/001.png",
+      "animated": false,
+      "sha256": "0c27590e20bc3bee063fdef3914322ee88d02a9aaaa1a5f0458c85c02ecd5809",
+      "sourceUnion": [
+        8,
+        16,
+        53,
+        64
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        45,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:773:water",
+      "side": "voxel",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/773/water/voxel/shiny/001.png",
+      "animated": false,
+      "sha256": "e7590871a447184d70b315b69b2f0408e97d98ebb91b75814fdbf125ffea3cf4",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:grass",
+      "side": "front",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/773/grass/front/normal/001.png",
+      "animated": false,
+      "sha256": "dc57653d742b2b4aa0d6776ae253da1988237535eb5d8bba170a711a1011ee08",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:grass",
+      "side": "back",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/773/grass/back/normal/001.png",
+      "animated": false,
+      "sha256": "25264e1fc9ab653dafba0ea1598366c457267120195d538506ef766dc6951018",
+      "sourceUnion": [
+        8,
+        16,
+        53,
+        64
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        45,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:773:grass",
+      "side": "voxel",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/773/grass/voxel/normal/001.png",
+      "animated": false,
+      "sha256": "9a83d596383312c8ab47448565411fca195cec84815cce5207de58f4ec60469f",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:grass",
+      "side": "front",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/773/grass/front/shiny/001.png",
+      "animated": false,
+      "sha256": "a8cd1a6d2b16c1ca339f25c31faa9a53d0555bb56567f8539ce09d3289bf9e2a",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:grass",
+      "side": "back",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/773/grass/back/shiny/001.png",
+      "animated": false,
+      "sha256": "78239977524d6ac36d771f0ed60632199975b12b9269dd0d5f1bb3ade8a7d67c",
+      "sourceUnion": [
+        8,
+        16,
+        53,
+        64
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        45,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:773:grass",
+      "side": "voxel",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/773/grass/voxel/shiny/001.png",
+      "animated": false,
+      "sha256": "797bdbc9f32552825cd927b668ba1d5e21949202a622363367600e2661232e36",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:electric",
+      "side": "front",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/773/electric/front/normal/001.png",
+      "animated": false,
+      "sha256": "9b6dfbd8a6b80dc3807f3f39499358736e043309d3f193a854d725ef82966b97",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:electric",
+      "side": "back",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/773/electric/back/normal/001.png",
+      "animated": false,
+      "sha256": "b3d6bd04d935a9a2876c3ecba1fdccdcf4e2bb8b60538896f1f6c82870949402",
+      "sourceUnion": [
+        8,
+        16,
+        53,
+        64
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        45,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:773:electric",
+      "side": "voxel",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/773/electric/voxel/normal/001.png",
+      "animated": false,
+      "sha256": "0b8d1f689f722f35c7b922c7298cc7ef129ffecd2ac4a5a5cd4c596813ffd3ac",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:electric",
+      "side": "front",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/773/electric/front/shiny/001.png",
+      "animated": false,
+      "sha256": "93c0f570be3b041997bd48866a39325ef279fcd2c29ef6920976805cc1960780",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:electric",
+      "side": "back",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/773/electric/back/shiny/001.png",
+      "animated": false,
+      "sha256": "126307dc2f3ed180a8816912ca62e0d4cc3fc6defce9c22a923563c52f29d495",
+      "sourceUnion": [
+        8,
+        16,
+        53,
+        64
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        45,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:773:electric",
+      "side": "voxel",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/773/electric/voxel/shiny/001.png",
+      "animated": false,
+      "sha256": "12e01b2aa0f4b75edac3178fdeff53631b77aa20a011703d3331349620c0d013",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:psychic",
+      "side": "front",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/773/psychic/front/normal/001.png",
+      "animated": false,
+      "sha256": "ad57c57d3ac4e2592f7d305ad58ea56f9c1807eb28b9178c28f17f13c9dd86c6",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:psychic",
+      "side": "back",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/773/psychic/back/normal/001.png",
+      "animated": false,
+      "sha256": "f72b73d838829c59cb7e1fc7a02edbf076445477443faa6bef1432ca9712d306",
+      "sourceUnion": [
+        8,
+        16,
+        53,
+        64
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        45,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:773:psychic",
+      "side": "voxel",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/773/psychic/voxel/normal/001.png",
+      "animated": false,
+      "sha256": "09bf796698701c1abcd8af46dde8e77ed637f85f2a7ba3166af181fccdf156c3",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:psychic",
+      "side": "front",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/773/psychic/front/shiny/001.png",
+      "animated": false,
+      "sha256": "aaf9f52f784ef3a8a48daa360e5669f2d128919644c90b22627b20044cbe2790",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:psychic",
+      "side": "back",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/773/psychic/back/shiny/001.png",
+      "animated": false,
+      "sha256": "1d38669fba6a498bc9ce9342b4d30b4d726051b3d4e8e08935bd4319740a14f9",
+      "sourceUnion": [
+        8,
+        16,
+        53,
+        64
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        45,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:773:psychic",
+      "side": "voxel",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/773/psychic/voxel/shiny/001.png",
+      "animated": false,
+      "sha256": "708d268cc1bc8f7d0417f9a4f96df50e527a73f3918daf4d5c449866a6951966",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:ice",
+      "side": "front",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/773/ice/front/normal/001.png",
+      "animated": false,
+      "sha256": "2b2ca5df1e74b38e668f08c711f6ce00dc0afe43d8e2b3babbe0658990672797",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:ice",
+      "side": "back",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/773/ice/back/normal/001.png",
+      "animated": false,
+      "sha256": "66fcf424ab7dfc158766a0501a0b7cbfe6479e7f75c3b5579161a4921d576bc5",
+      "sourceUnion": [
+        8,
+        16,
+        53,
+        64
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        45,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:773:ice",
+      "side": "voxel",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/773/ice/voxel/normal/001.png",
+      "animated": false,
+      "sha256": "4eb168ae05b2dc9e74037f293253b7b5f1909506da02b516fa31229f19354d4e",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:ice",
+      "side": "front",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/773/ice/front/shiny/001.png",
+      "animated": false,
+      "sha256": "d3767571aa8bdcebf107b453619fbf7a972acf820e9d387ef877b6ea6ebad652",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:ice",
+      "side": "back",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/773/ice/back/shiny/001.png",
+      "animated": false,
+      "sha256": "4cdade892968043a6527f7039e0e0cc25e90e16b317837261e5430ddb35b8799",
+      "sourceUnion": [
+        8,
+        16,
+        53,
+        64
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        45,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:773:ice",
+      "side": "voxel",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/773/ice/voxel/shiny/001.png",
+      "animated": false,
+      "sha256": "351af2cbb1da183f9326323e4929b9401a403a336e0d850df2ba3da982e7aeea",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:dragon",
+      "side": "front",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/773/dragon/front/normal/001.png",
+      "animated": false,
+      "sha256": "393b7bcbb250a86bb3c7d26e861797e03f6c157c342e7bc3bdbe0e54b0f05a8e",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:dragon",
+      "side": "back",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/773/dragon/back/normal/001.png",
+      "animated": false,
+      "sha256": "6734526702237f94c513780cd39179e4a7ce4301c33f7d51c2f4db42eb6e821c",
+      "sourceUnion": [
+        8,
+        16,
+        53,
+        64
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        45,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:773:dragon",
+      "side": "voxel",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/773/dragon/voxel/normal/001.png",
+      "animated": false,
+      "sha256": "5cee56d34176bf53e09d0f4f540590a85b75cef0290643147af2f441858008e6",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:dragon",
+      "side": "front",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/773/dragon/front/shiny/001.png",
+      "animated": false,
+      "sha256": "bcdaf3d1ca20d27b5575b207a404eb60821691eb0c36ace4f6e7ecbe218d142b",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:dragon",
+      "side": "back",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/773/dragon/back/shiny/001.png",
+      "animated": false,
+      "sha256": "5fe4463549a05e2b2be957ab7405b55d0d0c8fd42060e5cd12e31bfdf72e86fc",
+      "sourceUnion": [
+        8,
+        16,
+        53,
+        64
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        45,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:773:dragon",
+      "side": "voxel",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/773/dragon/voxel/shiny/001.png",
+      "animated": false,
+      "sha256": "7fa4e8cbe56805c8b03c476b5f31cce8721252a46cbf9473952ad14bd1ad2f8a",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:dark",
+      "side": "front",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/773/dark/front/normal/001.png",
+      "animated": false,
+      "sha256": "781522e429ed94f1f434896f4aef02fee8d9bd4e12ccb9a792a46cfde685d10b",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:dark",
+      "side": "back",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/773/dark/back/normal/001.png",
+      "animated": false,
+      "sha256": "5a1329d7ef7268c1493823e6d0eee7593bf452b6a22f28df2e2fd780890c1201",
+      "sourceUnion": [
+        8,
+        16,
+        53,
+        64
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        45,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:773:dark",
+      "side": "voxel",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/773/dark/voxel/normal/001.png",
+      "animated": false,
+      "sha256": "aeb76385d384e42c8e318130c8bf4a66da2ffc9cdd8dcf8b62877b4b06d5b419",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:dark",
+      "side": "front",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/773/dark/front/shiny/001.png",
+      "animated": false,
+      "sha256": "b8e9f99e2f9f8d49d5f6009b8922886353fa61cb0974dd1d4e8a8b65a227605f",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:dark",
+      "side": "back",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/773/dark/back/shiny/001.png",
+      "animated": false,
+      "sha256": "8585cd3ffd9030fe4519e0a2af4c5287351be3cc0bdf9f5ce947b4bd896ff8c9",
+      "sourceUnion": [
+        8,
+        16,
+        53,
+        64
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        45,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:773:dark",
+      "side": "voxel",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/773/dark/voxel/shiny/001.png",
+      "animated": false,
+      "sha256": "3adbb1153042e8cec6434ec4c1ebcfbc6ff05de56c32a177273ef0ff62e613ec",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:fairy",
+      "side": "front",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/773/fairy/front/normal/001.png",
+      "animated": false,
+      "sha256": "b06346493c3ebbf6be74e2f6c1e2831fce3c9223d1843560014e4de3d20f13ea",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:fairy",
+      "side": "back",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/773/fairy/back/normal/001.png",
+      "animated": false,
+      "sha256": "7215a0c04d52e21a17e12fb98edd35ecb09ca590ae15983638c07ab028fbe26c",
+      "sourceUnion": [
+        8,
+        16,
+        53,
+        64
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        45,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:773:fairy",
+      "side": "voxel",
+      "variant": "normal",
+      "path": "assets/type_item_forms_67/773/fairy/voxel/normal/001.png",
+      "animated": false,
+      "sha256": "0c720785659ab076f31f45ffe0619854c7172e6f44d60f735537ca3e61b05aa6",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:fairy",
+      "side": "front",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/773/fairy/front/shiny/001.png",
+      "animated": false,
+      "sha256": "3127c930b12d578fbc521c366ef77e22fb9395f5244678fd3a55b9b0cff25dd3",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        56,
+        56
+      ],
+      "body": [
+        51,
+        56
+      ]
+    },
+    {
+      "key": "cosmetic:773:fairy",
+      "side": "back",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/773/fairy/back/shiny/001.png",
+      "animated": false,
+      "sha256": "1625c3a423b99bde3d4c5d98be14b456d3c8908d390b44a32dab800840aedcee",
+      "sourceUnion": [
+        8,
+        16,
+        53,
+        64
+      ],
+      "stage": [
+        48,
+        48
+      ],
+      "body": [
+        45,
+        48
+      ]
+    },
+    {
+      "key": "cosmetic:773:fairy",
+      "side": "voxel",
+      "variant": "shiny",
+      "path": "assets/type_item_forms_67/773/fairy/voxel/shiny/001.png",
+      "animated": false,
+      "sha256": "15d3b59936c93e3d5819d2de43ade8bd687bfe8d745ed308a591c4f4e34d0940",
+      "sourceUnion": [
+        7,
+        8,
+        58,
+        64
+      ],
+      "stage": [
+        64,
+        64
+      ],
+      "body": [
+        51,
+        56
+      ]
+    }
+  ]
+}

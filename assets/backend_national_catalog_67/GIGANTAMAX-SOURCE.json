@@ -1,0 +1,806 @@
+{
+  "schema": "kasc.backend-gigantamax-catalog/v1",
+  "entries": {
+    "form:10195": {
+      "sourceId": "venusaurgmax",
+      "baseKey": "dex:3",
+      "signatureMove": "G_MAX_VINE_LASH"
+    },
+    "form:10196": {
+      "sourceId": "charizardgmax",
+      "baseKey": "dex:6",
+      "signatureMove": "G_MAX_WILDFIRE"
+    },
+    "form:10197": {
+      "sourceId": "blastoisegmax",
+      "baseKey": "dex:9",
+      "signatureMove": "G_MAX_CANNONADE"
+    },
+    "form:10198": {
+      "sourceId": "butterfreegmax",
+      "baseKey": "dex:12",
+      "signatureMove": "G_MAX_BEFUDDLE"
+    },
+    "form:10199": {
+      "sourceId": "pikachugmax",
+      "baseKey": "dex:25",
+      "signatureMove": "G_MAX_VOLT_CRASH"
+    },
+    "form:10200": {
+      "sourceId": "meowthgmax",
+      "baseKey": "dex:52",
+      "signatureMove": "G_MAX_GOLD_RUSH"
+    },
+    "form:10201": {
+      "sourceId": "machampgmax",
+      "baseKey": "dex:68",
+      "signatureMove": "G_MAX_CHI_STRIKE"
+    },
+    "form:10202": {
+      "sourceId": "gengargmax",
+      "baseKey": "dex:94",
+      "signatureMove": "G_MAX_TERROR"
+    },
+    "form:10203": {
+      "sourceId": "kinglergmax",
+      "baseKey": "dex:99",
+      "signatureMove": "G_MAX_FOAM_BURST"
+    },
+    "form:10204": {
+      "sourceId": "laprasgmax",
+      "baseKey": "dex:131",
+      "signatureMove": "G_MAX_RESONANCE"
+    },
+    "form:10205": {
+      "sourceId": "eeveegmax",
+      "baseKey": "dex:133",
+      "signatureMove": "G_MAX_CUDDLE"
+    },
+    "form:10206": {
+      "sourceId": "snorlaxgmax",
+      "baseKey": "dex:143",
+      "signatureMove": "G_MAX_REPLENISH"
+    },
+    "form:10207": {
+      "sourceId": "garbodorgmax",
+      "baseKey": "dex:569",
+      "signatureMove": "G_MAX_MALODOR"
+    },
+    "form:10208": {
+      "sourceId": "melmetalgmax",
+      "baseKey": "dex:809",
+      "signatureMove": "G_MAX_MELTDOWN"
+    },
+    "form:10209": {
+      "sourceId": "rillaboomgmax",
+      "baseKey": "dex:812",
+      "signatureMove": "G_MAX_DRUM_SOLO"
+    },
+    "form:10210": {
+      "sourceId": "cinderacegmax",
+      "baseKey": "dex:815",
+      "signatureMove": "G_MAX_FIREBALL"
+    },
+    "form:10211": {
+      "sourceId": "inteleongmax",
+      "baseKey": "dex:818",
+      "signatureMove": "G_MAX_HYDROSNIPE"
+    },
+    "form:10212": {
+      "sourceId": "corviknightgmax",
+      "baseKey": "dex:823",
+      "signatureMove": "G_MAX_WIND_RAGE"
+    },
+    "form:10213": {
+      "sourceId": "orbeetlegmax",
+      "baseKey": "dex:826",
+      "signatureMove": "G_MAX_GRAVITAS"
+    },
+    "form:10214": {
+      "sourceId": "drednawgmax",
+      "baseKey": "dex:834",
+      "signatureMove": "G_MAX_STONESURGE"
+    },
+    "form:10215": {
+      "sourceId": "coalossalgmax",
+      "baseKey": "dex:839",
+      "signatureMove": "G_MAX_VOLCALITH"
+    },
+    "form:10216": {
+      "sourceId": "flapplegmax",
+      "baseKey": "dex:841",
+      "signatureMove": "G_MAX_TARTNESS"
+    },
+    "form:10217": {
+      "sourceId": "appletungmax",
+      "baseKey": "dex:842",
+      "signatureMove": "G_MAX_SWEETNESS"
+    },
+    "form:10218": {
+      "sourceId": "sandacondagmax",
+      "baseKey": "dex:844",
+      "signatureMove": "G_MAX_SANDBLAST"
+    },
+    "form:10219": {
+      "sourceId": "toxtricitygmax",
+      "baseKey": "dex:849",
+      "signatureMove": "G_MAX_STUN_SHOCK"
+    },
+    "form:10220": {
+      "sourceId": "centiskorchgmax",
+      "baseKey": "dex:851",
+      "signatureMove": "G_MAX_CENTIFERNO"
+    },
+    "form:10221": {
+      "sourceId": "hatterenegmax",
+      "baseKey": "dex:858",
+      "signatureMove": "G_MAX_SMITE"
+    },
+    "form:10222": {
+      "sourceId": "grimmsnarlgmax",
+      "baseKey": "dex:861",
+      "signatureMove": "G_MAX_SNOOZE"
+    },
+    "form:10223": {
+      "sourceId": "alcremiegmax",
+      "baseKey": "dex:869",
+      "signatureMove": "G_MAX_FINALE"
+    },
+    "form:10224": {
+      "sourceId": "copperajahgmax",
+      "baseKey": "dex:879",
+      "signatureMove": "G_MAX_STEELSURGE"
+    },
+    "form:10225": {
+      "sourceId": "duraludongmax",
+      "baseKey": "dex:884",
+      "signatureMove": "G_MAX_DEPLETION"
+    },
+    "form:10226": {
+      "sourceId": "urshifugmax",
+      "baseKey": "dex:892",
+      "signatureMove": "G_MAX_ONE_BLOW"
+    },
+    "form:10227": {
+      "sourceId": "urshifurapidstrikegmax",
+      "baseKey": "form:10191",
+      "signatureMove": "G_MAX_RAPID_FLOW"
+    },
+    "form:10228": {
+      "sourceId": "toxtricitylowkeygmax",
+      "baseKey": "form:10184",
+      "signatureMove": "G_MAX_STUN_SHOCK"
+    }
+  },
+  "commit": "6b4bc34e44cc2541929cc4b8fff96e756ab3f268",
+  "moves": {
+    "G_MAX_BEFUDDLE": {
+      "sourceId": "gmaxbefuddle",
+      "name": "G-Max Befuddle",
+      "type": "BUG",
+      "sourceNumber": 1000,
+      "sourceBasePower": 10,
+      "sourceCategory": "Physical",
+      "sourcePP": 5,
+      "priority": 0,
+      "isMax": "Butterfree",
+      "effectsReady": false
+    },
+    "G_MAX_CANNONADE": {
+      "sourceId": "gmaxcannonade",
+      "name": "G-Max Cannonade",
+      "type": "WATER",
+      "sourceNumber": 1000,
+      "sourceBasePower": 10,
+      "sourceCategory": "Physical",
+      "sourcePP": 10,
+      "priority": 0,
+      "isMax": "Blastoise",
+      "effectsReady": false
+    },
+    "G_MAX_CENTIFERNO": {
+      "sourceId": "gmaxcentiferno",
+      "name": "G-Max Centiferno",
+      "type": "FIRE",
+      "sourceNumber": 1000,
+      "sourceBasePower": 10,
+      "sourceCategory": "Physical",
+      "sourcePP": 5,
+      "priority": 0,
+      "isMax": "Centiskorch",
+      "effectsReady": false
+    },
+    "G_MAX_CHI_STRIKE": {
+      "sourceId": "gmaxchistrike",
+      "name": "G-Max Chi Strike",
+      "type": "FIGHTING",
+      "sourceNumber": 1000,
+      "sourceBasePower": 10,
+      "sourceCategory": "Physical",
+      "sourcePP": 5,
+      "priority": 0,
+      "isMax": "Machamp",
+      "effectsReady": false
+    },
+    "G_MAX_CUDDLE": {
+      "sourceId": "gmaxcuddle",
+      "name": "G-Max Cuddle",
+      "type": "NORMAL",
+      "sourceNumber": 1000,
+      "sourceBasePower": 10,
+      "sourceCategory": "Physical",
+      "sourcePP": 5,
+      "priority": 0,
+      "isMax": "Eevee",
+      "effectsReady": false
+    },
+    "G_MAX_DEPLETION": {
+      "sourceId": "gmaxdepletion",
+      "name": "G-Max Depletion",
+      "type": "DRAGON",
+      "sourceNumber": 1000,
+      "sourceBasePower": 10,
+      "sourceCategory": "Physical",
+      "sourcePP": 5,
+      "priority": 0,
+      "isMax": "Duraludon",
+      "effectsReady": false
+    },
+    "G_MAX_DRUM_SOLO": {
+      "sourceId": "gmaxdrumsolo",
+      "name": "G-Max Drum Solo",
+      "type": "GRASS",
+      "sourceNumber": 1000,
+      "sourceBasePower": 160,
+      "sourceCategory": "Physical",
+      "sourcePP": 5,
+      "priority": 0,
+      "isMax": "Rillaboom",
+      "effectsReady": false
+    },
+    "G_MAX_FINALE": {
+      "sourceId": "gmaxfinale",
+      "name": "G-Max Finale",
+      "type": "FAIRY",
+      "sourceNumber": 1000,
+      "sourceBasePower": 10,
+      "sourceCategory": "Physical",
+      "sourcePP": 5,
+      "priority": 0,
+      "isMax": "Alcremie",
+      "effectsReady": false
+    },
+    "G_MAX_FIREBALL": {
+      "sourceId": "gmaxfireball",
+      "name": "G-Max Fireball",
+      "type": "FIRE",
+      "sourceNumber": 1000,
+      "sourceBasePower": 160,
+      "sourceCategory": "Physical",
+      "sourcePP": 5,
+      "priority": 0,
+      "isMax": "Cinderace",
+      "effectsReady": false
+    },
+    "G_MAX_FOAM_BURST": {
+      "sourceId": "gmaxfoamburst",
+      "name": "G-Max Foam Burst",
+      "type": "WATER",
+      "sourceNumber": 1000,
+      "sourceBasePower": 10,
+      "sourceCategory": "Physical",
+      "sourcePP": 5,
+      "priority": 0,
+      "isMax": "Kingler",
+      "effectsReady": false
+    },
+    "G_MAX_GOLD_RUSH": {
+      "sourceId": "gmaxgoldrush",
+      "name": "G-Max Gold Rush",
+      "type": "NORMAL",
+      "sourceNumber": 1000,
+      "sourceBasePower": 10,
+      "sourceCategory": "Physical",
+      "sourcePP": 5,
+      "priority": 0,
+      "isMax": "Meowth",
+      "effectsReady": false
+    },
+    "G_MAX_GRAVITAS": {
+      "sourceId": "gmaxgravitas",
+      "name": "G-Max Gravitas",
+      "type": "PSYCHIC",
+      "sourceNumber": 1000,
+      "sourceBasePower": 10,
+      "sourceCategory": "Physical",
+      "sourcePP": 5,
+      "priority": 0,
+      "isMax": "Orbeetle",
+      "effectsReady": false
+    },
+    "G_MAX_HYDROSNIPE": {
+      "sourceId": "gmaxhydrosnipe",
+      "name": "G-Max Hydrosnipe",
+      "type": "WATER",
+      "sourceNumber": 1000,
+      "sourceBasePower": 160,
+      "sourceCategory": "Physical",
+      "sourcePP": 5,
+      "priority": 0,
+      "isMax": "Inteleon",
+      "effectsReady": false
+    },
+    "G_MAX_MALODOR": {
+      "sourceId": "gmaxmalodor",
+      "name": "G-Max Malodor",
+      "type": "POISON",
+      "sourceNumber": 1000,
+      "sourceBasePower": 10,
+      "sourceCategory": "Physical",
+      "sourcePP": 5,
+      "priority": 0,
+      "isMax": "Garbodor",
+      "effectsReady": false
+    },
+    "G_MAX_MELTDOWN": {
+      "sourceId": "gmaxmeltdown",
+      "name": "G-Max Meltdown",
+      "type": "STEEL",
+      "sourceNumber": 1000,
+      "sourceBasePower": 10,
+      "sourceCategory": "Physical",
+      "sourcePP": 5,
+      "priority": 0,
+      "isMax": "Melmetal",
+      "effectsReady": false
+    },
+    "G_MAX_ONE_BLOW": {
+      "sourceId": "gmaxoneblow",
+      "name": "G-Max One Blow",
+      "type": "DARK",
+      "sourceNumber": 1000,
+      "sourceBasePower": 10,
+      "sourceCategory": "Physical",
+      "sourcePP": 5,
+      "priority": 0,
+      "isMax": "Urshifu",
+      "effectsReady": false
+    },
+    "G_MAX_RAPID_FLOW": {
+      "sourceId": "gmaxrapidflow",
+      "name": "G-Max Rapid Flow",
+      "type": "WATER",
+      "sourceNumber": 1000,
+      "sourceBasePower": 10,
+      "sourceCategory": "Physical",
+      "sourcePP": 5,
+      "priority": 0,
+      "isMax": "Urshifu-Rapid-Strike",
+      "effectsReady": false
+    },
+    "G_MAX_REPLENISH": {
+      "sourceId": "gmaxreplenish",
+      "name": "G-Max Replenish",
+      "type": "NORMAL",
+      "sourceNumber": 1000,
+      "sourceBasePower": 10,
+      "sourceCategory": "Physical",
+      "sourcePP": 5,
+      "priority": 0,
+      "isMax": "Snorlax",
+      "effectsReady": false
+    },
+    "G_MAX_RESONANCE": {
+      "sourceId": "gmaxresonance",
+      "name": "G-Max Resonance",
+      "type": "ICE",
+      "sourceNumber": 1000,
+      "sourceBasePower": 10,
+      "sourceCategory": "Physical",
+      "sourcePP": 5,
+      "priority": 0,
+      "isMax": "Lapras",
+      "effectsReady": false
+    },
+    "G_MAX_SANDBLAST": {
+      "sourceId": "gmaxsandblast",
+      "name": "G-Max Sandblast",
+      "type": "GROUND",
+      "sourceNumber": 1000,
+      "sourceBasePower": 10,
+      "sourceCategory": "Physical",
+      "sourcePP": 5,
+      "priority": 0,
+      "isMax": "Sandaconda",
+      "effectsReady": false
+    },
+    "G_MAX_SMITE": {
+      "sourceId": "gmaxsmite",
+      "name": "G-Max Smite",
+      "type": "FAIRY",
+      "sourceNumber": 1000,
+      "sourceBasePower": 10,
+      "sourceCategory": "Physical",
+      "sourcePP": 5,
+      "priority": 0,
+      "isMax": "Hatterene",
+      "effectsReady": false
+    },
+    "G_MAX_SNOOZE": {
+      "sourceId": "gmaxsnooze",
+      "name": "G-Max Snooze",
+      "type": "DARK",
+      "sourceNumber": 1000,
+      "sourceBasePower": 10,
+      "sourceCategory": "Physical",
+      "sourcePP": 5,
+      "priority": 0,
+      "isMax": "Grimmsnarl",
+      "effectsReady": false
+    },
+    "G_MAX_STEELSURGE": {
+      "sourceId": "gmaxsteelsurge",
+      "name": "G-Max Steelsurge",
+      "type": "STEEL",
+      "sourceNumber": 1000,
+      "sourceBasePower": 10,
+      "sourceCategory": "Physical",
+      "sourcePP": 5,
+      "priority": 0,
+      "isMax": "Copperajah",
+      "effectsReady": false
+    },
+    "G_MAX_STONESURGE": {
+      "sourceId": "gmaxstonesurge",
+      "name": "G-Max Stonesurge",
+      "type": "WATER",
+      "sourceNumber": 1000,
+      "sourceBasePower": 10,
+      "sourceCategory": "Physical",
+      "sourcePP": 5,
+      "priority": 0,
+      "isMax": "Drednaw",
+      "effectsReady": false
+    },
+    "G_MAX_STUN_SHOCK": {
+      "sourceId": "gmaxstunshock",
+      "name": "G-Max Stun Shock",
+      "type": "ELECTRIC",
+      "sourceNumber": 1000,
+      "sourceBasePower": 10,
+      "sourceCategory": "Physical",
+      "sourcePP": 10,
+      "priority": 0,
+      "isMax": "Toxtricity",
+      "effectsReady": false
+    },
+    "G_MAX_SWEETNESS": {
+      "sourceId": "gmaxsweetness",
+      "name": "G-Max Sweetness",
+      "type": "GRASS",
+      "sourceNumber": 1000,
+      "sourceBasePower": 10,
+      "sourceCategory": "Physical",
+      "sourcePP": 10,
+      "priority": 0,
+      "isMax": "Appletun",
+      "effectsReady": false
+    },
+    "G_MAX_TARTNESS": {
+      "sourceId": "gmaxtartness",
+      "name": "G-Max Tartness",
+      "type": "GRASS",
+      "sourceNumber": 1000,
+      "sourceBasePower": 10,
+      "sourceCategory": "Physical",
+      "sourcePP": 10,
+      "priority": 0,
+      "isMax": "Flapple",
+      "effectsReady": false
+    },
+    "G_MAX_TERROR": {
+      "sourceId": "gmaxterror",
+      "name": "G-Max Terror",
+      "type": "GHOST",
+      "sourceNumber": 1000,
+      "sourceBasePower": 10,
+      "sourceCategory": "Physical",
+      "sourcePP": 10,
+      "priority": 0,
+      "isMax": "Gengar",
+      "effectsReady": false
+    },
+    "G_MAX_VINE_LASH": {
+      "sourceId": "gmaxvinelash",
+      "name": "G-Max Vine Lash",
+      "type": "GRASS",
+      "sourceNumber": 1000,
+      "sourceBasePower": 10,
+      "sourceCategory": "Physical",
+      "sourcePP": 10,
+      "priority": 0,
+      "isMax": "Venusaur",
+      "effectsReady": false
+    },
+    "G_MAX_VOLCALITH": {
+      "sourceId": "gmaxvolcalith",
+      "name": "G-Max Volcalith",
+      "type": "ROCK",
+      "sourceNumber": 1000,
+      "sourceBasePower": 10,
+      "sourceCategory": "Physical",
+      "sourcePP": 10,
+      "priority": 0,
+      "isMax": "Coalossal",
+      "effectsReady": false
+    },
+    "G_MAX_VOLT_CRASH": {
+      "sourceId": "gmaxvoltcrash",
+      "name": "G-Max Volt Crash",
+      "type": "ELECTRIC",
+      "sourceNumber": 1000,
+      "sourceBasePower": 10,
+      "sourceCategory": "Physical",
+      "sourcePP": 10,
+      "priority": 0,
+      "isMax": "Pikachu",
+      "effectsReady": false
+    },
+    "G_MAX_WILDFIRE": {
+      "sourceId": "gmaxwildfire",
+      "name": "G-Max Wildfire",
+      "type": "FIRE",
+      "sourceNumber": 1000,
+      "sourceBasePower": 10,
+      "sourceCategory": "Physical",
+      "sourcePP": 10,
+      "priority": 0,
+      "isMax": "Charizard",
+      "effectsReady": false
+    },
+    "G_MAX_WIND_RAGE": {
+      "sourceId": "gmaxwindrage",
+      "name": "G-Max Wind Rage",
+      "type": "FLYING",
+      "sourceNumber": 1000,
+      "sourceBasePower": 10,
+      "sourceCategory": "Physical",
+      "sourcePP": 10,
+      "priority": 0,
+      "isMax": "Corviknight",
+      "effectsReady": false
+    },
+    "MAX_AIRSTREAM": {
+      "sourceId": "maxairstream",
+      "name": "Max Airstream",
+      "type": "FLYING",
+      "sourceNumber": 766,
+      "sourceBasePower": 10,
+      "sourceCategory": "Physical",
+      "sourcePP": 10,
+      "priority": 0,
+      "isMax": true,
+      "effectsReady": false
+    },
+    "MAX_DARKNESS": {
+      "sourceId": "maxdarkness",
+      "name": "Max Darkness",
+      "type": "DARK",
+      "sourceNumber": 772,
+      "sourceBasePower": 10,
+      "sourceCategory": "Physical",
+      "sourcePP": 10,
+      "priority": 0,
+      "isMax": true,
+      "effectsReady": false
+    },
+    "MAX_FLARE": {
+      "sourceId": "maxflare",
+      "name": "Max Flare",
+      "type": "FIRE",
+      "sourceNumber": 757,
+      "sourceBasePower": 100,
+      "sourceCategory": "Physical",
+      "sourcePP": 10,
+      "priority": 0,
+      "isMax": true,
+      "effectsReady": false
+    },
+    "MAX_FLUTTERBY": {
+      "sourceId": "maxflutterby",
+      "name": "Max Flutterby",
+      "type": "BUG",
+      "sourceNumber": 758,
+      "sourceBasePower": 10,
+      "sourceCategory": "Physical",
+      "sourcePP": 10,
+      "priority": 0,
+      "isMax": true,
+      "effectsReady": false
+    },
+    "MAX_GEYSER": {
+      "sourceId": "maxgeyser",
+      "name": "Max Geyser",
+      "type": "WATER",
+      "sourceNumber": 765,
+      "sourceBasePower": 10,
+      "sourceCategory": "Physical",
+      "sourcePP": 10,
+      "priority": 0,
+      "isMax": true,
+      "effectsReady": false
+    },
+    "MAX_GUARD": {
+      "sourceId": "maxguard",
+      "name": "Max Guard",
+      "type": "NORMAL",
+      "sourceNumber": 743,
+      "sourceBasePower": 0,
+      "sourceCategory": "Status",
+      "sourcePP": 10,
+      "priority": 4,
+      "isMax": true,
+      "effectsReady": false
+    },
+    "MAX_HAILSTORM": {
+      "sourceId": "maxhailstorm",
+      "name": "Max Hailstorm",
+      "type": "ICE",
+      "sourceNumber": 763,
+      "sourceBasePower": 10,
+      "sourceCategory": "Physical",
+      "sourcePP": 10,
+      "priority": 0,
+      "isMax": true,
+      "effectsReady": false
+    },
+    "MAX_KNUCKLE": {
+      "sourceId": "maxknuckle",
+      "name": "Max Knuckle",
+      "type": "FIGHTING",
+      "sourceNumber": 761,
+      "sourceBasePower": 10,
+      "sourceCategory": "Physical",
+      "sourcePP": 10,
+      "priority": 0,
+      "isMax": true,
+      "effectsReady": false
+    },
+    "MAX_LIGHTNING": {
+      "sourceId": "maxlightning",
+      "name": "Max Lightning",
+      "type": "ELECTRIC",
+      "sourceNumber": 759,
+      "sourceBasePower": 10,
+      "sourceCategory": "Physical",
+      "sourcePP": 10,
+      "priority": 0,
+      "isMax": true,
+      "effectsReady": false
+    },
+    "MAX_MINDSTORM": {
+      "sourceId": "maxmindstorm",
+      "name": "Max Mindstorm",
+      "type": "PSYCHIC",
+      "sourceNumber": 769,
+      "sourceBasePower": 10,
+      "sourceCategory": "Physical",
+      "sourcePP": 10,
+      "priority": 0,
+      "isMax": true,
+      "effectsReady": false
+    },
+    "MAX_OOZE": {
+      "sourceId": "maxooze",
+      "name": "Max Ooze",
+      "type": "POISON",
+      "sourceNumber": 764,
+      "sourceBasePower": 10,
+      "sourceCategory": "Physical",
+      "sourcePP": 10,
+      "priority": 0,
+      "isMax": true,
+      "effectsReady": false
+    },
+    "MAX_OVERGROWTH": {
+      "sourceId": "maxovergrowth",
+      "name": "Max Overgrowth",
+      "type": "GRASS",
+      "sourceNumber": 773,
+      "sourceBasePower": 10,
+      "sourceCategory": "Physical",
+      "sourcePP": 10,
+      "priority": 0,
+      "isMax": true,
+      "effectsReady": false
+    },
+    "MAX_PHANTASM": {
+      "sourceId": "maxphantasm",
+      "name": "Max Phantasm",
+      "type": "GHOST",
+      "sourceNumber": 762,
+      "sourceBasePower": 10,
+      "sourceCategory": "Physical",
+      "sourcePP": 10,
+      "priority": 0,
+      "isMax": true,
+      "effectsReady": false
+    },
+    "MAX_QUAKE": {
+      "sourceId": "maxquake",
+      "name": "Max Quake",
+      "type": "GROUND",
+      "sourceNumber": 771,
+      "sourceBasePower": 10,
+      "sourceCategory": "Physical",
+      "sourcePP": 10,
+      "priority": 0,
+      "isMax": true,
+      "effectsReady": false
+    },
+    "MAX_ROCKFALL": {
+      "sourceId": "maxrockfall",
+      "name": "Max Rockfall",
+      "type": "ROCK",
+      "sourceNumber": 770,
+      "sourceBasePower": 10,
+      "sourceCategory": "Physical",
+      "sourcePP": 10,
+      "priority": 0,
+      "isMax": true,
+      "effectsReady": false
+    },
+    "MAX_STARFALL": {
+      "sourceId": "maxstarfall",
+      "name": "Max Starfall",
+      "type": "FAIRY",
+      "sourceNumber": 767,
+      "sourceBasePower": 10,
+      "sourceCategory": "Physical",
+      "sourcePP": 10,
+      "priority": 0,
+      "isMax": true,
+      "effectsReady": false
+    },
+    "MAX_STEELSPIKE": {
+      "sourceId": "maxsteelspike",
+      "name": "Max Steelspike",
+      "type": "STEEL",
+      "sourceNumber": 774,
+      "sourceBasePower": 10,
+      "sourceCategory": "Physical",
+      "sourcePP": 10,
+      "priority": 0,
+      "isMax": true,
+      "effectsReady": false
+    },
+    "MAX_STRIKE": {
+      "sourceId": "maxstrike",
+      "name": "Max Strike",
+      "type": "NORMAL",
+      "sourceNumber": 760,
+      "sourceBasePower": 10,
+      "sourceCategory": "Physical",
+      "sourcePP": 10,
+      "priority": 0,
+      "isMax": true,
+      "effectsReady": false
+    },
+    "MAX_WYRMWIND": {
+      "sourceId": "maxwyrmwind",
+      "name": "Max Wyrmwind",
+      "type": "DRAGON",
+      "sourceNumber": 768,
+      "sourceBasePower": 10,
+      "sourceCategory": "Physical",
+      "sourcePP": 10,
+      "priority": 0,
+      "isMax": true,
+      "effectsReady": false
+    }
+  },
+  "source": "https://github.com/smogon/pokemon-showdown/blob/6b4bc34e44cc2541929cc4b8fff96e756ab3f268/data/pokedex.ts",
+  "sha256": "0e5de661ed6183386c7f23c9b9061b67bb97d407d72db3a86b37c93f4faf6704",
+  "moveSource": "https://github.com/smogon/pokemon-showdown/blob/6b4bc34e44cc2541929cc4b8fff96e756ab3f268/data/moves.ts",
+  "moveSha256": "94b19d57228ec4b6dbecaae3f3e155296702caf859b873ffbee730c46885e85c"
+}

@@ -508,6 +508,14 @@ return function(mod, opts)
     for _, evolution in ipairs(def.evolutions) do
       if type(evolution) == "table" then
         local method = evolution.method or evolution[1]
+        -- Baby wrappers add healthy/egg guards without changing the existing
+        -- friendship threshold, feedback, or selected-follower cadence.
+        if method=='KA_BACKEND_FRIENDSHIP' then method='FRIENDSHIP'
+        elseif method=='KA_BACKEND_FRIENDSHIP_NIGHT' then method='FRIENDSHIP_NIGHT'
+        elseif method=='KA_BABY_FRIENDSHIP' then method='FRIENDSHIP'
+        elseif method=='KA_BABY_FRIENDSHIP_DAY' then method='FRIENDSHIP_DAY'
+        elseif method=='KA_WAVE1_CHANSEY_FRIENDSHIP' then method='FRIENDSHIP'
+        elseif method=='KA_BABY_FRIENDSHIP_NIGHT' then method='FRIENDSHIP_NIGHT' end
         local target = evolution.species or evolution[2]
         if FRIENDSHIP_METHODS[method]
             and type(target) == "string" and target ~= "" then

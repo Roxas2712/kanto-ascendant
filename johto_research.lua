@@ -847,9 +847,12 @@ return function(mod, opts)
       routeAverageLevel) or out
   end, -20)
 
+  function R.awardsWalkingBond(game)
+    return enabled and game~=nil and game==R.game and boundaryActive(game)
+      and postgame.hasHallOfFame(game.save) or false
+  end
   mod.events:on("world.stepped", function()
-    if not (enabled and R.game and boundaryActive(R.game)
-        and postgame.hasHallOfFame(R.game.save)) then return end
+    if not R.awardsWalkingBond(R.game) then return end
     stepEgg(R.game)
     local clock = math.max(0,
       math.floor(tonumber(mod.save:get("step_clock", 0)) or 0))

@@ -201,14 +201,11 @@ return function(mod, legends, johto, i18n)
   -- A compact move set gives the new families their defining Gen-II tools
   -- without depending on another mechanics mod.
   -- Gen I has no two-stage Attack drop, so Charm supplies the one missing
-  -- registry effect by composing the engine's proven one-stage handler.
+  -- registry effect through the public move-effect context facade.
   mod.content.move_effects:register("ATTACK_DOWN2_EFFECT", {
     kind = "primary", accuracyChecked = true,
-    run = function(battle, user, target, move)
-      local down = require("src.battle.MoveEffects").primary.ATTACK_DOWN1_EFFECT
-      local first = down(battle, user, target, move)
-      down(battle, user, target, move)
-      return first
+    run = function(ctx)
+      return ctx.changeStage(ctx.target, "attack", -2, true)
     end,
   })
   local moves = {
@@ -313,6 +310,15 @@ return function(mod, legends, johto, i18n)
     local hour = tonumber(os.date("*t").hour) or 12
     return (hour >= 18 or hour < 6) and "night" or "day"
   end
+  -- Shared read-only clock for later held-item evolutions. No second clock.
+  audioCompat.timeMode = timeMode
+  -- Bounded evening window for special-form evolutions. Keep the existing
+  -- day/night result unchanged for every older consumer. Forced day/night
+  -- are not an invented dusk; AUTO uses the same local computer clock.
+  audioCompat.isDusk = function()
+    local selected = mod.options and mod.options:get("johto_time") or "auto"
+    return selected == "auto" and tonumber(os.date("*t").hour) == 17
+  end
   mod.content.evolution_methods:register("FRIENDSHIP", {
     check = function(_, mon, _, trigger)
       return trigger.kind == "levelup" and friendship(mon)
@@ -360,6 +366,7 @@ return function(mod, legends, johto, i18n)
       id = row.id,
       name = i18n and i18n.isGerman() and row.de or row.name,
       price = 2100, tossable = true, needsTarget = false,
+      originEpoch = 2,
     })
   end
 
@@ -506,6 +513,11 @@ return function(mod, legends, johto, i18n)
       growthRate = def.growthRate, level1Moves = level1,
       tmhm = tmhm, learnset = learnset, evolutions = evolutions,
       spriteFront = spriteFront, spriteBack = spriteBack,
+      -- Download intent is separate from the currently readable rendering path.
+      -- Pre-download Gift Codes check this declaration; delivery still requires
+      -- the real registered front/back paths after a verified mount and restart.
+      ascendantOptionalFront = mod.path .. "/" .. (art and "assets/" .. art .. "_front.png" or crystalFront),
+      ascendantOptionalBack = mod.path .. "/" .. (art and "assets/" .. art .. "_back.png" or crystalBack),
       frontSize = template.frontSize or 7,
       -- Every bundled Crystal back is a complete 56x56 Gen-II picture.
       -- Gen1's native player backs are compact pictures intentionally drawn

@@ -1,0 +1,656 @@
+{
+  "schema": "kasc-late-species-assets/v1",
+  "species": [
+    {
+      "baseExp": 232,
+      "de": "ROSERADE",
+      "dex": 407,
+      "en": "ROSERADE",
+      "height": 0.9,
+      "id": "ROSERADE",
+      "item": "SHINY_STONE",
+      "moves": [
+        "ABSORB",
+        "GROWTH",
+        "MEGA_DRAIN",
+        "TOXIC"
+      ],
+      "parent": "ROSELIA",
+      "slug": "roserade",
+      "source": {
+        "back_normal": "de8d2ef49602afda9dd0c51055d272c053266145af49245eae0b8301a7a7ef36",
+        "back_normal_url": "cached",
+        "back_shiny": "9e7cf796092ec33aa3fa345126e19adc533a83e23fda07935ce84344c7d70ed4",
+        "back_shiny_url": "cached",
+        "cry": "a4d1d2c083a863b31e7049f514657c3752e9d1a776f23a75c8f316ff67504920",
+        "front_normal": "15cac01e68aa82250ba68952f231ef13ca5c7aabf824e7c12624ed6bf0b9e309",
+        "front_normal_url": "cached",
+        "front_shiny": "918adbc1e7ea6ac60ce81a8598832e00b41ed2357894d1fdf8bf7ef637e73795",
+        "front_shiny_url": "cached",
+        "pokeapi": "bfb606e8f8370373be0260a13a6746d81a0148b95128a468cb1af3c13a041abc"
+      },
+      "stats": {
+        "attack": 70,
+        "defense": 65,
+        "hp": 60,
+        "special": 125,
+        "speed": 90
+      },
+      "types": [
+        "GRASS",
+        "POISON"
+      ],
+      "weight": 14.5
+    },
+    {
+      "baseExp": 236,
+      "de": "ZWIRRFINST",
+      "dex": 477,
+      "en": "DUSKNOIR",
+      "height": 2.2,
+      "id": "DUSKNOIR",
+      "item": "REAPER_CLOTH",
+      "moves": [
+        "NIGHT_SHADE",
+        "DISABLE",
+        "CONFUSE_RAY",
+        "SHADOW_BALL"
+      ],
+      "parent": "DUSCLOPS",
+      "slug": "dusknoir",
+      "source": {
+        "back_normal": "6e2962d3ba58b4e1ebc5c2be7778f672eedb345af20c145c36b1a303d12c91f7",
+        "back_normal_url": "cached",
+        "back_shiny": "87e2aefe7fbb3f76489420dadcb51eff5e913001b85296e2dab737f60d74fb68",
+        "back_shiny_url": "cached",
+        "cry": "1dd61195545eb2ef4f99713399872365aa8d60df557901dfe3e48b511338b4c1",
+        "front_normal": "f64b914d11751ac816182e58e75000ec17933f1a3c2bd982a464423391ef3108",
+        "front_normal_url": "cached",
+        "front_shiny": "3c28ef50aa9f9a098a3b92d72d5a7216c06d67a2d3b3e347f9d0ddbc564389c0",
+        "front_shiny_url": "cached",
+        "pokeapi": "2ac290774d283ccb3fa71bdd09451bff613871a774bc0a829f21fba3efd64fb4"
+      },
+      "stats": {
+        "attack": 100,
+        "defense": 135,
+        "hp": 45,
+        "special": 65,
+        "speed": 45
+      },
+      "types": [
+        "GHOST"
+      ],
+      "weight": 106.6
+    },
+    {
+      "baseExp": 168,
+      "de": "FROSDEDJE",
+      "dex": 478,
+      "en": "FROSLASS",
+      "height": 1.3,
+      "id": "FROSLASS",
+      "item": "DAWN_STONE",
+      "moves": [
+        "POWDER_SNOW",
+        "CONFUSE_RAY",
+        "ICE_BEAM",
+        "SHADOW_BALL"
+      ],
+      "parent": "SNORUNT",
+      "slug": "froslass",
+      "source": {
+        "back_normal": "2042f6faf07c887e3e6c2d8bdc997f1a9b32029c3ed2bc2ce03b4b654b05f543",
+        "back_normal_url": "cached",
+        "back_shiny": "1230d59005a20ffdc880d34286fabc4a569b2edb0cec9de67d1ac6ee80dd1f6c",
+        "back_shiny_url": "cached",
+        "cry": "9492ebfde69b36a42b24bbb6c6b191d651b6fe86defafa31fbbb7f6e15ba56ca",
+        "front_normal": "d85a2ea5ef0602ee1b7cf83721a7d10ff264a824b62690376d41f448631905ea",
+        "front_normal_url": "cached",
+        "front_shiny": "79658fd0726af18d81c8bef958d8f52afc05e08a32329769b2c22e3f404dbf48",
+        "front_shiny_url": "cached",
+        "pokeapi": "9e120de7e460a23e8aa36056ec3d746a05b069963717388f7109d1948488de85"
+      },
+      "stats": {
+        "attack": 80,
+        "defense": 70,
+        "hp": 70,
+        "special": 80,
+        "speed": 110
+      },
+      "types": [
+        "ICE",
+        "GHOST"
+      ],
+      "weight": 26.6
+    },
+    {
+      "baseExp": 233,
+      "de": "GALAGLADI",
+      "dex": 475,
+      "en": "GALLADE",
+      "height": 1.6,
+      "id": "GALLADE",
+      "item": "DAWN_STONE",
+      "moves": [
+        "CONFUSION",
+        "SLASH",
+        "SWORDS_DANCE",
+        "PSYCHIC_M"
+      ],
+      "parent": "KIRLIA",
+      "slug": "gallade",
+      "source": {
+        "back_normal": "3db4ac30c63741c1cbac91b5b1315922d30206ecf0f4f5719a63fe0c48fc78e7",
+        "back_normal_url": "cached",
+        "back_shiny": "52c4aa5f9d2ef5c281fa412b172a54bf10e20af44dfed9d628d1d9436aceb92f",
+        "back_shiny_url": "cached",
+        "cry": "2b6f207cb55c1d78ecf3b11787c31dd96d158b89ee71b98e1aa9abb41572ec99",
+        "front_normal": "0ec0c496cec5f7afb83ef74a19a7a9751967a00978e5281edfbe7af2288ec3d4",
+        "front_normal_url": "cached",
+        "front_shiny": "73e72d69977314fba337bf38f80904a4ff77647ccb9a8d95e02b6f78a4645b39",
+        "front_shiny_url": "cached",
+        "pokeapi": "7c3d594592dc6525ee78966eb58adc6591cb5da50c797c4d000895efeba24bf6"
+      },
+      "stats": {
+        "attack": 125,
+        "defense": 65,
+        "hp": 68,
+        "special": 65,
+        "speed": 80
+      },
+      "types": [
+        "PSYCHIC_TYPE",
+        "FIGHTING"
+      ],
+      "weight": 52.0
+    },
+    {
+      "baseExp": 184,
+      "de": "VOLUMINAS",
+      "dex": 476,
+      "en": "PROBOPASS",
+      "height": 1.4,
+      "id": "PROBOPASS",
+      "item": "MAGNETIC_CORE",
+      "moves": [
+        "TACKLE",
+        "ROCK_THROW",
+        "THUNDER_WAVE",
+        "ROCK_SLIDE"
+      ],
+      "parent": "NOSEPASS",
+      "slug": "probopass",
+      "source": {
+        "back_normal": "d07484ebae86be62e0ab18126058c87a81783093dd9e19a70616d7a4456db596",
+        "back_normal_url": "cached",
+        "back_shiny": "00d54feeb48251b1767dc0063d0631cb6d47b448cef66456e5e9e7eb2aba3f66",
+        "back_shiny_url": "cached",
+        "cry": "b6e69a6670027fa7d6851e4a67141f1345467cacfddba861474bbb1392e7ba6f",
+        "front_normal": "7964e04432549398486a8ea468daa4b02996c1855478ddc466961f38cff45232",
+        "front_normal_url": "cached",
+        "front_shiny": "c3bf869488bfcf0d245be7372794f31a3b6cc9ba99946608f3628106bf39cb57",
+        "front_shiny_url": "cached",
+        "pokeapi": "e26889b1b86f9568565d128a7173b5e300c28abfb88af658b03ee4715d298f0d"
+      },
+      "stats": {
+        "attack": 55,
+        "defense": 145,
+        "hp": 60,
+        "special": 75,
+        "speed": 40
+      },
+      "types": [
+        "ROCK",
+        "STEEL"
+      ],
+      "weight": 340.0
+    },
+    {
+      "baseExp": 184,
+      "de": "FEELINARA",
+      "dex": 700,
+      "en": "SYLVEON",
+      "height": 1.0,
+      "id": "SYLVEON",
+      "item": "AFFECTION_RIBBON",
+      "moves": [
+        "TACKLE",
+        "SAND_ATTACK",
+        "QUICK_ATTACK",
+        "SWIFT"
+      ],
+      "parent": "EEVEE",
+      "slug": "sylveon",
+      "source": {
+        "back_normal": "cb4cba67d91d5f6d1cda527b29a9e48aef289d852680e8957cabc29f9ba62385",
+        "back_normal_url": "cached",
+        "back_shiny": "3961aeff2013e3cf2b31276930f8de27034ef8a2d09d15759c28744e8d4d00a8",
+        "back_shiny_url": "cached",
+        "cry": "d545f5319aee9b67fa2e11174c8458bd272171b2c05b9d8ddcdaa790a684a8c3",
+        "front_normal": "12c2ace0ba31ecc527ae1df491c14d0f29ee502091bdea76e80083e49f395a78",
+        "front_normal_url": "cached",
+        "front_shiny": "9c3bfb7552780f74036d606a79e45bf93fb3b7a333a1ada117f28e03e1442eec",
+        "front_shiny_url": "cached",
+        "pokeapi": "7ac94424037411b56c1d993b6729c8a51f8e10aa29a77509a5396d6c8658d0f8"
+      },
+      "stats": {
+        "attack": 65,
+        "defense": 65,
+        "hp": 95,
+        "special": 110,
+        "speed": 60
+      },
+      "types": [
+        "FAIRY"
+      ],
+      "weight": 23.5
+    },
+    {
+      "baseExp": 263,
+      "de": "DAMYTHIR",
+      "dex": 899,
+      "en": "WYRDEER",
+      "height": 1.8,
+      "id": "WYRDEER",
+      "item": "ANCESTRAL_REINS",
+      "moves": [
+        "TACKLE",
+        "HYPNOSIS",
+        "STOMP",
+        "PSYCHIC_M"
+      ],
+      "parent": "STANTLER",
+      "slug": "wyrdeer",
+      "source": {
+        "back_normal": "f1d9081d1dc1cd362b5baf2bdc963d9492e0fde7935c8f166cda44ccaddd7c92",
+        "back_normal_url": "cached",
+        "back_shiny": "4e9fa78d1cdbfa22c2ef7029bd79a117a69faaa0d503e36a63f6bc0b3eda67e1",
+        "back_shiny_url": "cached",
+        "cry": "057fc1f1e21c3d3cef624f9d601ed46667de338a46d74de681a089818ca4833b",
+        "front_normal": "c4aab93042d183e2febc2ce737925deb939c50cdef5924261e1a0b02dda2e09c",
+        "front_normal_url": "cached",
+        "front_shiny": "1cfbf0c23ced09a493f085f82dfe44f892f08ec3aa522c01bb9a8e04e3d2b533",
+        "front_shiny_url": "cached",
+        "pokeapi": "0f8321d9e80165a2882e32860afa68d9b0dceaab3caa3eaff618cabae4399a5d"
+      },
+      "stats": {
+        "attack": 105,
+        "defense": 72,
+        "hp": 103,
+        "special": 105,
+        "speed": 65
+      },
+      "types": [
+        "NORMAL",
+        "PSYCHIC_TYPE"
+      ],
+      "weight": 95.1
+    },
+    {
+      "baseExp": 175,
+      "de": "AXANTOR",
+      "dex": 900,
+      "en": "KLEAVOR",
+      "height": 1.8,
+      "id": "KLEAVOR",
+      "item": "BLACK_AUGURITE",
+      "moves": [
+        "QUICK_ATTACK",
+        "LEER",
+        "FURY_CUTTER",
+        "SLASH"
+      ],
+      "parent": "SCYTHER",
+      "slug": "kleavor",
+      "source": {
+        "back_normal": "0686366794b4bd377785014ebfeeb6ac71e4d019e436aa9034d45daaeae5d8f4",
+        "back_normal_url": "cached",
+        "back_shiny": "9c093510607066a2b25ef9e518b490e73017219256af1583c04c0e8e87d8bd86",
+        "back_shiny_url": "cached",
+        "cry": "e9354b27c4169800887179d62583aa1e3a94d2eea7f73516d82b44d0e8c7d4bb",
+        "front_normal": "9e450feb707e85a56ca201847cbc901f8713cbc9c5a061cb8b18089043346d46",
+        "front_normal_url": "cached",
+        "front_shiny": "ecdee2bcf443b4bb13984e63e0c118a4e9d1147e61b44c751c123c6916865eab",
+        "front_shiny_url": "cached",
+        "pokeapi": "3d3f368de55f8a0b5098390e1d6050b5a7b663ee4e2e2daf1da0d21b0ad51a34"
+      },
+      "stats": {
+        "attack": 135,
+        "defense": 95,
+        "hp": 70,
+        "special": 45,
+        "speed": 85
+      },
+      "types": [
+        "BUG",
+        "ROCK"
+      ],
+      "weight": 89.0
+    },
+    {
+      "baseExp": 275,
+      "de": "URSALUNA",
+      "dex": 901,
+      "en": "URSALUNA",
+      "height": 2.4,
+      "id": "URSALUNA",
+      "item": "PEAT_BLOCK",
+      "moves": [
+        "SCRATCH",
+        "LEER",
+        "LICK",
+        "EARTHQUAKE"
+      ],
+      "parent": "URSARING",
+      "slug": "ursaluna",
+      "source": {
+        "back_normal": "90d1cbfae5b8f55a4b93c6239362f08de735a1f5a2abeca527858575f3f48cd4",
+        "back_normal_url": "cached",
+        "back_shiny": "9d518318e4ba611483ac417e1475130ffc53684f16ba18554b6e9d852cd9d290",
+        "back_shiny_url": "cached",
+        "cry": "0e316af65854916ac3297c3f2203741caeb66cb4b43c82d65a1bba3aab3e885e",
+        "front_normal": "109035865d86d7f3e9586413fabdd58fb42e051919236bf735bea0c8525b7be3",
+        "front_normal_url": "cached",
+        "front_shiny": "2c60ee0a4f77cfcc5dd404861bdbee93f49c9f80fbfbd429f808b54913649f34",
+        "front_shiny_url": "cached",
+        "pokeapi": "cdf62e82eea1c03d43f740182c3c41f299b0ee45c314ab4df7198196d742133a"
+      },
+      "stats": {
+        "attack": 140,
+        "defense": 105,
+        "hp": 130,
+        "special": 45,
+        "speed": 50
+      },
+      "types": [
+        "GROUND",
+        "NORMAL"
+      ],
+      "weight": 290.0
+    },
+    {
+      "baseExp": 268,
+      "de": "EPITAFF",
+      "dex": 979,
+      "en": "ANNIHILAPE",
+      "height": 1.2,
+      "id": "ANNIHILAPE",
+      "item": "RAGE_FETTER",
+      "moves": [
+        "SCRATCH",
+        "LEER",
+        "KARATE_CHOP",
+        "RAGE"
+      ],
+      "parent": "PRIMEAPE",
+      "slug": "annihilape",
+      "source": {
+        "back_normal": "75aed5707bf68101a8928156184e135421fb930de7e85b1ac3c9e8ba9ea1d3c7",
+        "back_normal_url": "cached",
+        "back_shiny": "73ec56d0974e19c6047cb850f2da184c554333c2db4668576fecea30165984c2",
+        "back_shiny_url": "cached",
+        "cry": "221c59eed6741e957cf717b6f46dc3668f2041e8f26cd7da7ae49f987885f5d6",
+        "front_normal": "f405be786686f26fb8ae4fff440a15e5d976c11e1f68ffdcdf4482a350bac02f",
+        "front_normal_url": "cached",
+        "front_shiny": "513a9c8f673834eb53ba51b8fe2fabf44677dd930bdf128c91ab9e89cd73eef4",
+        "front_shiny_url": "cached",
+        "pokeapi": "88d15150c0c09885ac36f2ba26498b0d828cbf32dd7a62f74315aed38dc73e5e"
+      },
+      "stats": {
+        "attack": 115,
+        "defense": 80,
+        "hp": 110,
+        "special": 50,
+        "speed": 90
+      },
+      "types": [
+        "FIGHTING",
+        "GHOST"
+      ],
+      "weight": 56.0
+    },
+    {
+      "baseExp": 260,
+      "de": "FARIGIRAF",
+      "dex": 981,
+      "en": "FARIGIRAF",
+      "height": 3.2,
+      "id": "FARIGIRAF",
+      "item": "TWIN_BEAM_PRISM",
+      "moves": [
+        "TACKLE",
+        "GROWL",
+        "CONFUSION",
+        "STOMP"
+      ],
+      "parent": "GIRAFARIG",
+      "slug": "farigiraf",
+      "source": {
+        "back_normal": "406a8da21d809e5a4aa086f2c43e41fd850a6641371050a61a8fbc88beaa003e",
+        "back_normal_url": "cached",
+        "back_shiny": "bee23716a4a61004153feedb3a9d8d281e596eefc0c8e6abef0cd8a17c5154b0",
+        "back_shiny_url": "cached",
+        "cry": "ce3fde30e90620d85d95faf0a602e6493192cf44ecf8aad3167ad21df5f63444",
+        "front_normal": "d373536b0f522234facc152c55b53541c4b416a97b01b45ef56759140cfb59d3",
+        "front_normal_url": "cached",
+        "front_shiny": "5a6ff287d34bceff7c1bda1808b4b1bf8f0b85f19bbbe91dbec2a7fb27af34e6",
+        "front_shiny_url": "cached",
+        "pokeapi": "d32b2654267de41fa9cf36894b335474e42f14c5bc947ac925f50b9f0e2cf264"
+      },
+      "stats": {
+        "attack": 90,
+        "defense": 70,
+        "hp": 120,
+        "special": 110,
+        "speed": 60
+      },
+      "types": [
+        "NORMAL",
+        "PSYCHIC_TYPE"
+      ],
+      "weight": 160.0
+    },
+    {
+      "baseExp": 182,
+      "de": "DUMMIMISEL",
+      "dex": 982,
+      "en": "DUDUNSPARCE",
+      "height": 3.6,
+      "id": "DUDUNSPARCE",
+      "item": "HYPER_DRILL_CORE",
+      "moves": [
+        "RAGE",
+        "DEFENSE_CURL",
+        "GLARE",
+        "TAKE_DOWN"
+      ],
+      "parent": "DUNSPARCE",
+      "slug": "dudunsparce",
+      "source": {
+        "back_normal": "e1e9558e3f8565e9999b21152a926350a1f3ab3ed6da138872dbd308fa260e7e",
+        "back_normal_url": "cached",
+        "back_shiny": "9956b4ce63101186ce05d91f256484d572b7897ac6f782b28f44b3f7d46832ad",
+        "back_shiny_url": "cached",
+        "cry": "3335e67e969298435183e77bd516adc48981948eb7955cbe01c1a22b9e307394",
+        "front_normal": "6c423810bc3cd2961efb85dcbcb9c6600ac4418ee79aef619d48f0e2a1f8cfaf",
+        "front_normal_url": "cached",
+        "front_shiny": "6a7c094c242b27d06832091cad7e9482163cb981b63122ae9ea0fe00b8c02fba",
+        "front_shiny_url": "cached",
+        "pokeapi": "4ebb4f4ceee4551528c7a33d98b1229ae55a0101146a395567f7a13b5fff6c17"
+      },
+      "stats": {
+        "attack": 100,
+        "defense": 80,
+        "hp": 125,
+        "special": 85,
+        "speed": 55
+      },
+      "types": [
+        "NORMAL"
+      ],
+      "weight": 39.2
+    },
+    {
+      "baseExp": 270,
+      "de": "DARKRAI",
+      "dex": 491,
+      "en": "DARKRAI",
+      "height": 1.5,
+      "id": "DARKRAI",
+      "item": null,
+      "moves": [
+        "HYPNOSIS",
+        "FAINT_ATTACK",
+        "NIGHTMARE",
+        "DREAM_EATER"
+      ],
+      "parent": null,
+      "slug": "darkrai",
+      "source": {
+        "back_normal": "42a8840039fa573036eada964540e365923c2a5ec824cb7872e829e6bb240b59",
+        "back_normal_url": "cached",
+        "back_shiny": "5790f5c7df20f76a752634006a11725a348b37ad3d831fb7899ec0792edc19e2",
+        "back_shiny_url": "cached",
+        "cry": "782fd6a9e41851de7d5ef8b79738060b79483c3ca9fba0f1209c246e7b93f776",
+        "front_normal": "f0031237eb083656753671047c87b292c477a449e6f42595eeaba3f2d374b102",
+        "front_normal_url": "cached",
+        "front_shiny": "d64e85163c20f36e0af3a991d5dee0c427302b3f3b3e0873a0ec19150fd8647f",
+        "front_shiny_url": "cached",
+        "pokeapi": "b1d71dce812b3183646349071080fbfa445acbe09588fdf56f0771a052d0e810"
+      },
+      "stats": {
+        "attack": 90,
+        "defense": 90,
+        "hp": 70,
+        "special": 135,
+        "speed": 125
+      },
+      "types": [
+        "DARK"
+      ],
+      "weight": 50.5
+    },
+    {
+      "baseExp": 270,
+      "de": "GENESECT",
+      "dex": 649,
+      "en": "GENESECT",
+      "height": 1.5,
+      "id": "GENESECT",
+      "item": null,
+      "moves": [
+        "QUICK_ATTACK",
+        "METAL_CLAW",
+        "FURY_CUTTER",
+        "HYPER_BEAM"
+      ],
+      "parent": null,
+      "slug": "genesect",
+      "source": {
+        "back_normal": "e88ef0a06e2fecb74b811b90ee78bdfc1f93665841b2019b2c04587d5f076421",
+        "back_normal_url": "cached",
+        "back_shiny": "8231c4c3bcd4f4c62751adae41adbb302c0a9ec78d68b5b9307a8aa32e02c6a6",
+        "back_shiny_url": "cached",
+        "cry": "b2a132fb5d2a486be449fdc1693be88213f559c833b9b32042a8ce22a46f6c79",
+        "front_normal": "b71b67a3613ae8c8c771a2d9efdf382c2d3f4a04ef4c9bf0af9acaba1db07f29",
+        "front_normal_url": "cached",
+        "front_shiny": "5f70247f57cd012ef893bc0b8a36d010fa94c6b7502699923be155bd32db7930",
+        "front_shiny_url": "cached",
+        "pokeapi": "709eb32b09c4695fda3b56e3003aaa74104aa7551fd65da3b86060fbb6dded59"
+      },
+      "stats": {
+        "attack": 120,
+        "defense": 95,
+        "hp": 71,
+        "special": 120,
+        "speed": 99
+      },
+      "types": [
+        "BUG",
+        "STEEL"
+      ],
+      "weight": 82.5
+    },
+    {
+      "baseExp": 302,
+      "de": "REGIGIGAS",
+      "dex": 486,
+      "en": "REGIGIGAS",
+      "height": 3.7,
+      "id": "REGIGIGAS",
+      "item": null,
+      "moves": [
+        "POUND",
+        "CONFUSE_RAY",
+        "STOMP",
+        "HYPER_BEAM"
+      ],
+      "parent": null,
+      "slug": "regigigas",
+      "source": {
+        "back_normal": "9b51f059c04ac6309094a0d21a41fc93774f185b059722019db8b5dab0495cc5",
+        "back_normal_url": "cached",
+        "back_shiny": "03f760bf082bc20c12f58e42b37c5adca4c48b4e2671d4575b6960edfb676183",
+        "back_shiny_url": "cached",
+        "cry": "f8c26762cf5b06846413133d26b051b5f44c3fff5909441b3ab8609135d00186",
+        "front_normal": "e07b8999a35b2fff6fa435d2e70e8a8c9db0d1eb7e2b9b661931af3fe9e48a7f",
+        "front_normal_url": "cached",
+        "front_shiny": "a01a4850522236e57ad015c03b9ec5f76f89bc5d89a90072ea9458d2982640a7",
+        "front_shiny_url": "cached",
+        "pokeapi": "f4220cdc704ae974605734d05c77a1b833ef0126b2a5087aaea2fac830667aa5"
+      },
+      "stats": {
+        "attack": 160,
+        "defense": 110,
+        "hp": 110,
+        "special": 80,
+        "speed": 100
+      },
+      "types": [
+        "NORMAL"
+      ],
+      "weight": 420.0
+    },
+    {
+      "baseExp": 243,
+      "de": "ZYGARDE 10%",
+      "dex": 718,
+      "en": "ZYGARDE 10%",
+      "height": 1.2,
+      "id": "ZYGARDE_10",
+      "item": null,
+      "moves": [
+        "BITE",
+        "DIG",
+        "GLARE",
+        "DRAGONBREATH"
+      ],
+      "parent": null,
+      "slug": "zygarde-10",
+      "source": {
+        "back_normal": "3553c50ff75f4a4adb793d4a028fb68b1fb65b157b83b71bcc56030c08a31517",
+        "back_normal_url": "cached",
+        "back_shiny": "ff26da1af082b52c323c7fd8169700a20e343e01808cb3f3104bc05e5dcde30c",
+        "back_shiny_url": "cached",
+        "cry": "a2331d15dd62a5517f844e242e7ee9cb7115b713caa8dfa890e859bcf6adbdd8",
+        "front_normal": "785fb364b073acd83b180ab8fbf9b3fdb8d41171e59b1a66e6d0b6aa1c86b085",
+        "front_normal_url": "cached",
+        "front_shiny": "f8801e1064a2777791c42e2180ef91c8f5fe867a48b1261d1d7e7083987592f4",
+        "front_shiny_url": "cached",
+        "pokeapi": "14a33b01ff592fde742fbbe3d8d0a257e55f8a5de2c3e4a65890afdedb42e2b0"
+      },
+      "stats": {
+        "attack": 100,
+        "defense": 71,
+        "hp": 54,
+        "special": 61,
+        "speed": 115
+      },
+      "types": [
+        "DRAGON",
+        "GROUND"
+      ],
+      "weight": 33.5
+    }
+  ]
+}

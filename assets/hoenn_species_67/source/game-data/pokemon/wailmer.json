@@ -1,0 +1,359 @@
+{
+  "klass": "Specie",
+  "id": 320,
+  "dbSymbol": "wailmer",
+  "forms": [
+    {
+      "form": 0,
+      "height": 2,
+      "weight": 130,
+      "type1": "water",
+      "type2": "__undef__",
+      "baseHp": 130,
+      "baseAtk": 70,
+      "baseDfe": 35,
+      "baseSpd": 60,
+      "baseAts": 70,
+      "baseDfs": 35,
+      "evHp": 1,
+      "evAtk": 0,
+      "evDfe": 0,
+      "evSpd": 0,
+      "evAts": 0,
+      "evDfs": 0,
+      "evolutions": [
+        {
+          "dbSymbol": "wailord",
+          "form": 0,
+          "conditions": [
+            {
+              "type": "minLevel",
+              "value": 40
+            }
+          ]
+        }
+      ],
+      "experienceType": 5,
+      "baseExperience": 80,
+      "baseLoyalty": 70,
+      "catchRate": 125,
+      "femaleRate": 50,
+      "breedGroups": [
+        5,
+        12
+      ],
+      "hatchSteps": 10240,
+      "babyDbSymbol": "wailmer",
+      "babyForm": 0,
+      "itemHeld": [
+        {
+          "dbSymbol": "none",
+          "chance": 0
+        },
+        {
+          "dbSymbol": "none",
+          "chance": 0
+        }
+      ],
+      "abilities": [
+        "oblivious",
+        "water_veil",
+        "pressure"
+      ],
+      "frontOffsetY": 0,
+      "resources": {
+        "icon": "0320",
+        "iconShiny": "0320s",
+        "front": "0320",
+        "frontShiny": "0320s",
+        "back": "0320",
+        "backShiny": "0320s",
+        "footprint": "0320",
+        "character": "0320",
+        "characterShiny": "0320s",
+        "cry": "0320.ogg",
+        "hasFemale": false,
+        "egg": "egg",
+        "iconEgg": "egg"
+      },
+      "moveSet": [
+        {
+          "move": "splash",
+          "klass": "LevelLearnableMove",
+          "level": 1
+        },
+        {
+          "move": "growl",
+          "klass": "LevelLearnableMove",
+          "level": 4
+        },
+        {
+          "move": "water_gun",
+          "klass": "LevelLearnableMove",
+          "level": 7
+        },
+        {
+          "move": "rollout",
+          "klass": "LevelLearnableMove",
+          "level": 10
+        },
+        {
+          "move": "whirlpool",
+          "klass": "LevelLearnableMove",
+          "level": 13
+        },
+        {
+          "move": "astonish",
+          "klass": "LevelLearnableMove",
+          "level": 16
+        },
+        {
+          "move": "water_pulse",
+          "klass": "LevelLearnableMove",
+          "level": 19
+        },
+        {
+          "move": "mist",
+          "klass": "LevelLearnableMove",
+          "level": 22
+        },
+        {
+          "move": "brine",
+          "klass": "LevelLearnableMove",
+          "level": 25
+        },
+        {
+          "move": "rest",
+          "klass": "LevelLearnableMove",
+          "level": 29
+        },
+        {
+          "move": "water_spout",
+          "klass": "LevelLearnableMove",
+          "level": 33
+        },
+        {
+          "move": "amnesia",
+          "klass": "LevelLearnableMove",
+          "level": 37
+        },
+        {
+          "move": "dive",
+          "klass": "LevelLearnableMove",
+          "level": 41
+        },
+        {
+          "move": "bounce",
+          "klass": "LevelLearnableMove",
+          "level": 45
+        },
+        {
+          "move": "hydro_pump",
+          "klass": "LevelLearnableMove",
+          "level": 49
+        },
+        {
+          "move": "heavy_slam",
+          "klass": "LevelLearnableMove",
+          "level": 53
+        },
+        {
+          "move": "body_slam",
+          "klass": "BreedLearnableMove"
+        },
+        {
+          "move": "thrash",
+          "klass": "BreedLearnableMove"
+        },
+        {
+          "move": "double_edge",
+          "klass": "BreedLearnableMove"
+        },
+        {
+          "move": "roar",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "surf",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "ice_beam",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "blizzard",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "earthquake",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "fissure",
+          "klass": "BreedLearnableMove"
+        },
+        {
+          "move": "toxic",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "double_team",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "defense_curl",
+          "klass": "BreedLearnableMove"
+        },
+        {
+          "move": "waterfall",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "rest",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "substitute",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "snore",
+          "klass": "BreedLearnableMove"
+        },
+        {
+          "move": "snore",
+          "klass": "TutorLearnableMove"
+        },
+        {
+          "move": "curse",
+          "klass": "BreedLearnableMove"
+        },
+        {
+          "move": "protect",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "icy_wind",
+          "klass": "TutorLearnableMove"
+        },
+        {
+          "move": "swagger",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "attract",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "sleep_talk",
+          "klass": "BreedLearnableMove"
+        },
+        {
+          "move": "sleep_talk",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "return",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "frustration",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "hidden_power",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "rain_dance",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "hail",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "facade",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "hyper_voice",
+          "klass": "TutorLearnableMove"
+        },
+        {
+          "move": "rock_tomb",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "tickle",
+          "klass": "BreedLearnableMove"
+        },
+        {
+          "move": "bounce",
+          "klass": "TutorLearnableMove"
+        },
+        {
+          "move": "water_pulse",
+          "klass": "TutorLearnableMove"
+        },
+        {
+          "move": "aqua_ring",
+          "klass": "BreedLearnableMove"
+        },
+        {
+          "move": "zen_headbutt",
+          "klass": "BreedLearnableMove"
+        },
+        {
+          "move": "zen_headbutt",
+          "klass": "TutorLearnableMove"
+        },
+        {
+          "move": "soak",
+          "klass": "BreedLearnableMove"
+        },
+        {
+          "move": "round",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "echoed_voice",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "clear_smog",
+          "klass": "BreedLearnableMove"
+        },
+        {
+          "move": "scald",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "bulldoze",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "confide",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "rock_smash",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "strength",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "dive",
+          "klass": "TechLearnableMove"
+        }
+      ],
+      "formTextId": {
+        "name": 402,
+        "description": 0
+      }
+    }
+  ]
+}

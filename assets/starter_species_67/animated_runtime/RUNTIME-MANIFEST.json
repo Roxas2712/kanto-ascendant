@@ -1,0 +1,3904 @@
+{
+  "artAuthority": "bundled-flat-battle-sprites-v1",
+  "materializedFrames": 1152,
+  "materializedSets": 144,
+  "materializedSpecies": 36,
+  "renderStyle": "flat-pixel-fixed-foot-subtle-shear",
+  "schema": "kanto-ascendant.starter-live-animations.v4",
+  "sets": {
+    "387:back:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 58,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "d15577a8108c683ea26ad3c26873ff604d42a21f1ceaa55b574ecd5031bd0991",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 387,
+      "source": "assets/starter_species_67/battle/normal/back/0387.png",
+      "sourceNationalDex": 387,
+      "sourceSha256": "d8f1d69ffc519bf604c319c92421cd7ea40994d3f9b0b3e2a59015822f9c98b8",
+      "species": "TURTWIG",
+      "visibleColorLimit": 15
+    },
+    "387:back:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 58,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "7d7dc9c7f25261a707ad39e1ed85f5e612cce07f99b27d63022edcebe3031594",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 387,
+      "source": "assets/starter_species_67/battle/shiny/back/0387.png",
+      "sourceNationalDex": 387,
+      "sourceSha256": "55e7b921a5b2ee21f60c7b54c0d5f61e10f1eb9a18784a6b967f316703221a1d",
+      "species": "TURTWIG",
+      "visibleColorLimit": 15
+    },
+    "387:front:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 50,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "469b342a359594bf0b795ce27f5deaad95ced9359065628b9dbbc80edfd47d6e",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 387,
+      "source": "assets/starter_species_67/battle/normal/front/0387.png",
+      "sourceNationalDex": 387,
+      "sourceSha256": "ddf4b7c40feedede3f444549d44fecde7da016ca2ed6493d6b1d095a35feae5c",
+      "species": "TURTWIG",
+      "visibleColorLimit": 15
+    },
+    "387:front:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 50,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "91dbaa073c6448a058cbe263003d7e697cc5a84f7ca947f01c6ccc7d02a290d3",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 387,
+      "source": "assets/starter_species_67/battle/shiny/front/0387.png",
+      "sourceNationalDex": 387,
+      "sourceSha256": "31fd6345f2b402426b5ce111b8f4ccbfe303facea1308c94d7c307fe2a8aa2e5",
+      "species": "TURTWIG",
+      "visibleColorLimit": 15
+    },
+    "388:back:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "850909dd49988ed05a6a9e324e15c9730d575863249477d785ee9ed512df3fba",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 388,
+      "source": "assets/starter_species_67/battle/normal/back/0388.png",
+      "sourceNationalDex": 388,
+      "sourceSha256": "db2b983fd64afefd7334663eb72bd446f7c3484a152c6e57d3448a2b2539a5d9",
+      "species": "GROTLE",
+      "visibleColorLimit": 15
+    },
+    "388:back:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "ab3096114120e983a38339469a4ceeb569906f0a9442d0224418c6a38379a626",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 388,
+      "source": "assets/starter_species_67/battle/shiny/back/0388.png",
+      "sourceNationalDex": 388,
+      "sourceSha256": "a2ddfc0349427e280af9a82874fe9c2d68529bf0f1559cbbd00deb2a8efafb77",
+      "species": "GROTLE",
+      "visibleColorLimit": 15
+    },
+    "388:front:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 60,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "9addcf6aa4e357e465633c82677e8f2e4d9cae6f8f6d10f1674e7697e40f39b7",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 388,
+      "source": "assets/starter_species_67/battle/normal/front/0388.png",
+      "sourceNationalDex": 388,
+      "sourceSha256": "c39b17255087d957f74858b4ec9a0898c202ebee8876f612bf34de920405a790",
+      "species": "GROTLE",
+      "visibleColorLimit": 15
+    },
+    "388:front:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 60,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "41f9ea044d72935d72da5ca00015a4eac57ecd39a29f15d5a023ee276b2b93ac",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 388,
+      "source": "assets/starter_species_67/battle/shiny/front/0388.png",
+      "sourceNationalDex": 388,
+      "sourceSha256": "254af1330572cb7ee82e147df275d0596441a5c4d49a44bf405c5fbc6495980a",
+      "species": "GROTLE",
+      "visibleColorLimit": 15
+    },
+    "389:back:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "6caa812590c5de15a12aaa9e4b7cf0a19f7bc02ad0bdad6b70c7e77a278007f8",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 389,
+      "source": "assets/starter_species_67/battle/normal/back/0389.png",
+      "sourceNationalDex": 389,
+      "sourceSha256": "8b4be8121403d10dda959957c568d34fa2ece7b1d9d55a02c079e05598bd0f95",
+      "species": "TORTERRA",
+      "visibleColorLimit": 15
+    },
+    "389:back:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "b3a1eda834139c8a118bd1ef4087caa39f77c4512f44affd4b9d6dc801a1f179",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 389,
+      "source": "assets/starter_species_67/battle/shiny/back/0389.png",
+      "sourceNationalDex": 389,
+      "sourceSha256": "2b1cbb26061fee8e90a86150ed36240ae15f17490c96d983ed29ffd7d4550ce6",
+      "species": "TORTERRA",
+      "visibleColorLimit": 15
+    },
+    "389:front:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "84401af1e33278823dfb85c444895338cd800b685b3e06e726a6e23ad574a2a7",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 389,
+      "source": "assets/starter_species_67/battle/normal/front/0389.png",
+      "sourceNationalDex": 389,
+      "sourceSha256": "ccd3c1a455514b393ef38696eec34460503bf3f6f28be73280fad48527cbf186",
+      "species": "TORTERRA",
+      "visibleColorLimit": 15
+    },
+    "389:front:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "f47d5ad4644509fbe21a8094d709dcdb6046b48e4653026d5d8b24b861853186",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 389,
+      "source": "assets/starter_species_67/battle/shiny/front/0389.png",
+      "sourceNationalDex": 389,
+      "sourceSha256": "b1a791acee212ef0c92fcfd37454c06573509511ae72056659f2e93a969286ba",
+      "species": "TORTERRA",
+      "visibleColorLimit": 15
+    },
+    "390:back:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 58,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "82e583bc87a9eb000f9ebe66f06df6e10264a7198292295a7add8bb6e45e70e6",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 390,
+      "source": "assets/starter_species_67/battle/normal/back/0390.png",
+      "sourceNationalDex": 390,
+      "sourceSha256": "fd28aec97f2bb1c1dc8bf2b794fb7515f720f84ca8ee2f6b7eb12aa949640f2e",
+      "species": "CHIMCHAR",
+      "visibleColorLimit": 15
+    },
+    "390:back:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 58,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "30fec7c36039ab5f2ac25d19192adc26f4aeb63cff69935e10b6626925b00db6",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 390,
+      "source": "assets/starter_species_67/battle/shiny/back/0390.png",
+      "sourceNationalDex": 390,
+      "sourceSha256": "895740cc76ed94c848062272328a7de744b4dbd626b0b20a7131f982f837cbe2",
+      "species": "CHIMCHAR",
+      "visibleColorLimit": 15
+    },
+    "390:front:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 50,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "e75db7fed9b58897ac3b45c060c1334f69a9793065fe299cf83044e89ea4ed83",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 390,
+      "source": "assets/starter_species_67/battle/normal/front/0390.png",
+      "sourceNationalDex": 390,
+      "sourceSha256": "9d549a52551f27b467d40655d15cd4299920e93a20fca18e83f877c16dc3b159",
+      "species": "CHIMCHAR",
+      "visibleColorLimit": 15
+    },
+    "390:front:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 50,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "ea7944df5dc1385794e1bcf97836cd5a24e8d5f45021bba470e3efe3a10a35c2",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 390,
+      "source": "assets/starter_species_67/battle/shiny/front/0390.png",
+      "sourceNationalDex": 390,
+      "sourceSha256": "6c29836131591f4cce1c7f065076aa051d9fbd237b930bc7695c875288d184e4",
+      "species": "CHIMCHAR",
+      "visibleColorLimit": 15
+    },
+    "391:back:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "cbe529f2cc4a4f3863e553082cb5f323fdeab18af4783e0a607e90af3d8656c4",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 391,
+      "source": "assets/starter_species_67/battle/normal/back/0391.png",
+      "sourceNationalDex": 391,
+      "sourceSha256": "2a4a8094be892e3a0b8d60667f09dc9a0becfed13c890dad14b148875e05ec4a",
+      "species": "MONFERNO",
+      "visibleColorLimit": 15
+    },
+    "391:back:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "545476446a06562d0efb882af9546d91efc7be243df3822122445456d72ca7e9",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 391,
+      "source": "assets/starter_species_67/battle/shiny/back/0391.png",
+      "sourceNationalDex": 391,
+      "sourceSha256": "4ec57f203acf3967176b0b0758d805a0bf7aef51fdbd45761ebe771f96c08b8f",
+      "species": "MONFERNO",
+      "visibleColorLimit": 15
+    },
+    "391:front:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 60,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "79ea5a25e3b6a525ef707c99e85bf0a13c571fcd5144f5668f47ab27b7012981",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 391,
+      "source": "assets/starter_species_67/battle/normal/front/0391.png",
+      "sourceNationalDex": 391,
+      "sourceSha256": "c986af47a187bc62463dd8c97dea3ed5552f729599229417fe043d099f3202c8",
+      "species": "MONFERNO",
+      "visibleColorLimit": 15
+    },
+    "391:front:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 60,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "bec116e7a5760d039b699ac647c90abd47a6542604104191d8e4416011028a31",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 391,
+      "source": "assets/starter_species_67/battle/shiny/front/0391.png",
+      "sourceNationalDex": 391,
+      "sourceSha256": "79f8a34f665238202e2f0ceef8cd3e27c2690afe6123bc5d624fd9d800243bd2",
+      "species": "MONFERNO",
+      "visibleColorLimit": 15
+    },
+    "392:back:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "e0759a805dd64b224576435730b2d7d697dae6eb9137e8d876c8ad28333f78b2",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 392,
+      "source": "assets/starter_species_67/battle/normal/back/0392.png",
+      "sourceNationalDex": 392,
+      "sourceSha256": "3250d315730a0e15bd1c3cf3d85495b20077224edffced8c2a540a4e2439cedc",
+      "species": "INFERNAPE",
+      "visibleColorLimit": 15
+    },
+    "392:back:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "ac68567350f2e79713ef4ac22f31375688869b923b4bda00dbce2e1bb6a282ea",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 392,
+      "source": "assets/starter_species_67/battle/shiny/back/0392.png",
+      "sourceNationalDex": 392,
+      "sourceSha256": "5003566d8ac495da7cd685ca834d108302235383a5c2f7f49d126e2559ea4932",
+      "species": "INFERNAPE",
+      "visibleColorLimit": 15
+    },
+    "392:front:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "310cfa49e08c8b36b19c9fde7984c844d90b2d59da0e0c2ffc5d6c48203684c1",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 392,
+      "source": "assets/starter_species_67/battle/normal/front/0392.png",
+      "sourceNationalDex": 392,
+      "sourceSha256": "750e51974deee8923cb04f2ad9bfd4059e48a98a5cc9124b53910c87fce83b5d",
+      "species": "INFERNAPE",
+      "visibleColorLimit": 15
+    },
+    "392:front:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "eede948faed40f7121bbb5a71f814cfa195bb5b7c90a5a915128410db058940d",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 392,
+      "source": "assets/starter_species_67/battle/shiny/front/0392.png",
+      "sourceNationalDex": 392,
+      "sourceSha256": "bd4e968db1b45c0def95a00488ab9a2102588307893206e77860cc40d4f2f243",
+      "species": "INFERNAPE",
+      "visibleColorLimit": 15
+    },
+    "393:back:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 58,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "e46688e29549841c6ae0dbedf2d85e4f4a45cc6397567e5a5fdcb2c50a36be89",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 393,
+      "source": "assets/starter_species_67/battle/normal/back/0393.png",
+      "sourceNationalDex": 393,
+      "sourceSha256": "d0d80199a88272239433625429c110a1a624342fa26130a116c172ccd24fcd46",
+      "species": "PIPLUP",
+      "visibleColorLimit": 15
+    },
+    "393:back:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 58,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "bcd488d16dee23df8af4322a76395a07a30ac05132059806316701d2fecdf827",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 393,
+      "source": "assets/starter_species_67/battle/shiny/back/0393.png",
+      "sourceNationalDex": 393,
+      "sourceSha256": "2aefc2781c1a7cedf50777b453ce322b9f1c93b182b2412fed84ca945c51e7ff",
+      "species": "PIPLUP",
+      "visibleColorLimit": 15
+    },
+    "393:front:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 50,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "b8bf42554cb8559cc459ae7b3284ad37e68aa7ab0af78eb5ccb588041732dd5c",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 393,
+      "source": "assets/starter_species_67/battle/normal/front/0393.png",
+      "sourceNationalDex": 393,
+      "sourceSha256": "bc72539544dad7ce1b43311e0e7040ba7ebdafea1336255fe16cf37163c2023a",
+      "species": "PIPLUP",
+      "visibleColorLimit": 15
+    },
+    "393:front:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 50,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "884bc40156a3b232fa478bf7a2a90eea84cf01f249e8c2e9c76bb0b07f0f59d6",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 393,
+      "source": "assets/starter_species_67/battle/shiny/front/0393.png",
+      "sourceNationalDex": 393,
+      "sourceSha256": "2e3804d04826fe8335cb2c2ccf9b487c1b55d29264a8f6fc484d971922c15d6a",
+      "species": "PIPLUP",
+      "visibleColorLimit": 15
+    },
+    "394:back:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "796dac8197c2ed87119168065bfa1ba2b153fae91d908e86163c06ec77c38ec2",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 394,
+      "source": "assets/starter_species_67/battle/normal/back/0394.png",
+      "sourceNationalDex": 394,
+      "sourceSha256": "7acdc3e9737f2225136cde9c37be389f14642992a432e468f0e6a115930cda18",
+      "species": "PRINPLUP",
+      "visibleColorLimit": 15
+    },
+    "394:back:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "dd76d03f7ee4f65a3fe057cf923512f741737fce8acdd01c9759eee2584b32ce",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 394,
+      "source": "assets/starter_species_67/battle/shiny/back/0394.png",
+      "sourceNationalDex": 394,
+      "sourceSha256": "5b2a71bd0aab44c8210ee3937b2f2b9991aecc6efe07ff6c41b013855e82e5e0",
+      "species": "PRINPLUP",
+      "visibleColorLimit": 15
+    },
+    "394:front:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 60,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "ee2ce7d17cb72a13aaa6d835a247849aa6ffa5bd944c5b391ecd6158749de39d",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 394,
+      "source": "assets/starter_species_67/battle/normal/front/0394.png",
+      "sourceNationalDex": 394,
+      "sourceSha256": "64654171639e0d7c5d8e406b55f90f649f15e9a79f67734d8d002949d9bae7ad",
+      "species": "PRINPLUP",
+      "visibleColorLimit": 15
+    },
+    "394:front:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 60,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "d368d2a1fa67e2d3c0c60fbde42e5049ec7a99e37ecf3078183041b2fa3e53e8",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 394,
+      "source": "assets/starter_species_67/battle/shiny/front/0394.png",
+      "sourceNationalDex": 394,
+      "sourceSha256": "4487e79398e008956d08dc8eac835e8c667def0499da19a7d6f6d4f8048c9964",
+      "species": "PRINPLUP",
+      "visibleColorLimit": 15
+    },
+    "395:back:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "e662f9dc55048d54207a9c828412a82de3eb003d24747df24100d57676a99183",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 395,
+      "source": "assets/starter_species_67/battle/normal/back/0395.png",
+      "sourceNationalDex": 395,
+      "sourceSha256": "ee0ed81ba413b97170fee2a06929baa4386461f957cd340bb3c62c5c0f0b804c",
+      "species": "EMPOLEON",
+      "visibleColorLimit": 15
+    },
+    "395:back:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "87a121a17661144c6c6fb86510f58c60d9dd677cfa74c8818d2a7037f3fffe9a",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 395,
+      "source": "assets/starter_species_67/battle/shiny/back/0395.png",
+      "sourceNationalDex": 395,
+      "sourceSha256": "53d3af8d2ae3981ac2e9a0f444cb3ec865fa6b3cd165503f59a5c240c706f606",
+      "species": "EMPOLEON",
+      "visibleColorLimit": 15
+    },
+    "395:front:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "de4d0463846586d10ffce5afcafdebae162441206ef435793371be2cb33d2055",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 395,
+      "source": "assets/starter_species_67/battle/normal/front/0395.png",
+      "sourceNationalDex": 395,
+      "sourceSha256": "07608bc2bd6e5722d8336dddd67e3340cf3858b3f5241c60ea949cef7334ad25",
+      "species": "EMPOLEON",
+      "visibleColorLimit": 15
+    },
+    "395:front:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "f3981286d4f05ae67edb9112086397271e07df5cb939af83871983a5ddc7700f",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 395,
+      "source": "assets/starter_species_67/battle/shiny/front/0395.png",
+      "sourceNationalDex": 395,
+      "sourceSha256": "18064e2679d2b3e393cfffe5d003bc4680eb0ec9abe8ea1a787ed7b9e8c27dfe",
+      "species": "EMPOLEON",
+      "visibleColorLimit": 15
+    },
+    "495:back:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 58,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "79581620193895c3d3404bd9b7d7aae20de12a86a840f66477e2791c06a47ee3",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 495,
+      "source": "assets/starter_species_67/battle/normal/back/0495.png",
+      "sourceNationalDex": 495,
+      "sourceSha256": "152cc84a407e9604f5aa696214413686cc27a50dbefcf8926bd8f9e21e200188",
+      "species": "SNIVY",
+      "visibleColorLimit": 15
+    },
+    "495:back:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 58,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "5b63c861d0c689b77e0e0c508e530c8acd88bdb7506ea01beb7914a7f7fc6134",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 495,
+      "source": "assets/starter_species_67/battle/shiny/back/0495.png",
+      "sourceNationalDex": 495,
+      "sourceSha256": "8b8eb0a6b4e7f79fb2e6fe4d0a75e9183225871292a2988c7d4d269cf68606bc",
+      "species": "SNIVY",
+      "visibleColorLimit": 15
+    },
+    "495:front:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 50,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "251b115a9394a71a94441f97701682c9f1f6d30aa6aa70e7d83f3af5a88bd95d",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 495,
+      "source": "assets/starter_species_67/battle/normal/front/0495.png",
+      "sourceNationalDex": 495,
+      "sourceSha256": "f277a2f75aaa8d571717f76f92cb6239b909f1767ff58e6c84b6dc17e41516f6",
+      "species": "SNIVY",
+      "visibleColorLimit": 15
+    },
+    "495:front:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 50,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "28ce300268a0dadbfa4706d5ad52967229c28d732de5535cf6c43c2e3be97b84",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 495,
+      "source": "assets/starter_species_67/battle/shiny/front/0495.png",
+      "sourceNationalDex": 495,
+      "sourceSha256": "3824edc2d7152a980b2d3593f3d6259d618236d767226744fd85d9ebb1e9e9e4",
+      "species": "SNIVY",
+      "visibleColorLimit": 15
+    },
+    "496:back:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "bd7180e40cdece97e9da14dbdd18dc67144c7036b0758c50ff43e868fb721e57",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 496,
+      "source": "assets/starter_species_67/battle/normal/back/0496.png",
+      "sourceNationalDex": 496,
+      "sourceSha256": "83d2deacf0b99b88aadb7b4af9fed8340cb3993a47bed70e7695a53f9d372747",
+      "species": "SERVINE",
+      "visibleColorLimit": 15
+    },
+    "496:back:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "74d067198d87b1580d2aaf2fc355d122fe2da5c1b0a867a691cd1edafda5cc67",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 496,
+      "source": "assets/starter_species_67/battle/shiny/back/0496.png",
+      "sourceNationalDex": 496,
+      "sourceSha256": "1775e085751aa0edbd29202ea4cd7ca556646b9b252aca6b8c47d4fe1c966136",
+      "species": "SERVINE",
+      "visibleColorLimit": 15
+    },
+    "496:front:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 60,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "c0677a992a4391f852515a7aeb39a660f54ccad5a6fb53719aedc4dfd66f63d6",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 496,
+      "source": "assets/starter_species_67/battle/normal/front/0496.png",
+      "sourceNationalDex": 496,
+      "sourceSha256": "b2207d1938ae4d057f05810b296f12261bfa2148a18879791ff7b0d2960cb477",
+      "species": "SERVINE",
+      "visibleColorLimit": 15
+    },
+    "496:front:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 60,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "eb53389144cdcc06a073379b1ac19e6132af4e45d7054775a8469adc2fe5f608",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 496,
+      "source": "assets/starter_species_67/battle/shiny/front/0496.png",
+      "sourceNationalDex": 496,
+      "sourceSha256": "6211cf9335780f3478783a7eaa34646152688be7af1de5a4879e5d55692399cb",
+      "species": "SERVINE",
+      "visibleColorLimit": 15
+    },
+    "497:back:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "210d3ce7ad73c6f311d19cd42069e936db1c9d274c4d613596f880ec4c1072f4",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 497,
+      "source": "assets/starter_species_67/battle/normal/back/0497.png",
+      "sourceNationalDex": 497,
+      "sourceSha256": "205c0d4c48386019bec9fce4fc3cb58c7c89f2d15b31e6f378624ed573a89fb3",
+      "species": "SERPERIOR",
+      "visibleColorLimit": 15
+    },
+    "497:back:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "6a4d038de8b71ff27d4131acff57d1fa045f6caca494fe3fe6bc0a39f7cf81b3",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 497,
+      "source": "assets/starter_species_67/battle/shiny/back/0497.png",
+      "sourceNationalDex": 497,
+      "sourceSha256": "2c7a7a9a38034b79496c5139789635c20cebed819547be27af7c7545882dfa6d",
+      "species": "SERPERIOR",
+      "visibleColorLimit": 15
+    },
+    "497:front:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "d74df753391bb39aa1662502b1b754abf0f356cfc1faf04dd06f72fafe7d2a91",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 497,
+      "source": "assets/starter_species_67/battle/normal/front/0497.png",
+      "sourceNationalDex": 497,
+      "sourceSha256": "1a8735bcd3e86c714ca7e566d930cd9f381d9808b08363e0821fc58fac5b26c8",
+      "species": "SERPERIOR",
+      "visibleColorLimit": 15
+    },
+    "497:front:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "ba807103bfe20bad4fe635c7f35f3269080570c2929a56e4e250d6b3fb4a936c",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 497,
+      "source": "assets/starter_species_67/battle/shiny/front/0497.png",
+      "sourceNationalDex": 497,
+      "sourceSha256": "f0866766e67143b0f5e26938d3418090c9e26093f3b3e33fdab829b7288fa12a",
+      "species": "SERPERIOR",
+      "visibleColorLimit": 15
+    },
+    "498:back:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 58,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "5679df40c3983a06077f1544cf761657373c67d8d3729c03a1808b2035577dab",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 498,
+      "source": "assets/starter_species_67/battle/normal/back/0498.png",
+      "sourceNationalDex": 498,
+      "sourceSha256": "5498a94ae32a02e3db15c624013c54e1be704b9df9280bb824189c6c3e1369a7",
+      "species": "TEPIG",
+      "visibleColorLimit": 15
+    },
+    "498:back:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 58,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "5a0d29691eaf7a22eacf0e363e6da8b9252e53a42af3105e9ad19c2af306398c",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 498,
+      "source": "assets/starter_species_67/battle/shiny/back/0498.png",
+      "sourceNationalDex": 498,
+      "sourceSha256": "92ae848777d8c888f634863527f4559ad281675436a24b6a2bf29885d944b001",
+      "species": "TEPIG",
+      "visibleColorLimit": 15
+    },
+    "498:front:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 50,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "2a749644e1da6d88b5b6c4fad44606982f2c1c780a141bb8a31299a4eb3b82af",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 498,
+      "source": "assets/starter_species_67/battle/normal/front/0498.png",
+      "sourceNationalDex": 498,
+      "sourceSha256": "5584fd65d8b283ff07753e65c810274e467c9e4315ede37362b6ba1400d6dce4",
+      "species": "TEPIG",
+      "visibleColorLimit": 15
+    },
+    "498:front:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 50,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "ce8248ddc0b3537243bc93a8ecff82458a521e283cfc92042d87f00ea87db804",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 498,
+      "source": "assets/starter_species_67/battle/shiny/front/0498.png",
+      "sourceNationalDex": 498,
+      "sourceSha256": "a966d24988afacf8240b5ad29ea3c41b163bd97a8e17155d711ac4adc2fdf670",
+      "species": "TEPIG",
+      "visibleColorLimit": 15
+    },
+    "499:back:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "2dd5403790dc58151b893c4d95410df94e6ee2941cd6a81179d6b59d5d86b174",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 499,
+      "source": "assets/starter_species_67/battle/normal/back/0499.png",
+      "sourceNationalDex": 499,
+      "sourceSha256": "79ee1ced99c4e75cbb9c41c038d48526a97064d313b86e1bca35ce83e056ad3c",
+      "species": "PIGNITE",
+      "visibleColorLimit": 15
+    },
+    "499:back:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "0198b3499520cab0b4404aac5f786140b553c5f57d597112ce8396e3985f0484",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 499,
+      "source": "assets/starter_species_67/battle/shiny/back/0499.png",
+      "sourceNationalDex": 499,
+      "sourceSha256": "e257b1c216a2817a32ed96212be77c8e5d0618fe62eed23ec82860bf466a54d7",
+      "species": "PIGNITE",
+      "visibleColorLimit": 15
+    },
+    "499:front:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 60,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "3e009546c46d771c070157eb0a933854105c0c72ae2e5bd490d4d8eeddfa3a2f",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 499,
+      "source": "assets/starter_species_67/battle/normal/front/0499.png",
+      "sourceNationalDex": 499,
+      "sourceSha256": "fa2557882fcee241b0000bd2469d88709a062291c99d67e0da0e5f67385db50d",
+      "species": "PIGNITE",
+      "visibleColorLimit": 15
+    },
+    "499:front:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 60,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "b01c51ca91372e1d35eb36c8af46821d37b3d7e097f66045c9ab123bc09d7761",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 499,
+      "source": "assets/starter_species_67/battle/shiny/front/0499.png",
+      "sourceNationalDex": 499,
+      "sourceSha256": "9e23fcb4746fcdae8b98b83787d6b298655bd6ccf9f92f9ea9b5699600b3b218",
+      "species": "PIGNITE",
+      "visibleColorLimit": 15
+    },
+    "500:back:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "60e79518e6871e656c902556c650ebee45c45e0ee1efd3e0a654004e25b06732",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 500,
+      "source": "assets/starter_species_67/battle/normal/back/0500.png",
+      "sourceNationalDex": 500,
+      "sourceSha256": "45bdbf2d9aeff98b83109fe23bf330a21777ada0d6d241adc638064e4ebf99b0",
+      "species": "EMBOAR",
+      "visibleColorLimit": 15
+    },
+    "500:back:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "02a767262de18622686d19c44d789f21919507bd13a52a8784fb356be56a51c2",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 500,
+      "source": "assets/starter_species_67/battle/shiny/back/0500.png",
+      "sourceNationalDex": 500,
+      "sourceSha256": "5d2fe634cbbd5b1b69443f2cbb85c108b6c904ef1e49f3a28ce5965b43968c25",
+      "species": "EMBOAR",
+      "visibleColorLimit": 15
+    },
+    "500:front:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "aa302fe09c918c5efa2396a4d6ad12100a38f30d4c0994a438a8e75661b27062",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 500,
+      "source": "assets/starter_species_67/battle/normal/front/0500.png",
+      "sourceNationalDex": 500,
+      "sourceSha256": "f6290b9ab036b43e24db8e4295f1614325610fe419ea824615984ba5c4a7071e",
+      "species": "EMBOAR",
+      "visibleColorLimit": 15
+    },
+    "500:front:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "681437bcc859378026d9c264a9b706583068849b4c32e3353b7cbbd2f3b68c89",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 500,
+      "source": "assets/starter_species_67/battle/shiny/front/0500.png",
+      "sourceNationalDex": 500,
+      "sourceSha256": "8f40a455fb6d16e72a8fe80a3c316c0f341519f6aec3bd3a8eecc3444233cf18",
+      "species": "EMBOAR",
+      "visibleColorLimit": 15
+    },
+    "501:back:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 58,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "9c7a874683ff6f4a271d2b66dc177ffd62dd71afaacb9c21597cb240477a8c8e",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 501,
+      "source": "assets/starter_species_67/battle/normal/back/0501.png",
+      "sourceNationalDex": 501,
+      "sourceSha256": "622f02740db19296f424ce47ba7ebb76279d011ab380751d507994eda657ab3c",
+      "species": "OSHAWOTT",
+      "visibleColorLimit": 15
+    },
+    "501:back:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 58,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "2ccf5694c4fc262cb4ebdcb1aae32d6118e5d2242d8d831345e130ad613bd338",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 501,
+      "source": "assets/starter_species_67/battle/shiny/back/0501.png",
+      "sourceNationalDex": 501,
+      "sourceSha256": "3ef467e9ced34a8f3689a033e20251371b0b094933eb63aa50e5176adb71d1e6",
+      "species": "OSHAWOTT",
+      "visibleColorLimit": 15
+    },
+    "501:front:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 50,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "a4b87467cbe3608e9ee07017b31130ff15c7a072c9394e634378e87ac9a0ecd1",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 501,
+      "source": "assets/starter_species_67/battle/normal/front/0501.png",
+      "sourceNationalDex": 501,
+      "sourceSha256": "48a5429c23fa4d7a119cbe63d767cabb213e4cd521332acebd418e80e32b2375",
+      "species": "OSHAWOTT",
+      "visibleColorLimit": 15
+    },
+    "501:front:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 50,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "be270079ca05a9ed3f527104762cb9bdf2a9927cd2ab820ef3c40695f4c77262",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 501,
+      "source": "assets/starter_species_67/battle/shiny/front/0501.png",
+      "sourceNationalDex": 501,
+      "sourceSha256": "0eb0b274a6dc239350cb59a4a842636bebc9e26dc606ad4e89a71b7c68d8444c",
+      "species": "OSHAWOTT",
+      "visibleColorLimit": 15
+    },
+    "502:back:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "6ecf4d8b910dae09152c7357295a03b5705d4a291ed56c8aebfcb24d6c71f241",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 502,
+      "source": "assets/starter_species_67/battle/normal/back/0502.png",
+      "sourceNationalDex": 502,
+      "sourceSha256": "e72f526777f1b36ef501aa8fdd2ed452cca3b4ab1120b8ed9cc84069a124f4fe",
+      "species": "DEWOTT",
+      "visibleColorLimit": 15
+    },
+    "502:back:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "7f1b2feae69f1baf92bc791017f52c357c94953b58d34b2e012dbff1cc80b00f",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 502,
+      "source": "assets/starter_species_67/battle/shiny/back/0502.png",
+      "sourceNationalDex": 502,
+      "sourceSha256": "55e21b961412caec9d7322876b80fcfee6c76c9cd2bc7e5dff6d199949b7ff73",
+      "species": "DEWOTT",
+      "visibleColorLimit": 15
+    },
+    "502:front:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 60,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "c473f0fae8895ff71af1cf929fff9f353ba7da3c27865926d61988279146d48c",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 502,
+      "source": "assets/starter_species_67/battle/normal/front/0502.png",
+      "sourceNationalDex": 502,
+      "sourceSha256": "8920145f95b14b38dd08434bf2f8590a1247023ae4c351bcaf364549ae10d36a",
+      "species": "DEWOTT",
+      "visibleColorLimit": 15
+    },
+    "502:front:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 60,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "868dcace1def7e39aa69c1ed54663c613e0abbfabc3af9603344c7d268668d49",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 502,
+      "source": "assets/starter_species_67/battle/shiny/front/0502.png",
+      "sourceNationalDex": 502,
+      "sourceSha256": "42cd42c35c754c7c6092c639fb2fe67dda78ba22f8c0e6dab5c940195be58406",
+      "species": "DEWOTT",
+      "visibleColorLimit": 15
+    },
+    "503:back:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "1b76bf2a4776c20e1d85313db6b39a4cfbbe93785a5ef51877ae576ac392e2b3",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 503,
+      "source": "assets/starter_species_67/battle/normal/back/0503.png",
+      "sourceNationalDex": 503,
+      "sourceSha256": "fee120d2af11e54cb80fe8244cf5ddc2b4866dd4eda5e3c402d0a6fbcb5db04d",
+      "species": "SAMUROTT",
+      "visibleColorLimit": 15
+    },
+    "503:back:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "d35cff8085c131206274fb49dfd25971bdd2b2c8a164e63ea7df6f483fd7aca6",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 503,
+      "source": "assets/starter_species_67/battle/shiny/back/0503.png",
+      "sourceNationalDex": 503,
+      "sourceSha256": "8cd698c83b330489c841670b2efb9bb477097a7af97a2b7e35f04aadc9877cb0",
+      "species": "SAMUROTT",
+      "visibleColorLimit": 15
+    },
+    "503:front:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "5c5ce8d9c82a381cd5d0d9d7a8363c7c07de50fd6743294e056a3f5be13e5368",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 503,
+      "source": "assets/starter_species_67/battle/normal/front/0503.png",
+      "sourceNationalDex": 503,
+      "sourceSha256": "83ccba5d088743add27fac8e9c218adabaee20afe2c7ad1c9c32d9059efe098e",
+      "species": "SAMUROTT",
+      "visibleColorLimit": 15
+    },
+    "503:front:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "1349af3201d8d9ef89eeecc7ddc61fafc1c7192e1b79fcd66a422779260f1ed4",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 503,
+      "source": "assets/starter_species_67/battle/shiny/front/0503.png",
+      "sourceNationalDex": 503,
+      "sourceSha256": "553ba25d066b4c4dde07cea435d939715c045a5758b24fe6def548eda3eb38d5",
+      "species": "SAMUROTT",
+      "visibleColorLimit": 15
+    },
+    "650:back:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 58,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "4c187a0e16a97230b733429b5e8ffe55136129338777722d4cec2a64720925da",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 650,
+      "source": "assets/starter_species_67/battle/normal/back/0650.png",
+      "sourceNationalDex": 650,
+      "sourceSha256": "d093768f0b98970d5bf7d28ec79f18dd3057294ef91f248870215a53859cc4a1",
+      "species": "CHESPIN",
+      "visibleColorLimit": 15
+    },
+    "650:back:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 58,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "588c35f69d3ce3de29d2626aade84f48f552c7046e5cb84b1cacbb8d4b46e0ab",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 650,
+      "source": "assets/starter_species_67/battle/shiny/back/0650.png",
+      "sourceNationalDex": 650,
+      "sourceSha256": "9c3e205434817ec38e31feae8a0c5fdf0de9013192605bb1d44e764f470b70d6",
+      "species": "CHESPIN",
+      "visibleColorLimit": 15
+    },
+    "650:front:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 50,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "a1fd7c99e49699a129cb930e65cdf2044e1ffa502d90410dc7df529634524b25",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 650,
+      "source": "assets/starter_species_67/battle/normal/front/0650.png",
+      "sourceNationalDex": 650,
+      "sourceSha256": "240b80c32912dd08f4376cac30778dc76ed5c0d44f2db5ec5adf956bae0722c1",
+      "species": "CHESPIN",
+      "visibleColorLimit": 15
+    },
+    "650:front:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 50,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "368dc2d2e3d793558b57f85fb11e1a1a1b34e715a35ea5d96784bb7c0cdc4f1b",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 650,
+      "source": "assets/starter_species_67/battle/shiny/front/0650.png",
+      "sourceNationalDex": 650,
+      "sourceSha256": "81f628a5e32f4e52a8d447d84c0438cb45a7594049c1c1d0152d551d38c758c1",
+      "species": "CHESPIN",
+      "visibleColorLimit": 15
+    },
+    "651:back:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "1c012635ad2e21d16635718727e3867adf07f18ea59ef297d5eeda08f47ecf33",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 651,
+      "source": "assets/starter_species_67/battle/normal/back/0651.png",
+      "sourceNationalDex": 651,
+      "sourceSha256": "1cedb8f8e160416009a53cb29436c22519cfc8d38af64f9285aceaed7c26c8ed",
+      "species": "QUILLADIN",
+      "visibleColorLimit": 15
+    },
+    "651:back:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "3258ea999bb456bfc323584c6566c1508b73f2ff6ea77fdd9bf7a212192f6dc0",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 651,
+      "source": "assets/starter_species_67/battle/shiny/back/0651.png",
+      "sourceNationalDex": 651,
+      "sourceSha256": "07650267bd77e846cb06cfd155df81f6e0797cd3c7edf417163894179770625e",
+      "species": "QUILLADIN",
+      "visibleColorLimit": 15
+    },
+    "651:front:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 60,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "1b8d89fb80da2956f5eb59b674fa63a54514d8a256deec07f263d4686670c125",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 651,
+      "source": "assets/starter_species_67/battle/normal/front/0651.png",
+      "sourceNationalDex": 651,
+      "sourceSha256": "15e2db80254ce160d48514c2300791c7b87eeb9aa0874037f4e90d94506889c7",
+      "species": "QUILLADIN",
+      "visibleColorLimit": 15
+    },
+    "651:front:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 60,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "e484ae8d96ed7a647cfe0594232129a2e32ab1440f2d01c1c0bc39e4524a07ce",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 651,
+      "source": "assets/starter_species_67/battle/shiny/front/0651.png",
+      "sourceNationalDex": 651,
+      "sourceSha256": "d29b4a14beb7649d17b8fd4ec1e0acb9c99403d5a262795365a843889836d8f3",
+      "species": "QUILLADIN",
+      "visibleColorLimit": 15
+    },
+    "652:back:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "c7d6751d78a1edeaf869e5953032ef1a1cc169008eabbbcd095aa08556b67614",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 652,
+      "source": "assets/starter_species_67/battle/normal/back/0652.png",
+      "sourceNationalDex": 652,
+      "sourceSha256": "68206319047f1401587c6178c3603224333f771276e0818f33f31afc36aeba4b",
+      "species": "CHESNAUGHT",
+      "visibleColorLimit": 15
+    },
+    "652:back:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "d720d6b838a4db3f0def7812af97fb5148ba4dcd92ebe675734460a1a2859a66",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 652,
+      "source": "assets/starter_species_67/battle/shiny/back/0652.png",
+      "sourceNationalDex": 652,
+      "sourceSha256": "867ca3df5749029a496e7c124a6cf056f7507860883ed97f54c4094c98a9ece7",
+      "species": "CHESNAUGHT",
+      "visibleColorLimit": 15
+    },
+    "652:front:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "24621e6f721aaf366c40130f97a9cbce258bd1f6b731d9ef11c2c0ea2c4e03c5",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 652,
+      "source": "assets/starter_species_67/battle/normal/front/0652.png",
+      "sourceNationalDex": 652,
+      "sourceSha256": "57587cc045a4697107778dd72ab118de069dd2b23126ceed53a8393b74e2555e",
+      "species": "CHESNAUGHT",
+      "visibleColorLimit": 15
+    },
+    "652:front:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "7b9fe202fdf06ffb8416e0c383dc3bbd93fe8c6df6b351009cfbc3d2b3f307b6",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 652,
+      "source": "assets/starter_species_67/battle/shiny/front/0652.png",
+      "sourceNationalDex": 652,
+      "sourceSha256": "fe2788361f3181a6b85a87e50d05d2af1973b0257e7345738438aaeae5fdc2f7",
+      "species": "CHESNAUGHT",
+      "visibleColorLimit": 15
+    },
+    "653:back:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 58,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "bb461f5b5a850da714b8862b97f43c157cf483b690f57ce1568af5db8a1a7aca",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 653,
+      "source": "assets/starter_species_67/battle/normal/back/0653.png",
+      "sourceNationalDex": 653,
+      "sourceSha256": "d5e3fe980b2117e7d12093b6bebbc0f44cd88d273fece56769f2f711ccd201b1",
+      "species": "FENNEKIN",
+      "visibleColorLimit": 15
+    },
+    "653:back:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 58,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "8ba2cd963bf82eb921d92a1c14eb6b0c14d4573ae65fa2a75e1dcd160f1bdb04",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 653,
+      "source": "assets/starter_species_67/battle/shiny/back/0653.png",
+      "sourceNationalDex": 653,
+      "sourceSha256": "3a6358533966275e8a34135892c2e4939a2e5041b6a3c096a6cfb9ed9476119f",
+      "species": "FENNEKIN",
+      "visibleColorLimit": 15
+    },
+    "653:front:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 50,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "848f89862d8742b8502407b69aca9391e5986fd97b1b8784e44e01156d23c95b",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 653,
+      "source": "assets/starter_species_67/battle/normal/front/0653.png",
+      "sourceNationalDex": 653,
+      "sourceSha256": "61aa33ccd9a63429064b25babe805c68b3cf56723232c2d7351213d32296cf95",
+      "species": "FENNEKIN",
+      "visibleColorLimit": 15
+    },
+    "653:front:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 50,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "13fe4993f2b349f7dc03bde8654ee4175392474bfc40e3ede67e83e24f1aae88",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 653,
+      "source": "assets/starter_species_67/battle/shiny/front/0653.png",
+      "sourceNationalDex": 653,
+      "sourceSha256": "c436d0572aefa5c4a228bb3805cf238265b6b581d1f1274f04d2e043800bb63e",
+      "species": "FENNEKIN",
+      "visibleColorLimit": 15
+    },
+    "654:back:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "fb6a4fdf0346eb5fcb7bd4f3019eaf41b5e3ae38368ceb9a0e321e8b61b68341",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 654,
+      "source": "assets/starter_species_67/battle/normal/back/0654.png",
+      "sourceNationalDex": 654,
+      "sourceSha256": "1d750b558a65f784608c600465e0a33ec86cb68fd7371221981b6a429a88140c",
+      "species": "BRAIXEN",
+      "visibleColorLimit": 15
+    },
+    "654:back:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "18d739812d5d8f07b985b759291a5fa90cf4d9a05ee817adc3e4c81e03089646",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 654,
+      "source": "assets/starter_species_67/battle/shiny/back/0654.png",
+      "sourceNationalDex": 654,
+      "sourceSha256": "5ca18d54dfbd10c2070753b891feae8fc9ae8489c67f9aa3a028a4cc1fcddc4b",
+      "species": "BRAIXEN",
+      "visibleColorLimit": 15
+    },
+    "654:front:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 60,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "ff7033e9c6b86e7ceb3f94333ae894329c351310ba468482699d912f0ba241e7",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 654,
+      "source": "assets/starter_species_67/battle/normal/front/0654.png",
+      "sourceNationalDex": 654,
+      "sourceSha256": "784afccb7ea0455e020996b445adcf9f1163ac2e2b1627af81dc3827ec36843a",
+      "species": "BRAIXEN",
+      "visibleColorLimit": 15
+    },
+    "654:front:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 60,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "223cfcbe49cdc222fc9f8a8950a6b8230ad58df5455c7649285712099b8cdc1e",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 654,
+      "source": "assets/starter_species_67/battle/shiny/front/0654.png",
+      "sourceNationalDex": 654,
+      "sourceSha256": "124c0305cb97f7be6bcf2eed5ed0fbd85a26c1c87df7d314a395c66060b8d277",
+      "species": "BRAIXEN",
+      "visibleColorLimit": 15
+    },
+    "655:back:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "f52f4f58a3909bd8892af5a01afca247ba7987e8d18fd3e6c07e701381b28c50",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 655,
+      "source": "assets/starter_species_67/battle/normal/back/0655.png",
+      "sourceNationalDex": 655,
+      "sourceSha256": "dff06925afb7b10d6589e049cf0ae04aff3174056bebf520de398f17d2b708a1",
+      "species": "DELPHOX",
+      "visibleColorLimit": 15
+    },
+    "655:back:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "41f5e1da0bd6b9ee05affbaec412a783a732d79ac3c6acece0fac7827e94bcf9",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 655,
+      "source": "assets/starter_species_67/battle/shiny/back/0655.png",
+      "sourceNationalDex": 655,
+      "sourceSha256": "3b8be8736d273e316de45718885be67af8590014b56d9de47b5bf81f440bab9c",
+      "species": "DELPHOX",
+      "visibleColorLimit": 15
+    },
+    "655:front:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "d78e7f24df71fd57515b36d253f27f1c02fb48dfb2c8d7da7cd9529fa3372c32",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 655,
+      "source": "assets/starter_species_67/battle/normal/front/0655.png",
+      "sourceNationalDex": 655,
+      "sourceSha256": "7b786267c68120f8698f018db5ba287bf249b913e64f2cc531fdf9d48f0eb74d",
+      "species": "DELPHOX",
+      "visibleColorLimit": 15
+    },
+    "655:front:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "9f8f5da392f3052473cd696d29b3ec3261a04dedbc326fd85003bec5a7f0107e",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 655,
+      "source": "assets/starter_species_67/battle/shiny/front/0655.png",
+      "sourceNationalDex": 655,
+      "sourceSha256": "5e255dc1a4bfcb5b48bbda592b50c8181860d83d4cca7d5a50148ff92dcb709a",
+      "species": "DELPHOX",
+      "visibleColorLimit": 15
+    },
+    "656:back:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 58,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "1beb8476b6fc2f1857cd157ee2f8c34dfa8ed94329c134f3277cc756e1f0c77c",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 656,
+      "source": "assets/starter_species_67/battle/normal/back/0656.png",
+      "sourceNationalDex": 656,
+      "sourceSha256": "cce62647e8caafc87d430335474495db4add4bbfc01db837dd9707c2c2ca8ec7",
+      "species": "FROAKIE",
+      "visibleColorLimit": 15
+    },
+    "656:back:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 58,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "0ffa54f120e80a1e390fea9b2b7d578b49a8ad297407336bb01aca601219c9f2",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 656,
+      "source": "assets/starter_species_67/battle/shiny/back/0656.png",
+      "sourceNationalDex": 656,
+      "sourceSha256": "35ec993d3895b41d19b0a9bc84bd438126471458f6ac6a87a76398b299c88a2e",
+      "species": "FROAKIE",
+      "visibleColorLimit": 15
+    },
+    "656:front:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 50,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "bd54cc37634aa13df35b1718bb830db62140d4c1d3614cd92382d4fca2a02496",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 656,
+      "source": "assets/starter_species_67/battle/normal/front/0656.png",
+      "sourceNationalDex": 656,
+      "sourceSha256": "9959adcd6ff7e766efdbb6747d4112e681b756b98877ad87aad7c7f6d8af5dff",
+      "species": "FROAKIE",
+      "visibleColorLimit": 15
+    },
+    "656:front:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 50,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "bc16568733daa05fb11030c1ab8bcf85fa0783f50402e122367c8ebc079290e0",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 656,
+      "source": "assets/starter_species_67/battle/shiny/front/0656.png",
+      "sourceNationalDex": 656,
+      "sourceSha256": "f8e3db50cf423463c7fa6a2b30d416c1089c24072da6300ea892c9f84b9568c7",
+      "species": "FROAKIE",
+      "visibleColorLimit": 15
+    },
+    "657:back:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "277d92df3d28220bc873152549243563bbb5e6ef4e42d83210f7dc801fd2c563",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 657,
+      "source": "assets/starter_species_67/battle/normal/back/0657.png",
+      "sourceNationalDex": 657,
+      "sourceSha256": "256085b0dea704da1e1f57c6f18ea98c88ca00952e9f300623953486772172fc",
+      "species": "FROGADIER",
+      "visibleColorLimit": 15
+    },
+    "657:back:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "a5b46f6932f6a3ac759c0dd41d5e16dab34bd3ff098fd03bb7c9e2c3b5896073",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 657,
+      "source": "assets/starter_species_67/battle/shiny/back/0657.png",
+      "sourceNationalDex": 657,
+      "sourceSha256": "ab61d69fd25872332541d577352e5767f34d681d3d8f3a5d5e0b5908dd3aebed",
+      "species": "FROGADIER",
+      "visibleColorLimit": 15
+    },
+    "657:front:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 60,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "eac0f67e0e8a6f18731014ff66def274d635438dec5cc8b56abede88a7d30f7c",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 657,
+      "source": "assets/starter_species_67/battle/normal/front/0657.png",
+      "sourceNationalDex": 657,
+      "sourceSha256": "1664e1c92569d917748dc8cc9f8db7bb9e2cabeeb813b74d871824f1501ed5ef",
+      "species": "FROGADIER",
+      "visibleColorLimit": 15
+    },
+    "657:front:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 60,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "10d68d9694f49dd9c86e7b54ff2d534b1bad093c15a2cdb4849ee5ad89023915",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 657,
+      "source": "assets/starter_species_67/battle/shiny/front/0657.png",
+      "sourceNationalDex": 657,
+      "sourceSha256": "0d6b14146026aaf68ad225a59703f146b23e4ba7de9708d99aca69667ecde159",
+      "species": "FROGADIER",
+      "visibleColorLimit": 15
+    },
+    "658:back:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "4248620eb503c7499345843711fdae8a384c68c52893717dfd8e55ee1e6b73c9",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 658,
+      "source": "assets/starter_species_67/battle/normal/back/0658.png",
+      "sourceNationalDex": 658,
+      "sourceSha256": "397e436d3e6909af029e2b92070fff3fc0d9fe293c12874c99b7a0a94de44944",
+      "species": "GRENINJA",
+      "visibleColorLimit": 15
+    },
+    "658:back:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "87b77630b504204291adfdd71b6a7b65c7531d441759fa87843758b03f387de6",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 658,
+      "source": "assets/starter_species_67/battle/shiny/back/0658.png",
+      "sourceNationalDex": 658,
+      "sourceSha256": "509666cd0ef7d912df7d83e4b08834918559800355ec740f8a9b17d3c9f3e2a3",
+      "species": "GRENINJA",
+      "visibleColorLimit": 15
+    },
+    "658:front:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "e8f1f2bd1b733f4987c392af98cee74e47b12b5357a26b1ae51179af9f32bb14",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 658,
+      "source": "assets/starter_species_67/battle/normal/front/0658.png",
+      "sourceNationalDex": 658,
+      "sourceSha256": "4e3605b38f97275ebe9dcacac00b77909d31fe40ccab7028660606937bb29258",
+      "species": "GRENINJA",
+      "visibleColorLimit": 15
+    },
+    "658:front:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "af49cbf0f334f3f69b7d32885001f988cfadaf0f9a327c6dcb7fc2d367789d32",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 658,
+      "source": "assets/starter_species_67/battle/shiny/front/0658.png",
+      "sourceNationalDex": 658,
+      "sourceSha256": "a60c92c20b3856382317ac561e8261de7dec46e0025228c3e92afb94e22ee064",
+      "species": "GRENINJA",
+      "visibleColorLimit": 15
+    },
+    "722:back:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 58,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "69629b99e6ac3bfa591c542cb3b6165a90c6a31ea942b980c017b78684290b9d",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 722,
+      "source": "assets/starter_species_67/battle/normal/back/0722.png",
+      "sourceNationalDex": 722,
+      "sourceSha256": "3320d75b28651148616afec4926b31569de465e1dd33b0bf5ab0896e85dcda08",
+      "species": "ROWLET",
+      "visibleColorLimit": 15
+    },
+    "722:back:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 58,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "85f3757bcb4c84e28a46b07e9cb747ed1cf28c05f453389916181c025c222f2c",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 722,
+      "source": "assets/starter_species_67/battle/shiny/back/0722.png",
+      "sourceNationalDex": 722,
+      "sourceSha256": "3706b482ae84209e1feec4f8766c963d3424e538b1321dc40787016df7d45098",
+      "species": "ROWLET",
+      "visibleColorLimit": 15
+    },
+    "722:front:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 50,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "159253ade333f74a09ac9bf34ef3b11bc543ef930730d4b8abe5f485ca826ff4",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 722,
+      "source": "assets/starter_species_67/battle/normal/front/0722.png",
+      "sourceNationalDex": 722,
+      "sourceSha256": "0c4c256fbfe1d0e0d882b2ae38738b6cb2bbabb1c2f7e78f4625fab1d3b3db69",
+      "species": "ROWLET",
+      "visibleColorLimit": 15
+    },
+    "722:front:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 50,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "4f5ec3563ac4f75e98c409786d6977577dddd2d0e79a21c7d2cf42651653a9b5",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 722,
+      "source": "assets/starter_species_67/battle/shiny/front/0722.png",
+      "sourceNationalDex": 722,
+      "sourceSha256": "b96021f9322c24f16e2c815e342928f331e03bb81c3164b70ffa8887e7981db7",
+      "species": "ROWLET",
+      "visibleColorLimit": 15
+    },
+    "723:back:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "ba8f144910c194e1584515566e304311b66ab17568c4bc3ae31b47e8073b495b",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 723,
+      "source": "assets/starter_species_67/battle/normal/back/0723.png",
+      "sourceNationalDex": 723,
+      "sourceSha256": "14d0a8492490437310ed4ba412d28abdbe1afb1784c79b8eadd182a96977e6ed",
+      "species": "DARTRIX",
+      "visibleColorLimit": 15
+    },
+    "723:back:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "6ff22b49197b9d11bdd2ca07caf52dff522512485a50aae306c89f829855f4bd",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 723,
+      "source": "assets/starter_species_67/battle/shiny/back/0723.png",
+      "sourceNationalDex": 723,
+      "sourceSha256": "be6e93d032e57a0c69d5b1684de84f5ae8e0b510e2ca5b6042be2df002c4c77c",
+      "species": "DARTRIX",
+      "visibleColorLimit": 15
+    },
+    "723:front:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 60,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "00b86afc7b1e543b9a7bc9fc4ac12353eb61b03c29d3262caf0fcce00d9e9831",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 723,
+      "source": "assets/starter_species_67/battle/normal/front/0723.png",
+      "sourceNationalDex": 723,
+      "sourceSha256": "874f8d822bbafad50f6a4914ea681fcf842941f1f583204fe6eb1cd10c732fb0",
+      "species": "DARTRIX",
+      "visibleColorLimit": 15
+    },
+    "723:front:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 60,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "054b5b76d7bd929a7f40daac3721ba75f9ca5e1c7cd4ef581d1fa07b722529c7",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 723,
+      "source": "assets/starter_species_67/battle/shiny/front/0723.png",
+      "sourceNationalDex": 723,
+      "sourceSha256": "21a1a4052b5b62c9af438083e8d89cc3b418b3bb19f477a71e89e88564181482",
+      "species": "DARTRIX",
+      "visibleColorLimit": 15
+    },
+    "724:back:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "e97518212eb189be25cadaae664ecadcc97a20556b5dce526d49ef5fdaceda24",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 724,
+      "source": "assets/starter_species_67/battle/normal/back/0724.png",
+      "sourceNationalDex": 724,
+      "sourceSha256": "5a4da4d6e75e65db5aec5ee41f2045f585b16880b1cc0e4863053e3fcf8f9069",
+      "species": "DECIDUEYE",
+      "visibleColorLimit": 15
+    },
+    "724:back:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "8e3d9c08919290b1961e3ef457a48cbf393c62a9674fd6bd6ba6bd6b8b57d319",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 724,
+      "source": "assets/starter_species_67/battle/shiny/back/0724.png",
+      "sourceNationalDex": 724,
+      "sourceSha256": "eef77d813035f7d4b193b40728178d35b559e588d2bcb254705dfe749b9fec6a",
+      "species": "DECIDUEYE",
+      "visibleColorLimit": 15
+    },
+    "724:front:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "9f3aee8d112c3f117f0a71ebdbc88fbd584d6d2fc36d2ce43ae4975d75d4d955",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 724,
+      "source": "assets/starter_species_67/battle/normal/front/0724.png",
+      "sourceNationalDex": 724,
+      "sourceSha256": "788308396df1ffa992249cc57334467f1d547a026c0fe43bfdb76a5f5be87cf7",
+      "species": "DECIDUEYE",
+      "visibleColorLimit": 15
+    },
+    "724:front:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "55c38b23cbd3b0be6cdb669dec779a68949b62140bc482d9a778e09e486b294e",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 724,
+      "source": "assets/starter_species_67/battle/shiny/front/0724.png",
+      "sourceNationalDex": 724,
+      "sourceSha256": "f9c9578f3d5092b1183b3a1bc227c77c3c39252fc2c2479ce757dcd0dbd4c985",
+      "species": "DECIDUEYE",
+      "visibleColorLimit": 15
+    },
+    "725:back:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 58,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "cbbceefc23fe0f5e28e6675522824767e20295e86ab61d3fe2a65974c754a4ab",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 725,
+      "source": "assets/starter_species_67/battle/normal/back/0725.png",
+      "sourceNationalDex": 725,
+      "sourceSha256": "0d9820e8d65b55238765fe7efffc1c6c03ff95fd392e5ec91ad2f9320f566a58",
+      "species": "LITTEN",
+      "visibleColorLimit": 15
+    },
+    "725:back:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 58,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "8912b5f8efc8e0dec45439625efc4e6911afd76eedd6dbd1bc67ca91767339b4",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 725,
+      "source": "assets/starter_species_67/battle/shiny/back/0725.png",
+      "sourceNationalDex": 725,
+      "sourceSha256": "785c6c9335a639cb65fd68052178eac79d65e653d3328d81f5115c350ee9ab64",
+      "species": "LITTEN",
+      "visibleColorLimit": 15
+    },
+    "725:front:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 50,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "bf379ba7b10f60a03f07ca517ac900149ac57100b046d6ed107eb6d430adaf4e",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 725,
+      "source": "assets/starter_species_67/battle/normal/front/0725.png",
+      "sourceNationalDex": 725,
+      "sourceSha256": "260dab2d64e6d75a9aafcb49dcb72efc96f372ba60753086076ca20a97a5cf86",
+      "species": "LITTEN",
+      "visibleColorLimit": 15
+    },
+    "725:front:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 50,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "89ad6a51b809aaba4676a08d2afba4b57612dc5fafa2944b85d1019f1b317dad",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 725,
+      "source": "assets/starter_species_67/battle/shiny/front/0725.png",
+      "sourceNationalDex": 725,
+      "sourceSha256": "82247faa261315f6a1418db3d44a5a1d768acfc125e57697f49c5c6232168650",
+      "species": "LITTEN",
+      "visibleColorLimit": 15
+    },
+    "726:back:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "61f307ad9ae5b6d2a3db5b74e4f002907c72460236a7c0344a1b525776a9bc55",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 726,
+      "source": "assets/starter_species_67/battle/normal/back/0726.png",
+      "sourceNationalDex": 726,
+      "sourceSha256": "b7cf6a3cb01f358bc547a8f43f2fe301ea099ae4e9b15436dc8d63d3e7f0a987",
+      "species": "TORRACAT",
+      "visibleColorLimit": 15
+    },
+    "726:back:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "820959b7f61502408ce43a718c2e8950da303869e542ebde9bd0d79063f5e9fa",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 726,
+      "source": "assets/starter_species_67/battle/shiny/back/0726.png",
+      "sourceNationalDex": 726,
+      "sourceSha256": "9982306881afe94a6e45d15e0dbc9ec56c6e7a16810cff5f1a8c78ce8121016e",
+      "species": "TORRACAT",
+      "visibleColorLimit": 15
+    },
+    "726:front:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 60,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "d1e695f772238716e061b3ba97738fb1ef3f20ef6f0714a14d31e089061c92df",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 726,
+      "source": "assets/starter_species_67/battle/normal/front/0726.png",
+      "sourceNationalDex": 726,
+      "sourceSha256": "2d97b255d8527299553c00f419ddee32436cebc5508e9550ad59d4480b0e296e",
+      "species": "TORRACAT",
+      "visibleColorLimit": 15
+    },
+    "726:front:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 60,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "bc06ba34714fef6b93b7ed9c83b8d24a1c3c864bea17d0a82feb144f789eded8",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 726,
+      "source": "assets/starter_species_67/battle/shiny/front/0726.png",
+      "sourceNationalDex": 726,
+      "sourceSha256": "5a840dcac0c545dd4c3f00d79836a25f9c88f4fc0524e9dbf3963696c9c4d80c",
+      "species": "TORRACAT",
+      "visibleColorLimit": 15
+    },
+    "727:back:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "82bed635c011fd554824597fa1c280efc8c944b5c933867c8b0f158b14db0d42",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 727,
+      "source": "assets/starter_species_67/battle/normal/back/0727.png",
+      "sourceNationalDex": 727,
+      "sourceSha256": "064d9cec7d25895869ddb7b9a11b9f17cd8064efde650ff010267dc608c004c8",
+      "species": "INCINEROAR",
+      "visibleColorLimit": 15
+    },
+    "727:back:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "e19322fd2b795ac625fc1ef4c6d2486a6a7b8d60f69d83d481b2704e9f88cb72",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 727,
+      "source": "assets/starter_species_67/battle/shiny/back/0727.png",
+      "sourceNationalDex": 727,
+      "sourceSha256": "39104df8e99ccc919df394d6b281cd57bb7f08ef0f7b62263ff233a9dd724076",
+      "species": "INCINEROAR",
+      "visibleColorLimit": 15
+    },
+    "727:front:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "60ecf94ff394cb790d4ed5a9b6dfdb0fde244c394ec427b13003adf328379585",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 727,
+      "source": "assets/starter_species_67/battle/normal/front/0727.png",
+      "sourceNationalDex": 727,
+      "sourceSha256": "d7f9b9301287198ad986323775000cdc2fa3bf53bb0f90121c4d7ffadab10bc1",
+      "species": "INCINEROAR",
+      "visibleColorLimit": 15
+    },
+    "727:front:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "5c6beb5011bac075ffb0d0404140cda8d28ecf58e45de9d437c1e4b6aaf3699e",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 727,
+      "source": "assets/starter_species_67/battle/shiny/front/0727.png",
+      "sourceNationalDex": 727,
+      "sourceSha256": "7fd0401cb375dd34104a7a38847b5fd93ebc21f0685d7381f6bbb8eb237e68d3",
+      "species": "INCINEROAR",
+      "visibleColorLimit": 15
+    },
+    "728:back:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 58,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "c3914865f20d6f2dde3ee51ccecf8bdedfcdacabd8eea7b51703d6f22d39f2ee",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 728,
+      "source": "assets/starter_species_67/battle/normal/back/0728.png",
+      "sourceNationalDex": 728,
+      "sourceSha256": "eb73f5b7134b283f2877622d251507e356c06d9cd7bf7047220ced32a4ab4bb9",
+      "species": "POPPLIO",
+      "visibleColorLimit": 15
+    },
+    "728:back:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 58,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "5954485559d9ac20c1511308e30258431eee6185ce96a34136526ce4264f2d9e",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 728,
+      "source": "assets/starter_species_67/battle/shiny/back/0728.png",
+      "sourceNationalDex": 728,
+      "sourceSha256": "d005678e75e2d33b7b1c90942deb3bd329293bce54f672a8d357313e1e205bb7",
+      "species": "POPPLIO",
+      "visibleColorLimit": 15
+    },
+    "728:front:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 50,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "93776f21bc64a606373b814a4cfca6aafbd9e90a2b793e64580d8b5e7c950aad",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 728,
+      "source": "assets/starter_species_67/battle/normal/front/0728.png",
+      "sourceNationalDex": 728,
+      "sourceSha256": "96b1dcbbdc1198dc7b6b5b0f48704d9ff166968a4a25f21e0588e8c9949209dc",
+      "species": "POPPLIO",
+      "visibleColorLimit": 15
+    },
+    "728:front:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 50,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "c34846a52b79d7ceeea6652939c6af53564175d823b62a2e648f8552ed55151b",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 728,
+      "source": "assets/starter_species_67/battle/shiny/front/0728.png",
+      "sourceNationalDex": 728,
+      "sourceSha256": "74137c8dabbce78bd95f01dd9c5cb675b943510ea005b185964b32a5f2169e0c",
+      "species": "POPPLIO",
+      "visibleColorLimit": 15
+    },
+    "729:back:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "858b95317aa2529832a6eede26ad2192253a76e5b1d6bf8088c4f3b890901681",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 729,
+      "source": "assets/starter_species_67/battle/normal/back/0729.png",
+      "sourceNationalDex": 729,
+      "sourceSha256": "25242d6c4557a59c1d9a8b9ebe7fc64f720580f61e9a177ef5b7788b2cf7c008",
+      "species": "BRIONNE",
+      "visibleColorLimit": 15
+    },
+    "729:back:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "32547ee0c882bdd023128eebb585a23821f2052e4b9f44bedd063ce2f8e0112f",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 729,
+      "source": "assets/starter_species_67/battle/shiny/back/0729.png",
+      "sourceNationalDex": 729,
+      "sourceSha256": "13446155826f5bbff0e7139da50b2bd2e59596fa9ca870f7944fc061bfd4ca2c",
+      "species": "BRIONNE",
+      "visibleColorLimit": 15
+    },
+    "729:front:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 60,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "70c09f33787af77566936c9663b9d9d75e888cdbd105548cc69cebadfcd925d6",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 729,
+      "source": "assets/starter_species_67/battle/normal/front/0729.png",
+      "sourceNationalDex": 729,
+      "sourceSha256": "28cd39d2ae2bb6361680359e37295c9eeaa38b48a674abde04e75b856478794c",
+      "species": "BRIONNE",
+      "visibleColorLimit": 15
+    },
+    "729:front:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 60,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "c3e29f96bdec3b362932d17680cc8e81de9a55a1f948d989def0c23f9203e7ae",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 729,
+      "source": "assets/starter_species_67/battle/shiny/front/0729.png",
+      "sourceNationalDex": 729,
+      "sourceSha256": "cb83d0837706262deff79460f2eaa3923ebc0cc030ec3387405ffb5b261df055",
+      "species": "BRIONNE",
+      "visibleColorLimit": 15
+    },
+    "730:back:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "4852c01359cf1bab1a51f8bb45dea3b7f93f2b4aaacda8ef1cecab98c9130a47",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 730,
+      "source": "assets/starter_species_67/battle/normal/back/0730.png",
+      "sourceNationalDex": 730,
+      "sourceSha256": "f97a3cde8403ceeeeeee38302378e9425a6de205a3b100cfe1e8d199ad5e3b92",
+      "species": "PRIMARINA",
+      "visibleColorLimit": 15
+    },
+    "730:back:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "4cd6fe77ac70906ce66975220cc90af567f4566e0a3ece24d30ac4f9b9989770",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 730,
+      "source": "assets/starter_species_67/battle/shiny/back/0730.png",
+      "sourceNationalDex": 730,
+      "sourceSha256": "4c39bd6bfbc6013986981d1923090e15884d6888a16070f9cdbd43079e285068",
+      "species": "PRIMARINA",
+      "visibleColorLimit": 15
+    },
+    "730:front:normal": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "386a1098b2cb4ec90050bb373db604656b0132b49c2051c52b2676e9d7831474",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 730,
+      "source": "assets/starter_species_67/battle/normal/front/0730.png",
+      "sourceNationalDex": 730,
+      "sourceSha256": "69dc21e79162048921683d8ee8834d4cc0ca09ac8d4deea15f78d5f7334cf238",
+      "species": "PRIMARINA",
+      "visibleColorLimit": 15
+    },
+    "730:front:shiny": {
+      "anchor": "bottom-center-1px-margin",
+      "canvas": [
+        64,
+        64
+      ],
+      "contentLimit": 62,
+      "durationsMs": [
+        520,
+        110,
+        170,
+        110,
+        520,
+        110,
+        170,
+        110
+      ],
+      "frameCount": 8,
+      "framesAggregateSha256": "dbc9fa718ed338d3cc6c179d1aed1e091d0250f9a7660c0100dd71e460ccfe00",
+      "motion": "fixed-foot-horizontal-shear",
+      "runtimeDex": 730,
+      "source": "assets/starter_species_67/battle/shiny/front/0730.png",
+      "sourceNationalDex": 730,
+      "sourceSha256": "517d045b560ef0c5ae30f093013b2c97efe8f50f57112cbbd1ae052ef604276d",
+      "species": "PRIMARINA",
+      "visibleColorLimit": 15
+    }
+  },
+  "sourceCommit": "4bf39fe6ce32d720a03964be4c24e22198ba8de8",
+  "sourceMetadataSha256": "5668fc2b70fb4f9a9f524b095c726031fdc0120d3f0a07c900b11a946485b4b2",
+  "sourcePack": "Gen 7/ultra-sun-ultra-moon",
+  "sourceRepository": "PokemonWorkshop/GameDataPacks",
+  "status": "RUNTIME",
+  "surfacesPerSpecies": 4
+}

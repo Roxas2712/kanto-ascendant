@@ -272,61 +272,205 @@ return function(mod, opts)
   }
   assert(#FACTS==110,"BLUE legacy question prefix changed")
   C.LEGACY_QUESTION_COUNT=110
+  -- The original 110-row catalogue predates the bilingual question UI.  Its
+  -- English values above are immutable save/answer semantics, not labels to
+  -- expose in a German run.  Keep a fully authored German presentation row
+  -- beside every legacy ID instead of trying to translate internal tokens at
+  -- runtime.  The order assertion below makes an omitted or shifted row fail
+  -- at load time while leaving every shipped ID and correct slot untouched.
+  local LEGACY_DE={
+    {"CERULEAN","Welche Stadt liegt südlich der Nugget-Brücke?","AZURIA CITY","MARMORIA CITY","FUCHSANIA CITY"},
+    {"SURF","Welche Attacke bringt dich übers offene Wasser?","SURFER","ZERSCHNEIDER","BLITZ"},
+    {"MOONSTONE","Welchen Stein findest du im Mondberg?","MONDSTEIN","BLATTSTEIN","FEUERSTEIN"},
+    {"LUGIA","Wer beschützt die Strudelinseln?","LUGIA","HO-OH","SUICUNE"},
+    {"MISTY","Wer leitet die Arena von Azuria?","MISTY","ERIKA","SABRINA"},
+    {"LAPRAS","Welchen zweiten Typ hat Lapras?","EIS","FEUER","GESTEIN"},
+    {"AZALEA","Bei welcher Stadt liegt der Flegmon-Brunnen?","AZALEA CITY","VIOLA CITY","OLIVIANA CITY"},
+    {"ECRUTEAK","In welcher Stadt steht die Turmruine?","TEAK CITY","DUKATIA CITY","MAHAGONIA CITY"},
+    {"SUICUNE","Welches legendäre Pokémon reinigt schmutziges Wasser?","SUICUNE","ENTEI","RAIKOU"},
+    {"WHIRL","Auf welchen Inseln lebt Lugia?","STRUDELINSELN","SEESCHAUMINSELN","ZINNOBERINSEL"},
+
+    {"TOTODILE","Welcher Wasser-Starter kommt aus Johto?","KARNIMANI","ENDIVIE","FEURIGEL"},
+    {"PALLET","In welchem Ort lebt Professor Eich?","ALABASTIA","LAVANDIA","OLIVIANA CITY"},
+    {"VIRIDIAN","Wer leitet die Arena von Vertania?","GIOVANNI","ROCKO","FALK"},
+    {"PEWTER","Wer leitet die Arena von Marmoria?","ROCKO","MISTY","KAI"},
+    {"VERMILION","Wer leitet die Arena von Orania?","MAJOR BOB","KOGA","HARTWIG"},
+    {"CELADON","Wer leitet die Arena von Prismania?","ERIKA","BIANKA","SANDRA"},
+    {"FUCHSIA","Wer leitet die Arena von Fuchsania?","KOGA","JENS","NORBERT"},
+    {"SAFFRON","Wer leitet die Arena von Saffronia?","SABRINA","JASMIN","PYRO"},
+    {"CINNABAR","Wer leitet die Arena auf der Zinnoberinsel?","PYRO","GIOVANNI","FALK"},
+    {"INDIGO","Wo findet die Pokémon-Liga von Kanto statt?","INDIGO-PLATEAU","MONDBERG","NATIONALPARK"},
+
+    {"BOULDER","Welchen Orden verleiht Rocko?","FELSORDEN","QUELLORDEN","FLÜGELORDEN"},
+    {"CASCADE","Welchen Orden verleiht Misty?","QUELLORDEN","DONNERORDEN","PHANTOMORDEN"},
+    {"THUNDER","Welchen Orden verleiht Major Bob?","DONNERORDEN","FARBORDEN","BASISORDEN"},
+    {"RAINBOW","Welchen Orden verleiht Erika?","FARBORDEN","SEELENORDEN","STAHLORDEN"},
+    {"SOUL","Welchen Orden verleiht Koga?","SEELENORDEN","SUMPFORDEN","FAUSTORDEN"},
+    {"MARSH","Welchen Orden verleiht Sabrina?","SUMPFORDEN","VULKANORDEN","EISORDEN"},
+    {"VOLCANO","Welchen Orden verleiht Pyro?","VULKANORDEN","ERDORDEN","DRACHENORDEN"},
+    {"EARTH","Welchen Orden verleiht Giovanni?","ERDORDEN","FELSORDEN","PHANTOMORDEN"},
+    {"ROCKTUNNEL","An welcher Route liegt der Felstunnel?","ROUTE 10","ROUTE 2","ROUTE 35"},
+    {"POWERPLANT","An welcher Route liegt das Kraftwerk?","ROUTE 10","ROUTE 7","ROUTE 43"},
+
+    {"SEAFOAM","An welcher Route liegen die Seeschauminseln?","ROUTE 20","ROUTE 4","ROUTE 45"},
+    {"VICTORY","Von welcher Route aus erreichst du die Siegesstraße?","ROUTE 23","ROUTE 3","ROUTE 42"},
+    {"SILPH","In welcher Stadt steht die Silph Co.?","SAFFRONIA CITY","DUKATIA CITY","ORANIA CITY"},
+    {"SAFARI","In welcher Stadt liegt die Safari-Zone?","FUCHSANIA CITY","AZALEA CITY","VIOLA CITY"},
+    {"BIKE","In welcher Stadt steht der Fahrradladen?","AZURIA CITY","PRISMANIA CITY","OLIVIANA CITY"},
+    {"SSANNE","In welcher Stadt legt die M.S. Anne an?","ORANIA CITY","ANEMONIA CITY","FUCHSANIA CITY"},
+    {"FLUTE","Welches Pokémon weckt die Pokéflöte auf?","RELAXO","LAPRAS","ONIX"},
+    {"CUBONE","Welchen ersten Typ hat Tragosso?","BODEN","GESTEIN","KAMPF"},
+    {"GEODUDE","Welchen Typ hat Kleinstein?","GESTEIN","WASSER","ELEKTRO"},
+    {"GASTLY","Welchen ersten Typ hat Nebulak?","GEIST","PSYCHO","UNLICHT"},
+
+    {"DRATINI","Welchen Typ hat Dratini?","DRACHE","WASSER","FLUG"},
+    {"EEVEE","Welchen Typ hat Evoli?","NORMAL","PSYCHO","FEE"},
+    {"GROWLITHE","Welchen Typ hat Fukano?","FEUER","BODEN","ELEKTRO"},
+    {"ODDISH","Welchen ersten Typ hat Myrapla?","PFLANZE","KÄFER","EIS"},
+    {"ABRA","Welchen Typ hat Abra?","PSYCHO","GEIST","NORMAL"},
+    {"MAGIKARP","Welchen Typ hat Karpador?","WASSER","DRACHE","KAMPF"},
+    {"DUGTRIO","Welchen Typ hat Digdri?","BODEN","GESTEIN","STAHL"},
+    {"PINSIR","Welchen Typ hat Pinsir?","KÄFER","KAMPF","GESTEIN"},
+    {"SCYTHER","Welchen zweiten Typ hat Sichlor?","FLUG","BODEN","WASSER"},
+    {"KABUTO","Welchen zweiten Typ hat Kabuto?","WASSER","KÄFER","BODEN"},
+
+    {"OMANYTE","Welchen zweiten Typ hat Amonitas?","WASSER","EIS","BODEN"},
+    {"AERODACTYL","Welchen zweiten Typ hat Aerodactyl?","FLUG","DRACHE","KÄFER"},
+    {"MEW","Welchen Typ hat Mew?","PSYCHO","FEE","NORMAL"},
+    {"MEWTWO","Welchen Typ hat Mewtu?","PSYCHO","GEIST","UNLICHT"},
+    {"ZAPDOS","Welchen ersten Typ hat Zapdos?","ELEKTRO","FEUER","EIS"},
+    {"ARTICUNO","Welchen ersten Typ hat Arktos?","EIS","ELEKTRO","FEUER"},
+    {"MOLTRES","Welchen ersten Typ hat Lavados?","FEUER","EIS","ELEKTRO"},
+    {"BULBASAUR","Welchen ersten Typ hat Bisasam?","PFLANZE","FEUER","WASSER"},
+    {"CHARMANDER","Welchen Typ hat Glumanda?","FEUER","PFLANZE","WASSER"},
+    {"SQUIRTLE","Welchen Typ hat Schiggy?","WASSER","FEUER","PFLANZE"},
+
+    {"NEWBARK","In welchem Ort lebt Professor Lind?","NEUBORKIA","ALABASTIA","MAHAGONIA CITY"},
+    {"VIOLET","Wer leitet die Arena von Viola?","FALK","ROCKO","KAI"},
+    {"BUGSY","Wer leitet die Arena von Azalea?","KAI","ERIKA","JENS"},
+    {"WHITNEY","Wer leitet die Arena von Dukatia?","BIANKA","MISTY","SANDRA"},
+    {"MORTY","Wer leitet die Arena von Teak City?","JENS","KOGA","HARTWIG"},
+    {"CHUCK","Wer leitet die Arena von Anemonia?","HARTWIG","MAJOR BOB","NORBERT"},
+    {"JASMINE","Wer leitet die Arena von Oliviana?","JASMIN","SABRINA","ERIKA"},
+    {"PRYCE","Wer leitet die Arena von Mahagonia?","NORBERT","PYRO","FALK"},
+    {"CLAIR","Wer leitet die Arena von Ebenholz?","SANDRA","MISTY","JASMIN"},
+    {"ZEPHYR","Welchen Orden verleiht Falk?","FLÜGELORDEN","PHANTOMORDEN","FARBORDEN"},
+
+    {"HIVE","Welchen Orden verleiht Kai?","INSEKTORDEN","BASISORDEN","DONNERORDEN"},
+    {"PLAIN","Welchen Orden verleiht Bianka?","BASISORDEN","FAUSTORDEN","SEELENORDEN"},
+    {"FOG","Welchen Orden verleiht Jens?","PHANTOMORDEN","STAHLORDEN","SUMPFORDEN"},
+    {"STORM","Welchen Orden verleiht Hartwig?","FAUSTORDEN","EISORDEN","QUELLORDEN"},
+    {"MINERAL","Welchen Orden verleiht Jasmin?","STAHLORDEN","DRACHENORDEN","ERDORDEN"},
+    {"GLACIER","Welchen Orden verleiht Norbert?","EISORDEN","FLÜGELORDEN","VULKANORDEN"},
+    {"RISING","Welchen Orden verleiht Sandra?","DRACHENORDEN","INSEKTORDEN","FELSORDEN"},
+    {"SPROUT","In welcher Stadt steht der Knofensa-Turm?","VIOLA CITY","AZALEA CITY","EBENHOLZ CITY"},
+    {"TIN","In welchem Turm ruht Ho-Oh?","ZINNTURM","TURMRUINE","SILPH CO."},
+    {"LAKERAGE","Wo taucht das rote Garados auf?","SEE DES ZORNS","SEESCHAUMINSELN","SAFARI-ZONE"},
+
+    {"RADIO","In welcher Stadt steht der Radioturm?","DUKATIA CITY","LAVANDIA","FUCHSANIA CITY"},
+    {"UNOWN","Wo leben Icognito?","ALPH-RUINEN","KESSELBERG","FELSTUNNEL"},
+    {"CONTEST","Wo findet das Käferturnier statt?","NATIONALPARK","SAFARI-ZONE","SIEGESSTRASSE"},
+    {"MORTAR","An welcher Route liegt der Kesselberg?","ROUTE 42","ROUTE 12","ROUTE 22"},
+    {"SILVER","Auf welchem Berg wartet Rot?","SILBERBERG","MONDBERG","KESSELBERG"},
+    {"HOOTHOOT","Welchen zweiten Typ hat Hoothoot?","FLUG","WASSER","FEUER"},
+    {"MAREEP","Welchen Typ hat Voltilamm?","ELEKTRO","PFLANZE","EIS"},
+    {"WOOPER","Welchen zweiten Typ hat Felino?","BODEN","GESTEIN","GIFT"},
+    {"MISDREAVUS","Welchen Typ hat Traunfugil?","GEIST","UNLICHT","PSYCHO"},
+    {"SNEASEL","Welchen Typ hat Sniebel?","EIS","FEUER","ELEKTRO"},
+
+    {"YANMA","Welchen zweiten Typ hat Yanma?","FLUG","WASSER","BODEN"},
+    {"GLIGAR","Welchen ersten Typ hat Skorgla?","BODEN","GESTEIN","KÄFER"},
+    {"SWINUB","Welchen ersten Typ hat Quiekel?","EIS","FEUER","WASSER"},
+    {"HOUNDOUR","Welchen ersten Typ hat Hunduster?","UNLICHT","PSYCHO","FEE"},
+    {"LARVITAR","Welchen ersten Typ hat Larvitar?","GESTEIN","STAHL","BODEN"},
+    {"PORYGON2","Welchen Typ hat Porygon2?","NORMAL","ELEKTRO","PSYCHO"},
+    {"LICKITUNG","Welchen Typ hat Schlurp?","NORMAL","KAMPF","DRACHE"},
+    {"ENTEI","Welchen Typ hat Entei?","FEUER","WASSER","ELEKTRO"},
+    {"RAIKOU","Welchen Typ hat Raikou?","ELEKTRO","FEUER","EIS"},
+    {"HO_OH","Welchen zweiten Typ hat Ho-Oh?","FLUG","PSYCHO","DRACHE"},
+
+    {"CELEBI","Welchen zweiten Typ hat Celebi?","PFLANZE","WASSER","FEUER"},
+    {"KURT","Wer fertigt Bälle aus Aprikokos?","KURT","BILL","PROFESSOR EICH"},
+    {"STEELIX","Welchen ersten Typ hat Stahlos?","STAHL","GESTEIN","EIS"},
+    {"SCIZOR","Welchen zweiten Typ hat Scherox?","STAHL","FEUER","ELEKTRO"},
+    {"KINGDRA","Welchen zweiten Typ hat Seedraking?","DRACHE","EIS","BODEN"},
+    {"CROBAT","Welchen zweiten Typ hat Iksbat?","FLUG","KÄFER","UNLICHT"},
+    {"POLITOED","Welchen Typ hat Quaxo?","WASSER","PFLANZE","KAMPF"},
+    {"ESPEON","Welchen Typ hat Psiana?","PSYCHO","UNLICHT","GEIST"},
+    {"UMBREON","Welchen Typ hat Nachtara?","UNLICHT","PSYCHO","GEIST"},
+    {"CHIKORITA","Welcher Pflanzen-Starter kommt aus Johto?","ENDIVIE","KARNIMANI","FEURIGEL"},
+  }
+  assert(#LEGACY_DE==#FACTS,"BLUE German legacy catalogue needs 110 rows")
+  for index,row in ipairs(LEGACY_DE) do
+    assert(row[1]==FACTS[index][1],
+      "BLUE German legacy catalogue drift at row "..index)
+  end
   -- Keyed records are appended after the immutable 110-row legacy prefix.
   -- Every answer is a generation-stable fact; localized labels retain the
   -- same semantic value and are permuted together at presentation time.
   local EXTRA_FACTS={
-    {id="KA_BLUE_X_KANTO_001",category="KANTO",en="Pokemon at National Dex #025?",de="Pokemon im Nationaldex Nr. 025?",right="PIKACHU",d1="RAICHU",d2="EEVEE"},
-    {id="KA_BLUE_X_KANTO_002",category="KANTO",en="Pokemon at National Dex #001?",de="Pokemon im Nationaldex Nr. 001?",right="BULBASAUR",d1="IVYSAUR",d2="CHARMANDER"},
-    {id="KA_BLUE_X_KANTO_003",category="KANTO",en="Leader of Cerulean Gym?",de="Leitung der Arena von Cerulean?",right="MISTY",d1="ERIKA",d2="SABRINA"},
-    {id="KA_BLUE_X_KANTO_004",category="KANTO",en="Region of Pallet Town?",de="Region von Pallet Town?",right="KANTO",d1="JOHTO",d2="SINNOH"},
-    {id="KA_BLUE_X_KANTO_005",category="KANTO",en="Ice-linked Kanto legendary bird?",de="Kantos legendaerer Eisvogel?",right="ARTICUNO",d1="ZAPDOS",d2="MOLTRES"},
-    {id="KA_BLUE_X_KANTO_006",category="KANTO",en="Charmander's primary type?",de="Charmanders Primaertyp?",right="FIRE",d1="WATER",d2="GRASS"},
-    {id="KA_BLUE_X_KANTO_007",category="KANTO",en="Leader of Pewter Gym?",de="Leitung der Arena von Pewter?",right="BROCK",d1="MISTY",d2="KOGA"},
-    {id="KA_BLUE_X_KANTO_008",category="KANTO",en="Town of Pokemon Tower?",de="Stadt des Pokemon Tower?",right="LAVENDER TOWN",d1="PALLET TOWN",d2="FUCHSIA CITY"},
-    {id="KA_BLUE_X_KANTO_009",category="KANTO",en="Mewtwo's National Dex number?",de="Mewtwos Nationaldexnummer?",right="150",d1="149",d2="151"},
-    {id="KA_BLUE_X_KANTO_010",category="KANTO",en="Squirtle evolves into?",de="Squirtle entwickelt sich zu?",right="WARTORTLE",d1="CHARMELEON",d2="IVYSAUR"},
+    {id="KA_BLUE_X_KANTO_001",category="KANTO",en="Pokemon at National Dex #025?",de="Welches Pokémon hat die Nationaldex-Nummer 025?",right="PIKACHU",d1="RAICHU",d2="EEVEE",rightDe="PIKACHU",d1De="RAICHU",d2De="EVOLI"},
+    {id="KA_BLUE_X_KANTO_002",category="KANTO",en="Pokemon at National Dex #001?",de="Welches Pokémon hat die Nationaldex-Nummer 001?",right="BULBASAUR",d1="IVYSAUR",d2="CHARMANDER",rightDe="BISASAM",d1De="BISAKNOSP",d2De="GLUMANDA"},
+    {id="KA_BLUE_X_KANTO_003",category="KANTO",en="Leader of Cerulean Gym?",de="Wer leitet die Arena von Azuria?",right="MISTY",d1="ERIKA",d2="SABRINA",rightDe="MISTY",d1De="ERIKA",d2De="SABRINA"},
+    {id="KA_BLUE_X_KANTO_004",category="KANTO",en="Region of Pallet Town?",de="In welcher Region liegt Alabastia?",right="KANTO",d1="JOHTO",d2="SINNOH",rightDe="KANTO",d1De="JOHTO",d2De="SINNOH"},
+    {id="KA_BLUE_X_KANTO_005",category="KANTO",en="Ice-linked Kanto legendary bird?",de="Welcher legendäre Vogel aus Kanto gehört zum Typ Eis?",right="ARTICUNO",d1="ZAPDOS",d2="MOLTRES",rightDe="ARKTOS",d1De="ZAPDOS",d2De="LAVADOS"},
+    {id="KA_BLUE_X_KANTO_006",category="KANTO",en="Charmander's primary type?",de="Welchen Typ hat Glumanda?",right="FIRE",d1="WATER",d2="GRASS",rightDe="FEUER",d1De="WASSER",d2De="PFLANZE"},
+    {id="KA_BLUE_X_KANTO_007",category="KANTO",en="Leader of Pewter Gym?",de="Wer leitet die Arena von Marmoria?",right="BROCK",d1="MISTY",d2="KOGA",rightDe="ROCKO",d1De="MISTY",d2De="KOGA"},
+    {id="KA_BLUE_X_KANTO_008",category="KANTO",en="Town of Pokemon Tower?",de="In welcher Stadt steht der Pokémon-Turm?",right="LAVENDER TOWN",d1="PALLET TOWN",d2="FUCHSIA CITY",rightDe="LAVANDIA",d1De="ALABASTIA",d2De="FUCHSANIA CITY"},
+    {id="KA_BLUE_X_KANTO_009",category="KANTO",en="Mewtwo's National Dex number?",de="Welche Nummer hat Mewtu im Nationaldex?",right="150",d1="149",d2="151",rightDe="150",d1De="149",d2De="151"},
+    {id="KA_BLUE_X_KANTO_010",category="KANTO",en="Squirtle evolves into?",de="Zu welchem Pokémon entwickelt sich Schiggy?",right="WARTORTLE",d1="CHARMELEON",d2="IVYSAUR",rightDe="SCHILLOK",d1De="GLUTEXO",d2De="BISAKNOSP"},
 
-    {id="KA_BLUE_X_JOHTO_001",category="JOHTO",en="Pokemon at National Dex #152?",de="Pokemon im Nationaldex Nr. 152?",right="CHIKORITA",d1="BAYLEEF",d2="CYNDAQUIL"},
-    {id="KA_BLUE_X_JOHTO_002",category="JOHTO",en="Johto's Fire starter?",de="Johtos Feuer-Starter?",right="CYNDAQUIL",d1="CHIKORITA",d2="TOTODILE"},
-    {id="KA_BLUE_X_JOHTO_003",category="JOHTO",en="Johto's Water starter?",de="Johtos Wasser-Starter?",right="TOTODILE",d1="CHIKORITA",d2="CYNDAQUIL"},
-    {id="KA_BLUE_X_JOHTO_004",category="JOHTO",en="Leader of Violet Gym?",de="Leitung der Arena von Violet?",right="FALKNER",d1="BUGSY",d2="MORTY"},
-    {id="KA_BLUE_X_JOHTO_005",category="JOHTO",en="City of the Burned Tower?",de="Stadt des Burned Tower?",right="ECRUTEAK",d1="GOLDENROD",d2="OLIVINE"},
-    {id="KA_BLUE_X_JOHTO_006",category="JOHTO",en="Guardian of Whirl Islands?",de="Waechter der Whirl Islands?",right="LUGIA",d1="HO-OH",d2="SUICUNE"},
-    {id="KA_BLUE_X_JOHTO_007",category="JOHTO",en="Leader of Goldenrod Gym?",de="Leitung der Arena von Goldenrod?",right="WHITNEY",d1="JASMINE",d2="CLAIR"},
-    {id="KA_BLUE_X_JOHTO_008",category="JOHTO",en="Mareep's primary type?",de="Mareeps Primaertyp?",right="ELECTRIC",d1="GRASS",d2="WATER"},
-    {id="KA_BLUE_X_JOHTO_009",category="JOHTO",en="Tower where Ho-Oh rests?",de="Turm, in dem Ho-Oh ruht?",right="TIN TOWER",d1="BURNED TOWER",d2="SPROUT TOWER"},
-    {id="KA_BLUE_X_JOHTO_010",category="JOHTO",en="Leader of Blackthorn Gym?",de="Leitung der Arena von Blackthorn?",right="CLAIR",d1="PRYCE",d2="JASMINE"},
+    {id="KA_BLUE_X_JOHTO_001",category="JOHTO",en="Pokemon at National Dex #152?",de="Welches Pokémon hat die Nationaldex-Nummer 152?",right="CHIKORITA",d1="BAYLEEF",d2="CYNDAQUIL",rightDe="ENDIVIE",d1De="LORBLATT",d2De="FEURIGEL"},
+    {id="KA_BLUE_X_JOHTO_002",category="JOHTO",en="Johto's Fire starter?",de="Welcher Feuer-Starter kommt aus Johto?",right="CYNDAQUIL",d1="CHIKORITA",d2="TOTODILE",rightDe="FEURIGEL",d1De="ENDIVIE",d2De="KARNIMANI"},
+    {id="KA_BLUE_X_JOHTO_003",category="JOHTO",en="Johto's Water starter?",de="Welcher Wasser-Starter kommt aus Johto?",right="TOTODILE",d1="CHIKORITA",d2="CYNDAQUIL",rightDe="KARNIMANI",d1De="ENDIVIE",d2De="FEURIGEL"},
+    {id="KA_BLUE_X_JOHTO_004",category="JOHTO",en="Leader of Violet Gym?",de="Wer leitet die Arena von Viola?",right="FALKNER",d1="BUGSY",d2="MORTY",rightDe="FALK",d1De="KAI",d2De="JENS"},
+    {id="KA_BLUE_X_JOHTO_005",category="JOHTO",en="City of the Burned Tower?",de="In welcher Stadt steht die Turmruine?",right="ECRUTEAK",d1="GOLDENROD",d2="OLIVINE",rightDe="TEAK CITY",d1De="DUKATIA CITY",d2De="OLIVIANA CITY"},
+    {id="KA_BLUE_X_JOHTO_006",category="JOHTO",en="Guardian of Whirl Islands?",de="Wer beschützt die Strudelinseln?",right="LUGIA",d1="HO-OH",d2="SUICUNE",rightDe="LUGIA",d1De="HO-OH",d2De="SUICUNE"},
+    {id="KA_BLUE_X_JOHTO_007",category="JOHTO",en="Leader of Goldenrod Gym?",de="Wer leitet die Arena von Dukatia?",right="WHITNEY",d1="JASMINE",d2="CLAIR",rightDe="BIANKA",d1De="JASMIN",d2De="SANDRA"},
+    {id="KA_BLUE_X_JOHTO_008",category="JOHTO",en="Mareep's primary type?",de="Welchen Typ hat Voltilamm?",right="ELECTRIC",d1="GRASS",d2="WATER",rightDe="ELEKTRO",d1De="PFLANZE",d2De="WASSER"},
+    {id="KA_BLUE_X_JOHTO_009",category="JOHTO",en="Tower where Ho-Oh rests?",de="In welchem Turm ruht Ho-Oh?",right="TIN TOWER",d1="BURNED TOWER",d2="SPROUT TOWER",rightDe="ZINNTURM",d1De="TURMRUINE",d2De="KNOFENSA-TURM"},
+    {id="KA_BLUE_X_JOHTO_010",category="JOHTO",en="Leader of Blackthorn Gym?",de="Wer leitet die Arena von Ebenholz?",right="CLAIR",d1="PRYCE",d2="JASMINE",rightDe="SANDRA",d1De="NORBERT",d2De="JASMIN"},
 
-    {id="KA_BLUE_X_GENERAL_001",category="GENERAL",en="FIRE is effective against?",de="FEUER ist effektiv gegen?",right="GRASS",d1="WATER",d2="FIRE"},
-    {id="KA_BLUE_X_GENERAL_002",category="GENERAL",en="WATER is effective against?",de="WASSER ist effektiv gegen?",right="FIRE",d1="GRASS",d2="WATER"},
-    {id="KA_BLUE_X_GENERAL_003",category="GENERAL",en="Type immune to ELECTRIC moves?",de="Typ immun gegen ELEKTRO-Attacken?",right="GROUND",d1="WATER",d2="FLYING"},
-    {id="KA_BLUE_X_GENERAL_004",category="GENERAL",en="Maximum Pokemon in a full party?",de="Maximale Pokemon in einem vollen Team?",right="6",d1="5",d2="7"},
-    {id="KA_BLUE_X_GENERAL_005",category="GENERAL",en="Item family used to catch Pokemon?",de="Itemfamilie zum Fangen von Pokemon?",right="POKE BALL",d1="POTION",d2="ANTIDOTE"},
-    {id="KA_BLUE_X_GENERAL_006",category="GENERAL",en="Item that revives a fainted Pokemon?",de="Item zur Wiederbelebung eines Pokemon?",right="REVIVE",d1="POTION",d2="ANTIDOTE"},
-    {id="KA_BLUE_X_GENERAL_007",category="GENERAL",en="Item that cures poison?",de="Item gegen Vergiftung?",right="ANTIDOTE",d1="AWAKENING",d2="PARLYZ HEAL"},
-    {id="KA_BLUE_X_GENERAL_008",category="GENERAL",en="Place that heals the whole party?",de="Ort, der das ganze Team heilt?",right="POKEMON CENTER",d1="POKE MART",d2="GYM"},
-    {id="KA_BLUE_X_GENERAL_009",category="GENERAL",en="System that stores reserve Pokemon?",de="System zur Lagerung weiterer Pokemon?",right="PC",d1="POKEDEX",d2="TOWN MAP"},
-    {id="KA_BLUE_X_GENERAL_010",category="GENERAL",en="Type effective against WATER?",de="Typ effektiv gegen WASSER?",right="ELECTRIC",d1="FIRE",d2="ROCK"},
+    {id="KA_BLUE_X_GENERAL_001",category="GENERAL",en="FIRE is effective against?",de="Gegen welchen Typ ist Feuer sehr effektiv?",right="GRASS",d1="WATER",d2="FIRE",rightDe="PFLANZE",d1De="WASSER",d2De="FEUER"},
+    {id="KA_BLUE_X_GENERAL_002",category="GENERAL",en="WATER is effective against?",de="Gegen welchen Typ ist Wasser sehr effektiv?",right="FIRE",d1="GRASS",d2="WATER",rightDe="FEUER",d1De="PFLANZE",d2De="WASSER"},
+    {id="KA_BLUE_X_GENERAL_003",category="GENERAL",en="Type immune to ELECTRIC moves?",de="Welcher Typ ist gegen Elektro-Attacken immun?",right="GROUND",d1="WATER",d2="FLYING",rightDe="BODEN",d1De="WASSER",d2De="FLUG"},
+    {id="KA_BLUE_X_GENERAL_004",category="GENERAL",en="Maximum Pokemon in a full party?",de="Wie viele Pokémon passen höchstens in dein Team?",right="6",d1="5",d2="7",rightDe="6",d1De="5",d2De="7"},
+    {id="KA_BLUE_X_GENERAL_005",category="GENERAL",en="Item family used to catch Pokemon?",de="Womit fängst du wilde Pokémon?",right="POKE BALL",d1="POTION",d2="ANTIDOTE",rightDe="POKÉBALL",d1De="TRANK",d2De="GEGENGIFT"},
+    {id="KA_BLUE_X_GENERAL_006",category="GENERAL",en="Item that revives a fainted Pokemon?",de="Welches Item belebt ein besiegtes Pokémon?",right="REVIVE",d1="POTION",d2="ANTIDOTE",rightDe="BELEBER",d1De="TRANK",d2De="GEGENGIFT"},
+    {id="KA_BLUE_X_GENERAL_007",category="GENERAL",en="Item that cures poison?",de="Welches Item heilt eine Vergiftung?",right="ANTIDOTE",d1="AWAKENING",d2="PARLYZ HEAL",rightDe="GEGENGIFT",d1De="AUFWECKER",d2De="PARA-HEILER"},
+    {id="KA_BLUE_X_GENERAL_008",category="GENERAL",en="Place that heals the whole party?",de="Wo wird dein ganzes Team geheilt?",right="POKEMON CENTER",d1="POKE MART",d2="GYM",rightDe="POKÉMON-CENTER",d1De="PKMN-SUPERMARKT",d2De="ARENA"},
+    {id="KA_BLUE_X_GENERAL_009",category="GENERAL",en="System that stores reserve Pokemon?",de="Welches System lagert deine übrigen Pokémon?",right="PC",d1="POKEDEX",d2="TOWN MAP",rightDe="PC",d1De="POKÉDEX",d2De="KARTE"},
+    {id="KA_BLUE_X_GENERAL_010",category="GENERAL",en="Type effective against WATER?",de="Welcher Typ ist sehr effektiv gegen Wasser?",right="ELECTRIC",d1="FIRE",d2="ROCK",rightDe="ELEKTRO",d1De="FEUER",d2De="GESTEIN"},
 
-    {id="KA_BLUE_X_SINNOH_001",category="SINNOH",en="Sinnoh's Grass starter?",de="Sinnohs Pflanzen-Starter?",right="TURTWIG",d1="CHIMCHAR",d2="PIPLUP"},
-    {id="KA_BLUE_X_SINNOH_002",category="SINNOH",en="Sinnoh's Fire starter?",de="Sinnohs Feuer-Starter?",right="CHIMCHAR",d1="TURTWIG",d2="PIPLUP"},
-    {id="KA_BLUE_X_SINNOH_003",category="SINNOH",en="Sinnoh's Water starter?",de="Sinnohs Wasser-Starter?",right="PIPLUP",d1="TURTWIG",d2="CHIMCHAR"},
-    {id="KA_BLUE_X_SINNOH_004",category="SINNOH",en="Leader of Oreburgh Gym?",de="Leitung der Arena von Oreburgh?",right="ROARK",d1="BYRON",d2="VOLKNER"},
-    {id="KA_BLUE_X_SINNOH_005",category="SINNOH",en="Leader of Eterna Gym?",de="Leitung der Arena von Eterna?",right="GARDENIA",d1="MAYLENE",d2="CANDICE"},
-    {id="KA_BLUE_X_SINNOH_006",category="SINNOH",en="Leader of Veilstone Gym?",de="Leitung der Arena von Veilstone?",right="MAYLENE",d1="FANTINA",d2="GARDENIA"},
-    {id="KA_BLUE_X_SINNOH_007",category="SINNOH",en="Leader of Pastoria Gym?",de="Leitung der Arena von Pastoria?",right="CRASHER WAKE",d1="ROARK",d2="BYRON"},
-    {id="KA_BLUE_X_SINNOH_008",category="SINNOH",en="Leader of Sunyshore Gym?",de="Leitung der Arena von Sunyshore?",right="VOLKNER",d1="ROARK",d2="CANDICE"},
-    {id="KA_BLUE_X_SINNOH_009",category="SINNOH",en="Legendary Pokemon associated with time?",de="Legendaeres Pokemon der Zeit?",right="DIALGA",d1="PALKIA",d2="GIRATINA"},
-    {id="KA_BLUE_X_SINNOH_010",category="SINNOH",en="Legendary Pokemon associated with space?",de="Legendaeres Pokemon des Raums?",right="PALKIA",d1="DIALGA",d2="GIRATINA"},
+    {id="KA_BLUE_X_SINNOH_001",category="SINNOH",en="Sinnoh's Grass starter?",de="Welcher Pflanzen-Starter kommt aus Sinnoh?",right="TURTWIG",d1="CHIMCHAR",d2="PIPLUP",rightDe="CHELAST",d1De="PANFLAM",d2De="PLINFA"},
+    {id="KA_BLUE_X_SINNOH_002",category="SINNOH",en="Sinnoh's Fire starter?",de="Welcher Feuer-Starter kommt aus Sinnoh?",right="CHIMCHAR",d1="TURTWIG",d2="PIPLUP",rightDe="PANFLAM",d1De="CHELAST",d2De="PLINFA"},
+    {id="KA_BLUE_X_SINNOH_003",category="SINNOH",en="Sinnoh's Water starter?",de="Welcher Wasser-Starter kommt aus Sinnoh?",right="PIPLUP",d1="TURTWIG",d2="CHIMCHAR",rightDe="PLINFA",d1De="CHELAST",d2De="PANFLAM"},
+    {id="KA_BLUE_X_SINNOH_004",category="SINNOH",en="Leader of Oreburgh Gym?",de="Wer leitet die Arena von Erzelingen?",right="ROARK",d1="BYRON",d2="VOLKNER",rightDe="VEIT",d1De="ADAM",d2De="VOLKNER"},
+    {id="KA_BLUE_X_SINNOH_005",category="SINNOH",en="Leader of Eterna Gym?",de="Wer leitet die Arena von Ewigenau?",right="GARDENIA",d1="MAYLENE",d2="CANDICE",rightDe="SILVANA",d1De="HILDA",d2De="FRIDA"},
+    {id="KA_BLUE_X_SINNOH_006",category="SINNOH",en="Leader of Veilstone Gym?",de="Wer leitet die Arena von Schleiede?",right="MAYLENE",d1="FANTINA",d2="GARDENIA",rightDe="HILDA",d1De="LAMINA",d2De="SILVANA"},
+    {id="KA_BLUE_X_SINNOH_007",category="SINNOH",en="Leader of Pastoria Gym?",de="Wer leitet die Arena von Weideburg?",right="CRASHER WAKE",d1="ROARK",d2="BYRON",rightDe="MARINUS",d1De="VEIT",d2De="ADAM"},
+    {id="KA_BLUE_X_SINNOH_008",category="SINNOH",en="Leader of Sunyshore Gym?",de="Wer leitet die Arena von Sonnewik?",right="VOLKNER",d1="ROARK",d2="CANDICE",rightDe="VOLKNER",d1De="VEIT",d2De="FRIDA"},
+    {id="KA_BLUE_X_SINNOH_009",category="SINNOH",en="Legendary Pokemon associated with time?",de="Welches legendäre Pokémon steht für die Zeit?",right="DIALGA",d1="PALKIA",d2="GIRATINA",rightDe="DIALGA",d1De="PALKIA",d2De="GIRATINA"},
+    {id="KA_BLUE_X_SINNOH_010",category="SINNOH",en="Legendary Pokemon associated with space?",de="Welches legendäre Pokémon steht für den Raum?",right="PALKIA",d1="DIALGA",d2="GIRATINA",rightDe="PALKIA",d1De="DIALGA",d2De="GIRATINA"},
   }
-  for _,row in ipairs(EXTRA_FACTS) do FACTS[#FACTS+1]=row end
+  for _,row in ipairs(EXTRA_FACTS) do
+    assert(type(row.de)=="string" and row.de~=""
+        and type(row.rightDe)=="string" and row.rightDe~=""
+        and type(row.d1De)=="string" and row.d1De~=""
+        and type(row.d2De)=="string" and row.d2De~="",
+      "BLUE German extra question is incomplete: "..tostring(row.id))
+    FACTS[#FACTS+1]=row
+  end
   local function question(row, n)
     local keyed=row.id~=nil
+    local legacyDe=not keyed and assert(LEGACY_DE[n],
+      "BLUE German legacy question missing at row "..tostring(n)) or nil
     local id,prompt,category=keyed and row.id or row[1],keyed and row.en or row[2],
       keyed and row.category or "LEGACY"
     local canonical=keyed and {row.right,row.d1,row.d2} or {row[3],row[4],row[5]}
-    local canonicalDe=keyed and {row.rightDe or row.right,row.d1De or row.d1,row.d2De or row.d2} or nil
+    local canonicalDe=keyed
+      and {row.rightDe,row.d1De,row.d2De}
+      or {legacyDe[3],legacyDe[4],legacyDe[5]}
     local choices={canonical[1],canonical[2],canonical[3]}; local correct=(n-1)%3+1
     choices[1],choices[correct]=choices[correct],choices[1]
     local choicesDe
@@ -334,7 +478,7 @@ return function(mod, opts)
       choicesDe={canonicalDe[1],canonicalDe[2],canonicalDe[3]}
       choicesDe[1],choicesDe[correct]=choicesDe[correct],choicesDe[1]
     end
-    return {id=id,prompt=prompt,promptDe=keyed and row.de or nil,
+    return {id=id,prompt=prompt,promptDe=keyed and row.de or legacyDe[2],
       choices=choices,choicesDe=choicesDe,correct=correct,category=category,
       legacy=not keyed,answer=canonical[1],canonical=canonical,
       canonicalDe=canonicalDe}
@@ -588,6 +732,16 @@ return function(mod, opts)
     ["41,6"]={map=ID.ICE,x=3,y=33}, ["42,7"]={map=ID.ICE,x=3,y=33},
   }
   C.holes = HOLES
+  -- CAVERN block 21 draws its lower cells entirely with native floor tile
+  -- $05 even though the metatile's upper glint identifies the surrounding
+  -- ice.  Keep one exact lower cell as a readable grip on the far side of
+  -- the paired upper fractures.  A whole BRAKE block at (19,3) would sever
+  -- the uninterrupted eastbound run into (41,6) because native CAVERN blocks
+  -- the $05 <-> $20 boundary before BLUE's scripted continuation can begin.
+  -- From this cell, an ordinary left step enters the still-authored ice and
+  -- the same physical slide reaches (42,7).
+  local GLACIER_GRIP_CELLS = { ["45,7"] = true }
+  C.glacierGripCells = GLACIER_GRIP_CELLS
   -- Validate canonical Kanto data rather than trusting numeric aliases.  The
   -- acceptance test also checks the exact hole/warp cells after registration.
   function C.validateCavern(data)
@@ -788,6 +942,10 @@ return function(mod, opts)
     -- Main sliding line and its grippy turning shelves.  Their coordinates
     -- preserve the existing zellweise slide contract used by real input QA.
     pi(4,14,ICE)
+    -- The tangible third floor-light occupies cell (37,7) on the eastern
+    -- brake.  The paired upper false lines retain uninterrupted ICE blocks;
+    -- GLACIER_GRIP_CELLS supplies their single native-$05 landing on the far
+    -- side without turning the (41,6) approach into a tile-pair wall.
     for _,p in ipairs({{12,14},{12,8},{4,8},{4,3},{18,3},{18,11},{24,11}}) do pi(p[1],p[2],BRAKE) end
     -- False branches: lower-east, middle-west and upper-east.  The broad basin
     -- already supplies their ice; these paired cells replace only the exact
@@ -883,7 +1041,50 @@ return function(mod, opts)
   local HOLE_BLOCKS={[HOLE_TL]=true,[HOLE_TR]=true,[HOLE_BL]=true,[HOLE_BR]=true}
   function C.isHoleCell(def,x,y) return HOLES[x..","..y]~=nil and HOLE_BLOCKS[cellBlock(def,x,y)]==true end
   local function slideSurface(def,x,y)
+    if def and def.id==ID.ICE and GLACIER_GRIP_CELLS[x..","..y] then
+      return false
+    end
     local block=cellBlock(def,x,y);return block==ICE or HOLE_BLOCKS[block]==true
+  end
+  C.isSlideSurface = slideSurface
+  -- A visible Wilds body must never start or walk onto a scripted ice lane.
+  -- Unlike an ordinary player step, BLUE's slide is a callback chain of
+  -- native one-cell scriptMove calls.  Gen1Recomp 0.2.56 can suspend that
+  -- chain when a visible-wild battle state opens between two cells, then
+  -- return with player.moving/scriptMoves still armed but no live callback.
+  -- Publish the exact native ICE/hole surface through the existing story-cell
+  -- safety contract: dry shelves remain available for encounters, while the
+  -- authored uninterrupted slide and every fracture landing stay clear.
+  C.ICE_WILDS_RESERVATION_REASON="BLUE scripted ice-slide surface"
+  function C.reserveIceSlideWildCells(def, safety)
+    def=def or (C.layouts and C.layouts[ID.ICE])
+    safety=safety or opts.spawnSafety
+      or (type(mod.exports)=="table" and mod.exports.wildsSpawnSafety)
+    if type(def)~="table" or type(def.blocks)~="table"
+        or not tonumber(def.width) or not tonumber(def.height) then
+      return false,"layout"
+    end
+    if type(safety)~="table" or type(safety.reserveCells)~="function" then
+      return false,"spawn-safety"
+    end
+    local cells={}
+    for y=0,def.height*2-1 do
+      for x=0,def.width*2-1 do
+        if slideSurface(def,x,y) then
+          -- Wilds contact is Manhattan-adjacent, so the existing approaches
+          -- flag is part of the same slide-lane reservation contract.
+          cells[#cells+1]={x=x,y=y,approaches=true}
+        end
+      end
+    end
+    if #cells==0 then return false,"empty-slide-surface" end
+    if safety.reserveCells(ID.ICE,cells,C.ICE_WILDS_RESERVATION_REASON)==false then
+      return false,"reservation-rejected"
+    end
+    C.iceWildSafety=safety
+    C.iceWildReservation={map=ID.ICE,cells=#cells,
+      reason=C.ICE_WILDS_RESERVATION_REASON}
+    return true,#cells
   end
   C.switches={
     HALL={map=ID.HALL,boulder="KA_HEVO_BLUE_HALL_BOULDER",goal={x=27,y=25},gate={bx=15,by=12,open=FLOOR},flag="KA_HEVO_BLUE_HALL_SWITCH"},
@@ -1162,6 +1363,14 @@ return function(mod, opts)
       if not ow.map or ow.map~=ownerMap or ow.map.id~=ID.ICE or ow.player~=player or player.moving then
         return finish("map-change")
       end
+      -- Reconcile any provider body which began moving before the latest
+      -- story-reservation revision.  This is the same public safety repair
+      -- used at map/step boundaries, applied immediately before the next
+      -- scripted cell so an in-flight Wild cannot split the callback chain.
+      if C.iceWildSafety
+          and type(C.iceWildSafety.repairCurrent)=="function" then
+        C.iceWildSafety.repairCurrent("BLUE ice slide advance")
+      end
       local target=C.slideTarget(ow,dir)
       if not target then return finish("blocked") end
       ow:scriptMove(player,dir,1,function()
@@ -1198,6 +1407,22 @@ return function(mod, opts)
     advance()
     return true
   end
+  -- `world.stepped` is the normal slide trigger.  A battle/state transition
+  -- can consume that single event after the physical landing on ICE.  The
+  -- global input hook already runs on the first ordinary field frame after
+  -- the stack returns; retry only the exact stationary Glacier/ICE state.
+  -- This also makes a save loaded on an authored ice cell resume naturally.
+  function C.resumeStationaryIceSlide(ow, game)
+    local player=ow and ow.player
+    if game and game.stack and game.stack:top()~=ow then return false,"stack" end
+    if C._sliding or not(ow and ow.map and ow.map.id==ID.ICE and player)
+        or player.moving or (player.turnTimer or 0)~=0
+        or C.isHoleCell(ow.map.def,player.cellX,player.cellY)
+        or not slideSurface(ow.map.def,player.cellX,player.cellY) then
+      return false,"not-stationary-ice"
+    end
+    return C.startIceSlide(ow)
+  end
   function C.applySolvedSwitch(mapId)
     local spec=SWITCH_BY_MAP[mapId]
     if not spec or not C.switchSolved(spec.name) then return false end
@@ -1217,6 +1442,12 @@ return function(mod, opts)
   end
   function C.install(game)
     if C.installed then return false,"already installed" end
+    local spawnSafety=opts.spawnSafety
+      or (type(mod.exports)=="table" and mod.exports.wildsSpawnSafety)
+    if spawnSafety then
+      local reserved,why=C.reserveIceSlideWildCells(nil,spawnSafety)
+      assert(reserved,"BLUE ice Wilds reservation failed: "..tostring(why))
+    end
     C.installed,C.game=true,game or C.game
     -- Prefer BLUE's darkness as the final world-only composite, after flat
     -- PaletteFX sprite redraws and DRAMALESS/upright billboards.  Released
@@ -1370,6 +1601,8 @@ return function(mod, opts)
         -- also releases BLUE's clone on the first non-BLUE input frame.
         C.refreshSurfPresentation(nil,nil,game)
         C.tickHoleBeat()
+        local ow=mod.world and mod.world.overworld and mod.world:overworld()
+        C.resumeStationaryIceSlide(ow,C.game)
         return result
       end)
       mod.hooks:wrap("movement.collision",function(nextCollision,allowed,ctx)

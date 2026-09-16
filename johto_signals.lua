@@ -16,6 +16,7 @@ return function(mod, opts)
 
   local i18n = opts.i18n
   local johtoBoundary = opts.johtoBoundary
+  local generationRules = opts.generationRules
   local stateBackend = assert(opts.state, "Johto Signals state missing")
   local content = opts.content or {}
   local johto = opts.johtoData or content.johtoData or content.johto
@@ -41,6 +42,20 @@ return function(mod, opts)
     game = nil,
     ENCOUNTER_PRIORITY = -30,
   }
+
+  local function profileSpeciesAllowed(game, species)
+    if not (generationRules
+        and type(generationRules.speciesAvailable) == "function") then
+      return true
+    end
+    game = game or J.game
+    local def = game and game.data and game.data.pokemon
+      and game.data.pokemon[species]
+    if type(def) ~= "table" then return false end
+    local ok, allowed = pcall(
+      generationRules.speciesAvailable, game, species, def)
+    return ok and allowed == true
+  end
 
   local function boundaryActive(game)
     return not johtoBoundary
@@ -1187,6 +1202,7 @@ return function(mod, opts)
       if (ORDINARY_ALLOWED[species] or fullMigrationSpecial
           or registeredExtension)
           and (not EXCLUDED[species] or fullMigrationSpecial)
+          and profileSpeciesAllowed(ctx and ctx.game, species)
           and matchesHabitat(species, ctx) then
         pool[#pool + 1] = species
       end
@@ -1204,7 +1220,9 @@ return function(mod, opts)
     if s.mode == MODES.UNLEASHED then return pool end
     for _, species in ipairs(TRACE_ORDER) do
       local row = SPECIAL[species]
-      if s.traces[row.trace] and matchesHabitat(species, ctx) then
+      if s.traces[row.trace]
+          and profileSpeciesAllowed(ctx and ctx.game, species)
+          and matchesHabitat(species, ctx) then
         pool[#pool + 1] = species
       end
     end
@@ -1234,7 +1252,8 @@ return function(mod, opts)
     end
     local out, seen = {}, {}
     for _, species in ipairs(source) do
-      if not seen[species] and not EXCLUDED[species] then
+      if not seen[species] and not EXCLUDED[species]
+          and profileSpeciesAllowed(J.game, species) then
         seen[species] = true
         out[#out + 1] = species
       end
@@ -1243,7 +1262,8 @@ return function(mod, opts)
       for _, species in ipairs(TRACE_ORDER) do
         local unlocked = s.mode == MODES.UNLEASHED
           or s.traces[SPECIAL[species].trace] == true
-        if unlocked and not seen[species] then
+        if unlocked and not seen[species]
+            and profileSpeciesAllowed(J.game, species) then
           seen[species] = true
           out[#out + 1] = species
         end
@@ -1253,7 +1273,8 @@ return function(mod, opts)
       if (s.mode == MODES.UNLEASHED
           or (s.mode == MODES.WANDERWAVES
             and tonumber(row.wave) == tonumber(s.waveIndex)))
-          and not seen[species] then
+          and not seen[species]
+          and profileSpeciesAllowed(J.game, species) then
         seen[species] = true
         out[#out + 1] = species
       end
@@ -1265,7 +1286,9 @@ return function(mod, opts)
   local function allowsHabitatSpecies(species, ctx, snapshot)
     local allowed = {}
     for _, id in ipairs(allowedPool(snapshot, true)) do allowed[id] = true end
-    return allowed[species] == true and (not ctx or matchesHabitat(species, ctx))
+    return allowed[species] == true
+      and profileSpeciesAllowed(ctx and ctx.game, species)
+      and (not ctx or matchesHabitat(species, ctx))
   end
 
   local function cloneEncounter(native, species, level)

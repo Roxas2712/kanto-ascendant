@@ -62,6 +62,92 @@ local function suppressLogic(logic, mapId)
   return nil, exclusionReason(mapId)
 end
 
+-- Wilds' AI is a present-only pipeline and therefore keeps ticking while an
+-- opaque battle surface owns the screen.  A chasing actor can reach the
+-- frozen player during that interval.  The vendored _startBattle only checks
+-- the overworld ScriptRunner, so without an adapter guard it can push a fresh
+-- BattleTransition over a live BattleState (the BLUE full-path run reproduced
+-- this after RUN, before the prior BattleReturn).  Inspect the engine's public
+-- state stack before the vendored method mutates/despawns its record.  A false
+-- return leaves that exact visible encounter available for its normal retry.
+local function activeBattleStackSurface(logic)
+  local world = logic and logic.mod and logic.mod.world
+  local game = world and world.game
+  local stack = game and game.stack
+  if type(stack) ~= "table" or type(stack.states) ~= "table" then return nil end
+  local overworld = currentOverworld(logic)
+
+  local transitionClass
+  local okTransition, value = pcall(require, "src.render.BattleTransition")
+  if okTransition and type(value) == "table" then transitionClass = value end
+
+  for index, state in ipairs(stack.states) do
+    if type(state) == "table" and state.game == game then
+      -- Older supported BattleState builds predate isBattleState, but expose
+      -- their real awardExp method exactly as WorldAPI's own battle guard uses.
+      if state.isBattleState == true or state.awardExp ~= nil then
+        return state, "BattleState", index
+      end
+      if (transitionClass and getmetatable(state) == transitionClass)
+          or (type(state.wipeLen) == "number"
+            and (state.phase == "flash" or state.phase == "wipe")) then
+        return state, "BattleTransition", index
+      end
+      -- BattleReturn is private to src/render/Transition.lua, but its public
+      -- stack instance has this narrow timing contract.  No entry wipe owns
+      -- hold+frames, and the state is tied to the same live game.
+      if type(state.update) == "function"
+          and type(state.t) == "number"
+          and type(state.hold) == "number"
+          and type(state.frames) == "number"
+          and state.wipeLen == nil then
+        return state, "BattleReturn", index
+      end
+    end
+  end
+  -- The present pipeline also runs beneath TextBox, ChoiceBox and menus.  A
+  -- contact must not push any battle there either: only the exact current
+  -- Overworld at the public stack top owns field input and encounter starts.
+  local top = type(stack.top) == "function" and stack:top()
+    or stack.states[#stack.states]
+  if top ~= overworld then
+    return top or stack, "ModalSurface", #stack.states
+  end
+  return nil
+end
+
+local function installBattleStackGuard(exports)
+  if type(exports) ~= "table" then return false end
+  if exports._kantoAscendantBattleStackGuard then return true end
+  local logic = exports.logic
+  if type(logic) ~= "table" or type(logic._startBattle) ~= "function" then
+    return false
+  end
+
+  local marker = {
+    originalStartBattle = logic._startBattle,
+    blockedSurfaces = 0,
+    lastSurface = nil,
+    lastKind = nil,
+    lastIndex = nil,
+  }
+  logic._startBattle = function(self, record, ...)
+    local surface, kind, index = activeBattleStackSurface(self)
+    if surface then
+      if marker.lastSurface ~= surface then
+        marker.blockedSurfaces = marker.blockedSurfaces + 1
+      end
+      marker.lastSurface, marker.lastKind, marker.lastIndex =
+        surface, kind, index
+      return false, "battle-stack-busy:" .. kind
+    end
+    marker.lastSurface, marker.lastKind, marker.lastIndex = nil, nil, nil
+    return marker.originalStartBattle(self, record, ...)
+  end
+  exports._kantoAscendantBattleStackGuard = marker
+  return true
+end
+
 -- Gate both the bundled core and the short-lived external provider used by a
 -- hot-reloaded development session.  These authored Champion rooms are story
 -- arenas, not encounter habitats or safe-town ambience.  Keeping the policy
@@ -185,6 +271,7 @@ return function(mod, opts)
   local external = mod.find and mod.find("overworld_wild_spawns")
   if external and type(external.exports) == "table" then
     installAuthoredJohtoMapExclusion(external.exports)
+    installBattleStackGuard(external.exports)
     if opts.spawnSafety and type(opts.spawnSafety.install) == "function" then
       opts.spawnSafety.install(external.exports)
     end
@@ -496,6 +583,22 @@ return function(mod, opts)
   end
 
   local function handleOptionsChanged(payload)
+    -- The embedded controller consumes native Wilds keys. The launcher emits
+    -- the owning KASC keys instead; translate a copy, never the shared event.
+    if payload and payload.mod == mod.id then
+      local wildsKey
+      for key, ascendantKey in pairs(ASCENDANT_OPTION) do
+        if payload.key == ascendantKey then wildsKey = key; break end
+      end
+      if not wildsKey then return end
+      local translated = {}
+      for key, value in pairs(payload) do translated[key] = value end
+      translated.mod, translated.key = proxy.id, wildsKey
+      payload = translated
+      -- Density/water callbacks read Config immediately. Its setter only
+      -- stores state, so write before dispatch without emitting a second event.
+      Config.setOption(proxy, wildsKey, payload.value, mod.id, { game = game() })
+    end
     safe("options_changed", logic.onOptionsChanged, logic, payload)
     safe("ambient options_changed", ambient.onOptionsChanged, ambient, payload)
     if payload and payload.mod == proxy.id and payload.key == "enabled" then
@@ -563,6 +666,7 @@ return function(mod, opts)
   end
   E.occupancy = function() return logic.occupancy end
   installAuthoredJohtoMapExclusion(E)
+  installBattleStackGuard(E)
   if opts.spawnSafety and type(opts.spawnSafety.install) == "function" then
     opts.spawnSafety.install(E)
   end

@@ -1,0 +1,117 @@
+{
+  "source": "/Users/maarten/Documents/Recompile/jphyper-gen2ified-sprites/gen_2-ified_pokesprites_kalos_edition.png",
+  "sourceSha256": "3a20bd41ca62168a778395474d13e041d34435939985e9e727c00b891913aaba",
+  "sets": [
+    {
+      "side": "front",
+      "variant": "normal",
+      "cell": 58,
+      "crop": [
+        229,
+        172,
+        285,
+        228
+      ],
+      "path": "assets/wave1_meowstic_front_67/front-normal.png",
+      "sha256": "702246181a9ff064ec11202a803e4e341e322901836c0213ea183ab5482c9938"
+    },
+    {
+      "side": "voxelFront",
+      "variant": "normal",
+      "cell": 58,
+      "crop": [
+        229,
+        172,
+        285,
+        228
+      ],
+      "path": "assets/wave1_meowstic_front_67/voxelFront-normal.png",
+      "sha256": "1425b68832db6638a0deb5d07b0d08b882832c60b1f4d67c2583a58dcbf9b5de"
+    },
+    {
+      "side": "icon",
+      "variant": "normal",
+      "cell": 58,
+      "crop": [
+        229,
+        172,
+        285,
+        228
+      ],
+      "path": "assets/wave1_meowstic_front_67/icon-normal.png",
+      "sha256": "8de468ef2cd0f2b6766faeb56a12d4946aff94f088239f07f250a30f52f0b0b6"
+    },
+    {
+      "side": "front",
+      "variant": "shiny",
+      "cell": 60,
+      "crop": [
+        343,
+        172,
+        399,
+        228
+      ],
+      "path": "assets/wave1_meowstic_front_67/front-shiny.png",
+      "sha256": "549a6c9e0b1c4b70933ff84ddc828c3fa9e34fb66e23b62166dd029c1471deba"
+    },
+    {
+      "side": "voxelFront",
+      "variant": "shiny",
+      "cell": 60,
+      "crop": [
+        343,
+        172,
+        399,
+        228
+      ],
+      "path": "assets/wave1_meowstic_front_67/voxelFront-shiny.png",
+      "sha256": "3a9da17654b058d75c391c6f8b4939321bc9c12e1fde3b750523d5674d04235f"
+    },
+    {
+      "side": "icon",
+      "variant": "shiny",
+      "cell": 60,
+      "crop": [
+        343,
+        172,
+        399,
+        228
+      ],
+      "path": "assets/wave1_meowstic_front_67/icon-shiny.png",
+      "sha256": "d7f25dedf305b9ee03ccd34a35c4a7a46b240fd4cd7fa84dbf3584a0b8a16b9c"
+    }
+  ],
+  "rears": [
+    {
+      "variant": "normal",
+      "source": "/Users/maarten/Documents/Recompile/jphyper-gen2ified-backsprites/references/pokeapi/normal/0678.png",
+      "crop": [
+        24,
+        20,
+        72,
+        52
+      ],
+      "sourceSha256": "69c7429e11e4604074eead6d3b678acb30640060874fec0017f2da6b12c9b8f0",
+      "path": "assets/wave1_meowstic_front_67/back-normal.png",
+      "sha256": "0c98632f48c4e0d09423b046d922780c8f2b5ddcaf8fb709b0d38e9f0e67e4c0",
+      "visibleRows": 32,
+      "resampled": false
+    },
+    {
+      "variant": "shiny",
+      "source": "/Users/maarten/Documents/Recompile/jphyper-gen2ified-backsprites/references/pokeapi/shiny/0678.png",
+      "crop": [
+        24,
+        20,
+        72,
+        52
+      ],
+      "sourceSha256": "3777a0aaeb927277d52fc2a42524fdff439b3fc14fd274e829ac08a8d97b79f7",
+      "path": "assets/wave1_meowstic_front_67/back-shiny.png",
+      "sha256": "e28b1e601512b6261aa9b7b96fe535fb45ec60d3f8871b5bb21a986dcbb59d2a",
+      "visibleRows": 32,
+      "resampled": false
+    }
+  ],
+  "reason": "Old 60/61 pair was shiny male/female; normal male is 58, shiny male is 60."
+}

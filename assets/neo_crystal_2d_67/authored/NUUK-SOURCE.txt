@@ -1,0 +1,12 @@
+These are Pokemon Crystal animation style sprites done by Nuuk. All are tested and proved to work in base Crystal.
+These sprites are free to use/edit, but please dont use these for profit or claim as your own.
+
+Each .zip file contains all files needed to simply extract the pokemon file into pokecrystal\gfx\pokemon.
+
+Make sure to follow all steps in the below to fully add a pokemon to your game:
+https://github.com/pret/pokecrystal/wiki/Add-a-new-Pokémon
+
+If you need to contact me:
+Discord: Nuuk#3967
+DeviantArt: https://www.deviantart.com/nuukiie
+Twitter: https://twitter.com/nuukiie

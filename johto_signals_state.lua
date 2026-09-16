@@ -124,6 +124,15 @@ function Module.create(mod, opts)
     return root and root[name] or nil
   end
 
+  function S.peek(name)
+    assert(SECTIONS[name],'unknown Johto Signals section: '..tostring(name))
+    local raw=mod.save:get(Module.SAVE_KEY)
+    if type(raw)~='table' then return {} end
+    if tonumber(raw.version) and tonumber(raw.version)>Module.SCHEMA_VERSION then return nil end
+    local root=normalize(copy(raw))
+    return root[name]
+  end
+
   function S.persist()
     local root = mod.save:get(Module.SAVE_KEY)
     -- normalize() works in place when the root is already a table, keeping

@@ -1,0 +1,355 @@
+{
+  "klass": "Specie",
+  "id": 274,
+  "dbSymbol": "nuzleaf",
+  "forms": [
+    {
+      "form": 0,
+      "height": 1,
+      "weight": 28,
+      "type1": "grass",
+      "type2": "dark",
+      "baseHp": 70,
+      "baseAtk": 70,
+      "baseDfe": 40,
+      "baseSpd": 60,
+      "baseAts": 60,
+      "baseDfs": 40,
+      "evHp": 0,
+      "evAtk": 2,
+      "evDfe": 0,
+      "evSpd": 0,
+      "evAts": 0,
+      "evDfs": 0,
+      "evolutions": [
+        {
+          "dbSymbol": "shiftry",
+          "form": 0,
+          "conditions": [
+            {
+              "type": "stone",
+              "value": "leaf_stone"
+            }
+          ]
+        }
+      ],
+      "experienceType": 3,
+      "baseExperience": 119,
+      "baseLoyalty": 70,
+      "catchRate": 120,
+      "femaleRate": 50,
+      "breedGroups": [
+        5,
+        7
+      ],
+      "hatchSteps": 3840,
+      "babyDbSymbol": "seedot",
+      "babyForm": 0,
+      "itemHeld": [
+        {
+          "dbSymbol": "none",
+          "chance": 0
+        },
+        {
+          "dbSymbol": "none",
+          "chance": 0
+        }
+      ],
+      "abilities": [
+        "chlorophyll",
+        "early_bird",
+        "pickpocket"
+      ],
+      "frontOffsetY": 0,
+      "resources": {
+        "icon": "0274",
+        "iconF": "0274",
+        "iconShiny": "0274s",
+        "iconShinyF": "0274s",
+        "front": "0274",
+        "frontF": "0274f",
+        "frontShiny": "0274s",
+        "frontShinyF": "0274sf",
+        "back": "0274",
+        "backF": "0274f",
+        "backShiny": "0274s",
+        "backShinyF": "0274sf",
+        "footprint": "0274",
+        "character": "0274",
+        "characterF": "0274",
+        "characterShiny": "0274s",
+        "characterShinyF": "0274s",
+        "cry": "0274.ogg",
+        "hasFemale": true,
+        "egg": "egg",
+        "iconEgg": "egg"
+      },
+      "moveSet": [
+        {
+          "move": "pound",
+          "klass": "LevelLearnableMove",
+          "level": 1
+        },
+        {
+          "move": "razor_leaf",
+          "klass": "LevelLearnableMove",
+          "level": 1
+        },
+        {
+          "move": "harden",
+          "klass": "LevelLearnableMove",
+          "level": 3
+        },
+        {
+          "move": "growth",
+          "klass": "LevelLearnableMove",
+          "level": 6
+        },
+        {
+          "move": "torment",
+          "klass": "LevelLearnableMove",
+          "level": 9
+        },
+        {
+          "move": "fake_out",
+          "klass": "LevelLearnableMove",
+          "level": 12
+        },
+        {
+          "move": "nature_power",
+          "klass": "LevelLearnableMove",
+          "level": 16
+        },
+        {
+          "move": "razor_wind",
+          "klass": "LevelLearnableMove",
+          "level": 20
+        },
+        {
+          "move": "feint_attack",
+          "klass": "LevelLearnableMove",
+          "level": 24
+        },
+        {
+          "move": "leaf_blade",
+          "klass": "LevelLearnableMove",
+          "level": 28
+        },
+        {
+          "move": "swagger",
+          "klass": "LevelLearnableMove",
+          "level": 32
+        },
+        {
+          "move": "extrasensory",
+          "klass": "LevelLearnableMove",
+          "level": 36
+        },
+        {
+          "move": "swords_dance",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "hyper_beam",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "low_kick",
+          "klass": "TutorLearnableMove"
+        },
+        {
+          "move": "razor_leaf",
+          "klass": "EvolutionLearnableMove"
+        },
+        {
+          "move": "solar_beam",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "toxic",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "double_team",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "explosion",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "rest",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "rock_slide",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "substitute",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "thief",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "snore",
+          "klass": "TutorLearnableMove"
+        },
+        {
+          "move": "spite",
+          "klass": "TutorLearnableMove"
+        },
+        {
+          "move": "protect",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "giga_drain",
+          "klass": "TutorLearnableMove"
+        },
+        {
+          "move": "false_swipe",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "swagger",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "attract",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "sleep_talk",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "return",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "frustration",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "synthesis",
+          "klass": "TutorLearnableMove"
+        },
+        {
+          "move": "hidden_power",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "sunny_day",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "psych_up",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "shadow_ball",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "torment",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "facade",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "nature_power",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "brick_break",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "rock_tomb",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "payback",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "embargo",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "fling",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "worry_seed",
+          "klass": "TutorLearnableMove"
+        },
+        {
+          "move": "dark_pulse",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "seed_bomb",
+          "klass": "TutorLearnableMove"
+        },
+        {
+          "move": "energy_ball",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "defog",
+          "klass": "TutorLearnableMove"
+        },
+        {
+          "move": "grass_knot",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "low_sweep",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "foul_play",
+          "klass": "TutorLearnableMove"
+        },
+        {
+          "move": "round",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "snarl",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "confide",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "rock_smash",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "cut",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "strength",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "flash",
+          "klass": "TechLearnableMove"
+        }
+      ],
+      "formTextId": {
+        "name": 349,
+        "description": 0
+      }
+    }
+  ]
+}

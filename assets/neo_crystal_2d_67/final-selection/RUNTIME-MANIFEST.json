@@ -1,0 +1,7317 @@
+{
+  "schema": "kasc.final-crystal-art/v1",
+  "sets": [
+    {
+      "sourceDex": 352,
+      "runtimeDex": 352,
+      "species": "KECLEON",
+      "variant": "normal",
+      "provider": "lazarus-reviewed",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0352/front-normal-00.png",
+            "sha256": "51ced96d9f4b0dc441090cc85bf575f9d6afef4ce3554714cc78f975b54a7a60"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0352/front-normal-01.png",
+            "sha256": "21d841d3683d16726f54d2cbd85c4b8cabdaae7605c248e7403ccdb36525c66b"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0352/front-normal-00.png",
+            "sha256": "51ced96d9f4b0dc441090cc85bf575f9d6afef4ce3554714cc78f975b54a7a60"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0352/front-normal-01.png",
+            "sha256": "21d841d3683d16726f54d2cbd85c4b8cabdaae7605c248e7403ccdb36525c66b"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0352/front-normal-00.png",
+            "sha256": "51ced96d9f4b0dc441090cc85bf575f9d6afef4ce3554714cc78f975b54a7a60"
+          }
+        ],
+        "back": [
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0352/back-normal-00.png",
+            "sha256": "c73744772117592612545fd21407774ef9d49700295c38ca348960914515c381"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/352/front/normal",
+          "durations": [
+            167,
+            300,
+            133,
+            133,
+            250
+          ],
+          "animated": true,
+          "scale": 1,
+          "sourceUnion": [
+            5,
+            9,
+            57,
+            59
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            52,
+            50
+          ],
+          "sha256": [
+            "076db00281829698145e2abede4dbd4621332fde9e6f2979f11f33003048bd4f",
+            "c71ce00d49ea2de4841c40cdc16d26cb2ce52260764e2bac830dca9164f17153",
+            "076db00281829698145e2abede4dbd4621332fde9e6f2979f11f33003048bd4f",
+            "c71ce00d49ea2de4841c40cdc16d26cb2ce52260764e2bac830dca9164f17153",
+            "076db00281829698145e2abede4dbd4621332fde9e6f2979f11f33003048bd4f"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/352/back/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            9,
+            15,
+            57,
+            58
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            48,
+            43
+          ],
+          "sha256": [
+            "9bf0ae30b26430595ec7af0314481c09980ae57fef3d2a686fa3b2e01c4a043c"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/352/voxel/normal",
+          "durations": [
+            167,
+            300,
+            133,
+            133,
+            250
+          ],
+          "animated": true,
+          "scale": 1.5,
+          "sourceUnion": [
+            5,
+            9,
+            57,
+            59
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            52,
+            50
+          ],
+          "sha256": [
+            "72ccf019aa1bf3b24bb3ebc06d932cb814faceff2e0819d2c82efa10a3af3976",
+            "0056e6b85306ce74568afb42acde9151a9d15c0a087b5af033f4f28032adb31d",
+            "72ccf019aa1bf3b24bb3ebc06d932cb814faceff2e0819d2c82efa10a3af3976",
+            "0056e6b85306ce74568afb42acde9151a9d15c0a087b5af033f4f28032adb31d",
+            "72ccf019aa1bf3b24bb3ebc06d932cb814faceff2e0819d2c82efa10a3af3976"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 352,
+      "runtimeDex": 352,
+      "species": "KECLEON",
+      "variant": "shiny",
+      "provider": "lazarus-reviewed",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0352/front-shiny-00.png",
+            "sha256": "79733a23b1bd3ea5810c773e3321dee50b2dba11106673f239d96fe35a2187cc"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0352/front-shiny-01.png",
+            "sha256": "8913651c972f15db05b8b9c3f2a8916172e813a093531255dfc1a969c96414bb"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0352/front-shiny-00.png",
+            "sha256": "79733a23b1bd3ea5810c773e3321dee50b2dba11106673f239d96fe35a2187cc"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0352/front-shiny-01.png",
+            "sha256": "8913651c972f15db05b8b9c3f2a8916172e813a093531255dfc1a969c96414bb"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0352/front-shiny-00.png",
+            "sha256": "79733a23b1bd3ea5810c773e3321dee50b2dba11106673f239d96fe35a2187cc"
+          }
+        ],
+        "back": [
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0352/back-shiny-00.png",
+            "sha256": "0d9103e48c838793001c3fe2d3e1217a0c0733db8e54b9c2d6d64de194033df5"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/352/front/shiny",
+          "durations": [
+            167,
+            300,
+            133,
+            133,
+            250
+          ],
+          "animated": true,
+          "scale": 1,
+          "sourceUnion": [
+            5,
+            9,
+            57,
+            59
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            52,
+            50
+          ],
+          "sha256": [
+            "50bed6ccbcf0ef1bd25ad8980eb60e4538a4abb94a7e44112b9087a3c03805b4",
+            "6bc98b7c0941eccdff0e196f9240fc03c5fd6a08985b8da6760f02e19ff2da50",
+            "50bed6ccbcf0ef1bd25ad8980eb60e4538a4abb94a7e44112b9087a3c03805b4",
+            "6bc98b7c0941eccdff0e196f9240fc03c5fd6a08985b8da6760f02e19ff2da50",
+            "50bed6ccbcf0ef1bd25ad8980eb60e4538a4abb94a7e44112b9087a3c03805b4"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/352/back/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            9,
+            15,
+            57,
+            58
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            48,
+            43
+          ],
+          "sha256": [
+            "4e1de36254b2ed88ec5b3650aea806bbd2346be1af905af490df45bbbe8c66f4"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/352/voxel/shiny",
+          "durations": [
+            167,
+            300,
+            133,
+            133,
+            250
+          ],
+          "animated": true,
+          "scale": 1.5,
+          "sourceUnion": [
+            5,
+            9,
+            57,
+            59
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            52,
+            50
+          ],
+          "sha256": [
+            "630c7ca6f64d36b78a9645f63d562875a603d2bba46b5ae72ca5fe71209bdbc8",
+            "39ab77a6ed54a4a394b9dd7d6a30ae805394f639705e812266c9133476fb0011",
+            "630c7ca6f64d36b78a9645f63d562875a603d2bba46b5ae72ca5fe71209bdbc8",
+            "39ab77a6ed54a4a394b9dd7d6a30ae805394f639705e812266c9133476fb0011",
+            "630c7ca6f64d36b78a9645f63d562875a603d2bba46b5ae72ca5fe71209bdbc8"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 357,
+      "runtimeDex": 357,
+      "species": "TROPIUS",
+      "variant": "normal",
+      "provider": "lazarus-reviewed",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0357/front-normal-00.png",
+            "sha256": "cb3c64b6e650d222393dee420ab574a0319d2b0c94f232df55535331b0c1ea8c"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0357/front-normal-01.png",
+            "sha256": "cafae4dc8b998b9f31110ff35445b6cf6aca68e59c1457be9999d6fcae249d96"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0357/front-normal-00.png",
+            "sha256": "cb3c64b6e650d222393dee420ab574a0319d2b0c94f232df55535331b0c1ea8c"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0357/front-normal-01.png",
+            "sha256": "cafae4dc8b998b9f31110ff35445b6cf6aca68e59c1457be9999d6fcae249d96"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0357/front-normal-00.png",
+            "sha256": "cb3c64b6e650d222393dee420ab574a0319d2b0c94f232df55535331b0c1ea8c"
+          }
+        ],
+        "back": [
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0357/back-normal-00.png",
+            "sha256": "71a7129b82dfb8ce9a6a5e742a1bdaf0b1f7d7a5f8222aae2fb80c3061d4e8d1"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/357/front/normal",
+          "durations": [
+            250,
+            250,
+            250,
+            250,
+            250
+          ],
+          "animated": true,
+          "scale": 1,
+          "sourceUnion": [
+            3,
+            7,
+            61,
+            63
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            56,
+            54
+          ],
+          "sha256": [
+            "3a9118e2b31555fab440f7bd9bb97d81b039c732c2c35528d7af58e5799e41d4",
+            "c4efdea643771df666301bf193270012dffd28c43c51bd0a5a64a535e60fd868",
+            "3a9118e2b31555fab440f7bd9bb97d81b039c732c2c35528d7af58e5799e41d4",
+            "c4efdea643771df666301bf193270012dffd28c43c51bd0a5a64a535e60fd868",
+            "3a9118e2b31555fab440f7bd9bb97d81b039c732c2c35528d7af58e5799e41d4"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/357/back/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            9,
+            29,
+            57,
+            64
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            48,
+            35
+          ],
+          "sha256": [
+            "f5c3751ade5504a41339c8d07acf6ae5ba3bd6d62066a0e06f9f47cd2743208f"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/357/voxel/normal",
+          "durations": [
+            250,
+            250,
+            250,
+            250,
+            250
+          ],
+          "animated": true,
+          "scale": 1.5,
+          "sourceUnion": [
+            3,
+            7,
+            61,
+            63
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            56,
+            54
+          ],
+          "sha256": [
+            "a61d9afd5292690b4e3862627dc70df31d504688b05792f852d82a14c46d07cc",
+            "51ead4c12faa3ce510e162f18c6e61f81554fed109e7655af2323c25ef9167f9",
+            "a61d9afd5292690b4e3862627dc70df31d504688b05792f852d82a14c46d07cc",
+            "51ead4c12faa3ce510e162f18c6e61f81554fed109e7655af2323c25ef9167f9",
+            "a61d9afd5292690b4e3862627dc70df31d504688b05792f852d82a14c46d07cc"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 357,
+      "runtimeDex": 357,
+      "species": "TROPIUS",
+      "variant": "shiny",
+      "provider": "lazarus-reviewed",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0357/front-shiny-00.png",
+            "sha256": "2953cb7e93e879f9f21085707a87b457ed0a2b86cbbb54ab728816afdd3455a6"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0357/front-shiny-01.png",
+            "sha256": "c1351f8af3b3055c872e565fca0f2fe2a683520bc0a458eba1a90655fdb8e730"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0357/front-shiny-00.png",
+            "sha256": "2953cb7e93e879f9f21085707a87b457ed0a2b86cbbb54ab728816afdd3455a6"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0357/front-shiny-01.png",
+            "sha256": "c1351f8af3b3055c872e565fca0f2fe2a683520bc0a458eba1a90655fdb8e730"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0357/front-shiny-00.png",
+            "sha256": "2953cb7e93e879f9f21085707a87b457ed0a2b86cbbb54ab728816afdd3455a6"
+          }
+        ],
+        "back": [
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0357/back-shiny-00.png",
+            "sha256": "df3446baee8b5337225698488a0548dbd1deb0fde938592ef36b045445fe0d1f"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/357/front/shiny",
+          "durations": [
+            250,
+            250,
+            250,
+            250,
+            250
+          ],
+          "animated": true,
+          "scale": 1,
+          "sourceUnion": [
+            3,
+            7,
+            61,
+            63
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            56,
+            54
+          ],
+          "sha256": [
+            "646944695eaa08762c32901ece3142d8dfdf11f67f3a5422479b6dd237a61cf2",
+            "db90b8f80baf02cbf02acaad74d60c1e5b7e5cca52682795f504a4da5a137fff",
+            "646944695eaa08762c32901ece3142d8dfdf11f67f3a5422479b6dd237a61cf2",
+            "db90b8f80baf02cbf02acaad74d60c1e5b7e5cca52682795f504a4da5a137fff",
+            "646944695eaa08762c32901ece3142d8dfdf11f67f3a5422479b6dd237a61cf2"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/357/back/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            9,
+            29,
+            57,
+            64
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            48,
+            35
+          ],
+          "sha256": [
+            "7d8fa79bbc40c88b5ac56d13613444892a53e6171e8f6e44e394504ecff12bcd"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/357/voxel/shiny",
+          "durations": [
+            250,
+            250,
+            250,
+            250,
+            250
+          ],
+          "animated": true,
+          "scale": 1.5,
+          "sourceUnion": [
+            3,
+            7,
+            61,
+            63
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            56,
+            54
+          ],
+          "sha256": [
+            "3ee97e703e3e55e497728cc4a3973a1557bc3c6099e5d48e64a36f8005104b56",
+            "225247dfb8bd684aeabbb94c828386148d639918526b0679b55325d5e296e059",
+            "3ee97e703e3e55e497728cc4a3973a1557bc3c6099e5d48e64a36f8005104b56",
+            "225247dfb8bd684aeabbb94c828386148d639918526b0679b55325d5e296e059",
+            "3ee97e703e3e55e497728cc4a3973a1557bc3c6099e5d48e64a36f8005104b56"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 366,
+      "runtimeDex": 366,
+      "species": "CLAMPERL",
+      "variant": "normal",
+      "provider": "lazarus-reviewed",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0366/front-normal-00.png",
+            "sha256": "6a5f3250562cf91ada39b8e877f3cfd6d9583618c4db4032a6118462bf820a4a"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0366/front-normal-01.png",
+            "sha256": "95263c0cbb1e5985aa4e2a6f9fb1cbff77fcaa82e206194271e31e9be493e8a7"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0366/front-normal-00.png",
+            "sha256": "6a5f3250562cf91ada39b8e877f3cfd6d9583618c4db4032a6118462bf820a4a"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0366/front-normal-01.png",
+            "sha256": "95263c0cbb1e5985aa4e2a6f9fb1cbff77fcaa82e206194271e31e9be493e8a7"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0366/front-normal-00.png",
+            "sha256": "6a5f3250562cf91ada39b8e877f3cfd6d9583618c4db4032a6118462bf820a4a"
+          }
+        ],
+        "back": [
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0366/back-normal-00.png",
+            "sha256": "cb9c23beae1ab6b46fb4cad136cc73aba2ba7414454fecb9bec00049c9002fca"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/366/front/normal",
+          "durations": [
+            250,
+            250,
+            250,
+            250,
+            250
+          ],
+          "animated": true,
+          "scale": 1,
+          "sourceUnion": [
+            11,
+            5,
+            52,
+            54
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            41,
+            49
+          ],
+          "sha256": [
+            "dbf6cf9a17afa364c99eed1ce22e29c34bf8af06d8ce7f55da80a316cf5fc361",
+            "3c7e9055614078e0e6e65fe76ee733fbc34735e82207e61e648e3a501fff98b2",
+            "dbf6cf9a17afa364c99eed1ce22e29c34bf8af06d8ce7f55da80a316cf5fc361",
+            "3c7e9055614078e0e6e65fe76ee733fbc34735e82207e61e648e3a501fff98b2",
+            "dbf6cf9a17afa364c99eed1ce22e29c34bf8af06d8ce7f55da80a316cf5fc361"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/366/back/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            8,
+            16,
+            56,
+            51
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            48,
+            35
+          ],
+          "sha256": [
+            "1ec3716dd12e416f1d95115219507991346e6d919c60e90c698c20837a6f5b7d"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/366/voxel/normal",
+          "durations": [
+            250,
+            250,
+            250,
+            250,
+            250
+          ],
+          "animated": true,
+          "scale": 1.5,
+          "sourceUnion": [
+            11,
+            5,
+            52,
+            54
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            41,
+            49
+          ],
+          "sha256": [
+            "95efc1be2ea74b474249006f0a7894d06b5919d7de7bc8da7096ae90f1399b3d",
+            "9564d03a1f063f276f8a6634e66884222c824da49db44977c03870c76498e2d5",
+            "95efc1be2ea74b474249006f0a7894d06b5919d7de7bc8da7096ae90f1399b3d",
+            "9564d03a1f063f276f8a6634e66884222c824da49db44977c03870c76498e2d5",
+            "95efc1be2ea74b474249006f0a7894d06b5919d7de7bc8da7096ae90f1399b3d"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 366,
+      "runtimeDex": 366,
+      "species": "CLAMPERL",
+      "variant": "shiny",
+      "provider": "lazarus-reviewed",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0366/front-shiny-00.png",
+            "sha256": "32b446f320fcda316d6ae089618c3f2f6780e1fdc417669acef7c83f44188417"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0366/front-shiny-01.png",
+            "sha256": "b450adc3cf4e361ec9b8323385c2aeb1f4e1ef6b6d43111efe036ddff4831893"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0366/front-shiny-00.png",
+            "sha256": "32b446f320fcda316d6ae089618c3f2f6780e1fdc417669acef7c83f44188417"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0366/front-shiny-01.png",
+            "sha256": "b450adc3cf4e361ec9b8323385c2aeb1f4e1ef6b6d43111efe036ddff4831893"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0366/front-shiny-00.png",
+            "sha256": "32b446f320fcda316d6ae089618c3f2f6780e1fdc417669acef7c83f44188417"
+          }
+        ],
+        "back": [
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0366/back-shiny-00.png",
+            "sha256": "76c156a1484c6758c369c3ac06c2f32d992a750f8f5924b40871fd3d1a399b69"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/366/front/shiny",
+          "durations": [
+            250,
+            250,
+            250,
+            250,
+            250
+          ],
+          "animated": true,
+          "scale": 1,
+          "sourceUnion": [
+            11,
+            5,
+            52,
+            54
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            41,
+            49
+          ],
+          "sha256": [
+            "92c205de09015b87eafe1e3b9111fc0a1229ff402b642294cc890128c773684a",
+            "c38035de24ad613624d743a50e816b387cdd6929f4f742283b9b6145cefe36d3",
+            "92c205de09015b87eafe1e3b9111fc0a1229ff402b642294cc890128c773684a",
+            "c38035de24ad613624d743a50e816b387cdd6929f4f742283b9b6145cefe36d3",
+            "92c205de09015b87eafe1e3b9111fc0a1229ff402b642294cc890128c773684a"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/366/back/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            8,
+            16,
+            56,
+            51
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            48,
+            35
+          ],
+          "sha256": [
+            "a3cd003d7bd3d7d377b538d9d2b34851d36e57b8c3e7913439de5ecd6f012f87"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/366/voxel/shiny",
+          "durations": [
+            250,
+            250,
+            250,
+            250,
+            250
+          ],
+          "animated": true,
+          "scale": 1.5,
+          "sourceUnion": [
+            11,
+            5,
+            52,
+            54
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            41,
+            49
+          ],
+          "sha256": [
+            "70fe7319621efb85851cd66491f4d2048800429ea769d7faec6f5c1badf5d3f7",
+            "b20378225be4ec0f84d30938de3b83d85ec69a45d8c77c4a097d7a12ac5c8bfd",
+            "70fe7319621efb85851cd66491f4d2048800429ea769d7faec6f5c1badf5d3f7",
+            "b20378225be4ec0f84d30938de3b83d85ec69a45d8c77c4a097d7a12ac5c8bfd",
+            "70fe7319621efb85851cd66491f4d2048800429ea769d7faec6f5c1badf5d3f7"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 367,
+      "runtimeDex": 367,
+      "species": "HUNTAIL",
+      "variant": "normal",
+      "provider": "lazarus-reviewed",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0367/front-normal-00.png",
+            "sha256": "8675e2bbd19e80e5b667b074b0d23a7086ac8dee47f83df2e4303a2fb771a13e"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0367/front-normal-01.png",
+            "sha256": "3e2b7e3f855ec468660d6174f8a1f158b7f89ba44c09ffb74a7de4b9002ecb88"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0367/front-normal-00.png",
+            "sha256": "8675e2bbd19e80e5b667b074b0d23a7086ac8dee47f83df2e4303a2fb771a13e"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0367/front-normal-01.png",
+            "sha256": "3e2b7e3f855ec468660d6174f8a1f158b7f89ba44c09ffb74a7de4b9002ecb88"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0367/front-normal-00.png",
+            "sha256": "8675e2bbd19e80e5b667b074b0d23a7086ac8dee47f83df2e4303a2fb771a13e"
+          }
+        ],
+        "back": [
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0367/back-normal-00.png",
+            "sha256": "02de2655f155cb375a9451be228e226553dcf195e053382bc261fa69661dd55d"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/367/front/normal",
+          "durations": [
+            250,
+            250,
+            250,
+            250,
+            250
+          ],
+          "animated": true,
+          "scale": 1,
+          "sourceUnion": [
+            7,
+            12,
+            57,
+            62
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            50,
+            50
+          ],
+          "sha256": [
+            "189ff9da51e685df36ec98814952130e169ee499a00c9065534c78d37c5e11c0",
+            "5af12cddbf710ddd51f96378833767a0eb799ea56554b074ee0068829210de20",
+            "189ff9da51e685df36ec98814952130e169ee499a00c9065534c78d37c5e11c0",
+            "5af12cddbf710ddd51f96378833767a0eb799ea56554b074ee0068829210de20",
+            "189ff9da51e685df36ec98814952130e169ee499a00c9065534c78d37c5e11c0"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/367/back/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            9,
+            12,
+            51,
+            60
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            42,
+            48
+          ],
+          "sha256": [
+            "f85c0f18ba75532f1c19e8578fde9768998e64d9ff3ab51a4d9a3fc56ec3796b"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/367/voxel/normal",
+          "durations": [
+            250,
+            250,
+            250,
+            250,
+            250
+          ],
+          "animated": true,
+          "scale": 1.5,
+          "sourceUnion": [
+            7,
+            12,
+            57,
+            62
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            50,
+            50
+          ],
+          "sha256": [
+            "d510e26891f814f233e1e401be641b254049a2a734d6ad4321120352602641f0",
+            "975b9c221b7096af072b8e11cb92d862549d1fe296ee496a023a4f21839d9666",
+            "d510e26891f814f233e1e401be641b254049a2a734d6ad4321120352602641f0",
+            "975b9c221b7096af072b8e11cb92d862549d1fe296ee496a023a4f21839d9666",
+            "d510e26891f814f233e1e401be641b254049a2a734d6ad4321120352602641f0"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 367,
+      "runtimeDex": 367,
+      "species": "HUNTAIL",
+      "variant": "shiny",
+      "provider": "lazarus-reviewed",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0367/front-shiny-00.png",
+            "sha256": "334041a6bbdd18b7c3fcec0eaf65e52392e444195bc8e275a2010730f75380d9"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0367/front-shiny-01.png",
+            "sha256": "fb5ff804fcfe264f0983d2ac472696d220f78332b24f03310760a11ebf6f8954"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0367/front-shiny-00.png",
+            "sha256": "334041a6bbdd18b7c3fcec0eaf65e52392e444195bc8e275a2010730f75380d9"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0367/front-shiny-01.png",
+            "sha256": "fb5ff804fcfe264f0983d2ac472696d220f78332b24f03310760a11ebf6f8954"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0367/front-shiny-00.png",
+            "sha256": "334041a6bbdd18b7c3fcec0eaf65e52392e444195bc8e275a2010730f75380d9"
+          }
+        ],
+        "back": [
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0367/back-shiny-00.png",
+            "sha256": "e41ce84cdc446e2ff78c42c951d22c71142c96a6d8a7ad1d623dcdbcb6d0f6e8"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/367/front/shiny",
+          "durations": [
+            250,
+            250,
+            250,
+            250,
+            250
+          ],
+          "animated": true,
+          "scale": 1,
+          "sourceUnion": [
+            7,
+            12,
+            57,
+            62
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            50,
+            50
+          ],
+          "sha256": [
+            "97febf7991e5d8246ae6781b7ce839a536b68cb4e4f49fd984285aac1b7e7821",
+            "956e05589721a8f444f8eaf4e0c4f08ef0535b4e82bda023168469897abecd2d",
+            "97febf7991e5d8246ae6781b7ce839a536b68cb4e4f49fd984285aac1b7e7821",
+            "956e05589721a8f444f8eaf4e0c4f08ef0535b4e82bda023168469897abecd2d",
+            "97febf7991e5d8246ae6781b7ce839a536b68cb4e4f49fd984285aac1b7e7821"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/367/back/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            9,
+            12,
+            51,
+            60
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            42,
+            48
+          ],
+          "sha256": [
+            "b85e47025d50e02eb7455849d8117bf01a4bca56ff4e1c81b3c786b9da8729ad"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/367/voxel/shiny",
+          "durations": [
+            250,
+            250,
+            250,
+            250,
+            250
+          ],
+          "animated": true,
+          "scale": 1.5,
+          "sourceUnion": [
+            7,
+            12,
+            57,
+            62
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            50,
+            50
+          ],
+          "sha256": [
+            "c5b5ad53ff1a9e33aa931df57dc42cb023b336c087a63cfd9725b796af700917",
+            "de49344b0821bdbf9ab3a71025184fa3f38fcfb4365bacfefeb02eb457df7078",
+            "c5b5ad53ff1a9e33aa931df57dc42cb023b336c087a63cfd9725b796af700917",
+            "de49344b0821bdbf9ab3a71025184fa3f38fcfb4365bacfefeb02eb457df7078",
+            "c5b5ad53ff1a9e33aa931df57dc42cb023b336c087a63cfd9725b796af700917"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 368,
+      "runtimeDex": 368,
+      "species": "GOREBYSS",
+      "variant": "normal",
+      "provider": "lazarus-reviewed",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0368/front-normal-00.png",
+            "sha256": "4214a616b1329fda43441189f8e030ea8d5c496803353222192f0ef5460d8004"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0368/front-normal-01.png",
+            "sha256": "e8d5cc38fbe0ebc86d10b8f6aa7566006e42144ed9568f4e0705b28c21358015"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0368/front-normal-00.png",
+            "sha256": "4214a616b1329fda43441189f8e030ea8d5c496803353222192f0ef5460d8004"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0368/front-normal-01.png",
+            "sha256": "e8d5cc38fbe0ebc86d10b8f6aa7566006e42144ed9568f4e0705b28c21358015"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0368/front-normal-00.png",
+            "sha256": "4214a616b1329fda43441189f8e030ea8d5c496803353222192f0ef5460d8004"
+          }
+        ],
+        "back": [
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0368/back-normal-00.png",
+            "sha256": "d7650332844bbda5f452f0002d15fdf61d4f3ab1f10569b38a173b9d5be2a8eb"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/368/front/normal",
+          "durations": [
+            250,
+            250,
+            250,
+            250,
+            250
+          ],
+          "animated": true,
+          "scale": 1,
+          "sourceUnion": [
+            5,
+            5,
+            59,
+            58
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            54,
+            53
+          ],
+          "sha256": [
+            "ac1858dd74fc176b86c272b5c65e192ed48ecd24995ae15607406ebc27fed447",
+            "4dbaae3f33d98b4191e668d83eabe02661468132b5dce8bb73c90388390e2a2d",
+            "ac1858dd74fc176b86c272b5c65e192ed48ecd24995ae15607406ebc27fed447",
+            "4dbaae3f33d98b4191e668d83eabe02661468132b5dce8bb73c90388390e2a2d",
+            "ac1858dd74fc176b86c272b5c65e192ed48ecd24995ae15607406ebc27fed447"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/368/back/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            9,
+            12,
+            57,
+            58
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            48,
+            46
+          ],
+          "sha256": [
+            "b6e9b1f3bca2901cc4f0b2ef3ee21ac8be010042aeab29c61995f081ba76914a"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/368/voxel/normal",
+          "durations": [
+            250,
+            250,
+            250,
+            250,
+            250
+          ],
+          "animated": true,
+          "scale": 1.5,
+          "sourceUnion": [
+            5,
+            5,
+            59,
+            58
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            54,
+            53
+          ],
+          "sha256": [
+            "4c2db3ff02e572cac73ba49b7627c138587e95938b3a6e0c95ecb1b0540900b4",
+            "56f2c6a785e70949248580f65eede0d4b4ba0c96aea7ddf9b1781dced19bc803",
+            "4c2db3ff02e572cac73ba49b7627c138587e95938b3a6e0c95ecb1b0540900b4",
+            "56f2c6a785e70949248580f65eede0d4b4ba0c96aea7ddf9b1781dced19bc803",
+            "4c2db3ff02e572cac73ba49b7627c138587e95938b3a6e0c95ecb1b0540900b4"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 368,
+      "runtimeDex": 368,
+      "species": "GOREBYSS",
+      "variant": "shiny",
+      "provider": "lazarus-reviewed",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0368/front-shiny-00.png",
+            "sha256": "ac6688bfba43a50de46d47cab96cc3bd81410739f34d88b9917d9cd042929f31"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0368/front-shiny-01.png",
+            "sha256": "f54f50cb53522233964a26eda8aa8747c54bb907ceaef5cc7e9c8f0f933ac403"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0368/front-shiny-00.png",
+            "sha256": "ac6688bfba43a50de46d47cab96cc3bd81410739f34d88b9917d9cd042929f31"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0368/front-shiny-01.png",
+            "sha256": "f54f50cb53522233964a26eda8aa8747c54bb907ceaef5cc7e9c8f0f933ac403"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0368/front-shiny-00.png",
+            "sha256": "ac6688bfba43a50de46d47cab96cc3bd81410739f34d88b9917d9cd042929f31"
+          }
+        ],
+        "back": [
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0368/back-shiny-00.png",
+            "sha256": "e39ff46322121189b5d9f5d968ded34914e15e423c93419c7eb4c09524fdfa6d"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/368/front/shiny",
+          "durations": [
+            250,
+            250,
+            250,
+            250,
+            250
+          ],
+          "animated": true,
+          "scale": 1,
+          "sourceUnion": [
+            5,
+            5,
+            59,
+            58
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            54,
+            53
+          ],
+          "sha256": [
+            "a271b5347813dfe4a45f4bb53a80948df3fc9dca90ecdf4bdeb6432d3dec957e",
+            "8e7841da1d9a084a365c1be32c2a73b67f590ac8fab22306c81bfb00c4459558",
+            "a271b5347813dfe4a45f4bb53a80948df3fc9dca90ecdf4bdeb6432d3dec957e",
+            "8e7841da1d9a084a365c1be32c2a73b67f590ac8fab22306c81bfb00c4459558",
+            "a271b5347813dfe4a45f4bb53a80948df3fc9dca90ecdf4bdeb6432d3dec957e"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/368/back/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            9,
+            12,
+            57,
+            58
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            48,
+            46
+          ],
+          "sha256": [
+            "f56d6eed73e099dceb7f4d444318a3c6c5cc9a7c08cfc33eff03c73b83b0d797"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/368/voxel/shiny",
+          "durations": [
+            250,
+            250,
+            250,
+            250,
+            250
+          ],
+          "animated": true,
+          "scale": 1.5,
+          "sourceUnion": [
+            5,
+            5,
+            59,
+            58
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            54,
+            53
+          ],
+          "sha256": [
+            "a58012d628b1dddc0a4be8dacd09c5b8ac5676c96b1a720a9955438550c5fa29",
+            "869986ca8fc5bea36cb0ab3d8f75aa03167bc028e815045f1213e99fae07ab1c",
+            "a58012d628b1dddc0a4be8dacd09c5b8ac5676c96b1a720a9955438550c5fa29",
+            "869986ca8fc5bea36cb0ab3d8f75aa03167bc028e815045f1213e99fae07ab1c",
+            "a58012d628b1dddc0a4be8dacd09c5b8ac5676c96b1a720a9955438550c5fa29"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 380,
+      "runtimeDex": 380,
+      "species": "LATIAS",
+      "variant": "normal",
+      "provider": "neo-still",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "assets/neo_crystal_2d_67/front/normal/380/001.png",
+            "sha256": "aa58fb0bf8ba32fdf08a61ff825804b19585022217d39de089158b5556b20e5e"
+          }
+        ],
+        "back": [
+          {
+            "path": "assets/neo_crystal_2d_67/back/normal/380/001.png",
+            "sha256": "e561ff67c9b7c9d061aafeb9c3564eb1b815a9a9003e05a6bbab48fbd57043a7"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/380/front/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            0,
+            2,
+            56,
+            56
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            56,
+            54
+          ],
+          "sha256": [
+            "f6a58042fc63bfe5e728da0dba74a728820af39ee70d6b3ea406ea32770119f9"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/380/back/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            3,
+            0,
+            45,
+            48
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            42,
+            48
+          ],
+          "sha256": [
+            "e7ffd5ebf37d3c947cc03a179168656d5bac943975bac57073290b4a263932a2"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/380/voxel/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1.5,
+          "sourceUnion": [
+            0,
+            2,
+            56,
+            56
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            56,
+            54
+          ],
+          "sha256": [
+            "dd7dfef0d103b163984a1e82b968c7769b66f8b3b73c4bb2cedb0944302d8c01"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 380,
+      "runtimeDex": 380,
+      "species": "LATIAS",
+      "variant": "shiny",
+      "provider": "neo-still",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "assets/neo_crystal_2d_67/front/shiny/380/001.png",
+            "sha256": "4eebf2164767a8381f802464f9b42a36c53c6c04588d8d0d52b35a99ce61f63c"
+          }
+        ],
+        "back": [
+          {
+            "path": "assets/neo_crystal_2d_67/back/shiny/380/001.png",
+            "sha256": "e7af5c0874d2ef457701d9fda9fab43adb41b0b3f6a3ee64993d4b77934a7587"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/380/front/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            0,
+            2,
+            56,
+            56
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            56,
+            54
+          ],
+          "sha256": [
+            "a4d2b05f30a82a091c647b02b677d03df16a68947b0c876172b1d9d935e70867"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/380/back/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            3,
+            0,
+            45,
+            48
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            42,
+            48
+          ],
+          "sha256": [
+            "b08be838759713836b0712a3246745427421fb2682a31131a1d2989ced09e4f6"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/380/voxel/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1.5,
+          "sourceUnion": [
+            0,
+            2,
+            56,
+            56
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            56,
+            54
+          ],
+          "sha256": [
+            "505a64f36a7f086b9bd252b2301003862b7764b24c595d6b87ab9922f2d4314d"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 381,
+      "runtimeDex": 381,
+      "species": "LATIOS",
+      "variant": "normal",
+      "provider": "neo-still",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "assets/neo_crystal_2d_67/front/normal/381/001.png",
+            "sha256": "7a939541a23cbc2b49a355626409738573c419c1bb80d24acdebbc91532eb250"
+          }
+        ],
+        "back": [
+          {
+            "path": "assets/neo_crystal_2d_67/back/normal/381/001.png",
+            "sha256": "fe6cdb4d03658bd6bf7c25a6ad753dacae6874bc53d6881d36a8fff322db5dbb"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/381/front/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            0,
+            2,
+            56,
+            56
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            56,
+            54
+          ],
+          "sha256": [
+            "8c7fcf43d07e6244da89d8b600c4f799ebff64c445076659b07b31f1774fc75e"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/381/back/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            0,
+            0,
+            48,
+            47
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            48,
+            47
+          ],
+          "sha256": [
+            "177074d449549274526ae1c64b1dff3407e35c062dbdf23790fdd7def3b83a5d"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/381/voxel/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1.5,
+          "sourceUnion": [
+            0,
+            2,
+            56,
+            56
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            56,
+            54
+          ],
+          "sha256": [
+            "32d6b5c3e9f8e3e0e2a65bd8e7f0e55703f70b7c00c8e864af79fee70e662ff2"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 381,
+      "runtimeDex": 381,
+      "species": "LATIOS",
+      "variant": "shiny",
+      "provider": "neo-still",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "assets/neo_crystal_2d_67/front/shiny/381/001.png",
+            "sha256": "074d4eb41695b8f3ac7b4226e2215a31a5b58f199f5da17d4f0a33ba46beeee7"
+          }
+        ],
+        "back": [
+          {
+            "path": "assets/neo_crystal_2d_67/back/shiny/381/001.png",
+            "sha256": "3cf20bb161d4b250d75203b37b6ebf837cc838bcde220ef7d82b68be1ffa5b73"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/381/front/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            0,
+            2,
+            56,
+            56
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            56,
+            54
+          ],
+          "sha256": [
+            "442fc9a02e616d870ab72e71d1fdcb94c9f2d7b613bd0bf46e3f266fe349c67c"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/381/back/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            0,
+            0,
+            48,
+            47
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            48,
+            47
+          ],
+          "sha256": [
+            "dedf2a43734d633fd24ad1606c0c3a647b954201262e3f84a36ca99c092860f6"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/381/voxel/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1.5,
+          "sourceUnion": [
+            0,
+            2,
+            56,
+            56
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            56,
+            54
+          ],
+          "sha256": [
+            "5eb3b3abed56224b43efed62b3865a7cd5fa691117b5b662435246ccea6cd99f"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 384,
+      "runtimeDex": 384,
+      "species": "RAYQUAZA",
+      "variant": "shiny",
+      "provider": "neo-still",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "assets/neo_crystal_2d_67/front/shiny/384/001.png",
+            "sha256": "bac40c5d540054155a85b39a188e510caccf94dd6d9f0f72047bbc7eca91e21a"
+          }
+        ],
+        "back": [
+          {
+            "path": "assets/neo_crystal_2d_67/back/shiny/384/001.png",
+            "sha256": "03bff4d13823952d6afd08259e1721c8f12c461733b4850012037f57579457b6"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/384/front/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            1,
+            0,
+            55,
+            56
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            54,
+            56
+          ],
+          "sha256": [
+            "b51972d6e2fbebd5f7cf55eecd344347d5ff9bec659e0ce657de434cd95e6435"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/384/back/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            3,
+            0,
+            44,
+            48
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            41,
+            48
+          ],
+          "sha256": [
+            "cc98477280e8aa04aba52d798ce0f97d29d1f270bd4d510954dab097ab28207e"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/384/voxel/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1.5,
+          "sourceUnion": [
+            1,
+            0,
+            55,
+            56
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            54,
+            56
+          ],
+          "sha256": [
+            "138d3b5efd7b9397735ac4e56ea490f4a3a027059b6da989de58759d875322c1"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 386,
+      "runtimeDex": 386,
+      "species": "DEOXYS",
+      "variant": "normal",
+      "provider": "neo-still",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "assets/neo_crystal_2d_67/front/normal/386/001.png",
+            "sha256": "8e8883c236d0c28374dcb3b0bb13bc4df6103e97c9ca9bb3936a5049dd6b32aa"
+          }
+        ],
+        "back": [
+          {
+            "path": "assets/neo_crystal_2d_67/back/normal/386/001.png",
+            "sha256": "d3f43eed41e67c87569612e122d12c383e81cf05c815f7cd551bd5ebd99923a9"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/386/front/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            0,
+            0,
+            56,
+            56
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            56,
+            56
+          ],
+          "sha256": [
+            "49c777b28fccbe1caf5871963bb0bc34ac050cf6995ecf7a3ea56cf9c00775cc"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/386/back/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            0,
+            0,
+            48,
+            28
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            48,
+            28
+          ],
+          "sha256": [
+            "a1838941d54893b27b3e87831423202e1f22303a1036bcd8120c30319a3cfea5"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/386/voxel/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1.5,
+          "sourceUnion": [
+            0,
+            0,
+            56,
+            56
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            56,
+            56
+          ],
+          "sha256": [
+            "5ef7d4910763006e4cb64253fe0bdfba5be3e4f7b2e3ea214a96776462283ae6"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 386,
+      "runtimeDex": 386,
+      "species": "DEOXYS",
+      "variant": "shiny",
+      "provider": "neo-still",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "assets/neo_crystal_2d_67/front/shiny/386/001.png",
+            "sha256": "6878614031e3d1d1fe2b291babb50c32e1e7de376a8cf6b788301d8b2e9abd9c"
+          }
+        ],
+        "back": [
+          {
+            "path": "assets/neo_crystal_2d_67/back/shiny/386/001.png",
+            "sha256": "0e35c21018bd79f7295e24318dc0fb70d997a63abacfc2ebc6f8f0d4a501a20c"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/386/front/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            0,
+            0,
+            56,
+            56
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            56,
+            56
+          ],
+          "sha256": [
+            "d4b901408ee9fafe1b08216ab12f961e7015fb138efe36ddda637c00debac003"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/386/back/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            0,
+            0,
+            48,
+            28
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            48,
+            28
+          ],
+          "sha256": [
+            "5641a83648392ffb06cc4635c7ca60b262cbd34590f2667bb8960ca53e893790"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/386/voxel/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1.5,
+          "sourceUnion": [
+            0,
+            0,
+            56,
+            56
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            56,
+            56
+          ],
+          "sha256": [
+            "4f37900e2655200caf14b2cba7b0e27aed55e179d8faefc6aacebad7ee10bb4a"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 391,
+      "runtimeDex": 391,
+      "species": "MONFERNO",
+      "variant": "normal",
+      "provider": "neo-still",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "assets/neo_crystal_2d_67/front/normal/391/001.png",
+            "sha256": "1b0d504cccac80c789d4ab344a259a525d1f92565939989b3a5b424203546aba"
+          }
+        ],
+        "back": [
+          {
+            "path": "assets/neo_crystal_2d_67/back/normal/391/001.png",
+            "sha256": "47b4bd21b1734056c8fc76154ae3137e6af409159658e5ec900cfee73bffe047"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/391/front/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            4,
+            14,
+            52,
+            56
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            48,
+            42
+          ],
+          "sha256": [
+            "9d0c903f4a55ee690fd35c3d0553284619111e5333450f2f0695802523ff5d62"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/391/back/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            0,
+            0,
+            48,
+            36
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            48,
+            36
+          ],
+          "sha256": [
+            "c280de1e2b7d342b2b5ca38552fc7797e62e83dfc5ef6bba23720a451b1d6d9e"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/391/voxel/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1.5,
+          "sourceUnion": [
+            4,
+            14,
+            52,
+            56
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            48,
+            42
+          ],
+          "sha256": [
+            "16788ce949c08f8f450ed916ff91d42a780f370be6ad8deb33c1f1b960933bce"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 391,
+      "runtimeDex": 391,
+      "species": "MONFERNO",
+      "variant": "shiny",
+      "provider": "neo-still",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "assets/neo_crystal_2d_67/front/shiny/391/001.png",
+            "sha256": "fa4f4d90e12e373a51e69707792e90f379db3ca59700120d6cf149ad6434d972"
+          }
+        ],
+        "back": [
+          {
+            "path": "assets/neo_crystal_2d_67/back/shiny/391/001.png",
+            "sha256": "f719a7a2ab6a556622d52c3c18ea7528c985ae859ab190657bdfc61d0c9c91bc"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/391/front/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            4,
+            14,
+            52,
+            56
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            48,
+            42
+          ],
+          "sha256": [
+            "4791fdeeab9fe793a7815d32c7a011ed9a887439983e99ebd69291c0e2f6bec5"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/391/back/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            0,
+            0,
+            48,
+            36
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            48,
+            36
+          ],
+          "sha256": [
+            "e8d7466cf3213b92fbc82d85aef4acec2baf472b4f3f08481898a041b89a0a85"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/391/voxel/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1.5,
+          "sourceUnion": [
+            4,
+            14,
+            52,
+            56
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            48,
+            42
+          ],
+          "sha256": [
+            "e9be6f954d3eaef689d88043ad7aee7f77f27f04529b4d1d6be67ac7fcce63ef"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 392,
+      "runtimeDex": 392,
+      "species": "INFERNAPE",
+      "variant": "normal",
+      "provider": "neo-still",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "assets/neo_crystal_2d_67/front/normal/392/001.png",
+            "sha256": "86696843dc58b7f3157c0475e27b570d4708271ca3b9d985b37564e07a409e85"
+          }
+        ],
+        "back": [
+          {
+            "path": "assets/neo_crystal_2d_67/back/normal/392/001.png",
+            "sha256": "c8d3d0b3fe71e06cda493446717dde292023d18da2a199f37bfb1057a06f3170"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/392/front/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            2,
+            0,
+            54,
+            56
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            52,
+            56
+          ],
+          "sha256": [
+            "79fabf37d29f90b57f78d5e9951412082d27b2da29c4a3ccf7dcc025293fdfac"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/392/back/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            0,
+            0,
+            48,
+            48
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            48,
+            48
+          ],
+          "sha256": [
+            "d204a518247d163ecfd0f005207e9edf61dca8e1eb57c7ca85ef8b754ea99eab"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/392/voxel/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1.5,
+          "sourceUnion": [
+            2,
+            0,
+            54,
+            56
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            52,
+            56
+          ],
+          "sha256": [
+            "f183b0e9a8cec336743cffaafca3fd629e2f79396feffad3160da6c365799d9c"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 392,
+      "runtimeDex": 392,
+      "species": "INFERNAPE",
+      "variant": "shiny",
+      "provider": "neo-still",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "assets/neo_crystal_2d_67/front/shiny/392/001.png",
+            "sha256": "d4290476b2092d53060f568ea4255fbaa276e5e19daeff858d438bd23c94cd02"
+          }
+        ],
+        "back": [
+          {
+            "path": "assets/neo_crystal_2d_67/back/shiny/392/001.png",
+            "sha256": "547f0d10a7fd1b444392ebeb3c19a9367f33ca0bd4a4167848a7890e80654fe5"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/392/front/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            2,
+            0,
+            54,
+            56
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            52,
+            56
+          ],
+          "sha256": [
+            "02a85077ee6073b5e835bc232fade5c0852dbc2a94e651ec56cbe2fc0f771a6e"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/392/back/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            0,
+            0,
+            48,
+            48
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            48,
+            48
+          ],
+          "sha256": [
+            "feb8084134df07082f25aa96c809094fdb276c32c752b446393dd91d3e244bef"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/392/voxel/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1.5,
+          "sourceUnion": [
+            2,
+            0,
+            54,
+            56
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            52,
+            56
+          ],
+          "sha256": [
+            "9316d28cf898e36fcbb348cdf2dcd9c5e800dbbf974a8e77f2195fe24da8593c"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 395,
+      "runtimeDex": 395,
+      "species": "EMPOLEON",
+      "variant": "normal",
+      "provider": "neo-still",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "assets/neo_crystal_2d_67/front/normal/395/001.png",
+            "sha256": "40f01d98465272f1955827d3e9333a673ad08fdb7dfedb34ea1429cf281f580a"
+          }
+        ],
+        "back": [
+          {
+            "path": "assets/neo_crystal_2d_67/back/normal/395/001.png",
+            "sha256": "1b8012a9bac5381b7757d9e5ea583905fffb9499c50efa2c4301db11128d4be6"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/395/front/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            2,
+            0,
+            54,
+            56
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            52,
+            56
+          ],
+          "sha256": [
+            "8e8c439dfa2476b0d8752cf905e7365eba085080f164b1eba1e1c08f2769b2e5"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/395/back/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            6,
+            0,
+            42,
+            48
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            36,
+            48
+          ],
+          "sha256": [
+            "fe7e230f084e0d9dd5551fd1b7ebfd97c8f15127a0edfaef9ff9a58e7ec205e8"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/395/voxel/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1.5,
+          "sourceUnion": [
+            2,
+            0,
+            54,
+            56
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            52,
+            56
+          ],
+          "sha256": [
+            "055a1bef85b4c3d2d411c0f1f3dc51ca6a676572cdd1d7f4b7d7310d3242f276"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 395,
+      "runtimeDex": 395,
+      "species": "EMPOLEON",
+      "variant": "shiny",
+      "provider": "neo-still",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "assets/neo_crystal_2d_67/front/shiny/395/001.png",
+            "sha256": "f618819c2fdf5e44e86a444f480a98dd3cb0a8a432c9fb5a1189bd84808e59c8"
+          }
+        ],
+        "back": [
+          {
+            "path": "assets/neo_crystal_2d_67/back/shiny/395/001.png",
+            "sha256": "e738f2b61e9975a079afc31cbef92ff9639b757551a55825e2bb78db90107284"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/395/front/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            2,
+            0,
+            54,
+            56
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            52,
+            56
+          ],
+          "sha256": [
+            "527a7814c6a28cfcc3bec6cdee07a6d214fb83bf9565d00ee5db93a49f28fdf2"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/395/back/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            6,
+            0,
+            42,
+            48
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            36,
+            48
+          ],
+          "sha256": [
+            "730e1bfc2d2a12946b110d2e5d9e69dd2acec9cc7a78a05a59246c79a4e31f29"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/395/voxel/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1.5,
+          "sourceUnion": [
+            2,
+            0,
+            54,
+            56
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            52,
+            56
+          ],
+          "sha256": [
+            "289ec851f0491de3cd6f842895e071d1b534b8b8c60f9cb89500c2c3bff57892"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 406,
+      "runtimeDex": 406,
+      "species": "BUDEW",
+      "variant": "normal",
+      "provider": "lazarus-reviewed",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0406/front-normal-00.png",
+            "sha256": "0de20867ecd0cc924201371f112659f7ef382eb91c1e747aa31f6f3a088e0444"
+          }
+        ],
+        "back": [
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0406/back-normal-00.png",
+            "sha256": "85244f585c171b4a6045eec8c35612b6f0614d6500d231b4f13bc556c5694168"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/406/front/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            21,
+            12,
+            44,
+            51
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            23,
+            39
+          ],
+          "sha256": [
+            "78b9aaca2d2c24243d59f3def755f05ae1827ae7f43bb57d918a4199e2c9e81c"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/406/back/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            16,
+            7,
+            50,
+            53
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            34,
+            46
+          ],
+          "sha256": [
+            "9ac3d489a71868c3a00b7d22cb67ff163e243c948ec7f25bb5270392c74b7bff"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/406/voxel/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1.5,
+          "sourceUnion": [
+            21,
+            12,
+            44,
+            51
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            23,
+            39
+          ],
+          "sha256": [
+            "4f3e15020326b2145e35a30ed9c966c6807624a80622ec8035787e54dd67b989"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 406,
+      "runtimeDex": 406,
+      "species": "BUDEW",
+      "variant": "shiny",
+      "provider": "lazarus-reviewed",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0406/front-shiny-00.png",
+            "sha256": "8a351157a3afd350afdccbaaa4fe86b50cf47b30a86814920b8e2eacf6d09921"
+          }
+        ],
+        "back": [
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0406/back-shiny-00.png",
+            "sha256": "ce1c62296c2426b93eb8890a5d97ebc0049ae8793543b52ccc5321a66cba6952"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/406/front/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            21,
+            12,
+            44,
+            51
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            23,
+            39
+          ],
+          "sha256": [
+            "d6bd855b5e2f6000136172450a208cfe186c99bfdd44183259dad580f996a93f"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/406/back/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            16,
+            7,
+            50,
+            53
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            34,
+            46
+          ],
+          "sha256": [
+            "29d20543d2c0f2198a8b99b8f64503212207b8f3a37401514bd89345f90e0a88"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/406/voxel/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1.5,
+          "sourceUnion": [
+            21,
+            12,
+            44,
+            51
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            23,
+            39
+          ],
+          "sha256": [
+            "a1f789d2c403cd05d7f2b93e99be673e80c523de26b84a9a710a0935e54621ea"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 407,
+      "runtimeDex": 407,
+      "species": "ROSERADE",
+      "variant": "normal",
+      "provider": "lazarus-reviewed",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0407/front-normal-01.png",
+            "sha256": "514fb5eb77e91a9bdff874886cb895671167146638ac6d8cde6f4a3d0f9059f2"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0407/front-normal-00.png",
+            "sha256": "c1bd806bedd1f57841e65af7ca6195969e7341ef5dbf5394daff96c39529dabe"
+          }
+        ],
+        "back": [
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0407/back-normal-00.png",
+            "sha256": "290e9722a1c524ec2ef3464540c07b7e68d3dc7746deaaea398bc429d4ca99d6"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/407/front/normal",
+          "durations": [
+            333,
+            333
+          ],
+          "animated": true,
+          "scale": 1,
+          "sourceUnion": [
+            4,
+            5,
+            59,
+            57
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            55,
+            52
+          ],
+          "sha256": [
+            "38eed41fd7ff87be781b5286ed9329d8649c15e65bb7ee789d74ff7bc4e89bf0",
+            "776322a1d20bce672b546b499a32b7c6e26f4940f156ccbbb7da3e95fa30ddd8"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/407/back/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            9,
+            10,
+            57,
+            58
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            48,
+            48
+          ],
+          "sha256": [
+            "1ca2ebc45531309ffcb2e816ff4e978d005a72cbf86a1863b4e2029ba91e5f5a"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/407/voxel/normal",
+          "durations": [
+            333,
+            333
+          ],
+          "animated": true,
+          "scale": 1.5,
+          "sourceUnion": [
+            4,
+            5,
+            59,
+            57
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            55,
+            52
+          ],
+          "sha256": [
+            "827969936083b64be476171a99330400a3d068255bdcf90334b7e00a8e4ec008",
+            "642cc6ba72640a96a2f91da1f3e5c09e426c2c942b906be785b5a990b9ab9cfd"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 407,
+      "runtimeDex": 407,
+      "species": "ROSERADE",
+      "variant": "shiny",
+      "provider": "lazarus-reviewed",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0407/front-shiny-01.png",
+            "sha256": "a0037721690f400980ff10fb974458ea6aef38aa9cc1183418cba680393a4bf6"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0407/front-shiny-00.png",
+            "sha256": "cb454a96c6472f875c7ff66a3ff0bdbc4f43b3274b16b0d2be04e497d6c1d1fb"
+          }
+        ],
+        "back": [
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0407/back-shiny-00.png",
+            "sha256": "f91773a5867797d457953b4fd34e9f455126b10e8840e8137bac9a5240fcb281"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/407/front/shiny",
+          "durations": [
+            333,
+            333
+          ],
+          "animated": true,
+          "scale": 1,
+          "sourceUnion": [
+            4,
+            5,
+            59,
+            57
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            55,
+            52
+          ],
+          "sha256": [
+            "3564c954e77ba7d8d3ada48a234e2f051e4dfb753efc92e3570d394b67d370c2",
+            "95a0975e0c418fd22a39d3f8215e48a4addd4c363173d4a7094f631d490ba28a"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/407/back/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            9,
+            10,
+            57,
+            58
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            48,
+            48
+          ],
+          "sha256": [
+            "0869be19953bd5ccb91e0ba2be207cb0d5ca5b539663fabbc497f5cc835d2ce3"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/407/voxel/shiny",
+          "durations": [
+            333,
+            333
+          ],
+          "animated": true,
+          "scale": 1.5,
+          "sourceUnion": [
+            4,
+            5,
+            59,
+            57
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            55,
+            52
+          ],
+          "sha256": [
+            "9e00c30949d09637361a4ba7bf49ea443826d9651b41f16da7dc8d9d9c2a61c0",
+            "eecc14a3a9aafc59feae098a8605c7ca3f43e61a59dcf49d372ae1dda19f516d"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 491,
+      "runtimeDex": 491,
+      "species": "DARKRAI",
+      "variant": "normal",
+      "provider": "neo-still",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "assets/neo_crystal_2d_67/front/normal/491/001.png",
+            "sha256": "e502ca8913bf503378d7506d0eb8a8dfa2193d4829e6680c4908847fc01d2cd6"
+          }
+        ],
+        "back": [
+          {
+            "path": "assets/neo_crystal_2d_67/back/normal/491/001.png",
+            "sha256": "51db565c18b84e95df708fcd9bd735216225d50920815b1a11bfde8c8e4d82fa"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/491/front/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            0,
+            0,
+            56,
+            56
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            56,
+            56
+          ],
+          "sha256": [
+            "c6f5c5e17086889db3182c2c6f5b5f02b65bd69ae3d754837bf84ad9323ea759"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/491/back/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            0,
+            0,
+            48,
+            48
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            48,
+            48
+          ],
+          "sha256": [
+            "870147f95193439ffac26788eaad82d94cfa3fc87a381dc79207f2e7d7a8d386"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/491/voxel/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1.5,
+          "sourceUnion": [
+            0,
+            0,
+            56,
+            56
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            56,
+            56
+          ],
+          "sha256": [
+            "cb37c9c6ab3c4cca5e8dae977c12525ad211c4c2b1bc246644eaf6557eabb792"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 491,
+      "runtimeDex": 491,
+      "species": "DARKRAI",
+      "variant": "shiny",
+      "provider": "neo-still",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "assets/neo_crystal_2d_67/front/shiny/491/001.png",
+            "sha256": "b4e298cab95b5c6f87450f88ea7392917ec43c30187fc26e7d886cde08d3f237"
+          }
+        ],
+        "back": [
+          {
+            "path": "assets/neo_crystal_2d_67/back/shiny/491/001.png",
+            "sha256": "8475a668fd62bf72a429757293670a2c35221030e055dc95ba01685dff3affbd"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/491/front/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            0,
+            0,
+            56,
+            56
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            56,
+            56
+          ],
+          "sha256": [
+            "0348efdcc84cc9a76e9c20ae545e2cb319b7d7c393d605c0b5eef7b9d14a8c47"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/491/back/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            0,
+            0,
+            48,
+            48
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            48,
+            48
+          ],
+          "sha256": [
+            "6f56b52e8392126b8ca96774381c29bcf059d1b6cb8c2ea89916027630914428"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/491/voxel/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1.5,
+          "sourceUnion": [
+            0,
+            0,
+            56,
+            56
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            56,
+            56
+          ],
+          "sha256": [
+            "27d9078a9e02c6a6cbb2ea250a3e4d0cd43bb231819aa35a5262d767571c3db5"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 496,
+      "runtimeDex": 496,
+      "species": "SERVINE",
+      "variant": "normal",
+      "provider": "neo-still",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "assets/neo_crystal_2d_67/front/normal/496/001.png",
+            "sha256": "3dd8d20dfbcf59a10a39a714233674c0ef7737f50eb45bec925f9c772bb9fdc7"
+          }
+        ],
+        "back": [
+          {
+            "path": "assets/neo_crystal_2d_67/back/normal/496/001.png",
+            "sha256": "2d2509feed4b985b0d8f17dde4d8984cd0f1565c4b063f6700bef5e797c2968d"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/496/front/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            8,
+            8,
+            48,
+            56
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            40,
+            48
+          ],
+          "sha256": [
+            "e111a30637d814a9285e7af207d6703bde5a3c4eb82c2fa4c913789ae62c3b17"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/496/back/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            11,
+            0,
+            36,
+            46
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            25,
+            46
+          ],
+          "sha256": [
+            "a2d823fbfeb6d60ec4f7bc89b1659999697b8f2b959534355e22b4f312fbca84"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/496/voxel/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1.5,
+          "sourceUnion": [
+            8,
+            8,
+            48,
+            56
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            40,
+            48
+          ],
+          "sha256": [
+            "4d61bc83cd4333dfdfae71a213e7acfcdf6cf67d35f771e8b0facc6a12cdf7c8"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 496,
+      "runtimeDex": 496,
+      "species": "SERVINE",
+      "variant": "shiny",
+      "provider": "neo-still",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "assets/neo_crystal_2d_67/front/shiny/496/001.png",
+            "sha256": "2e6b9bc9b03c0af0254ba155c8cae2512f43a24f5bdd1a001f56be6a3d679590"
+          }
+        ],
+        "back": [
+          {
+            "path": "assets/neo_crystal_2d_67/back/shiny/496/001.png",
+            "sha256": "e7f5712cef748d8ec6cefebd23c1633d38802e38c3a19223f02f4047e48e52b3"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/496/front/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            8,
+            8,
+            48,
+            56
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            40,
+            48
+          ],
+          "sha256": [
+            "86f889f4c2c9c615c9785a5bcf5f701c20486676e2dad93e31de13ada25a9c25"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/496/back/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            11,
+            0,
+            36,
+            46
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            25,
+            46
+          ],
+          "sha256": [
+            "c046082c02a8bf709e81a330daeb6a5715274e222116865a94d898462581ee2c"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/496/voxel/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1.5,
+          "sourceUnion": [
+            8,
+            8,
+            48,
+            56
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            40,
+            48
+          ],
+          "sha256": [
+            "3e8b9377ed039d33eae490074c7e20a1da9ec61437cd34700ae51906ada51207"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 497,
+      "runtimeDex": 497,
+      "species": "SERPERIOR",
+      "variant": "normal",
+      "provider": "neo-still",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "assets/neo_crystal_2d_67/front/normal/497/001.png",
+            "sha256": "f0acd6cf25aea23d85cae1c743dd38d8f54b4365b08b41001c592ba2b9803e3a"
+          }
+        ],
+        "back": [
+          {
+            "path": "assets/neo_crystal_2d_67/back/normal/497/001.png",
+            "sha256": "4ec045c55963f4960b4b0b24236ab2c840434da0ebaeba69f3962ec9b394e605"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/497/front/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            2,
+            0,
+            54,
+            56
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            52,
+            56
+          ],
+          "sha256": [
+            "1d10c6b87f431533a3386728006ba52fc7f36bb96f3f0c03d0245433a7fdf6a8"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/497/back/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            2,
+            0,
+            46,
+            48
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            44,
+            48
+          ],
+          "sha256": [
+            "b85992c77a761944e567a7607ea963f5eee559216a8601113159de10405fa594"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/497/voxel/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1.5,
+          "sourceUnion": [
+            2,
+            0,
+            54,
+            56
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            52,
+            56
+          ],
+          "sha256": [
+            "ec84822c2378cb413d3e37e8f1387a158549f0e7a1202165d4c0b6838623017d"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 497,
+      "runtimeDex": 497,
+      "species": "SERPERIOR",
+      "variant": "shiny",
+      "provider": "neo-still",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "assets/neo_crystal_2d_67/front/shiny/497/001.png",
+            "sha256": "9801fe3d93e379c5af2f23931fe9f630750d8231a111e842a5ee87c1b91fdb6c"
+          }
+        ],
+        "back": [
+          {
+            "path": "assets/neo_crystal_2d_67/back/shiny/497/001.png",
+            "sha256": "ab62d08f82969540a6471ac114a82a1f6e9d20bd2690db0b0b7702032e61c469"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/497/front/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            2,
+            0,
+            54,
+            56
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            52,
+            56
+          ],
+          "sha256": [
+            "6456c595aff96dec07c4cf86b14d99968a6457c6e45e814309ed31ce977644ea"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/497/back/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            2,
+            0,
+            46,
+            48
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            44,
+            48
+          ],
+          "sha256": [
+            "e26519323eaca4045cfb1bac14a2d04cdbfc9f74d472c81cb2ad397b1b3a8c17"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/497/voxel/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1.5,
+          "sourceUnion": [
+            2,
+            0,
+            54,
+            56
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            52,
+            56
+          ],
+          "sha256": [
+            "2c706934c49162eb032ead5c127069107aca27af99dd6bc65c2a2f3312ea7765"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 499,
+      "runtimeDex": 499,
+      "species": "PIGNITE",
+      "variant": "normal",
+      "provider": "neo-still",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "assets/neo_crystal_2d_67/front/normal/499/001.png",
+            "sha256": "68a8a4dd3a853c1747d16e415d8a6441abad4be3d84b8c09a40d9b6fa919aa2c"
+          }
+        ],
+        "back": [
+          {
+            "path": "assets/neo_crystal_2d_67/back/normal/499/001.png",
+            "sha256": "d518662ddf8407616c351340b9d227d43775a7031d78ba7bece8ecf1d9c290e9"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/499/front/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            6,
+            7,
+            50,
+            56
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            44,
+            49
+          ],
+          "sha256": [
+            "9d4f4e7cfcecb7e11e615460c2bfe6d217d0950e3f9a52f429ab37ff039cf8bf"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/499/back/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            0,
+            0,
+            48,
+            39
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            48,
+            39
+          ],
+          "sha256": [
+            "35fec5b71b1beb3058170b219a8c6ff35437496495b7e4b37d986a792edb71d1"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/499/voxel/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1.5,
+          "sourceUnion": [
+            6,
+            7,
+            50,
+            56
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            44,
+            49
+          ],
+          "sha256": [
+            "a9a64b81f7b2437f2ece5a3c3708b04b17d277e1cba56492e8a05d09664267ae"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 499,
+      "runtimeDex": 499,
+      "species": "PIGNITE",
+      "variant": "shiny",
+      "provider": "neo-still",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "assets/neo_crystal_2d_67/front/shiny/499/001.png",
+            "sha256": "f993e25b739f01a53728ac655b2c4b61abd5ab3832a3e7440638ad08cd23b148"
+          }
+        ],
+        "back": [
+          {
+            "path": "assets/neo_crystal_2d_67/back/shiny/499/001.png",
+            "sha256": "08c8b393fc21b20b18291f33ab6462c6caa9db0b61e7a09173867ed866679797"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/499/front/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            6,
+            7,
+            50,
+            56
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            44,
+            49
+          ],
+          "sha256": [
+            "158798cc97e2bdc883c55ebf893e8ad4221a98ee73d36bbba8b8bb9820654a69"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/499/back/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            0,
+            0,
+            48,
+            39
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            48,
+            39
+          ],
+          "sha256": [
+            "2d33afde1e0ca4eedae14c11cf25377d046e0137f5cbeebd5ad352366a4a35d9"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/499/voxel/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1.5,
+          "sourceUnion": [
+            6,
+            7,
+            50,
+            56
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            44,
+            49
+          ],
+          "sha256": [
+            "f597fa723d74424b5431201da9587f962b0f704af42d6c9d31e2ea2e75da0ff8"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 500,
+      "runtimeDex": 500,
+      "species": "EMBOAR",
+      "variant": "normal",
+      "provider": "neo-still",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "assets/neo_crystal_2d_67/front/normal/500/001.png",
+            "sha256": "70f8095a6386be2b3361f91780f9d9e1f3391228e93e7adfe9c000a9c0c60594"
+          }
+        ],
+        "back": [
+          {
+            "path": "assets/neo_crystal_2d_67/back/normal/500/001.png",
+            "sha256": "9c7a142fef3dce485395c6b240f43efd644c1fc3a56bfab8600c9baae4fccd95"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/500/front/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            0,
+            1,
+            56,
+            56
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            56,
+            55
+          ],
+          "sha256": [
+            "9f7239c995e45eed9a3fd1ebb842411effbd19061fdb2cae842aa5529a788ba9"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/500/back/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            0,
+            0,
+            48,
+            30
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            48,
+            30
+          ],
+          "sha256": [
+            "28f45dac55e9cc543e25f38af4c6f260c362d333c116551e4c25f5e837655ae5"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/500/voxel/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1.5,
+          "sourceUnion": [
+            0,
+            1,
+            56,
+            56
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            56,
+            55
+          ],
+          "sha256": [
+            "941db2b83cf3d7fff9cbd40bc3bf252a9b3fd2ed2c374e9f9b67936992a95576"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 500,
+      "runtimeDex": 500,
+      "species": "EMBOAR",
+      "variant": "shiny",
+      "provider": "neo-still",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "assets/neo_crystal_2d_67/front/shiny/500/001.png",
+            "sha256": "015ab8c6059e3ebd2881602427feb6a57e962f902ba6077aad624459cecd902e"
+          }
+        ],
+        "back": [
+          {
+            "path": "assets/neo_crystal_2d_67/back/shiny/500/001.png",
+            "sha256": "1586d6e58f23f24ce0fc072b9dacfb32e5690fe67c41b90485f4ab25cf653247"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/500/front/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            0,
+            1,
+            56,
+            56
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            56,
+            55
+          ],
+          "sha256": [
+            "043ea3df9f654e3b94fd269364a6cf040ca3b192df81d442ccae907d138ec68b"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/500/back/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            0,
+            0,
+            48,
+            30
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            48,
+            30
+          ],
+          "sha256": [
+            "ea0e81f4cd0781e7fb94fc589bbe004ccf493300a1b432ac27d811357692ebb1"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/500/voxel/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1.5,
+          "sourceUnion": [
+            0,
+            1,
+            56,
+            56
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            56,
+            55
+          ],
+          "sha256": [
+            "9bf1558ffb3a6d93035695c28397127109b1da9d277a35fc716c8f02789554b0"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 502,
+      "runtimeDex": 502,
+      "species": "DEWOTT",
+      "variant": "normal",
+      "provider": "neo-still",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "assets/neo_crystal_2d_67/front/normal/502/001.png",
+            "sha256": "6dff4fa0bb847f0e835751968914454b5b2c021fb987200b88282fcd38a07d54"
+          }
+        ],
+        "back": [
+          {
+            "path": "assets/neo_crystal_2d_67/back/normal/502/001.png",
+            "sha256": "369a6ea67026570519ac6da9970f3e142f0bfa9bf62b37c1adeae2272397f317"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/502/front/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            8,
+            8,
+            48,
+            56
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            40,
+            48
+          ],
+          "sha256": [
+            "6b650688c7bc46819c6eff97cd8ab28c0b831e6a743239192defbc1bc0752a14"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/502/back/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            0,
+            0,
+            47,
+            48
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            47,
+            48
+          ],
+          "sha256": [
+            "7e73fbf20bd0fefde1f657d4d1b836782efcd78451672453c651e7c05111d5b5"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/502/voxel/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1.5,
+          "sourceUnion": [
+            8,
+            8,
+            48,
+            56
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            40,
+            48
+          ],
+          "sha256": [
+            "023e84222d84efab39268a063d596b17c273d0aaff932d884864905c43947667"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 502,
+      "runtimeDex": 502,
+      "species": "DEWOTT",
+      "variant": "shiny",
+      "provider": "neo-still",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "assets/neo_crystal_2d_67/front/shiny/502/001.png",
+            "sha256": "2ad771163b56ffb97a25fac556cc2295e9e872e4ec0f50220c0aeb8b95319603"
+          }
+        ],
+        "back": [
+          {
+            "path": "assets/neo_crystal_2d_67/back/shiny/502/001.png",
+            "sha256": "bdc510665a16e2b5eb6c0d51e0d8dea7eeb560d59249c3bd9d0bbba5d7d17c31"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/502/front/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            8,
+            8,
+            48,
+            56
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            40,
+            48
+          ],
+          "sha256": [
+            "187a03573c42333bcc5bbe9a9c0fd623807b05351a39d9e88bfef7262897ef64"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/502/back/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            0,
+            0,
+            47,
+            48
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            47,
+            48
+          ],
+          "sha256": [
+            "dc9faf757e84b554d9b230f602d6b3dc029704cb9cf50ad4b43e56e5f811de22"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/502/voxel/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1.5,
+          "sourceUnion": [
+            8,
+            8,
+            48,
+            56
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            40,
+            48
+          ],
+          "sha256": [
+            "faac3c1870711c1fba4c64473e4a1b6bc1f9c865e3667e44398e0c1d20ab4ba6"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 503,
+      "runtimeDex": 503,
+      "species": "SAMUROTT",
+      "variant": "normal",
+      "provider": "neo-still",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "assets/neo_crystal_2d_67/front/normal/503/001.png",
+            "sha256": "af79e6f52b51fa971448af68b90cbbfba9089ad8c2f1aa5ee5279d96f2fd7ae2"
+          }
+        ],
+        "back": [
+          {
+            "path": "assets/neo_crystal_2d_67/back/normal/503/001.png",
+            "sha256": "a68cca854668e310fa54dd0588e5edb12f014a32d0f0307c5542287968d3a21b"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/503/front/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            0,
+            0,
+            56,
+            56
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            56,
+            56
+          ],
+          "sha256": [
+            "3345a94c36c0d259b7f0dfc086e615d41f141f428f5c7aa92cbf662192b9c9aa"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/503/back/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            0,
+            0,
+            48,
+            42
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            48,
+            42
+          ],
+          "sha256": [
+            "edefb6931010051b4c55d9443dbf27c309e150b5e3bae1f34f6683aecfe17285"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/503/voxel/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1.5,
+          "sourceUnion": [
+            0,
+            0,
+            56,
+            56
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            56,
+            56
+          ],
+          "sha256": [
+            "0c2ba28c67f588e2e65cd3c193293811bac6d030e277636a37ca6ef9096ce8f5"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 503,
+      "runtimeDex": 503,
+      "species": "SAMUROTT",
+      "variant": "shiny",
+      "provider": "neo-still",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "assets/neo_crystal_2d_67/front/shiny/503/001.png",
+            "sha256": "c27fd47d7452943f6fd6e5c7f671ddd2bb81ee8f0552240979a4914f4a3dbd97"
+          }
+        ],
+        "back": [
+          {
+            "path": "assets/neo_crystal_2d_67/back/shiny/503/001.png",
+            "sha256": "480d0b8ca504f5a5cfae77f028e73254a25c45822355099d4d528f21a6563c58"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/503/front/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            0,
+            0,
+            56,
+            56
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            56,
+            56
+          ],
+          "sha256": [
+            "1e4baece5993bdaa2a96a34052fc3108922b2bdae68fac20b5d7c15eaee67f39"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/503/back/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            0,
+            0,
+            48,
+            42
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            48,
+            42
+          ],
+          "sha256": [
+            "808df581bb3e307fc04bd0609d95f7df62cffe1a3d7f442384ec140eaba353c8"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/503/voxel/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1.5,
+          "sourceUnion": [
+            0,
+            0,
+            56,
+            56
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            56,
+            56
+          ],
+          "sha256": [
+            "a806b800ee9011e63e7ab48ad651a51258885f66d620852ca2a53440fa7435d7"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 649,
+      "runtimeDex": 649,
+      "species": "GENESECT",
+      "variant": "normal",
+      "provider": "neo-still",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "assets/neo_crystal_2d_67/front/normal/649/001.png",
+            "sha256": "8c6e592a1ede844ad6dd64deff7b707211c6eda001d150921606908b856ab467"
+          }
+        ],
+        "back": [
+          {
+            "path": "assets/neo_crystal_2d_67/back/normal/649/001.png",
+            "sha256": "55770958b8d1a5233823f5a3560530190b66cd145b6ddfa479cb0da4e66cea2f"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/649/front/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            6,
+            1,
+            49,
+            56
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            43,
+            55
+          ],
+          "sha256": [
+            "8b7b774d7e00d22c2504b060499b50617e06033d06b073c7781668166836b9a1"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/649/back/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            0,
+            0,
+            48,
+            38
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            48,
+            38
+          ],
+          "sha256": [
+            "ea039fed8db4229a4f1faea7ff703d53d402d9a92c140299be1e314afc146a67"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/649/voxel/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1.5,
+          "sourceUnion": [
+            6,
+            1,
+            49,
+            56
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            43,
+            55
+          ],
+          "sha256": [
+            "73e38268833262e6ef9069d928604e1bc4b91fb521597602603a812321a337db"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 649,
+      "runtimeDex": 649,
+      "species": "GENESECT",
+      "variant": "shiny",
+      "provider": "neo-still",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "assets/neo_crystal_2d_67/front/shiny/649/001.png",
+            "sha256": "3dfafb4700ec10603762634d2204e62f48be0501f21584070f103ac7a299adb3"
+          }
+        ],
+        "back": [
+          {
+            "path": "assets/neo_crystal_2d_67/back/shiny/649/001.png",
+            "sha256": "d19142291f9fc33625cabb787aeebd00b97dd459a96c97d9fe2fb86f899193fc"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/649/front/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            6,
+            1,
+            49,
+            56
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            43,
+            55
+          ],
+          "sha256": [
+            "70fdd9707d0ae2031d5a1dddcf4f2cdbf40ad40589f35c6a41e0b3fffc9a28c3"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/649/back/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            0,
+            0,
+            48,
+            38
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            48,
+            38
+          ],
+          "sha256": [
+            "9b814117735f892e5f6df2ca92db67730700cffd044b95f0b5d61ebd08c3a1cf"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/649/voxel/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1.5,
+          "sourceUnion": [
+            6,
+            1,
+            49,
+            56
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            43,
+            55
+          ],
+          "sha256": [
+            "08bd45967d3ff9f61366216883b30a5b5c838e0127c1294660582d18527cae8e"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 650,
+      "runtimeDex": 650,
+      "species": "CHESPIN",
+      "variant": "normal",
+      "provider": "lazarus-reviewed",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0650/front-normal-00.png",
+            "sha256": "8852a1e9e408f63e5d35f6a9ac4e8769572a68c09fd4189c39a9309734ed23dd"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0650/front-normal-01.png",
+            "sha256": "27869d7bc25a0ea67648ddff988a7c36772295289c06b9ff404e322efaa1f340"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0650/front-normal-00.png",
+            "sha256": "8852a1e9e408f63e5d35f6a9ac4e8769572a68c09fd4189c39a9309734ed23dd"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0650/front-normal-01.png",
+            "sha256": "27869d7bc25a0ea67648ddff988a7c36772295289c06b9ff404e322efaa1f340"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0650/front-normal-00.png",
+            "sha256": "8852a1e9e408f63e5d35f6a9ac4e8769572a68c09fd4189c39a9309734ed23dd"
+          }
+        ],
+        "back": [
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0650/back-normal-00.png",
+            "sha256": "5d7c559b16e1e4041603598f92952641c38c371df87cbc651c4aa958a27360dd"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/650/front/normal",
+          "durations": [
+            133,
+            400,
+            133,
+            400,
+            20
+          ],
+          "animated": true,
+          "scale": 1,
+          "sourceUnion": [
+            16,
+            11,
+            53,
+            51
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            37,
+            40
+          ],
+          "sha256": [
+            "4818f3971afe647d82b332c2b039e80817e8b52581c333a0585800e8394b69ff",
+            "3f822deaf473b6ea8b033fd564956bd5f5106be15fe3d00e07ea59852d63ed7a",
+            "4818f3971afe647d82b332c2b039e80817e8b52581c333a0585800e8394b69ff",
+            "3f822deaf473b6ea8b033fd564956bd5f5106be15fe3d00e07ea59852d63ed7a",
+            "4818f3971afe647d82b332c2b039e80817e8b52581c333a0585800e8394b69ff"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/650/back/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            10,
+            13,
+            51,
+            58
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            41,
+            45
+          ],
+          "sha256": [
+            "713a0106e933f84f58d1549b1a2ff8ba4ecd079a40f4f4a2d3e04aeb28e1c0d1"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/650/voxel/normal",
+          "durations": [
+            133,
+            400,
+            133,
+            400,
+            20
+          ],
+          "animated": true,
+          "scale": 1.5,
+          "sourceUnion": [
+            16,
+            11,
+            53,
+            51
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            37,
+            40
+          ],
+          "sha256": [
+            "46ed2582bbb5b6d2d46b0e6da2c396c57933073be5ee4ea81d8a4ca6c666a8a7",
+            "9db6bb06b7bb2e373a0244b2dc5bdbc3d86435ad51cb854880470e594e05861a",
+            "46ed2582bbb5b6d2d46b0e6da2c396c57933073be5ee4ea81d8a4ca6c666a8a7",
+            "9db6bb06b7bb2e373a0244b2dc5bdbc3d86435ad51cb854880470e594e05861a",
+            "46ed2582bbb5b6d2d46b0e6da2c396c57933073be5ee4ea81d8a4ca6c666a8a7"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 650,
+      "runtimeDex": 650,
+      "species": "CHESPIN",
+      "variant": "shiny",
+      "provider": "lazarus-reviewed",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0650/front-shiny-00.png",
+            "sha256": "c50c4886f420e3a7e49152546c9f9e43fbaa5788aed69360d1b71e500a8fcb29"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0650/front-shiny-01.png",
+            "sha256": "483114034f40380a6455cfa3fd823af64460236945ae3cac02a6bf5e2aea8be5"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0650/front-shiny-00.png",
+            "sha256": "c50c4886f420e3a7e49152546c9f9e43fbaa5788aed69360d1b71e500a8fcb29"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0650/front-shiny-01.png",
+            "sha256": "483114034f40380a6455cfa3fd823af64460236945ae3cac02a6bf5e2aea8be5"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0650/front-shiny-00.png",
+            "sha256": "c50c4886f420e3a7e49152546c9f9e43fbaa5788aed69360d1b71e500a8fcb29"
+          }
+        ],
+        "back": [
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0650/back-shiny-00.png",
+            "sha256": "42855c4802ce4abd9786da91c64fb6ec05512b0d3088672b222d1ad6379b6b34"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/650/front/shiny",
+          "durations": [
+            133,
+            400,
+            133,
+            400,
+            20
+          ],
+          "animated": true,
+          "scale": 1,
+          "sourceUnion": [
+            16,
+            11,
+            53,
+            51
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            37,
+            40
+          ],
+          "sha256": [
+            "f93f7d0f3923e04d509d506a5bc7390979137751d1cb2d7349bea90f226b5286",
+            "ccbfadfd02b8b3e547ad99c2e995c4f7135724a1f6471332b08aab92d061243a",
+            "f93f7d0f3923e04d509d506a5bc7390979137751d1cb2d7349bea90f226b5286",
+            "ccbfadfd02b8b3e547ad99c2e995c4f7135724a1f6471332b08aab92d061243a",
+            "f93f7d0f3923e04d509d506a5bc7390979137751d1cb2d7349bea90f226b5286"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/650/back/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            10,
+            13,
+            51,
+            58
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            41,
+            45
+          ],
+          "sha256": [
+            "a5eb037b2ca6ebadd1dfde4c945a6e1e13c71f4eecf01099d13aaf5bee024e96"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/650/voxel/shiny",
+          "durations": [
+            133,
+            400,
+            133,
+            400,
+            20
+          ],
+          "animated": true,
+          "scale": 1.5,
+          "sourceUnion": [
+            16,
+            11,
+            53,
+            51
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            37,
+            40
+          ],
+          "sha256": [
+            "71d27a7651e7053576f755a01e8f838a26347a55e79c602f97c1cfe94133f407",
+            "fab4726fde4f8055554aa3f6ca23106d5cca18d00ed7385b9e91d47dd9c42b08",
+            "71d27a7651e7053576f755a01e8f838a26347a55e79c602f97c1cfe94133f407",
+            "fab4726fde4f8055554aa3f6ca23106d5cca18d00ed7385b9e91d47dd9c42b08",
+            "71d27a7651e7053576f755a01e8f838a26347a55e79c602f97c1cfe94133f407"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 651,
+      "runtimeDex": 651,
+      "species": "QUILLADIN",
+      "variant": "normal",
+      "provider": "lazarus-reviewed",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0651/front-normal-00.png",
+            "sha256": "aad117c24cb7923b36e73c591f153e77a7bd8df17395f1c31a02f2bc0d50b8cd"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0651/front-normal-01.png",
+            "sha256": "c2f0f3ef16722d59051df233667de464e4c2e9a26fbbb0045bd0497039361c50"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0651/front-normal-00.png",
+            "sha256": "aad117c24cb7923b36e73c591f153e77a7bd8df17395f1c31a02f2bc0d50b8cd"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0651/front-normal-01.png",
+            "sha256": "c2f0f3ef16722d59051df233667de464e4c2e9a26fbbb0045bd0497039361c50"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0651/front-normal-00.png",
+            "sha256": "aad117c24cb7923b36e73c591f153e77a7bd8df17395f1c31a02f2bc0d50b8cd"
+          }
+        ],
+        "back": [
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0651/back-normal-00.png",
+            "sha256": "6cd9c462359677cb593dee1096d71e8527e053afa774906e8a25d6df0afdfb41"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/651/front/normal",
+          "durations": [
+            183,
+            167,
+            167,
+            167,
+            167
+          ],
+          "animated": true,
+          "scale": 1,
+          "sourceUnion": [
+            10,
+            6,
+            58,
+            54
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            48,
+            48
+          ],
+          "sha256": [
+            "99511868552ff608d0f5e334240fd8cea0070fdcfe328943b35e16f8d7341ec7",
+            "7ba90f1029f2950be239cb87b1d74f4398e60f70b3930c5c8c8a38959338ccfc",
+            "99511868552ff608d0f5e334240fd8cea0070fdcfe328943b35e16f8d7341ec7",
+            "7ba90f1029f2950be239cb87b1d74f4398e60f70b3930c5c8c8a38959338ccfc",
+            "99511868552ff608d0f5e334240fd8cea0070fdcfe328943b35e16f8d7341ec7"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/651/back/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            9,
+            16,
+            57,
+            55
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            48,
+            39
+          ],
+          "sha256": [
+            "1f950e97eec200bdc933c56078e815e29944b098574d769f9e27e017be303299"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/651/voxel/normal",
+          "durations": [
+            183,
+            167,
+            167,
+            167,
+            167
+          ],
+          "animated": true,
+          "scale": 1.5,
+          "sourceUnion": [
+            10,
+            6,
+            58,
+            54
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            48,
+            48
+          ],
+          "sha256": [
+            "984587ec399b83256cd086251168433ce57365574fe9e9c2a8328cd620e514bf",
+            "637fc482c32e0e1b0789a36c113825c56d22d18b1f25ebc84bb671bd80ad94d1",
+            "984587ec399b83256cd086251168433ce57365574fe9e9c2a8328cd620e514bf",
+            "637fc482c32e0e1b0789a36c113825c56d22d18b1f25ebc84bb671bd80ad94d1",
+            "984587ec399b83256cd086251168433ce57365574fe9e9c2a8328cd620e514bf"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 651,
+      "runtimeDex": 651,
+      "species": "QUILLADIN",
+      "variant": "shiny",
+      "provider": "lazarus-reviewed",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0651/front-shiny-00.png",
+            "sha256": "267f27c2f352519dd5bed39fa1d37fa13f983e785ba67b6e35ecba25d11a470d"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0651/front-shiny-01.png",
+            "sha256": "307313ed5835ed9bb12ccc6d002a4e26ca7693e1c6ac391c8f8ed7ccaafa9331"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0651/front-shiny-00.png",
+            "sha256": "267f27c2f352519dd5bed39fa1d37fa13f983e785ba67b6e35ecba25d11a470d"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0651/front-shiny-01.png",
+            "sha256": "307313ed5835ed9bb12ccc6d002a4e26ca7693e1c6ac391c8f8ed7ccaafa9331"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0651/front-shiny-00.png",
+            "sha256": "267f27c2f352519dd5bed39fa1d37fa13f983e785ba67b6e35ecba25d11a470d"
+          }
+        ],
+        "back": [
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0651/back-shiny-00.png",
+            "sha256": "cefbd5aea5c5d4d4510cf824269c832c8a5328f59454fd2971ba60f1f11df6f0"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/651/front/shiny",
+          "durations": [
+            183,
+            167,
+            167,
+            167,
+            167
+          ],
+          "animated": true,
+          "scale": 1,
+          "sourceUnion": [
+            10,
+            6,
+            58,
+            54
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            48,
+            48
+          ],
+          "sha256": [
+            "73344e421d2d4da5c5de8241ce40ce7da066262e9a94e7a90d67e2616559cb55",
+            "90ca91bab21c806f616b42ed1a3f77913508b5ee2c858a6838cb1927cd7bd86a",
+            "73344e421d2d4da5c5de8241ce40ce7da066262e9a94e7a90d67e2616559cb55",
+            "90ca91bab21c806f616b42ed1a3f77913508b5ee2c858a6838cb1927cd7bd86a",
+            "73344e421d2d4da5c5de8241ce40ce7da066262e9a94e7a90d67e2616559cb55"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/651/back/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            9,
+            16,
+            57,
+            55
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            48,
+            39
+          ],
+          "sha256": [
+            "835d4a5f093578a9545bc22f1222a79b345e3e8ac2a6eda408630215c509a08a"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/651/voxel/shiny",
+          "durations": [
+            183,
+            167,
+            167,
+            167,
+            167
+          ],
+          "animated": true,
+          "scale": 1.5,
+          "sourceUnion": [
+            10,
+            6,
+            58,
+            54
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            48,
+            48
+          ],
+          "sha256": [
+            "52af04843bce410355ba879ef473368cad1f92bb837b9ca05731dfdf660db3a2",
+            "b5d5ebce950b1478f4af9ef1fce16d76891709b89304edd99d60e95590a68160",
+            "52af04843bce410355ba879ef473368cad1f92bb837b9ca05731dfdf660db3a2",
+            "b5d5ebce950b1478f4af9ef1fce16d76891709b89304edd99d60e95590a68160",
+            "52af04843bce410355ba879ef473368cad1f92bb837b9ca05731dfdf660db3a2"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 718,
+      "runtimeDex": 718,
+      "species": "ZYGARDE_10",
+      "variant": "normal",
+      "provider": "lazarus-reviewed",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1164/front-normal-00.png",
+            "sha256": "e166b633dcae3dc442c4271cb2f06e0b3eb5869f74e3b21578382c4f3d7426c8"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1164/front-normal-01.png",
+            "sha256": "8c0c766ede6bb8f9bd52c586deffba66bd8e5a93abfad64c8370a2a2fa5509d3"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1164/front-normal-00.png",
+            "sha256": "e166b633dcae3dc442c4271cb2f06e0b3eb5869f74e3b21578382c4f3d7426c8"
+          }
+        ],
+        "back": [
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1164/back-normal-00.png",
+            "sha256": "abc4ac3d57b5c6f31615383604f78117e50c6dac6b189e3f80727ba0a85482e7"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/718/front/normal",
+          "durations": [
+            333,
+            167,
+            167
+          ],
+          "animated": true,
+          "scale": 1,
+          "sourceUnion": [
+            1,
+            2,
+            57,
+            62
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            52,
+            56
+          ],
+          "sha256": [
+            "e7eb035cc9bfd4f2cc3169e7a1331939ef5d43b9065561b1c85b3001c2418ab6",
+            "99a9514ae682517b19b9035ebed070a8dc0c796476c1a3184dc26342439ec19a",
+            "e7eb035cc9bfd4f2cc3169e7a1331939ef5d43b9065561b1c85b3001c2418ab6"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/718/back/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            2,
+            7,
+            62,
+            56
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            48,
+            39
+          ],
+          "sha256": [
+            "99119adee8dfcaefd8f2ddbbc39ac1327137163e4138aaf7f55e071716c8c062"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/718/voxel/normal",
+          "durations": [
+            333,
+            167,
+            167
+          ],
+          "animated": true,
+          "scale": 1.5,
+          "sourceUnion": [
+            1,
+            2,
+            57,
+            62
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            52,
+            56
+          ],
+          "sha256": [
+            "e87dd45407d151863867fa4f0e49b859669301441ed14b3601f79ef91bbb0236",
+            "95f2c9e916439967e0d0c0078e95c37d14547b7318ce1fdc73dd4deec20b2b46",
+            "e87dd45407d151863867fa4f0e49b859669301441ed14b3601f79ef91bbb0236"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 718,
+      "runtimeDex": 718,
+      "species": "ZYGARDE_10",
+      "variant": "shiny",
+      "provider": "lazarus-reviewed",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1164/front-shiny-00.png",
+            "sha256": "69a0e8490299d516d65f1e96ac8eaa8c976ae22413180ca781ce5081cadeff9f"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1164/front-shiny-01.png",
+            "sha256": "b424210bcea2fd3a03668ae34a73f001c3374d0056a49b44fcbe7b2a814ea374"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1164/front-shiny-00.png",
+            "sha256": "69a0e8490299d516d65f1e96ac8eaa8c976ae22413180ca781ce5081cadeff9f"
+          }
+        ],
+        "back": [
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1164/back-shiny-00.png",
+            "sha256": "cb078d0e6c376920e653651682d7c273c14adeebfbfa47f3995f9b4c163b0808"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/718/front/shiny",
+          "durations": [
+            333,
+            167,
+            167
+          ],
+          "animated": true,
+          "scale": 1,
+          "sourceUnion": [
+            1,
+            2,
+            57,
+            62
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            52,
+            56
+          ],
+          "sha256": [
+            "5ecb74f04a5fa43b97b43d250185048a0f9f68b626ba473bc4bccbdb93494bea",
+            "2de3682f4e3b292fcc48eb206d299efc237b70785edf0defdd3009215ad9bdd9",
+            "5ecb74f04a5fa43b97b43d250185048a0f9f68b626ba473bc4bccbdb93494bea"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/718/back/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            2,
+            7,
+            62,
+            56
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            48,
+            39
+          ],
+          "sha256": [
+            "9450d34daafbd465fe46620107ad0ef997e7bac137edd35b7df69853244f9f23"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/718/voxel/shiny",
+          "durations": [
+            333,
+            167,
+            167
+          ],
+          "animated": true,
+          "scale": 1.5,
+          "sourceUnion": [
+            1,
+            2,
+            57,
+            62
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            52,
+            56
+          ],
+          "sha256": [
+            "5b43d4319eb8c9afccab227b578cb35788b937fcf3c67b9fd91ff2b51d695bb0",
+            "accc653b016c11b3f1189cacdde45fadd4cc1acee15e67cfdd5981076124cd07",
+            "5b43d4319eb8c9afccab227b578cb35788b937fcf3c67b9fd91ff2b51d695bb0"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 722,
+      "runtimeDex": 722,
+      "species": "ROWLET",
+      "variant": "normal",
+      "provider": "lazarus-reviewed",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0722/front-normal-01.png",
+            "sha256": "e3426d4b9f02cd4ff7a64809e079e8c5fe7fa45e5d9d221f83521f63068b06e4"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0722/front-normal-00.png",
+            "sha256": "c4d55719e29c8a13f50b71f5a4a9f726cd57a25956d8707a493e6f7069724391"
+          }
+        ],
+        "back": [
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0722/back-normal-00.png",
+            "sha256": "0697d9ba3bbdceafb1673f071be55c4d2ee9a9737bf6537f85a8b534a5c3989e"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/722/front/normal",
+          "durations": [
+            500,
+            83
+          ],
+          "animated": true,
+          "scale": 1,
+          "sourceUnion": [
+            17,
+            17,
+            47,
+            52
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            30,
+            35
+          ],
+          "sha256": [
+            "18ae84c4ec3d418c262545b602a773333f5973beb752b55a1476c523e2faaf19",
+            "adfd6d2bf4c566930d57012136921192c9afbfdef6af2ac737f19d4fe2569bf2"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/722/back/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            13,
+            23,
+            47,
+            50
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            34,
+            27
+          ],
+          "sha256": [
+            "50c0cc2847a0141c086f0adb080bfbbc327aab6776aa0c746fa1d2b47bf7f857"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/722/voxel/normal",
+          "durations": [
+            500,
+            83
+          ],
+          "animated": true,
+          "scale": 1.5,
+          "sourceUnion": [
+            17,
+            17,
+            47,
+            52
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            30,
+            35
+          ],
+          "sha256": [
+            "5177779c4e6abd592b652a3db511be7c17b272e523c24962a250cdd926f299e8",
+            "1eecac3451c53c6f02460ca44c5358df98808336f2059d07692f19840589328d"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 722,
+      "runtimeDex": 722,
+      "species": "ROWLET",
+      "variant": "shiny",
+      "provider": "lazarus-reviewed",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0722/front-shiny-01.png",
+            "sha256": "870987bac16f0b7c70fb9c7795398c328c99641cbf1e0cc8b4ba4d82af8f81d1"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0722/front-shiny-00.png",
+            "sha256": "dd5aed29c6b746a796f6119676b212c9962fb8e56286707e3626446f5d9dcf41"
+          }
+        ],
+        "back": [
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0722/back-shiny-00.png",
+            "sha256": "5b10a6e2ae72e07d55365f8ec7ee9f81c3da23bb53ba8a7b1ab909f9ca63ebca"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/722/front/shiny",
+          "durations": [
+            500,
+            83
+          ],
+          "animated": true,
+          "scale": 1,
+          "sourceUnion": [
+            17,
+            17,
+            47,
+            52
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            30,
+            35
+          ],
+          "sha256": [
+            "0037730fc142731f3af9516a7d4937ac8806bd93e21db5cf20e49a3de2b16f95",
+            "550cde3e2a089fb7ba6472168124fe8b8ee3881b41c003fbc8b6fcda47768613"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/722/back/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            13,
+            23,
+            47,
+            50
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            34,
+            27
+          ],
+          "sha256": [
+            "2aff980d5e4d8ba63e72e89df55770feb21176bffafe4b197ba9bae3935c6b00"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/722/voxel/shiny",
+          "durations": [
+            500,
+            83
+          ],
+          "animated": true,
+          "scale": 1.5,
+          "sourceUnion": [
+            17,
+            17,
+            47,
+            52
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            30,
+            35
+          ],
+          "sha256": [
+            "811e8b38f71726d7acf172ba73c152a9ac45b6bddeaddb922ec8949b07b4a914",
+            "6215c3fe1714e5cd1da0236b8c0859ee1c9d88174c89a2aaf8d290e83483d537"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 723,
+      "runtimeDex": 723,
+      "species": "DARTRIX",
+      "variant": "normal",
+      "provider": "lazarus-reviewed",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0723/front-normal-01.png",
+            "sha256": "2086b4523cabdbe2ac86c14f58e7dec9ef93df91d8f18a083aba83f226180222"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0723/front-normal-00.png",
+            "sha256": "ccbe5536d9f149eadf596b3bb613a7f3492c21d145a95c27fe1e2ade2a01619e"
+          }
+        ],
+        "back": [
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0723/back-normal-00.png",
+            "sha256": "aa5fa272fc78a56bcd299c355cef8e2a191a0c696972ca9cda87cde9ea884405"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/723/front/normal",
+          "durations": [
+            500,
+            83
+          ],
+          "animated": true,
+          "scale": 1,
+          "sourceUnion": [
+            13,
+            10,
+            48,
+            54
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            35,
+            44
+          ],
+          "sha256": [
+            "ba3bdfbf8a1230338d4a280f37909cc6a20a455b29f208c21520b05eddc79c69",
+            "b474d45463f96252adc436313a915a3d099ec32a05740536d14100d1f4fd74c6"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/723/back/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            11,
+            23,
+            51,
+            62
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            40,
+            39
+          ],
+          "sha256": [
+            "1fff787928d315b8f2b349dc6ab886cb1d786687e8cb2d666464bf3c59ef067e"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/723/voxel/normal",
+          "durations": [
+            500,
+            83
+          ],
+          "animated": true,
+          "scale": 1.5,
+          "sourceUnion": [
+            13,
+            10,
+            48,
+            54
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            35,
+            44
+          ],
+          "sha256": [
+            "dbe93f7d1b7ed3d30751347b02a3fe97cde11dd27137c474ff6e97f35584b461",
+            "71268426fff9c84e6ef8afd816c5a011607106a694f07b5fc4aa08cbc49c8bdf"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 723,
+      "runtimeDex": 723,
+      "species": "DARTRIX",
+      "variant": "shiny",
+      "provider": "lazarus-reviewed",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0723/front-shiny-01.png",
+            "sha256": "e3b76022a4e6165c2132a71ad96ab2d9db72c2a6e8ff4282208ecfa1c829efbf"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0723/front-shiny-00.png",
+            "sha256": "04e10098e5647ea186c5d7204374a0697caa29f4a0dd9058a1a34bcae8554141"
+          }
+        ],
+        "back": [
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0723/back-shiny-00.png",
+            "sha256": "40035524391cad2151b1bc686b378d8aee169a43289ba3993ceccecb4cb4f6f5"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/723/front/shiny",
+          "durations": [
+            500,
+            83
+          ],
+          "animated": true,
+          "scale": 1,
+          "sourceUnion": [
+            13,
+            10,
+            48,
+            54
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            35,
+            44
+          ],
+          "sha256": [
+            "f20ae5262c3af12298686ea0a16e96cec6106ce55f8a2f6dc9b4fa4333387f75",
+            "eaea399979f266ac8fe14b6dedc29aa4e2e3297fee95942b173ce28571f28b2e"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/723/back/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            11,
+            23,
+            51,
+            62
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            40,
+            39
+          ],
+          "sha256": [
+            "a038c6795a6bda620b0d466d9b2d4a8f934095a5db5a85fcea5887b56dcded48"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/723/voxel/shiny",
+          "durations": [
+            500,
+            83
+          ],
+          "animated": true,
+          "scale": 1.5,
+          "sourceUnion": [
+            13,
+            10,
+            48,
+            54
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            35,
+            44
+          ],
+          "sha256": [
+            "4dd6f18fbbb19e042908710794955b17927d422104638096b94d7b67d94b06e9",
+            "24d1665d1788a5464a2fe42cf3a756a14a857c1e0a8044a60e52c713ec037577"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 724,
+      "runtimeDex": 724,
+      "species": "DECIDUEYE",
+      "variant": "normal",
+      "provider": "lazarus-reviewed",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0724/front-normal-01.png",
+            "sha256": "3a599f74b6650c893371e58aefbba64f621e25f3c1b311414333be90a95294bb"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0724/front-normal-00.png",
+            "sha256": "bdf1efe4c7b379ec992b322c15c363c37dca9fdc07154cacfd9706b53dc0ec61"
+          }
+        ],
+        "back": [
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0724/back-normal-00.png",
+            "sha256": "5f8ff4be0277b97645029db8d85d72d4b24397faf2b290c86e90799ff47339a0"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/724/front/normal",
+          "durations": [
+            833,
+            83
+          ],
+          "animated": true,
+          "scale": 1,
+          "sourceUnion": [
+            13,
+            4,
+            54,
+            63
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            39,
+            56
+          ],
+          "sha256": [
+            "af7b207761e648d536942efdb23e87ba54b6e66b937328069b029ac43a4db80b",
+            "7f9f4d88f57fdc66fd66aae8bc9cc38724ba5e10d7a38d253872e9e2b5c1df06"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/724/back/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            12,
+            16,
+            49,
+            64
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            37,
+            48
+          ],
+          "sha256": [
+            "0ff3b579af0e86a3733e3f652cc90cdfb2f4758d28cf450eb19e6acb19468a8d"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/724/voxel/normal",
+          "durations": [
+            833,
+            83
+          ],
+          "animated": true,
+          "scale": 1.5,
+          "sourceUnion": [
+            13,
+            4,
+            54,
+            63
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            39,
+            56
+          ],
+          "sha256": [
+            "852355659b13502d32670cd2ef9d4785db4150dd34fa100d2b6affb624f58ef7",
+            "19b838924477d0c43326af456145fda972657a20ab04495054554940d49a4b9b"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 724,
+      "runtimeDex": 724,
+      "species": "DECIDUEYE",
+      "variant": "shiny",
+      "provider": "lazarus-reviewed",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0724/front-shiny-01.png",
+            "sha256": "af1cc87b30d728d05f191e9d9a5a0274df79abe62f1b4f7c73a38616209478ef"
+          },
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0724/front-shiny-00.png",
+            "sha256": "25a7c52f5ec5ddaee3509ea3e4c50fa3beb6e78c252f0bacac5e9c9c25a7f984"
+          }
+        ],
+        "back": [
+          {
+            "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-0724/back-shiny-00.png",
+            "sha256": "de0799958da08b6887050cafd3a2b5abc2a702b559205da39dba7bbdf5b96e78"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/724/front/shiny",
+          "durations": [
+            833,
+            83
+          ],
+          "animated": true,
+          "scale": 1,
+          "sourceUnion": [
+            13,
+            4,
+            54,
+            63
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            39,
+            56
+          ],
+          "sha256": [
+            "2de9c23cbd1b7ae588de2bdc397b9e2c31b2ae79d332ebc04036bf7db55902a6",
+            "c97d2082185212adefd62e3c6cb3a8c706bad1525b556a3fd29ba14f888679c9"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/724/back/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            12,
+            16,
+            49,
+            64
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            37,
+            48
+          ],
+          "sha256": [
+            "66405db1cd14d4925d02d4b5a389e69c299c331882454d9a03152f79052acdb3"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/724/voxel/shiny",
+          "durations": [
+            833,
+            83
+          ],
+          "animated": true,
+          "scale": 1.5,
+          "sourceUnion": [
+            13,
+            4,
+            54,
+            63
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            39,
+            56
+          ],
+          "sha256": [
+            "fce31de3b6345d2b3c8780c3dda67a86918eaf38a13eb537d06b5aacc33323b2",
+            "6d59f762a872f8cd8283012affa717a19cde985955d97c664ef19a2a00f0e88c"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 725,
+      "runtimeDex": 725,
+      "species": "LITTEN",
+      "variant": "normal",
+      "provider": "static-original",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "assets/non_crystal_pixel_2d_67/front/725.png",
+            "sha256": "e6e3db9d3a7597725149b398dfb6504fb45a407cb1f6f42cf4b4be33e007e54f"
+          }
+        ],
+        "back": [
+          {
+            "path": "assets/non_crystal_pixel_2d_67/back/725.png",
+            "sha256": "d5cfb9d292e7cfc2a7b19ffdf2a822627ffccb2033055823faacadf97f3b0ff0"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/725/front/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            24,
+            28,
+            71,
+            68
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            47,
+            40
+          ],
+          "sha256": [
+            "60e307002e16a955a7313787a71c52bd0b58e031f633a7dd00bf95f078d769d7"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/725/back/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            24,
+            27,
+            71,
+            69
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            47,
+            42
+          ],
+          "sha256": [
+            "f80fdd40fec1283bb921cf06b9790ef0c606a15bb5107a9ee4700dce8fd95b33"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/725/voxel/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1.5,
+          "sourceUnion": [
+            24,
+            28,
+            71,
+            68
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            47,
+            40
+          ],
+          "sha256": [
+            "ec64a2d8d8ecfd6310d42aad59cb3770edd2e84d4abe2c8a15ee465c7fc1aed4"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 725,
+      "runtimeDex": 725,
+      "species": "LITTEN",
+      "variant": "shiny",
+      "provider": "static-original",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "assets/non_crystal_pixel_2d_67/frontShiny/725.png",
+            "sha256": "f4a47feda076a9b207f75251ad5b7d10b8db5b8d48c8ae4d3c1742fcfffd468c"
+          }
+        ],
+        "back": [
+          {
+            "path": "assets/non_crystal_pixel_2d_67/backShiny/725.png",
+            "sha256": "0fb0d4b4690a979e54ac4cd1eb81e557a2e431a789b1bdf7a975d8b0c01e0dc5"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/725/front/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            24,
+            28,
+            71,
+            68
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            47,
+            40
+          ],
+          "sha256": [
+            "2875501ed7192e02edd7e7c34f67229bb979cd6a6e786e63aa720cc8be8dcc8a"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/725/back/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            24,
+            27,
+            71,
+            69
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            47,
+            42
+          ],
+          "sha256": [
+            "1c8718d0d1f0cb35c02e38b591a6a57ea046e80fbf6f060f2f0a4f0c7bb89ac6"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/725/voxel/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1.5,
+          "sourceUnion": [
+            24,
+            28,
+            71,
+            68
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            47,
+            40
+          ],
+          "sha256": [
+            "8de8773f992a97c44d4fd848ecb7ff828bb597810119c8bbbf04e0c4b50290f1"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 726,
+      "runtimeDex": 726,
+      "species": "TORRACAT",
+      "variant": "normal",
+      "provider": "static-original",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "assets/non_crystal_pixel_2d_67/front/726.png",
+            "sha256": "21a0447db6bb28b05eb26d3760ae80d63d3da29fd96dab518ef44fb7c6e4bff2"
+          }
+        ],
+        "back": [
+          {
+            "path": "assets/non_crystal_pixel_2d_67/back/726.png",
+            "sha256": "826b2c8a8caa763ff05f67a4383581e5a8155849188ad4fc9ee015a44d62a749"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/726/front/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            19,
+            18,
+            72,
+            78
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            49,
+            56
+          ],
+          "sha256": [
+            "6d18a2c2061fa11bf0fb422701eab873a8c790689c6880420faa098f057e89be"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/726/back/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            15,
+            21,
+            79,
+            77
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            48,
+            42
+          ],
+          "sha256": [
+            "216ad82042a56215777e6920b7bde33290c1180549b081742af36e1aa5c8b5a7"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/726/voxel/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1.5,
+          "sourceUnion": [
+            19,
+            18,
+            72,
+            78
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            49,
+            56
+          ],
+          "sha256": [
+            "c261124dcccc32e080862d27e4a436cb29e4836327353e3bc91634f94fcd71d5"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 726,
+      "runtimeDex": 726,
+      "species": "TORRACAT",
+      "variant": "shiny",
+      "provider": "static-original",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "assets/non_crystal_pixel_2d_67/frontShiny/726.png",
+            "sha256": "e6097306800e0b0dad14f731985223a28acd198117744934f68e34aace4e4fdc"
+          }
+        ],
+        "back": [
+          {
+            "path": "assets/non_crystal_pixel_2d_67/backShiny/726.png",
+            "sha256": "b9dbcb566cb120e4dcf68a01de4fe4d877a962e2daa7361dba7808b2bd768370"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/726/front/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            19,
+            18,
+            72,
+            78
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            49,
+            56
+          ],
+          "sha256": [
+            "8e3597af43217c83fd9f04418ecfd0871b5650cd5f749655d76b6eea8947d17a"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/726/back/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            15,
+            21,
+            79,
+            77
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            48,
+            42
+          ],
+          "sha256": [
+            "dccc09c6cc20f65e87a873aa1e378f9630871f075bc63179dcb77c289de33375"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/726/voxel/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1.5,
+          "sourceUnion": [
+            19,
+            18,
+            72,
+            78
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            49,
+            56
+          ],
+          "sha256": [
+            "4624f381c4289ba3dea78e2bf3996022246eeefe5ed7533a57b001f57704f725"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 727,
+      "runtimeDex": 727,
+      "species": "INCINEROAR",
+      "variant": "normal",
+      "provider": "static-original",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "assets/non_crystal_pixel_2d_67/front/727.png",
+            "sha256": "b266476a6c711d6edcdcd31766e3bf146c9703b635b08bf1628da47ae4b5c945"
+          }
+        ],
+        "back": [
+          {
+            "path": "assets/non_crystal_pixel_2d_67/back/727.png",
+            "sha256": "a7cbf1f2986476c821cd3d0e2e8688fe585159837cf65cb7c724cc37e658b9fc"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/727/front/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            5,
+            11,
+            90,
+            88
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            56,
+            51
+          ],
+          "sha256": [
+            "5e3d7cb947de52d5998a33945c5e8114b1d57ebd0875d6a5c410c53d504ea224"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/727/back/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            6,
+            10,
+            90,
+            85
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            48,
+            43
+          ],
+          "sha256": [
+            "adca26ea0542f51081d3c5fba718b50687f7c35c28f9737278d834bf3c8f372e"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/727/voxel/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1.5,
+          "sourceUnion": [
+            5,
+            11,
+            90,
+            88
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            56,
+            51
+          ],
+          "sha256": [
+            "f490482a93a251c6070914e66d4482d4b18adc5ba03b32a7c71f6f66d19067e1"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 727,
+      "runtimeDex": 727,
+      "species": "INCINEROAR",
+      "variant": "shiny",
+      "provider": "static-original",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "assets/non_crystal_pixel_2d_67/frontShiny/727.png",
+            "sha256": "48830f527647b4c7238a6f76f0ca79292ee6e04a33483af553c74cd48dc2d6a2"
+          }
+        ],
+        "back": [
+          {
+            "path": "assets/non_crystal_pixel_2d_67/backShiny/727.png",
+            "sha256": "bc029b58c62006ec1c85d98d82d87dd8cac9f6a314ab732b43340d879eead6d1"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/727/front/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            5,
+            11,
+            90,
+            88
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            56,
+            51
+          ],
+          "sha256": [
+            "9485f85f4c6788f24da3b0ae395e99d6419025307ae578f349518abea02a5b8d"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/727/back/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            6,
+            10,
+            90,
+            85
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            48,
+            43
+          ],
+          "sha256": [
+            "77094dc508bd72efc926d43a17a823f85dd924894507a656e9934c959d3cc69e"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/727/voxel/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1.5,
+          "sourceUnion": [
+            5,
+            11,
+            90,
+            88
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            56,
+            51
+          ],
+          "sha256": [
+            "4c5ea3f2434e5c2791de3be4944ebf00d1a7236f60c9404199c75c98967104f7"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 728,
+      "runtimeDex": 728,
+      "species": "POPPLIO",
+      "variant": "normal",
+      "provider": "static-original",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "assets/non_crystal_pixel_2d_67/front/728.png",
+            "sha256": "8c560c3cb7a6ee4459091021687756b554ff40287c51a2ce6d46dd528d81813c"
+          }
+        ],
+        "back": [
+          {
+            "path": "assets/non_crystal_pixel_2d_67/back/728.png",
+            "sha256": "9744c593f5bec2fe63a483dbb09d87810dd9886a3899f0fad2e2111ed134f833"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/728/front/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            28,
+            28,
+            68,
+            67
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            40,
+            39
+          ],
+          "sha256": [
+            "1a9ab01c2598694f9b02aa1cb45ff0c396d8bb1a1fb5763c92a37096111e8960"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/728/back/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            28,
+            28,
+            68,
+            67
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            40,
+            39
+          ],
+          "sha256": [
+            "702576f550f70438efb339d892fcb1951097d9ca505fe376d58b934083213947"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/728/voxel/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1.5,
+          "sourceUnion": [
+            28,
+            28,
+            68,
+            67
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            40,
+            39
+          ],
+          "sha256": [
+            "9b58139d74675916054959ee5f27e3bc98a0cadea8436bf0c3773335009dcf01"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 728,
+      "runtimeDex": 728,
+      "species": "POPPLIO",
+      "variant": "shiny",
+      "provider": "static-original",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "assets/non_crystal_pixel_2d_67/frontShiny/728.png",
+            "sha256": "256844b44b55385034b59b057ebadfcde4f6c6e126d11f933c5d839eaa2c5162"
+          }
+        ],
+        "back": [
+          {
+            "path": "assets/non_crystal_pixel_2d_67/backShiny/728.png",
+            "sha256": "83bdf0af51b494988a810904b454819b41b015726461488b53d5827be45b19c8"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/728/front/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            28,
+            28,
+            68,
+            67
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            40,
+            39
+          ],
+          "sha256": [
+            "227cc5a8ace5c9a61ec0a743870b350782aa75e6a3a38793e94af94249a8f384"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/728/back/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            28,
+            28,
+            68,
+            67
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            40,
+            39
+          ],
+          "sha256": [
+            "b5b08d6eaff79c3e61b0b298b7bdc41e7e71346ca9a3e9e37dde5348848b2541"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/728/voxel/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1.5,
+          "sourceUnion": [
+            28,
+            28,
+            68,
+            67
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            40,
+            39
+          ],
+          "sha256": [
+            "e49b99404bc573f24d5bcdcd7a1465b2f8dc44b764e6ba607f15a112790aa037"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 729,
+      "runtimeDex": 729,
+      "species": "BRIONNE",
+      "variant": "normal",
+      "provider": "static-original",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "assets/non_crystal_pixel_2d_67/front/729.png",
+            "sha256": "dca506017d310d6920d2d493bc2bb611dce0382436059938ecc2f46790b24fd9"
+          }
+        ],
+        "back": [
+          {
+            "path": "assets/non_crystal_pixel_2d_67/back/729.png",
+            "sha256": "96719ce40cb5f45e7a48dc500d2f1d2b2c3dabbf588b5a6d73dad2de2596abbd"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/729/front/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            22,
+            20,
+            74,
+            75
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            52,
+            55
+          ],
+          "sha256": [
+            "efcaf64b2cc3c2b17552419ad20521e9115948ea7cc7cf59f000f8dfdfb09a79"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/729/back/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            20,
+            21,
+            76,
+            75
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            48,
+            46
+          ],
+          "sha256": [
+            "c628106a0d022ebcaf67a81e89be31d33f17e821a3366d24d4aef083a9b37d24"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/729/voxel/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1.5,
+          "sourceUnion": [
+            22,
+            20,
+            74,
+            75
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            52,
+            55
+          ],
+          "sha256": [
+            "def4486b9ab260955d972df32e572e575f87e9aae0dd51e5c9eee852ab6eb44a"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 729,
+      "runtimeDex": 729,
+      "species": "BRIONNE",
+      "variant": "shiny",
+      "provider": "static-original",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "assets/non_crystal_pixel_2d_67/frontShiny/729.png",
+            "sha256": "faed82b08de9d8287fc14e28344f0bfb0c13937b92c0eff58314ccb4a3d7b77d"
+          }
+        ],
+        "back": [
+          {
+            "path": "assets/non_crystal_pixel_2d_67/backShiny/729.png",
+            "sha256": "af2e1855d142bcb4bb25fd0c264475509d7b671b7bc04d64f518c7456bccbf19"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/729/front/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            22,
+            20,
+            74,
+            75
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            52,
+            55
+          ],
+          "sha256": [
+            "a3ff3335aa2681cc1f6755caf4706b4b5da36d7894ef70f5c3fcc9cb200338f0"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/729/back/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            20,
+            21,
+            76,
+            75
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            48,
+            46
+          ],
+          "sha256": [
+            "c7d50d6e7b18874ac4c852c77cea055af732c6e5122001cd1ba62c5e8b164663"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/729/voxel/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1.5,
+          "sourceUnion": [
+            22,
+            20,
+            74,
+            75
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            52,
+            55
+          ],
+          "sha256": [
+            "47634b77b05f3a0dc07a5154ffab0180cd8fd60d4a4fea8f74562391d9d364b3"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 730,
+      "runtimeDex": 730,
+      "species": "PRIMARINA",
+      "variant": "normal",
+      "provider": "static-original",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "assets/non_crystal_pixel_2d_67/front/730.png",
+            "sha256": "cc92a8012359510cfae1c144c3179cb58020663977e9258cab5e48fc083f640f"
+          }
+        ],
+        "back": [
+          {
+            "path": "assets/non_crystal_pixel_2d_67/back/730.png",
+            "sha256": "109588d9759d31ef9a9c5401a5b1ab29a0e71338a00048fc0682b4e2a018d786"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/730/front/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            10,
+            13,
+            89,
+            84
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            56,
+            50
+          ],
+          "sha256": [
+            "27dd7d3e7283682101e5cfe0a0b3e13f8aa56f2a318eb498428541576820ac32"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/730/back/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            10,
+            13,
+            86,
+            83
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            48,
+            44
+          ],
+          "sha256": [
+            "f6163b41a641c816914ae9d38bb37d774f465bb33ddc9953af534bfc51b82e55"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/730/voxel/normal",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1.5,
+          "sourceUnion": [
+            10,
+            13,
+            89,
+            84
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            56,
+            50
+          ],
+          "sha256": [
+            "979084451536ac584924012c3c72183d1505c137b8ff6c6d64f5aaf0fd289cb9"
+          ]
+        }
+      ]
+    },
+    {
+      "sourceDex": 730,
+      "runtimeDex": 730,
+      "species": "PRIMARINA",
+      "variant": "shiny",
+      "provider": "static-original",
+      "sourceFiles": {
+        "front": [
+          {
+            "path": "assets/non_crystal_pixel_2d_67/frontShiny/730.png",
+            "sha256": "198c0478e142e96c5cba0af90759939c141c96fade0707b02ed52ea8dca64b7d"
+          }
+        ],
+        "back": [
+          {
+            "path": "assets/non_crystal_pixel_2d_67/backShiny/730.png",
+            "sha256": "f5cae928025550f4ad4962e032190a8ddf65179cd265e44dbd423edf1beb604d"
+          }
+        ]
+      },
+      "sets": [
+        {
+          "side": "front",
+          "root": "assets/neo_crystal_2d_67/final-selection/730/front/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            10,
+            13,
+            89,
+            84
+          ],
+          "stage": [
+            56,
+            56
+          ],
+          "body": [
+            56,
+            50
+          ],
+          "sha256": [
+            "ef5508d2904f09130693402e13217d0b3e690382c001686792184efe56ef8606"
+          ]
+        },
+        {
+          "side": "back",
+          "root": "assets/neo_crystal_2d_67/final-selection/730/back/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1,
+          "sourceUnion": [
+            10,
+            13,
+            86,
+            83
+          ],
+          "stage": [
+            48,
+            48
+          ],
+          "body": [
+            48,
+            44
+          ],
+          "sha256": [
+            "b01217ae02fcceb67f418103adf85a4b3dc44299e6f803029cd766036e827253"
+          ]
+        },
+        {
+          "side": "voxel",
+          "root": "assets/neo_crystal_2d_67/final-selection/730/voxel/shiny",
+          "durations": [
+            1000
+          ],
+          "animated": false,
+          "scale": 1.5,
+          "sourceUnion": [
+            10,
+            13,
+            89,
+            84
+          ],
+          "stage": [
+            64,
+            64
+          ],
+          "body": [
+            56,
+            50
+          ],
+          "sha256": [
+            "e1a667d8846964a0a7a86fbe3c2f2e95cf9868394c3ee28250b7f646258ffc54"
+          ]
+        }
+      ]
+    }
+  ],
+  "policy": "Use real available animation, otherwise approved still; never replace existing animated variants."
+}

@@ -1,8 +1,0 @@
-{
-  "id": "useful_bag",
-  "name": "Useful Bag Replacement Probe",
-  "version": "2.4.1",
-  "api": 2,
-  "entry": "main.lua",
-  "profile": "content"
-}

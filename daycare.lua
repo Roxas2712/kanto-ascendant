@@ -21,6 +21,26 @@ return function(mod, opts)
   local hevoPackages = opts.hevoPackages
   local frontierExchange = opts.frontierExchange
   local beyondKanto = opts.beyondKanto or opts.johtoBoundary
+  local generationRules = opts.generationRules
+  local breedingIVs = opts.breedingIVs
+  if not breedingIVs and generationRules and type(mod.read) == "function" then
+    -- The same loader filesystem supports directories and installed Cards.
+    -- Do not use host loadfile/dofile inside a mounted mod sandbox.
+    local body, err = mod:read("pokemon_breeding_ivs_67.lua")
+    assert(type(body) == "string", err or "missing Day-Care IV owner")
+    local chunk, why = loadstring(body, "@" .. mod.path .. "/pokemon_breeding_ivs_67.lua")
+    assert(chunk, why)
+    breedingIVs = chunk()(mod, { generationRules = generationRules })
+  end
+  D.breedingIVs = breedingIVs
+  local levelCap
+
+  local function geneticsEpoch(game)
+    local resolved = generationRules and type(generationRules.peek) == "function"
+      and generationRules.peek(game)
+    local epoch = resolved and resolved.extensionsEnabled and tonumber(resolved.activeEpoch)
+    return epoch and epoch % 1 == 0 and epoch >= 1 and epoch <= 7 and epoch or 1
+  end
 
   local DEFAULT_HATCH_STEPS = 2048
   local BABY_SPECIES = {
@@ -54,9 +74,16 @@ return function(mod, opts)
   end
 
   local function speciesAllowed(game, species)
-    if beyondActive(game) then return true end
+    game = game or D.game
     local def = game and game.data and game.data.pokemon
       and game.data.pokemon[species]
+    if generationRules and type(generationRules.speciesAvailable) == "function" then
+      if type(def) ~= "table" then return false end
+      local ok, allowed = pcall(
+        generationRules.speciesAvailable, game, species, def)
+      return ok and allowed == true
+    end
+    if beyondActive(game) then return true end
     local dex = def and tonumber(def.dex)
     if not dex and beyondKanto
         and type(beyondKanto.speciesDex) == "function" then
@@ -64,6 +91,13 @@ return function(mod, opts)
     end
     dex = tonumber(dex)
     return dex ~= nil and dex >= 1 and dex <= 151
+  end
+
+  local function eggAllowed(game, mon)
+    if speciesAllowed(game,mon.eggSpecies or mon.species) then return true end
+    if type(opts.giftEggAllowed)~='function' then return false end
+    local ok, allowed=pcall(opts.giftEggAllowed,game,mon)
+    return ok and allowed==true
   end
 
   local function sealedEggText()
@@ -196,7 +230,8 @@ return function(mod, opts)
     -- bits match. This is the original game's anti-incest check and also
     -- means two Gen-II shinies cannot breed with one another.
     local ad, bd = a.dvs or {}, b.dvs or {}
-    if ad.defense ~= nil and ad.defense == bd.defense
+    if not (breedingIVs and breedingIVs.epoch(game))
+        and ad.defense ~= nil and ad.defense == bd.defense
         and ad.special ~= nil and bd.special ~= nil
         and ad.special % 8 == bd.special % 8 then
       return false, 0
@@ -357,12 +392,43 @@ return function(mod, opts)
               "Die beiden mögen sich\nnicht besonders.")
   end
 
+  local function cappedExperience(game, mon, proposed)
+    local current = math.max(0, tonumber(mon and mon.exp) or 0)
+    proposed = math.max(current, tonumber(proposed) or current)
+    if not (levelCap and type(levelCap.effective) == "function") then
+      return proposed, nil
+    end
+    local ok, stage = pcall(levelCap.effective, game or D.game)
+    local cap = ok and type(stage) == "table" and tonumber(stage.level) or nil
+    if not cap or cap ~= math.floor(cap) or cap < 1 or cap > 100 then
+      return proposed, nil
+    end
+    if math.max(1, math.floor(tonumber(mon.level) or 1)) >= cap then
+      return current, cap
+    end
+    local def = game and game.data and game.data.pokemon
+      and game.data.pokemon[mon.species]
+    if not def then return current, cap end
+    local threshold = require("src.pokemon.Growth").expForLevel(
+      def.growthRate, cap, game.data.growth_rates)
+    if current >= threshold then return current, cap end
+    return math.min(proposed, threshold), cap
+  end
+
   local function levelPreview(game, entry)
     local Growth = require("src.pokemon.Growth")
     local mon = entry.mon
     local def = game.data.pokemon[mon.species]
-    local exp = (mon.exp or 0) + math.max(0, tonumber(entry.steps) or 0)
-    local level = math.min(100, Growth.levelForExp(def.growthRate, exp))
+    local proposed = (mon.exp or 0) + math.max(0, tonumber(entry.steps) or 0)
+    local exp, cap = cappedExperience(game, mon, proposed)
+    local level
+    if cap then
+      level = Growth.levelForExp(
+        def.growthRate, exp, cap, game.data.growth_rates)
+    else
+      -- Preserve the exact legacy lookup while the feature is OFF.
+      level = math.min(100, Growth.levelForExp(def.growthRate, exp))
+    end
     return math.max(mon.level, level), exp
   end
 
@@ -374,6 +440,9 @@ return function(mod, opts)
       for key, value in pairs(row.dvs) do mon.dvs[key] = value end
       mon.stats = require("src.pokemon.Stats").calc(
         game.data.pokemon[row.species], mon.level, mon.dvs, mon.statExp)
+    end
+    if breedingIVs and breedingIVs.attach(game, mon, row) then
+      breedingIVs.apply(game, mon, geneticsEpoch(game))
     end
     require("src.battle.BattleState").stampOT(game.save, mon)
     if type(row.moves) == "table" then
@@ -390,6 +459,10 @@ return function(mod, opts)
     mon.eggTotalSteps = mon.eggStepsRemaining
     mon.eggOrigin = row.origin or "ROUTE 5 DAY-CARE"
     mon.eggResearchKey = row.researchKey
+    if type(row.abilityBinding67) == "table" then
+      mon._kascAbility67 = {}
+      for key,value in pairs(row.abilityBinding67) do mon._kascAbility67[key]=value end
+    end
     mon.nickname = "EGG"
     mon.hp = 0
     mon.status = nil
@@ -430,8 +503,9 @@ return function(mod, opts)
   end
 
   local function hatchEgg(game, mon)
+    if type(mon)~='table' or mon.isEgg~=true then return '',false end
     local species = mon.eggSpecies or mon.species
-    if not speciesAllowed(game, species) then
+    if not eggAllowed(game, mon) then
       mon.eggStepsRemaining = math.max(1,
         math.floor(tonumber(mon.eggStepsRemaining) or 1))
       return sealedEggText(), false
@@ -450,6 +524,7 @@ return function(mod, opts)
     mon.eggOrigin = nil
     local researchKey = mon.eggResearchKey
     mon.eggResearchKey = nil
+    if breedingIVs then breedingIVs.apply(game, mon, geneticsEpoch(game)) end
     require("src.pokemon.Pokemon").heal(mon)
     markOwned(game, species)
     if shinySystem and shinySystem.onHatched then
@@ -480,7 +555,11 @@ return function(mod, opts)
     for slot = 1, 2 do
       local entry = s.parents[slot]
       if entry then
-        entry.steps = math.max(0, math.floor(tonumber(entry.steps) or 0)) + 1
+        local steps = math.max(0, math.floor(tonumber(entry.steps) or 0))
+        local current = math.max(0, tonumber(entry.mon and entry.mon.exp) or 0)
+        local accepted, cap = cappedExperience(
+          game, entry.mon, current + steps + 1)
+        entry.steps = cap and math.max(0, accepted - current) or steps + 1
       end
     end
     local a = s.parents[1] and s.parents[1].mon
@@ -508,22 +587,48 @@ return function(mod, opts)
               dvs = inheritedDVs(game, species, a, b, random),
               moves = inheritedMoves(game, species, a, b),
             }
+            if breedingIVs then
+              local genetics = breedingIVs.reserve(game, species, a, b, random)
+              if genetics then
+                local row = s.reservedEggs[#s.reservedEggs]
+                row.ivs, row.breedingIVs67 = genetics.ivs, genetics.receipt
+              end
+            end
+            local abilities = opts.abilities and opts.abilities()
+            if abilities then
+              local mother = a.species == "DITTO" and b
+                or b.species == "DITTO" and a or gender(game,a) == "F" and a or b
+              local bucket = game.save.modData and game.save.modData[mod.id]
+              local rulesState = bucket and generationRules and bucket[generationRules.SAVE_KEY]
+              local epoch = rulesState and rulesState.activeEpoch or 1
+              local meta = game.save.meta or {}
+              local identity = meta.playthroughId or meta.saveIdentity
+              if identity then
+                local row = s.reservedEggs[#s.reservedEggs]
+                row.abilityBinding67 = abilities.reserveEgg(game,species,mother,
+                  a.species == "DITTO" or b.species == "DITTO",epoch,
+                  identity .. ":" .. tostring(s.eggsProduced + 1)) or nil
+              end
+            end
             s.eggsProduced = s.eggsProduced + 1
           end
         end
       end
     end
     local hatching = {}
+    -- Use the existing persisted remaining-step counter; never halve its
+    -- stored total or re-credit earlier steps when a holder joins the party.
+    local hatchRate = opts.hatchStepRate and opts.hatchStepRate(game)==2 and 2 or 1
     for _, mon in ipairs(game.save.party or {}) do
       if mon.isEgg then
         mon.hp = 0
         mon.status = nil
-        if not speciesAllowed(game, mon.eggSpecies or mon.species) then
+        if not eggAllowed(game, mon) then
           mon.eggStepsRemaining = math.max(1,
             math.floor(tonumber(mon.eggStepsRemaining) or 1))
         else
           mon.eggStepsRemaining = math.max(0,
-            math.floor(tonumber(mon.eggStepsRemaining) or 1) - 1)
+            math.floor(tonumber(mon.eggStepsRemaining) or 1) - hatchRate)
           if mon.eggStepsRemaining <= 0 then
             hatching[#hatching + 1] = mon
           end
@@ -614,6 +719,7 @@ return function(mod, opts)
         local def = game.data.pokemon[mon.species]
         mon.stats = require("src.pokemon.Stats").calc(
           def, mon.level, mon.dvs, mon.statExp)
+        if breedingIVs then breedingIVs.apply(game, mon, geneticsEpoch(game)) end
         require("src.pokemon.Pokemon").learnMovesFromDayCare(
           game.data, mon, def, oldLevel, newLevel)
         require("src.pokemon.Pokemon").heal(mon)
@@ -928,6 +1034,15 @@ return function(mod, opts)
   function D.install(game)
     D.game = game
     local s = state()
+    if breedingIVs then
+      -- Only validated new-breeding records are touched. Legacy saves and
+      -- unbound bank/import IV fields retain their exact original stats.
+      local epoch = geneticsEpoch(game)
+      for _, mon in ipairs(game.save.party or {}) do breedingIVs.apply(game, mon, epoch) end
+      for _, entry in pairs(s.parents) do
+        if entry and entry.mon then breedingIVs.apply(game, entry.mon, epoch) end
+      end
+    end
     -- Adopt a vanilla one-slot deposit when the expansion is enabled on an
     -- existing save. No Pokémon or accumulated step experience is lost.
     local vanilla = game.save.daycare
@@ -966,6 +1081,15 @@ return function(mod, opts)
   function D.setFrontierExchange(controller)
     frontierExchange = controller
   end
+
+  function D.setLevelCap(controller)
+    levelCap = controller
+    return levelCap ~= nil
+  end
+
+  -- Read-only diagnostic used by the menu and regression coverage. The
+  -- deposited record itself remains untouched until normal retrieval.
+  D.levelPreview = levelPreview
 
   function D.status()
     return state(false)

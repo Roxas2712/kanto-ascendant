@@ -186,6 +186,7 @@ return function(mod, opts)
     local makeArchive = assert(opts.makeArchive,
       "legacy journey needs the packaged archive factory")
     archive = makeArchive({
+      equipmentRewards = opts.equipmentRewards,
       edition = GameVersion.get(),
       modId = mod.id,
       fs = opts.archiveFs or storageArchiveFs(),
@@ -842,7 +843,7 @@ return function(mod, opts)
     SILPH_SCOPE = true, POKE_FLUTE = true, LIFT_KEY = true,
     OLD_ROD = true, GOOD_ROD = true, SUPER_ROD = true, EXP_ALL = true,
     SHINY_CHARM = true, ASCENDANT_EXP_MULTIPLIER = true,
-    MIGRATION_RECEIVER = true, RESONANCE_SEAL = true,
+    MIGRATION_RECEIVER = true, RESONANCE_SEAL = true, TRACE_FINDER = true,
     ASCENDANT_THUNDERHEART = true, ASCENDANT_THUNDER_TEAR = true,
   }
   local UI_COUNTED_NON_TOSSABLE_IDS = {
@@ -1327,6 +1328,120 @@ return function(mod, opts)
     return false
   end
 
+  -- Legacy saves can reach this screen before the engine has normalized its
+  -- old single-Box layout.  A rejected cross-file transaction must not make
+  -- that unrelated migration (or a Party repair) stick in memory: a later
+  -- ordinary save would otherwise persist state which the failed Bank action
+  -- claimed not to change.  Keep the original tables and their shallow
+  -- container contents so rollback preserves identities as well as values.
+  local function snapshotContainer(value)
+    local snapshot = { value = value, wasTable = type(value) == "table" }
+    if snapshot.wasTable then
+      snapshot.entries = {}
+      for key, child in next, value do snapshot.entries[key] = child end
+    end
+    return snapshot
+  end
+
+  local function restoreContainer(snapshot)
+    if not snapshot then return nil end
+    if not snapshot.wasTable then return snapshot.value end
+    local value = snapshot.value
+    for key in next, value do rawset(value, key, nil) end
+    for key, child in next, snapshot.entries do rawset(value, key, child) end
+    return value
+  end
+
+  local function snapshotPartyState(save)
+    return snapshotContainer(save.party)
+  end
+
+  local function restorePartyState(save, snapshot)
+    save.party = restoreContainer(snapshot)
+  end
+
+  local function denseArrayLength(value, label)
+    local numeric, maximum = 0, 0
+    for key in next, value do
+      if type(key) == "number" then
+        if key < 1 or key % 1 ~= 0 then
+          return nil, tostring(label) .. " has an invalid array index"
+        end
+        numeric, maximum = numeric + 1, math.max(maximum, key)
+      end
+    end
+    if numeric ~= maximum then
+      return nil, tostring(label) .. " is not a dense array"
+    end
+    return maximum
+  end
+
+  local function preparePartyState(save)
+    local snapshot = snapshotPartyState(save)
+    if type(save.party) ~= "table" then save.party = {} end
+    local count, shapeErr = denseArrayLength(save.party, "Legacy Party storage")
+    if not count then
+      restorePartyState(save, snapshot)
+      return nil, nil, snapshot, shapeErr
+    end
+    return save.party, count, snapshot
+  end
+
+  local function snapshotBoxState(save)
+    local state = {
+      box = snapshotContainer(save.box),
+      boxes = snapshotContainer(save.boxes),
+      currentBox = save.currentBox,
+      children = {},
+    }
+    if state.boxes.wasTable then
+      for _, child in next, state.boxes.entries do
+        if type(child) == "table" and not state.children[child] then
+          state.children[child] = snapshotContainer(child)
+        end
+      end
+    end
+    return state
+  end
+
+  local function restoreBoxState(save, state)
+    for _, child in next, state.children do restoreContainer(child) end
+    save.box = restoreContainer(state.box)
+    save.boxes = restoreContainer(state.boxes)
+    save.currentBox = state.currentBox
+  end
+
+  local function prepareBoxState(Boxes, save)
+    local state = snapshotBoxState(save)
+    if type(save.box) == "table" then
+      local _, legacyShapeErr = denseArrayLength(save.box,
+        "Legacy single-Box storage")
+      if legacyShapeErr then
+        restoreBoxState(save, state)
+        return nil, state, legacyShapeErr
+      end
+    end
+    local ensured, boxes = pcall(Boxes.ensure, save)
+    if not ensured or type(boxes) ~= "table" then
+      restoreBoxState(save, state)
+      return nil, state, tostring(ensured and "invalid PC Box storage" or boxes)
+    end
+    for index = 1, Boxes.COUNT do
+      if boxes[index] == nil then boxes[index] = {} end
+      if type(boxes[index]) ~= "table" then
+        restoreBoxState(save, state)
+        return nil, state, "PC Box " .. tostring(index) .. " is malformed"
+      end
+      local _, shapeErr = denseArrayLength(boxes[index],
+        "PC Box " .. tostring(index))
+      if shapeErr then
+        restoreBoxState(save, state)
+        return nil, state, shapeErr
+      end
+    end
+    return boxes, state
+  end
+
   pushMessage = function(game, text, done)
     game.stack:push(newTextBox(game, text, done))
   end
@@ -1510,48 +1625,130 @@ return function(mod, opts)
     return portrait ~= nil
   end
 
-  local ensureDex, markDexOwned, restoreDex
+  local ensureDex, snapshotDex, markDexOwned, restoreDex
 
-  local function withdraw(game, row, list)
+  local function leaseRecoveryText(message)
+    return tostring(message) .. "\f" .. tr(
+      "LEGACY BANK WILL\nRECOVER ON LOAD.",
+      "VERMÄCHTNIS-BANK WIRD\nBEIM LADEN REPARIERT.")
+  end
+
+  local function releaseOneLease(save, id, context)
+    local released, releaseErr = archive.releaseLease(save, id)
+    if released == true then return true end
+    if mod.log and type(mod.log.error) == "function" then
+      mod.log:error(("Legacy %s lease rollback failed; load recovery remains: %s")
+        :format(tostring(context), tostring(releaseErr)))
+    end
+    return false, releaseErr
+  end
+
+  local function notifyBankMutation(onMutation)
+    if type(onMutation) ~= "function" then return end
+    local refreshed, refreshErr = pcall(onMutation)
+    if not refreshed and mod.log and type(mod.log.error) == "function" then
+      mod.log:error("Legacy Bank snapshot refresh failed: "
+        .. tostring(refreshErr))
+    end
+  end
+
+  local function withdraw(game, row, list, onMutation)
     local Boxes = require("src.pokemon.Boxes")
     local Party = require("src.pokemon.Party")
     local Stats = require("src.pokemon.Stats")
+    local party, partyCount, partyState, partyErr = preparePartyState(game.save)
+    if not party then
+      list.footer = tr("INVALID PARTY DATA", "UNGÜLTIGE TEAM-DATEN")
+        .. ": " .. tostring(partyErr)
+      return
+    end
     local mon, err = archive.leaseMon(game.save, row.id)
     if not mon then
+      restorePartyState(game.save, partyState)
       list.footer = tr("BANK ERROR", "BANK-FEHLER") .. ": " .. tostring(err)
       return
     end
-
-    local destination, boxNumber
-    if #(game.save.party or {}) < Party.MAX then
-      Stats.ensure(game.data.pokemon[mon.species], mon)
-      table.insert(game.save.party, mon)
-      destination = "party"
-    else
-      boxNumber = Boxes.deposit(game.save, mon)
-      if boxNumber then destination = "box" end
-    end
-    if not destination then
-      archive.releaseLease(game.save, row.id)
-      list.footer = tr("PARTY AND BOXES FULL", "TEAM UND BOXEN VOLL")
+    if type(mon) ~= "table" or type(mon.species) ~= "string"
+        or mon.species == "" then
+      restorePartyState(game.save, partyState)
+      local released = releaseOneLease(game.save, row.id,
+        "invalid classic withdrawal")
+      local message = tr("INVALID LEGACY POKéMON",
+        "UNGÜLTIGES VERMÄCHTNIS-POKéMON")
+      list.footer = released and message or leaseRecoveryText(message)
       return
     end
 
-    local previousDex = {}
+    local destination, boxNumber, boxState
+    if partyCount < Party.MAX then
+      local pokemonData = type(game.data) == "table"
+        and type(game.data.pokemon) == "table"
+        and game.data.pokemon[mon.species] or nil
+      local statsOK, statsErr = pcall(Stats.ensure, pokemonData, mon)
+      if not statsOK then
+        restorePartyState(game.save, partyState)
+        local released = releaseOneLease(game.save, row.id,
+          "classic stats initialization")
+        local message = tostring(statsErr)
+        list.footer = released and message or leaseRecoveryText(message)
+        return
+      end
+      local inserted, insertErr = pcall(table.insert, party, mon)
+      if not inserted then
+        restorePartyState(game.save, partyState)
+        local released = releaseOneLease(game.save, row.id,
+          "classic Party insertion")
+        local message = tostring(insertErr)
+        list.footer = released and message or leaseRecoveryText(message)
+        return
+      end
+      destination = "party"
+    else
+      local boxes, boxErr
+      boxes, boxState, boxErr = prepareBoxState(Boxes, game.save)
+      if not boxes then
+        restorePartyState(game.save, partyState)
+        local released = releaseOneLease(game.save, row.id,
+          "classic Box normalization")
+        local message = tostring(boxErr)
+        list.footer = released and message or leaseRecoveryText(message)
+        return
+      end
+      local deposited, result = pcall(Boxes.deposit, game.save, mon)
+      if deposited then boxNumber = result end
+      if not deposited or not boxNumber then
+        restoreBoxState(game.save, boxState)
+        restorePartyState(game.save, partyState)
+        local released = releaseOneLease(game.save, row.id,
+          "classic Box deposit")
+        local message = deposited
+          and tr("PARTY AND BOXES FULL", "TEAM UND BOXEN VOLL")
+          or tostring(result)
+        list.footer = released and message or leaseRecoveryText(message)
+        return
+      end
+      destination = "box"
+    end
+
+    local previousDex = snapshotDex(game.save)
     markDexOwned(game.save, mon, previousDex)
 
-    if not game:writeSave() then
-      if destination == "party" then removeExact(game.save.party, mon)
-      else removeExact(Boxes.ensure(game.save)[boxNumber], mon) end
+    local wrote, saved = pcall(game.writeSave, game)
+    if not wrote or saved ~= true then
+      restorePartyState(game.save, partyState)
+      if boxState then restoreBoxState(game.save, boxState) end
       restoreDex(game.save, previousDex)
-      archive.releaseLease(game.save, row.id)
-      list.footer = tr("SAVE FAILED", "SPEICHERN FEHLGESCHLAGEN")
+      local released = releaseOneLease(game.save, row.id,
+        "classic withdrawal")
+      local message = tr("SAVE FAILED", "SPEICHERN FEHLGESCHLAGEN")
+      list.footer = released and message or leaseRecoveryText(message)
       return
     end
     list:removeCurrent()
     list.footer = destination == "party"
       and tr("WITHDRAWN TO PARTY", "INS TEAM GENOMMEN")
       or tr("WITHDRAWN TO BOX ", "IN BOX ") .. tostring(boxNumber)
+    notifyBankMutation(onMutation)
   end
 
   ensureDex = function(save)
@@ -1563,12 +1760,28 @@ return function(mod, opts)
     return save.pokedex
   end
 
+  -- A failed transfer must restore not only per-species flags but also the
+  -- exact legacy container shape. Very old or partially repaired saves may
+  -- have no Pokédex table (or no seen/owned child table) yet; tentatively
+  -- creating those containers must not itself become a persisted mutation.
+  snapshotDex = function(save)
+    local pokedex = save.pokedex
+    return {
+      pokedex = pokedex,
+      pokedexWasTable = type(pokedex) == "table",
+      seen = type(pokedex) == "table" and pokedex.seen or nil,
+      owned = type(pokedex) == "table" and pokedex.owned or nil,
+      flags = {},
+    }
+  end
+
   markDexOwned = function(save, mon, previous)
     local species = type(mon) == "table" and mon.species
     if type(species) ~= "string" then return false end
     local dex = ensureDex(save)
-    if previous and previous[species] == nil then
-      previous[species] = {
+    local flags = previous and (previous.flags or previous)
+    if flags and flags[species] == nil then
+      flags[species] = {
         seen = dex.seen[species], owned = dex.owned[species],
       }
     end
@@ -1577,9 +1790,27 @@ return function(mod, opts)
   end
 
   restoreDex = function(save, previous)
+    if type(previous) ~= "table" then return end
+    local flags = previous.flags or previous
+    if previous.pokedexWasTable ~= nil then
+      if not previous.pokedexWasTable then
+        save.pokedex = previous.pokedex
+        return
+      end
+      local pokedex = previous.pokedex
+      local currentSeen = type(pokedex.seen) == "table" and pokedex.seen or nil
+      local currentOwned = type(pokedex.owned) == "table" and pokedex.owned or nil
+      for species, values in pairs(flags) do
+        if currentSeen then currentSeen[species] = values.seen end
+        if currentOwned then currentOwned[species] = values.owned end
+      end
+      pokedex.seen, pokedex.owned = previous.seen, previous.owned
+      save.pokedex = pokedex
+      return
+    end
     local dex = ensureDex(save)
-    for species, flags in pairs(previous or {}) do
-      dex.seen[species], dex.owned[species] = flags.seen, flags.owned
+    for species, values in pairs(flags) do
+      dex.seen[species], dex.owned[species] = values.seen, values.owned
     end
   end
 
@@ -1617,11 +1848,14 @@ return function(mod, opts)
   end
 
   -- Move every currently withdrawable Legacy Pokémon directly into ordinary
-  -- PC Boxes. Capacity is checked before the first archive lease, so a full
-  -- PC is a warning-only operation and cannot produce a partial transfer.
+  -- PC Boxes. Capacity is checked before the first archive lease. An explicit
+  -- selection remains all-or-nothing; the top-level ALL action fills every
+  -- currently free slot in stable archive order and reports the untouched
+  -- remainder. The fitted tranche is still one atomic save transaction.
   local function withdrawRowsToBoxes(game, requestedRows)
     local Boxes = require("src.pokemon.Boxes")
     local Stats = require("src.pokemon.Stats")
+    local transferAllAvailable = requestedRows == nil
     local rows = requestedRows
     if rows == nil then
       local rowsErr
@@ -1642,45 +1876,111 @@ return function(mod, opts)
         or tr("LEGACY BANK IS EMPTY", "VERMÄCHTNIS-BANK IST LEER")
     end
 
-    local boxes = Boxes.ensure(game.save)
+    local boxes, boxState, boxErr = prepareBoxState(Boxes, game.save)
+    if not boxes then return false, tostring(boxErr) end
     local free = 0
     for index = 1, Boxes.COUNT do
       free = free + math.max(0, Boxes.CAPACITY - #(boxes[index] or {}))
     end
-    if free < #transferable then
+    local spaceBlocked = 0
+    if free < #transferable and not transferAllAvailable then
+      restoreBoxState(game.save, boxState)
       return false, tr(
         ("PC BOXES NEED %d MORE FREE SLOT%s."):format(
           #transferable - free, #transferable - free == 1 and "" or "S"),
         ("IN DEN PC-BOXEN FEHLEN %d FREIE PLÄTZE."):format(
           #transferable - free))
     end
-
-    local inserted, leased, previousDex = {}, {}, {}
-    local function rollback(message)
-      for index = #inserted, 1, -1 do
-        local placed = inserted[index]
-        removeExact(boxes[placed.box], placed.mon)
+    if free <= 0 then
+      local text = tr(
+        ("PC BOXES ARE FULL.\n%d POKéMON REMAIN."):format(#transferable),
+        ("PC-BOXEN SIND VOLL.\n%d POKéMON BLEIBEN."):format(#transferable))
+      if blocked > 0 then
+        text = text .. "\f" .. tr(
+          ("%d SEALED POKéMON ALSO REMAIN."):format(blocked),
+          ("%d VERSIEGELTE POKéMON BLEIBEN AUCH."):format(blocked))
       end
-      restoreDex(game.save, previousDex)
+      restoreBoxState(game.save, boxState)
+      return false, text, 0, blocked, #transferable
+    end
+    if free < #transferable then
+      spaceBlocked = #transferable - free
+      local fitted = {}
+      for index = 1, free do fitted[index] = transferable[index] end
+      transferable = fitted
+    end
+
+    local inserted, leased, previousDex, mons = {}, {},
+      snapshotDex(game.save), {}
+    local function releaseLeases()
+      if #leased == 0 then return true end
+      if type(archive.releaseLeases) == "function" then
+        return archive.releaseLeases(game.save, leased)
+      end
       for index = #leased, 1, -1 do
-        archive.releaseLease(game.save, leased[index])
+        local released, releaseErr = archive.releaseLease(
+          game.save, leased[index])
+        if released ~= true then return false, releaseErr end
+      end
+      return true
+    end
+    local function rollback(message)
+      -- This also removes cooperative insert-then-throw mutations and restores
+      -- a pre-Engine single-Box/partial layout with its original references.
+      restoreBoxState(game.save, boxState)
+      restoreDex(game.save, previousDex)
+      local released, releaseErr = releaseLeases()
+      if released ~= true then
+        if mod.log and type(mod.log.error) == "function" then
+          mod.log:error(("Legacy PC-Box lease rollback failed; "
+            .. "load recovery remains: %s"):format(tostring(releaseErr)))
+        end
+        message = leaseRecoveryText(message)
       end
       return false, message
     end
 
-    for _, row in ipairs(transferable) do
-      local mon, leaseErr = archive.leaseMon(game.save, row.id)
-      if not mon then return rollback(tostring(leaseErr)) end
-      leased[#leased + 1] = row.id
-      Stats.ensure(game.data.pokemon[mon.species], mon)
-      local box = Boxes.deposit(game.save, mon)
+    if type(archive.leaseMons) == "function" then
+      local ids = {}
+      for index, row in ipairs(transferable) do ids[index] = row.id end
+      local leaseErr
+      mons, leaseErr = archive.leaseMons(game.save, ids)
+      if type(mons) == "table" then
+        for index, id in ipairs(ids) do leased[index] = id end
+      end
+      if type(mons) ~= "table" or #mons ~= #ids then
+        return rollback(tostring(leaseErr or "Legacy batch lease was incomplete"))
+      end
+    else
+      for index, row in ipairs(transferable) do
+        local mon, leaseErr = archive.leaseMon(game.save, row.id)
+        if not mon then return rollback(tostring(leaseErr)) end
+        leased[index], mons[index] = row.id, mon
+      end
+    end
+
+    for index in ipairs(transferable) do
+      local mon = mons[index]
+      if type(mon) ~= "table" or type(mon.species) ~= "string"
+          or mon.species == "" then
+        return rollback(tr("INVALID LEGACY POKéMON",
+          "UNGÜLTIGES VERMÄCHTNIS-POKéMON"))
+      end
+      local pokemonData = type(game.data) == "table"
+        and type(game.data.pokemon) == "table"
+        and game.data.pokemon[mon.species] or nil
+      local statsOK, statsErr = pcall(Stats.ensure, pokemonData, mon)
+      if not statsOK then return rollback(tostring(statsErr)) end
+      local deposited, box = pcall(Boxes.deposit, game.save, mon)
+      if not deposited then return rollback(tostring(box)) end
       if not box then
         return rollback(tr("PC BOXES ARE FULL", "PC-BOXEN SIND VOLL"))
       end
       inserted[#inserted + 1] = { box = box, mon = mon }
       markDexOwned(game.save, mon, previousDex)
     end
-    if not game:writeSave() then
+    local wrote, saved = pcall(game.writeSave, game)
+    if not wrote or saved ~= true then
       return rollback(tr("SAVE FAILED", "SPEICHERN FEHLGESCHLAGEN"))
     end
     local text = tr(
@@ -1692,16 +1992,23 @@ return function(mod, opts)
         ("%d VERSIEGELTE POKéMON BLEIBEN IN DER VERMÄCHTNIS-BANK.")
           :format(blocked))
     end
-    return true, text, #inserted, blocked
+    if spaceBlocked > 0 then
+      text = text .. "\f" .. tr(
+        ("%d POKéMON REMAIN.\nPC BOXES ARE FULL."):format(spaceBlocked),
+        ("%d POKéMON BLEIBEN.\nPC-BOXEN SIND VOLL."):format(spaceBlocked))
+    end
+    return true, text, #inserted, blocked, spaceBlocked
   end
 
   local function withdrawAllToBoxes(game)
     return withdrawRowsToBoxes(game, nil)
   end
 
-  local function openWithdraw(game)
+  local function openWithdraw(game, snapshot, onMutation)
     local rows = {}
-    for _, row in ipairs(archive.availableMons(game.save)) do
+    local available = type(snapshot) == "table" and snapshot
+      or archive.availableMons(game.save)
+    for _, row in ipairs(type(available) == "table" and available or {}) do
       local mon = row.mon
       rows[#rows + 1] = {
         label = monName(game, mon),
@@ -1741,7 +2048,7 @@ return function(mod, opts)
             ("%s nehmen?"):format(monName(game, row.mon))), nil, {
               defaultNo = true,
               choice = function(yes)
-                if yes then withdraw(game, row, list) end
+                if yes then withdraw(game, row, list, onMutation) end
               end,
             }))
         end,
@@ -1749,7 +2056,7 @@ return function(mod, opts)
     game.stack:push(list)
   end
 
-  local function depositPartyMon(game, item, list)
+  local function depositPartyMon(game, item, list, onMutation)
     if #(game.save.party or {}) <= 1 then
       list.footer = tr("KEEP ONE PARTY POKéMON", "EIN TEAM-POKéMON BEHALTEN")
       return
@@ -1773,9 +2080,10 @@ return function(mod, opts)
     end
     list:removeCurrent()
     list.footer = tr("DEPOSITED IN LEGACY BANK", "IN VERMÄCHTNIS-BANK ABGELEGT")
+    notifyBankMutation(onMutation)
   end
 
-  local function openDeposit(game)
+  local function openDeposit(game, onMutation)
     if #(game.save.party or {}) <= 1 then
       pushMessage(game, tr(
         "You must keep one\nPOKéMON in your party.",
@@ -1824,7 +2132,7 @@ return function(mod, opts)
             ("%s ablegen?"):format(item.label)), nil, {
               defaultNo = true,
               choice = function(yes)
-                if yes then depositPartyMon(game, item, list) end
+                if yes then depositPartyMon(game, item, list, onMutation) end
               end,
             }))
         end,
@@ -1835,21 +2143,58 @@ return function(mod, opts)
   local function bankWithdrawToParty(game, row)
     local Party = require("src.pokemon.Party")
     local Stats = require("src.pokemon.Stats")
-    game.save.party = type(game.save.party) == "table" and game.save.party or {}
-    if #game.save.party >= Party.MAX then
+    local party, partyCount, partyState, partyErr = preparePartyState(game.save)
+    if not party then
+      return false, tr("INVALID PARTY DATA", "UNGÜLTIGE TEAM-DATEN")
+        .. ": " .. tostring(partyErr)
+    end
+    if partyCount >= Party.MAX then
+      restorePartyState(game.save, partyState)
       return false, tr("PARTY IS FULL", "TEAM IST VOLL")
     end
     local mon, err = archive.leaseMon(game.save, row and row.id)
-    if not mon then return false, tostring(err) end
-    Stats.ensure(game.data.pokemon[mon.species], mon)
-    table.insert(game.save.party, mon)
-    local previousDex = {}
+    if not mon then
+      restorePartyState(game.save, partyState)
+      return false, tostring(err)
+    end
+    if type(mon) ~= "table" or type(mon.species) ~= "string"
+        or mon.species == "" then
+      restorePartyState(game.save, partyState)
+      local released = releaseOneLease(game.save, row.id,
+        "invalid widescreen withdrawal")
+      local message = tr("INVALID LEGACY POKéMON",
+        "UNGÜLTIGES VERMÄCHTNIS-POKéMON")
+      return false, released and message or leaseRecoveryText(message)
+    end
+    local pokemonData = type(game.data) == "table"
+      and type(game.data.pokemon) == "table"
+      and game.data.pokemon[mon.species] or nil
+    local statsOK, statsErr = pcall(Stats.ensure, pokemonData, mon)
+    if not statsOK then
+      restorePartyState(game.save, partyState)
+      local released = releaseOneLease(game.save, row.id,
+        "widescreen stats initialization")
+      local message = tostring(statsErr)
+      return false, released and message or leaseRecoveryText(message)
+    end
+    local inserted, insertErr = pcall(table.insert, party, mon)
+    if not inserted then
+      restorePartyState(game.save, partyState)
+      local released = releaseOneLease(game.save, row.id,
+        "widescreen Party insertion")
+      local message = tostring(insertErr)
+      return false, released and message or leaseRecoveryText(message)
+    end
+    local previousDex = snapshotDex(game.save)
     markDexOwned(game.save, mon, previousDex)
-    if not game:writeSave() then
-      removeExact(game.save.party, mon)
+    local wrote, saved = pcall(game.writeSave, game)
+    if not wrote or saved ~= true then
+      restorePartyState(game.save, partyState)
       restoreDex(game.save, previousDex)
-      archive.releaseLease(game.save, row.id)
-      return false, tr("SAVE FAILED", "SPEICHERN FEHLGESCHLAGEN")
+      local released = releaseOneLease(game.save, row.id,
+        "widescreen withdrawal")
+      local message = tr("SAVE FAILED", "SPEICHERN FEHLGESCHLAGEN")
+      return false, released and message or leaseRecoveryText(message)
     end
     return true
   end
@@ -1888,32 +2233,72 @@ return function(mod, opts)
     return true
   end
 
-  local function openFireRedBank(game)
+  local function openFireRedBank(game, rowsProvider, onMutation)
     local storage = mod.exports and mod.exports.modernStorageUi
-    if not (storage and type(storage.newLegacyBankOrganizer) == "function"
-        and type(storage.useFireRedLegacyBank) == "function"
-        and storage.useFireRedLegacyBank(game)) then
-      return false
-    end
-    local screen = storage.newLegacyBankOrganizer(game, {
+    if type(storage) ~= "table" then return false end
+    local adapter = {
       rows = function()
+        if type(rowsProvider) == "function" then return rowsProvider() end
         return archive.availableMons(game.save)
       end,
       withdraw = function(row)
-        return bankWithdrawToParty(game, row)
+        local ok, why = bankWithdrawToParty(game, row)
+        if ok then notifyBankMutation(onMutation) end
+        return ok, why
       end,
       showLocked = function(row)
         return showMonHelp(game, { value = row })
       end,
       deposit = function(partyIndex, targetIndex)
-        return bankDepositFromParty(game, partyIndex, targetIndex)
+        local ok, why = bankDepositFromParty(game, partyIndex, targetIndex)
+        if ok then notifyBankMutation(onMutation) end
+        return ok, why
       end,
       move = function(id, targetIndex)
         if type(archive.reorderAvailableMon) ~= "function" then
           return false, tr("BANK ORDER UNAVAILABLE",
             "BANK-REIHENFOLGE NICHT VERFÜGBAR")
         end
-        return archive.reorderAvailableMon(game.save, id, targetIndex)
+        local ok, why = archive.reorderAvailableMon(
+          game.save, id, targetIndex)
+        if ok then notifyBankMutation(onMutation) end
+        return ok, why
+      end,
+      inspect = function(row)
+        if not (row and row.mon) then return false, "EMPTY SLOT" end
+        local ok, Screens = pcall(require, "src.ui.Screens")
+        if ok and Screens and type(Screens.push) == "function" then
+          Screens.push(game, "SummaryMenu", row.mon)
+          return true
+        end
+        showMonHelp(game, { value=row })
+        return true
+      end,
+      dexEntry = function(row)
+        if not (row and row.mon and row.mon.species) then
+          return false, "DEX UNAVAILABLE"
+        end
+        local ok, Screens = pcall(require, "src.ui.Screens")
+        if ok and Screens and type(Screens.push) == "function" then
+          Screens.push(game, "DexEntryMenu", {
+            species=row.mon.species, forceOwned=true,
+          })
+          return true
+        end
+        showMonHelp(game, { value=row })
+        return true
+      end,
+      transferSelected = function(rows)
+        local ok, text, moved, blocked, remaining =
+          withdrawRowsToBoxes(game, rows)
+        if ok then notifyBankMutation(onMutation) end
+        return ok, text, moved, blocked, remaining
+      end,
+      transferAll = function()
+        local ok, text, moved, blocked, remaining =
+          withdrawAllToBoxes(game)
+        if ok then notifyBankMutation(onMutation) end
+        return ok, text, moved, blocked, remaining
       end,
       selectedAction = function(rows, done)
         local count = #rows
@@ -1932,6 +2317,7 @@ return function(mod, opts)
               if game.stack:top() == actionMenu then game.stack:pop() end
               if item and item.value == "pc" then
                 local ok, text = withdrawRowsToBoxes(game, rows)
+                if ok then notifyBankMutation(onMutation) end
                 pushMessage(game, text)
                 if done then done(ok) end
               elseif done then done(false, true) end
@@ -1939,7 +2325,34 @@ return function(mod, opts)
           })
         game.stack:push(actionMenu)
       end,
-    })
+    }
+
+    local function openLocalFallback()
+      if type(storage.newLegacyBankOrganizer) == "function"
+          and type(storage.useFireRedLegacyBank) == "function"
+          and storage.useFireRedLegacyBank(game) then
+        game.stack:push(storage.newLegacyBankOrganizer(game, adapter))
+      else
+        local snapshot = type(rowsProvider) == "function"
+          and rowsProvider() or nil
+        openWithdraw(game, snapshot, onMutation)
+      end
+    end
+    adapter.openFallback = openLocalFallback
+
+    if type(storage.newVascLegacyBankScreen) == "function" then
+      local screen = storage.newVascLegacyBankScreen(game, adapter)
+      if screen then
+        game.stack:push(screen)
+        return true
+      end
+    end
+    if not (type(storage.newLegacyBankOrganizer) == "function"
+        and type(storage.useFireRedLegacyBank) == "function"
+        and storage.useFireRedLegacyBank(game)) then
+      return false
+    end
+    local screen = storage.newLegacyBankOrganizer(game, adapter)
     game.stack:push(screen)
     return true
   end
@@ -2341,19 +2754,43 @@ return function(mod, opts)
     end
     bindArchiveData(game and game.data)
     archive.reconcileLeases(game.save)
-    local available = #archive.availableMons(game.save)
-    local rows = {
+    local availableRows, availableErr = archive.availableMons(game.save)
+    if type(availableRows) ~= "table" then availableRows = {} end
+    local available = #availableRows
+    local rows
+    local root
+    local function currentAvailableRows()
+      return availableRows, availableErr
+    end
+    local function refreshAvailableRows()
+      local refreshed, refreshErr = archive.availableMons(game.save)
+      if type(refreshed) == "table" then
+        availableRows, availableErr = refreshed, refreshErr
+        if rows and rows[1] then rows[1].right = tostring(#refreshed) end
+      else
+        availableErr = refreshErr or refreshed
+      end
+      if root and type(root.refreshLegacyRows) == "function" then
+        root:refreshLegacyRows()
+      end
+      return availableRows, availableErr
+    end
+    rows = {
       {
         label = tr("WITHDRAW POKéMON", "POKéMON NEHMEN"),
         right = tostring(available),
         onSelect = function()
-          if not openFireRedBank(game) then openWithdraw(game) end
+          if not openFireRedBank(
+              game, currentAvailableRows, refreshAvailableRows) then
+            openWithdraw(game, availableRows, refreshAvailableRows)
+          end
         end,
       },
       {
         label = tr("ALL TO PC BOXES", "ALLE IN PC-BOXEN"),
         onSelect = function()
           local ok, text = withdrawAllToBoxes(game)
+          if ok then refreshAvailableRows() end
           pushMessage(game, text or (ok and tr("TRANSFER COMPLETE",
             "ÜBERTRAGUNG FERTIG") or tr("TRANSFER FAILED",
             "ÜBERTRAGUNG FEHLGESCHLAGEN")))
@@ -2361,20 +2798,45 @@ return function(mod, opts)
       },
       {
         label = tr("DEPOSIT PARTY", "TEAM ABLEGEN"),
-        onSelect = function() openDeposit(game) end,
+        onSelect = function() openDeposit(game, refreshAvailableRows) end,
       },
       {
         label = tr("LEGACY LOCKER", "VERMÄCHTNIS-LAGER"),
         onSelect = function() J.openLocker(game) end,
       },
     }
-    game.stack:push((mod.ui.KantoListMenu or mod.ui.ListMenu).new(game,
-      tr("LEGACY BANK", "VERMÄCHTNIS-BANK"), rows, {
-        ascendantStyle = "firered-storage",
-        onChoose = function(item)
-          if item and item.onSelect then item.onSelect() end
-        end,
-      }))
+    local title = tr("LEGACY BANK", "VERMÄCHTNIS-BANK")
+    local rootOptions = {
+      ascendantStyle = "firered-storage",
+      onChoose = function(item)
+        if item and item.onSelect then item.onSelect() end
+      end,
+      -- Presentation-only snapshot. Full archive decoding happens once while
+      -- opening and after a successfully committed Bank mutation; render
+      -- frames only reuse this stable ordered row table.
+      legacyRows = currentAvailableRows,
+    }
+    local storage = mod.exports and mod.exports.modernStorageUi
+    if type(storage) == "table"
+        and type(storage.newLegacyBankRoot) == "function" then
+      local made, madeRoot, why = pcall(storage.newLegacyBankRoot,
+        game, title, rows, rootOptions)
+      if made and type(madeRoot) == "table" then
+        root = madeRoot
+        game.stack:push(root)
+        return
+      elseif not made and mod.log and type(mod.log.error) == "function" then
+        mod.log:error("Legacy Bank Wide root failed closed: "
+          .. tostring(madeRoot))
+      elseif why and mod.log and type(mod.log.error) == "function"
+          and tostring(why) ~= "wide-legacy-bank-not-selected" then
+        mod.log:error("Legacy Bank Wide root unavailable: " .. tostring(why))
+      end
+    end
+    -- Explicit KANTO ASCENDANT/compact styles and every failed Wide factory
+    -- retain the historical root as the only fail-closed fallback.
+    game.stack:push((mod.ui.KantoListMenu or mod.ui.ListMenu).new(
+      game, title, rows, rootOptions))
   end
 
   -- An active Legacy cycle owns a durable Bank, so its access belongs under
@@ -3359,6 +3821,40 @@ return function(mod, opts)
       localState.activeCharacter = J.activeCharacter(save)
     end
     return localState
+  end
+  function J.hiddenAccessIsOpen(id)
+    return archive.hiddenAccessIsOpen
+      and archive.hiddenAccessIsOpen(id) or false
+  end
+  function J.hiddenAccessReceipts()
+    return archive.hiddenAccessReceipts
+      and archive.hiddenAccessReceipts() or {}
+  end
+  function J.markHiddenAccessOpen(save, id, receipt)
+    if not archive.markHiddenAccessOpen then
+      return false, "hidden-access archive unavailable"
+    end
+    return archive.markHiddenAccessOpen(save, id, receipt)
+  end
+  function J.starterDiscoveryUnlocks()
+    return archive.starterDiscoveryUnlocks
+      and archive.starterDiscoveryUnlocks() or {}
+  end
+  function J.starterDiscoveryIsUnlocked(id)
+    return archive.starterDiscoveryIsUnlocked
+      and archive.starterDiscoveryIsUnlocked(id) or false
+  end
+  function J.markStarterDiscoveryUnlocked(save, id, receipt)
+    if not archive.markStarterDiscoveryUnlocked then
+      return false, "starter discovery archive unavailable"
+    end
+    return archive.markStarterDiscoveryUnlocked(save, id, receipt)
+  end
+  function J.syncStarterDiscovery(save, root)
+    if not archive.syncStarterDiscovery then
+      return false, "starter discovery archive unavailable"
+    end
+    return archive.syncStarterDiscovery(save, root)
   end
   J.legacyPersistent = archive.hevoPersistent or function() return {} end
   J.hevoDoorQuestReady = archive.hevoDoorQuestReady or function() return false end

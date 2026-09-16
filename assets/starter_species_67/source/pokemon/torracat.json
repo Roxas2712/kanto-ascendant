@@ -1,0 +1,325 @@
+{
+  "klass": "Specie",
+  "id": 726,
+  "dbSymbol": "torracat",
+  "forms": [
+    {
+      "form": 0,
+      "height": 0.7,
+      "weight": 25,
+      "type1": "fire",
+      "type2": "__undef__",
+      "baseHp": 65,
+      "baseAtk": 85,
+      "baseDfe": 50,
+      "baseSpd": 90,
+      "baseAts": 80,
+      "baseDfs": 50,
+      "evHp": 0,
+      "evAtk": 0,
+      "evDfe": 0,
+      "evSpd": 2,
+      "evAts": 0,
+      "evDfs": 0,
+      "evolutions": [
+        {
+          "dbSymbol": "incineroar",
+          "form": 0,
+          "conditions": [
+            {
+              "type": "minLevel",
+              "value": 34
+            }
+          ]
+        }
+      ],
+      "experienceType": 3,
+      "baseExperience": 147,
+      "baseLoyalty": 70,
+      "catchRate": 45,
+      "femaleRate": 12.5,
+      "breedGroups": [
+        5,
+        5
+      ],
+      "hatchSteps": 3840,
+      "babyDbSymbol": "litten",
+      "babyForm": 0,
+      "itemHeld": [
+        {
+          "dbSymbol": "none",
+          "chance": 0
+        },
+        {
+          "dbSymbol": "none",
+          "chance": 0
+        }
+      ],
+      "abilities": [
+        "blaze",
+        "blaze",
+        "intimidate"
+      ],
+      "frontOffsetY": 0,
+      "resources": {
+        "icon": "0726",
+        "iconShiny": "0726s",
+        "front": "0726",
+        "frontShiny": "0726s",
+        "back": "0726",
+        "backShiny": "0726s",
+        "footprint": "0726",
+        "character": "0726",
+        "characterShiny": "0726s",
+        "cry": "0726.ogg",
+        "hasFemale": false,
+        "egg": "egg",
+        "iconEgg": "egg"
+      },
+      "moveSet": [
+        {
+          "move": "scratch",
+          "klass": "LevelLearnableMove",
+          "level": 1
+        },
+        {
+          "move": "growl",
+          "klass": "LevelLearnableMove",
+          "level": 1
+        },
+        {
+          "move": "ember",
+          "klass": "LevelLearnableMove",
+          "level": 1
+        },
+        {
+          "move": "lick",
+          "klass": "LevelLearnableMove",
+          "level": 1
+        },
+        {
+          "move": "growl",
+          "klass": "LevelLearnableMove",
+          "level": 4
+        },
+        {
+          "move": "lick",
+          "klass": "LevelLearnableMove",
+          "level": 8
+        },
+        {
+          "move": "leer",
+          "klass": "LevelLearnableMove",
+          "level": 11
+        },
+        {
+          "move": "fire_fang",
+          "klass": "LevelLearnableMove",
+          "level": 14
+        },
+        {
+          "move": "double_kick",
+          "klass": "LevelLearnableMove",
+          "level": 16
+        },
+        {
+          "move": "roar",
+          "klass": "LevelLearnableMove",
+          "level": 19
+        },
+        {
+          "move": "bite",
+          "klass": "LevelLearnableMove",
+          "level": 24
+        },
+        {
+          "move": "swagger",
+          "klass": "LevelLearnableMove",
+          "level": 28
+        },
+        {
+          "move": "fury_swipes",
+          "klass": "LevelLearnableMove",
+          "level": 33
+        },
+        {
+          "move": "thrash",
+          "klass": "LevelLearnableMove",
+          "level": 37
+        },
+        {
+          "move": "flamethrower",
+          "klass": "LevelLearnableMove",
+          "level": 42
+        },
+        {
+          "move": "scary_face",
+          "klass": "LevelLearnableMove",
+          "level": 46
+        },
+        {
+          "move": "flare_blitz",
+          "klass": "LevelLearnableMove",
+          "level": 51
+        },
+        {
+          "move": "outrage",
+          "klass": "LevelLearnableMove",
+          "level": 55
+        },
+        {
+          "move": "swords_dance",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "roar",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "flamethrower",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "toxic",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "double_team",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "fire_blast",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "leech_life",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "rest",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "substitute",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "snore",
+          "klass": "TutorLearnableMove"
+        },
+        {
+          "move": "protect",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "outrage",
+          "klass": "TutorLearnableMove"
+        },
+        {
+          "move": "swagger",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "attract",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "sleep_talk",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "return",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "frustration",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "hidden_power",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "sunny_day",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "heat_wave",
+          "klass": "TutorLearnableMove"
+        },
+        {
+          "move": "torment",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "will_o_wisp",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "facade",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "taunt",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "endeavor",
+          "klass": "TutorLearnableMove"
+        },
+        {
+          "move": "overheat",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "bulk_up",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "covet",
+          "klass": "TutorLearnableMove"
+        },
+        {
+          "move": "u_turn",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "shadow_claw",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "flame_charge",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "round",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "acrobatics",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "fire_pledge",
+          "klass": "TutorLearnableMove"
+        },
+        {
+          "move": "work_up",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "dual_chop",
+          "klass": "TutorLearnableMove"
+        },
+        {
+          "move": "confide",
+          "klass": "TechLearnableMove"
+        }
+      ],
+      "formTextId": {
+        "name": 936,
+        "description": 0
+      }
+    }
+  ]
+}

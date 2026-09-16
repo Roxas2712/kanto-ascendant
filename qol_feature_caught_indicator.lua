@@ -54,6 +54,7 @@ function feature.install(mod, services)
   end
 
   local function drawCaughtIndicator(battle, state, context)
+    if context.externalHudOwned then return end
     local mode = optionValue(battle.game, "qol_caught_indicator")
     if mode ~= "grey" and mode ~= "red" then return end
     if not state.ownedAtStart or battle.kind ~= "wild"

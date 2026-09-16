@@ -12,6 +12,7 @@ return function(mod, opts)
   local yellowFidelity = opts.yellowFidelity
   local johtoUnlocked = opts.johtoUnlocked
   local resonanceRules = opts.resonanceRules
+  local difficultyContracts = opts.difficultyContracts
   local usefulLayerId = opts.usefulLayerId or "KA_REMATCH_USEFUL_MOVE"
   local currentGame
 
@@ -209,6 +210,11 @@ return function(mod, opts)
     return TIERS[value] and value or "standard"
   end
 
+  local function rosterCardEnabled()
+    return not (mod.options and mod.options.get
+      and mod.options:get("story_difficulty_rosters") == false)
+  end
+
   local function hallOfFame(save)
     return save and ((type(save.hallOfFame) == "table" and #save.hallOfFame > 0)
       or (save.flags and save.flags.EVENT_BEAT_CHAMPION_RIVAL)) or false
@@ -401,6 +407,7 @@ return function(mod, opts)
   S.tiers = clone(TIERS)
   S.moveTemplates = clone(MOVES)
   S.johtoPreferred = clone(JOHTO_PREFERRED)
+  S.enabled = rosterCardEnabled
 
   function S.plan(version, tier, class, party)
     local def = LEADERS[class]
@@ -409,7 +416,14 @@ return function(mod, opts)
         and exactCore(party, coreFor(def, version))) then
       return clone(party), nil
     end
-    return buildParty(party, def, version, tier), S.authored[class]
+    local candidate = buildParty(party, def, version, tier)
+    if difficultyContracts
+        and type(difficultyContracts.validatePlan) == "function" then
+      local ok = difficultyContracts.validatePlan(
+        "gym", currentGame, candidate, { edition=version })
+      if not ok then return clone(party), nil end
+    end
+    return candidate, S.authored[class]
   end
 
   local pending = {}
@@ -428,10 +442,23 @@ return function(mod, opts)
     local def = contextFor(currentGame, class, partyIndex, party, version)
     if not def then return nextParty(class, partyIndex, party) end
     local tier = tierName()
+    -- Yellow's exact STANDARD move repair predates this optional card and
+    -- remains edition fidelity.  Turning the card off removes only authored
+    -- HIGH-EXTREME roster, AI, item and role changes; difficulty.lua still
+    -- owns the independent numerical level curve.
+    if tier ~= "standard" and not rosterCardEnabled() then
+      return nextParty(class, partyIndex, party)
+    end
     if tier == "standard" and version ~= "yellow" then
       return nextParty(class, partyIndex, party)
     end
     local authored = buildParty(party, def, version, tier)
+    if difficultyContracts
+        and type(difficultyContracts.validatePlan) == "function" then
+      local legal = difficultyContracts.validatePlan(
+        "gym", currentGame, authored, { edition=version })
+      if not legal then return nextParty(class, partyIndex, party) end
+    end
     local resolved = nextParty(class, partyIndex, authored)
     if type(resolved) == "table" and #resolved > 0 and #resolved <= 6 then
       for index = #pending, 1, -1 do

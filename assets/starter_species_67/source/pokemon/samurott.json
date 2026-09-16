@@ -1,0 +1,380 @@
+{
+  "klass": "Specie",
+  "id": 503,
+  "dbSymbol": "samurott",
+  "forms": [
+    {
+      "form": 0,
+      "formTextId": {
+        "name": 639,
+        "description": 0
+      },
+      "height": 1.5,
+      "weight": 94.6,
+      "type1": "water",
+      "type2": "__undef__",
+      "baseHp": 95,
+      "baseAtk": 100,
+      "baseDfe": 85,
+      "baseSpd": 70,
+      "baseAts": 108,
+      "baseDfs": 70,
+      "evHp": 0,
+      "evAtk": 0,
+      "evDfe": 0,
+      "evSpd": 0,
+      "evAts": 3,
+      "evDfs": 0,
+      "evolutions": [],
+      "experienceType": 3,
+      "baseExperience": 238,
+      "baseLoyalty": 70,
+      "catchRate": 45,
+      "femaleRate": 12.5,
+      "breedGroups": [
+        5,
+        5
+      ],
+      "hatchSteps": 5120,
+      "babyDbSymbol": "oshawott",
+      "babyForm": 0,
+      "itemHeld": [
+        {
+          "dbSymbol": "none",
+          "chance": 0
+        },
+        {
+          "dbSymbol": "none",
+          "chance": 0
+        }
+      ],
+      "abilities": [
+        "torrent",
+        "torrent",
+        "shell_armor"
+      ],
+      "frontOffsetY": 0,
+      "resources": {
+        "icon": "0503",
+        "iconShiny": "0503s",
+        "front": "0503",
+        "frontShiny": "0503s",
+        "back": "0503",
+        "backShiny": "0503s",
+        "footprint": "0503",
+        "character": "0503",
+        "characterShiny": "0503s",
+        "cry": "0503.ogg",
+        "hasFemale": false,
+        "egg": "egg",
+        "iconEgg": "egg"
+      },
+      "moveSet": [
+        {
+          "move": "tackle",
+          "klass": "LevelLearnableMove",
+          "level": 1
+        },
+        {
+          "move": "tail_whip",
+          "klass": "LevelLearnableMove",
+          "level": 1
+        },
+        {
+          "move": "water_gun",
+          "klass": "LevelLearnableMove",
+          "level": 1
+        },
+        {
+          "move": "slash",
+          "klass": "LevelLearnableMove",
+          "level": 1
+        },
+        {
+          "move": "megahorn",
+          "klass": "LevelLearnableMove",
+          "level": 1
+        },
+        {
+          "move": "water_sport",
+          "klass": "LevelLearnableMove",
+          "level": 1
+        },
+        {
+          "move": "tail_whip",
+          "klass": "LevelLearnableMove",
+          "level": 5
+        },
+        {
+          "move": "water_gun",
+          "klass": "LevelLearnableMove",
+          "level": 7
+        },
+        {
+          "move": "water_sport",
+          "klass": "LevelLearnableMove",
+          "level": 11
+        },
+        {
+          "move": "focus_energy",
+          "klass": "LevelLearnableMove",
+          "level": 13
+        },
+        {
+          "move": "razor_shell",
+          "klass": "LevelLearnableMove",
+          "level": 18
+        },
+        {
+          "move": "fury_cutter",
+          "klass": "LevelLearnableMove",
+          "level": 21
+        },
+        {
+          "move": "water_pulse",
+          "klass": "LevelLearnableMove",
+          "level": 25
+        },
+        {
+          "move": "revenge",
+          "klass": "LevelLearnableMove",
+          "level": 29
+        },
+        {
+          "move": "aqua_jet",
+          "klass": "LevelLearnableMove",
+          "level": 34
+        },
+        {
+          "move": "encore",
+          "klass": "LevelLearnableMove",
+          "level": 39
+        },
+        {
+          "move": "aqua_tail",
+          "klass": "LevelLearnableMove",
+          "level": 46
+        },
+        {
+          "move": "retaliate",
+          "klass": "LevelLearnableMove",
+          "level": 51
+        },
+        {
+          "move": "swords_dance",
+          "klass": "LevelLearnableMove",
+          "level": 58
+        },
+        {
+          "move": "hydro_pump",
+          "klass": "LevelLearnableMove",
+          "level": 63
+        },
+        {
+          "move": "swords_dance",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "surf",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "ice_beam",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "blizzard",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "hyper_beam",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "toxic",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "double_team",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "waterfall",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "rest",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "slash",
+          "klass": "EvolutionLearnableMove"
+        },
+        {
+          "move": "substitute",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "snore",
+          "klass": "TutorLearnableMove"
+        },
+        {
+          "move": "protect",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "icy_wind",
+          "klass": "TutorLearnableMove"
+        },
+        {
+          "move": "false_swipe",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "swagger",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "attract",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "sleep_talk",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "return",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "frustration",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "iron_tail",
+          "klass": "TutorLearnableMove"
+        },
+        {
+          "move": "hidden_power",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "rain_dance",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "hail",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "facade",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "taunt",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "helping_hand",
+          "klass": "TutorLearnableMove"
+        },
+        {
+          "move": "superpower",
+          "klass": "TutorLearnableMove"
+        },
+        {
+          "move": "knock_off",
+          "klass": "TutorLearnableMove"
+        },
+        {
+          "move": "hydro_cannon",
+          "klass": "TutorLearnableMove"
+        },
+        {
+          "move": "aerial_ace",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "block",
+          "klass": "TutorLearnableMove"
+        },
+        {
+          "move": "covet",
+          "klass": "TutorLearnableMove"
+        },
+        {
+          "move": "water_pulse",
+          "klass": "TutorLearnableMove"
+        },
+        {
+          "move": "fling",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "aqua_tail",
+          "klass": "TutorLearnableMove"
+        },
+        {
+          "move": "x_scissor",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "giga_impact",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "grass_knot",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "round",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "scald",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "water_pledge",
+          "klass": "TutorLearnableMove"
+        },
+        {
+          "move": "dragon_tail",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "work_up",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "confide",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "smart_strike",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "liquidation",
+          "klass": "TutorLearnableMove"
+        },
+        {
+          "move": "rock_smash",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "cut",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "strength",
+          "klass": "TechLearnableMove"
+        },
+        {
+          "move": "dive",
+          "klass": "TechLearnableMove"
+        }
+      ]
+    }
+  ]
+}

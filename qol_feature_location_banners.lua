@@ -44,6 +44,14 @@ function feature.install(mod, services)
     local state = bannerStates[ow]
     if not state then return end
     local game = mod.world.game
+    -- Overworld.drawUI can still be composited while a modal TextBox,
+    -- ChoiceBox or menu owns the stack.  In that state the location card is
+    -- background UI, never a modal overlay: drawing it here would cover the
+    -- active dialogue (most visibly the second line in VASC's FULL view).
+    local stack = game and game.stack
+    if not stack or type(stack.top) ~= "function" or stack:top() ~= ow then
+      return
+    end
     if not optionValue(game, "qol_location_banners")
        or love.timer.getTime() >= state.expiresAt then
       bannerStates[ow] = nil

@@ -1,7 +1,12 @@
+local function optionalImage(mod,path)
+  local optional=mod.exports and mod.exports.optionalPokemonAssets
+  return optional and optional.allowPending(path)==true or false
+end
 -- Kanto Ascendant Mega Evolution.
 --
 -- Official species use their released Mega Evolution through July 2026.
--- Every official form requires its own Mega Stone. Kanto Ascendant also hides
+-- Official forms require their own Mega Stone (Rayquaza requires its move).
+-- Kanto Ascendant also hides
 -- one clearly labelled fan form outside the Stone Case: Ascendant Typhlosion,
 -- awakened by the permanent Basalt Core relic.
 
@@ -10,8 +15,25 @@ return function(mod, opts)
   local i18n = opts.i18n
   local postgame = opts.postgame
   local animationData = opts.animationData or {}
+  local spriteCollection = opts.spriteCollection
   local enabled = opts.contentEnabled ~= false
   local yellowPartner = opts.yellowPartner
+  local linkPolicy = opts.linkPolicy
+  local function battleFeatureAllowed(battle)
+    if battle and (battle.kind == "link"
+        or battle.ascendantNoSaveMechanics == true) then
+      return false, "link"
+    end
+    if battle and battle.ascendantNoMega == true then
+      return false, "policy"
+    end
+    if linkPolicy and type(linkPolicy.battleFeatureAllowed) == "function" then
+      local ok, allowed = pcall(
+        linkPolicy.battleFeatureAllowed, battle, "mega")
+      if not ok or allowed ~= true then return false, "link" end
+    end
+    return true
+  end
   local function sharedVoxelResolver(provided)
     if provided then return provided end
     if mod.exports and mod.exports.voxelRendererCompat then
@@ -43,6 +65,20 @@ return function(mod, opts)
   end
   local voxelRenderer = sharedVoxelResolver(opts.voxelRenderer)
   local M = { game = nil, enabled = enabled }
+
+  local function externalHudOwned(battle)
+    local qualityOfLife = type(mod.exports) == "table"
+      and mod.exports.qualityOfLife or nil
+    local battleOverlays = type(qualityOfLife) == "table"
+      and qualityOfLife.battle or nil
+    if type(battleOverlays) ~= "table"
+        or type(battleOverlays.externalHudOwned) ~= "function" then
+      return false
+    end
+    local ok, owned = pcall(
+      battleOverlays.externalHudOwned, battleOverlays, battle)
+    return ok and owned == true
+  end
 
   local function form(species, id, stone, label, tier, cost, bonuses, types,
       asset, special)
@@ -205,6 +241,7 @@ return function(mod, opts)
 
   local function animationVariant(profile, mon)
     local data = profile and animationData[profile.id]
+    if spriteCollection then data=spriteCollection:timings(profile,data)end
     if type(data) ~= "table" then return nil end
     local sideAware = type(data.front) == "table"
       or type(data.back) == "table"
@@ -229,6 +266,7 @@ return function(mod, opts)
   local function animationSpec(profile, mon, battler)
     if not megaMotionEnabled(profile) then return nil end
     local data = profile and animationData[profile.id]
+    if spriteCollection then data=spriteCollection:timings(profile,data)end
     local variant = animationVariant(profile, mon)
     if not (variant and type(data) == "table") then return nil end
     local side = mon and mon._ascMegaAnimationSide
@@ -241,12 +279,27 @@ return function(mod, opts)
   end
 
   local function animationRelativePath(profile, variant, frame, side)
+    local selected=spriteCollection and spriteCollection:path(profile,variant,frame,side,false)
+    if selected then return selected end
+    if profile.backendArt then
+      local entry=profile.backendArt.animations and profile.backendArt.animations[
+        (side or 'front')..(variant=='shiny' and 'Shiny' or '')]
+      if entry then return entry.root..('/%03d.png'):format(frame or 1) end
+    end
     local branch = side and (side .. "/" .. variant) or variant
     return ("assets/mega_animated_runtime/%s/%s/%03d.png"):format(
       profile.asset, branch, frame or 1)
   end
 
   local function animationMasterRelativePath(profile, variant, frame, side)
+    local selected=spriteCollection and spriteCollection:path(profile,variant,frame,side,true)
+    if selected then return selected end
+    if profile.backendArt then
+      local entry=profile.backendArt.animations and profile.backendArt.animations[
+        (side=='front' and 'voxel' or 'back')..(variant=='shiny' and 'Shiny' or '')]
+      if entry then return entry.root..('/%03d.png'):format(frame or 1) end
+      return animationRelativePath(profile,variant,frame,side)
+    end
     local branch = side and (side .. "/" .. variant) or variant
     return ("assets/mega_animated/%s/%s/%03d.png"):format(
       profile.asset, branch, frame or 1)
@@ -260,11 +313,12 @@ return function(mod, opts)
       if battler then battler.__ascendantMegaAnimation = nil end
       return
     end
+    local collection=spriteCollection and spriteCollection:selected() or "current"
     local state = battler.__ascendantMegaAnimation
     if not state or state.form ~= profile.id or state.variant ~= variant
-        or state.pathSide ~= pathSide then
+        or state.pathSide ~= pathSide or state.collection~=collection then
       state = {
-        form = profile.id, variant = variant, timings = timings,
+        form = profile.id, variant = variant, timings = timings, collection=collection,
         pathSide = pathSide, frame = 1, elapsed = 0, image = battler.sprite,
       }
       battler.__ascendantMegaAnimation = state
@@ -303,8 +357,22 @@ return function(mod, opts)
     end
   end
 
+  local function presentationDelta(battle, dt)
+    local speed = 1
+    local game = battle and battle.game
+    if game and type(game.logicSpeed) == "function" then
+      local ok, value = pcall(game.logicSpeed, game)
+      if ok then speed = tonumber(value) or 1 end
+    end
+    return (tonumber(dt) or (1 / 60)) / math.max(1, speed)
+  end
+
   local function updateMegaAnimations(battle, dt)
     if not battle then return end
+    -- Mega sprite motion is presentation. Fast-forward calls this fixed-step
+    -- hook multiple times per rendered frame, so normalize the elapsed time
+    -- before advancing authored sprite keys.
+    dt = presentationDelta(battle, dt)
     if battle.enemy and not battle.showEnemyTrainer
         and not battle.enemySendingOut then
       updateMegaBattler(battle, battle.enemy, dt)
@@ -320,10 +388,13 @@ return function(mod, opts)
 
   local function stoneName(profile)
     if profile and profile.secret then return tr("BASALT CORE", "BASALT-KERN") end
+    if profile and profile.stoneLabel then return profile.stoneLabel end
+    if profile and profile.requiredMove then return profile.requiredMove:gsub('_',' ') end
     return profile.stone:gsub("_", " ")
   end
 
   local function caseLabel(profile)
+    if profile.caseLabel then return profile.caseLabel end
     local suffix = profile.id:match("_([XY])$")
     return profile.species:gsub("_", "-") .. (suffix and (" " .. suffix) or "")
   end
@@ -384,14 +455,23 @@ return function(mod, opts)
     return ps.apexChampion or ps.crownChampion
   end
 
-  local function ownedProfiles(species, enemy)
+  local function knowsRequiredMove(mon,profile)
+    if not profile.requiredMove then return true end
+    for _,move in ipairs(mon and mon.moves or {})do
+      if (type(move)=='table' and move.id or move)==profile.requiredMove then return true end
+    end
+    return false
+  end
+
+  local function ownedProfiles(species, enemy, mon)
     local rows = FORMS_BY_SPECIES[species]
     if not rows then return {} end
     local s, out = state(), {}
     for _, profile in ipairs(rows) do
       if profile.secret then
         if not enemy and s.secretUnlocked then out[#out + 1] = profile end
-      elseif enemy or s.stones[profile.stone] then
+      elseif (profile.requiredMove and knowsRequiredMove(mon,profile))
+          or not profile.requiredMove and (enemy or s.stones[profile.stone]) then
         out[#out + 1] = profile
       end
     end
@@ -407,9 +487,20 @@ return function(mod, opts)
   local function preferredProfile(mon, enemy)
     local profileSpecies = directPartnerMega(mon, enemy)
       and "RAICHU" or mon.species
-    local rows = ownedProfiles(profileSpecies, enemy)
+    local rows = ownedProfiles(profileSpecies, enemy, mon)
     if #rows == 0 then return nil end
     local preferred = state().preferences[profileSpecies]
+    local gift=mon._kascGiftMega67
+    if not preferred and type(gift)=='table' and gift.schema=='kasc.gift-mega/v1'
+        and gift.baseSpecies==profileSpecies then
+      preferred=gift.formId
+    end
+    local transferred = mon.__kaLegacyMega
+    if not preferred and type(transferred) == "table"
+        and transferred.schema == "kasc/bank-mega-form/v1"
+        and transferred.baseSpecies == profileSpecies then
+      preferred = transferred.formId
+    end
     for _, profile in ipairs(rows) do
       if profile.id == preferred then return profile end
     end
@@ -449,9 +540,16 @@ return function(mod, opts)
     for key, value in pairs(source) do out[key] = value end
     local level = math.max(1, math.min(100, tonumber(battler.mon.level) or 1))
     for key, baseGain in pairs(profile.bonuses) do
-      out[key] = math.min(999,
-        math.max(1, (tonumber(source[key]) or 1)
-          + math.floor(2 * baseGain * level / 100)))
+      -- KASC's authored combined Special bonus must affect the two native
+      -- Johto Special stats, not an unused synthetic `special` field.
+      local keys = key == "special" and source.specialAttack ~= nil
+        and { "specialAttack", "specialDefense" } or { key }
+      for _, target in ipairs(keys) do
+        local gain=target=='specialDefense' and profile.specialDefenseBonus or baseGain
+        out[target] = math.min(999,
+          math.max(1, (tonumber(source[target]) or 1)
+            + math.floor(2 * gain * level / 100)))
+      end
     end
     return out
   end
@@ -474,7 +572,11 @@ return function(mod, opts)
     battler.mon._ascMegaAnimationFrame = nil
     battler._ascMegaForm = profile.id
     battler._ascMegaProfile = profile
+    local body=mod.exports and mod.exports.pokemonBodyUtilities67
+    if body then body.formChanged(battle,battler)end
     battler.__ascendantMegaAnimation = nil
+    local trick=mod.exports and mod.exports.pokemonPowerTrick67
+    if trick then trick.beforeMega(battle,battler)end
     battler.curStats = boostedStats(battler, profile)
     if profile.types then battler.curTypes = profile.types end
     if profile.secret and profile.secretHealing then
@@ -497,6 +599,8 @@ return function(mod, opts)
     else
       battle._ascMegaEnemyMon = battler.mon
       battle._ascMegaEnemyProfile = profile
+      battle._ascMegaEnemyProfiles = battle._ascMegaEnemyProfiles or {}
+      battle._ascMegaEnemyProfiles[battler.mon] = profile
     end
   end
 
@@ -534,28 +638,51 @@ return function(mod, opts)
   end
 
   local function cleanupBattle(battle)
-    for _, mon in ipairs({
-      battle and battle._ascMegaPlayerMon,
-      battle and battle._ascMegaEnemyMon,
-    }) do
+    -- Special authored encounters can transform several distinct opponents.
+    -- Every transformed mon must lose temporary form markers on battle end.
+    for mon in pairs(battle and battle._ascMegaEnemyProfiles or {}) do
+      mon._ascMegaForm = nil
+      mon._ascMegaAnimationSide = nil
+      mon._ascMegaAnimationFrame = nil
+    end
+    if battle then battle._ascMegaEnemyProfiles = nil end
+    -- Either side may transform alone. Never use a sparse array with ipairs:
+    -- a missing player entry would skip the enemy's temporary markers.
+    for _, key in ipairs({ '_ascMegaPlayerMon', '_ascMegaEnemyMon' }) do
+      local mon = battle and battle[key]
       if mon then
         mon._ascMegaForm = nil
         mon._ascMegaAnimationSide = nil
         mon._ascMegaAnimationFrame = nil
       end
     end
-    for _, battler in ipairs({
-      battle and battle.player,
-      battle and battle.enemy,
-    }) do
+    for _, key in ipairs({ 'player', 'enemy' }) do
+      local battler = battle and battle[key]
       if battler then battler.__ascendantMegaAnimation = nil end
     end
+  end
+
+  local function newGamePlus(battle)
+    local save = battle and battle.game and battle.game.save
+    return save and opts.journey and type(opts.journey.isActive)=="function"
+      and opts.journey.isActive(save)==true or false
   end
 
   local function eligibleOpponent(battle)
     local mode = mod.options:get("mega_opponents") or "bosses"
     if mode == "off" or battle.kind ~= "trainer" then return false end
-    if mode == "all" then return true end
+    -- Wanderers have their own entitlement/level/odds authority. Generic
+    -- "all" or boss-class rules must not bypass its rejected plan.
+    if battle.ascendantLegacyWanderer == true then
+      if battle.ascendantSurpriseMega ~= true
+          or type(battle.ascendantEnemyMegaForm) ~= "string" then return false end
+      for _, mon in ipairs(battle.enemyParty or {}) do
+        if mon.species == battle.ascendantEnemyMegaSpecies
+            and (tonumber(mon.level) or 0) >= 80 then return true end
+      end
+      return false
+    end
+    if mode == "all" or newGamePlus(battle) then return true end
     if BOSS_CLASSES[battle.oppClass] == true then return true end
     for _, mon in ipairs(battle.enemyParty or {}) do
       if (tonumber(mon.level) or 0) >= 80 then return true end
@@ -643,7 +770,7 @@ return function(mod, opts)
   function M.stoneMenu(game, done)
     local rows = {}
     for index, profile in ipairs(FORMS) do
-      if not profile.secret then
+      if not profile.secret and profile.stone then
         rows[#rows + 1] = {
           label = caseLabel(profile),
           right = stoneStatus(profile, game),
@@ -749,8 +876,8 @@ return function(mod, opts)
 
   function M.guide()
     local official = tr(
-      "Only official Mega\nspecies are eligible.\fEvery form needs its\nmatching Mega Stone.\fSELECT on the battle\nmenu transforms once\nper side.\fMEGANIUM and FERALIGATR\nstones come from their\nSTARTER RELIC quests.\fOther new Z-A stones\nfollow the Master Leaders;\nMewtwo after Apex.",
-      "Nur offizielle Mega-\nArten sind zugelassen.\fJede Form braucht ihren\npassenden Mega-Stein.\fSELECT im Kampfmenü\nverwandelt einmal\npro Seite.\fMEGANIE- und IMPERGATOR-\nSteine stammen aus ihren\nSTARTER-RELIKT-Missionen.\fAndere neue Z-A-Steine\nfolgen den Master-Leitern;\nMewtu nach Apex.")
+      "Only official Mega\nspecies are eligible.\fA MEGA RING and matching\nMega Stone are required.\fRAYQUAZA needs DRAGON\nASCENT instead of a stone.\fSELECT on the battle\nmenu transforms once\nper side.\fMEGANIUM and FERALIGATR\nstones come from their\nSTARTER RELIC quests.\fOther new Z-A stones\nfollow the Master Leaders;\nMewtwo after Apex.",
+      "Nur offizielle Mega-\nArten sind zugelassen.\fDu brauchst MEGA-RING\nund passenden Mega-Stein.\fRAYQUAZA braucht statt\neines Steins ZENITSTÜRMER.\fSELECT im Kampfmenü\nverwandelt einmal\npro Seite.\fMEGANIE- und IMPERGATOR-\nSteine stammen aus ihren\nSTARTER-RELIKT-Missionen.\fAndere neue Z-A-Steine\nfolgen den Master-Leitern;\nMewtu nach Apex.")
     if not state().secretUnlocked then return official end
     return official .. tr(
       "\fThe BASALT CORE is a\nseparate Ascendant relic.\fTYPHLOSION becomes\nFIRE/GROUND and mends\n25% HP when awakened.",
@@ -758,9 +885,18 @@ return function(mod, opts)
   end
 
   function M.activate(battle, battler, side)
+    local allowed, denialReason = battleFeatureAllowed(battle)
+    if not allowed then return false, denialReason end
     if not optionEnabled() then return false, "disabled" end
     if not battler or not battler.mon or battler.mon.isEgg then
       return false, "invalid"
+    end
+    if side == "enemy" and battle._ascMegaEnemyUsed then return false, "used" end
+    if side == "enemy" and battle.ascendantLegacyWanderer == true
+        and (not eligibleOpponent(battle)
+          or battler.mon.species ~= battle.ascendantEnemyMegaSpecies
+          or (tonumber(battler.mon.level) or 0) < 80) then
+      return false, "wanderer-plan"
     end
     local johtoMasterSecret = side == "enemy" and battle
       and battle.johtoPassage == true
@@ -789,10 +925,18 @@ return function(mod, opts)
     local qaSecretEnemy = side == "enemy"
       and battle and battle._ascendantQaAllowSecretEnemy == true
       and battler.mon.species == "TYPHLOSION" and secretReady
+    local requestedEnemy = side == "enemy" and battle
+      and FORMS_BY_ID[battle.ascendantEnemyMegaForm] or nil
+    if requestedEnemy and (requestedEnemy.secret
+        or requestedEnemy.species ~= battler.mon.species) then
+      requestedEnemy = nil
+    end
     local profile = (qaSecretEnemy or johtoMasterSecret)
         and FORMS_BY_ID.TYPHLOSION_ASCENDANT
+      or requestedEnemy
       or preferredProfile(battler.mon, side ~= "player")
     if not profile then return false, "stone" end
+    if not knowsRequiredMove(battler.mon,profile) then return false,'move' end
     return queueActivation(battle, battler, side, profile)
   end
 
@@ -839,9 +983,18 @@ return function(mod, opts)
       end
 
       local function masterPath(profile, mon, side)
+        if profile.backendArt then
+          local variant=isShiny(mon) and 'shiny' or 'normal'
+          local suffix=isShiny(mon) and 'Shiny' or ''
+          if megaMotionEnabled(profile) and mon._ascMegaAnimationFrame then
+            local animated=animationMasterRelativePath(profile,variant,mon._ascMegaAnimationFrame,side)
+            if mod:read(animated) then return animated,false end
+          end
+          return profile.backendArt.paths[(side=='front' and 'voxelFront' or 'back')..suffix],false
+        end
         if crystalMegaArtEnabled(profile) then
           local variant = animationVariant(profile, mon)
-          local frame = tonumber(mon and mon._ascMegaAnimationFrame)
+          local frame = tonumber(mon and mon._ascMegaAnimationFrame) or 1
           if megaMotionEnabled(profile) and frame and variant then
             local animated = animationMasterRelativePath(
               profile, variant, frame, side)
@@ -1009,8 +1162,34 @@ return function(mod, opts)
     if BattleState._ascendantMegaWrapped then return end
     BattleState._ascendantMegaWrapped = true
 
+    -- Place the reviewed Hoenn rear at its final anchor before composition.
+    -- The overlay must not erase a grounded copy after the enemy was drawn.
+    local hoennRearAnchors = { BLAZIKEN = -7, SWAMPERT = -13, SCEPTILE = -10 }
+    local drawBattlerPic = BattleState.drawBattlerPic
+    if type(drawBattlerPic) == "function" then
+      BattleState.drawBattlerPic = function(battle, battler, x, y, scale, shakeX, shakeY)
+        if battler == battle.player then
+          battle._ascHoennRearPlacedFrame = nil
+          local mon = battler and battler.mon
+          local profile = mon and FORMS_BY_ID[mon._ascMegaForm]
+          local anchor = profile and hoennRearAnchors[profile.id]
+          local Pipelines = require("src.render.Pipelines")
+          if anchor and crystalMegaArtEnabled(profile)
+              and Pipelines.level("voxel") == 0 and not externalHudOwned(battle)
+              and not battle.safari and not battle.demo and not battle.sendingOut then
+            x, y, scale = anchor + (shakeX or 0), 40 + (shakeY or 0), 1
+            battle._ascHoennRearPlacedFrame = battle.frame
+          end
+        end
+        return drawBattlerPic(battle, battler, x, y, scale, shakeX, shakeY)
+      end
+    end
+
     local vanillaUpdate = BattleState.update
     BattleState.update = function(battle, dt)
+      if not battleFeatureAllowed(battle) then
+        return vanillaUpdate(battle, dt)
+      end
       if battle.phase == "menu" and not battle.demo and not battle.safari then
         if battle._ascMegaEnemyPending and not battle._ascMegaEnemyUsed
             and enemyMegaTargetReady(battle) then
@@ -1085,12 +1264,32 @@ return function(mod, opts)
     })
   end
 
-  for _, profile in ipairs(FORMS) do
-    if not profile.secret then
-      mod.content.items:register(profile.stone, {
+  local function registerProfileAssets(profile)
+    if not profile.secret and profile.stone then
+      if not (type(mod.content.items.get)=='function' and mod.content.items:get(profile.stone)) then
+        mod.content.items:register(profile.stone, {
         id = profile.stone, name = stoneName(profile),
         price = 0, tossable = false, needsTarget = false,
       })
+      end
+    end
+    if profile.backendArt then
+      for _,side in ipairs({'front','back','frontShiny','backShiny'})do
+        registerBattleScale('KASC_BACKEND_MEGA_'..profile.id..'_'..side,
+          mod.path..'/'..profile.backendArt.paths[side],1)
+        local animation=profile.backendArt.animations and profile.backendArt.animations[side]
+        if animation then
+          local baseSide=side:sub(1,4)=='back' and 'back' or 'front'
+          animationData[profile.id]=animationData[profile.id] or {}
+          animationData[profile.id][baseSide]=animationData[profile.id][baseSide] or {}
+          animationData[profile.id][baseSide][side:find('Shiny',1,true) and 'shiny' or 'normal']=animation.durations
+          for frame=1,#animation.durations do
+            registerBattleScale('KASC_BACKEND_MEGA_'..profile.id..'_'..side..'_'..frame,
+              mod.path..'/'..animation.root..('/%03d.png'):format(frame),1)
+          end
+        end
+      end
+      return
     end
     if profile.asset then
       for _, side in ipairs({ "front", "back" }) do
@@ -1128,6 +1327,45 @@ return function(mod, opts)
       end
     end
   end
+  for _,profile in ipairs(FORMS)do registerProfileAssets(profile)end
+  -- Both visual versions have stable scale paths before the registry freezes.
+  if spriteCollection then
+    for id,row in pairs(spriteCollection.data.forms)do
+      for side,variants in pairs(row.timings)do
+        for variant,timings in pairs(variants)do
+          for frame=1,#timings do
+            registerBattleScale(("KASC_ORIGINAL_MEGA_%s_%s_%s_%03d"):format(id,side,variant,frame),
+              mod.path.."/"..spriteCollection.data.root.."mega_animated_runtime/"..row.asset.."/"..side.."/"..variant..("/%03d.png"):format(frame),megaBattleScale[side])
+          end
+        end
+      end
+    end
+  end
+
+  function M.registerAdditionalProfiles(profiles)
+    local ids={}
+    for _,profile in ipairs(profiles)do
+      assert(type(profile.id)=='string' and profile.id:match('^BACKEND_MEGA_%d+$'))
+      assert(not FORMS_BY_ID[profile.id] and not ids[profile.id],'Mega profile already owned')
+      assert(profile.species and (profile.stone or profile.requiredMove) and profile.backendArt and not profile.secret)
+      for _,side in ipairs({'front','back','frontShiny','backShiny','voxelFront','voxelFrontShiny'})do
+        local path=profile.backendArt.paths[side]
+        assert(type(path)=='string' and path:sub(1,7)=='assets/' and not path:find('..',1,true)
+          and (mod:read(path) or optionalImage(mod,path)),'missing backend Mega art '..profile.id..' '..side)
+      end
+      ids[profile.id]=true
+    end
+    for _,profile in ipairs(profiles)do
+      registerProfileAssets(profile)
+      FORMS[#FORMS+1]=profile;OFFICIAL_FORMS[#OFFICIAL_FORMS+1]=profile
+      FORMS_BY_ID[profile.id]=profile
+      if profile.stone then FORM_BY_STONE[profile.stone]=FORM_BY_STONE[profile.stone] or profile end
+      local rows=FORMS_BY_SPECIES[profile.species] or {}
+      rows[#rows+1]=profile
+      FORMS_BY_SPECIES[profile.species]=rows;OFFICIAL_BY_SPECIES[profile.species]=rows
+    end
+    return #profiles
+  end
 
   -- Run outside Crystal Animated Sprites' priority-930 resolver. That mod
   -- intentionally owns ordinary Kanto art without calling lower wrappers;
@@ -1142,12 +1380,23 @@ return function(mod, opts)
       ctx.mon._ascMegaAnimationSide = side
     end
     local crystalArt = crystalMegaArtEnabled(profile)
+    if profile.backendArt then
+      local suffix=isShiny(ctx.mon) and 'Shiny' or ''
+      local candidate=profile.backendArt.paths[side..suffix]
+      local frame=tonumber(ctx.mon._ascMegaAnimationFrame)
+      if megaMotionEnabled(profile) and frame then
+        local animated=animationRelativePath(profile,isShiny(ctx.mon) and 'shiny' or 'normal',frame,side)
+        if mod:read(animated) then candidate=animated end
+      end
+      ctx.trueColor=true
+      return mod.path..'/'..candidate
+    end
     local root = crystalArt and "assets/mega_runtime/"
       or "assets/mega_gen1_runtime/"
     local base = root .. profile.asset .. "_" .. side
     local shiny = isShiny(ctx.mon) and mod:read(base .. "_shiny.png")
     local candidate = base .. (shiny and "_shiny" or "") .. ".png"
-    local frame = tonumber(ctx.mon._ascMegaAnimationFrame)
+    local frame = tonumber(ctx.mon._ascMegaAnimationFrame) or 1
     local variant = animationVariant(profile, ctx.mon)
     if megaMotionEnabled(profile) and frame and variant then
       local animated = animationRelativePath(
@@ -1191,7 +1440,8 @@ return function(mod, opts)
 
   mod.hooks:wrap("battle.overlay", function(nextOverlay, battle)
     nextOverlay(battle)
-    if not (love and love.graphics and battle) then return end
+    if not (love and love.graphics and battle)
+        or externalHudOwned(battle) then return end
     -- Classic Gen-I grounds rear pics at y=96, which can only make a larger
     -- image grow upward into the enemy HUD. Mega backs instead fill the
     -- normal player arena, then the tile HUD is repainted above the art.
@@ -1201,7 +1451,7 @@ return function(mod, opts)
       and FORMS_BY_ID[player.mon._ascMegaForm]
     local fxHidden = player and type(battle.fxHidden) == "function"
       and battle:fxHidden(player)
-    if profile and profile.asset and M.rearOverlayAllowed(battle)
+    if profile and profile.asset and not profile.backendArt and M.rearOverlayAllowed(battle)
         and not battle.safari and not battle.demo and not battle.sendingOut
         and not fxHidden
         and type(battle.drawHUDs) == "function" then
@@ -1230,7 +1480,10 @@ return function(mod, opts)
       -- animation frame lower in the arena. The battle command box is an
       -- opaque UI layer in the original games, so no part of the monster may
       -- bleed into its deliberately empty left pane.
-      clearTiles(0, 0, 96, 96)
+      if battle._ascHoennRearPlacedFrame == nil
+          or battle._ascHoennRearPlacedFrame ~= battle.frame then
+        clearTiles(0, 0, 96, 96)
+      end
       local image = rearOverlayImage(profile, player.mon, player.sprite)
       if image then
         -- Broad rear poses need individual left anchors so their heads and
@@ -1325,20 +1578,26 @@ return function(mod, opts)
 
   mod.events:on("battle.started", function(ev)
     local battle = ev and ev.battle
-    if not (battle and optionEnabled()) then return end
-    if eligibleOpponent(battle) and enemyMegaTargetAvailable(battle) and postgame
-        and postgame.hasHallOfFame(battle.game.save) then
+    if not (battle and battleFeatureAllowed(battle) and optionEnabled()) then
+      return
+    end
+    if eligibleOpponent(battle) and enemyMegaTargetAvailable(battle)
+        and (newGamePlus(battle) or postgame
+          and postgame.hasHallOfFame(battle.game.save)) then
       battle._ascMegaEnemyPending = true
     end
   end, -10)
 
   mod.events:on("battle.battler_switched", function(ev)
     local battle, battler = ev and ev.battle, ev and ev.battler
-    if not (battle and battler and battler.mon) then return end
+    if not (battle and battleFeatureAllowed(battle)
+        and battler and battler.mon) then return end
     if battler.isPlayer and battler.mon == battle._ascMegaPlayerMon then
       applyNow(battle, battler, "player", battle._ascMegaPlayerProfile)
-    elseif not battler.isPlayer and battler.mon == battle._ascMegaEnemyMon then
-      applyNow(battle, battler, "enemy", battle._ascMegaEnemyProfile)
+    elseif not battler.isPlayer then
+      local profile = battle._ascMegaEnemyProfiles and battle._ascMegaEnemyProfiles[battler.mon]
+        or battler.mon == battle._ascMegaEnemyMon and battle._ascMegaEnemyProfile
+      if profile then applyNow(battle, battler, "enemy", profile) end
     end
   end)
 
@@ -1357,6 +1616,96 @@ return function(mod, opts)
   M.hasStone = function(stone)
     local s = state(false)
     return s and s.stones and s.stones[stone] == true or false
+  end
+  -- Shared Legacy Vault item seam. The Mega state, not a loose Bag count, is
+  -- authoritative in both generations. These operations only stage the
+  -- in-memory save; legacy_bank_bridge.lua owns writeSave, rollback and the
+  -- matching shared-vault transaction.
+  M.legacyBankItems = function()
+    local s, out = state(false), {}
+    if not s then return out end
+    if s.ring == true then out.MEGA_RING = 1 end
+    for id, owned in pairs(type(s.stones) == "table" and s.stones or {}) do
+      if owned == true and FORM_BY_STONE[id]
+          and not FORM_BY_STONE[id].secret then out[id] = 1 end
+    end
+    return out
+  end
+  M.importLegacyBankItem = function(id)
+    id = tostring(id or ""):upper()
+    local s = state()
+    local receipt = { id = id, direction = "import" }
+    if id == "MEGA_RING" then
+      receipt.ring, receipt.case = s.ring, s.case
+      local save = M.game and M.game.save
+      save = type(save) == "table" and save or nil
+      if save then
+        save.inventory = type(save.inventory) == "table" and save.inventory or {}
+        receipt.inventoryRing = save.inventory.MEGA_RING
+        receipt.inventoryCase = save.inventory.MEGA_STONE_CASE
+        save.inventory.MEGA_RING = math.max(1,
+          tonumber(save.inventory.MEGA_RING) or 0)
+        save.inventory.MEGA_STONE_CASE = math.max(1,
+          tonumber(save.inventory.MEGA_STONE_CASE) or 0)
+      end
+      s.ring, s.case = true, true
+    elseif FORM_BY_STONE[id] and not FORM_BY_STONE[id].secret then
+      receipt.stoneOwned = s.stones[id] == true
+      s.stones[id] = true
+    else
+      return nil, "item_not_cross_generation"
+    end
+    persist(s)
+    return receipt
+  end
+  M.removeLegacyBankItem = function(id)
+    id = tostring(id or ""):upper()
+    local s = state(false)
+    if not s then return nil, "mega_state_unavailable" end
+    local receipt = { id = id, direction = "remove" }
+    if id == "MEGA_RING" then
+      if s.ring ~= true then return nil, "item_not_owned" end
+      receipt.ring, receipt.case = s.ring, s.case
+      local save = M.game and M.game.save
+      save = type(save) == "table" and save or nil
+      if save then
+        save.inventory = type(save.inventory) == "table" and save.inventory or {}
+        receipt.inventoryRing = save.inventory.MEGA_RING
+        receipt.inventoryCase = save.inventory.MEGA_STONE_CASE
+        save.inventory.MEGA_RING = nil
+        save.inventory.MEGA_STONE_CASE = nil
+      end
+      s.ring, s.case = false, false
+    elseif FORM_BY_STONE[id] and not FORM_BY_STONE[id].secret then
+      if s.stones[id] ~= true then return nil, "item_not_owned" end
+      receipt.stoneOwned = true
+      s.stones[id] = nil
+    else
+      return nil, "item_not_cross_generation"
+    end
+    persist(s)
+    return receipt
+  end
+  M.rollbackLegacyBankItem = function(receipt)
+    if type(receipt) ~= "table" or type(receipt.id) ~= "string" then
+      return false
+    end
+    local s, id = state(), receipt.id
+    if id == "MEGA_RING" then
+      s.ring, s.case = receipt.ring == true, receipt.case == true
+      local save = M.game and M.game.save
+      if type(save) == "table" then
+        save.inventory = type(save.inventory) == "table" and save.inventory or {}
+        save.inventory.MEGA_RING = receipt.inventoryRing
+        save.inventory.MEGA_STONE_CASE = receipt.inventoryCase
+      end
+    elseif FORM_BY_STONE[id] and not FORM_BY_STONE[id].secret then
+      s.stones[id] = receipt.stoneOwned == true or nil
+    else
+      return false
+    end
+    persist(s)
+    return true
   end
   M.grantStone = function(stone)
     local profile = FORM_BY_STONE[stone]
@@ -1429,6 +1778,11 @@ return function(mod, opts)
   M.stoneName = stoneName
   M.caseLabel = caseLabel
   M.animationData = animationData
+  function M.animationTimings(profile)
+    local current=profile and animationData[profile.id]
+    return spriteCollection and spriteCollection:timings(profile,current)or current
+  end
+  M.presentationDelta = presentationDelta
   M.updateAnimations = updateMegaAnimations
   function M.usesCrystalBattleFront(mon)
     local profile = type(mon) == "table"

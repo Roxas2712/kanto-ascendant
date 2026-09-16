@@ -1,67 +1,86 @@
 local M = {}
-local FALLBACK_SNAP_STATE = "__kascRendererBattleHudSnapReceipt"
-local FALLBACK_SNAP_HOOK = "__kascRendererBattleHudSnapHook"
-local FALLBACK_SNAP_SCHEMA = "ka-renderer-battle-hud-snap/v1"
 
 function M.new(mod)
-  local voxelRenderer = mod.exports and mod.exports.voxelRendererCompat
-  local rendererBattleHud = mod.exports and mod.exports.rendererBattleHud
   local overlays = {}
   local wrapped = setmetatable({}, { __mode = "k" })
   local installed = false
+  local activeHudHost
+  local hudOwnerPredicate
   local service = {}
 
   function service:add(overlay)
     overlays[#overlays + 1] = overlay
   end
 
+  -- Replacement renderers may publish a stricter, frame-local ownership
+  -- predicate than KASC can infer from loader metadata alone. Keep this seam
+  -- presentation-only: it never changes user options and never grants KASC
+  -- access to the renderer's private canvas.
+  function service:setHudOwnerPredicate(predicate)
+    if predicate ~= nil and type(predicate) ~= "function" then
+      return false, "predicate-must-be-function-or-nil"
+    end
+    hudOwnerPredicate = predicate
+    return true
+  end
+
+  local function refreshHudHost(game)
+    local voxelRenderer = mod.exports and mod.exports.voxelRendererCompat
+    activeHudHost = voxelRenderer and type(voxelRenderer.module) == "function"
+      and voxelRenderer.module(game, "OverworldBattle") or nil
+  end
+
+  -- Complete replacement HUDs such as VASC's ORAS provider consume KASC's
+  -- public gender/QoL data themselves. KASC observes the renderer-owned,
+  -- frame-local receipt but never wraps, snaps or draws into its HUD canvas.
+  local function externalHudOwned(battle)
+    if type(hudOwnerPredicate) == "function" then
+      local okPredicate, owned = pcall(hudOwnerPredicate, battle)
+      -- A successfully evaluated replacement-renderer predicate is the
+      -- frame-local authority, including its explicit `false`.  Falling
+      -- through to yesterday's generic snap receipt on false can suppress
+      -- native KASC overlays when only VASC's command menu (not its status
+      -- HUD) owns the current frame.
+      return okPredicate and owned == true
+    end
+    if not activeHudHost then
+      refreshHudHost(type(battle) == "table" and battle.game or nil)
+    end
+    if not (activeHudHost
+        and type(activeHudHost.hudSnapReceipt) == "function") then
+      return false
+    end
+    local ok, receipt = pcall(activeHudHost.hudSnapReceipt, battle)
+    local shot = type(battle) == "table"
+      and rawget(battle, "voxelAscendantShot") or nil
+    if type(activeHudHost.shot) == "function" then
+      local okShot, current = pcall(activeHudHost.shot, battle)
+      if not okShot or current ~= shot then return false end
+    end
+    return ok and type(shot) == "table" and type(receipt) == "table"
+      and receipt.schema == "voxel-ascendant/hud-snap/v1"
+      and receipt.shot == shot and receipt.snapped == true
+      and (receipt.owner == "voxel_ascendant.oras"
+        or receipt.owner == "kanto_ascendant.oras")
+  end
+
+  function service:externalHudOwned(battle)
+    return externalHudOwned(battle)
+  end
+
   function service:install()
     if installed then return end
     installed = true
-    mod.events:once("mods.loaded", function()
-      -- renderer_battle_hud owns this observational hook in normal KASC
-      -- loads.  Keep the same fail-closed receipt as a compatibility fallback
-      -- for a reduced/headless load that did not construct that service.
-      local handle, rendererId, reason, exported = voxelRenderer
-        and voxelRenderer.find(mod)
-      local lib = handle and exported and exported.lib
-      if not lib or type(lib.require) ~= "function" then return end
-      local ok, OverworldBattle = pcall(lib.require, "OverworldBattle")
-      local snapKey = rendererBattleHud and rendererBattleHud.snapReceiptKey
-        or FALLBACK_SNAP_STATE
-      local hookKey = rendererBattleHud and rendererBattleHud.snapHookKey
-        or FALLBACK_SNAP_HOOK
-      local snapSchema = rendererBattleHud and rendererBattleHud.snapSchema
-        or FALLBACK_SNAP_SCHEMA
-      if not ok or type(OverworldBattle) ~= "table"
-         or type(OverworldBattle.snapHUDs) ~= "function"
-         or rawget(OverworldBattle, hookKey) then return end
-      local snapHUDs = OverworldBattle.snapHUDs
-      local hook = {
-        original = snapHUDs, fallback = true, rendererId = rendererId,
-      }
-      OverworldBattle.snapHUDs = function(battle, shot, ...)
-        if battle then
-          battle[snapKey] = {
-            schema = snapSchema, rendererId = hook.rendererId,
-            shot = shot, snapped = false,
-            reason = "snap-pending",
-          }
-        end
-        local snapped = snapHUDs(battle, shot, ...)
-        if battle then
-          battle[snapKey] = {
-            schema = snapSchema, rendererId = hook.rendererId,
-            shot = shot, snapped = snapped == true,
-            reason = snapped == true and nil or "snap-declined",
-          }
-        end
-        return snapped
-      end
-      OverworldBattle[hookKey] = hook
+    mod.events:once("mods.loaded", function(ev)
+      refreshHudHost(ev and ev.game)
+    end)
+    mod.events:on("game.ready", function(ev)
+      refreshHudHost(ev and ev.game)
     end)
     mod.events:on("battle.started", function(event)
       local battle = event and event.battle
+      refreshHudHost((event and event.game)
+        or (type(battle) == "table" and battle.game) or nil)
       if not battle or wrapped[battle] or type(battle.draw) ~= "function" then
         return
       end
@@ -77,59 +96,17 @@ function M.new(mod)
       battle.draw = function(self, ...)
         baseDraw(self, ...)
         if self.blankForAskName then return end
-
         local fx = self.fx
         local sx = fx and fx.shakeX or 0
         local sy = fx and fx.shakeY or 0
         if sx == 0 and sy == 0 and fx and fx.shake and fx.shake > 0 then
           sx = self.frame % 4 < 2 and 2 or -2
         end
-        -- The renderer contract validates the current-shot snap receipt and
-        -- supplies explicit HP/band/text anchors.  When the service exists we
-        -- never bypass a refusal by guessing from a raw shot field.
-        local rendererHudContext
-        if rendererBattleHud
-            and type(rendererBattleHud.context) == "function" then
-          local gotContext, value = pcall(rendererBattleHud.context, self)
-          if gotContext then rendererHudContext = value end
-        else
-          -- Reduced/headless compatibility fallback for older KASC harnesses.
-          local shot = rawget(self, "voxelAscendantShot")
-            or rawget(self, "dramaticShapeShot")
-          local receipt = rawget(self, FALLBACK_SNAP_STATE)
-          if type(shot) == "table" and shot.canvas
-              and type(shot.scale) == "number" and shot.scale > 0
-              and type(shot.pw) == "number" and type(shot.ph) == "number"
-              and type(shot.lx) == "number" and type(shot.ly) == "number"
-              and type(receipt) == "table"
-              and receipt.schema == FALLBACK_SNAP_SCHEMA
-              and receipt.shot == shot and receipt.snapped == true then
-            rendererHudContext = {
-              schema = "ka-renderer-battle-hud-context/v1",
-              shot = shot, canvas = shot.canvas, scale = shot.scale,
-              enemyScale = shot.scale, playerScale = shot.scale,
-              anchors = {
-                hudTop = shot.ly, enemyHudLeft = 0, enemySourceX = 8,
-                enemyScale = shot.scale,
-                playerHudRight = shot.pw,
-                playerScale = shot.scale,
-                expRight = shot.pw - 13 * shot.scale,
-                expY = shot.ly + 89 * shot.scale,
-                caughtNameOrigin = -9 * shot.scale,
-                caughtY = shot.ly + 7 * shot.scale,
-                textLeft = shot.lx, textScale = shot.scale,
-              },
-            }
-          end
-        end
         local context = {
           sx = sx,
           sy = sy,
           slide = (self.introSlide or 0) * 4,
-          rendererHud = rendererHudContext,
-          -- Backward-compatible alias for third-party overlays registered on
-          -- KASC's service.  New KASC features consume rendererHud anchors.
-          voxel3dBattleData = rendererHudContext and rendererHudContext.shot,
+          externalHudOwned = externalHudOwned(self),
         }
 
         for i, overlay in ipairs(overlays) do

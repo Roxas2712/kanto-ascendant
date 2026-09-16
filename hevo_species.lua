@@ -416,12 +416,24 @@ return function(mod, opts)
     if not preserveLandedTurn then user.kaHevoRolloutLandedTurn = nil end
   end
 
+  local function rollingCardOwns(battle, user, move)
+    local owner = mod.exports and mod.exports.pokemonRollingCombo67
+    if not owner or not move then return false end
+    if move.id == "DEFENSE_CURL" then
+      local effect = battle and battle.data and battle.data.move_effects[move.effect]
+      return owner.epoch(battle) ~= nil and effect
+        and effect.kascRollingCombo67 == owner.OWNER or false
+    end
+    return owner.epoch(battle, user, move) ~= nil
+  end
+
   local function onRolloutLanded(ev)
     local user, move = ev and ev.user, ev and ev.move
     local damage = tonumber(ev and (ev.damage or ev.totalDealt)) or 0
     if not (user and move and move.id == "ROLLOUT") or damage <= 0 then
       return {}
     end
+    if rollingCardOwns(ev.battle, user, move) then return {} end
     local state = user.kaHevoRollout or { step = 1 }
     local turn = ev.battle and ev.battle.turnCount or ev.turn or 0
     -- battle.damage_dealt fires before the ordinary secondary callback.
@@ -522,6 +534,9 @@ return function(mod, opts)
   if mod.hooks and mod.hooks.wrap then
     mod.hooks:wrap("battle.damage", function(nextDamage, ctx)
       local moveId = ctx and ctx.move and ctx.move.id
+      if moveId == "ROLLOUT" and rollingCardOwns(ctx.battle, ctx.user, ctx.move) then
+        return nextDamage(ctx)
+      end
       local physicalLeafBlade = moveId == "LEAF_BLADE"
         and leafeonUsesPhysicalLeafBlade(ctx.user)
       if moveId ~= "ROLLOUT" and not physicalLeafBlade then
@@ -544,6 +559,12 @@ return function(mod, opts)
   local function onMoveUsed(ev)
     local user, move = ev and ev.user, ev and ev.move
     if not (user and move and move.id) then return end
+    if rollingCardOwns(ev.battle, user, move) then
+      -- Retire only the legacy Walzer lock, including an old CP's synthetic
+      -- pp=0 Thrash slot. Genuine Thrash and foreign/off Walzer stay native.
+      clearRollout(user)
+      return
+    end
     if move.id == "DEFENSE_CURL" then
       clearRollout(user)
       user.kaHevoDefenseCurl = true

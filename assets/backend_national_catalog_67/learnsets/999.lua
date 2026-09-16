@@ -1,0 +1,2 @@
+-- Version-specific learn sources, never cumulative.
+return {["25"]={{1,1,"ASTONISH",1},{1,1,"TACKLE",2},{4,0,"CONFUSE_RAY",0},{4,0,"ENDURE",0},{4,0,"HEX",0},{4,0,"LIGHT_SCREEN",0},{4,0,"NASTY_PLOT",0},{4,0,"NIGHT_SHADE",0},{4,0,"POWER_GEM",0},{4,0,"PROTECT",0},{4,0,"REFLECT",0},{4,0,"REST",0},{4,0,"SHADOW_BALL",0},{4,0,"SLEEP_TALK",0},{4,0,"SUBSTITUTE",0},{4,0,"TAKE_DOWN",0},{4,0,"TERA_BLAST",0},{4,0,"THIEF",0}}}

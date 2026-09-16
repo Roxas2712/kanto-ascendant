@@ -1,0 +1,21 @@
+{
+  "url": "https://raw.githubusercontent.com/PokeAPI/pokeapi/d4f9a4af58ade123fbc0558f68b1c69daa97d9e4/data/v2/csv/",
+  "commit": "d4f9a4af58ade123fbc0558f68b1c69daa97d9e4",
+  "files": {
+    "pokemon_species.csv": "9878f19c0637095cdd9a4134b4aac8fb2b64776d3bdc599aa68f15c3a011b87c",
+    "pokemon_species_names.csv": "820cde17074cdb1c2b0595c997fb8f998e773bd5da3bb525dec85703c86c5fd9",
+    "pokemon.csv": "16c81c33188b0eac403aa2f759fcbe9e42c611f722d263f5b5a6a5bff9f8ce6b",
+    "pokemon_stats.csv": "fa2c44263a3706468682fefc3e0b3c4f5487fe9febed7d4ebcd6939c34b16aa8",
+    "pokemon_types.csv": "f1fc4bfd657a034ea3bf6972423b10276424aa068577b304a78a08996425ba05",
+    "types.csv": "37f039c8d722f47d51ba1c5c5ecf9b7007235b1a9a1af2827645c777b70307c8",
+    "growth_rates.csv": "2691fea161441ce97085d70c0f466c0329a9a5a587a9797bb3b757da0e8090d0",
+    "pokemon_forms.csv": "99bf8f7ad4dc1f2e291357a090cef6a575623ec3cbf9030d0e33656e6e608ae2",
+    "pokemon_form_names.csv": "f496066d02fab12c18d10cce0af2f748d09cb7e296ecc784cc8682f8c4da8625",
+    "moves.csv": "8aafd37bf78f19471495c05b201545180f50f0a08a2a2a844d69f9837dd39ac9",
+    "pokemon_moves.csv": "22a807cef26891eeac0d0c900bd363e66baf421f7ee795bc7bc3e718f23b939e",
+    "version_groups.csv": "28da8d89d8eb4966941f81a9e62b3990510ed4d76dd774158246551a8e7707a7"
+  },
+  "baseSpecies": 1025,
+  "forms": 326,
+  "gigantamaxForms": 34
+}

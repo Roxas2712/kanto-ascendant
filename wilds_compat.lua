@@ -17,6 +17,7 @@ return function(mod, opts)
   local extendedRuntime = opts.extendedRuntime
   local voxelRenderer = opts.voxelRenderer
   local spawnSafety = opts.spawnSafety
+  local generationRules = opts.generationRules
   local encounterLevels = opts.encounterLevels
     or johtoResearch.encounterLevels or {
       routeAverage = function() return nil end,
@@ -86,6 +87,28 @@ return function(mod, opts)
 
   local function terrainForSurface(surface)
     return TERRAIN_FOR_SURFACE[tostring(surface or ""):upper()]
+  end
+
+  local function speciesAllowed(game, species)
+    if not (generationRules
+        and type(generationRules.speciesAvailable) == "function") then
+      return true
+    end
+    game = game or W.game
+    local def = game and game.data and game.data.pokemon
+      and game.data.pokemon[species]
+    if type(def) ~= "table" then return false end
+    local ok, allowed = pcall(
+      generationRules.speciesAvailable, game, species, def)
+    return ok and allowed == true
+  end
+
+  local function filterSpecies(game, pool)
+    local out = {}
+    for _, species in ipairs(type(pool) == "table" and pool or {}) do
+      if speciesAllowed(game, species) then out[#out + 1] = species end
+    end
+    return out
   end
 
   local function overworldFor(logic)
@@ -314,6 +337,12 @@ return function(mod, opts)
 
   local function copyDef(def)
     if type(def) ~= "table" or type(def.image) ~= "string" then return nil end
+    local prefix=mod.path.."/"
+    local relative=def.image:sub(1,#prefix)==prefix and def.image:sub(#prefix+1)
+    local optional=mod.exports and mod.exports.optionalPokemonAssets
+    if relative and optional and optional.declared(relative) and not mod:read(relative) then
+      return nil -- Missing optional followers must let the existing provider fallback run.
+    end
     return {
       id = def.id,
       image = def.image,
@@ -455,9 +484,10 @@ return function(mod, opts)
       local originalSpeciesPool = class.speciesPool
       class.speciesPool = function(game, mapId, map)
         local mode = townPokemonSpecies()
-        local kanto = originalSpeciesPool(game, mapId, map) or {}
+        local kanto = filterSpecies(game,
+          originalSpeciesPool(game, mapId, map) or {})
         if mode == "kanto" then return kanto end
-        local johto = townJohtoPool()
+        local johto = filterSpecies(game, townJohtoPool())
         if mode == "johto" then
           return #johto > 0 and johto or kanto
         end
@@ -547,7 +577,8 @@ return function(mod, opts)
           local incoming = spawnOpts or {}
           local selected
           local explicit = speciesKey(incoming.species)
-          if explicit and data.species and data.species[explicit] then
+          if explicit and data.species and data.species[explicit]
+              and speciesAllowed(spawnGame, explicit) then
             selected = {
               species = explicit,
               level = tonumber(incoming.level) or 1,
@@ -562,6 +593,9 @@ return function(mod, opts)
             selected = johtoResearch.rollHabitat(
               mapId, "water", random, nil, nil,
               encounterLevels.routeAverage(encDef, "water"))
+          end
+          if selected and not speciesAllowed(spawnGame, selected.species) then
+            selected = nil
           end
           if not selected then
             return originalTrySpawnWater(self, spawnGame, incoming)
@@ -610,6 +644,7 @@ return function(mod, opts)
       for species, id in pairs(W.spriteIds) do
         local sprite = game.data and game.data.sprites
           and game.data.sprites[id]
+        sprite = copyDef(sprite)
         if sprite then
           render.speciesSpriteIds[species] = id
           render.registrationInfo[species] = {
@@ -648,6 +683,9 @@ return function(mod, opts)
           mapId, terrain, random, nil, nil, routeAverageLevel)
       end
 
+      if selected and not speciesAllowed(spawnGame, selected.species) then
+        selected = nil
+      end
       if selected then
         local augmented = {}
         for key, value in pairs(incoming) do augmented[key] = value end

@@ -23,6 +23,8 @@ return function(mod, opts)
     -- the early curve and reaches its familiar electric final counterpart.
     { lineId = "yellow_eevee", base = "EEVEE", mid = "EEVEE",
       final = "JOLTEON", attacks = { "NORMAL", "ELECTRIC" } },
+    { lineId = "kanto_pikachu", base = "PIKACHU", mid = "PIKACHU",
+      final = "RAICHU", attacks = { "ELECTRIC" } },
     { lineId = "kanto_grass", base = "BULBASAUR", mid = "IVYSAUR",
       final = "VENUSAUR", attacks = { "GRASS", "POISON" } },
     { lineId = "kanto_fire", base = "CHARMANDER", mid = "CHARMELEON",
@@ -41,6 +43,30 @@ return function(mod, opts)
       final = "BLAZIKEN", attacks = { "FIRE", "FIGHTING" } },
     { lineId = "hoenn_water", base = "MUDKIP", mid = "MARSHTOMP",
       final = "SWAMPERT", attacks = { "WATER", "GROUND" } },
+    { lineId = "sinnoh_grass", base = "TURTWIG", mid = "GROTLE",
+      final = "TORTERRA", attacks = { "GRASS", "GROUND" } },
+    { lineId = "sinnoh_fire", base = "CHIMCHAR", mid = "MONFERNO",
+      final = "INFERNAPE", attacks = { "FIRE", "FIGHTING" } },
+    { lineId = "sinnoh_water", base = "PIPLUP", mid = "PRINPLUP",
+      final = "EMPOLEON", attacks = { "WATER", "STEEL" } },
+    { lineId = "unova_grass", base = "SNIVY", mid = "SERVINE",
+      final = "SERPERIOR", attacks = { "GRASS" } },
+    { lineId = "unova_fire", base = "TEPIG", mid = "PIGNITE",
+      final = "EMBOAR", attacks = { "FIRE", "FIGHTING" } },
+    { lineId = "unova_water", base = "OSHAWOTT", mid = "DEWOTT",
+      final = "SAMUROTT", attacks = { "WATER" } },
+    { lineId = "kalos_grass", base = "CHESPIN", mid = "QUILLADIN",
+      final = "CHESNAUGHT", attacks = { "GRASS", "FIGHTING" } },
+    { lineId = "kalos_fire", base = "FENNEKIN", mid = "BRAIXEN",
+      final = "DELPHOX", attacks = { "FIRE", "PSYCHIC_TYPE" } },
+    { lineId = "kalos_water", base = "FROAKIE", mid = "FROGADIER",
+      final = "GRENINJA", attacks = { "WATER", "DARK" } },
+    { lineId = "alola_grass", base = "ROWLET", mid = "DARTRIX",
+      final = "DECIDUEYE", attacks = { "GRASS", "GHOST" } },
+    { lineId = "alola_fire", base = "LITTEN", mid = "TORRACAT",
+      final = "INCINEROAR", attacks = { "FIRE", "DARK" } },
+    { lineId = "alola_water", base = "POPPLIO", mid = "BRIONNE",
+      final = "PRIMARINA", attacks = { "WATER", "FAIRY" } },
     { lineId = "ampharos", base = "MAREEP", mid = "FLAAFFY",
       final = "AMPHAROS", attacks = { "ELECTRIC" } },
     { lineId = "machamp", base = "MACHOP", mid = "MACHOKE",
@@ -242,6 +268,54 @@ return function(mod, opts)
     return storedLine(candidates[index], species)
   end
 
+  -- Exact starter-family lookup used by the independent NG+ random Card.
+  -- This deliberately performs no type counter-pick: the caller chooses a
+  -- starter identity first, and this function only seals its authored growth
+  -- line for the existing rival battle hook.
+  function R.lineForStarter(species, sourcePartner)
+    species = normalizedSpecies(species)
+    sourcePartner = normalizedSpecies(sourcePartner)
+    local line = species and BY_ID[FAMILY_OF[species]] or nil
+    if not (line and line.base == species and lineAvailable(line)) then
+      return nil, "random starter line unavailable"
+    end
+    return storedLine(line, sourcePartner or species)
+  end
+
+  -- Global random partners use the selected species' real registered
+  -- evolution chain. Two-stage and single-stage families repeat their final
+  -- legal form at later rival milestones; no synthetic species is invented.
+  function R.lineForRandomSpecies(species, sourcePartner)
+    species = normalizedSpecies(species)
+    sourcePartner = normalizedSpecies(sourcePartner)
+    if not species or not pokemonDef(species) then
+      return nil, "random global species unavailable"
+    end
+    local authored = R.lineForStarter(species, sourcePartner)
+    if authored then return authored end
+    local function nextSpecies(current)
+      local def = pokemonDef(current)
+      local candidates = {}
+      for _, evolution in ipairs(type(def and def.evolutions) == "table"
+          and def.evolutions or {}) do
+        local target = normalizedSpecies(evolution.species)
+        if target and pokemonDef(target) then candidates[#candidates + 1] = target end
+      end
+      table.sort(candidates)
+      return candidates[1]
+    end
+    local mid = nextSpecies(species) or species
+    local final = nextSpecies(mid) or mid
+    return {
+      version = 1,
+      base = species,
+      mid = mid,
+      final = final,
+      lineId = ("global_%s_%s_%s"):format(species, mid, final):lower(),
+      sourcePartner = sourcePartner or species,
+    }
+  end
+
   -- Delayed and idempotent by contract. rightBallClaimed/rivalClaimed alone
   -- deliberately cannot populate rivalPartner.
   function R.resolveForJourney(journey)
@@ -250,6 +324,33 @@ return function(mod, opts)
     end
     local source = normalizedSpecies(journey.partnerSpecies)
     if not source then return nil, "partner choice pending" end
+    if journey.partnerMode == "random" then
+      local receipt = journey.randomPartnerReceipt
+      local poolKind = type(receipt) == "table" and receipt.poolKind or "starter"
+      if poolKind ~= "starter" and poolKind ~= "global" then
+        return nil, "invalid sealed random pool kind"
+      end
+      local selected = type(receipt) == "table"
+        and (poolKind == "global"
+          and R.lineForRandomSpecies(receipt.rivalSpecies, source)
+          or R.lineForStarter(receipt.rivalSpecies, source)) or nil
+      if not (selected and receipt.version == 1
+          and receipt.playerSpecies == source
+          and receipt.rivalLineId == selected.lineId) then
+        return nil, "invalid sealed random rival partner"
+      end
+      if type(journey.rivalPartner) == "table"
+          and journey.rivalPartner.version == selected.version
+          and journey.rivalPartner.sourcePartner == selected.sourcePartner
+          and journey.rivalPartner.lineId == selected.lineId
+          and journey.rivalPartner.base == selected.base
+          and journey.rivalPartner.mid == selected.mid
+          and journey.rivalPartner.final == selected.final then
+        return journey.rivalPartner
+      end
+      journey.rivalPartner = selected
+      return journey.rivalPartner
+    end
     if journey.partnerMode == "yellow"
         and lineAvailable(BY_ID.yellow_eevee) then
       if validStored(journey.rivalPartner, source)

@@ -1,8 +1,0 @@
-{
-  "id": "PokePCFollowers_VoxelMerge",
-  "name": "PokePC Followers",
-  "version": "1.0.0",
-  "api": 2,
-  "entry": "main.lua",
-  "profile": "content"
-}

@@ -1,0 +1,2 @@
+-- Supplied PokeWilds palette, bounded to #416.
+return {["frontShiny"]={["root"]="assets/wave1_vespiquen_shiny_67/front/shiny",["durations"]={300,100,100,100,100,100,100,100,100,100,100,100,100},["animated"]=true,["scale"]=1},["backShiny"]={["root"]="assets/wave1_vespiquen_shiny_67/back/shiny",["durations"]={1000},["animated"]=false,["scale"]=1},["voxelShiny"]={["root"]="assets/wave1_vespiquen_shiny_67/voxel/shiny",["durations"]={300,100,100,100,100,100,100,100,100,100,100,100,100},["animated"]=true,["scale"]=1.5}}

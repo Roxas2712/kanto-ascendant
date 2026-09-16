@@ -264,6 +264,12 @@ return function(mod, opts)
   end
 
   function M.spec(classId)
+    local male = mod.exports and mod.exports.baldCrewMaleCharacter67
+    if male and male.ownsClass(classId) then return male.portraitSpec(nil,classId) end
+    if classId == "KA_BALD_CREW_FEMALE" then
+      local crew = mod.exports and mod.exports.baldCrewCharacter67
+      return crew and crew.portraitSpec and crew.portraitSpec() or nil
+    end
     if classId == "KA_OAK_BETA" then classId = "OPP_PROF_OAK" end
     local stem = STEMS[classId]
     if not stem then return nil end
@@ -311,6 +317,12 @@ return function(mod, opts)
   end
 
   function M.specForBattle(battle)
+    local male = mod.exports and mod.exports.baldCrewMaleCharacter67
+    if male and battle and male.ownsClass(battle.oppClass) then return male.portraitSpec(battle) end
+    if battle and battle.oppClass == "KA_BALD_CREW_FEMALE" then
+      local crew = mod.exports and mod.exports.baldCrewCharacter67
+      return crew and crew.portraitSpec and crew.portraitSpec(battle) or nil
+    end
     local authority = M.jessieJamesAuthority(battle)
     if not authority then return M.spec(battle and battle.oppClass) end
     local result = spec(JESSIE_JAMES.class, "rocket_grunt_m")

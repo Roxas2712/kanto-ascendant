@@ -197,6 +197,7 @@ function feature.install(mod, services)
   end
 
   local function drawExpBar(battle, state, context)
+    if context.externalHudOwned then return end
     local mode = optionValue(battle.game, "qol_exp_bar")
     if mode ~= "black" and mode ~= "blue" then return end
     local color = mode == "black" and EXP_BLACK or EXP_BLUE

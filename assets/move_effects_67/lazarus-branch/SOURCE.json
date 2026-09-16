@@ -1,0 +1,13 @@
+{
+  "schema": "kasc.move-effect-art/v1",
+  "move": "BRANCH_POKE",
+  "romSha256": "d756b2783dede0bb2c534d1f07713bef733cf53500388e3912f14220a7e16e97",
+  "romMoveIndex": 713,
+  "graphicsTag": 10365,
+  "spriteTemplate": "0x5651c4",
+  "width": 32,
+  "height": 32,
+  "pngSha256": "bc9d2b11aa3bc181d255f75670c940e00943240031e7a6ef66f8e23565b0ba05",
+  "timing": "37-frame KASC projectile adaptation; not GBA callback emulation",
+  "visualApproval": false
+}

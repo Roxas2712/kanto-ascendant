@@ -142,12 +142,21 @@ local function hpDv(dvs)
     + (dvs.speed % 2) * 2 + (dvs.special % 2)
 end
 
+local DAMAGE_EFFECTS = {
+  SUPER_FANG_EFFECT=true, SPECIAL_DAMAGE_EFFECT=true,
+  OHKO_EFFECT=true, COUNTER_EFFECT=true,
+}
+local function damaging(def)
+  return type(def)=="table" and ((tonumber(def.power) or 0)>0
+    or DAMAGE_EFFECTS[def.effect]==true)
+end
+
 local function moveClass(id, def)
   if RECOVERY[id] then return "recovery" end
   if SETUP[id] then return "setup" end
   if STATUS[id] then return "status" end
   if UTILITY[id] then return "utility" end
-  if (tonumber(def and def.power) or 0) > 0 then return "damage" end
+  if damaging(def) then return "damage" end
   return "utility"
 end
 
@@ -222,6 +231,11 @@ local function legalMoves(game, mon, context)
   end
   local function add(id, why)
     if type(id) ~= "string" or not (data.moves and data.moves[id]) then return end
+    local rules = context.generationRules
+    if rules and type(rules.moveAvailable)=="function" then
+      local resolved=context.generationProfile or rules.resolve(game)
+      if not rules.moveAvailable(id,resolved and resolved.activeEpoch or 1,data) then return end
+    end
     if JOHTO_MOVE_IDS[id] and not johtoUnlocked then return end
     if EXTENDED_MOVE_IDS[id] then
       if type(context.extendedMoveAllowed) ~= "function" then return end
@@ -242,6 +256,31 @@ local function legalMoves(game, mon, context)
     end
   end
   for _, id in ipairs(species and species.tmhm or {}) do add(id, "tmhm") end
+  -- Evolved trainer Pokemon are constructed directly. They still retain
+  -- legal level-up moves of their actual ancestors (e.g. Caterpie's Tackle),
+  -- never moves of descendants or unrelated members of a branching family.
+  local visited = { [mon.species]=true }
+  local function inherit(child)
+    for parentId, parent in pairs(data.pokemon or {}) do
+      if not visited[parentId] and not parent.giftOnly and not parent.backendForm then
+        for _, evolution in ipairs(parent.evolutions or {}) do
+          local target=evolution.species or evolution[2]
+          local rules=context.generationRules
+          if target==child
+              and (not rules or rules.speciesAvailable(game,parentId,parent)) then
+            visited[parentId]=true
+            for _,id in ipairs(parent.level1Moves or {}) do add(id,"pre-evolution") end
+            for _,row in ipairs(parent.learnset or {}) do
+              if (tonumber(row.level) or 1)<=mon.level then add(row.move,"pre-evolution") end
+            end
+            inherit(parentId)
+            break
+          end
+        end
+      end
+    end
+  end
+  inherit(mon.species)
   -- Crown signature compatibility is owned by Field Tech rather than the
   -- Gen-I registry's tmhm projection. Try each registered extended move so
   -- that the callback can attest that exact family without making the move
@@ -312,7 +351,13 @@ local function chooseMoves(game, mon, context, teamTypes)
   end
   -- A deliberate tactical tool survives upgrades.  This is what protects
   -- authored sets such as Clefairy + Minimize from raw-power replacement.
-  for _, id in ipairs(current) do if TACTICAL_KEEP[id] then take(id) end end
+  local attack
+  for _, row in ipairs(ranked) do
+    if row.class=="damage" then attack=row.id;break end
+  end
+  for _, id in ipairs(current) do
+    if TACTICAL_KEEP[id] and (not attack or #selected<3) then take(id) end
+  end
   local function best(predicate)
     for _, row in ipairs(ranked) do
       if predicate(row) and not chosen[row.id] then return row.id end
@@ -321,7 +366,7 @@ local function chooseMoves(game, mon, context, teamTypes)
   take(best(function(row)
     local def = game.data.moves[row.id]
     return row.class == "damage" and hasType(species.types, def.type)
-  end))
+  end) or attack)
   take(best(function(row)
     return row.class == "status" or row.class == "setup"
       or row.class == "recovery"
@@ -331,18 +376,21 @@ local function chooseMoves(game, mon, context, teamTypes)
     return row.class == "damage" and not hasType(species.types, def.type)
   end))
   for _, row in ipairs(ranked) do take(row.id) end
-  if #selected == 0 then return current, role, sources, false end
+  if #selected == 0 then return current, role, sources, false, legal end
 
   local oldScore = setScore(current, game, species, role, teamTypes)
   local newScore = setScore(selected, game, species, role, teamTypes)
-  if not context.perfect and #current > 0 and newScore + 0.001 < oldScore then
-    return current, role, sources, false
+  local currentDamage=false
+  for _,id in ipairs(current) do if damaging(game.data.moves[id]) then currentDamage=true end end
+  if not context.perfect and #current > 0 and (currentDamage or not attack)
+      and newScore + 0.001 < oldScore then
+    return current, role, sources, false, legal
   end
   local changed = #current ~= #selected
   if not changed then
     for i, id in ipairs(current) do if selected[i] ~= id then changed = true end end
   end
-  return selected, role, sources, changed
+  return selected, role, sources, changed, legal
 end
 
 function M.create(opts)
@@ -372,6 +420,8 @@ function M.create(opts)
     context.johtoUnlocked = johtoUnlocked(context)
     context.resonanceRules = R.resonanceRules
     context.extendedMoveAllowed = opts.extendedMoveAllowed
+    context.generationRules = opts.generationRules
+    context.generationProfile = opts.generationRules and opts.generationRules.resolve(game)
     local Stats = context.Stats or require("src.pokemon.Stats")
     local reports, allLevel100, teamTypes = {}, true, {}
     for _, mon in ipairs(battle and battle.enemyParty or {}) do
@@ -412,9 +462,18 @@ function M.create(opts)
       end
       mon.hp = mon.stats.hp
 
-      local moveIds, role, sources, changed = chooseMoves(
+      local moveIds, role, sources, changed, legal = chooseMoves(
         game, mon, context, teamTypes)
-      if changed and (mon.level == MAX_LEVEL or context.progress >= 3) then
+      local currentDamage, illegalCurrent=false,false
+      for _,move in ipairs(mon.moves or {}) do
+        if not legal[move.id] then illegalCurrent=true end
+        if legal[move.id] and damaging(game.data.moves[move.id]) then currentDamage=true end
+      end
+      local repairsAttack=false
+      for _,id in ipairs(moveIds) do if damaging(game.data.moves[id]) then repairsAttack=true end end
+      local applied = illegalCurrent or changed and (mon.level == MAX_LEVEL
+        or context.progress >= 3 or not currentDamage and repairsAttack)
+      if applied then
         mon.moves = {}
         for _, id in ipairs(moveIds) do
           local move = game.data.moves[id]
@@ -427,7 +486,7 @@ function M.create(opts)
         species = mon.species, level = mon.level, tier = tier,
         quality = quality, qualityBand = { low, high },
         dvs = copy(dvs), statExp = copy(statExp), moves = copy(moveIds),
-        role = role, sources = sources, movesChanged = changed,
+        role = role, sources = sources, movesChanged = applied,
       }
     end
     local report = {
@@ -464,6 +523,8 @@ function M.create(opts)
     context.johtoUnlocked = johtoUnlocked(context)
     context.resonanceRules = R.resonanceRules
     context.extendedMoveAllowed = opts.extendedMoveAllowed
+    context.generationRules = opts.generationRules
+    context.generationProfile = opts.generationRules and opts.generationRules.resolve(game)
     return legalMoves(game, mon, context)
   end
   return R

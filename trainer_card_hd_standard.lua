@@ -1,9 +1,11 @@
--- Window-resolution replacement for the single native Trainer Card.
+-- Window-resolution owner for Kanto Ascendant's Trainer Card presentation.
 --
 -- The engine still owns input, dismissal and the 160x144 native fallback.
 -- Kanto Ascendant only replaces the final presentation in render.hud, where
 -- the card can use the actual window resolution, 128px portraits and vector
--- badges without first destroying detail on the Game Boy canvas.
+-- badges without first destroying detail on the Game Boy canvas.  Optional
+-- collection presentation is attached through this owner so there is still
+-- exactly one TrainerCard screen override and one final-window HUD hook.
 
 return function(mod, opts)
   opts = opts or {}
@@ -16,6 +18,7 @@ return function(mod, opts)
     marker = "__kantoAscendantHdStandardTrainerCard",
     modelKey = "__kantoAscendantHdStandardTrainerCardModel",
     lastError = nil,
+    collectionRenderer = nil,
   }
 
   local G = love and love.graphics
@@ -611,7 +614,29 @@ return function(mod, opts)
     return top and top[R.marker] == true and top or nil
   end
 
+  function R.setCollectionRenderer(renderer)
+    assert(type(renderer) == "table",
+      "Trainer Card collection renderer must be a table")
+    assert(type(renderer.newScreen) == "function"
+        and type(renderer.drawWindow) == "function"
+        and type(renderer.marker) == "string",
+      "Trainer Card collection renderer contract is incomplete")
+    assert(R.collectionRenderer == nil or R.collectionRenderer == renderer,
+      "Trainer Card collection renderer already attached")
+    R.collectionRenderer = renderer
+    renderer.hostedByStandard = true
+    return renderer
+  end
+
   function R.newScreen(game, screenOptions)
+    local collection = R.collectionRenderer
+    if collection then
+      local state = collection.newScreen(game, screenOptions)
+      -- The standard owner marker lets the one existing HUD hook find the
+      -- composed screen. The collection keeps its own marker for dispatch.
+      state[R.marker] = true
+      return state
+    end
     local TrainerCard = require("src.ui.TrainerCard")
     local state = TrainerCard.new(game, screenOptions or {})
     state[R.marker] = true
@@ -635,6 +660,23 @@ return function(mod, opts)
         if G.setScissor then G.setScissor() end
         if G.setShader then G.setShader() end
         if G.setBlendMode then G.setBlendMode("alpha") end
+        local collection = R.collectionRenderer
+        if collection and state[collection.marker] == true then
+          collection.game = game
+          local collectionModel = state[collection.modelKey]
+            or collection.cards.model(game)
+          state[collection.modelKey] = collectionModel
+          local collectionOk, collectionProblem = pcall(
+            collection.drawWindow, collectionModel, viewport)
+          if collectionOk then
+            collection.lastError = nil
+            return
+          end
+          -- Collection rendering is optional presentation. Preserve its
+          -- diagnostic while immediately falling back through this existing
+          -- standard-card owner instead of adding another HUD owner.
+          collection.lastError = tostring(collectionProblem)
+        end
         -- Match the native card's live values: play time and any title/pact
         -- authority changes must not freeze at the first presented frame.
         local model = R.buildModel(game, state)

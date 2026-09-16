@@ -20,7 +20,8 @@ return function(mod, opts)
   end
 
   local function tr(en, de)
-    return i18n.text(en, de)
+    if type(i18n.text)=="function" then return i18n.text(en,de) end
+    return german() and de or en
   end
 
   local toggle = { { true, "ON", "AN" }, { false, "OFF", "AUS" } }
@@ -29,26 +30,31 @@ return function(mod, opts)
       titleEn = "BAG / STORAGE", titleDe = "BEUTEL / BOXEN",
       rows = {
         { key = "ascendant_useful_bag", en = "ASCENDANT BAG",
-          de = "ASCENDANT-BEUTEL", values = toggle },
-        { key = "ascendant_bag_mode", en = "BAG MODE", de = "BEUTEL",
+          de = "KASC-BEUTEL", values = toggle },
+        { key = "ascendant_bag_mode", en = "BAG MODE", de = "BEUTEL-DESIGN",
           values = {
             { "off", "OFF / EXTERNAL", "AUS / EXTERN" },
             { "standard", "GAME DEFAULT", "SPIELSTANDARD" },
-            { "skin", "KASC SKIN", "KASC-SKIN" },
-            { "expanded", "KASC 999 SKIN", "KASC-999-SKIN" },
-            { "pockets", "FIRERED 999 POCKETS", "FIRERED-999-FÄCHER" },
+            { "skin", "KASC SKIN", "KASC" },
+            { "expanded", "KASC 999 SKIN", "KASC (999)" },
+            { "pockets", "FIRERED 999 POCKETS", "FEUERROT" },
           } },
         { key = "pc_interface_style", en = "PC INTERFACE",
           de = "PC-OBERFLÄCHE", values = {
+            { "oras_fullscreen", "ORAS FULLSCREEN", "ORAS VOLLBILD" },
             { "firered", "FIRERED / LEAFGREEN", "FIRERED / LEAFGREEN" },
             { "ascendant", "KANTO ASCENDANT", "KANTO ASCENDANT" },
             { "default", "GAME DEFAULT", "SPIELSTANDARD" },
+            { "firered_wide", "FIRERED / LEAFGREEN WIDE",
+              "FIRERED / LEAFGREEN WIDE" },
           } },
         { key = "legacy_bank_interface_style", en = "LEGACY BANK UI",
-          de = "VERMÄCHTNIS-BANK", values = {
-            { "follow_pc", "FOLLOW PC", "PC FOLGEN" },
+          de = "BANK-ANSICHT", values = {
+            { "follow_pc", "FOLLOW PC", "WIE PC" },
             { "firered", "FIRERED / LEAFGREEN", "FIRERED / LEAFGREEN" },
             { "ascendant", "KANTO ASCENDANT", "KANTO ASCENDANT" },
+            { "firered_wide", "FIRERED / LEAFGREEN WIDE",
+              "FIRERED / LEAFGREEN WIDE" },
           } },
         { key = "catch_destination", en = "CATCH DEST.", de = "FANGZIEL",
           values = {
@@ -95,8 +101,16 @@ return function(mod, opts)
             { "animated", "ANIMATED SPECIES", "ANIMIERTE ARTEN" },
             { "original", "ORIGINAL GEN I", "ORIGINAL GEN I" },
           } },
+        { key = "mega_sprite_collection", en = "MEGA COLLECTION", de = "MEGA-SAMMLUNG", values = {
+          { "current", "CURRENT KASC", "AKTUELLES KASC" },
+          { "original-20260830", "ORIGINALS 30 AUG", "ORIGINALE 30. AUG" },
+        } },
         { key = "crystal_animation", en = "BATTLE ANIM.",
           de = "KAMPF-ANIM.", values = toggle },
+        { key = "non_crystal_pixel_2d", en = "NEW SPECIES 2D PIXEL",
+          de = "NEUE ARTEN 2D-PIXEL", values = toggle },
+        { key = "non_crystal_voxel_animations", en = "VOXEL MON ANIMATION",
+          de = "VOXEL-PKMN-ANIMATION", values = toggle },
       },
     },
     qol = {
@@ -104,10 +118,10 @@ return function(mod, opts)
       rows = {
         { key = "ascendant_quick_select", en = "QUICK SELECT",
           de = "SCHNELLWAHL", values = toggle },
-        { key = "ascendant_qol", en = "QOL BUNDLE", de = "QOL-PAKET",
+        { key = "ascendant_qol", en = "QOL BUNDLE", de = "KOMFORTHILFEN",
           values = toggle },
         { key = "qol_exp_bar", en = "BATTLE EXP BAR",
-          de = "KAMPF-EP-LEISTE", values = {
+          de = "EP-LEISTE", values = {
             { "off", "OFF", "AUS" }, { "black", "BLACK", "SCHWARZ" },
             { "blue", "BLUE", "BLAU" },
           } },
@@ -162,9 +176,9 @@ return function(mod, opts)
       titleEn = "DISPLAY / SKINS", titleDe = "ANZEIGE / SKINS",
       rows = {
         { key = "modern_storage_ui", en = "MENU SKINS",
-          de = "MENÜ-SKINS", values = toggle },
+          de = "MENÜ-DESIGN", values = toggle },
         { key = "character_sprite_style", en = "FIELD CHARACTERS",
-          de = "FELD-FIGUREN", values = {
+          de = "SPIELERFIGUREN", values = {
             { "ascendant", "ASCENDANT FIELD", "ASCENDANT-FELD" },
             { "crystal", "KASC FIELD", "KASC-FELD" },
           } },
@@ -172,6 +186,14 @@ return function(mod, opts)
           de = "TRAINER-PORTRÄTS", values = {
             { "crystal_hd", "CRYSTAL HD", "CRYSTAL HD" },
             { "original", "ORIGINAL", "ORIGINAL" },
+          } },
+        { key = "animated_title_trainers", en = "ANIMATED TITLE TRAINERS",
+          de = "ANIMIERTE TITELTRAINER", values = toggle },
+        { key = "title_visual_theme", en = "TITLE THEME",
+          de = "TITELDESIGN", values = {
+            { "classic", "CLASSIC", "KLASSISCH" },
+            { "trio", "TRAINER TRIO", "TRAINER-TRIO" },
+            { "mono", "MONO STAGE", "MONO-BÜHNE" },
           } },
         { key = "status_values", en = "STATUS VALUES",
           de = "STATUSWERTE", values = {
@@ -187,7 +209,7 @@ return function(mod, opts)
       titleEn = "JOHTO / SAFETY", titleDe = "JOHTO / SCHUTZ",
       rows = {
         { key = "johto_level_bonus", en = "JOHTO LEVELS",
-          de = "JOHTO-LEVEL", values = {
+          de = "JOHTO-ANSTIEG", values = {
             { "2_8", "PLUS 2 TO 8", "PLUS 2 BIS 8" },
             { "2_5", "PLUS 2 TO 5", "PLUS 2 BIS 5" },
           } },
@@ -197,13 +219,14 @@ return function(mod, opts)
     },
   }
   local rootRows = {
+    { action = "spriteDownloads", en = "SPRITE DOWNLOADS", de = "SPRITE-DOWNLOADS" },
     { group = "storage", en = "BAG / STORAGE", de = "BEUTEL / BOXEN" },
     { group = "sprites", en = "POKéMON SPRITES", de = "POKéMON-SPRITES" },
     { group = "qol", en = "QUALITY OF LIFE", de = "KOMFORT" },
     { group = "quick", en = "QUICK SELECT", de = "SCHNELLWAHL" },
-    { group = "display", en = "DISPLAY / SKINS", de = "ANZEIGE / SKINS" },
+    { group = "display", en = "DISPLAY / SKINS", de = "ANZEIGE" },
     { group = "johto", en = "JOHTO / SAFETY", de = "JOHTO / SCHUTZ" },
-    { info = "run_rules", en = "RUN RULES INFO", de = "LAUFREGELN-INFO" },
+    { info = "run_rules", en = "RUN RULES INFO", de = "LAUFREGELN" },
   }
   local rows = {}
   for _, root in ipairs(rootRows) do
@@ -235,6 +258,12 @@ return function(mod, opts)
   end
 
   local function write(game, key, value)
+    local exports=game.mods and game.mods.exports
+    local vasc=exports and exports.VOXEL_ASCENDANT
+    local content=vasc and vasc.ascendantContent or mod.exports.ascendantContent
+    if content and content.allowSetting and not content:allowSetting(key,value,game,function(k)return current(game,k)end)then
+      return false -- The selected value is persisted only once its art is mounted.
+    end
     game.save.options = game.save.options or {}
     game.save.options.modOptions = game.save.options.modOptions or {}
     game.save.options.modOptions[mod.id] =
@@ -363,13 +392,38 @@ return function(mod, opts)
 
   local function openRootHelp(game, row)
     local text
-    if row.info == "run_rules" then
+    if row.action == "spriteDownloads" then
+      text=tr("Download, import or delete Pokemon sprites. Installed packages show their status.",
+        "Pokemon-Sprites herunterladen, importieren oder loeschen. Installierte Pakete zeigen ihren Status.")
+    elseif row.info == "run_rules" then
       text = runRulesInfo(game)
     else
       local help = rootHelp[row.group]
       text = tr(help[1], help[2])
     end
     game.stack:push(require("src.render.TextBox").new(game, text))
+  end
+
+  local function fullscreen(screen, title, sourceRows, settingRows)
+    local card=mod.exports and mod.exports.fullscreenUiCard
+    if not card then return screen end
+    screen.title=title
+    screen.__kantoAscendantFocusHelp=true
+    screen.__kantoAscendantLayout=true
+    local function refresh()
+      screen.items={}
+      for index,row in ipairs(sourceRows) do
+        local help=rootHelp[row.group]
+        screen.items[index]={label=german() and row.de or row.en,
+          value=row.key or row.group or row.action or row.info,
+          right=settingRows and displayedValue(screen.game,row) or nil,
+          help=help and tr(help[1],help[2]) or (german() and row.de or row.en)}
+      end
+    end
+    refresh()
+    local base=screen.update
+    screen.update=function(self,...) local result=base(self,...);refresh();return result end
+    return card.decorateMenu(screen,function(item)return item and item.help or title end,5)
   end
 
   local function makeSettingsScreen(game, groupKey)
@@ -433,7 +487,7 @@ return function(mod, opts)
       Font.draw(tr("L/R:CHG SEL:HELP",
         "L/R:AEND SEL:HILFE"), 5, 133)
     end
-    return screen
+    return fullscreen(screen,tr(group.titleEn,group.titleDe),group.rows,true)
   end
 
   local function makeRootScreen(game)
@@ -452,7 +506,10 @@ return function(mod, opts)
         self.index = self.index % #rootRows + 1
       elseif input:wasPressed("a") then
         local row = rootRows[self.index]
-        if row.info == "run_rules" then
+        if row.action == "spriteDownloads" then
+          local content=mod.exports.ascendantContent
+          mod.ui.push(self.game,content and content.downloadScreenId or 'KascSpriteDownloads')
+        elseif row.info == "run_rules" then
           openRootHelp(self.game, row)
         else
           mod.ui.push(self.game, SCREEN_IDS[row.group])
@@ -469,7 +526,7 @@ return function(mod, opts)
       end
     end
     function screen:draw()
-      drawFrame(Font, tr("ASCENDANT OPTIONS", "ASCENDANT-OPTIONEN"))
+      drawFrame(Font, tr("ASCENDANT OPTIONS", "KASC-EINSTELLUNGEN"))
       for slot = 1, 5 do
         local index = self.scroll + slot
         local row = rootRows[index]
@@ -496,7 +553,7 @@ return function(mod, opts)
       Font.draw(tr("A:OPEN SEL:HELP",
         "A:AUF SEL:HILFE"), 5, 133)
     end
-    return screen
+    return fullscreen(screen,tr("ASCENDANT OPTIONS","KASC-EINSTELLUNGEN"),rootRows,false)
   end
 
   mod.content.screens:register(ROOT_ID, { new = makeRootScreen })

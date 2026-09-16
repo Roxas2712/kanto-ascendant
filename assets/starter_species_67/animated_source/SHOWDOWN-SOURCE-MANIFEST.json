@@ -1,0 +1,2459 @@
+{
+  "commit": "c10459b9b0129eaca5c5d9b1cac65336debb1d08",
+  "credit": "PokeAPI mirror; sprites designed by the Smogon community",
+  "repository": "https://github.com/PokeAPI/sprites",
+  "rows": [
+    {
+      "bytes": 29006,
+      "canvas": [
+        45,
+        59
+      ],
+      "dex": 387,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "07ad6b17991c4a88520b84493112253d0e525b3af653fafb73d550b44d5b0ca9",
+      "frameCount": 47,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/387.gif",
+      "sha256": "ae9b86a7df0e14992aad23127fe3536155dd9f2387f78663baf7983b06c65261",
+      "species": "TURTWIG",
+      "surface": "front_normal",
+      "target": "showdown/front/normal/0387.gif"
+    },
+    {
+      "bytes": 29045,
+      "canvas": [
+        45,
+        59
+      ],
+      "dex": 387,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "47ff9d32cb9e11878ed5cce75b11ca731568cff367529ac6cc183bdf408a5a03",
+      "frameCount": 47,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/shiny/387.gif",
+      "sha256": "d5c68cda4cc82be3f4ea359df3016b2af1749338a02b8dd8595ffba51d1d5f70",
+      "species": "TURTWIG",
+      "surface": "front_shiny",
+      "target": "showdown/front/shiny/0387.gif"
+    },
+    {
+      "bytes": 26793,
+      "canvas": [
+        44,
+        59
+      ],
+      "dex": 387,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "07ad6b17991c4a88520b84493112253d0e525b3af653fafb73d550b44d5b0ca9",
+      "frameCount": 47,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/387.gif",
+      "sha256": "b03771efa4ea8a48abd735f7d280ff85a170218b50ab3c34d6961858ac2a84be",
+      "species": "TURTWIG",
+      "surface": "back_normal",
+      "target": "showdown/back/normal/0387.gif"
+    },
+    {
+      "bytes": 26447,
+      "canvas": [
+        44,
+        59
+      ],
+      "dex": 387,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "47ff9d32cb9e11878ed5cce75b11ca731568cff367529ac6cc183bdf408a5a03",
+      "frameCount": 47,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/shiny/387.gif",
+      "sha256": "4279e7ba54a180ac70a00a8aed650ac2a8922df2df8c4caf23aafc7ca8f9c081",
+      "species": "TURTWIG",
+      "surface": "back_shiny",
+      "target": "showdown/back/shiny/0387.gif"
+    },
+    {
+      "bytes": 69312,
+      "canvas": [
+        70,
+        69
+      ],
+      "dex": 388,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "8d94804eeabf55d78c4d3db8e9c0b0fd56144c882ffb53f3a2de113d2bae361a",
+      "frameCount": 59,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/388.gif",
+      "sha256": "b9049609631e402a403009b035363485e232180de9952d60e49a7433b843c10f",
+      "species": "GROTLE",
+      "surface": "front_normal",
+      "target": "showdown/front/normal/0388.gif"
+    },
+    {
+      "bytes": 76633,
+      "canvas": [
+        70,
+        69
+      ],
+      "dex": 388,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "bdfbfe4db7495ab37668b1ca1f23b1650ce885dabe45441ebf6c4231907aa852",
+      "frameCount": 59,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/shiny/388.gif",
+      "sha256": "b050afb93f565d3035b847902221c906737a206bf00425d6f8ca4cf6454a19c8",
+      "species": "GROTLE",
+      "surface": "front_shiny",
+      "target": "showdown/front/shiny/0388.gif"
+    },
+    {
+      "bytes": 76838,
+      "canvas": [
+        85,
+        68
+      ],
+      "dex": 388,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "8d94804eeabf55d78c4d3db8e9c0b0fd56144c882ffb53f3a2de113d2bae361a",
+      "frameCount": 59,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/388.gif",
+      "sha256": "82b578091dc9985b3528b270fdef37fba302ef9ac5b3c6e5cec6c1bd2c861d04",
+      "species": "GROTLE",
+      "surface": "back_normal",
+      "target": "showdown/back/normal/0388.gif"
+    },
+    {
+      "bytes": 70317,
+      "canvas": [
+        85,
+        68
+      ],
+      "dex": 388,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "bdfbfe4db7495ab37668b1ca1f23b1650ce885dabe45441ebf6c4231907aa852",
+      "frameCount": 59,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/shiny/388.gif",
+      "sha256": "3842a566434fe4ff84f173519ab3b3dd85b6557416b5022cbbbe56143d0789e6",
+      "species": "GROTLE",
+      "surface": "back_shiny",
+      "target": "showdown/back/shiny/0388.gif"
+    },
+    {
+      "bytes": 128512,
+      "canvas": [
+        98,
+        106
+      ],
+      "dex": 389,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "8d94804eeabf55d78c4d3db8e9c0b0fd56144c882ffb53f3a2de113d2bae361a",
+      "frameCount": 59,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/389.gif",
+      "sha256": "d926cd15d81595d33ba7c2cc95ae62c1110aef032f16e84be4a0c249afa0870a",
+      "species": "TORTERRA",
+      "surface": "front_normal",
+      "target": "showdown/front/normal/0389.gif"
+    },
+    {
+      "bytes": 129695,
+      "canvas": [
+        98,
+        106
+      ],
+      "dex": 389,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "bdfbfe4db7495ab37668b1ca1f23b1650ce885dabe45441ebf6c4231907aa852",
+      "frameCount": 59,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/shiny/389.gif",
+      "sha256": "c81d256efd90aa29d9bee7d6c1ef16698a7d5d1d675fb0942dad0cc492656a66",
+      "species": "TORTERRA",
+      "surface": "front_shiny",
+      "target": "showdown/front/shiny/0389.gif"
+    },
+    {
+      "bytes": 116152,
+      "canvas": [
+        101,
+        108
+      ],
+      "dex": 389,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "8d94804eeabf55d78c4d3db8e9c0b0fd56144c882ffb53f3a2de113d2bae361a",
+      "frameCount": 59,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/389.gif",
+      "sha256": "9ec1b8c1fd2e9df3eb65610f254260cf47cc59fe3b5b14b4b53bbcea2cddbc7b",
+      "species": "TORTERRA",
+      "surface": "back_normal",
+      "target": "showdown/back/normal/0389.gif"
+    },
+    {
+      "bytes": 105223,
+      "canvas": [
+        101,
+        108
+      ],
+      "dex": 389,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "bdfbfe4db7495ab37668b1ca1f23b1650ce885dabe45441ebf6c4231907aa852",
+      "frameCount": 59,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/shiny/389.gif",
+      "sha256": "741450ead61d856289336cb1566a7d9a3ca3030a6acfe8690e14dbe06f782ed3",
+      "species": "TORTERRA",
+      "surface": "back_shiny",
+      "target": "showdown/back/shiny/0389.gif"
+    },
+    {
+      "bytes": 19574,
+      "canvas": [
+        54,
+        70
+      ],
+      "dex": 390,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "a5392c38e3edfded35ae19a3597261f57dfe7ca35296112615b12923ecb3a187",
+      "frameCount": 27,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/390.gif",
+      "sha256": "24075c6cb2ced5ef0ced701d1492a45909acc8b9f213be817485619b4b3ce8e1",
+      "species": "CHIMCHAR",
+      "surface": "front_normal",
+      "target": "showdown/front/normal/0390.gif"
+    },
+    {
+      "bytes": 20082,
+      "canvas": [
+        54,
+        70
+      ],
+      "dex": 390,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "a5392c38e3edfded35ae19a3597261f57dfe7ca35296112615b12923ecb3a187",
+      "frameCount": 27,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/shiny/390.gif",
+      "sha256": "c9a8b3a984180f1953cefe12c76c4678ee02836116c2728251971b9c41de9cf5",
+      "species": "CHIMCHAR",
+      "surface": "front_shiny",
+      "target": "showdown/front/shiny/0390.gif"
+    },
+    {
+      "bytes": 35381,
+      "canvas": [
+        45,
+        72
+      ],
+      "dex": 390,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "ee8696f27402e3a6bfd63045bf2f9e137e897547ebd02b9c7cd1d75205fc11c2",
+      "frameCount": 55,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/390.gif",
+      "sha256": "fe45b01d5880d304bb90768bbc9cd6eeb13edb3c6f7cdde13c6b3511f868faa5",
+      "species": "CHIMCHAR",
+      "surface": "back_normal",
+      "target": "showdown/back/normal/0390.gif"
+    },
+    {
+      "bytes": 35795,
+      "canvas": [
+        44,
+        72
+      ],
+      "dex": 390,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "4006f4913af3ceabc605a020e7e3684aaed77bc5a711d0268c7324096385b326",
+      "frameCount": 55,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/shiny/390.gif",
+      "sha256": "f11e9b335e292ad53aae3e7e326496e026be36b91fae3416e54bf329ab92818b",
+      "species": "CHIMCHAR",
+      "surface": "back_shiny",
+      "target": "showdown/back/shiny/0390.gif"
+    },
+    {
+      "bytes": 30488,
+      "canvas": [
+        57,
+        91
+      ],
+      "dex": 391,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "bd54736552d7685b771b1d850be56e283022c0a71a46c3ea494150475575374b",
+      "frameCount": 29,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/391.gif",
+      "sha256": "70c7dbc3e4cc4f13cad81c33ac84852a9aae03eed5ab3c17c85d0d0af33d09c0",
+      "species": "MONFERNO",
+      "surface": "front_normal",
+      "target": "showdown/front/normal/0391.gif"
+    },
+    {
+      "bytes": 29210,
+      "canvas": [
+        57,
+        91
+      ],
+      "dex": 391,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "bd54736552d7685b771b1d850be56e283022c0a71a46c3ea494150475575374b",
+      "frameCount": 29,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/shiny/391.gif",
+      "sha256": "dc018f057cb9b9bf3722d55d8604d228ba04e217d4c76cdbf21b3a2c329a9e14",
+      "species": "MONFERNO",
+      "surface": "front_shiny",
+      "target": "showdown/front/shiny/0391.gif"
+    },
+    {
+      "bytes": 54820,
+      "canvas": [
+        58,
+        103
+      ],
+      "dex": 391,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "8d94804eeabf55d78c4d3db8e9c0b0fd56144c882ffb53f3a2de113d2bae361a",
+      "frameCount": 59,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/391.gif",
+      "sha256": "75a816d51373f9859b70b2d77aca5b8f2ebb18e6fa99bf3ad32199755a80ae13",
+      "species": "MONFERNO",
+      "surface": "back_normal",
+      "target": "showdown/back/normal/0391.gif"
+    },
+    {
+      "bytes": 25042,
+      "canvas": [
+        58,
+        103
+      ],
+      "dex": 391,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "bd54736552d7685b771b1d850be56e283022c0a71a46c3ea494150475575374b",
+      "frameCount": 29,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/shiny/391.gif",
+      "sha256": "e2c377321b09e2af05a811cd95c6039377073af51c92bc9208c2b0c59ca4d183",
+      "species": "MONFERNO",
+      "surface": "back_shiny",
+      "target": "showdown/back/shiny/0391.gif"
+    },
+    {
+      "bytes": 65184,
+      "canvas": [
+        98,
+        119
+      ],
+      "dex": 392,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "37b8daa7f42d739c0091adf3cb596f798b4bee2b3789984984e50da8951beaf3",
+      "frameCount": 39,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/392.gif",
+      "sha256": "2050aad917c7957ab27c1d47c3322dc4d9953b82e8ac5e7a4cb69642758ceb37",
+      "species": "INFERNAPE",
+      "surface": "front_normal",
+      "target": "showdown/front/normal/0392.gif"
+    },
+    {
+      "bytes": 61316,
+      "canvas": [
+        98,
+        119
+      ],
+      "dex": 392,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "37b8daa7f42d739c0091adf3cb596f798b4bee2b3789984984e50da8951beaf3",
+      "frameCount": 39,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/shiny/392.gif",
+      "sha256": "e9b81d79e656476953ce91c1e618fefe29dc62aae4d7f5f8684f211725eae8f4",
+      "species": "INFERNAPE",
+      "surface": "front_shiny",
+      "target": "showdown/front/shiny/0392.gif"
+    },
+    {
+      "bytes": 56549,
+      "canvas": [
+        121,
+        118
+      ],
+      "dex": 392,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "37b8daa7f42d739c0091adf3cb596f798b4bee2b3789984984e50da8951beaf3",
+      "frameCount": 39,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/392.gif",
+      "sha256": "6334bd0b1c9c02a94d90eae857e9aed3e07b242bf1688000b24a0cac0d99d871",
+      "species": "INFERNAPE",
+      "surface": "back_normal",
+      "target": "showdown/back/normal/0392.gif"
+    },
+    {
+      "bytes": 54703,
+      "canvas": [
+        121,
+        118
+      ],
+      "dex": 392,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "37b8daa7f42d739c0091adf3cb596f798b4bee2b3789984984e50da8951beaf3",
+      "frameCount": 39,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/shiny/392.gif",
+      "sha256": "9660918942d351e6f0d3277e0d1d6b12a15105552e2b9a03995b6bded969ce77",
+      "species": "INFERNAPE",
+      "surface": "back_shiny",
+      "target": "showdown/back/shiny/0392.gif"
+    },
+    {
+      "bytes": 86370,
+      "canvas": [
+        54,
+        59
+      ],
+      "dex": 393,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "37b8daa7f42d739c0091adf3cb596f798b4bee2b3789984984e50da8951beaf3",
+      "frameCount": 39,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/393.gif",
+      "sha256": "de6a7eee1c156686b2c130fcd29b4145c0a36c5fec3b791608d89b30069ef1ee",
+      "species": "PIPLUP",
+      "surface": "front_normal",
+      "target": "showdown/front/normal/0393.gif"
+    },
+    {
+      "bytes": 27828,
+      "canvas": [
+        54,
+        59
+      ],
+      "dex": 393,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "37b8daa7f42d739c0091adf3cb596f798b4bee2b3789984984e50da8951beaf3",
+      "frameCount": 39,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/shiny/393.gif",
+      "sha256": "fab27b5e7cb41933b148cf631da3fbad0fe097d73c6365ec8bb94ef9027b9fff",
+      "species": "PIPLUP",
+      "surface": "front_shiny",
+      "target": "showdown/front/shiny/0393.gif"
+    },
+    {
+      "bytes": 22075,
+      "canvas": [
+        49,
+        58
+      ],
+      "dex": 393,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "37b8daa7f42d739c0091adf3cb596f798b4bee2b3789984984e50da8951beaf3",
+      "frameCount": 39,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/393.gif",
+      "sha256": "3a79392930fbf88aeaa198041a712abe6d7e3a63e4137624d674d30a1f065a54",
+      "species": "PIPLUP",
+      "surface": "back_normal",
+      "target": "showdown/back/normal/0393.gif"
+    },
+    {
+      "bytes": 19686,
+      "canvas": [
+        49,
+        58
+      ],
+      "dex": 393,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "37b8daa7f42d739c0091adf3cb596f798b4bee2b3789984984e50da8951beaf3",
+      "frameCount": 39,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/shiny/393.gif",
+      "sha256": "88bb083a27c35f14d3b36add9a5b91a1e324d67f82cf14c607c7665cc83c3bd2",
+      "species": "PIPLUP",
+      "surface": "back_shiny",
+      "target": "showdown/back/shiny/0393.gif"
+    },
+    {
+      "bytes": 45849,
+      "canvas": [
+        77,
+        75
+      ],
+      "dex": 394,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "6e282ae2acbbfa1787837a80aa7d1baa407ce3fbb4c38a39a421322ef9d14a72",
+      "frameCount": 44,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/394.gif",
+      "sha256": "9de9cca4cfcdac0b4d6685f716fb624ec714fa46ed1c2a0c991e5211854363cc",
+      "species": "PRINPLUP",
+      "surface": "front_normal",
+      "target": "showdown/front/normal/0394.gif"
+    },
+    {
+      "bytes": 46554,
+      "canvas": [
+        77,
+        75
+      ],
+      "dex": 394,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "06ff66d34782156889fdac03255cdb7e7d8f3089cfee8dc79e30c5c15da8801f",
+      "frameCount": 44,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/shiny/394.gif",
+      "sha256": "18f7a5d7bad4bc7f4286352a5582d36424dcf0a593366650120f5a23afe6f351",
+      "species": "PRINPLUP",
+      "surface": "front_shiny",
+      "target": "showdown/front/shiny/0394.gif"
+    },
+    {
+      "bytes": 33761,
+      "canvas": [
+        55,
+        75
+      ],
+      "dex": 394,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "6e282ae2acbbfa1787837a80aa7d1baa407ce3fbb4c38a39a421322ef9d14a72",
+      "frameCount": 44,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/394.gif",
+      "sha256": "01a161a8c5fad03674848eab3560e39914aced89ab809113eb65eca41f55411e",
+      "species": "PRINPLUP",
+      "surface": "back_normal",
+      "target": "showdown/back/normal/0394.gif"
+    },
+    {
+      "bytes": 31234,
+      "canvas": [
+        55,
+        75
+      ],
+      "dex": 394,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "06ff66d34782156889fdac03255cdb7e7d8f3089cfee8dc79e30c5c15da8801f",
+      "frameCount": 44,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/shiny/394.gif",
+      "sha256": "35dda67a1ec0f3dc8093a907eca1de023ac79f0b4c9f6124399f41ef645df4a5",
+      "species": "PRINPLUP",
+      "surface": "back_shiny",
+      "target": "showdown/back/shiny/0394.gif"
+    },
+    {
+      "bytes": 92959,
+      "canvas": [
+        92,
+        111
+      ],
+      "dex": 395,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "8d94804eeabf55d78c4d3db8e9c0b0fd56144c882ffb53f3a2de113d2bae361a",
+      "frameCount": 59,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/395.gif",
+      "sha256": "d7afd8421b26a6dc3ca9e38aad1ab6786ca50ac6996545d385ebebf668126613",
+      "species": "EMPOLEON",
+      "surface": "front_normal",
+      "target": "showdown/front/normal/0395.gif"
+    },
+    {
+      "bytes": 98129,
+      "canvas": [
+        92,
+        111
+      ],
+      "dex": 395,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "bdfbfe4db7495ab37668b1ca1f23b1650ce885dabe45441ebf6c4231907aa852",
+      "frameCount": 59,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/shiny/395.gif",
+      "sha256": "33426c15404029c91b776086b3fe29bf50f580205837531b15c9a9900b825479",
+      "species": "EMPOLEON",
+      "surface": "front_shiny",
+      "target": "showdown/front/shiny/0395.gif"
+    },
+    {
+      "bytes": 74483,
+      "canvas": [
+        80,
+        111
+      ],
+      "dex": 395,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "8d94804eeabf55d78c4d3db8e9c0b0fd56144c882ffb53f3a2de113d2bae361a",
+      "frameCount": 59,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/395.gif",
+      "sha256": "10675fbfbc4943269821cd70e7654914cd5ba8d4d290afdc62fffe62c2163cb6",
+      "species": "EMPOLEON",
+      "surface": "back_normal",
+      "target": "showdown/back/normal/0395.gif"
+    },
+    {
+      "bytes": 67302,
+      "canvas": [
+        80,
+        111
+      ],
+      "dex": 395,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "bdfbfe4db7495ab37668b1ca1f23b1650ce885dabe45441ebf6c4231907aa852",
+      "frameCount": 59,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/shiny/395.gif",
+      "sha256": "979e4860ae45e5d1907c31c9685180590a70531cfa45d24c51f23af96b79d80a",
+      "species": "EMPOLEON",
+      "surface": "back_shiny",
+      "target": "showdown/back/shiny/0395.gif"
+    },
+    {
+      "bytes": 24304,
+      "canvas": [
+        56,
+        55
+      ],
+      "dex": 495,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "37b8daa7f42d739c0091adf3cb596f798b4bee2b3789984984e50da8951beaf3",
+      "frameCount": 39,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/495.gif",
+      "sha256": "5361796ff09390f415008f59eeba5655081c50cd98e5451697bf98443a7a8d82",
+      "species": "SNIVY",
+      "surface": "front_normal",
+      "target": "showdown/front/normal/0495.gif"
+    },
+    {
+      "bytes": 23718,
+      "canvas": [
+        56,
+        55
+      ],
+      "dex": 495,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "37b8daa7f42d739c0091adf3cb596f798b4bee2b3789984984e50da8951beaf3",
+      "frameCount": 39,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/shiny/495.gif",
+      "sha256": "33616cffe24b34c8d635a243d3f8f643c279f01b963b164bf8b8f742fc249c25",
+      "species": "SNIVY",
+      "surface": "front_shiny",
+      "target": "showdown/front/shiny/0495.gif"
+    },
+    {
+      "bytes": 23297,
+      "canvas": [
+        54,
+        55
+      ],
+      "dex": 495,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "37b8daa7f42d739c0091adf3cb596f798b4bee2b3789984984e50da8951beaf3",
+      "frameCount": 39,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/495.gif",
+      "sha256": "4509ad53fc3d24703042f40a926b046d9556fc5cb6c970b059547d2723f3faed",
+      "species": "SNIVY",
+      "surface": "back_normal",
+      "target": "showdown/back/normal/0495.gif"
+    },
+    {
+      "bytes": 22770,
+      "canvas": [
+        54,
+        55
+      ],
+      "dex": 495,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "37b8daa7f42d739c0091adf3cb596f798b4bee2b3789984984e50da8951beaf3",
+      "frameCount": 39,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/shiny/495.gif",
+      "sha256": "5b83a00625e79363da2a6a3bcf0dd973805756f3db6da93eba85dcd74ac5859a",
+      "species": "SNIVY",
+      "surface": "back_shiny",
+      "target": "showdown/back/shiny/0495.gif"
+    },
+    {
+      "bytes": 33965,
+      "canvas": [
+        58,
+        82
+      ],
+      "dex": 496,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "6e282ae2acbbfa1787837a80aa7d1baa407ce3fbb4c38a39a421322ef9d14a72",
+      "frameCount": 44,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/496.gif",
+      "sha256": "613c1205326d13f4c5c88f5504c072fa0ce8721a5853025dfc55fede7d282fef",
+      "species": "SERVINE",
+      "surface": "front_normal",
+      "target": "showdown/front/normal/0496.gif"
+    },
+    {
+      "bytes": 34354,
+      "canvas": [
+        58,
+        82
+      ],
+      "dex": 496,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "06ff66d34782156889fdac03255cdb7e7d8f3089cfee8dc79e30c5c15da8801f",
+      "frameCount": 44,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/shiny/496.gif",
+      "sha256": "546e7dd1fedc87f5b05369eb0c120ee0265fe69430c2607535dc8e48e18b90b4",
+      "species": "SERVINE",
+      "surface": "front_shiny",
+      "target": "showdown/front/shiny/0496.gif"
+    },
+    {
+      "bytes": 37473,
+      "canvas": [
+        77,
+        82
+      ],
+      "dex": 496,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "6e282ae2acbbfa1787837a80aa7d1baa407ce3fbb4c38a39a421322ef9d14a72",
+      "frameCount": 44,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/496.gif",
+      "sha256": "9df4ec1f0e8ae2306420b3cb871c38d589f8a320615c403d8500c5f7318a5b4b",
+      "species": "SERVINE",
+      "surface": "back_normal",
+      "target": "showdown/back/normal/0496.gif"
+    },
+    {
+      "bytes": 36368,
+      "canvas": [
+        77,
+        82
+      ],
+      "dex": 496,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "06ff66d34782156889fdac03255cdb7e7d8f3089cfee8dc79e30c5c15da8801f",
+      "frameCount": 44,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/shiny/496.gif",
+      "sha256": "3736c7bcd314153534f25e0ccbdd3f899cb441737cf93842465927948dd9bcaf",
+      "species": "SERVINE",
+      "surface": "back_shiny",
+      "target": "showdown/back/shiny/0496.gif"
+    },
+    {
+      "bytes": 106847,
+      "canvas": [
+        90,
+        108
+      ],
+      "dex": 497,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "20c7899a1b48e69633d989fbcb755d1f95da897816fae33b160a359b83746a15",
+      "frameCount": 79,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/497.gif",
+      "sha256": "709625c425cff78d623e8888f2a6c9a3e1c414f366737bd7a1faeb9695a197d1",
+      "species": "SERPERIOR",
+      "surface": "front_normal",
+      "target": "showdown/front/normal/0497.gif"
+    },
+    {
+      "bytes": 109410,
+      "canvas": [
+        90,
+        108
+      ],
+      "dex": 497,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "20c7899a1b48e69633d989fbcb755d1f95da897816fae33b160a359b83746a15",
+      "frameCount": 79,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/shiny/497.gif",
+      "sha256": "791769a472d6df4e426851c91d12b173f9eaa0f736a0b80c6629d4583eb6d8a1",
+      "species": "SERPERIOR",
+      "surface": "front_shiny",
+      "target": "showdown/front/shiny/0497.gif"
+    },
+    {
+      "bytes": 86124,
+      "canvas": [
+        86,
+        105
+      ],
+      "dex": 497,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "20c7899a1b48e69633d989fbcb755d1f95da897816fae33b160a359b83746a15",
+      "frameCount": 79,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/497.gif",
+      "sha256": "1721332001111df19842504d56c1cc28de5ce3bd0a5473bba9f1e0551304cbf2",
+      "species": "SERPERIOR",
+      "surface": "back_normal",
+      "target": "showdown/back/normal/0497.gif"
+    },
+    {
+      "bytes": 87309,
+      "canvas": [
+        86,
+        105
+      ],
+      "dex": 497,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "20c7899a1b48e69633d989fbcb755d1f95da897816fae33b160a359b83746a15",
+      "frameCount": 79,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/shiny/497.gif",
+      "sha256": "aaf69e90122a2ca872b021fa3a9ff4312caca8f70303846fbbc55808209e4b34",
+      "species": "SERPERIOR",
+      "surface": "back_shiny",
+      "target": "showdown/back/shiny/0497.gif"
+    },
+    {
+      "bytes": 30099,
+      "canvas": [
+        46,
+        62
+      ],
+      "dex": 498,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "37b8daa7f42d739c0091adf3cb596f798b4bee2b3789984984e50da8951beaf3",
+      "frameCount": 39,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/498.gif",
+      "sha256": "2108c427968a5147c52f9e1b9f4a2090b1938c8a04eb961bf549f892c503e900",
+      "species": "TEPIG",
+      "surface": "front_normal",
+      "target": "showdown/front/normal/0498.gif"
+    },
+    {
+      "bytes": 28766,
+      "canvas": [
+        46,
+        62
+      ],
+      "dex": 498,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "37b8daa7f42d739c0091adf3cb596f798b4bee2b3789984984e50da8951beaf3",
+      "frameCount": 39,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/shiny/498.gif",
+      "sha256": "a8bf669556b100d14d5f80e9dd0dcd808af276c07ff3a20edc07fe2f94b0b703",
+      "species": "TEPIG",
+      "surface": "front_shiny",
+      "target": "showdown/front/shiny/0498.gif"
+    },
+    {
+      "bytes": 30558,
+      "canvas": [
+        49,
+        61
+      ],
+      "dex": 498,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "37b8daa7f42d739c0091adf3cb596f798b4bee2b3789984984e50da8951beaf3",
+      "frameCount": 39,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/498.gif",
+      "sha256": "e28c1b72fa347a5985ceb1bc63465cee984a517254c84bd152e2a71c77f658b6",
+      "species": "TEPIG",
+      "surface": "back_normal",
+      "target": "showdown/back/normal/0498.gif"
+    },
+    {
+      "bytes": 24687,
+      "canvas": [
+        49,
+        61
+      ],
+      "dex": 498,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "37b8daa7f42d739c0091adf3cb596f798b4bee2b3789984984e50da8951beaf3",
+      "frameCount": 39,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/shiny/498.gif",
+      "sha256": "151320468826b4ab6dd096bb909e19eba3c91ce7e31da016e5fbb76d07e51370",
+      "species": "TEPIG",
+      "surface": "back_shiny",
+      "target": "showdown/back/shiny/0498.gif"
+    },
+    {
+      "bytes": 47330,
+      "canvas": [
+        73,
+        78
+      ],
+      "dex": 499,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "37b8daa7f42d739c0091adf3cb596f798b4bee2b3789984984e50da8951beaf3",
+      "frameCount": 39,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/499.gif",
+      "sha256": "9b622257320f34f8d46eabfa9f402069ad11aebb9fc73b3001389ea1036ee9ba",
+      "species": "PIGNITE",
+      "surface": "front_normal",
+      "target": "showdown/front/normal/0499.gif"
+    },
+    {
+      "bytes": 45310,
+      "canvas": [
+        73,
+        78
+      ],
+      "dex": 499,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "37b8daa7f42d739c0091adf3cb596f798b4bee2b3789984984e50da8951beaf3",
+      "frameCount": 39,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/shiny/499.gif",
+      "sha256": "a73fd23976e2508c66b11f2717a20acd1ea8d6b600ef6bdf196fa2aae644ef70",
+      "species": "PIGNITE",
+      "surface": "front_shiny",
+      "target": "showdown/front/shiny/0499.gif"
+    },
+    {
+      "bytes": 41065,
+      "canvas": [
+        78,
+        73
+      ],
+      "dex": 499,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "37b8daa7f42d739c0091adf3cb596f798b4bee2b3789984984e50da8951beaf3",
+      "frameCount": 39,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/499.gif",
+      "sha256": "206e30dc269e0ef77d20cba2f832190c6d14522d6c677e65f0bfb61bdaea9186",
+      "species": "PIGNITE",
+      "surface": "back_normal",
+      "target": "showdown/back/normal/0499.gif"
+    },
+    {
+      "bytes": 35374,
+      "canvas": [
+        78,
+        73
+      ],
+      "dex": 499,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "37b8daa7f42d739c0091adf3cb596f798b4bee2b3789984984e50da8951beaf3",
+      "frameCount": 39,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/shiny/499.gif",
+      "sha256": "2e0319bbc56d993ff12eb580fe06bfdb4d3a6174d7199884344670147e4bb3fe",
+      "species": "PIGNITE",
+      "surface": "back_shiny",
+      "target": "showdown/back/shiny/0499.gif"
+    },
+    {
+      "bytes": 140040,
+      "canvas": [
+        107,
+        102
+      ],
+      "dex": 500,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "8d94804eeabf55d78c4d3db8e9c0b0fd56144c882ffb53f3a2de113d2bae361a",
+      "frameCount": 59,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/500.gif",
+      "sha256": "41ac9fcc50c8ab1502e3b71babd3e41b68a01d096d16acf73c40ff31c2c767be",
+      "species": "EMBOAR",
+      "surface": "front_normal",
+      "target": "showdown/front/normal/0500.gif"
+    },
+    {
+      "bytes": 139160,
+      "canvas": [
+        107,
+        102
+      ],
+      "dex": 500,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "bdfbfe4db7495ab37668b1ca1f23b1650ce885dabe45441ebf6c4231907aa852",
+      "frameCount": 59,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/shiny/500.gif",
+      "sha256": "7a824eacb39114b9971b11c67a34b1bb2a7844608844b58bbeb32f84337d09ee",
+      "species": "EMBOAR",
+      "surface": "front_shiny",
+      "target": "showdown/front/shiny/0500.gif"
+    },
+    {
+      "bytes": 99067,
+      "canvas": [
+        126,
+        102
+      ],
+      "dex": 500,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "8d94804eeabf55d78c4d3db8e9c0b0fd56144c882ffb53f3a2de113d2bae361a",
+      "frameCount": 59,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/500.gif",
+      "sha256": "5aa38f993f6c7936700f0811514ea930600f2342bb679f5e45eade47cfaa5964",
+      "species": "EMBOAR",
+      "surface": "back_normal",
+      "target": "showdown/back/normal/0500.gif"
+    },
+    {
+      "bytes": 83873,
+      "canvas": [
+        126,
+        102
+      ],
+      "dex": 500,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "bdfbfe4db7495ab37668b1ca1f23b1650ce885dabe45441ebf6c4231907aa852",
+      "frameCount": 59,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/shiny/500.gif",
+      "sha256": "4d4f5c1db82a17fb8e7da774522084fa2103ff0480d4b6c4d29f709398546773",
+      "species": "EMBOAR",
+      "surface": "back_shiny",
+      "target": "showdown/back/shiny/0500.gif"
+    },
+    {
+      "bytes": 12984,
+      "canvas": [
+        41,
+        49
+      ],
+      "dex": 501,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "5b0e27f7281ed2b2f331cf23474b93cc1e300a0a7d410d104745a5a4999fc280",
+      "frameCount": 25,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/501.gif",
+      "sha256": "438c892d20ed61531f24c0b02ce25fa5636e31c35ae730e4429fb771a4bd6aa4",
+      "species": "OSHAWOTT",
+      "surface": "front_normal",
+      "target": "showdown/front/normal/0501.gif"
+    },
+    {
+      "bytes": 11962,
+      "canvas": [
+        41,
+        49
+      ],
+      "dex": 501,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "5b0e27f7281ed2b2f331cf23474b93cc1e300a0a7d410d104745a5a4999fc280",
+      "frameCount": 25,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/shiny/501.gif",
+      "sha256": "86c5add9e9cf71ac6dc09e05599b1fb72ad38b07195d2c7e3f347c708e80a12a",
+      "species": "OSHAWOTT",
+      "surface": "front_shiny",
+      "target": "showdown/front/shiny/0501.gif"
+    },
+    {
+      "bytes": 10803,
+      "canvas": [
+        47,
+        48
+      ],
+      "dex": 501,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "5b0e27f7281ed2b2f331cf23474b93cc1e300a0a7d410d104745a5a4999fc280",
+      "frameCount": 25,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/501.gif",
+      "sha256": "184d38f96e9425392a18c1fba6213463a47206350f0ee18c9e9f1584ae78fd8d",
+      "species": "OSHAWOTT",
+      "surface": "back_normal",
+      "target": "showdown/back/normal/0501.gif"
+    },
+    {
+      "bytes": 10083,
+      "canvas": [
+        47,
+        48
+      ],
+      "dex": 501,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "5b0e27f7281ed2b2f331cf23474b93cc1e300a0a7d410d104745a5a4999fc280",
+      "frameCount": 25,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/shiny/501.gif",
+      "sha256": "7fafa30de305001b270c44db7944882a0946fc5ab3847ae3eea5e83260808265",
+      "species": "OSHAWOTT",
+      "surface": "back_shiny",
+      "target": "showdown/back/shiny/0501.gif"
+    },
+    {
+      "bytes": 21660,
+      "canvas": [
+        44,
+        73
+      ],
+      "dex": 502,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "bd54736552d7685b771b1d850be56e283022c0a71a46c3ea494150475575374b",
+      "frameCount": 29,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/502.gif",
+      "sha256": "3fd969e45e8c637b7d0fb9a553322766dbfa1dff1732e02eccbf707c6e12f95b",
+      "species": "DEWOTT",
+      "surface": "front_normal",
+      "target": "showdown/front/normal/0502.gif"
+    },
+    {
+      "bytes": 21479,
+      "canvas": [
+        44,
+        73
+      ],
+      "dex": 502,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "bd54736552d7685b771b1d850be56e283022c0a71a46c3ea494150475575374b",
+      "frameCount": 29,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/shiny/502.gif",
+      "sha256": "9a5f3350a2216102ab2872c0a90fe5b75be51b380318eefe8fd221a78aabb52b",
+      "species": "DEWOTT",
+      "surface": "front_shiny",
+      "target": "showdown/front/shiny/0502.gif"
+    },
+    {
+      "bytes": 20133,
+      "canvas": [
+        51,
+        74
+      ],
+      "dex": 502,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "bd54736552d7685b771b1d850be56e283022c0a71a46c3ea494150475575374b",
+      "frameCount": 29,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/502.gif",
+      "sha256": "aee87ab72d3825756b0477a95cbfd757c933010c56cd79fca4cdfe8caebd04a0",
+      "species": "DEWOTT",
+      "surface": "back_normal",
+      "target": "showdown/back/normal/0502.gif"
+    },
+    {
+      "bytes": 15801,
+      "canvas": [
+        51,
+        74
+      ],
+      "dex": 502,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "bd54736552d7685b771b1d850be56e283022c0a71a46c3ea494150475575374b",
+      "frameCount": 29,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/shiny/502.gif",
+      "sha256": "8795e859a777cec6637d5983b8427a2e7e19c0005a57252a45ce3b00e0da67ed",
+      "species": "DEWOTT",
+      "surface": "back_shiny",
+      "target": "showdown/back/shiny/0502.gif"
+    },
+    {
+      "bytes": 95061,
+      "canvas": [
+        103,
+        108
+      ],
+      "dex": 503,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "8d94804eeabf55d78c4d3db8e9c0b0fd56144c882ffb53f3a2de113d2bae361a",
+      "frameCount": 59,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/503.gif",
+      "sha256": "c83308a27bde66fa4d6e9e5fcac25cde395884a92be17815fd1bcf7d044fe900",
+      "species": "SAMUROTT",
+      "surface": "front_normal",
+      "target": "showdown/front/normal/0503.gif"
+    },
+    {
+      "bytes": 98550,
+      "canvas": [
+        103,
+        108
+      ],
+      "dex": 503,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "bdfbfe4db7495ab37668b1ca1f23b1650ce885dabe45441ebf6c4231907aa852",
+      "frameCount": 59,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/shiny/503.gif",
+      "sha256": "a5bc6a3fc474f3da259feff24bdc14d226b920fe4f81e98653005cf2d9c4a0b3",
+      "species": "SAMUROTT",
+      "surface": "front_shiny",
+      "target": "showdown/front/shiny/0503.gif"
+    },
+    {
+      "bytes": 101424,
+      "canvas": [
+        94,
+        93
+      ],
+      "dex": 503,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "8d94804eeabf55d78c4d3db8e9c0b0fd56144c882ffb53f3a2de113d2bae361a",
+      "frameCount": 59,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/503.gif",
+      "sha256": "383029802902c354593f0bba39d58b86eeb430c5e40ef3cd831332aece6a5583",
+      "species": "SAMUROTT",
+      "surface": "back_normal",
+      "target": "showdown/back/normal/0503.gif"
+    },
+    {
+      "bytes": 75529,
+      "canvas": [
+        94,
+        93
+      ],
+      "dex": 503,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "bdfbfe4db7495ab37668b1ca1f23b1650ce885dabe45441ebf6c4231907aa852",
+      "frameCount": 59,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/shiny/503.gif",
+      "sha256": "cbe2c9d6853f04e52f5c4259e4a287faaaf4f9a317c220d37ff8070184878006",
+      "species": "SAMUROTT",
+      "surface": "back_shiny",
+      "target": "showdown/back/shiny/0503.gif"
+    },
+    {
+      "bytes": 31210,
+      "canvas": [
+        50,
+        64
+      ],
+      "dex": 650,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "06ff66d34782156889fdac03255cdb7e7d8f3089cfee8dc79e30c5c15da8801f",
+      "frameCount": 44,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/650.gif",
+      "sha256": "259c63e07ae3fd713758e3c8a9e536020740a6944813ddb522d9d1f3c62406ea",
+      "species": "CHESPIN",
+      "surface": "front_normal",
+      "target": "showdown/front/normal/0650.gif"
+    },
+    {
+      "bytes": 31134,
+      "canvas": [
+        50,
+        64
+      ],
+      "dex": 650,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "06ff66d34782156889fdac03255cdb7e7d8f3089cfee8dc79e30c5c15da8801f",
+      "frameCount": 44,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/shiny/650.gif",
+      "sha256": "11c25cbfd76b679c3cb148c08aeb59b396b8063fcbf812d2306475117b5b307b",
+      "species": "CHESPIN",
+      "surface": "front_shiny",
+      "target": "showdown/front/shiny/0650.gif"
+    },
+    {
+      "bytes": 24481,
+      "canvas": [
+        45,
+        65
+      ],
+      "dex": 650,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "7e446530391785c91d37d41f457aec77815835fc5c4513c189a9c2d0371c3d46",
+      "frameCount": 48,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/650.gif",
+      "sha256": "6fc1d602a4f1d5e7710ebb6a3bd64bd149ed8f4f35983a194357dc2fff7ddda6",
+      "species": "CHESPIN",
+      "surface": "back_normal",
+      "target": "showdown/back/normal/0650.gif"
+    },
+    {
+      "bytes": 26186,
+      "canvas": [
+        45,
+        65
+      ],
+      "dex": 650,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "06ff66d34782156889fdac03255cdb7e7d8f3089cfee8dc79e30c5c15da8801f",
+      "frameCount": 44,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/shiny/650.gif",
+      "sha256": "5742b51e6057715d10f6013e8d1e7a8063a003880d21f445aa10093ed27d5e6e",
+      "species": "CHESPIN",
+      "surface": "back_shiny",
+      "target": "showdown/back/shiny/0650.gif"
+    },
+    {
+      "bytes": 45104,
+      "canvas": [
+        73,
+        68
+      ],
+      "dex": 651,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "37b8daa7f42d739c0091adf3cb596f798b4bee2b3789984984e50da8951beaf3",
+      "frameCount": 39,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/651.gif",
+      "sha256": "8ec5d12b351493c5c08d0a3c3c88284ed651a2417acf904a277775a5f8fc8bae",
+      "species": "QUILLADIN",
+      "surface": "front_normal",
+      "target": "showdown/front/normal/0651.gif"
+    },
+    {
+      "bytes": 39775,
+      "canvas": [
+        73,
+        68
+      ],
+      "dex": 651,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "37b8daa7f42d739c0091adf3cb596f798b4bee2b3789984984e50da8951beaf3",
+      "frameCount": 39,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/shiny/651.gif",
+      "sha256": "44cd96e3f55cf2588fd5d4564baa3d03256d27d647a5d976a7dd6d1de830d79b",
+      "species": "QUILLADIN",
+      "surface": "front_shiny",
+      "target": "showdown/front/shiny/0651.gif"
+    },
+    {
+      "bytes": 36908,
+      "canvas": [
+        69,
+        67
+      ],
+      "dex": 651,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "1605490d8d99eade60432e0b18e93ff21442cd5e44962949754d68d9487babd7",
+      "frameCount": 43,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/651.gif",
+      "sha256": "3f3f295006a03c151779d7c87db0f863c905c849342b8f6803e0d9535103f0bc",
+      "species": "QUILLADIN",
+      "surface": "back_normal",
+      "target": "showdown/back/normal/0651.gif"
+    },
+    {
+      "bytes": 27991,
+      "canvas": [
+        69,
+        67
+      ],
+      "dex": 651,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "37b8daa7f42d739c0091adf3cb596f798b4bee2b3789984984e50da8951beaf3",
+      "frameCount": 39,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/shiny/651.gif",
+      "sha256": "e74afcb09832f21c852b996621e6b8b99898bf115280cbd9b14341c89e1790ab",
+      "species": "QUILLADIN",
+      "surface": "back_shiny",
+      "target": "showdown/back/shiny/0651.gif"
+    },
+    {
+      "bytes": 135733,
+      "canvas": [
+        128,
+        106
+      ],
+      "dex": 652,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "bdfbfe4db7495ab37668b1ca1f23b1650ce885dabe45441ebf6c4231907aa852",
+      "frameCount": 59,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/652.gif",
+      "sha256": "95daf1f53c5ad347979f84c786d1dc18685ebf3e78243aaba361d34d48fa2b98",
+      "species": "CHESNAUGHT",
+      "surface": "front_normal",
+      "target": "showdown/front/normal/0652.gif"
+    },
+    {
+      "bytes": 135355,
+      "canvas": [
+        128,
+        106
+      ],
+      "dex": 652,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "bdfbfe4db7495ab37668b1ca1f23b1650ce885dabe45441ebf6c4231907aa852",
+      "frameCount": 59,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/shiny/652.gif",
+      "sha256": "c92cd61fb5c1ea8281524780db2e33f6bd46d53bdb752d7ded04bc6c812dec9c",
+      "species": "CHESNAUGHT",
+      "surface": "front_shiny",
+      "target": "showdown/front/shiny/0652.gif"
+    },
+    {
+      "bytes": 107496,
+      "canvas": [
+        131,
+        111
+      ],
+      "dex": 652,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "455749fcb165a24e5911005c74461583544ca17912772794bda3ffd2a705e7f3",
+      "frameCount": 63,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/652.gif",
+      "sha256": "c3d98e60e1ad175f383d77f00e21a24b109ae01f39ec00630a96d6909ba06f31",
+      "species": "CHESNAUGHT",
+      "surface": "back_normal",
+      "target": "showdown/back/normal/0652.gif"
+    },
+    {
+      "bytes": 120115,
+      "canvas": [
+        131,
+        111
+      ],
+      "dex": 652,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "bdfbfe4db7495ab37668b1ca1f23b1650ce885dabe45441ebf6c4231907aa852",
+      "frameCount": 59,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/shiny/652.gif",
+      "sha256": "de251dcb7ca0acab5e1271bf6cd2cbcd92c52911bc46f3c127289ad5a2ff5154",
+      "species": "CHESNAUGHT",
+      "surface": "back_shiny",
+      "target": "showdown/back/shiny/0652.gif"
+    },
+    {
+      "bytes": 19457,
+      "canvas": [
+        51,
+        59
+      ],
+      "dex": 653,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "5b0e27f7281ed2b2f331cf23474b93cc1e300a0a7d410d104745a5a4999fc280",
+      "frameCount": 25,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/653.gif",
+      "sha256": "58b64eaa550119ecd07f7c65457b7fecb1017497aee4a4b017aee54bc254b33e",
+      "species": "FENNEKIN",
+      "surface": "front_normal",
+      "target": "showdown/front/normal/0653.gif"
+    },
+    {
+      "bytes": 19858,
+      "canvas": [
+        51,
+        59
+      ],
+      "dex": 653,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "5b0e27f7281ed2b2f331cf23474b93cc1e300a0a7d410d104745a5a4999fc280",
+      "frameCount": 25,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/shiny/653.gif",
+      "sha256": "dad02d6a6e777e9c0eaf8b7d5732ddab528bd5fa94e5c290610d054a172e5d92",
+      "species": "FENNEKIN",
+      "surface": "front_shiny",
+      "target": "showdown/front/shiny/0653.gif"
+    },
+    {
+      "bytes": 23177,
+      "canvas": [
+        48,
+        59
+      ],
+      "dex": 653,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "86f4f152252b3ae051c570f0f0cdf66cee2e37c2938e438c1f2efad2ae1c0686",
+      "frameCount": 29,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/653.gif",
+      "sha256": "4b388df3783c3c2b7d424b5996a9519dd908afe1de5b4d3c266957b2a4c85b25",
+      "species": "FENNEKIN",
+      "surface": "back_normal",
+      "target": "showdown/back/normal/0653.gif"
+    },
+    {
+      "bytes": 18566,
+      "canvas": [
+        48,
+        59
+      ],
+      "dex": 653,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "5b0e27f7281ed2b2f331cf23474b93cc1e300a0a7d410d104745a5a4999fc280",
+      "frameCount": 25,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/shiny/653.gif",
+      "sha256": "3a8ffa405babf643780c7ac6595307d54be767b23e23d6f773c1cb3db78dc5cc",
+      "species": "FENNEKIN",
+      "surface": "back_shiny",
+      "target": "showdown/back/shiny/0653.gif"
+    },
+    {
+      "bytes": 47997,
+      "canvas": [
+        74,
+        86
+      ],
+      "dex": 654,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "e900c61dfaa2785d4cc71e40e5c4be3124e768233f1b118a9a8e4ce7658b4448",
+      "frameCount": 41,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/654.gif",
+      "sha256": "02f93bf1a5b8a66d9db7fafcebefd9797ac42d4914a758492192257f71b6ab9d",
+      "species": "BRAIXEN",
+      "surface": "front_normal",
+      "target": "showdown/front/normal/0654.gif"
+    },
+    {
+      "bytes": 48276,
+      "canvas": [
+        74,
+        86
+      ],
+      "dex": 654,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "e900c61dfaa2785d4cc71e40e5c4be3124e768233f1b118a9a8e4ce7658b4448",
+      "frameCount": 41,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/shiny/654.gif",
+      "sha256": "7a9a7315e921a936442cad9c16a5434beee665ed8366fb20d2655b8edd48e33a",
+      "species": "BRAIXEN",
+      "surface": "front_shiny",
+      "target": "showdown/front/shiny/0654.gif"
+    },
+    {
+      "bytes": 45996,
+      "canvas": [
+        71,
+        87
+      ],
+      "dex": 654,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "f34968e701d07ee373d695597198153f8d3b881bfdf873b623ed8cff8b38218a",
+      "frameCount": 42,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/654.gif",
+      "sha256": "bc1dda0a544e9c17ddfc942c69331da887797dacb5ae7a4ad635234a73b09e65",
+      "species": "BRAIXEN",
+      "surface": "back_normal",
+      "target": "showdown/back/normal/0654.gif"
+    },
+    {
+      "bytes": 40756,
+      "canvas": [
+        71,
+        87
+      ],
+      "dex": 654,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "e900c61dfaa2785d4cc71e40e5c4be3124e768233f1b118a9a8e4ce7658b4448",
+      "frameCount": 41,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/shiny/654.gif",
+      "sha256": "e2a490e0aa5689bf903ce231687e262924b6ad80b6ab6a76f19ab086f129a355",
+      "species": "BRAIXEN",
+      "surface": "back_shiny",
+      "target": "showdown/back/shiny/0654.gif"
+    },
+    {
+      "bytes": 92634,
+      "canvas": [
+        95,
+        110
+      ],
+      "dex": 655,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "8d94804eeabf55d78c4d3db8e9c0b0fd56144c882ffb53f3a2de113d2bae361a",
+      "frameCount": 59,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/655.gif",
+      "sha256": "3e911417e20efc233f4ba3f8d97385d9b9b806be79a041d8330e1d2811c6b2de",
+      "species": "DELPHOX",
+      "surface": "front_normal",
+      "target": "showdown/front/normal/0655.gif"
+    },
+    {
+      "bytes": 93011,
+      "canvas": [
+        95,
+        110
+      ],
+      "dex": 655,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "8d94804eeabf55d78c4d3db8e9c0b0fd56144c882ffb53f3a2de113d2bae361a",
+      "frameCount": 59,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/shiny/655.gif",
+      "sha256": "d67f8ad82cc6646274677d4f688418e069813115124482d2cc6f2333f75af914",
+      "species": "DELPHOX",
+      "surface": "front_shiny",
+      "target": "showdown/front/shiny/0655.gif"
+    },
+    {
+      "bytes": 91977,
+      "canvas": [
+        100,
+        121
+      ],
+      "dex": 655,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "332fa341216cfcb50db1851a15dfcc7abd229f0843159d68755bbc54c0f7d9f9",
+      "frameCount": 60,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/655.gif",
+      "sha256": "fe56d399681215d8f02a9ad89564577bec756ee719c826acfa2ec2415ba22855",
+      "species": "DELPHOX",
+      "surface": "back_normal",
+      "target": "showdown/back/normal/0655.gif"
+    },
+    {
+      "bytes": 87478,
+      "canvas": [
+        100,
+        121
+      ],
+      "dex": 655,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "bdfbfe4db7495ab37668b1ca1f23b1650ce885dabe45441ebf6c4231907aa852",
+      "frameCount": 59,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/shiny/655.gif",
+      "sha256": "8a7cf31090dd49cb0b626c0dfb094f1f3fddc1d57ea288145cd59edcb505aad7",
+      "species": "DELPHOX",
+      "surface": "back_shiny",
+      "target": "showdown/back/shiny/0655.gif"
+    },
+    {
+      "bytes": 21228,
+      "canvas": [
+        45,
+        52
+      ],
+      "dex": 656,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "bd54736552d7685b771b1d850be56e283022c0a71a46c3ea494150475575374b",
+      "frameCount": 29,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/656.gif",
+      "sha256": "21c9206a5c7814fd1cacb3ecfaced803ea6a48af51b1702c4e1ac850074103a0",
+      "species": "FROAKIE",
+      "surface": "front_normal",
+      "target": "showdown/front/normal/0656.gif"
+    },
+    {
+      "bytes": 21173,
+      "canvas": [
+        45,
+        52
+      ],
+      "dex": 656,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "bd54736552d7685b771b1d850be56e283022c0a71a46c3ea494150475575374b",
+      "frameCount": 29,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/shiny/656.gif",
+      "sha256": "b566f50ff34beada3dfdc5d2ebcc9f26e699c2d98288575170af5400b1ce77f9",
+      "species": "FROAKIE",
+      "surface": "front_shiny",
+      "target": "showdown/front/shiny/0656.gif"
+    },
+    {
+      "bytes": 20183,
+      "canvas": [
+        46,
+        52
+      ],
+      "dex": 656,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "c77e9294d5dbb2c128a18147e9b6efacd331c509573e90f6fc8f348f0c4acba4",
+      "frameCount": 32,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/656.gif",
+      "sha256": "dd4e00fb68fa258b8661ee14daa0bd29742e21d259bf93ecbd1c6248a9c0f8ef",
+      "species": "FROAKIE",
+      "surface": "back_normal",
+      "target": "showdown/back/normal/0656.gif"
+    },
+    {
+      "bytes": 18362,
+      "canvas": [
+        46,
+        52
+      ],
+      "dex": 656,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "bd54736552d7685b771b1d850be56e283022c0a71a46c3ea494150475575374b",
+      "frameCount": 29,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/shiny/656.gif",
+      "sha256": "3e7e2b82ed57e5ae70583adfd0d7e7a4d8a26f097f841db91ee665079d9ea078",
+      "species": "FROAKIE",
+      "surface": "back_shiny",
+      "target": "showdown/back/shiny/0656.gif"
+    },
+    {
+      "bytes": 37136,
+      "canvas": [
+        73,
+        58
+      ],
+      "dex": 657,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "37b8daa7f42d739c0091adf3cb596f798b4bee2b3789984984e50da8951beaf3",
+      "frameCount": 39,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/657.gif",
+      "sha256": "846bf59ef03ef2a1dfef68f9588dc56018a0d0a51bc203dac5e1e465bce9edf6",
+      "species": "FROGADIER",
+      "surface": "front_normal",
+      "target": "showdown/front/normal/0657.gif"
+    },
+    {
+      "bytes": 35588,
+      "canvas": [
+        73,
+        58
+      ],
+      "dex": 657,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "37b8daa7f42d739c0091adf3cb596f798b4bee2b3789984984e50da8951beaf3",
+      "frameCount": 39,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/shiny/657.gif",
+      "sha256": "311c54012c5bc7d082a7d9bd42b2a7bf23183212896cde38cf2ce4446c02ef84",
+      "species": "FROGADIER",
+      "surface": "front_shiny",
+      "target": "showdown/front/shiny/0657.gif"
+    },
+    {
+      "bytes": 38952,
+      "canvas": [
+        70,
+        55
+      ],
+      "dex": 657,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "1605490d8d99eade60432e0b18e93ff21442cd5e44962949754d68d9487babd7",
+      "frameCount": 43,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/657.gif",
+      "sha256": "c7cf5c3f7163ee827d7f87553f934ac1032fab8cc03d34cc4c5e80148244aafd",
+      "species": "FROGADIER",
+      "surface": "back_normal",
+      "target": "showdown/back/normal/0657.gif"
+    },
+    {
+      "bytes": 32494,
+      "canvas": [
+        70,
+        55
+      ],
+      "dex": 657,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "37b8daa7f42d739c0091adf3cb596f798b4bee2b3789984984e50da8951beaf3",
+      "frameCount": 39,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/shiny/657.gif",
+      "sha256": "6e7e8267b5d77354b92e205b46286928f5d58fcbc95db8c1b1f8275bc2d83c6d",
+      "species": "FROGADIER",
+      "surface": "back_shiny",
+      "target": "showdown/back/shiny/0657.gif"
+    },
+    {
+      "bytes": 51645,
+      "canvas": [
+        131,
+        76
+      ],
+      "dex": 658,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "37b8daa7f42d739c0091adf3cb596f798b4bee2b3789984984e50da8951beaf3",
+      "frameCount": 39,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/658.gif",
+      "sha256": "3c674e08d060af48bf0affd93508eb0b4e8efc2c340a175d10f36d69729a47da",
+      "species": "GRENINJA",
+      "surface": "front_normal",
+      "target": "showdown/front/normal/0658.gif"
+    },
+    {
+      "bytes": 51827,
+      "canvas": [
+        131,
+        76
+      ],
+      "dex": 658,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "37b8daa7f42d739c0091adf3cb596f798b4bee2b3789984984e50da8951beaf3",
+      "frameCount": 39,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/shiny/658.gif",
+      "sha256": "2e2fa53cc50f006672bb80f15edfcea321e847a06d12db1505b4ecbd73b7d4a0",
+      "species": "GRENINJA",
+      "surface": "front_shiny",
+      "target": "showdown/front/shiny/0658.gif"
+    },
+    {
+      "bytes": 43435,
+      "canvas": [
+        123,
+        73
+      ],
+      "dex": 658,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "37b8daa7f42d739c0091adf3cb596f798b4bee2b3789984984e50da8951beaf3",
+      "frameCount": 39,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/658.gif",
+      "sha256": "ffbc1c03cf1393ef3c481dedb0e43ebcbebdada9b147070e4871a6481465ab7c",
+      "species": "GRENINJA",
+      "surface": "back_normal",
+      "target": "showdown/back/normal/0658.gif"
+    },
+    {
+      "bytes": 47989,
+      "canvas": [
+        123,
+        73
+      ],
+      "dex": 658,
+      "durationMaxMs": 40.0,
+      "durationMinMs": 40.0,
+      "durationsAggregateSha256": "37b8daa7f42d739c0091adf3cb596f798b4bee2b3789984984e50da8951beaf3",
+      "frameCount": 39,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/shiny/658.gif",
+      "sha256": "6b19b54c065ad6daddcfd09adaa5c0e05ab5af4110f12d83b07b80531fb25da7",
+      "species": "GRENINJA",
+      "surface": "back_shiny",
+      "target": "showdown/back/shiny/0658.gif"
+    },
+    {
+      "bytes": 22667,
+      "canvas": [
+        43,
+        50
+      ],
+      "dex": 722,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "956db78871e8939fe3a64476b22d8815942e77e03f77c224a43ad7c30f37eddd",
+      "frameCount": 39,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/722.gif",
+      "sha256": "fc701ace825b1084b4aa074830a75aae18a745983974c00d78c740a80e19e9f4",
+      "species": "ROWLET",
+      "surface": "front_normal",
+      "target": "showdown/front/normal/0722.gif"
+    },
+    {
+      "bytes": 23193,
+      "canvas": [
+        43,
+        50
+      ],
+      "dex": 722,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "c8ab4d40a021f46bbe9d252aba627e9820693bf86fc80f641159db1f4abcc724",
+      "frameCount": 38,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/shiny/722.gif",
+      "sha256": "1530b245f2de40d1b9b0a34145c868889f2ca38229ca44237d969decd15e02b9",
+      "species": "ROWLET",
+      "surface": "front_shiny",
+      "target": "showdown/front/shiny/0722.gif"
+    },
+    {
+      "bytes": 13093,
+      "canvas": [
+        43,
+        50
+      ],
+      "dex": 722,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "bda2be60317c791f60b0925b0e78a7f2bdeb3b34ff9268669b109ddd628e1421",
+      "frameCount": 34,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/722.gif",
+      "sha256": "777ef1a813485fb7d976b30a13b85bc7d55a68b5c1231f198b4763af54920195",
+      "species": "ROWLET",
+      "surface": "back_normal",
+      "target": "showdown/back/normal/0722.gif"
+    },
+    {
+      "bytes": 26850,
+      "canvas": [
+        41,
+        49
+      ],
+      "dex": 722,
+      "durationMaxMs": 60.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "0073f5f151e84d389794cfec94aaf267c18c247fd3efc59b2990a3946420e90b",
+      "frameCount": 38,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/shiny/722.gif",
+      "sha256": "f0a80762c857f64688673644aba32f511bccfa76b8f8080005f68fb5617369b2",
+      "species": "ROWLET",
+      "surface": "back_shiny",
+      "target": "showdown/back/shiny/0722.gif"
+    },
+    {
+      "bytes": 28038,
+      "canvas": [
+        45,
+        68
+      ],
+      "dex": 723,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "956db78871e8939fe3a64476b22d8815942e77e03f77c224a43ad7c30f37eddd",
+      "frameCount": 39,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/723.gif",
+      "sha256": "8d5a437b8e28ae6a14fbbac8647dd963006b1d66e45115b3b9ae959d5df1170e",
+      "species": "DARTRIX",
+      "surface": "front_normal",
+      "target": "showdown/front/normal/0723.gif"
+    },
+    {
+      "bytes": 26854,
+      "canvas": [
+        45,
+        68
+      ],
+      "dex": 723,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "c8ab4d40a021f46bbe9d252aba627e9820693bf86fc80f641159db1f4abcc724",
+      "frameCount": 38,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/shiny/723.gif",
+      "sha256": "2cff71657f83c6d2bcfd2c074e0ecb825cb036efea097d6bf5ccf25c0c4ab18c",
+      "species": "DARTRIX",
+      "surface": "front_shiny",
+      "target": "showdown/front/shiny/0723.gif"
+    },
+    {
+      "bytes": 24813,
+      "canvas": [
+        44,
+        68
+      ],
+      "dex": 723,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "c8ab4d40a021f46bbe9d252aba627e9820693bf86fc80f641159db1f4abcc724",
+      "frameCount": 38,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/723.gif",
+      "sha256": "23602ff587fc86517d91a90dfcbb7d0db55218bad54483e679372d2d6144f486",
+      "species": "DARTRIX",
+      "surface": "back_normal",
+      "target": "showdown/back/normal/0723.gif"
+    },
+    {
+      "bytes": 40779,
+      "canvas": [
+        44,
+        66
+      ],
+      "dex": 723,
+      "durationMaxMs": 90.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "3a594d77d9944ff467b421254f3eb20a8b233ecedceafe546d90018ab17ac6a7",
+      "frameCount": 39,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/shiny/723.gif",
+      "sha256": "985795963e93cbf8a13a57b0e47146361a3af518cb34086a70e4cc04c8b3a61d",
+      "species": "DARTRIX",
+      "surface": "back_shiny",
+      "target": "showdown/back/shiny/0723.gif"
+    },
+    {
+      "bytes": 52697,
+      "canvas": [
+        61,
+        100
+      ],
+      "dex": 724,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "956db78871e8939fe3a64476b22d8815942e77e03f77c224a43ad7c30f37eddd",
+      "frameCount": 39,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/724.gif",
+      "sha256": "34e7f2c2a7af112515dba129da8f0e55d9885aa47e1524b62e8cb4cb6957b081",
+      "species": "DECIDUEYE",
+      "surface": "front_normal",
+      "target": "showdown/front/normal/0724.gif"
+    },
+    {
+      "bytes": 55091,
+      "canvas": [
+        61,
+        100
+      ],
+      "dex": 724,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "956db78871e8939fe3a64476b22d8815942e77e03f77c224a43ad7c30f37eddd",
+      "frameCount": 39,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/shiny/724.gif",
+      "sha256": "b26e1a4bad0cad7e87acc320441524738cdbbb4286b9e8557436735b86abdb20",
+      "species": "DECIDUEYE",
+      "surface": "front_shiny",
+      "target": "showdown/front/shiny/0724.gif"
+    },
+    {
+      "bytes": 46075,
+      "canvas": [
+        59,
+        101
+      ],
+      "dex": 724,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "956db78871e8939fe3a64476b22d8815942e77e03f77c224a43ad7c30f37eddd",
+      "frameCount": 39,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/724.gif",
+      "sha256": "bc807c0abdea34ee374f9675e0822ae597815907af0a63022baca45e8a73fa7a",
+      "species": "DECIDUEYE",
+      "surface": "back_normal",
+      "target": "showdown/back/normal/0724.gif"
+    },
+    {
+      "bytes": 82667,
+      "canvas": [
+        63,
+        102
+      ],
+      "dex": 724,
+      "durationMaxMs": 60.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "ae8d7829bfa3f386cfd052ede42fbe24ec90b34feafb8fd8e236632b188b425d",
+      "frameCount": 40,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/shiny/724.gif",
+      "sha256": "143f989518b4ac5cdf3375641c5fde238d2a4738ab7c164f1c791e17bd809a3c",
+      "species": "DECIDUEYE",
+      "surface": "back_shiny",
+      "target": "showdown/back/shiny/0724.gif"
+    },
+    {
+      "bytes": 20384,
+      "canvas": [
+        55,
+        58
+      ],
+      "dex": 725,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "86f4f152252b3ae051c570f0f0cdf66cee2e37c2938e438c1f2efad2ae1c0686",
+      "frameCount": 29,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/725.gif",
+      "sha256": "a156bc7e02b8084f241deb61eef4a5585b0b0f366bc48ecc50d000fa6d68ba80",
+      "species": "LITTEN",
+      "surface": "front_normal",
+      "target": "showdown/front/normal/0725.gif"
+    },
+    {
+      "bytes": 20227,
+      "canvas": [
+        55,
+        58
+      ],
+      "dex": 725,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "86f4f152252b3ae051c570f0f0cdf66cee2e37c2938e438c1f2efad2ae1c0686",
+      "frameCount": 29,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/shiny/725.gif",
+      "sha256": "fa120b6eb00d967e614beb31be7b5587348c9561ca47088475bc40016cde508f",
+      "species": "LITTEN",
+      "surface": "front_shiny",
+      "target": "showdown/front/shiny/0725.gif"
+    },
+    {
+      "bytes": 17903,
+      "canvas": [
+        61,
+        59
+      ],
+      "dex": 725,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "86f4f152252b3ae051c570f0f0cdf66cee2e37c2938e438c1f2efad2ae1c0686",
+      "frameCount": 29,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/725.gif",
+      "sha256": "3adddf9384775aa0d83e1a931853f605dd565e6e834a89f33d33eab545f165dd",
+      "species": "LITTEN",
+      "surface": "back_normal",
+      "target": "showdown/back/normal/0725.gif"
+    },
+    {
+      "bytes": 26530,
+      "canvas": [
+        58,
+        60
+      ],
+      "dex": 725,
+      "durationMaxMs": 60.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "14940ed076e0f61a176fe753996c31093b75e4a6582afd3d63711b606a432e6c",
+      "frameCount": 28,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/shiny/725.gif",
+      "sha256": "775e5cc447100ad31c50075c3c2dffc9bb26833f2824cc31a52886dad2267e26",
+      "species": "LITTEN",
+      "surface": "back_shiny",
+      "target": "showdown/back/shiny/0725.gif"
+    },
+    {
+      "bytes": 50866,
+      "canvas": [
+        86,
+        74
+      ],
+      "dex": 726,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "956db78871e8939fe3a64476b22d8815942e77e03f77c224a43ad7c30f37eddd",
+      "frameCount": 39,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/726.gif",
+      "sha256": "5689bd4f3365570f9858e0d2536e9f2b879ef436cfac5024ebc26207deda64c2",
+      "species": "TORRACAT",
+      "surface": "front_normal",
+      "target": "showdown/front/normal/0726.gif"
+    },
+    {
+      "bytes": 48398,
+      "canvas": [
+        86,
+        74
+      ],
+      "dex": 726,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "956db78871e8939fe3a64476b22d8815942e77e03f77c224a43ad7c30f37eddd",
+      "frameCount": 39,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/shiny/726.gif",
+      "sha256": "a81ff2367074f728ae6f4065ba0cfbbdedb333b8e4f5bb68234b34947ff84af6",
+      "species": "TORRACAT",
+      "surface": "front_shiny",
+      "target": "showdown/front/shiny/0726.gif"
+    },
+    {
+      "bytes": 38257,
+      "canvas": [
+        91,
+        75
+      ],
+      "dex": 726,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "c8ab4d40a021f46bbe9d252aba627e9820693bf86fc80f641159db1f4abcc724",
+      "frameCount": 38,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/726.gif",
+      "sha256": "ec020b8c6c9679cd2d2beed49b92759cdba0f8af53e68e6caac6e53ad64d0d94",
+      "species": "TORRACAT",
+      "surface": "back_normal",
+      "target": "showdown/back/normal/0726.gif"
+    },
+    {
+      "bytes": 65363,
+      "canvas": [
+        88,
+        75
+      ],
+      "dex": 726,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "c8ab4d40a021f46bbe9d252aba627e9820693bf86fc80f641159db1f4abcc724",
+      "frameCount": 38,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/shiny/726.gif",
+      "sha256": "b0bea03cd09bb21a2500bbcffd79f7f289f273be7d3270ef743a2f7dfb3a1a33",
+      "species": "TORRACAT",
+      "surface": "back_shiny",
+      "target": "showdown/back/shiny/0726.gif"
+    },
+    {
+      "bytes": 69343,
+      "canvas": [
+        131,
+        96
+      ],
+      "dex": 727,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "956db78871e8939fe3a64476b22d8815942e77e03f77c224a43ad7c30f37eddd",
+      "frameCount": 39,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/727.gif",
+      "sha256": "7d3153c7ce55a79ac584a3dc35971411a21327991e199172eaacd7ba09a0562f",
+      "species": "INCINEROAR",
+      "surface": "front_normal",
+      "target": "showdown/front/normal/0727.gif"
+    },
+    {
+      "bytes": 69778,
+      "canvas": [
+        131,
+        96
+      ],
+      "dex": 727,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "956db78871e8939fe3a64476b22d8815942e77e03f77c224a43ad7c30f37eddd",
+      "frameCount": 39,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/shiny/727.gif",
+      "sha256": "c1863df3bcb1e81ced9b3357748526d34182e55fe57658b79ba6d0cc180dca46",
+      "species": "INCINEROAR",
+      "surface": "front_shiny",
+      "target": "showdown/front/shiny/0727.gif"
+    },
+    {
+      "bytes": 166553,
+      "canvas": [
+        117,
+        93
+      ],
+      "dex": 727,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "2743c13715ee582a736cb9aade994ead9954c312b00ebd775565c19e7ca8e1c4",
+      "frameCount": 118,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/727.gif",
+      "sha256": "2633560c37e2cebf378bf453afcccc4f48c15dc7b3676a1651510782dd2855e7",
+      "species": "INCINEROAR",
+      "surface": "back_normal",
+      "target": "showdown/back/normal/0727.gif"
+    },
+    {
+      "bytes": 104171,
+      "canvas": [
+        117,
+        93
+      ],
+      "dex": 727,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "66d883597fc68e12b354fb602e820287e59c56a51fd66b5d7810284c1f4cadff",
+      "frameCount": 40,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/shiny/727.gif",
+      "sha256": "5df011063f299896784a59ab300fce502cedd77ada47e80921ce81b7ed813dfc",
+      "species": "INCINEROAR",
+      "surface": "back_shiny",
+      "target": "showdown/back/shiny/0727.gif"
+    },
+    {
+      "bytes": 18417,
+      "canvas": [
+        58,
+        49
+      ],
+      "dex": 728,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "07ce76e808f00f0fe593d89c9cb5eaf5ddae38c9df8fb0c28fe2e769cbbd511b",
+      "frameCount": 30,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/728.gif",
+      "sha256": "44d09b30e6101ab5bc506d6215796a82b2c76b3065180b4b379abcb8d45b9fb7",
+      "species": "POPPLIO",
+      "surface": "front_normal",
+      "target": "showdown/front/normal/0728.gif"
+    },
+    {
+      "bytes": 17671,
+      "canvas": [
+        58,
+        49
+      ],
+      "dex": 728,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "07ce76e808f00f0fe593d89c9cb5eaf5ddae38c9df8fb0c28fe2e769cbbd511b",
+      "frameCount": 30,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/shiny/728.gif",
+      "sha256": "795707a0f82dbaa72afde12c19a6f253c5c10f5b5086733199ce6e732e305701",
+      "species": "POPPLIO",
+      "surface": "front_shiny",
+      "target": "showdown/front/shiny/0728.gif"
+    },
+    {
+      "bytes": 17656,
+      "canvas": [
+        62,
+        48
+      ],
+      "dex": 728,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "8fd0d1e4ba8f69f42f00642f4308ea4a097d14a557a8f2656c4f2a8ea14fffe8",
+      "frameCount": 31,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/728.gif",
+      "sha256": "68b329b5041759a08ea15c3e4f3eaa6c398f1f3de6382e65c2a6e07c61bcb278",
+      "species": "POPPLIO",
+      "surface": "back_normal",
+      "target": "showdown/back/normal/0728.gif"
+    },
+    {
+      "bytes": 17656,
+      "canvas": [
+        62,
+        48
+      ],
+      "dex": 728,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "8fd0d1e4ba8f69f42f00642f4308ea4a097d14a557a8f2656c4f2a8ea14fffe8",
+      "frameCount": 31,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/shiny/728.gif",
+      "sha256": "68b329b5041759a08ea15c3e4f3eaa6c398f1f3de6382e65c2a6e07c61bcb278",
+      "species": "POPPLIO",
+      "surface": "back_shiny",
+      "target": "showdown/back/shiny/0728.gif"
+    },
+    {
+      "bytes": 35487,
+      "canvas": [
+        67,
+        71
+      ],
+      "dex": 729,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "1605490d8d99eade60432e0b18e93ff21442cd5e44962949754d68d9487babd7",
+      "frameCount": 43,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/729.gif",
+      "sha256": "9270e9aea630e83ea93cbd4a585314709134a738bf04d5de92167312f1fba8e7",
+      "species": "BRIONNE",
+      "surface": "front_normal",
+      "target": "showdown/front/normal/0729.gif"
+    },
+    {
+      "bytes": 36586,
+      "canvas": [
+        67,
+        71
+      ],
+      "dex": 729,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "1605490d8d99eade60432e0b18e93ff21442cd5e44962949754d68d9487babd7",
+      "frameCount": 43,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/shiny/729.gif",
+      "sha256": "ba399859bb028fd7b4c22eef60822dd64c7cd2f4c95f4e2ad27bd6f3a70f38a0",
+      "species": "BRIONNE",
+      "surface": "front_shiny",
+      "target": "showdown/front/shiny/0729.gif"
+    },
+    {
+      "bytes": 36829,
+      "canvas": [
+        77,
+        69
+      ],
+      "dex": 729,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "1605490d8d99eade60432e0b18e93ff21442cd5e44962949754d68d9487babd7",
+      "frameCount": 43,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/729.gif",
+      "sha256": "69c77cb2ecdcc85131159696aee085edfa2d73761d2d0c88760beac74f85704c",
+      "species": "BRIONNE",
+      "surface": "back_normal",
+      "target": "showdown/back/normal/0729.gif"
+    },
+    {
+      "bytes": 67700,
+      "canvas": [
+        75,
+        69
+      ],
+      "dex": 729,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "f34968e701d07ee373d695597198153f8d3b881bfdf873b623ed8cff8b38218a",
+      "frameCount": 42,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/shiny/729.gif",
+      "sha256": "c0f4caa02844f99f7b545ae80aefd7d25620e7011c7f6634488e05772a2e3eba",
+      "species": "BRIONNE",
+      "surface": "back_shiny",
+      "target": "showdown/back/shiny/0729.gif"
+    },
+    {
+      "bytes": 119319,
+      "canvas": [
+        82,
+        108
+      ],
+      "dex": 730,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "fd3c86181831f48d5601af96e24e4ca733ef4c82ddcaa38cb76c787c43f81558",
+      "frameCount": 89,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/730.gif",
+      "sha256": "acb0d8a4e198c35d565917eb55aa3ff0f56f22667cd753fac9e19a4e1c2ecd6e",
+      "species": "PRIMARINA",
+      "surface": "front_normal",
+      "target": "showdown/front/normal/0730.gif"
+    },
+    {
+      "bytes": 115051,
+      "canvas": [
+        82,
+        108
+      ],
+      "dex": 730,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "fd3c86181831f48d5601af96e24e4ca733ef4c82ddcaa38cb76c787c43f81558",
+      "frameCount": 89,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/shiny/730.gif",
+      "sha256": "ff8db30ca5cf965591d29a5a81aae287e710f5baec240c043022b16827cff18e",
+      "species": "PRIMARINA",
+      "surface": "front_shiny",
+      "target": "showdown/front/shiny/0730.gif"
+    },
+    {
+      "bytes": 143211,
+      "canvas": [
+        101,
+        132
+      ],
+      "dex": 730,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "fd3c86181831f48d5601af96e24e4ca733ef4c82ddcaa38cb76c787c43f81558",
+      "frameCount": 89,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/730.gif",
+      "sha256": "853af92c046e7b6bb3f995bae25d9138ca5b1b351e60c1db28de9e89a6966d12",
+      "species": "PRIMARINA",
+      "surface": "back_normal",
+      "target": "showdown/back/normal/0730.gif"
+    },
+    {
+      "bytes": 256118,
+      "canvas": [
+        102,
+        132
+      ],
+      "dex": 730,
+      "durationMaxMs": 30.0,
+      "durationMinMs": 30.0,
+      "durationsAggregateSha256": "3056fe6de2a286b9857a9700df2cb14b15df0f3cf0f1dd850bb42024c625b725",
+      "frameCount": 77,
+      "originalUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/c10459b9b0129eaca5c5d9b1cac65336debb1d08/sprites/pokemon/other/showdown/back/shiny/730.gif",
+      "sha256": "b56ef1afa484c926ba4cf2785586aca2f6ec79ab97dce045adc0eaf0ea13e8a5",
+      "species": "PRIMARINA",
+      "surface": "back_shiny",
+      "target": "showdown/back/shiny/0730.gif"
+    }
+  ],
+  "schema": "kanto-ascendant.showdown-starter-animation-source.v1",
+  "species": 36,
+  "status": "SOURCE_CANDIDATE_NOT_RUNTIME",
+  "surfacesPerSpecies": 4
+}

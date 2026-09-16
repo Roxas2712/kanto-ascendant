@@ -14,6 +14,19 @@ local function byte(offset)
 end
 
 return function(ctx)
+  -- KASC's Gen-II surface is the cross-generation Legacy Bank.  A Gold,
+  -- Silver or Crystal cache already owns its native battle/title art; running
+  -- this Gen-I recipe there would recolor hundreds of Johto-cache sprites and
+  -- author Kanto-only field props that no Johto map can consume.  Detect the
+  -- generation from cache-owned title assets exposed by the sandbox (the
+  -- transform API intentionally has no GameVersion/global access) and leave
+  -- Gen II completely untouched.  Both Gold/Silver caches expose hooh.png;
+  -- Crystal exposes crystal_logo.png.
+  if ctx.exists("title/hooh.png")
+      or ctx.exists("title/crystal_logo.png") then
+    return
+  end
+
   local index = 0
   for stem in STEMS:gmatch("[^,]+") do
     index = index + 1

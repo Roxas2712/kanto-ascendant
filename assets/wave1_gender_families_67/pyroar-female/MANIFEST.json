@@ -1,0 +1,204 @@
+{
+  "schema": "kasc.wave1-gender-art-proof/v1",
+  "romSlot": 1540,
+  "sourceFormId": 10551,
+  "pokemonId": 668,
+  "sourceLabelIncorrect": true,
+  "visualIdentity": "Female Pyroar: swept-back mane; inspected against male slot 668.",
+  "sets": [
+    {
+      "side": "front",
+      "variant": "normal",
+      "geometry": {
+        "sourceUnion": [
+          3,
+          6,
+          60,
+          62
+        ],
+        "stage": [
+          56,
+          56
+        ],
+        "body": [
+          56,
+          55
+        ]
+      },
+      "sha256": [
+        "02772559d57fd114833e7d58133f0ee1432ffeb7558faf945a21a363564425d0",
+        "5a39661c5d0cc5adab9a14a503c926c5e15034f559c77317b72ab2232551c11b"
+      ],
+      "sources": [
+        {
+          "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1540/front-normal-01.png",
+          "sha256": "020df47ceb98c3f8de3e60e292dea9ec10ca17ed9f2d4da216ee85c04ac2876e"
+        },
+        {
+          "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1540/front-normal-00.png",
+          "sha256": "0aafe2a8f84914ce499ce7cdecd65e610881eaf059d11dcd45ec0d67d421ebd6"
+        }
+      ]
+    },
+    {
+      "side": "back",
+      "variant": "normal",
+      "geometry": {
+        "sourceUnion": [
+          9,
+          20,
+          57,
+          61
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          48,
+          41
+        ]
+      },
+      "sha256": [
+        "b96949c37b8fc7640ffdc2ddbee5275ebb7379d7e9655f9a20b230137fcc91e2"
+      ],
+      "sources": [
+        {
+          "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1540/back-normal-00.png",
+          "sha256": "1272570798508b4b910b7d7868392415fbb61943a5bdba7597a592e5f779c6f5"
+        }
+      ]
+    },
+    {
+      "side": "voxel",
+      "variant": "normal",
+      "geometry": {
+        "sourceUnion": [
+          3,
+          6,
+          60,
+          62
+        ],
+        "stage": [
+          64,
+          64
+        ],
+        "body": [
+          56,
+          55
+        ]
+      },
+      "sha256": [
+        "d0e399527f16e63fed9ecae57875bc8df12b407bf62c6f55bc0211002c66420c",
+        "046f485fccb912ba3fa4c995f00c7dd527601d5e2b2a11d08e78718e22344a10"
+      ],
+      "sources": [
+        {
+          "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1540/front-normal-01.png",
+          "sha256": "020df47ceb98c3f8de3e60e292dea9ec10ca17ed9f2d4da216ee85c04ac2876e"
+        },
+        {
+          "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1540/front-normal-00.png",
+          "sha256": "0aafe2a8f84914ce499ce7cdecd65e610881eaf059d11dcd45ec0d67d421ebd6"
+        }
+      ]
+    },
+    {
+      "side": "front",
+      "variant": "shiny",
+      "geometry": {
+        "sourceUnion": [
+          3,
+          6,
+          60,
+          62
+        ],
+        "stage": [
+          56,
+          56
+        ],
+        "body": [
+          56,
+          55
+        ]
+      },
+      "sha256": [
+        "0e5a359944dee6a55b7e8435e1cf8d06e7a1a6758e336fbf6ad9005791b31c23",
+        "d5daa06932790ae19f681c1cfc8f79a635049d7233131e749a341bb6524bc06d"
+      ],
+      "sources": [
+        {
+          "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1540/front-shiny-01.png",
+          "sha256": "0e0ba07bd76ef5ae14807ec4940c73d202106d3cbfc6e8ec0f60c8c0059629c6"
+        },
+        {
+          "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1540/front-shiny-00.png",
+          "sha256": "2aecee2bcf9227a761b0faad88e7d6c60e5528a62fdb16f13387f37cb96f36bb"
+        }
+      ]
+    },
+    {
+      "side": "back",
+      "variant": "shiny",
+      "geometry": {
+        "sourceUnion": [
+          9,
+          20,
+          57,
+          61
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          48,
+          41
+        ]
+      },
+      "sha256": [
+        "bb5c93665c67490b16011b2b767ac1f696a20c5c95caf81baa47aa4b32d59cd3"
+      ],
+      "sources": [
+        {
+          "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1540/back-shiny-00.png",
+          "sha256": "b527f4bdaaf740b325bcbf497d7bd9c0d68fdaf639a4c5ced8c122affefc2dea"
+        }
+      ]
+    },
+    {
+      "side": "voxel",
+      "variant": "shiny",
+      "geometry": {
+        "sourceUnion": [
+          3,
+          6,
+          60,
+          62
+        ],
+        "stage": [
+          64,
+          64
+        ],
+        "body": [
+          56,
+          55
+        ]
+      },
+      "sha256": [
+        "307833aefb2580841129a1c172a52e2a84806a41aa53c2b0d6ba9afe898838be",
+        "135db83830e44ff9a4d52f9eff59e76632a54d34536c22dacde72030c0dae6ea"
+      ],
+      "sources": [
+        {
+          "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1540/front-shiny-01.png",
+          "sha256": "0e0ba07bd76ef5ae14807ec4940c73d202106d3cbfc6e8ec0f60c8c0059629c6"
+        },
+        {
+          "path": "qa/crystal-source-selection-20260906/lazarus-v2-extracted/slot-1540/front-shiny-00.png",
+          "sha256": "2aecee2bcf9227a761b0faad88e7d6c60e5528a62fdb16f13387f37cb96f36bb"
+        }
+      ]
+    }
+  ]
+}

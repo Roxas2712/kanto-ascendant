@@ -1,0 +1,113 @@
+{
+  "approved": true,
+  "guests": {
+    "ASH": {
+      "approved": true,
+      "sourceAuthority": "mixed:pokengine-017tfvr5-overworld+imagegen-approved-battle-master",
+      "sources": {
+        "battleMaster": {
+          "approved": true,
+          "artifact": "exec-73f36227-2dd9-45b1-85b7-b3fac4982925",
+          "connectedBackgroundMatte": {
+            "algorithm": "border-connected-light-rgb-v1",
+            "alphaSha256": "a54a1c856c4a7c604cf00125a57b047904bc29f545d856543effb8db6d9ac451",
+            "backgroundRule": "min-rgb>=205,max-channel-delta<=32",
+            "bbox": [
+              286,
+              43,
+              953,
+              1199
+            ],
+            "connectivity": 8,
+            "opaquePixels": 367552
+          },
+          "credit": "OpenAI ImageGen output; exact design selected and approved by the Kanto Ascendant maintainer on 2026-08-19",
+          "designSource": "openai-imagegen-user-approved-master",
+          "page": "local-openai-imagegen-artifact:exec-73f36227-2dd9-45b1-85b7-b3fac4982925",
+          "path": "assets/sources/world_rank_guests/approved/ash_battle_master_imagegen_approved_20260819.png",
+          "permission": "imagegen-derived-pokemon-fan-art-maintainer-approved-no-broader-rights-claimed",
+          "policy": "project visual approval only; underlying Pokemon character rights remain with their respective owners",
+          "sha256": "b19232ce16d91b7cee3f6b72708dd8f00c086e53bbdf224a0945f0c0c9124c77",
+          "size": [
+            1254,
+            1254
+          ],
+          "visualStatus": "approved-by-maintainer-2026-08-19"
+        },
+        "overworld": {
+          "approved": true,
+          "credit": "PKMNTrainerRick / Pokengine trainer 017tfvr5",
+          "page": "https://www.pokengine.org/trainers/017tfvr5/Ash+Ketchum",
+          "path": "assets/sources/world_rank_guests/approved/ash_overworld_017tfvr5.webp",
+          "permission": "free-to-use-with-credit-noncommercial",
+          "policy": "https://www.pokengine.org/legal/public-use-policy",
+          "sha256": "2db5316ae83033f26ffc075d7811a00c8784017026cd5fec050c7355ab41a504",
+          "size": [
+            96,
+            128
+          ],
+          "visualStatus": "approved-by-maintainer-2026-08-20"
+        }
+      },
+      "visualStatus": "approved-by-maintainer-2026-08-20"
+    },
+    "CYNTHIA": {
+      "approved": true,
+      "sourceAuthority": "mixed:pokengine-01jcwxjo-overworld+imagegen-approved-battle-master",
+      "sources": {
+        "battleMaster": {
+          "approved": true,
+          "artifact": "exec-94e5f6db-509e-44f8-b4db-9ef56538a35f",
+          "connectedBackgroundMatte": {
+            "algorithm": "border-connected-light-rgb-v1",
+            "alphaSha256": "a4c5b7eaf27c41db71821622fa89279bbcde0ac12805192bf857158ef5b39f08",
+            "backgroundRule": "min-rgb>=205,max-channel-delta<=32",
+            "bbox": [
+              154,
+              41,
+              1051,
+              1222
+            ],
+            "connectivity": 8,
+            "opaquePixels": 554403
+          },
+          "credit": "OpenAI ImageGen output; exact design selected and approved by the Kanto Ascendant maintainer on 2026-08-19",
+          "designSource": "openai-imagegen-user-approved-master",
+          "page": "local-openai-imagegen-artifact:exec-94e5f6db-509e-44f8-b4db-9ef56538a35f",
+          "path": "assets/sources/world_rank_guests/approved/cynthia_battle_master_imagegen_approved_20260819.png",
+          "permission": "imagegen-derived-pokemon-fan-art-maintainer-approved-no-broader-rights-claimed",
+          "policy": "project visual approval only; underlying Pokemon character rights remain with their respective owners",
+          "sha256": "679b34241bffa557b6af7ba18746b4eab038aa78ad7da7678a4cd10f44efa31f",
+          "size": [
+            1254,
+            1254
+          ],
+          "visualStatus": "approved-by-maintainer-2026-08-19"
+        },
+        "overworld": {
+          "approved": true,
+          "credit": "Jext / Pokengine trainer 01jcwxjo",
+          "page": "https://pokengine.org/trainers/01jcwxjo/Cynthia?collection=10enonav",
+          "path": "assets/sources/world_rank_guests/approved/cynthia_overworld_01jcwxjo.webp",
+          "permission": "free-to-use-with-credit-noncommercial",
+          "policy": "https://www.pokengine.org/legal/public-use-policy",
+          "sha256": "42da32f344be5b697c39910bd1be19057f3e5b1673cfb179a3e055c75f1215be",
+          "size": [
+            96,
+            128
+          ],
+          "visualStatus": "approved-by-maintainer-2026-08-20"
+        }
+      },
+      "visualStatus": "approved-by-maintainer-2026-08-20"
+    }
+  },
+  "maintainerApproval": {
+    "date": "2026-08-20",
+    "decision": "approved",
+    "scope": "cynthia-ash-all-four-surfaces"
+  },
+  "permission": "mixed-credited-noncommercial-and-imagegen-fan-art",
+  "schema": "kanto-ascendant-world-rank-guests/v1",
+  "visualStatus": "approved-by-maintainer-2026-08-20"
+}

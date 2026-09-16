@@ -78,8 +78,15 @@ return function(mod, opts)
   function D.adjustParty(party, badges)
     local out, overflow = clone(party or {}), {}
     for index, row in ipairs(out) do
-      row.level, overflow[index] = D.adjustLevel(
-        row.level, "trainer", badges)
+      if type(row.kaWandererTargetLevel) == "number"
+          and row.kaWandererTargetLevel == row.level
+          and row.level >= 1 and row.level <= 100 then
+        overflow[index] = 0
+      else
+        row.level, overflow[index] = D.adjustLevel(
+          row.level, "trainer", badges)
+      end
+      row.kaWandererTargetLevel = nil
     end
     return out, overflow
   end

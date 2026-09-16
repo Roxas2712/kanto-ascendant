@@ -115,6 +115,7 @@ return function(mod, opts)
   function HatchState:beginNext()
     self.index = self.index + 1
     self.mon = self.eggs[self.index]
+    self.timelineFrame = 0
     self.frame = 0
     self.finalized = false
     self.messagePushed = false
@@ -134,12 +135,34 @@ return function(mod, opts)
     require("src.core.Music").restoreMap(self.game.data)
   end
 
-  function HatchState:update()
-    self.frame = self.frame + 1
-    if self.frame == 36 or self.frame == 62 or self.frame == 84
-        or self.frame == 101 then
-      sound(self.game.data, "Tink")
-    elseif self.frame == WOBBLE_END then
+  local function crossed(previous, current, marker)
+    return previous < marker and current >= marker
+  end
+
+  local function presentationFrames(game, dt)
+    local speed = 1
+    if game and type(game.logicSpeed) == "function" then
+      local ok, value = pcall(game.logicSpeed, game)
+      if ok then speed = tonumber(value) or 1 end
+    end
+    -- Game speed multiplies the number of fixed logic steps. Divide every
+    -- presentation step by the same multiplier so one rendered second still
+    -- contains the authored 60 animation frames at 1x, 10x and 100x.
+    return ((tonumber(dt) or (1 / 60)) * 60) / math.max(1, speed)
+  end
+
+  function HatchState:update(dt)
+    local previous = self.timelineFrame or self.frame or 0
+    local previousFrame = math.floor(previous + 0.000001)
+    self.timelineFrame = previous + presentationFrames(self.game, dt)
+    self.frame = math.floor(self.timelineFrame + 0.000001)
+
+    for _, marker in ipairs({ 36, 62, 84, 101 }) do
+      if crossed(previousFrame, self.frame, marker) then
+        sound(self.game.data, "Tink")
+      end
+    end
+    if crossed(previousFrame, self.frame, WOBBLE_END) then
       sound(self.game.data, "Ball_Poof")
     end
 
@@ -160,10 +183,20 @@ return function(mod, opts)
   local function eggOffset(frame)
     if M.phase(frame) ~= "wobble" then return 0, 0 end
     local p = (frame - SETTLE_END) / (WOBBLE_END - SETTLE_END)
-    local period = math.max(4, 16 - math.floor(p * 10))
-    local beat = math.floor(frame / period) % 4
-    local amplitude = p < 0.45 and 1 or p < 0.75 and 2 or 3
-    return ({ -amplitude, 0, amplitude, 0 })[beat + 1], beat == 1 and 1 or 0
+    p = math.max(0, math.min(1, p))
+    local localFrame = frame - SETTLE_END
+    local duration = WOBBLE_END - SETTLE_END
+    local slowFrequency, fastFrequency = 1 / 16, 1 / 6
+    -- Integrate the increasing frequency instead of changing a discrete
+    -- period. That preserves phase continuity while the Egg accelerates.
+    local cycles = localFrame * slowFrequency
+      + 0.5 * (fastFrequency - slowFrequency)
+        * localFrame * localFrame / duration
+    local phase = cycles * math.pi * 2
+    local amplitude = 1 + 2 * p
+    local x = math.floor(math.sin(phase) * amplitude + 0.5)
+    local lift = math.max(0, -math.cos(phase)) * math.min(1, p * 1.4)
+    return x, math.floor(lift + 0.5)
   end
 
   -- A deliberately small, tile-like Egg.  It is drawn procedurally so the
@@ -239,9 +272,10 @@ return function(mod, opts)
   function HatchState:draw()
     love.graphics.setColor(1, 1, 1, 1)
     love.graphics.rectangle("fill", 0, 0, 160, 144)
-    local phase = M.phase(self.frame)
+    local visualFrame = self.timelineFrame or self.frame
+    local phase = M.phase(visualFrame)
     if phase == "settle" or phase == "wobble" or phase == "crack" then
-      drawEgg(self.frame, self.eggSprite)
+      drawEgg(visualFrame, self.eggSprite)
     else
       if self.sprite then
         local w, h = self.sprite:getDimensions()
@@ -252,10 +286,10 @@ return function(mod, opts)
           require("src.render.PaletteFX").markTrueColor(x, y, w, h)
         end
       end
-      if M.fragmentsVisible(self.frame) then drawFragments(self.frame) end
+      if M.fragmentsVisible(visualFrame) then drawFragments(visualFrame) end
     end
     love.graphics.setColor(0, 0, 0, 1)
-    if self.frame < 18 then require("src.render.Font").draw("Oh?", 8, 120) end
+    if visualFrame < 18 then require("src.render.Font").draw("Oh?", 8, 120) end
     love.graphics.setColor(1, 1, 1, 1)
   end
 
@@ -266,6 +300,7 @@ return function(mod, opts)
   end
 
   M.State = HatchState
+  M.presentationFrames = presentationFrames
   M.optionalCrystalEggPath = CRYSTAL_251_EGG
   M.timeline = {
     settleEnd = SETTLE_END, wobbleEnd = WOBBLE_END,

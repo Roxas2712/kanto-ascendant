@@ -1,0 +1,22 @@
+# KASC map source snapshot, copied 2026-09-05
+#
+# The editor project is the last saved 45-map workspace supplied by the user.
+# The Lavados directory is the complete lavados_vulkan 3.1.8 reference mod.
+
+e78e28c81930f661c25df85a6ebb76a7ed927f3a9f4f54ff80f148122cfcc729  assets/sources/lavados_vulkan-3.1.8/assets/sprites/lava_suit.png
+106f05a3816cecb3f4c2c4bfbb1dacec7ede78e7bc03a6e77324637fc39c5a84  assets/sources/lavados_vulkan-3.1.8/assets/sprites/lava_surf.png
+31aaee1541e37a43b127fcfbe4d5addc0fe294431c0491ab80c3f8d43c9df74c  assets/sources/lavados_vulkan-3.1.8/assets/sprites/moltres.png
+f69441cb181061017a591cb389a88e06bdcc479949433b37a64a358c5fc55696  assets/sources/lavados_vulkan-3.1.8/assets/tilesets/volcano.png
+3aabdf2a7d19d827f537d318a3f1b35a1608c8ab0810a09d7ab23f6d083ff6bd  assets/sources/lavados_vulkan-3.1.8/data_maps.lua
+3f7d0ec5b63f8d82cf6cd8ecdb4ec9c8d188826fddf07624344875e5e645efa5  assets/sources/lavados_vulkan-3.1.8/data_quest.lua
+43df7aad0b7d515613c116b0771a002a7916427255c76e9b33efb21721ea0f92  assets/sources/lavados_vulkan-3.1.8/data_tilesets.lua
+871453853117c33669a459e14f6743df35db78716c3c50efa6a380878fbcf7b0  assets/sources/lavados_vulkan-3.1.8/main.lua
+6e4480d06340e2eeb53a4e4e4aac14c5f55493e0e317f9a93678125c2d19d2d5  assets/sources/lavados_vulkan-3.1.8/manifest.json
+dea526725609276be8b92be47547c9f9b88dabae545f565f701ba04c78803b47  assets/sources/lavados_vulkan-3.1.8/mod.card
+912492eedc510554127c15355d29b02d985d667233922d985f1a14c11511b986  assets/sources/lavados_vulkan-3.1.8/scripts/volcano.lua
+5fc5591ebecb12f76ba71070b3eb51700f34600a9d79c27125b55e954f4b2ac3  assets/sources/map_editor/KASC-6.6-RC-Fundorte-und-Zugaenge-20260905/README_DE.md
+5470309d2c893456485207c57397993a6330b9ee01a4eebe7c35f09c401d4c20  assets/sources/map_editor/KASC-6.6-RC-Fundorte-und-Zugaenge-20260905/editor_project.before-endgame-access-20260905.json
+cb470cbde5cd5693eb9122c68b72f9177927c2f2a31291303662fd5fdc047585  assets/sources/map_editor/KASC-6.6-RC-Fundorte-und-Zugaenge-20260905/editor_project.before-endgame-surrounds-20260905.json
+5b9dfa8f6cf34098759656e88c68f82cddd2a5ca5abc5af7d69adcd74d9ebc9c  assets/sources/map_editor/KASC-6.6-RC-Fundorte-und-Zugaenge-20260905/editor_project.json
+222f07e4d3b46c8cf024c06c9bf7edc8efcd278a9ce516ec0fc565dde13ebaf6  assets/sources/map_editor/KASC-6.6-RC-Fundorte-und-Zugaenge-20260905/editor_project.json.before-moltres-multilevel-20260905.bak
+25c9157f655202ccdeae1ff0b7a5fc6584defebedbd7c9c96a15773bd6be6cd8  assets/sources/map_editor/KASC-6.6-RC-Fundorte-und-Zugaenge-20260905/editor_project.json.before-moltres-puzzle-20260905.bak

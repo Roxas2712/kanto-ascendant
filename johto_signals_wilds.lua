@@ -17,6 +17,8 @@ return function(mod, opts)
     "Johto Signals Wilds adapter needs Mythic Signals")
   local lind = opts.johtoResearch
   local runRules = opts.runRules
+  local starterHabitats = opts.starterHabitats
+  local worldEvents = opts.worldEvents
   local encounterLevels = opts.encounterLevels or early.encounterLevels or {
     routeAverage = function() return nil end,
   }
@@ -27,6 +29,8 @@ return function(mod, opts)
     installed = false,
     wildsVersion = nil,
     encounterPick = nil,
+    waterSpawn = nil,
+    waterWrapped = false,
     EVENT_PRIORITY = 900,
   }
 
@@ -37,6 +41,7 @@ return function(mod, opts)
     installs = 0,
     rareClaims = {},
     mythicClaim = nil,
+    habitatClaim = nil,
   }
 
   local TERRAIN_FOR_SURFACE = {
@@ -117,6 +122,14 @@ return function(mod, opts)
     return false
   end
 
+  local function cancelHabitat(transaction, reason)
+    local wilds = starterHabitats and starterHabitats.wilds
+    if transaction and wilds and type(wilds.cancel) == "function" then
+      return wilds.cancel(transaction, reason)
+    end
+    return false
+  end
+
   local function cancelBundle(bundle, reason)
     if type(bundle) ~= "table"
         or bundle.cancelled or bundle.committed then return false end
@@ -128,12 +141,16 @@ return function(mod, opts)
     end
     cancelEarly(bundle.early, bundle.cancelReason)
     cancelMythic(bundle.mythic)
+    cancelHabitat(bundle.habitat, bundle.cancelReason)
     if bundle.rareClaim
         and runtime.rareClaims[bundle.rareClaim] == bundle then
       runtime.rareClaims[bundle.rareClaim] = nil
     end
     if runtime.mythicClaim == bundle then
       runtime.mythicClaim = nil
+    end
+    if runtime.habitatClaim == bundle then
+      runtime.habitatClaim = nil
     end
     return true
   end
@@ -159,7 +176,7 @@ return function(mod, opts)
     return false
   end
 
-  local function contextFor(logic, game, rng)
+  local function contextFor(logic, game, rng, forcedEncounterKind)
     local ow = overworldFor(logic)
     local mapId = ow and ow.map and ow.map.id or logic.activeMapId
     if not mapId then return nil, nil, nil end
@@ -167,9 +184,10 @@ return function(mod, opts)
       and logic:_encDef(mapId, game) or nil
     if type(encDef) ~= "table" then return nil, nil, nil end
     local surfaceInfo = logic.surfaceInfo or {}
-    local encounterKind = surfaceInfo.encounterKind
+    local encounterKind = forcedEncounterKind or surfaceInfo.encounterKind
       or (surfaceInfo.surface == "WATER" and "water") or "grass"
-    local terrain = terrainForSurface(surfaceInfo.surface, encounterKind)
+    local terrain = forcedEncounterKind == "water" and "water"
+      or terrainForSurface(surfaceInfo.surface, encounterKind)
     if not terrain then return nil, nil, nil end
     return encDef, encounterKind, {
       mapId = mapId,
@@ -180,8 +198,60 @@ return function(mod, opts)
       routeAverageLevel =
         encounterLevels.routeAverage(encDef, encounterKind),
       rng = rng,
+      game = game,
       kaVisibleWild = true,
     }
+  end
+
+  local function starterHabitatFor(mapId)
+    return type(starterHabitats) == "table"
+      and type(starterHabitats.maps) == "table"
+      and starterHabitats.maps[mapId] or nil
+  end
+
+  -- main.lua constructs this adapter before the content registry reaches the
+  -- Access V3.1/habitat block. Bind the controller later, but still before
+  -- install(game), without closing over a permanently nil placeholder.
+  function W.bindStarterHabitats(habitats)
+    local wilds = type(habitats) == "table" and habitats.wilds
+    if type(habitats) ~= "table" or type(habitats.maps) ~= "table"
+        or type(habitats.SOURCE) ~= "string"
+        or type(wilds) ~= "table" or type(wilds.plan) ~= "function"
+        or type(wilds.commitStarted) ~= "function"
+        or type(wilds.cancel) ~= "function" then
+      return false, "invalid-starter-habitat-controller"
+    end
+    if starterHabitats == habitats then return true, "already-bound" end
+
+    if runtime.habitatClaim then
+      cancelBundle(runtime.habitatClaim, "habitat-controller-rebound")
+    end
+    if W.logic and type(W.logic.spawns) == "table" then
+      for _, record in pairs(W.logic.spawns) do
+        local bundle = type(record) == "table" and record._kaSignalsWilds
+        if bundle and bundle.habitat then
+          cancelBundle(bundle, "habitat-controller-rebound")
+          record._kaSignalsWilds = nil
+          record._kaSignalsStarting = nil
+        end
+      end
+    end
+    runtime.habitatClaim = nil
+    starterHabitats = habitats
+    return true
+  end
+
+  -- main.lua creates World Events after the Signals hub. Bind that late
+  -- controller into the already-constructed adapter without rebuilding or
+  -- nesting the live Wilds wrappers.
+  function W.bindWorldEvents(controller)
+    if type(controller) ~= "table"
+        or type(controller.proposeVisible) ~= "function"
+        or type(controller.currentMigration) ~= "function" then
+      return false, "invalid-world-events-controller"
+    end
+    worldEvents = controller
+    return true, "bound"
   end
 
   local function rollLind(out, ctx, rng)
@@ -196,8 +266,10 @@ return function(mod, opts)
     return protectedCopy(out, selected, "johto_research")
   end
 
-  local function prepareProposal(logic, game, incoming, rng)
-    local encDef, encounterKind, ctx = contextFor(logic, game, rng)
+  local function prepareProposal(
+      logic, game, incoming, rng, forcedEncounterKind)
+    local encDef, encounterKind, ctx =
+      contextFor(logic, game, rng, forcedEncounterKind)
     if not encDef then return nil, nil, "unsupported-map" end
 
     local picker = W.encounterPick
@@ -209,11 +281,82 @@ return function(mod, opts)
     if type(sourceNative) ~= "table" or not sourceNative.species then
       return nil, nil, "rejected: no encounter data"
     end
+
+    -- Compact starter habitats are their own progression authority. Their
+    -- Gen-I-III residents must remain authored even while the later starter
+    -- family is unavailable, and no Randomizer/Johto/Mythic layer may replace
+    -- them. The habitat planner itself rejects first-playthrough/inactive
+    -- access and refuses a starter until every species/asset row is complete.
+    if starterHabitatFor(ctx.mapId) then
+      if type(mythic.cancelPending) == "function" then
+        mythic.cancelPending()
+      end
+      local selected, habitatTransaction, habitatReason
+      if runtime.habitatClaim then
+        selected = sourceNative
+        habitatReason = "habitat-claim-already-visible"
+      else
+        local wilds = starterHabitats and starterHabitats.wilds
+        if not (wilds and type(wilds.plan) == "function") then
+          return nil, nil, "starter-habitat-adapter-unavailable"
+        end
+        selected, habitatTransaction, habitatReason =
+          wilds.plan(sourceNative, encDef, ctx)
+      end
+      if type(selected) ~= "table" or not selected.species then
+        cancelHabitat(habitatTransaction,
+          habitatReason or "invalid-habitat-proposal")
+        return nil, nil, habitatReason or "habitat-inactive"
+      end
+      selected = protectedCopy(selected, nil,
+        starterHabitats.SOURCE or "starter_habitat_67")
+
+      local bundle
+      if habitatTransaction then
+        runtime.serial = runtime.serial + 1
+        bundle = {
+          serial = runtime.serial,
+          sourceNative = sourceNative,
+          native = sourceNative,
+          output = selected,
+          habitat = habitatTransaction,
+          habitatReason = habitatReason,
+          expectedSpecies = selected.species,
+          expectedLevel = tonumber(selected.level),
+          committed = false,
+          cancelled = false,
+        }
+        runtime.habitatClaim = bundle
+      end
+      return selected, bundle, nil
+    end
+
     local native = sourceNative
     if runRules and type(runRules.mapVisibleWild) == "function" then
       native = runRules.mapVisibleWild(sourceNative, ctx)
       if type(native) ~= "table" or not native.species then
         return nil, nil, "rejected: invalid Randomizer result"
+      end
+    end
+
+
+    -- World Events are temporary postgame replacements, not Johto Signals
+    -- pity and not a Legacy Journey. Resolve their pure proposal after native
+    -- Randomizer mapping, then protect the exact rendered species from every
+    -- later replacement layer. Merely rendering/despawning never writes save
+    -- state or consumes event duration.
+    local worldSelected, worldEvent
+    if worldEvents and type(worldEvents.proposeVisible) == "function" then
+      local ok, selectedEvent, event = pcall(
+        worldEvents.proposeVisible, native, ctx, rng)
+      if ok and type(selectedEvent) == "table" and selectedEvent.species then
+        worldSelected = selectedEvent
+        if type(event) == "table"
+            and selectedEvent.kaProtected == true
+            and selectedEvent.kaEncounterSource
+              == "world_event:johto_migration" then
+          worldEvent = event
+        end
       end
     end
 
@@ -228,7 +371,9 @@ return function(mod, opts)
     local serial = runtime.serial
 
     local selected, earlyTransaction
-    if not integrationEnabled() then
+    if worldEvent then
+      selected = worldSelected
+    elseif not integrationEnabled() then
       selected = native
     elseif ctx.kaProtected or ctx.kaEncounterSource then
       selected = protectedCopy(native, nil,
@@ -263,7 +408,7 @@ return function(mod, opts)
     end
 
     local mythicTransaction
-    if integrationEnabled() and not runtime.mythicClaim then
+    if integrationEnabled() and not worldEvent and not runtime.mythicClaim then
       local mythicSelected
       mythicSelected, mythicTransaction =
         mythic.rollReplacement(selected, encDef, ctx, game)
@@ -296,6 +441,7 @@ return function(mod, opts)
       output = selected,
       early = earlyTransaction,
       mythic = mythicTransaction,
+      worldEvent = worldEvent,
       expectedSpecies = selected.species,
       expectedLevel = tonumber(selected.level),
       committed = false,
@@ -315,7 +461,8 @@ return function(mod, opts)
       cancelBundle(bundle, "spawn-result-mismatch")
       return false
     end
-    if bundle and (bundle.early or bundle.mythic
+    if bundle and (bundle.early or bundle.mythic or bundle.habitat
+        or bundle.worldEvent
         or bundle.randomizerTicket) then
       record._kaSignalsWilds = bundle
     end
@@ -377,6 +524,38 @@ return function(mod, opts)
       end
     end
 
+    local habitatCommitted, habitatResult
+    if bundle.habitat then
+      local habitatWilds = starterHabitats and starterHabitats.wilds
+      local activeWorld = overworldFor(W.logic)
+      local habitatMapId = ev and ev.mapId
+        or activeWorld and activeWorld.map and activeWorld.map.id
+      if habitatMapId ~= bundle.habitat.mapId then
+        habitatResult = "habitat-map-mismatch"
+      elseif habitatWilds
+          and type(habitatWilds.commitStarted) == "function" then
+        habitatCommitted, habitatResult = habitatWilds.commitStarted(
+          bundle.habitat, {
+            battle = battle,
+            kind = kind,
+            mapId = habitatMapId,
+          })
+      end
+      if habitatCommitted ~= true then
+        local reason = type(habitatResult) == "string"
+          and habitatResult or "habitat-commit-rejected"
+        cancelBundle(bundle, reason)
+        W.lastCommit = {
+          serial = bundle.serial,
+          species = mon.species,
+          level = mon.level,
+          habitat = false,
+          habitatReason = reason,
+        }
+        return false, reason
+      end
+    end
+
     bundle.committed = true
     if bundle.rareClaim
         and runtime.rareClaims[bundle.rareClaim] == bundle then
@@ -384,6 +563,9 @@ return function(mod, opts)
     end
     if runtime.mythicClaim == bundle then
       runtime.mythicClaim = nil
+    end
+    if runtime.habitatClaim == bundle then
+      runtime.habitatClaim = nil
     end
     W.lastCommit = {
       serial = bundle.serial,
@@ -394,11 +576,15 @@ return function(mod, opts)
       mythic = mythicCommitted == true,
       mythicKind = mythicKind,
       ticket = ticket,
+      habitat = habitatCommitted == true,
+      habitatResult = habitatResult,
+      worldEvent = bundle.worldEvent ~= nil,
+      worldEventId = bundle.worldEvent and bundle.worldEvent.id or nil,
     }
     return true, W.lastCommit
   end
 
-  -- These three entry points deliberately receive Wilds' original methods.
+  -- These entry points deliberately receive Wilds' original methods.
   -- The engine-facing wrappers below close only over a stable marker and
   -- resolve marker.api for every call. A dev hot reload can therefore bind a
   -- fresh adapter/runtime without nesting wrappers or leaving battle.started
@@ -448,6 +634,83 @@ return function(mod, opts)
     return record, spawnErr, entity
   end
 
+  function W.dispatchTrySpawnWater(
+      originalTrySpawnWater, logic, spawnGame, spawnOpts)
+    local incoming = spawnOpts or {}
+    local activeGame = spawnGame or W.game
+    local skipped = skipSignals(activeGame, incoming)
+    if skipped then
+      if type(mythic.cancelPending) == "function" then
+        mythic.cancelPending()
+      end
+      return originalTrySpawnWater(logic, spawnGame, incoming)
+    end
+
+    local rng = randomSource()
+    local selected, bundle, prepareErr =
+      prepareProposal(logic, activeGame, incoming, rng, "water")
+    if not selected then
+      if prepareErr == "unsupported-map" then
+        return originalTrySpawnWater(logic, spawnGame, incoming)
+      end
+      return nil, prepareErr
+    end
+
+    local augmented = copyTable(incoming)
+    augmented.species = selected.species
+    augmented.level = selected.level
+    -- wilds_compat recognizes this private marker and accepts any complete,
+    -- live game.data species rather than limiting the synchronous water path
+    -- to its older Gen-II compatibility table.
+    augmented._kaSignalsWaterOverride = true
+    if logic.render
+        and type(logic.render.invalidateAssetCache) == "function"
+        and selected.species then
+      pcall(logic.render.invalidateAssetCache,
+        logic.render, selected.species)
+    end
+
+    -- Newer Wilds releases choose surf bodies through water_spawn instead of
+    -- honoring trySpawnWater options. Hold its picker only for this synchronous
+    -- call and restore it even when the original throws. This also makes the
+    -- adapter work without wilds_compat's optional water bridge.
+    local waterSpawn = W.waterSpawn
+    local originalPick = waterSpawn and waterSpawn.pickForZone
+    if type(originalPick) == "function" then
+      waterSpawn.pickForZone = function(_, zone)
+        return {
+          species = selected.species,
+          speciesId = selected.species,
+          level = selected.level,
+          levelMin = selected.level,
+          levelMax = selected.level,
+          source = starterHabitats and starterHabitats.SOURCE
+            or selected.kaEncounterSource or "ascendant_signals",
+          rodTier = waterSpawn.ROD_TIER
+            and waterSpawn.ROD_TIER.SURF or 0,
+          zone = zone,
+          spawnRule = "ANY_WEIGHTED",
+          encounterSource = "ASCENDANT_SIGNALS",
+        }
+      end
+    end
+    local ok, record, spawnErr, entity =
+      pcall(originalTrySpawnWater, logic, spawnGame, augmented)
+    if type(originalPick) == "function" then
+      waterSpawn.pickForZone = originalPick
+    end
+    if not ok then
+      cancelBundle(bundle, "water-spawn-error")
+      error(record, 0)
+    end
+    if not record then
+      cancelBundle(bundle, "water-spawn-rejected")
+      return nil, spawnErr, entity
+    end
+    attachBundle(record, entity, selected, bundle)
+    return record, spawnErr, entity
+  end
+
   function W.dispatchDespawn(originalDespawn, logic, id, removeEntity, ...)
     local record = logic.spawns and logic.spawns[id]
     if record and record._kaSignalsWilds
@@ -483,7 +746,8 @@ return function(mod, opts)
     if runtime.pendingBattle then
       cancelPending("superseded-visible-battle")
     end
-    if bundle and (bundle.early or bundle.mythic
+    if bundle and (bundle.early or bundle.mythic or bundle.habitat
+        or bundle.worldEvent
         or bundle.randomizerTicket) then
       runtime.pendingBattle = {
         bundle = bundle,
@@ -501,6 +765,9 @@ return function(mod, opts)
     local claimed = {}
     if runtime.mythicClaim then
       claimed[#claimed + 1] = runtime.mythicClaim
+    end
+    if runtime.habitatClaim then
+      claimed[#claimed + 1] = runtime.habitatClaim
     end
     for _, bundle in pairs(runtime.rareClaims) do
       claimed[#claimed + 1] = bundle
@@ -521,6 +788,7 @@ return function(mod, opts)
 
     runtime.rareClaims = {}
     runtime.mythicClaim = nil
+    runtime.habitatClaim = nil
     if type(mythic.cancelPending) == "function" then
       mythic.cancelPending()
     end
@@ -561,6 +829,9 @@ return function(mod, opts)
 
     W.logic = logic
     W.encounterPick = encounterPick
+    local okWater, waterSpawn = pcall(library.require, "water_spawn")
+    W.waterSpawn = okWater and type(waterSpawn) == "table"
+      and type(waterSpawn.pickForZone) == "function" and waterSpawn or nil
     W.wildsVersion = wilds.version
 
     local marker = logic._kantoAscendantSignalsWildsAdapter
@@ -571,6 +842,8 @@ return function(mod, opts)
         api = W,
         version = "6.0.2",
         originalTrySpawn = logic.trySpawn,
+        originalTrySpawnWater = type(logic.trySpawnWater) == "function"
+          and logic.trySpawnWater or nil,
         originalStartBattle = logic._startBattle,
         originalDespawn = logic._despawn,
       }
@@ -595,15 +868,31 @@ return function(mod, opts)
       marker.version = "6.0.2"
     end
 
+    if marker.originalTrySpawnWater == nil
+        and type(logic.trySpawnWater) == "function"
+        and (marker.dispatchVersion or 0) < 2 then
+      marker.originalTrySpawnWater = logic.trySpawnWater
+    end
+
     -- dispatchVersion also upgrades an already-live pre-fix development
     -- wrapper by rebuilding it from the originals stored in its marker.
-    if marker.dispatchVersion ~= 1 then
+    if marker.dispatchVersion ~= 2 then
       logic.trySpawn = function(...)
         local api = marker.api
         if api and type(api.dispatchTrySpawn) == "function" then
           return api.dispatchTrySpawn(marker.originalTrySpawn, ...)
         end
         return marker.originalTrySpawn(...)
+      end
+      if type(marker.originalTrySpawnWater) == "function" then
+        logic.trySpawnWater = function(...)
+          local api = marker.api
+          if api and type(api.dispatchTrySpawnWater) == "function" then
+            return api.dispatchTrySpawnWater(
+              marker.originalTrySpawnWater, ...)
+          end
+          return marker.originalTrySpawnWater(...)
+        end
       end
       logic._despawn = function(...)
         local api = marker.api
@@ -619,10 +908,11 @@ return function(mod, opts)
         end
         return marker.originalStartBattle(...)
       end
-      marker.dispatchVersion = 1
+      marker.dispatchVersion = 2
     end
 
     W.installed = true
+    W.waterWrapped = type(marker.originalTrySpawnWater) == "function"
     W.sharedAdapter = marker
     if runtime.installs == 0 then
       runtime.installs = 1
@@ -640,6 +930,9 @@ return function(mod, opts)
     cancelPending(reason)
     if runtime.mythicClaim then
       cancelBundle(runtime.mythicClaim, reason)
+    end
+    if runtime.habitatClaim then
+      cancelBundle(runtime.habitatClaim, reason)
     end
     local claimed = {}
     for _, bundle in pairs(runtime.rareClaims) do
@@ -679,7 +972,10 @@ return function(mod, opts)
     return {
       installed = W.installed,
       enabled = integrationEnabled(),
+      starterHabitatsBound = starterHabitats ~= nil,
+      worldEventsBound = worldEvents ~= nil,
       wildsVersion = W.wildsVersion,
+      waterWrapped = W.waterWrapped,
       serial = runtime.serial,
       installs = runtime.installs,
       rareClaims = claims,
@@ -687,6 +983,13 @@ return function(mod, opts)
         serial = runtime.mythicClaim.serial,
         species = runtime.mythicClaim.expectedSpecies,
         level = runtime.mythicClaim.expectedLevel,
+      } or nil,
+      habitatClaim = runtime.habitatClaim and {
+        serial = runtime.habitatClaim.serial,
+        species = runtime.habitatClaim.expectedSpecies,
+        level = runtime.habitatClaim.expectedLevel,
+        mapId = runtime.habitatClaim.habitat
+          and runtime.habitatClaim.habitat.mapId,
       } or nil,
       pendingBattle = runtime.pendingBattle and {
         species = runtime.pendingBattle.expectedSpecies,

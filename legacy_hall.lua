@@ -12,6 +12,7 @@ return function(mod, opts)
   local johtoMasters = opts.johtoMasters
   local legacyPaths = opts.legacyPaths
   local legacyJourney = opts.legacyJourney
+  local extraTitles = opts.extraTitles
   local L = { game = nil, grandTour = opts.grandTour }
   local HALL_VERSION = 1
 
@@ -102,6 +103,10 @@ return function(mod, opts)
   end
 
   local function titleName(id)
+    if extraTitles and type(extraTitles.titleName) == "function" then
+      local ok, name = pcall(extraTitles.titleName, id)
+      if ok and type(name) == "string" and name ~= "" then return name end
+    end
     if legacyPaths and legacyPaths.titleName then
       local name = legacyPaths.titleName(id)
       if name then return name end
@@ -116,6 +121,10 @@ return function(mod, opts)
 
   local function unlocked(id)
     if not knownTitle(id) then return false end
+    if extraTitles and type(extraTitles.titleUnlocked) == "function" then
+      local ok, value = pcall(extraTitles.titleUnlocked, id)
+      if ok and value == true then return true end
+    end
     if legacyPaths and legacyPaths.titleUnlocked
         and legacyPaths.titleUnlocked(id) then return true end
     return achievementDef(id) ~= nil and achievementState()[id] == true
@@ -150,6 +159,19 @@ return function(mod, opts)
     -- already owns this row and labels it BADGES/ORDEN; manufacturing a
     -- CHAMPION fallback here made every brand-new save look like a League
     -- winner before the first badge.
+    return nil, nil
+  end
+
+  local function pinnedTitle()
+    local s = state()
+    local a = ascendant and ascendant.state and ascendant.state(false)
+    local id = s and s.selectedTitle
+    if not (type(id) == "string" and unlocked(id)) then
+      id = a and a.selectedTitle
+    end
+    if type(id) == "string" and unlocked(id) then
+      return id, titleName(id)
+    end
     return nil, nil
   end
 
@@ -312,6 +334,21 @@ return function(mod, opts)
         rows[#rows + 1] = entry
       end
     end
+    if extraTitles and type(extraTitles.titleRows) == "function" then
+      local ok, extra = pcall(extraTitles.titleRows)
+      if ok and type(extra) == "table" then
+        for _, entry in ipairs(extra) do
+          if type(entry) == "table" and type(entry.value) == "string"
+              and unlocked(entry.value) then
+            rows[#rows + 1] = {
+              label = titleName(entry.value),
+              right = selected == entry.value and tr("ACTIVE", "AKTIV") or "",
+              value = entry.value,
+            }
+          end
+        end
+      end
+    end
     if #rows == 0 then
       rows[1] = {
         label = tr("NO TITLES EARNED", "NOCH KEIN TITEL"),
@@ -321,12 +358,27 @@ return function(mod, opts)
     return rows
   end
 
+  local function titleHelp(id)
+    if extraTitles and type(extraTitles.titleHelp) == "function" then
+      local ok, help = pcall(extraTitles.titleHelp, id)
+      if ok and type(help) == "string" and help ~= "" then return help end
+    end
+    return tr(
+      "Choose this earned title with A. The active title appears on your Trainer Card and may be recognized in matching encounters.",
+      "Wähle diesen verdienten Titel mit A. Der aktive Titel erscheint auf deiner Trainerkarte und kann in passenden Begegnungen erkannt werden.")
+  end
+
   if mod.content and mod.content.screens then
     mod.content.screens:register("AscendantTitles", {
       new = function(game)
         return (mod.ui.KantoListMenu or mod.ui.ListMenu).new(game, tr("SELECT TITLE", "TITEL WÄHLEN"),
           titleRows(), {
             pageJump = true,
+            footer = tr("A:SELECT  SEL:HELP", "A:WAHL  SEL:HILFE"),
+            onSelectKey = function(item)
+              game.stack:push(require("src.render.TextBox").new(game,
+                titleHelp(item and item.value)))
+            end,
             onChoose = function(item, menu)
               if not item.value then return end
               selectTitle(item.value)
@@ -482,8 +534,14 @@ return function(mod, opts)
 
   mod.hooks:wrap("ui.start_menu.items", function(nextItems, game, items)
     local out = nextItems(game, items)
-    if type(out) ~= "table" or not (postgame
-        and postgame.hasHallOfFame(game.save)) then return out end
+    if type(out) ~= "table" then return out end
+    -- NG+ starts a fresh league record; its title menu must remain available
+    -- throughout the new journey, including before the first badge.
+    local save = game and game.save
+    local inLegacyJourney = legacyJourney and legacyJourney.isActive
+      and legacyJourney.isActive(save)
+    if not (inLegacyJourney or (postgame
+        and postgame.hasHallOfFame(save))) then return out end
     return mod.ui.insertBefore(out, "SAVE", {
       label = tr("LEGACY", "VERMÄCHTNIS"),
       ascendantMenu = true,
@@ -550,10 +608,91 @@ return function(mod, opts)
     L.grandTour = controller
   end
 
+  function L.setExtraTitleProvider(provider)
+    extraTitles = type(provider) == "table" and provider or nil
+    return extraTitles ~= nil
+  end
+
+  local function unlockedTitleRows()
+    local rows = {}
+    for _, row in ipairs(titleRows()) do
+      if type(row.value) == "string" then rows[#rows + 1] = row end
+    end
+    return rows
+  end
+
+  local function catalogRows()
+    local rows, seen = {}, {}
+    for _, row in ipairs(ascendantData.achievements or {}) do
+      if type(row.id) == "string" and not seen[row.id] then
+        seen[row.id] = true
+        rows[#rows + 1] = {
+          id = row.id, value = row.id, label = localized(row.title),
+          en = row.title and row.title.en, de = row.title and row.title.de,
+          unlocked = unlocked(row.id), source = "achievement",
+        }
+      end
+    end
+    local paths = {
+      { "legacy_path_red", "KANTO CHALLENGER", "KANTO-HERAUSFORDERER" },
+      { "legacy_path_blue", "OAK'S HEIR", "EICHS ERBE" },
+      { "legacy_path_green", "WILDERNESS KEEPER", "HÜTERIN DER WILDNIS" },
+      { "legacy_pass", "LEGACY KEEPER", "VERMÄCHTNIS-HÜTER" },
+    }
+    for _, row in ipairs(paths) do
+      if not seen[row[1]] then
+        seen[row[1]] = true
+        rows[#rows + 1] = {
+          id = row[1], value = row[1], label = tr(row[2], row[3]),
+          en = row[2], de = row[3], unlocked = unlocked(row[1]),
+          source = "legacy_path",
+        }
+      end
+    end
+    if extraTitles and type(extraTitles.catalogRows) == "function" then
+      local ok, extra = pcall(extraTitles.catalogRows)
+      if ok and type(extra) == "table" then
+        for _, row in ipairs(extra) do
+          local id = type(row) == "table" and (row.id or row.value) or nil
+          if type(id) == "string" and not seen[id] then
+            seen[id] = true
+            local entry = {}
+            for key, value in pairs(row) do entry[key] = value end
+            entry.id, entry.value = id, id
+            rows[#rows + 1] = entry
+          end
+        end
+      end
+    end
+    return rows
+  end
+
+  -- Shared battle-surface authority. Surprise Trainers owns the rotation,
+  -- while the Hall remains the single public source for unlock and localized
+  -- display semantics used by dialogue, Trainer Cards and VS overlays.
+  local function battleTitleName(context)
+    local id
+    if extraTitles and type(extraTitles.battleTitle) == "function" then
+      local ok, value = pcall(extraTitles.battleTitle, context)
+      if ok and type(value) == "string" then id = value end
+    end
+    if not id then id = pinnedTitle() end
+    if not id then return nil, nil, "none" end
+    local pinned = pinnedTitle()
+    local mode = pinned and "pinned" or "rotated"
+    return id, titleName(id), mode
+  end
+
   L.state = state
   L.currentTitle = currentTitle
+  L.pinnedTitle = pinnedTitle
+  L.titleName = titleName
+  L.titleUnlocked = unlocked
   L.selectTitle = selectTitle
   L.titleRows = titleRows
+  L.unlockedTitleRows = unlockedTitleRows
+  L.catalogRows = catalogRows
+  L.battleTitleName = battleTitleName
   L.trophyRows = trophyRows
   L.pactCardText = pactCardText
   L.refresh = refresh

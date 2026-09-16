@@ -143,6 +143,7 @@ end
 
 return function(mod, baseData, opts)
   opts = opts or {}
+  local rocketRecovery = opts.rocketRecovery
   local data = opts.data
   local base = opts.postgame
   local i18n = opts.i18n
@@ -1292,6 +1293,16 @@ return function(mod, baseData, opts)
           "MEISTER, APEX, KRONE,\nKreis-Forschung und\nRocket zurücksetzen?\fJOHTO-Funde bleiben.\fIm Spielstand nicht\nrückgängig machbar."), nil, {
           choice = function(confirm)
             if not confirm then npc.frozen = false return end
+            if rocketRecovery
+                and type(rocketRecovery.prepareNewGamePlus) == "function" then
+              local returned = rocketRecovery.prepareNewGamePlus(game)
+              if not returned then
+                return game.stack:push(TextBox.new(game, tr(
+                  "Rocket still holds POKéMON.\fFree Box space and return\nto recover them before\nstarting a new cycle.",
+                  "Rocket hält noch POKéMON fest.\fSchaffe Boxplatz und\nkehre zurück, bevor ein\nneuer Zyklus beginnt."),
+                  function() npc.frozen = false end))
+              end
+            end
             local cycle = beginNewGamePlus(game)
             game.stack:push(TextBox.new(game, tr(
               ("ASCENDANT CYCLE %d\nhas begun.\fAll captured legends\nand permanent titles\nremain yours."):format(cycle),
@@ -1448,29 +1459,49 @@ return function(mod, baseData, opts)
       ascendantOrder = 10,
       onSelect = function()
         local TextBox = require("src.render.TextBox")
+        local repairQuest
         local function openJournal()
-          local pages = {}
-          if questTracker and questTracker.statusText then
-            pages[#pages + 1] = questTracker.statusText(game)
+          local source=assert(mod:read("journal_menu.lua"))
+          local Journal=assert(loadstring(source,"@journal_menu.lua"))()(mod,{i18n=i18n})
+          local sections={}
+          local function add(label,read,single)
+            sections[#sections+1]={label=label,read=read,single=single}
           end
+          if questTracker then
+            if questTracker.objectiveText then
+              add(tr("MAIN OBJECTIVE","HAUPTZIEL"),function()return questTracker.objectiveText(game)end,true)
+            elseif questTracker.statusText then
+              add(tr("OBJECTIVES","AUFGABEN"),function()return questTracker.statusText(game)end)
+            end
+            if questTracker.signalsObjectiveText then
+              add(tr("SIGNAL OBJECTIVE","SIGNALZIEL"),function()return questTracker.signalsObjectiveText(game)end,true)
+            end
+            if questTracker.prestigeText then add(tr("PRESTIGE","PRESTIGE"),questTracker.prestigeText) end
+          end
+          add(tr("ACTIVE TASKS","AKTIVE AUFGABEN"),function()return E.journalTasks(false)end)
+          add(tr("COMPLETED","ABGESCHLOSSEN"),function()return E.journalTasks(true)end)
           if base.events and base.events.researchLog then
-            pages[#pages + 1] = base.events.researchLog(base.state(), game.save)
+            add(tr("OAK'S RESEARCH","EICHS FORSCHUNG"),function()return base.events.researchLog(base.state(),game.save)end)
           end
-          pages[#pages + 1] = E.archiveText(game)
-          pages[#pages + 1] = typeMasteryText()
+          add(tr("ARCHIVE","ARCHIV"),function()return E.archiveText(game,true)end)
+          add(tr("TYPE MASTERY","TYP-MEISTERSCHAFT"),typeMasteryText,true)
           if worldEvents and worldEvents.statusText then
-            pages[#pages + 1] = tr("WORLD PULSE", "WELT-IMPULS")
-              .. "\n" .. worldEvents.statusText(game)
+            add(tr("WORLD PULSE","WELT-IMPULS"),function()return worldEvents.statusText(game)end)
           end
           if kantoCompletion and kantoCompletion.statusText then
-            pages[#pages + 1] = kantoCompletion.statusText()
+            add(tr("KANTO PROGRESS","KANTO-FORTSCHRITT"),kantoCompletion.statusText)
           end
           if johtoMasters and johtoMasters.statusText then
-            pages[#pages + 1] = johtoMasters.statusText()
+            add(tr("JOHTO MASTERS","JOHTO-MEISTER"),johtoMasters.statusText)
           end
-          game.stack:push(TextBox.new(game, table.concat(pages, "\f")))
+          local actions={}
+          if mewRepairAvailable() then
+            actions[1]={label=tr("MEW QUEST REPAIR","MEW-QUEST PRUEFEN"),
+              help=tr("Review the optional repair without changing your Pokemon.","Optionale Quest-Reparatur pruefen. Deine Pokemon bleiben erhalten."),action=repairQuest}
+          end
+          return Journal.open(game,sections,actions)
         end
-        if not mewRepairAvailable() then return openJournal() end
+        repairQuest=function()
         game.stack:push(TextBox.new(game, tr(
           "An external MEW\nmay have completed\nthis investigation\nby mistake.\fRestore the OAK-\nFUJI-CINNABAR quest?\fYour MEW and all\nother progress stay.",
           "Ein externes MEW\nkönnte diese Quest\nfalsch beendet\nhaben.\fEICH-FUJI-ZINNOBER-\nQuest erneuern?\fMEW und Fortschritt\nbleiben erhalten."), nil, {
@@ -1493,6 +1524,8 @@ return function(mod, baseData, opts)
             game.stack:push(TextBox.new(game, message, openJournal))
           end,
         }))
+        end
+        return openJournal()
       end,
     })
   end, 235)
@@ -1728,8 +1761,8 @@ return function(mod, baseData, opts)
     return battle
   end
 
-  function E.archiveText(game)
-    local s = evaluateAchievements(game)
+  function E.archiveText(game, readOnly)
+    local s = readOnly and state() or evaluateAchievements(game)
     local unlocked = countKeys(s.achievements)
     local researchDone, researchTotal = researchCounts(s)
     local _, title = currentTitle(s)
@@ -1747,6 +1780,30 @@ return function(mod, baseData, opts)
       .. ("\fMEW: %s\n%s: %d"):format(
         s.mewCaught and tr("CAUGHT", "GEFANGEN") or tr("UNKNOWN", "UNBEKANNT"),
         tr("ASCENDANT CYCLE", "ASCENDANT-ZYKLUS"), s.cycle)
+  end
+
+  -- Existing accepted/completed assignments, without accepting or rewarding one.
+  function E.journalTasks(completed)
+    local s=state(false) or {};local rows={}
+    for _,gym in ipairs(baseData.gyms or {}) do
+      local task=s.gymQuests and s.gymQuests[gym.key]
+      local def=data.gymQuests[gym.key]
+      if task and def and (task.done==true)==completed then
+        local body=(completed and localized(def.complete) or localized(def.intro))
+          .. ("\n%s: %d/%d"):format(tr("PROGRESS","FORTSCHRITT"),task.progress or 0,def.target)
+        rows[#rows+1]={label=gym.name,body=body,help=body}
+      end
+    end
+    local active=not completed and s.research and activeResearch(s)
+    for _,def in ipairs(data.research or {}) do
+      local done=s.research and s.research.completed and s.research.completed[def.id]
+      if completed and done or not completed and active==def then
+        local body=localized(def.task or def.title)
+          .. ("\n%s: %d/%d"):format(tr("PROGRESS","FORTSCHRITT"),completed and def.target or metricValue(def.metric,E.game,s),def.target)
+        rows[#rows+1]={label=localized(def.title),body=body,help=body}
+      end
+    end
+    return rows
   end
 
   E.state = state

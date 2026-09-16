@@ -43,6 +43,7 @@ return function(mod, opts)
   local postgame = opts.postgame
   local johtoResearch = opts.johtoResearch
   local beyondKanto = opts.beyondKanto or opts.johtoBoundary
+  local generationRules = opts.generationRules
   -- The shared WORLD hub can own presentation while this controller keeps
   -- driving its existing events. Omitted means enabled for 5.3 compatibility.
   local showMenu = opts.showMenu ~= false
@@ -51,6 +52,25 @@ return function(mod, opts)
   local function boundaryActive(game)
     return not beyondKanto or type(beyondKanto.isActive) ~= "function"
       or beyondKanto.isActive(game or W.game)
+  end
+
+  local function speciesAllowed(game, species)
+    if not (generationRules
+        and type(generationRules.speciesAvailable) == "function") then
+      return true
+    end
+    game = game or W.game
+    local def = game and game.data and game.data.pokemon
+      and game.data.pokemon[species]
+    if type(def) ~= "table" then return false end
+    local ok, allowed = pcall(
+      generationRules.speciesAvailable, game, species, def)
+    return ok and allowed == true
+  end
+
+  local function eventAvailable(game, event)
+    return type(event) ~= "table" or event.id ~= "johto_migration"
+      or boundaryActive(game) and speciesAllowed(game, event.species)
   end
 
   local function tr(en, de)
@@ -94,11 +114,13 @@ return function(mod, opts)
   local function active(id)
     local s = state(false)
     return s and s.active and s.active.id == id
+      and eventAvailable(W.game, s.active)
       and s.active.steps > 0 or false
   end
 
   local function displayActive(game, s)
     local current = s and s.active
+    if current and not eventAvailable(game, current) then current = nil end
     if not current then
       return tr(
         ("The world is calm.\fNext event in %d\nsteps."):format(
@@ -120,7 +142,8 @@ return function(mod, opts)
   end
 
   local function announce(game, s)
-    if not (game and game.stack and s.active and not s.active.announced) then
+    if not (game and game.stack and s.active
+        and eventAvailable(game, s.active) and not s.active.announced) then
       return
     end
     s.active.announced = true
@@ -138,7 +161,8 @@ return function(mod, opts)
 
   local function migrationAvailable(row)
     if not boundaryActive(W.game) then return false end
-    return row.species ~= "LARVITAR" or johtoFinaleComplete()
+    return speciesAllowed(W.game, row.species)
+      and (row.species ~= "LARVITAR" or johtoFinaleComplete())
   end
 
   local function migrationFor(cycle)
@@ -180,6 +204,7 @@ return function(mod, opts)
     clock = math.max(0, math.floor(tonumber(clock) or 0))
     if s.nextAt == 0 then s.nextAt = clock + 1024 end
     if s.active then
+      if not eventAvailable(W.game, s.active) then return end
       s.active.steps = s.active.steps - 1
       if s.active.steps <= 0 then s.active = nil end
       persist(s)
@@ -194,6 +219,7 @@ return function(mod, opts)
     local event = s and s.active
     if not (out and event and event.id == "johto_migration"
         and boundaryActive(ctx and ctx.game)
+        and speciesAllowed(ctx and ctx.game, event.species)
         and event.steps > 0 and ctx and ctx.mapId == event.map) then
       return out
     end

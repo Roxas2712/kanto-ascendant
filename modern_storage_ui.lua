@@ -9,6 +9,7 @@ return function(mod, opts)
   opts = opts or {}
   local i18n = assert(opts.i18n, "modern_storage_ui requires i18n")
   if mod.options:get("modern_storage_ui") == false then return end
+  local legacyBankCard = opts.vascLegacyBankCard
 
   local Font = require("src.render.Font")
   local Boxes = require("src.pokemon.Boxes")
@@ -91,6 +92,7 @@ return function(mod, opts)
   local PC_ATLAS_PATH = "assets/ui/frlg_pc/interface.png"
   local PC_ATLAS_W, PC_ATLAS_H = 641, 1240
   local FRLG_UI_W, FRLG_UI_H, FRLG_UI_SCALE = 480, 320, 2
+  local FRLG_WIDE_W, FRLG_WIDE_H = 512, 288
   -- The authentic 240x160 Box already uses its final row at logical y=145.
   -- Crystal and other oversized walkers can extend below the original 160px
   -- canvas, so keep a compact overflow lane before the persistent help plaque.
@@ -248,24 +250,53 @@ return function(mod, opts)
     -- retains Ascendant's previous blue/cream renderer, and DEFAULT yields to
     -- the engine-owned Gen-I PC without relabeling or navigation wrappers.
     if option(game, "modern_storage_ui") == false then return "default" end
-    local selected = option(game, "pc_interface_style") or "firered"
+    local selected = option(game, "pc_interface_style") or "oras_fullscreen"
+    if selected == "oras_fullscreen" then return "firered_wide" end
     if selected == "default" then return "default" end
     if selected == "ascendant" then return "ascendant" end
+    if selected == "firered_wide" then
+      return pcAtlas() and "firered_wide" or "ascendant"
+    end
     -- A damaged/missing atlas must never leave a half-rendered terminal.
     return pcAtlas() and "firered" or "ascendant"
   end
 
   local function useFireRedPc(game)
-    return pcInterfaceStyle(game) == "firered"
+    local style = pcInterfaceStyle(game)
+    return style == "firered" or style == "firered_wide"
+  end
+
+  local function useWideFireRedPc(game)
+    return pcInterfaceStyle(game) == "firered_wide"
+  end
+
+  local function fullscreenCard(game)
+    if (option(game, "pc_interface_style") or "oras_fullscreen") ~= "oras_fullscreen" then return nil end
+    local card=mod.exports and mod.exports.fullscreenUiCard
+    return card and card.active and not card.usesVasc(game) and card or nil
+  end
+
+  local function legacyBankInterfaceStyle(game)
+    if option(game, "modern_storage_ui") == false then return "ascendant" end
+    local selected = option(game, "legacy_bank_interface_style")
+      or "follow_pc"
+    if selected == "follow_pc" then return pcInterfaceStyle(game) end
+    if selected == "firered_wide" then
+      return pcAtlas() and "firered_wide" or "ascendant"
+    end
+    if selected == "firered" then
+      return pcAtlas() and "firered" or "ascendant"
+    end
+    return "ascendant"
   end
 
   local function useFireRedLegacyBank(game)
-    if option(game, "modern_storage_ui") == false then return false end
-    local selected = option(game, "legacy_bank_interface_style")
-      or "follow_pc"
-    if selected == "ascendant" then return false end
-    if selected == "firered" then return pcAtlas() ~= nil end
-    return useFireRedPc(game)
+    local style = legacyBankInterfaceStyle(game)
+    return style == "firered" or style == "firered_wide"
+  end
+
+  local function useWideFireRedLegacyBank(game)
+    return legacyBankInterfaceStyle(game) == "firered_wide"
   end
 
   local function useCustomPc(game)
@@ -280,6 +311,10 @@ return function(mod, opts)
     return FRLG_UI_W, FRLG_ORGANIZER_H
   end
 
+  local function fireRedWideUiSize()
+    return FRLG_WIDE_W, FRLG_WIDE_H
+  end
+
   local function fireRedOrganizerTrueColor()
     local PaletteFX = require("src.render.PaletteFX")
     return { PaletteFX.trueColorZone(
@@ -290,6 +325,27 @@ return function(mod, opts)
     local PaletteFX = require("src.render.PaletteFX")
     return { PaletteFX.trueColorZone(
       0, 0, FRLG_UI_W / 8 - 1, FRLG_UI_H / 8 - 1) }
+  end
+
+
+  local function fireRedWideTrueColor()
+    local PaletteFX = require("src.render.PaletteFX")
+    return { PaletteFX.trueColorZone(
+      0, 0, FRLG_WIDE_W / 8 - 1, FRLG_WIDE_H / 8 - 1) }
+  end
+
+  -- Widescreen storage remembers presentation navigation only. The engine's
+  -- current Box, party and archive remain the sole persisted data authority;
+  -- this weak table cannot enter a save and disappears with the game object.
+  local wideNavigationMemory = setmetatable({}, { __mode = "k" })
+
+  local function wideMemory(game)
+    local memory = wideNavigationMemory[game]
+    if not memory then
+      memory = { lists = {} }
+      wideNavigationMemory[game] = memory
+    end
+    return memory
   end
 
   local pocketNames = {
@@ -962,8 +1018,231 @@ return function(mod, opts)
     color(C.white)
   end
 
+  -- The WIDE presentation is composed directly for a 512x288 surface. It
+  -- reuses the authentic FRLG wallpaper/button artwork as independent pieces,
+  -- but never scales the old 240x160 screen as a whole. This leaves permanent
+  -- room for a readable detail card and a full-width help line.
+  local function drawFireRedWideFrame(title)
+    color(C.blue3)
+    love.graphics.rectangle("fill", 0, 0, FRLG_WIDE_W, FRLG_WIDE_H)
+    color(C.blue2)
+    love.graphics.rectangle("fill", 0, 0, FRLG_WIDE_W, 36)
+    color(C.orange)
+    love.graphics.rectangle("fill", 0, 32, FRLG_WIDE_W, 4)
+    color(C.white)
+    drawFittedFireRedText(title, 14, 11, 300)
+  end
+
+  local function fireRedWideSlotCenter(slot)
+    local col = (slot - 1) % 5
+    local row = math.floor((slot - 1) / 5)
+    return 45 + col * 65, 71 + row * 43
+  end
+
+  local function drawFireRedWideDetail(game, mon, slotLabel)
+    panel(349, 44, 153, 197, C.cream, C.blue3)
+    color(C.paper2)
+    love.graphics.rectangle("fill", 356, 51, 139, 104)
+    if mon then
+      drawMonImage(game, mon, 367, 54, 117, 98)
+      local def = game.data.pokemon[mon.species] or {}
+      local nickname = mon.nickname or def.name or mon.species
+      local species = def.name or mon.species
+      color(C.ink)
+      drawFittedFireRedText(nickname, 357, 162, 137)
+      if species ~= nickname then
+        drawFittedFireRedText("/" .. species, 357, 175, 137)
+      end
+      drawFittedFireRedText(Strings("Lv.%d", mon.level or 0),
+        357, 192, 62)
+      local symbol = storageGenderSymbol(game, mon)
+      if symbol then Font.draw(symbol, 430, 192) end
+      if slotLabel then
+        drawFittedFireRedText(slotLabel, 357, 215, 137)
+      end
+    else
+      color(C.ink)
+      Font.draw(tr("EMPTY SLOT", "LEERER PLATZ"), 373, 98)
+      if slotLabel then drawFittedFireRedText(slotLabel, 357, 215, 137) end
+    end
+  end
+
+  local function drawFireRedWideFooter(text, right)
+    panel(10, 248, 492, 30, C.cream, C.blue3)
+    color(C.ink)
+    drawFittedFireRedText(text or tr("A:SELECT  B:BACK", "A:WAHL  B:ZUR"),
+      20, 259, right and 390 or 470)
+    if right then
+      Font.draw(right, 490 - Font.width(right), 259)
+    end
+  end
+
+  local function drawFireRedWideWallpaper(boxNumber, x, y, w, h, scale,
+      screenOffsetX)
+    local g = love.graphics
+    if type(g.setScissor) == "function" and type(g.getScissor) == "function" then
+      local oldX, oldY, oldW, oldH = g.getScissor()
+      -- Scissors are screen-space in LÖVE and therefore do not inherit the
+      -- transform used by Box slides and Box<->Party transitions. Resolve the
+      -- active transform when available; old LÖVE/test harnesses use the
+      -- explicit page-slide offset as a conservative fallback.
+      local clipX, clipY, clipW, clipH =
+        x + (tonumber(screenOffsetX) or 0), y, w, h
+      if type(g.transformPoint) == "function" then
+        local okA, ax, ay = pcall(g.transformPoint, x, y)
+        local okB, bx, by = pcall(g.transformPoint, x + w, y + h)
+        if okA and okB and tonumber(ax) and tonumber(ay)
+            and tonumber(bx) and tonumber(by) then
+          clipX, clipY = math.min(ax, bx), math.min(ay, by)
+          clipW, clipH = math.abs(bx - ax), math.abs(by - ay)
+        end
+      end
+      g.setScissor(clipX, clipY, clipW, clipH)
+      -- The authentic wallpaper crop is 156x115. Keep its pixels square at an
+      -- integer scale, centre it, and crop overflow instead of stretching it
+      -- by unrelated horizontal/vertical factors.
+      scale = math.max(1, math.floor(tonumber(scale) or 2))
+      local scaledW, scaledH = 156 * scale, 115 * scale
+      local ok, drawErr = pcall(drawWallpaper, boxNumber,
+        x + math.floor((w - scaledW) / 2),
+        y + math.floor((h - scaledH) / 2), scaledW, scaledH)
+      if oldX ~= nil then g.setScissor(oldX, oldY, oldW, oldH)
+      else g.setScissor() end
+      if not ok then error(drawErr, 0) end
+      return
+    end
+    drawWallpaper(boxNumber, x, y, w, h)
+  end
+
+  local function drawFireRedWideBoxBase(game, boxNumber, heading, slide)
+    -- The Box tab, its two cartridge arrows and the PARTY/CLOSE atlas
+    -- buttons already own most of this 36px rail.  A second long POKéMON
+    -- STORAGE title used to run under the left arrow and was then partly
+    -- painted over by the Box tab.  Keep a complete, readable section label
+    -- in the only independent 70px lane instead of rendering clipped text.
+    drawFireRedWideFrame(tr("STORAGE", "LAGER"))
+    boxNumber = boxNumber or game.save.currentBox or 1
+    local shifted = love.graphics.push and love.graphics.pop
+      and love.graphics.translate and tonumber(slide) and slide ~= 0
+    if shifted then
+      love.graphics.push()
+      love.graphics.translate(slide, 0)
+    end
+    panel(10, 44, 332, 197, C.paper, C.blue3)
+    drawFireRedWideWallpaper(boxNumber, 14, 48, 324, 189, 2,
+      shifted and slide or 0)
+    if shifted then love.graphics.pop() end
+    local title = heading or Strings("BOX %02d", boxNumber)
+    panel(112, 6, 174, 25, C.cream, C.blue3)
+    color(C.ink)
+    Font.draw(title, 199 - math.floor(Font.width(title) / 2), 14)
+    drawAtlasRegion("wide-arrow-left", PC_ATLAS_REGIONS.arrowLeft,
+      92, 10, 8, 12)
+    drawAtlasRegion("wide-arrow-right", PC_ATLAS_REGIONS.arrowRight,
+      296, 10, 8, 12)
+    drawAtlasRegion("wide-party-button", PC_ATLAS_REGIONS.partyPokemon,
+      336, 9, 70, 16)
+    drawAtlasRegion("wide-close-button", PC_ATLAS_REGIONS.closeBox,
+      428, 9, 70, 15)
+  end
+
+  local function drawFireRedWideBoxSlots(game, box, selectedSlot, opts)
+    opts = opts or {}
+    local shifted = love.graphics.push and love.graphics.pop
+      and love.graphics.translate and tonumber(opts.slide)
+      and opts.slide ~= 0
+    if shifted then
+      love.graphics.push()
+      love.graphics.translate(opts.slide, 0)
+    end
+    for slot = 1, 20 do
+      local x, y = fireRedWideSlotCenter(slot)
+      color({ C.cream[1], C.cream[2], C.cream[3], .76 })
+      love.graphics.rectangle("fill", x - 27, y - 17, 54, 35)
+      local mon = box and box[slot]
+      local hidden = opts.hiddenSlot == slot
+      if mon and not hidden then
+        if not drawBoxGridWalker(game, mon, x, y) then
+          drawMonImage(game, mon, x - 18, y - 17, 36, 34)
+        end
+      end
+      if slot == selectedSlot then
+        color(C.gold)
+        love.graphics.rectangle("line", x - 29.5, y - 19.5, 59, 40)
+      end
+      if opts.decorate then opts.decorate(slot, mon, x, y) end
+    end
+    if opts.showCursor and selectedSlot then
+      local x, y = fireRedWideSlotCenter(selectedSlot)
+      drawPixelHand(x - 9, y - 18, game, opts.carriedMon)
+    end
+    if shifted then love.graphics.pop() end
+  end
+
+  local function drawFireRedWidePartyList(game, party, selected,
+      hiddenSlot, carriedMon, showCursor)
+    drawFireRedWideFrame(tr("PARTY POKéMON", "TEAM-POKéMON"))
+    panel(10, 44, 332, 197, C.paper, C.blue3)
+    for slot = 1, 6 do
+      local col = (slot - 1) % 2
+      local row = math.floor((slot - 1) / 2)
+      local x, y = 17 + col * 161, 51 + row * 61
+      panel(x, y, 154, 53, slot == selected and C.paper2 or C.cream,
+        slot == selected and C.orange or C.blue3)
+      local mon = party and party[slot]
+      if mon and slot ~= hiddenSlot then
+        drawMonImage(game, mon, x + 5, y + 4, 45, 44)
+        local def = game.data.pokemon[mon.species] or {}
+        color(C.ink)
+        drawFittedFireRedText(mon.nickname or def.name or mon.species,
+          x + 55, y + 10, 91)
+        drawFittedFireRedText(Strings("Lv.%d", mon.level or 0),
+          x + 55, y + 29, 58)
+      else
+        color(C.ink)
+        Font.draw("-", x + 76, y + 22)
+      end
+      if showCursor and slot == selected then
+        drawPixelHand(x - 5, y + 15, game, carriedMon)
+      end
+    end
+    drawFireRedWideDetail(game, party and party[selected],
+      Strings(tr("PARTY SLOT %d", "TEAM-PLATZ %d"), selected or 1))
+  end
+
+  local function drawFireRedWideBoxGrid(menu, game)
+    local party = isPartyGrid(menu.title)
+    local selectedItem = menu.items[menu.index]
+    local selectedSlot = selectedItem
+      and math.max(1, math.min(20, tonumber(selectedItem.value) or menu.index))
+      or 1
+    local card=fullscreenCard(game)
+    if card and card.drawStorage({game=game},party,selectedSlot,selectedSlot,nil,false,
+        tr("A:SELECT  B:BACK", "A:WAHL  B:ZUR")) then return end
+    if party then
+      local partyIndex = selectedItem
+        and math.max(1, math.min(6, tonumber(selectedItem.value) or menu.index))
+        or 1
+      local partyMons = game.save.party or {}
+      drawFireRedWidePartyList(game, partyMons, partyIndex, nil, nil, true)
+      drawFireRedWideFooter(tr("A:SELECT  B:BACK", "A:WAHL  B:ZUR"),
+        Strings("%d/6", #partyMons))
+    else
+      local box = Boxes.active(game.save) or {}
+      drawFireRedWideBoxBase(game)
+      drawFireRedWideBoxSlots(game, box, selectedSlot, { showCursor = true })
+      drawFireRedWideDetail(game, box[selectedSlot],
+        Strings(tr("BOX SLOT %02d", "BOX-PLATZ %02d"), selectedSlot))
+      drawFireRedWideFooter(tr("A:SELECT  B:BACK", "A:WAHL  B:ZUR"),
+        Strings("%02d/20", #box))
+    end
+    color(C.white)
+  end
+
   local function drawBoxGrid(menu, game)
-    if useFireRedPc(game) then
+    if useWideFireRedPc(game) then
+      return drawFireRedWideBoxGrid(menu, game)
+    elseif useFireRedPc(game) then
       return drawFireRedBoxGrid(menu, game)
     end
     return drawAscendantBoxGrid(menu, game)
@@ -982,6 +1261,12 @@ return function(mod, opts)
       or title:find("ABHEBEN", 1, true)
       or title:find("FREILASSEN", 1, true)
       or title:find("ABLEGEN", 1, true)
+  end
+
+  local function isChangeBoxList(title)
+    title = tostring(title or "")
+    return title:find("CHANGE BOX", 1, true) ~= nil
+      or title:find("BOX WECH", 1, true) ~= nil
   end
 
   local function actionLabel(label)
@@ -1104,6 +1389,93 @@ return function(mod, opts)
     color(C.white)
   end
 
+  local function drawFireRedWideItemList(menu, game)
+    drawFireRedWideFrame(localizedPcItemTitle(menu.title))
+    panel(10, 44, 332, 197, C.cream, C.blue3)
+    local rows = 10
+    if #menu.items == 0 then
+      color(C.ink)
+      Font.draw(tr("No items stored.", "Keine Items gelagert."), 91, 136)
+    end
+    for row = 1, rows do
+      local index = (menu.scroll or 0) + row
+      local item = menu.items[index]
+      if not item then break end
+      local y = 51 + (row - 1) * 18
+      if index == menu.index then
+        color(C.gold)
+        love.graphics.rectangle("fill", 16, y - 3, 320, 15)
+      end
+      color(C.ink)
+      drawFittedFireRedText(item.label or "", 31, y, 238)
+      if item.right then
+        Font.draw(item.right, 329 - Font.width(item.right), y)
+      end
+      if index == menu.index then Font.drawCode(Theme.cursor, 19, y) end
+    end
+    panel(349, 44, 153, 197, C.paper, C.blue3)
+    local selected = menu.items[menu.index]
+    color(C.blue)
+    love.graphics.rectangle("fill", 356, 51, 139, 25)
+    color(C.white)
+    Font.draw(tr("ITEM DATA", "ITEM-DATEN"), 366, 60)
+    color(C.ink)
+    if selected then
+      drawWrapped(selected.label or selected.value or "", 357, 88, 137)
+      if selected.right then
+        drawFittedFireRedText(selected.right, 357, 130, 137)
+      end
+    else
+      Font.draw(tr("EMPTY", "LEER"), 397, 105)
+    end
+    if menu.footer then
+      local footer = tostring(menu.footer):gsub("\n", " ")
+      drawWrapped(footer, 357, 169, 137)
+    end
+    drawFireRedWideFooter(tr("A:SELECT  B:BACK", "A:WAHL  B:ZUR"),
+      Strings("%d", #menu.items))
+    color(C.white)
+  end
+
+  local function drawFireRedWideChangeBoxList(menu, game)
+    drawFireRedWideFrame(tr("CHANGE BOX", "BOX WECHSELN"))
+    panel(10, 44, 332, 197, C.cream, C.blue3)
+    local rows = 10
+    for row = 1, rows do
+      local index = (menu.scroll or 0) + row
+      local item = menu.items[index]
+      if not item then break end
+      local y = 51 + (row - 1) * 18
+      if index == menu.index then
+        color(C.gold)
+        love.graphics.rectangle("fill", 16, y - 3, 320, 15)
+      end
+      color(C.ink)
+      drawFittedFireRedText(item.label or "", 31, y, 238)
+      if item.right then Font.draw(item.right, 329 - Font.width(item.right), y) end
+      if index == menu.index then Font.drawCode(Theme.cursor, 19, y) end
+    end
+    local selected = menu.items[menu.index]
+    local boxNumber = selected and math.max(1,
+      math.floor(tonumber(selected.value) or game.save.currentBox or 1))
+      or game.save.currentBox or 1
+    panel(349, 44, 153, 197, C.paper, C.blue3)
+    drawFireRedWideWallpaper(boxNumber, 356, 51, 139, 104, 1)
+    color(C.ink)
+    drawFittedFireRedText(selected and selected.label
+      or Strings("BOX %02d", boxNumber), 357, 164, 137)
+    if selected and selected.right then
+      drawFittedFireRedText(selected.right, 357, 184, 137)
+    end
+    drawFittedFireRedText(boxNumber == (game.save.currentBox or 1)
+      and tr("CURRENT BOX", "AKTUELLE BOX")
+      or tr("A:SELECT BOX", "A:BOX WÄHLEN"), 357, 214, 137)
+    drawFireRedWideFooter(
+      tr("A:SELECT  B:BACK", "A:WAHL  B:ZUR"),
+      Strings("%02d/%02d", menu.index or 1, #(menu.items or {})))
+    color(C.white)
+  end
+
   local function isPcTerminalRoot(items)
     if type(items) ~= "table" or #items ~= 4 then return false end
     local withPc = 0
@@ -1141,6 +1513,176 @@ return function(mod, opts)
       drawFireRedActionRows(menu.items, menu.index, compactPcLabel, 91, 11)
     end)
     color(C.white)
+  end
+
+  local function drawFireRedWidePcMenu(menu, game, playerPc)
+    local box = Boxes.active(game.save) or {}
+    drawFireRedWideBoxBase(game, nil,
+      playerPc and tr("ITEM STORAGE", "ITEM-LAGER") or nil)
+    drawFireRedWideBoxSlots(game, box, nil)
+    panel(349, 44, 153, 197, C.cream, C.blue3)
+    color(C.blue)
+    love.graphics.rectangle("fill", 356, 51, 139, 25)
+    color(C.white)
+    Font.draw(playerPc and tr("PLAYER PC", "SPIELER-PC")
+      or tr("PC MENU", "PC-MENÜ"), 365, 60)
+    local itemCount = #(menu.items or {})
+    -- Yellow adds PRINT BOX, and KASC appends MOVE POKéMON. Fit all seven
+    -- rows above the fixed help footer without changing Red/Blue spacing.
+    local rowStep = itemCount > 1
+      and math.min(28, math.floor((226 - 88) / (itemCount - 1))) or 28
+    for index, item in ipairs(menu.items or {}) do
+      local y = 88 + (index - 1) * rowStep
+      if index == menu.index then
+        color(C.gold)
+        love.graphics.rectangle("fill", 356, y - 4, 139, 18)
+      end
+      color(C.ink)
+      drawFittedFireRedText(compactPcLabel(item.label), 374, y, 112)
+      if index == menu.index then Font.drawCode(Theme.cursor, 360, y) end
+    end
+    local selected = menu.items and menu.items[menu.index]
+    drawFireRedWideFooter(selected
+      and compactPcLabel(selected.label)
+      or tr("A:SELECT  B:BACK", "A:WAHL  B:ZUR"),
+      Strings("%02d/20", #box))
+    color(C.white)
+  end
+
+  -- The Legacy Bank action hub is a storage owner in its own right.  The
+  -- organizer was already a native 512x288 surface, but J.openBank used to put
+  -- a compact 160x144 ListMenu in front of it.  Compose the hub from the same
+  -- FRLG pieces as the organizer so entering the Bank never changes aspect
+  -- ratio before WITHDRAW/DEPOSIT is chosen.
+  local function refreshLegacyRootRows(menu)
+    local provider = menu and menu.__ascendantLegacyRootRows
+    if type(provider) ~= "function" then
+      menu.__ascendantLegacyRootRowsSnapshot = {}
+      menu.__ascendantLegacyRootRowsError = nil
+      return menu.__ascendantLegacyRootRowsSnapshot
+    end
+    local ok, rows, err = pcall(provider)
+    if not ok or type(rows) ~= "table" then
+      menu.__ascendantLegacyRootRowsSnapshot =
+        menu.__ascendantLegacyRootRowsSnapshot or {}
+      menu.__ascendantLegacyRootRowsError = tostring(err or rows)
+      return nil, menu.__ascendantLegacyRootRowsError
+    end
+    menu.__ascendantLegacyRootRowsSnapshot = rows
+    menu.__ascendantLegacyRootRowsError = nil
+    return rows
+  end
+
+  local function legacyRootRows(menu)
+    local rows = menu and menu.__ascendantLegacyRootRowsSnapshot
+    return type(rows) == "table" and rows or {}
+  end
+
+  local function drawFireRedWideLegacyRoot(menu, game)
+    local rows = legacyRootRows(menu)
+    local preview, previewRows = {}, {}
+    for index, row in ipairs(rows) do
+      local slot = math.max(1, math.floor(tonumber(row and row.bankSlot)
+        or index))
+      if slot <= 20 and preview[slot] == nil then
+        preview[slot] = row and row.mon or nil
+        previewRows[slot] = row
+      end
+    end
+
+    drawFireRedWideBoxBase(game, 1, tr("LEGACY BANK", "VERMÄCHTNIS-BANK"))
+    drawFireRedWideBoxSlots(game, preview, nil, {
+      decorate = function(slot, _, x, y)
+        local row = previewRows[slot]
+        if row and row.withdrawBlocked then
+          color(C.red)
+          love.graphics.rectangle("fill", x + 19, y - 17, 12, 12)
+          color(C.white)
+          Font.draw("X", x + 21, y - 15)
+        end
+      end,
+    })
+
+    panel(349, 44, 153, 197, C.cream, C.blue3)
+    color(C.blue)
+    love.graphics.rectangle("fill", 356, 51, 139, 25)
+    color(C.white)
+    drawFittedFireRedText(tr("BANK ACTIONS", "BANK-AKTIONEN"),
+      365, 60, 122)
+    local count = #(menu.items or {})
+    local step = count > 1
+      and math.min(36, math.floor((211 - 88) / (count - 1))) or 36
+    for index, item in ipairs(menu.items or {}) do
+      local y = 88 + (index - 1) * step
+      if index == menu.index then
+        color(C.gold)
+        love.graphics.rectangle("fill", 356, y - 4, 139, 20)
+      end
+      color(C.ink)
+      local right = item and item.right
+      drawFittedFireRedText(actionLabel(item and item.label), 374, y,
+        right ~= nil and 78 or 112)
+      if right ~= nil then
+        local text = tostring(right)
+        Font.draw(text, 488 - Font.width(text), y)
+      end
+      if index == menu.index then Font.drawCode(Theme.cursor, 360, y) end
+    end
+    local selected = menu.items and menu.items[menu.index]
+    drawFireRedWideFooter(selected and actionLabel(selected.label)
+      or tr("A:SELECT  B:BACK", "A:WAHL  B:ZUR"),
+      Strings(tr("%d POKéMON", "%d POKéMON"), #rows))
+    color(C.white)
+  end
+
+  local function newLegacyBankRoot(game, title, items, opts)
+    if not useWideFireRedLegacyBank(game) then
+      return nil, "wide-legacy-bank-not-selected"
+    end
+    -- useWideFireRedLegacyBank already probes the atlas, but keep the factory
+    -- fail-closed if a hot reload invalidates it between option resolution and
+    -- construction.
+    if not pcAtlas() then return nil, "frlg-atlas-unavailable" end
+    local factory = mod.ui
+      and (mod.ui.KantoListMenu or mod.ui.ListMenu) or nil
+    if not (factory and type(factory.new) == "function") then
+      local ok, ListMenu = pcall(require, "src.ui.ListMenu")
+      if ok then factory = ListMenu end
+    end
+    if not (factory and type(factory.new) == "function") then
+      return nil, "legacy-root-list-unavailable"
+    end
+    opts = opts or {}
+    local made, menu = pcall(factory.new, game, title, items, opts)
+    if not made or type(menu) ~= "table" then
+      return nil, made and "legacy-root-invalid" or tostring(menu)
+    end
+    menu.__ascendantFireRedWideLegacyRoot = true
+    menu.__ascendantLegacyRootRows = opts.legacyRows
+    menu.refreshLegacyRows = refreshLegacyRootRows
+    menu:refreshLegacyRows()
+    menu.isOpaque = true
+    menu.letterboxWhite = true
+    menu.uiSize = fireRedWideUiSize
+    menu.sgbPalettes = fireRedWideTrueColor
+    menu.drawsWidescreen = function() return true end
+    menu.wantsFillScale = function() return false end
+    local memory = wideMemory(game)
+    if memory.legacyRootIndex and #(menu.items or {}) > 0 then
+      menu.index = math.max(1, math.min(#menu.items, memory.legacyRootIndex))
+    end
+    local update = menu.update
+    if type(update) == "function" then
+      menu.update = function(self, dt)
+        local result = update(self, dt)
+        wideMemory(self.game).legacyRootIndex = self.index
+        return result
+      end
+    end
+    menu.draw = function(self)
+      return drawFireRedWideLegacyRoot(self, game)
+    end
+    return menu
   end
 
   -- FireRed's organizer is a single live surface, not three disconnected
@@ -1261,11 +1803,77 @@ return function(mod, opts)
     drawOrganizerHelp(state)
   end
 
+  local function wideOrganizerHelp(state, inParty)
+    local text = state.message
+    if not text and state.carry then
+      local def = state.game.data.pokemon[state.carry.mon.species] or {}
+      text = tr("MOVE: ", "BEWEGT: ")
+        .. (state.carry.mon.nickname or def.name or state.carry.mon.species)
+    end
+    text = text or (inParty
+      and tr("A:MOVE  SELECT:BOX  B:BACK", "A:BEWEG. SELECT:BOX  B:ZUR")
+      or tr("A:MOVE  SELECT:PARTY  B:BACK",
+        "A:BEWEG. SELECT:TEAM  B:ZUR"))
+    drawFireRedWideFooter(text)
+  end
+
+  local function drawWideOrganizerBox(state)
+    local game = state.game
+    local box = Boxes.active(game.save) or {}
+    local mon = box[state.boxIndex]
+    drawFireRedWideBoxBase(game, nil, nil, state.slide)
+    local hidden = state.carry and state.carry.zone == "box"
+      and state.carry.list == box and state.carry.index or nil
+    drawFireRedWideBoxSlots(game, box, state.boxIndex, {
+      hiddenSlot = hidden,
+      slide = state.slide,
+      showCursor = not state.transition and state.zone == "box",
+      carriedMon = state.carry and state.carry.mon,
+    })
+    drawFireRedWideDetail(game, mon,
+      Strings(tr("BOX SLOT %02d", "BOX-PLATZ %02d"), state.boxIndex))
+    if not state.transition and state.zone == "close" then
+      drawPixelHand(419, 8, game, state.carry and state.carry.mon)
+    elseif not state.transition and state.zone == "box_tab" then
+      drawPixelHand(91, 8, game, state.carry and state.carry.mon)
+    end
+    wideOrganizerHelp(state, false)
+  end
+
+  local function drawWideOrganizerParty(state)
+    local party = state.game.save.party or {}
+    local hidden = state.carry and state.carry.zone == "party"
+      and state.carry.index or nil
+    drawFireRedWidePartyList(state.game, party, state.partyIndex, hidden,
+      state.carry and state.carry.mon, not state.transition)
+    wideOrganizerHelp(state, true)
+  end
+
+  local function wideOrganizerCursorPoint(state, zone)
+    if zone == "party" then
+      local col = (state.partyIndex - 1) % 2
+      local row = math.floor((state.partyIndex - 1) / 2)
+      return 12 + col * 161, 66 + row * 61
+    end
+    local x, y = fireRedWideSlotCenter(state.boxIndex)
+    return x - 9, y - 18
+  end
+
+  local function rememberWideOrganizer(state)
+    if not state.__ascendantFireRedWideOrganizer then return end
+    local memory = wideMemory(state.game)
+    memory.organizer = {
+      zone = state.zone == "party" and "party" or "box",
+      boxIndex = state.boxIndex,
+      partyIndex = state.partyIndex,
+    }
+  end
+
   local function organizerSwitchBox(state, direction)
     local count = Boxes.COUNT or #Boxes.ensure(state.game.save)
     state.game.save.currentBox =
       (((state.game.save.currentBox or 1) - 1 + direction) % count) + 1
-    state.boxIndex = 1
+    if not state.__ascendantFireRedWideOrganizer then state.boxIndex = 1 end
     state.slide = direction * 48
     -- Deliberately no writeSave and no confirmation prompt: selecting a Box
     -- is navigation now. The current Box persists with the next normal save.
@@ -1301,18 +1909,27 @@ return function(mod, opts)
       return
     end
 
+    -- Engine Box/party arrays are packed. Visual slot 20 is therefore the
+    -- next append position when only three records exist, not a sparse table
+    -- index. Normalize before every branch and move the cursor to the actual
+    -- committed seat so "MOVED" never leaves it pointing at an empty cell.
+    local actualTargetIndex = math.min(targetIndex, #target + 1)
+
     if carry.zone == targetZone and source == target then
-      if targetIndex <= #target then
-        target[sourceIndex], target[targetIndex] =
-          target[targetIndex], target[sourceIndex]
-      elseif targetIndex == #target + 1 then
+      if actualTargetIndex <= #target then
+        target[sourceIndex], target[actualTargetIndex] =
+          target[actualTargetIndex], target[sourceIndex]
+      else
         local mon = table.remove(target, sourceIndex)
-        table.insert(target, mon)
+        actualTargetIndex = math.min(actualTargetIndex, #target + 1)
+        table.insert(target, actualTargetIndex, mon)
       end
-    elseif target[targetIndex] then
-      local other = target[targetIndex]
-      source[sourceIndex], target[targetIndex] = other, carry.mon
-      if targetZone == "party" then ensurePartyStats(state.game, carry.mon) end
+    elseif target[actualTargetIndex] then
+      local other = target[actualTargetIndex]
+      source[sourceIndex], target[actualTargetIndex] = other, carry.mon
+      local newPartyMon = targetZone == "party" and carry.mon
+        or carry.zone == "party" and other or nil
+      if newPartyMon then ensurePartyStats(state.game, newPartyMon) end
       if carry.zone == "party" then depositedFollower(state.game, carry.mon) end
     else
       if targetZone == "party" and #target >= 6 then
@@ -1328,10 +1945,13 @@ return function(mod, opts)
         return
       end
       local mon = table.remove(source, sourceIndex)
-      table.insert(target, math.min(targetIndex, #target + 1), mon)
+      actualTargetIndex = math.min(actualTargetIndex, #target + 1)
+      table.insert(target, actualTargetIndex, mon)
       if targetZone == "party" then ensurePartyStats(state.game, mon) end
       if carry.zone == "party" then depositedFollower(state.game, mon) end
     end
+    if targetZone == "party" then state.partyIndex = actualTargetIndex
+    else state.boxIndex = actualTargetIndex end
     state.carry = nil
     organizerMessage(state, "MOVED", "VERSCHOBEN")
   end
@@ -1370,14 +1990,22 @@ return function(mod, opts)
   end
 
   local function newOrganizer(game, startOnTab)
+    local wide = useWideFireRedPc(game)
+    local remembered = wide and wideMemory(game).organizer or nil
     local state = {
-      game = game, zone = startOnTab and "box_tab" or "box",
-      boxIndex = 1, partyIndex = 1, slide = 0,
+      game = game, zone = startOnTab and "box_tab"
+        or remembered and remembered.zone or "box",
+      boxIndex = remembered and remembered.boxIndex or 1,
+      partyIndex = remembered and remembered.partyIndex or 1, slide = 0,
       isOpaque = true, letterboxWhite = true,
       __ascendantFireRedOrganizer = true,
+      __ascendantFireRedWideOrganizer = wide or nil,
     }
-    state.uiSize = fireRedOrganizerUiSize
-    state.sgbPalettes = fireRedOrganizerTrueColor
+    state.boxIndex = math.max(1, math.min(20, state.boxIndex))
+    state.partyIndex = math.max(1, math.min(6, state.partyIndex))
+    state.uiSize = wide and fireRedWideUiSize or fireRedOrganizerUiSize
+    state.sgbPalettes = wide and fireRedWideTrueColor
+      or fireRedOrganizerTrueColor
     function state:update(dt)
       if self.messageTime then
         self.messageTime = self.messageTime - (tonumber(dt) or 0)
@@ -1441,7 +2069,18 @@ return function(mod, opts)
         elseif input:wasPressed("up") then self.zone = "close"
         elseif input:wasPressed("down") then self.zone = "box" end
       elseif self.zone == "party" then
-        if input:wasPressed("up") then
+        if self.__ascendantFireRedWideOrganizer then
+          local col = (self.partyIndex - 1) % 2
+          if input:wasPressed("left") then
+            if col > 0 then self.partyIndex = self.partyIndex - 1 end
+          elseif input:wasPressed("right") then
+            if col < 1 then self.partyIndex = self.partyIndex + 1 end
+          elseif input:wasPressed("up") then
+            self.partyIndex = math.max(1, self.partyIndex - 2)
+          elseif input:wasPressed("down") then
+            self.partyIndex = math.min(6, self.partyIndex + 2)
+          end
+        elseif input:wasPressed("up") then
           self.partyIndex = math.max(1, self.partyIndex - 1)
         elseif input:wasPressed("down") then
           self.partyIndex = math.min(6, self.partyIndex + 1)
@@ -1463,6 +2102,42 @@ return function(mod, opts)
       end
     end
     function state:draw()
+      local card=fullscreenCard(self.game)
+      if card and card.drawStorage(self,self.zone=="party",self.boxIndex,self.partyIndex,
+          self.carry,self.zone=="box_tab",tr("A:MOVE  B:BACK  SELECT:TEAM/BOX  L/R:BOX",
+          "A:BEWEGEN B:ZUR SELECT:TEAM/BOX L/R:BOX")) then return end
+      if wide then
+        local transition = self.transition
+        if not transition then
+          if self.zone == "party" then drawWideOrganizerParty(self)
+          else drawWideOrganizerBox(self) end
+          color(C.white)
+          return
+        end
+        local t = transition.progress
+        t = t * t * (3 - 2 * t)
+        local boxX, partyX
+        if transition.from == "box" then
+          boxX, partyX = -FRLG_WIDE_W * t, FRLG_WIDE_W * (1 - t)
+        else
+          partyX, boxX = FRLG_WIDE_W * t, -FRLG_WIDE_W * (1 - t)
+        end
+        love.graphics.push()
+        love.graphics.translate(boxX, 0)
+        drawWideOrganizerBox(self)
+        love.graphics.pop()
+        love.graphics.push()
+        love.graphics.translate(partyX, 0)
+        drawWideOrganizerParty(self)
+        love.graphics.pop()
+        local fromX, fromY = wideOrganizerCursorPoint(self, transition.from)
+        local toX, toY = wideOrganizerCursorPoint(self, transition.to)
+        drawPixelHand(fromX + (toX - fromX) * t,
+          fromY + (toY - fromY) * t, self.game,
+          self.carry and self.carry.mon or nil)
+        color(C.white)
+        return
+      end
       drawOnGbaCanvas(function()
         local transition = self.transition
         if not transition then
@@ -1495,6 +2170,12 @@ return function(mod, opts)
       end)
       color(C.white)
     end
+    local updateOrganizer = state.update
+    state.update = function(self, dt)
+      local result = updateOrganizer(self, dt)
+      rememberWideOrganizer(self)
+      return result
+    end
     return state
   end
 
@@ -1505,16 +2186,27 @@ return function(mod, opts)
   -- the view without an artificial upper bound.
   local function newLegacyBankOrganizer(game, adapter)
     assert(type(adapter) == "table", "Legacy Bank organizer needs an adapter")
+    local wide = useWideFireRedLegacyBank(game)
+    local remembered = wide and wideMemory(game).legacyBank or nil
     local state = {
-      game = game, adapter = adapter, zone = "bank", bankBox = 1,
-      bankIndex = 1, partyIndex = 1, rows = {}, slots = {}, slide = 0,
+      game = game, adapter = adapter,
+      zone = remembered and remembered.zone or "bank",
+      bankBox = remembered and remembered.bankBox or 1,
+      bankIndex = remembered and remembered.bankIndex or 1,
+      partyIndex = remembered and remembered.partyIndex or 1,
+      rows = {}, slots = {}, slide = 0,
       selected = {},
       isOpaque = true, letterboxWhite = true,
       __ascendantFireRedOrganizer = true,
       __ascendantLegacyBankOrganizer = true,
+      __ascendantFireRedWideOrganizer = wide or nil,
+      __ascendantWideLegacyBank = wide or nil,
     }
-    state.uiSize = fireRedOrganizerUiSize
-    state.sgbPalettes = fireRedOrganizerTrueColor
+    state.bankIndex = math.max(1, math.min(20, state.bankIndex))
+    state.partyIndex = math.max(1, math.min(6, state.partyIndex))
+    state.uiSize = wide and fireRedWideUiSize or fireRedOrganizerUiSize
+    state.sgbPalettes = wide and fireRedWideTrueColor
+      or fireRedOrganizerTrueColor
 
     function state:refresh()
       local rows, err = self.adapter.rows()
@@ -1536,6 +2228,7 @@ return function(mod, opts)
       maximum = math.max(maximum, math.ceil((#rows + 1) / 20))
       self.bankBoxCount = maximum
       self.bankBox = math.max(1, math.min(self.bankBox, maximum))
+      self.bankIndex = math.max(1, math.min(20, self.bankIndex or 1))
       return true
     end
 
@@ -1665,10 +2358,99 @@ return function(mod, opts)
       drawBankHelp(self)
     end
 
+    local function wideBankHelp(self, inParty)
+      local row = not inParty and self:bankRow() or nil
+      local text = self.message
+      if not text and row and row.withdrawBlocked then
+        text = bankLockFooter(row.withdrawReason)
+      end
+      if not text and self.carry then
+        local mon = self.carry.mon
+        local def = self.game.data.pokemon[mon.species] or {}
+        text = tr("MOVE: ", "BEWEGT: ")
+          .. (mon.nickname or def.name or mon.species)
+      end
+      text = text or (inParty
+        and tr("A:STORE  SELECT:BANK  B:BACK",
+          "A:ABLG  SELECT:BANK  B:ZUR")
+        or self:selectedCount() > 0
+          and tr(("START:MARK  A:ACTIONS %d"):format(self:selectedCount()),
+            ("START:MARK. A:AKTION %d"):format(self:selectedCount()))
+          or tr("A:TAKE  START:MARK  SELECT:PARTY",
+            "A:NEHM  START:MARK. SELECT:TEAM"))
+      drawFireRedWideFooter(text,
+        inParty and Strings("%d/6", #(self.game.save.party or {}))
+          or Strings("%03d/%03d", self.bankBox, self:boxCount()))
+    end
+
+    local function drawWideBank(self)
+      local box = {}
+      local hiddenSlot
+      for slot = 1, 20 do
+        local row = self:bankRow(slot)
+        box[slot] = row and row.mon or nil
+        if self.carry and self.carry.zone == "bank" and row
+            and row.id == self.carry.id then hiddenSlot = slot end
+      end
+      local row = self:bankRow()
+      local mon = row and row.mon or nil
+      drawFireRedWideBoxBase(self.game, self.bankBox,
+        Strings("BANK %03d", self.bankBox), self.slide)
+      drawFireRedWideBoxSlots(self.game, box, self.bankIndex, {
+        slide = self.slide,
+        hiddenSlot = hiddenSlot,
+        showCursor = not self.transition and self.zone == "bank",
+        carriedMon = self.carry and self.carry.mon,
+        decorate = function(slot, _, x, y)
+          local slotRow = self:bankRow(slot)
+          if slotRow and slotRow.withdrawBlocked then
+            color(C.red)
+            love.graphics.rectangle("fill", x + 19, y - 17, 12, 12)
+            color(C.white)
+            Font.draw("X", x + 21, y - 15)
+          elseif slotRow and self.selected[slotRow.id] then
+            color(C.blue3)
+            love.graphics.rectangle("fill", x + 19, y - 17, 12, 12)
+            color(C.white)
+            Font.draw("+", x + 21, y - 15)
+          end
+        end,
+      })
+      drawFireRedWideDetail(self.game, mon,
+        row and row.withdrawBlocked and bankLockFooter(row.withdrawReason)
+          or Strings(tr("BANK SLOT %05d", "BANK-PLATZ %05d"),
+            self:globalIndex()))
+      if not self.transition and self.zone == "close" then
+        drawPixelHand(419, 8, self.game, self.carry and self.carry.mon)
+      elseif not self.transition and self.zone == "bank_tab" then
+        drawPixelHand(91, 8, self.game, self.carry and self.carry.mon)
+      end
+      wideBankHelp(self, false)
+    end
+
+    local function drawWideBankParty(self)
+      local party = self.game.save.party or {}
+      local hidden = self.carry and self.carry.zone == "party"
+        and self.carry.index or nil
+      drawFireRedWidePartyList(self.game, party, self.partyIndex, hidden,
+        self.carry and self.carry.mon, not self.transition)
+      wideBankHelp(self, true)
+    end
+
+    local function rememberWideBank(self)
+      if not self.__ascendantWideLegacyBank then return end
+      wideMemory(self.game).legacyBank = {
+        zone = self.zone == "party" and "party" or "bank",
+        bankBox = self.bankBox,
+        bankIndex = self.bankIndex,
+        partyIndex = self.partyIndex,
+      }
+    end
+
     local function switchBankBox(self, direction)
       local count = self:boxCount()
       self.bankBox = (((self.bankBox - 1 + direction) % count) + 1)
-      self.bankIndex = 1
+      if not self.__ascendantWideLegacyBank then self.bankIndex = 1 end
       self.slide = direction * 48
     end
 
@@ -1811,7 +2593,18 @@ return function(mod, opts)
         elseif input:wasPressed("up") then self.zone = "close"
         elseif input:wasPressed("down") then self.zone = "bank" end
       elseif self.zone == "party" then
-        if input:wasPressed("up") then
+        if self.__ascendantWideLegacyBank then
+          local col = (self.partyIndex - 1) % 2
+          if input:wasPressed("left") then
+            if col > 0 then self.partyIndex = self.partyIndex - 1 end
+          elseif input:wasPressed("right") then
+            if col < 1 then self.partyIndex = self.partyIndex + 1 end
+          elseif input:wasPressed("up") then
+            self.partyIndex = math.max(1, self.partyIndex - 2)
+          elseif input:wasPressed("down") then
+            self.partyIndex = math.min(6, self.partyIndex + 2)
+          end
+        elseif input:wasPressed("up") then
           self.partyIndex = math.max(1, self.partyIndex - 1)
         elseif input:wasPressed("down") then
           self.partyIndex = math.min(6, self.partyIndex + 1)
@@ -1834,6 +2627,50 @@ return function(mod, opts)
     end
 
     function state:draw()
+      if wide then
+        local transition = self.transition
+        if not transition then
+          if self.zone == "party" then drawWideBankParty(self)
+          else drawWideBank(self) end
+          color(C.white)
+          return
+        end
+        local t = transition.progress
+        t = t * t * (3 - 2 * t)
+        local bankX, partyX
+        if transition.from == "bank" then
+          bankX, partyX = -FRLG_WIDE_W * t, FRLG_WIDE_W * (1 - t)
+        else
+          partyX, bankX = FRLG_WIDE_W * t, -FRLG_WIDE_W * (1 - t)
+        end
+        love.graphics.push()
+        love.graphics.translate(bankX, 0)
+        drawWideBank(self)
+        love.graphics.pop()
+        love.graphics.push()
+        love.graphics.translate(partyX, 0)
+        drawWideBankParty(self)
+        love.graphics.pop()
+        local fromX, fromY
+        if transition.from == "party" then
+          fromX, fromY = wideOrganizerCursorPoint(self, "party")
+        else
+          local x, y = fireRedWideSlotCenter(self.bankIndex)
+          fromX, fromY = x - 9, y - 18
+        end
+        local toX, toY
+        if transition.to == "party" then
+          toX, toY = wideOrganizerCursorPoint(self, "party")
+        else
+          local x, y = fireRedWideSlotCenter(self.bankIndex)
+          toX, toY = x - 9, y - 18
+        end
+        drawPixelHand(fromX + (toX - fromX) * t,
+          fromY + (toY - fromY) * t, self.game,
+          self.carry and self.carry.mon or nil)
+        color(C.white)
+        return
+      end
       drawOnGbaCanvas(function()
         local transition = self.transition
         if not transition then
@@ -1860,8 +2697,668 @@ return function(mod, opts)
       color(C.white)
     end
 
+    local updateBank = state.update
+    state.update = function(self, dt)
+      local result = updateBank(self, dt)
+      rememberWideBank(self)
+      return result
+    end
+
     state:refresh()
     return state
+  end
+
+  -- VASC owns the optional ASC BOX drawing/controller.  KASC owns the Legacy
+  -- archive and receives only an owner-scoped binding from its local consumer
+  -- card.  Discovery, Host-v1 validation, registration and retirement stay
+  -- behind that boundary; this module owns only the immutable model/actions.
+  -- If the card or its public VASC capability is unavailable, callers retain
+  -- the selected FRLG/KASC fallback unchanged.
+  local legacySessionSerial = 0
+
+  local function copyArray(items)
+    local out = {}
+    for index, value in ipairs(items or {}) do out[index] = value end
+    return out
+  end
+
+  local function legacyPokemonDescriptor(game, mon)
+    if type(mon) ~= "table" then return nil end
+    local egg = mon.egg == true or mon.isEgg == true or mon.is_egg == true
+      or tostring(mon.status or ""):upper() == "EGG"
+    if egg then
+      return { species="EGG", egg=true, nickname="EGG", level=0,
+        art={ kind="pokemon", species="EGG", egg=true,
+          variant="vasc_neutral" } }
+    end
+    local def = game.data and game.data.pokemon
+      and game.data.pokemon[mon.species] or {}
+    local types = {}
+    for _, value in ipairs(type(mon.types) == "table" and mon.types
+        or type(def.types) == "table" and def.types or {}) do
+      if type(value) == "string" and value ~= "" and #types < 2
+          and value ~= types[1] then types[#types + 1] = value end
+    end
+    local shiny = monIsShiny(mon)
+    local maxHp = mon.stats and tonumber(mon.stats.hp) or tonumber(mon.maxHp)
+    local item = mon.item or mon.heldItem or mon.held_item
+    if type(item) == "table" then item = item.id or item.name end
+    local ability = mon.ability or def.ability
+    if type(ability) == "table" then ability = ability.id or ability.name end
+    local gender = mon.gender
+    if type(gender) ~= "string" then gender = nil end
+    return {
+      species=mon.species, form=mon.form, gender=gender,
+      shiny=shiny, egg=false, nickname=mon.nickname,
+      level=math.max(0, math.floor(tonumber(mon.level) or 0)),
+      hp=mon.hp and math.max(0, math.floor(tonumber(mon.hp) or 0)) or nil,
+      maxHp=maxHp and math.max(0, math.floor(maxHp)) or nil,
+      status=type(mon.status) == "string" and mon.status or nil,
+      ability=(type(ability) == "string" or type(ability) == "number")
+        and ability or nil,
+      item=(type(item) == "string" or type(item) == "number") and item or nil,
+      types=types,
+      art={ kind="pokemon", species=mon.species, form=mon.form,
+        gender=gender, shiny=shiny, egg=false },
+    }
+  end
+
+  local LegacyProviderSession = {}
+  LegacyProviderSession.__index = LegacyProviderSession
+
+  function LegacyProviderSession.new(binding, game, adapter, screen)
+    legacySessionSerial = legacySessionSerial + 1
+    local memory = wideMemory(game).providerLegacy or {}
+    return setmetatable({
+      contract=binding.contract, hostId=binding.host,
+      game=game, adapter=adapter, screen=screen,
+      id="kasc-legacy-" .. legacySessionSerial, revision=0,
+      focusZone=memory.focusZone or "legacy",
+      legacyFocusSlot=memory.legacyFocusSlot or 1,
+      partyFocusSlot=memory.partyFocusSlot or 1,
+      bankBox=memory.bankBox or 1, bindings={}, selected={},
+      clearSelection=binding.clearSelection == true,
+    }, LegacyProviderSession)
+  end
+
+  function LegacyProviderSession:remember()
+    wideMemory(self.game).providerLegacy = {
+      focusZone=self.focusZone, legacyFocusSlot=self.legacyFocusSlot,
+      partyFocusSlot=self.partyFocusSlot, bankBox=self.bankBox,
+    }
+  end
+
+  function LegacyProviderSession:rows()
+    local ok, rows, err = pcall(self.adapter.rows)
+    if not ok or type(rows) ~= "table" then return {}, tostring(err or rows) end
+    return rows
+  end
+
+  function LegacyProviderSession:boxCount(rows)
+    local maximum = 500
+    for index, row in ipairs(rows or {}) do
+      local slot = math.max(1, math.floor(tonumber(row.bankSlot) or index))
+      maximum = math.max(maximum,
+        math.floor(tonumber(row.bankBoxCount) or 0), math.ceil(slot / 20))
+    end
+    return math.max(maximum, math.ceil((#(rows or {}) + 1) / 20))
+  end
+
+  function LegacyProviderSession:entryId(zone, box, slot)
+    return table.concat({ self.id, zone, tostring(box or 0), tostring(slot) }, ":")
+  end
+
+  function LegacyProviderSession:bind(zone, box, slot, mon, row, index)
+    local id = self:entryId(zone, box, slot)
+    self.bindings[id] = { id=id, zone=zone, box=box, slot=slot,
+      mon=mon, row=row, index=index }
+    return id
+  end
+
+  function LegacyProviderSession:buildModel()
+    local rows, rowsErr = self:rows()
+    local boxCount = self:boxCount(rows)
+    self.bankBox = math.max(1, math.min(boxCount, self.bankBox))
+    self.legacyFocusSlot = math.max(1, math.min(20, self.legacyFocusSlot))
+    self.partyFocusSlot = math.max(1, math.min(6, self.partyFocusSlot))
+    self.bindings = {}
+    local legacyEntries, partyEntries = {}, {}
+    local selectedIds, withdrawable = {}, 0
+    for index, row in ipairs(rows) do
+      local global = math.max(1, math.floor(tonumber(row.bankSlot) or index))
+      local box, slot = math.ceil(global / 20), ((global - 1) % 20) + 1
+      local id = self:bind("legacy", box, slot, row.mon, row, index)
+      if self.selected[row.id] then selectedIds[#selectedIds + 1] = id end
+      if not row.withdrawBlocked then withdrawable = withdrawable + 1 end
+      if box == self.bankBox then
+        local tags = row.withdrawBlocked and { "sealed" } or {}
+        legacyEntries[#legacyEntries + 1] = {
+          id=id, zone="legacy", box=box, slot=slot,
+          pokemon=legacyPokemonDescriptor(self.game, row.mon),
+          enabled=not row.withdrawBlocked,
+          selected=self.selected[row.id] == true,
+          reason=row.withdrawBlocked and tostring(row.withdrawReason
+            or tr("WITHDRAWAL LOCKED", "ENTNAHME GESPERRT")) or nil,
+          tags=tags,
+        }
+      end
+    end
+    local party = self.game.save.party or {}
+    for slot, mon in ipairs(party) do
+      partyEntries[#partyEntries + 1] = {
+        id=self:bind("party", nil, slot, mon, nil, slot),
+        zone="party", slot=slot,
+        pokemon=legacyPokemonDescriptor(self.game, mon),
+        enabled=true, selected=false,
+      }
+    end
+    local focusSlot = self.focusZone == "party"
+      and self.partyFocusSlot or self.legacyFocusSlot
+    local focusBox = self.focusZone == "legacy" and self.bankBox or nil
+    local focusId = self:entryId(self.focusZone, focusBox, focusSlot)
+    local target = self.bindings[focusId]
+    local targetRow = target and target.row or nil
+    local targetPokemon = target and legacyPokemonDescriptor(
+      self.game, target.mon) or nil
+    local targetEgg = targetPokemon and targetPokemon.egg == true
+    local inLegacy = target and target.zone == "legacy"
+    local inParty = target and target.zone == "party"
+    local available = function(enabled, reason)
+      return { enabled=enabled and true or false, reason=reason }
+    end
+    local availability = {
+      navigate=available(true),
+      inspect=available(target ~= nil and not targetEgg,
+        targetEgg and "egg_hidden" or target and nil or "empty_slot"),
+      dex_entry=available(target ~= nil and not targetEgg,
+        targetEgg and "egg_hidden" or target and nil or "empty_slot"),
+      withdraw=available(inLegacy and not targetRow.withdrawBlocked
+          and #party < 6,
+        targetRow and targetRow.withdrawBlocked and "withdrawal_locked"
+          or #party >= 6 and "party_full" or target and nil or "empty_slot"),
+      deposit=available(inParty and #party > 1,
+        #party <= 1 and "last_party_mon" or target and nil or "empty_slot"),
+      move=available(target ~= nil
+          and (inParty and #party > 1
+            or inLegacy and not targetRow.withdrawBlocked),
+        targetRow and targetRow.withdrawBlocked and "withdrawal_locked"
+          or inParty and #party <= 1 and "last_party_mon"
+          or target and nil or "empty_slot"),
+      multi_select=available(inLegacy and not targetRow.withdrawBlocked,
+        targetRow and targetRow.withdrawBlocked and "withdrawal_locked"
+          or target and nil or "empty_slot"),
+      cross_box_select=available(true),
+      transfer_selected_to_pc=available(#selectedIds > 0,
+        #selectedIds == 0 and "selection_empty" or nil),
+      transfer_all_to_pc=available(withdrawable > 0,
+        withdrawable == 0 and "no_withdrawable_pokemon" or nil),
+      cancel=available(true),
+    }
+    if self.clearSelection then
+      availability.clear_selection=available(#selectedIds > 0,
+        #selectedIds == 0 and "selection_empty" or nil)
+    end
+    local locale = german() and "de" or "en"
+    local title = tr("LEGACY BANK", "VERMÄCHTNIS-BANK")
+    return {
+      schema=self.contract.schemas.model,
+      apiVersion=self.contract.apiVersion,
+      host=self.hostId, hostGeneration=self.contract.hostGeneration,
+      surface="legacy_bank", session=self.id, revision=self.revision,
+      locale=locale, edition="red", mode=self.focusZone == "party"
+        and "browse_party" or "browse_legacy",
+      title=title, help=locale == "de"
+        and "A: AKTION  SELECT: TEAM/BANK"
+        or "A: ACTION  SELECT: PARTY/BANK",
+      message=rowsErr and { text=rowsErr, severity="warning" } or nil,
+      focus={ zone=self.focusZone, box=focusBox, slot=focusSlot,
+        id=target and focusId or nil },
+      selection={ kind="multi_cross_box", ids=selectedIds,
+        revision=self.revision },
+      zones={
+        legacy={ label=Strings("BANK %03d", self.bankBox),
+          index=self.bankBox, count=#legacyEntries, capacity=20,
+          entries=legacyEntries },
+        party={ label=tr("PARTY", "TEAM"), count=#partyEntries,
+          capacity=6, entries=partyEntries },
+      },
+      availability=availability,
+      surfaceData={ title=title, currentBox=self.bankBox,
+        boxCount=boxCount, boxCapacity=20, partyCapacity=6,
+        selectedCount=#selectedIds },
+    }
+  end
+
+  function LegacyProviderSession:result(envelope, status, code, message)
+    if status == "applied" then self.revision = self.revision + 1 end
+    self:remember()
+    local result = {
+      schema=self.contract.schemas.actionResult,
+      apiVersion=self.contract.apiVersion,
+      host=envelope.host, hostGeneration=envelope.hostGeneration,
+      surface=envelope.surface, session=envelope.session,
+      action=envelope.action, requestRevision=envelope.modelRevision,
+      status=status, code=code,
+    }
+    if status ~= "closed" then result.model = self:buildModel() end
+    if message then result.message = { text=tostring(message),
+      severity=status == "rejected" and "warning" or "info" } end
+    return result
+  end
+
+  function LegacyProviderSession:reject(envelope, code, message)
+    return self:result(envelope, "rejected", code, message)
+  end
+
+  function LegacyProviderSession:locate(target)
+    local binding = type(target) == "table" and self.bindings[target.id] or nil
+    if not binding or binding.zone ~= target.zone or binding.box ~= target.box
+        or binding.slot ~= target.slot then return nil end
+    return binding
+  end
+
+  -- KASC's Legacy adapter deliberately consumes one row-shaped value for
+  -- both archive and party targets.  Party entries have no archive row, so
+  -- preserve that contract instead of handing a bare Pokémon to Status/Dex.
+  function LegacyProviderSession:adapterRow(target)
+    if not target then return nil end
+    if target.row then return target.row end
+    if not target.mon then return nil end
+    return { id=target.id, mon=target.mon, partyIndex=target.index,
+      zone=target.zone }
+  end
+
+  function LegacyProviderSession:navigate(envelope)
+    local direction = envelope.direction
+    if direction == "page_next" or direction == "page_prev" then
+      self.focusZone = self.focusZone == "party" and "legacy" or "party"
+      return self:result(envelope, "applied", "focus_changed")
+    end
+    if self.focusZone == "party" then
+      if direction == "left" then
+        self.partyFocusSlot = math.max(1, self.partyFocusSlot - 1)
+      elseif direction == "right" then
+        self.partyFocusSlot = math.min(6, self.partyFocusSlot + 1)
+      elseif direction == "up" then
+        self.focusZone = "legacy"
+      elseif direction == "down" then
+        self.partyFocusSlot = math.min(6, self.partyFocusSlot + 1)
+      end
+    else
+      local slot, columns = self.legacyFocusSlot, 5
+      local row, col = math.floor((slot - 1) / columns), (slot - 1) % columns
+      if direction == "left" then col = (col - 1) % columns
+      elseif direction == "right" then col = (col + 1) % columns
+      elseif direction == "up" then row = (row - 1) % 4
+      elseif direction == "down" and row == 3 then
+        self.focusZone = "party"
+      elseif direction == "down" then row = row + 1 end
+      if self.focusZone == "legacy" then
+        self.legacyFocusSlot = row * columns + col + 1
+      end
+    end
+    return self:result(envelope, "applied", "focus_changed")
+  end
+
+  function LegacyProviderSession:inspect(envelope)
+    local target = self:locate(envelope.target)
+    if not target or not target.mon then return self:reject(
+      envelope, "stale_target") end
+    local fn = self.adapter.inspect
+    if type(fn) ~= "function" then return self:reject(
+      envelope, "inspect_unavailable") end
+    local ok, why = fn(self:adapterRow(target))
+    if ok == false then return self:reject(envelope, "inspect_failed", why) end
+    return self:result(envelope, "applied", "summary_opened")
+  end
+
+  function LegacyProviderSession:dexEntry(envelope)
+    local target = self:locate(envelope.target)
+    if not target or not target.mon then return self:reject(
+      envelope, "stale_target") end
+    local fn = self.adapter.dexEntry
+    if type(fn) ~= "function" then return self:reject(
+      envelope, "dex_unavailable") end
+    local ok, why = fn(self:adapterRow(target))
+    if ok == false then return self:reject(envelope, "dex_failed", why) end
+    return self:result(envelope, "applied", "dex_opened")
+  end
+
+  function LegacyProviderSession:withdraw(envelope)
+    local target = self:locate(envelope.target)
+    if not target or target.zone ~= "legacy" or not target.row then
+      return self:reject(envelope, "stale_target")
+    end
+    if target.row.withdrawBlocked then return self:reject(
+      envelope, "withdrawal_locked", target.row.withdrawReason) end
+    local ok, why = self.adapter.withdraw(target.row)
+    return ok and self:result(envelope, "applied", "withdrawn", why)
+      or self:reject(envelope, "withdraw_failed", why)
+  end
+
+  function LegacyProviderSession:deposit(envelope)
+    local target = self:locate(envelope.target)
+    if not target or target.zone ~= "party" then
+      return self:reject(envelope, "stale_target")
+    end
+    local global = (self.bankBox - 1) * 20 + self.legacyFocusSlot
+    local ok, why = self.adapter.deposit(target.index, global)
+    return ok and self:result(envelope, "applied", "deposited", why)
+      or self:reject(envelope, "deposit_failed", why)
+  end
+
+  function LegacyProviderSession:move(envelope)
+    local source = self:locate(envelope.target)
+    local destination = envelope.destination
+    if not source or not source.mon or type(destination) ~= "table" then
+      return self:reject(envelope, "stale_target")
+    end
+    local ok, why
+    if source.zone == "legacy" and destination.zone == "legacy" then
+      if source.row.withdrawBlocked then return self:reject(
+        envelope, "withdrawal_locked", source.row.withdrawReason) end
+      ok, why = self.adapter.move(source.row.id,
+        (destination.box - 1) * 20 + destination.slot)
+    elseif source.zone == "legacy" and destination.zone == "party" then
+      if source.row.withdrawBlocked then return self:reject(
+        envelope, "withdrawal_locked", source.row.withdrawReason) end
+      ok, why = self.adapter.withdraw(source.row)
+    elseif source.zone == "party" and destination.zone == "legacy" then
+      if #(self.game.save.party or {}) <= 1 then return self:reject(
+        envelope, "last_party_mon") end
+      ok, why = self.adapter.deposit(source.index,
+        (destination.box - 1) * 20 + destination.slot)
+    else
+      return self:reject(envelope, "destination_invalid")
+    end
+    return ok and self:result(envelope, "applied", "moved", why)
+      or self:reject(envelope, "move_failed", why)
+  end
+
+  function LegacyProviderSession:multiSelect(envelope)
+    local target = self:locate(envelope.target)
+    if not target or target.zone ~= "legacy" or not target.row then
+      return self:reject(envelope, "stale_target")
+    end
+    if target.row.withdrawBlocked then return self:reject(
+      envelope, "withdrawal_locked", target.row.withdrawReason) end
+    self.selected[target.row.id] = envelope.selected and true or nil
+    return self:result(envelope, "applied", "selection_changed")
+  end
+
+  function LegacyProviderSession:crossBox(envelope)
+    local rows = self:rows()
+    local count = self:boxCount(rows)
+    if envelope.boxIndex < 1 or envelope.boxIndex > count then
+      return self:reject(envelope, "box_invalid")
+    end
+    self.bankBox = envelope.boxIndex
+    return self:result(envelope, "applied", "box_changed")
+  end
+
+  function LegacyProviderSession:transferSelected(envelope)
+    local rows = self:rows()
+    local selected = {}
+    for _, row in ipairs(rows) do
+      if self.selected[row.id] then selected[#selected + 1] = row end
+    end
+    if #selected == 0 then return self:reject(
+      envelope, "selection_empty") end
+    local fn = self.adapter.transferSelected
+    if type(fn) ~= "function" then return self:reject(
+      envelope, "transfer_unavailable") end
+    local ok, why = fn(selected)
+    if ok then self:retainExistingSelection() end
+    return ok and self:result(envelope, "applied", "transferred", why)
+      or self:reject(envelope, "transfer_failed", why)
+  end
+
+  function LegacyProviderSession:transferAll(envelope)
+    local fn = self.adapter.transferAll
+    if type(fn) ~= "function" then return self:reject(
+      envelope, "transfer_unavailable") end
+    local ok, why = fn()
+    if ok then self:retainExistingSelection() end
+    return ok and self:result(envelope, "applied", "transferred", why)
+      or self:reject(envelope, "transfer_failed", why)
+  end
+
+  function LegacyProviderSession:retainExistingSelection()
+    local rows = self:rows()
+    local remaining = {}
+    for _, row in ipairs(rows) do
+      if self.selected[row.id] then remaining[row.id] = true end
+    end
+    self.selected = remaining
+  end
+
+  function LegacyProviderSession:clearSelected(envelope)
+    if not self.clearSelection then
+      return self:reject(envelope, "clear_selection_unavailable")
+    end
+    if envelope.modelRevision ~= self.revision
+        or envelope.selectionRevision ~= self.revision then
+      return self:reject(envelope, "stale_selection")
+    end
+    self.selected = {}
+    return self:result(envelope, "applied", "selection_cleared")
+  end
+
+  function LegacyProviderSession:cancel(envelope)
+    self.screen.closeAfterInput = true
+    return self:result(envelope, "closed", "closed")
+  end
+
+  function LegacyProviderSession:actions()
+    local actions = {
+      navigate=function(e) return self:navigate(e) end,
+      inspect=function(e) return self:inspect(e) end,
+      dex_entry=function(e) return self:dexEntry(e) end,
+      withdraw=function(e) return self:withdraw(e) end,
+      deposit=function(e) return self:deposit(e) end,
+      move=function(e) return self:move(e) end,
+      multi_select=function(e) return self:multiSelect(e) end,
+      cross_box_select=function(e) return self:crossBox(e) end,
+      transfer_selected_to_pc=function(e) return self:transferSelected(e) end,
+      transfer_all_to_pc=function(e) return self:transferAll(e) end,
+      cancel=function(e) return self:cancel(e) end,
+    }
+    if self.clearSelection then
+      actions.clear_selection=function(e) return self:clearSelected(e) end
+    end
+    return actions
+  end
+
+  local LegacyProviderScreen = {}
+  LegacyProviderScreen.__index = LegacyProviderScreen
+  LegacyProviderScreen.isOpaque = true
+
+  function LegacyProviderScreen.new(binding, game, adapter)
+    local contract = binding.contract
+    local self = setmetatable({ binding=binding, game=game,
+      adapter=adapter, letterboxWhite=true }, LegacyProviderScreen)
+    self.session = LegacyProviderSession.new(binding, game, adapter, self)
+    local called, controller, receipt = pcall(binding.begin, binding, {
+      surface="legacy_bank", session=self.session.id,
+      controllerGeneration=contract.controllerGeneration, atomicLayer=true,
+      model=self.session:buildModel(), actions=self.session:actions(),
+      events=copyArray(contract.events),
+    })
+    if not called then return nil, "host-begin-error:" .. tostring(controller) end
+    if not controller then return nil, receipt end
+    if type(controller) ~= "table"
+        or type(controller.update) ~= "function"
+        or type(controller.handleInput) ~= "function"
+        or type(controller.isActive) ~= "function"
+        or type(controller.draw) ~= "function"
+        or type(controller.close) ~= "function" then
+      if type(controller) == "table"
+          and type(controller.close) == "function" then
+        pcall(controller.close, controller, "invalid-controller")
+      end
+      return nil, "host-begin-invalid-controller"
+    end
+    if type(receipt) ~= "table" or type(receipt.viewport) ~= "table"
+        or tonumber(receipt.viewport.width) == nil
+        or tonumber(receipt.viewport.height) == nil then
+      if type(controller) == "table" and type(controller.close) == "function" then
+        pcall(controller.close, controller, "invalid-session-receipt")
+      end
+      return nil, "host-begin-invalid-receipt"
+    end
+    self.controller, self.receipt = controller, receipt
+    self.viewport = receipt.viewport
+    self.__pokemonUiHostV1={ owner=binding.owner,
+      surface="legacy_bank" }
+    self.__kascVascLegacyBankHost = true
+    return self
+  end
+
+  function LegacyProviderScreen:uiSize()
+    return self.viewport.width, self.viewport.height
+  end
+  function LegacyProviderScreen:drawsWidescreen() return true end
+  function LegacyProviderScreen:wantsFillScale() return false end
+  function LegacyProviderScreen:isWideBattleLayout() return false end
+  function LegacyProviderScreen:sgbPalettes()
+    local width, height = self:uiSize()
+    return { { colors=false, x=0, y=0, w=width, h=height } }
+  end
+
+  function LegacyProviderScreen:retireToFallback(reason)
+    if self.retired then return end
+    self.retired = true
+    if self.controller then pcall(self.controller.close, self.controller,
+      reason or "provider-fallback") end
+    if self.game.stack:top() == self then self.game.stack:pop() end
+    if type(self.adapter.openFallback) == "function" then
+      self.adapter.openFallback(reason)
+    end
+  end
+
+  function LegacyProviderScreen:queueFallback(reason)
+    if not self.retired and not self.fallbackNext then
+      self.fallbackNext = reason or "provider-runtime-fallback"
+    end
+  end
+
+  function LegacyProviderScreen:update(dt)
+    if self.retired then return end
+    if self.fallbackNext then
+      local reason = self.fallbackNext
+      self.fallbackNext = nil
+      return self:retireToFallback(reason)
+    end
+    local called, alive = pcall(self.controller.update, self.controller, dt)
+    if not called or alive == false then
+      self:queueFallback(called and "provider-update-fallback"
+        or "provider-update-error")
+      return
+    end
+    local pressed = {}
+    for _, key in ipairs({ "up", "down", "left", "right", "a", "b",
+        "start", "select" }) do
+      if self.game.input:wasPressed(key) then pressed[key] = true end
+    end
+    if self.game.input:wasPressed("l") then pressed.page_prev = true end
+    if self.game.input:wasPressed("r") then pressed.page_next = true end
+    if next(pressed) then
+      local inputCalled, handled = pcall(
+        self.controller.handleInput, self.controller, { pressed=pressed })
+      if not inputCalled then
+        self:queueFallback("provider-input-error")
+        return
+      end
+      if handled == false then
+        local activeCalled, active = pcall(
+          self.controller.isActive, self.controller)
+        if not activeCalled or active ~= true then
+          self:queueFallback(activeCalled and "provider-inactive"
+            or "provider-health-error")
+        end
+      end
+    end
+    if self.closeAfterInput then
+      self.closeAfterInput = nil
+      if self.game.stack:top() == self then self.game.stack:pop() end
+    end
+  end
+
+  function LegacyProviderScreen:draw()
+    if self.retired then return end
+    local g = love.graphics
+    if not (g and g.newCanvas and g.setCanvas and g.getCanvas
+        and g.push and g.pop and g.draw) then
+      self:queueFallback("provider-draw-unavailable")
+      return
+    end
+    local width, height = self:uiSize()
+    if self.layer and type(self.layer.getDimensions) == "function" then
+      local lw, lh = self.layer:getDimensions()
+      if lw ~= width or lh ~= height then self.layer = nil end
+    end
+    if not self.layer then
+      local ok, layer = pcall(g.newCanvas, width, height, { dpiscale=1 })
+      if not ok or not layer then
+        self:queueFallback("provider-layer-error")
+        return
+      end
+      self.layer = layer
+      if layer.setFilter then layer:setFilter("nearest", "nearest") end
+    end
+    local old = g.getCanvas()
+    g.push("all")
+    g.setCanvas(self.layer)
+    if type(g.origin) == "function" then g.origin() end
+    if type(g.setShader) == "function" then g.setShader() end
+    if type(g.setScissor) == "function" then g.setScissor() end
+    if type(g.setBlendMode) == "function" then g.setBlendMode("alpha") end
+    g.clear(0, 0, 0, 0)
+    local ok, complete = pcall(self.controller.draw, self.controller)
+    g.pop()
+    g.setCanvas(old)
+    if not ok or complete ~= true then
+      self:queueFallback(ok and "provider-draw-incomplete"
+        or "provider-draw-error")
+      return
+    end
+    g.push("all")
+    if type(g.origin) == "function" then g.origin() end
+    if type(g.setShader) == "function" then g.setShader() end
+    if type(g.setScissor) == "function" then g.setScissor() end
+    if type(g.setBlendMode) == "function" then g.setBlendMode("alpha") end
+    g.setColor(1, 1, 1, 1)
+    g.draw(self.layer, 0, 0)
+    g.pop()
+  end
+  LegacyProviderScreen.drawWidescreen = LegacyProviderScreen.draw
+
+  local function newVascLegacyBankScreen(game, adapter)
+    if type(legacyBankCard) ~= "table"
+        or type(legacyBankCard.binding) ~= "function" then
+      return nil, "vasc-legacy-bank-card-unavailable"
+    end
+    local called, binding, why = pcall(
+      legacyBankCard.binding, legacyBankCard)
+    if not called then
+      return nil, "vasc-legacy-bank-card-error:" .. tostring(binding)
+    end
+    if type(binding) ~= "table" then return nil, why end
+    local contract = binding.contract
+    if type(contract) ~= "table" or type(contract.schemas) ~= "table"
+        or type(binding.resolve) ~= "function"
+        or type(binding.begin) ~= "function" then
+      return nil, "vasc-legacy-bank-binding-invalid"
+    end
+    local ok, resolved, resolveWhy = pcall(binding.resolve, binding)
+    local ascBoxId = contract.ids and contract.ids.ascBox or "asc_box"
+    if not ok or type(resolved) ~= "table"
+        or resolved.effective ~= ascBoxId then
+      return nil, not ok and "host-resolve-error:" .. tostring(resolved)
+        or type(resolved) == "table" and resolved.reason
+        or resolveWhy or "asc-box-not-selected"
+    end
+    return LegacyProviderScreen.new(binding, game, adapter)
   end
 
   local function gridUpdate(self)
@@ -1874,11 +3371,18 @@ return function(mod, opts)
       return
     end
     local nextIndex = self.index
-    local columns = isPartyGrid(self.title) and 1 or 5
+    local wideParty = self.__ascendantFireRedWideGrid
+      and isPartyGrid(self.title)
+    local columns = wideParty and 2 or isPartyGrid(self.title) and 1 or 5
+    local col = (self.index - 1) % columns
     if input:wasPressed("left") then
-      nextIndex = math.max(1, self.index - 1)
+      if not wideParty or col > 0 then
+        nextIndex = math.max(1, self.index - 1)
+      end
     elseif input:wasPressed("right") then
-      nextIndex = math.min(count, self.index + 1)
+      if not wideParty or col < columns - 1 then
+        nextIndex = math.min(count, self.index + 1)
+      end
     elseif input:wasPressed("up") then
       nextIndex = math.max(1, self.index - columns)
     elseif input:wasPressed("down") then
@@ -1894,32 +3398,136 @@ return function(mod, opts)
     self.index = nextIndex
   end
 
+  local function wideListMemoryKey(title)
+    title = tostring(title or "")
+    if isPartyGrid(title) then return "party" end
+    if title:find("WITHDRAW", 1, true) or title:find("ABHEBEN", 1, true)
+        or title:find("NEHMEN", 1, true) then return "withdraw" end
+    if title:find("DEPOSIT", 1, true) or title:find("ABLEGEN", 1, true) then
+      return "deposit"
+    end
+    if title:find("RELEASE", 1, true)
+        or title:find("FREILASSEN", 1, true) then return "release" end
+    return "storage"
+  end
+
   local okList, ListMenu = pcall(require, "src.ui.ListMenu")
   if okList and ListMenu and not ListMenu.__ascendantFireRedStorage then
     ListMenu.__ascendantFireRedStorage = true
     local newList = ListMenu.new
     ListMenu.new = function(game, title, items, opts)
       local list = newList(game, title, items, opts)
-      if (not opts or opts.ascendantStorageGrid ~= false)
+      if isChangeBoxList(title) and useWideFireRedPc(game) then
+        list.__ascendantFireRedChangeBox = true
+        list.rows = 10
+        local memory = wideMemory(game)
+        local initial = memory.changeBoxIndex
+        if not initial then
+          for index, item in ipairs(list.items or {}) do
+            if tonumber(item.value) == tonumber(game.save.currentBox) then
+              initial = index
+              break
+            end
+          end
+        end
+        if initial and #(list.items or {}) > 0 then
+          list.index = math.max(1, math.min(#list.items, initial))
+          list.scroll = math.max(0, math.min(
+            math.max(0, #list.items - list.rows), list.index - 1))
+        end
+        list.uiSize = fireRedWideUiSize
+        list.sgbPalettes = fireRedWideTrueColor
+        local update = list.update
+        if type(update) == "function" then
+          list.update = function(self, dt)
+            local result = update(self, dt)
+            wideMemory(self.game).changeBoxIndex = self.index
+            return result
+          end
+        end
+        list.draw = function(self)
+          return drawFireRedWideChangeBoxList(self, game)
+        end
+      elseif (not opts or opts.ascendantStorageGrid ~= false)
           and isBoxList(title) and useCustomPc(game) then
         list.title = localizedBoxTitle(title)
         list.__ascendantBoxGrid = true
+        -- Engine RELEASE keeps this ListMenu open after removing the current
+        -- item, but the surviving values still refer to the old packed-array
+        -- positions. Rebase in the same mutation so the visible preview and
+        -- the next destructive action can never address different Pokémon.
+        local removeCurrent = list.removeCurrent
+        if type(removeCurrent) == "function" then
+          list.removeCurrent = function(self, ...)
+            local result = removeCurrent(self, ...)
+            for index, item in ipairs(self.items or {}) do
+              if type(item) == "table" then item.value = index end
+            end
+            return result
+          end
+        end
+        local wideAtOpen = useWideFireRedPc(game)
+        if wideAtOpen then
+          list.__ascendantFireRedWideGrid = true
+          list.__ascendantWideMemoryKey = wideListMemoryKey(title)
+          local remembered = wideMemory(game).lists[list.__ascendantWideMemoryKey]
+          if remembered and #list.items > 0 then
+            list.index = math.max(1, math.min(#list.items, remembered))
+          end
+        end
         list.uiSize = function()
+          if useWideFireRedPc(game) then return fireRedWideUiSize() end
           if useFireRedPc(game) then return fireRedUiSize() end
           return 160, 144
         end
         list.sgbPalettes = function()
+          if useWideFireRedPc(game) then return fireRedWideTrueColor() end
           if useFireRedPc(game) then return fireRedTrueColor() end
           return trueColor()
         end
-        list.update = gridUpdate
+        list.update = function(self, dt)
+          local result = gridUpdate(self, dt)
+          if self.__ascendantWideMemoryKey then
+            wideMemory(self.game).lists[self.__ascendantWideMemoryKey] =
+              self.index
+          end
+          return result
+        end
         list.draw = function(self) drawBoxGrid(self, game) end
       elseif isPcItemList(title) and useFireRedPc(game) then
         list.title = localizedPcItemTitle(title)
-        list.rows = 4
+        list.rows = useWideFireRedPc(game) and 10 or 4
         list.__ascendantFireRedItemPc = true
-        list.sgbPalettes = trueColor
-        list.draw = function(self) drawFireRedItemList(self, game) end
+        list.__ascendantFireRedWideItemPc = useWideFireRedPc(game) or nil
+        if list.__ascendantFireRedWideItemPc then
+          list.__ascendantWideMemoryKey = "item:" .. tostring(title)
+          local remembered = wideMemory(game).lists[
+            list.__ascendantWideMemoryKey]
+          if remembered and #list.items > 0 then
+            list.index = math.max(1, math.min(#list.items, remembered))
+            list.scroll = math.max(0, math.min(
+              math.max(0, #list.items - list.rows), list.index - 1))
+          end
+          local update = list.update
+          if type(update) == "function" then
+            list.update = function(self, dt)
+              local result = update(self, dt)
+              wideMemory(self.game).lists[self.__ascendantWideMemoryKey] =
+                self.index
+              return result
+            end
+          end
+        end
+        list.uiSize = useWideFireRedPc(game) and fireRedWideUiSize
+          or fireRedUiSize
+        list.sgbPalettes = useWideFireRedPc(game) and fireRedWideTrueColor
+          or fireRedTrueColor
+        list.draw = function(self)
+          if useWideFireRedPc(game) then
+            return drawFireRedWideItemList(self, game)
+          end
+          return drawFireRedItemList(self, game)
+        end
       end
       return list
     end
@@ -1931,6 +3539,13 @@ return function(mod, opts)
     local newBox = BoxMenu.new
     BoxMenu.new = function(game, ...)
       local menu = newBox(game, ...)
+      -- VASC Host-v1 may already own this exact Box open when renderer load
+      -- order puts it below KASC. Never decorate/wrap that completed screen a
+      -- second time: it has no native BoxMenu item table and owns its own
+      -- input, colour and viewport transaction.
+      if type(menu) == "table" and type(menu.__pokemonUiHostV1) == "table" then
+        return menu
+      end
       if not useCustomPc(game) then return menu end
       if useFireRedPc(game) then
         menu.__ascendantFireRedBoxRoot = true
@@ -1956,6 +3571,20 @@ return function(mod, opts)
       end
       menu.__ascendantBoxSwitchLegend =
         option(game, "fast_box_switch") ~= false and "L/R BOX" or nil
+      if useWideFireRedPc(game) then
+        menu.__ascendantFireRedWideBoxRoot = true
+        -- This renderer paints the complete 512x288 surface.  Treating it as
+        -- a transparent Menu left the native 160x144 terminal/overworld in
+        -- the render stack and, on an aspect-ratio change, exposed a stale
+        -- fragment in the upper letterbox.  The organizer already uses this
+        -- exact ownership contract; the root must do so as well.
+        menu.isOpaque = true
+        menu.letterboxWhite = true
+        local remembered = wideMemory(game).pcRootIndex
+        if remembered and #(menu.items or {}) > 0 then
+          menu.index = math.max(1, math.min(#menu.items, remembered))
+        end
+      end
       local vanillaUpdate = menu.update
       menu.update = function(self, dt)
         local input = self.game.input
@@ -1971,18 +3600,27 @@ return function(mod, opts)
           end
           return
         end
-        return vanillaUpdate(self, dt)
+        local result = vanillaUpdate(self, dt)
+        if self.__ascendantFireRedWideBoxRoot then
+          wideMemory(self.game).pcRootIndex = self.index
+        end
+        return result
       end
       menu.uiSize = function()
+        if useWideFireRedPc(game) then return fireRedWideUiSize() end
         if useFireRedPc(game) then return fireRedUiSize() end
         return 160, 144
       end
       menu.sgbPalettes = function()
+        if useWideFireRedPc(game) then return fireRedWideTrueColor() end
         if useFireRedPc(game) then return fireRedTrueColor() end
         return trueColor()
       end
       menu.draw = function(self)
-        if useFireRedPc(game) then
+        if useWideFireRedPc(game) then
+          drawFireRedWidePcMenu(self, game, false)
+          return
+        elseif useFireRedPc(game) then
           drawOnGbaCanvas(function()
             drawFireRedBoxShell(game, nil)
             local box = Boxes.active(game.save) or {}
@@ -2083,7 +3721,9 @@ return function(mod, opts)
           or state.__ascendantFireRedPcRoot
           or state.__ascendantFireRedBoxRoot
           or state.__ascendantFireRedOrganizer
-          or state.__ascendantFireRedPcOverlay) then
+          or state.__ascendantFireRedPcOverlay
+          or state.__ascendantFireRedItemPc
+          or state.__ascendantFireRedChangeBox) then
         return true
       end
       if state and state.isOpaque then break end
@@ -2091,7 +3731,24 @@ return function(mod, opts)
     local top = game and game.stack and game.stack.top and game.stack:top()
     return top and (top.__ascendantBoxGrid
       or top.__ascendantFireRedBoxRoot
-      or top.__ascendantFireRedOrganizer) or false
+      or top.__ascendantFireRedOrganizer
+      or top.__ascendantFireRedItemPc
+      or top.__ascendantFireRedChangeBox) or false
+  end
+
+  local function fireRedWideLegacyStackActive(game)
+    local states = game and game.stack and game.stack.states or {}
+    for index = #states, 1, -1 do
+      local state = states[index]
+      if state and (state.__ascendantFireRedWideLegacyRoot
+          or state.__ascendantWideLegacyBank) then
+        return true
+      end
+      if state and state.isOpaque then break end
+    end
+    local top = game and game.stack and game.stack.top and game.stack:top()
+    return top and (top.__ascendantFireRedWideLegacyRoot
+      or top.__ascendantWideLegacyBank) or false
   end
 
   -- Access messages are created while the terminal root is still on the
@@ -2107,7 +3764,9 @@ return function(mod, opts)
       if state and (state.__ascendantBoxGrid
           or state.__ascendantFireRedBoxRoot
           or state.__ascendantFireRedOrganizer
-          or state.__ascendantFireRedPcOverlay) then
+          or state.__ascendantFireRedPcOverlay
+          or state.__ascendantFireRedItemPc
+          or state.__ascendantFireRedChangeBox) then
         return "storage"
       end
       if state and state.isOpaque then break end
@@ -2137,8 +3796,11 @@ return function(mod, opts)
     Menu.__ascendantStorageLabels = true
     local newMenu = Menu.new
     Menu.new = function(game, items, opts)
-      local storageSubmenu = useFireRedPc(game)
-        and fireRedPcStackActive(game) and isStorageMonSubmenu(items)
+      local legacyWide = useWideFireRedLegacyBank(game)
+        and fireRedWideLegacyStackActive(game)
+      local storageSubmenu = ((useFireRedPc(game)
+        and fireRedPcStackActive(game)) or legacyWide)
+        and isStorageMonSubmenu(items)
       if useCustomPc(game) then
         for _, row in ipairs(items or {}) do
           local playerName = game.save and game.save.player
@@ -2160,9 +3822,29 @@ return function(mod, opts)
       local menu = newMenu(game, items, opts)
       if storageSubmenu then
         menu.__ascendantFireRedPcOverlay = true
-        menu.uiSize = fireRedUiSize
-        menu.sgbPalettes = fireRedTrueColor
+        local wide = legacyWide or useWideFireRedPc(game)
+        menu.__ascendantFireRedWidePcOverlay = wide or nil
+        menu.__ascendantFireRedWideLegacyOverlay = legacyWide or nil
+        menu.uiSize = wide and fireRedWideUiSize or fireRedUiSize
+        menu.sgbPalettes = wide and fireRedWideTrueColor or fireRedTrueColor
         menu.draw = function(self)
+          if wide then
+            panel(349, 44, 153,
+              math.min(197, 20 + #(self.items or {}) * 28),
+              C.cream, C.blue3)
+            for index, item in ipairs(self.items or {}) do
+              local y = 57 + (index - 1) * 28
+              if index == self.index then
+                color(C.gold)
+                love.graphics.rectangle("fill", 356, y - 4, 139, 18)
+              end
+              color(C.ink)
+              drawFittedFireRedText(actionLabel(item.label), 374, y, 112)
+              if index == self.index then Font.drawCode(Theme.cursor, 360, y) end
+            end
+            color(C.white)
+            return
+          end
           drawOnGbaCanvas(function()
             local height = 16 + #(self.items or {}) * 20
             panel(124, 53, 112, height, C.cream, C.blue3)
@@ -2181,9 +3863,33 @@ return function(mod, opts)
         end
       elseif useFireRedPc(game) and (pcRoot or playerPc) then
         menu.__ascendantFireRedPcRoot = true
-        menu.uiSize = fireRedUiSize
-        menu.sgbPalettes = fireRedTrueColor
+        local wide = useWideFireRedPc(game)
+        menu.__ascendantFireRedWidePcRoot = wide or nil
+        if wide then
+          -- PlayerPC is also a full-surface WIDE owner, not an overlay over
+          -- the bedroom/terminal scene.  Holding the paper letterbox here
+          -- prevents the previous native frame from surviving in its bars.
+          menu.isOpaque = true
+          menu.letterboxWhite = true
+          local key = playerPc and "playerPcRootIndex" or "terminalRootIndex"
+          menu.__ascendantWideRootMemoryKey = key
+          local remembered = wideMemory(game)[key]
+          if remembered and #(menu.items or {}) > 0 then
+            menu.index = math.max(1, math.min(#menu.items, remembered))
+          end
+          local update = menu.update
+          if type(update) == "function" then
+            menu.update = function(self, dt)
+              local result = update(self, dt)
+              wideMemory(self.game)[self.__ascendantWideRootMemoryKey] = self.index
+              return result
+            end
+          end
+        end
+        menu.uiSize = wide and fireRedWideUiSize or fireRedUiSize
+        menu.sgbPalettes = wide and fireRedWideTrueColor or fireRedTrueColor
         menu.draw = function(self)
+          if wide then return drawFireRedWidePcMenu(self, game, playerPc) end
           drawFireRedPcMenu(self, game, playerPc)
         end
       end
@@ -2200,8 +3906,11 @@ return function(mod, opts)
     TextBox.__ascendantFireRedPcOverlay = true
     local newTextBox = TextBox.new
     TextBox.new = function(game, ...)
-      local owner = useFireRedPc(game) and fireRedPcOwner(game) or nil
-      local wide = owner == "storage"
+      local legacyWide = useWideFireRedLegacyBank(game)
+        and fireRedWideLegacyStackActive(game)
+      local owner = legacyWide and "legacy-wide"
+        or useFireRedPc(game) and fireRedPcOwner(game) or nil
+      local wide = owner == "storage" or owner == "legacy-wide"
       local textBox = newTextBox(game, ...)
       if owner == "terminal" then
         -- Hide the terminal menu for its short cartridge access message. The
@@ -2211,10 +3920,22 @@ return function(mod, opts)
         textBox.__ascendantFireRedPcAccessPrompt = true
       elseif wide then
         textBox.__ascendantFireRedPcOverlay = true
-        textBox.uiSize = fireRedUiSize
-        textBox.sgbPalettes = fireRedTrueColor
+        local widePc = legacyWide or useWideFireRedPc(game)
+        textBox.__ascendantFireRedWidePcOverlay = widePc or nil
+        textBox.__ascendantFireRedWideLegacyOverlay = legacyWide or nil
+        textBox.uiSize = widePc and fireRedWideUiSize or fireRedUiSize
+        textBox.sgbPalettes = widePc and fireRedWideTrueColor
+          or fireRedTrueColor
         local drawTextBox = textBox.draw
         textBox.draw = function(self)
+          if widePc then
+            love.graphics.push()
+            love.graphics.translate(96, 0)
+            love.graphics.scale(2, 2)
+            drawTextBox(self)
+            love.graphics.pop()
+            return
+          end
           drawOnGbaCanvas(function()
             love.graphics.push()
             love.graphics.translate(40, 8)
@@ -2232,14 +3953,29 @@ return function(mod, opts)
     ChoiceBox.__ascendantFireRedPcOverlay = true
     local newChoiceBox = ChoiceBox.new
     ChoiceBox.new = function(game, ...)
-      local wide = useFireRedPc(game) and fireRedPcStackActive(game)
+      local legacyWide = useWideFireRedLegacyBank(game)
+        and fireRedWideLegacyStackActive(game)
+      local wide = (useFireRedPc(game) and fireRedPcStackActive(game))
+        or legacyWide
       local choice = newChoiceBox(game, ...)
       if wide then
         choice.__ascendantFireRedPcOverlay = true
-        choice.uiSize = fireRedUiSize
-        choice.sgbPalettes = fireRedTrueColor
+        local widePc = legacyWide or useWideFireRedPc(game)
+        choice.__ascendantFireRedWidePcOverlay = widePc or nil
+        choice.__ascendantFireRedWideLegacyOverlay = legacyWide or nil
+        choice.uiSize = widePc and fireRedWideUiSize or fireRedUiSize
+        choice.sgbPalettes = widePc and fireRedWideTrueColor
+          or fireRedTrueColor
         local drawChoice = choice.draw
         choice.draw = function(self)
+          if widePc then
+            love.graphics.push()
+            love.graphics.translate(96, 0)
+            love.graphics.scale(2, 2)
+            drawChoice(self)
+            love.graphics.pop()
+            return
+          end
           drawOnGbaCanvas(function()
             love.graphics.push()
             love.graphics.translate(40, 8)
@@ -2252,6 +3988,74 @@ return function(mod, opts)
     end
   end
 
+  local okQuantity, QuantityBox = pcall(require, "src.ui.QuantityBox")
+  if okQuantity and QuantityBox
+      and not QuantityBox.__ascendantFireRedPcOverlay then
+    QuantityBox.__ascendantFireRedPcOverlay = true
+    local newQuantityBox = QuantityBox.new
+    QuantityBox.new = function(game, ...)
+      local legacyWide = useWideFireRedLegacyBank(game)
+        and fireRedWideLegacyStackActive(game)
+      local storage = (useFireRedPc(game) and fireRedPcStackActive(game))
+        or legacyWide
+      local quantity = newQuantityBox(game, ...)
+      if storage then
+        quantity.__ascendantFireRedPcOverlay = true
+        local widePc = legacyWide or useWideFireRedPc(game)
+        quantity.__ascendantFireRedWidePcOverlay = widePc or nil
+        quantity.__ascendantFireRedWideLegacyOverlay = legacyWide or nil
+        quantity.uiSize = widePc and fireRedWideUiSize or fireRedUiSize
+        quantity.sgbPalettes = widePc and fireRedWideTrueColor
+          or fireRedTrueColor
+        local drawQuantity = quantity.draw
+        quantity.draw = function(self)
+          if widePc then
+            love.graphics.push()
+            love.graphics.translate(96, 0)
+            love.graphics.scale(2, 2)
+            drawQuantity(self)
+            love.graphics.pop()
+            return
+          end
+          drawOnGbaCanvas(function()
+            love.graphics.push()
+            love.graphics.translate(40, 8)
+            drawQuantity(self)
+            love.graphics.pop()
+          end)
+        end
+      end
+      return quantity
+    end
+  end
+
+  -- main.lua installs this factory from its mods.loaded callback, so VASC's
+  -- public PokemonUi registry is normally settled now.  Activate the local
+  -- consumer Card once here to make ASC BOX immediately discoverable before
+  -- the first Bank open. Missing/older VASC and defensive registry errors are
+  -- fail-open; binding() keeps the lazy retry for unusual hot-load order.
+  if type(legacyBankCard) == "table" then
+    if type(legacyBankCard.install) == "function" then
+      pcall(legacyBankCard.install, legacyBankCard)
+    end
+    if type(legacyBankCard.activate) == "function" then
+      pcall(legacyBankCard.activate, legacyBankCard)
+    end
+  end
+
+  local function vascLegacyBankConsumerHealth()
+    if type(legacyBankCard) ~= "table"
+        or type(legacyBankCard.health) ~= "function" then
+      return nil, "vasc-legacy-bank-card-unavailable"
+    end
+    local called, receipt = pcall(legacyBankCard.health, legacyBankCard)
+    if not called or type(receipt) ~= "table" then
+      return nil, called and "vasc-legacy-bank-health-invalid"
+        or "vasc-legacy-bank-health-error:" .. tostring(receipt)
+    end
+    return receipt
+  end
+
   mod.exports.modernStorageUi = {
     isBoxList = isBoxList,
     genderSymbol = storageGenderSymbol,
@@ -2259,15 +4063,21 @@ return function(mod, opts)
     drawBoxGrid = drawBoxGrid,
     drawAscendantBoxGrid = drawAscendantBoxGrid,
     drawFireRedBoxGrid = drawFireRedBoxGrid,
+    drawFireRedWideBoxGrid = drawFireRedWideBoxGrid,
     pcInterfaceStyle = pcInterfaceStyle,
     useFireRedPc = useFireRedPc,
+    useWideFireRedPc = useWideFireRedPc,
     useFireRedLegacyBank = useFireRedLegacyBank,
+    useWideFireRedLegacyBank = useWideFireRedLegacyBank,
     useCustomPc = useCustomPc,
     pcAtlasPath = PC_ATLAS_PATH,
     wallpaperLabel = wallpaperLabel,
     boxGridSourceDex = boxGridSourceDex,
     boxGridWalkerRelative = boxGridWalkerRelative,
     boxGridWalkerAsset = boxGridWalkerAsset,
+    newLegacyBankRoot = newLegacyBankRoot,
     newLegacyBankOrganizer = newLegacyBankOrganizer,
+    newVascLegacyBankScreen = newVascLegacyBankScreen,
+    vascLegacyBankConsumerHealth = vascLegacyBankConsumerHealth,
   }
 end

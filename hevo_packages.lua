@@ -10,6 +10,7 @@ return function(mod, opts)
   local i18n = opts.i18n
   local Bag = opts.bag or require("src.inventory.Bag")
   local beyondKanto = opts.beyondKanto or opts.johtoBoundary
+  local generationRules = opts.generationRules
   local P = {
     enabled = opts.enabled ~= false,
     VERSION = 1,
@@ -135,6 +136,11 @@ return function(mod, opts)
     P.audit.registeredPackages = P.audit.registeredPackages + 1
     if row.item then P.byItem[row.item] = row end
     for _, target in ipairs(row.targets) do
+      -- Every Hidden-Evolution target in this campaign debuted in Gen IV.
+      -- Keep the epoch on the method authority itself so a missing or
+      -- temporarily projected species record cannot bypass a manual
+      -- generation downgrade.
+      target.originEpoch = target.originEpoch or 4
       assert(not P.byTarget[target.target], "duplicate HEVO target " .. target.target)
       P.byTarget[target.target] = { package = row, parent = target.parent,
         target = target.target }
@@ -170,6 +176,7 @@ return function(mod, opts)
   local SET_FIELDS = {
     "meta", "packageUnlocks", "evolutionUnlocks", "permanentItems",
     "firstGrants", "questionIds", "dex", "secretUnlocks",
+    "hoennDexOwned",
   }
 
   local function normalizePersistent(p)
@@ -265,6 +272,16 @@ return function(mod, opts)
     if not target then return false, "species", package end
     surface = tostring(surface or "")
     context = type(context) == "table" and context or {}
+    if generationRules and type(generationRules.shouldUseEpoch) == "function" then
+      local game = context.game
+      if type(game) ~= "table" or game.save ~= save then
+        game = { save = save, data = context.data
+          or P.activeGame and P.activeGame.data }
+      end
+      if not generationRules.shouldUseEpoch(game, target.originEpoch, false) then
+        return false, "future-generation", package
+      end
+    end
     if surface == "item" or surface == "bag" or surface == "daycare" then
       if package.kind ~= "item" then return false, "method", package end
       if context.item and context.item ~= package.item then
@@ -358,7 +375,7 @@ return function(mod, opts)
           end
           return P.eligibility(game.save, mon, package, surface, {
             item = trigger.item, field = trigger.field or trigger.package,
-            data = game.data,
+            data = game.data, game = game,
           }) == true
         end,
         describe = function()
@@ -554,7 +571,7 @@ return function(mod, opts)
     for _, package in ipairs(P.order) do
       if package.kind == "knowledge" then
         local ok = P.eligibility(game.save, mon, package, "route5", {
-          data = game.data,
+          data = game.data, game = game,
         })
         if ok then rows[#rows + 1] = { id = package.move, source = "HEVO" } end
       end
@@ -582,7 +599,7 @@ return function(mod, opts)
           if package.kind == "item"
               and game.save.inventory and game.save.inventory[package.item] then
             local ok, target = P.eligibility(game.save, mon, package,
-              "daycare", { item = package.item, data = game.data })
+              "daycare", { item = package.item, data = game.data, game = game })
             if ok then rows[#rows + 1] = {
               mon = mon, package = package, target = target.target,
               item = package.item,
@@ -597,7 +614,9 @@ return function(mod, opts)
   function P.evolveAtDaycare(game, row, done, deps)
     deps = deps or {}
     local ok, target = P.eligibility(game.save, row and row.mon,
-      row and row.package, "daycare", { item = row and row.item, data = game.data })
+      row and row.package, "daycare", {
+        item = row and row.item, data = game.data, game = game,
+      })
     if not ok or not game.save.inventory[row.item] then return false, target end
     local evolve = deps.evolve or function(g, mon, species, callback)
       require("src.pokemon.Evolution").evolve(g, mon, species, callback, "ITEM")
@@ -614,25 +633,54 @@ return function(mod, opts)
     if not package or package.kind ~= "field" then return false, "package" end
     local function evolve(selected)
       local ok, target = P.eligibility(game.save, selected, package, "field", {
-        field = package.field, data = game.data,
+        field = package.field, data = game.data, game = game,
       })
       if not ok then return false, target end
       local request = deps and deps.request or function(g, pokemon, trigger, callback)
         return require("src.pokemon.Evolution").request(g, pokemon, trigger, callback)
       end
+      -- The native request also completes synchronously when no branch matches.
+      -- Keep that completion pending until its return value tells us whether
+      -- an evolution started, so a declined request still gets field feedback.
+      local returned, accepted, completed, delivered = false, false, false, false
+      local function complete()
+        completed = true
+        if returned and accepted and not delivered then
+          delivered = true
+          if done then done() end
+        end
+      end
       local called, evolved = pcall(request, game, selected, {
         kind = "hevo_field", field = package.field, package = package.id,
-      }, done)
+      }, complete)
+      returned = true
+      accepted = called and evolved ~= nil and evolved ~= false
+      if accepted and completed then complete() end
       if not called then return false, evolved, false end
-      -- Evolution.request calls done itself when there is no matching branch.
-      return evolved ~= nil and evolved ~= false, evolved or "evolve", true
+      return accepted, evolved or "evolve", accepted
     end
     if mon then return evolve(mon) end
     require("src.ui.Screens").push(game, "PartyMenu", {
       pickOnly = true, onCancel = done,
       onSwitch = function(selected)
-        local ok, _, doneHandled = evolve(selected)
-        if not ok and not doneHandled and done then done() end
+        local ok, reason, doneHandled = evolve(selected)
+        if not ok and not doneHandled then
+          local message
+          if reason == "locked" then
+            message = tr("This field is sealed.\nUnlock its power first.",
+              "Das Feld ist versiegelt.\nSchalte es zuerst frei.")
+          elseif reason == "beyond-kanto-sealed" or reason == "future-generation" then
+            message = tr("This evolution is not\navailable in this era.",
+              "Diese Entwicklung ist\nin dieser Epoche\nnoch nicht verfügbar.")
+          elseif reason == "pokemon" or reason == "species" then
+            message = tr("This POKéMON cannot\nevolve at this field.",
+              "Dieses POKéMON kann\nsich hier nicht\nentwickeln.")
+          else
+            message = tr("The field did not\ntrigger an evolution.",
+              "Das Feld hat keine\nEntwicklung ausgelöst.")
+          end
+          game.stack:push(require("src.render.TextBox").new(game, message, done))
+        end
       end,
     })
     return true

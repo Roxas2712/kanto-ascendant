@@ -100,8 +100,9 @@ return function(mod)
   mod.content.ai_classes:register(LAYER_ID, layer)
   A.layer = layer
 
-  function A.attach(battle)
-    if not (battle and battle.rematch == true) then return false end
+  function A.attach(battle, localTrainer)
+    if not (battle and (battle.rematch == true
+        or localTrainer == true and battle.kind == 'trainer')) then return false end
     local mods = {}
     local present = false
     for _, id in ipairs(battle.enemyAIMods or {}) do

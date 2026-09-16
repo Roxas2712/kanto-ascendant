@@ -1,0 +1,136 @@
+{
+  "schema": "kanto-ascendant.starter-habitat-access-contract.v3.1",
+  "sourceMapProjectSha256": "322e29447f7481a12d71b14fd50cfebf8d5b2220b3c2622f62339ad79b576e31",
+  "sourceAccessV31Sha256": "453e35e5adb1233d0fbd72855b4b3f66ee0ab507a0aeda2ba55eab0a54bebd19",
+  "accessV2Disposition": "REJECTED_DO_NOT_IMPLEMENT",
+  "accesses": [
+    {
+      "option": 1, "receiptId": "VIRIDIAN_TOP_HIDDEN_HABITAT",
+      "starter": "TURTWIG", "sourceMap": "VIRIDIAN_CITY", "sourceMapIndex": 1,
+      "sourceMode": "LAND", "sourceCell": { "x": 8, "y": 0 },
+      "returnMode": "LAND", "approachCell": { "x": 8, "y": 4 },
+      "targetMap": "KA_HABITAT_TURTWIG_PROTOTYPE", "targetMapIndex": 2000,
+      "targetCell": { "x": 11, "y": 17 }, "role": "STARTER_PRIMARY"
+    },
+    {
+      "option": 2, "receiptId": "ROUTE14_SURF_HIDDEN_HABITAT",
+      "starter": "SNIVY", "sourceMap": "ROUTE_14", "sourceMapIndex": 25,
+      "sourceMode": "SURF", "sourceCell": { "x": 19, "y": 51 },
+      "returnMode": "LAND", "approachCell": { "x": 17, "y": 51 },
+      "targetMap": "KA_HABITAT_SNIVY_PROTOTYPE", "targetMapIndex": 2001,
+      "targetCell": { "x": 13, "y": 15 }, "role": "STARTER_PRIMARY"
+    },
+    {
+      "option": 3, "receiptId": "VIRIDIAN_FOREST_ROOT_HABITAT",
+      "starter": "CHESPIN", "sourceMap": "VIRIDIAN_FOREST", "sourceMapIndex": 51,
+      "sourceMode": "LAND", "sourceCell": { "x": 11, "y": 39 },
+      "returnMode": "LAND", "approachCell": { "x": 11, "y": 40 },
+      "targetMap": "KA_HABITAT_CHESPIN_PROTOTYPE", "targetMapIndex": 2002,
+      "targetCell": { "x": 11, "y": 17 }, "role": "STARTER_PRIMARY"
+    },
+    {
+      "option": 4, "receiptId": "ROUTE15_HIDDEN_HABITAT",
+      "starter": "ROWLET", "sourceMap": "ROUTE_15", "sourceMapIndex": 26,
+      "sourceMode": "LAND", "sourceCell": { "x": 56, "y": 0 },
+      "returnMode": "LAND", "approachCell": { "x": 56, "y": 4 },
+      "targetMap": "KA_HABITAT_ROWLET_PROTOTYPE", "targetMapIndex": 2003,
+      "targetCell": { "x": 11, "y": 15 }, "role": "STARTER_PRIMARY"
+    },
+    {
+      "option": 5, "receiptId": "MT_MOON_B1F_HIDDEN_HABITAT",
+      "starter": "CHIMCHAR", "sourceMap": "MT_MOON_B1F", "sourceMapIndex": 60,
+      "sourceMode": "LAND", "sourceCell": { "x": 9, "y": 15 },
+      "returnMode": "LAND", "approachCell": { "x": 9, "y": 16 },
+      "targetMap": "KA_HABITAT_CHIMCHAR_PROTOTYPE", "targetMapIndex": 2004,
+      "targetCell": { "x": 12, "y": 17 }, "role": "STARTER_PRIMARY"
+    },
+    {
+      "option": 6, "receiptId": "ROUTE4_HIDDEN_HABITAT",
+      "starter": "TEPIG", "sourceMap": "ROUTE_4", "sourceMapIndex": 15,
+      "sourceMode": "LAND", "sourceCell": { "x": 36, "y": 0 },
+      "returnMode": "LAND", "approachCell": { "x": 36, "y": 2 },
+      "targetMap": "KA_HABITAT_TEPIG_PROTOTYPE", "targetMapIndex": 2006,
+      "targetCell": { "x": 12, "y": 19 }, "role": "STARTER_PRIMARY"
+    },
+    {
+      "option": 7, "receiptId": "ROUTE6_HIDDEN_HABITAT",
+      "starter": "PIPLUP", "sourceMap": "ROUTE_6", "sourceMapIndex": 17,
+      "sourceMode": "LAND", "sourceCell": { "x": 0, "y": 28 },
+      "returnMode": "LAND", "approachCell": { "x": 1, "y": 29 },
+      "targetMap": "KA_HABITAT_PIPLUP_PROTOTYPE", "targetMapIndex": 2005,
+      "targetCell": { "x": 12, "y": 19 }, "role": "STARTER_PRIMARY"
+    },
+    {
+      "option": 8, "receiptId": "ROUTE8_HIDDEN_HABITAT",
+      "starter": "FENNEKIN", "sourceMap": "ROUTE_8", "sourceMapIndex": 19,
+      "sourceMode": "LAND", "sourceCell": { "x": 54, "y": 0 },
+      "returnMode": "LAND", "approachCell": { "x": 54, "y": 4 },
+      "targetMap": "KA_HABITAT_FENNEKIN_PROTOTYPE", "targetMapIndex": 2008,
+      "targetCell": { "x": 10, "y": 17 }, "role": "STARTER_PRIMARY"
+    },
+    {
+      "option": 10, "receiptId": "ROUTE10_HIDDEN_HABITAT",
+      "starter": "LITTEN", "sourceMap": "ROUTE_10", "sourceMapIndex": 21,
+      "sourceMode": "LAND", "sourceCell": { "x": 19, "y": 62 },
+      "returnMode": "LAND", "approachCell": { "x": 17, "y": 62 },
+      "targetMap": "KA_HABITAT_LITTEN_PROTOTYPE", "targetMapIndex": 2010,
+      "targetCell": { "x": 12, "y": 19 }, "role": "STARTER_PRIMARY"
+    },
+    {
+      "option": 11, "receiptId": "CELADON_HIDDEN_HABITAT",
+      "starter": "FENNEKIN", "sourceMap": "CELADON_CITY", "sourceMapIndex": 6,
+      "sourceMode": "LAND", "sourceCell": { "x": 20, "y": 35 },
+      "returnMode": "LAND", "approachCell": { "x": 20, "y": 34 },
+      "targetMap": "KA_HABITAT_FENNEKIN_PROTOTYPE", "targetMapIndex": 2008,
+      "targetCell": { "x": 10, "y": 17 }, "role": "STARTER_ALTERNATE"
+    },
+    {
+      "option": 12, "receiptId": "ROUTE12_HIDDEN_HABITAT",
+      "starter": "OSHAWOTT", "sourceMap": "ROUTE_12", "sourceMapIndex": 23,
+      "sourceMode": "LAND", "sourceCell": { "x": 0, "y": 61 },
+      "returnMode": "LAND", "approachCell": { "x": 2, "y": 61 },
+      "targetMap": "KA_HABITAT_OSHAWOTT_PROTOTYPE", "targetMapIndex": 2007,
+      "targetCell": { "x": 12, "y": 19 }, "role": "STARTER_PRIMARY"
+    },
+    {
+      "option": 13, "receiptId": "FUCHSIA_HIDDEN_HABITAT",
+      "starter": "POPPLIO", "sourceMap": "FUCHSIA_CITY", "sourceMapIndex": 7,
+      "sourceMode": "LAND", "sourceCell": { "x": 34, "y": 0 },
+      "returnMode": "LAND", "approachCell": { "x": 34, "y": 4 },
+      "targetMap": "KA_HABITAT_POPPLIO_PROTOTYPE", "targetMapIndex": 2011,
+      "targetCell": { "x": 14, "y": 19 }, "role": "STARTER_ALTERNATE"
+    },
+    {
+      "option": 15, "receiptId": "ROUTE18_HIDDEN_HABITAT",
+      "starter": "CHIMCHAR", "sourceMap": "ROUTE_18", "sourceMapIndex": 29,
+      "sourceMode": "LAND", "sourceCell": { "x": 36, "y": 17 },
+      "returnMode": "LAND", "approachCell": { "x": 36, "y": 16 },
+      "targetMap": "KA_HABITAT_CHIMCHAR_PROTOTYPE", "targetMapIndex": 2004,
+      "targetCell": { "x": 12, "y": 17 }, "role": "STARTER_ALTERNATE"
+    },
+    {
+      "option": 16, "receiptId": "ROUTE21_HIDDEN_HABITAT",
+      "starter": "POPPLIO", "sourceMap": "ROUTE_21", "sourceMapIndex": 32,
+      "sourceMode": "SURF", "sourceCell": { "x": 0, "y": 25 },
+      "returnMode": "LAND", "approachCell": { "x": 4, "y": 25 },
+      "targetMap": "KA_HABITAT_POPPLIO_PROTOTYPE", "targetMapIndex": 2011,
+      "targetCell": { "x": 14, "y": 19 }, "role": "STARTER_PRIMARY"
+    },
+    {
+      "option": 17, "receiptId": "ROUTE25_HIDDEN_HABITAT",
+      "starter": "FROAKIE", "sourceMap": "ROUTE_25", "sourceMapIndex": 36,
+      "sourceMode": "LAND", "sourceCell": { "x": 28, "y": 0 },
+      "returnMode": "LAND", "approachCell": { "x": 28, "y": 2 },
+      "targetMap": "KA_HABITAT_FROAKIE_PROTOTYPE", "targetMapIndex": 2009,
+      "targetCell": { "x": 10, "y": 17 }, "role": "STARTER_PRIMARY"
+    },
+    {
+      "option": 20, "receiptId": "POWER_PLANT_HIDDEN_HABITAT",
+      "starter": "TEPIG", "sourceMap": "POWER_PLANT", "sourceMapIndex": 83,
+      "sourceMode": "LAND", "sourceCell": { "x": 6, "y": 0 },
+      "returnMode": "LAND", "approachCell": { "x": 6, "y": 2 },
+      "targetMap": "KA_HABITAT_TEPIG_PROTOTYPE", "targetMapIndex": 2006,
+      "targetCell": { "x": 12, "y": 19 }, "role": "STARTER_ALTERNATE"
+    }
+  ]
+}

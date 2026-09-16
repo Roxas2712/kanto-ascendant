@@ -17,6 +17,7 @@ return function(mod, opts)
   local trainerVoxelPortraits = opts.trainerVoxelPortraits
   local frlgTrainerPack = opts.frlgTrainerPack
   local voxelRenderer = opts.voxelRenderer
+  local worldRankGuestAuthority = opts.worldRankGuestAuthority
   local SAVE_KEY = "extended_characters"
   local DERIVED = "save/mod-derived/" .. tostring(mod.id or "kanto_ascendant")
     .. "/characters/"
@@ -87,31 +88,31 @@ return function(mod, opts)
         battleBack = { path = "assets/characters/blue_back.png", status = "final" },
         front = {
           path = DERIVED .. "blue_rival.png", status = "final",
-          fallbackPath = "assets/characters/crystal_chars/blue_front.png",
+          fallbackPath = "assets/characters/crystal_chars/blue_voxel_front.png",
         },
         trainerCard = {
           path = DERIVED .. "blue_rival.png", status = "final",
-          fallbackPath = "assets/characters/crystal_chars/blue_front.png",
+          fallbackPath = "assets/characters/crystal_chars/blue_voxel_front.png",
         },
         hallOfFame = {
           path = DERIVED .. "blue_rival.png", status = "final",
-          fallbackPath = "assets/characters/crystal_chars/blue_front.png",
+          fallbackPath = "assets/characters/crystal_chars/blue_voxel_front.png",
         },
         credits = {
           path = DERIVED .. "blue_rival.png", status = "final",
-          fallbackPath = "assets/characters/crystal_chars/blue_front.png",
+          fallbackPath = "assets/characters/crystal_chars/blue_voxel_front.png",
         },
         intro = {
           path = DERIVED .. "blue_rival.png", status = "final",
-          fallbackPath = "assets/characters/crystal_chars/blue_front.png",
+          fallbackPath = "assets/characters/crystal_chars/blue_voxel_front.png",
         },
         special = {
           path = DERIVED .. "blue_rival.png", status = "final",
-          fallbackPath = "assets/characters/crystal_chars/blue_front.png",
+          fallbackPath = "assets/characters/crystal_chars/blue_voxel_front.png",
         },
         rivalPortrait = {
           path = DERIVED .. "blue_rival.png", status = "final",
-          fallbackPath = "assets/characters/crystal_chars/blue_front.png",
+          fallbackPath = "assets/characters/crystal_chars/blue_voxel_front.png",
         },
       },
     },
@@ -174,19 +175,21 @@ return function(mod, opts)
       rivalPortrait = { path = root .. "_front.png", status = "final" },
     }
   end
-  -- Public packages do not ship Nintendo's FRLG Red front. CRYSTAL HD uses
-  -- the bundled, independently authored Red standing front for its compact
-  -- front-facing surfaces. ORIGINAL remains the edition-native Gen-I image
-  -- generated from the user's own ROM below in CHARACTERS. The HD selector,
-  -- throw sequence and staged-3D standee remain separate and untouched.
-  for _, state in ipairs({
-    "front", "trainerCard", "hallOfFame", "credits", "intro", "special",
-    "rivalPortrait",
-  }) do
-    CRYSTAL_VISUALS.RED[state] = {
-      path = "assets/characters/crystal_chars/red_voxel_front.png",
-      status = "final", trueColor = true,
-    }
+  -- Compact Red/Blue surfaces use the already bundled authored portraits.
+  -- Edition-native ORIGINAL portraits are still derived from the user's ROM.
+  -- Keep these assignments after the generic family table so no front/card/
+  -- credits path falls back to the removed FRLG front images.
+  for _, character in ipairs({ "RED", "BLUE" }) do
+    for _, state in ipairs({
+      "front", "trainerCard", "hallOfFame", "credits", "intro", "special",
+      "rivalPortrait",
+    }) do
+      CRYSTAL_VISUALS[character][state] = {
+        path = "assets/characters/crystal_chars/" .. character:lower()
+          .. "_voxel_front.png",
+        status = "final", trueColor = true,
+      }
+    end
   end
   local MATRIX = {
     RED = { player_character = "RED", rival_character = "BLUE", third_character = "GREEN" },
@@ -1596,6 +1599,26 @@ return function(mod, opts)
       fallback = "assets/johto_masters/battle/gold_voxel_front.png",
     },
   }
+  local WORLD_RANK_VOXEL_BY_CLASS = {
+    OPP_CYNTHIA_KA = {
+      id = "WORLD_RANK_CYNTHIA", class = "OPP_CYNTHIA_KA",
+      character = "CYNTHIA", sprite = "SPRITE_KA_WORLD_RANK_CYNTHIA",
+      team = "KA_WORLD_RANK_CYNTHIA_TEAM_V1",
+      front = "assets/world_rank/battle/cynthia_front.png",
+      walk = "assets/world_rank/field/cynthia_walk.png",
+      path = "assets/world_rank/battle/cynthia_voxel_front_hd.png",
+      fallback = "assets/world_rank/battle/cynthia_voxel_front.png",
+    },
+    OPP_ASH_KA = {
+      id = "WORLD_RANK_ASH", class = "OPP_ASH_KA",
+      character = "ASH", sprite = "SPRITE_KA_WORLD_RANK_ASH",
+      team = "KA_WORLD_RANK_ASH_TEAM_V1",
+      front = "assets/world_rank/battle/ash_front.png",
+      walk = "assets/world_rank/field/ash_walk.png",
+      path = "assets/world_rank/battle/ash_voxel_front_hd.png",
+      fallback = "assets/world_rank/battle/ash_voxel_front.png",
+    },
+  }
   -- The Indigo Elite Four previously fell through to DRAMALESS' native
   -- 64px trainerPic card.  In a FULL battle that tiny card is enlarged next
   -- to the player's 128px standee and reads as a broken/wrong sprite.  These
@@ -1791,6 +1814,112 @@ return function(mod, opts)
       lastProblem or sourceProblem or "approved-assets-unreadable"
   end
 
+  local function worldRankShaReceipt(value)
+    return type(value) == "string" and #value == 64
+      and value:match("^[0-9a-f]+$") ~= nil
+  end
+
+  local function worldRankOwnedReceipt(value, id)
+    return type(value) == "table" and value.id == id
+      and value.registered == true and value.projectOwned == true
+  end
+
+  local function worldRankAssetReceipt(receipt, role, expected)
+    local asset = type(receipt) == "table" and receipt.assets
+      and receipt.assets[role]
+    return type(asset) == "table" and asset.path == expected
+      and worldRankShaReceipt(asset.sha256)
+  end
+
+  local function worldRankAuthorityFailure(spec, reason)
+    M.worldRankGuestAuthorityStatus = {
+      schema = "ka-world-rank-guest-renderer-authority/v1",
+      ready = false,
+      class = spec and spec.class,
+      reason = reason or "authority",
+    }
+    return nil
+  end
+
+  local function sealedWorldRankGuestSpec(battle, side)
+    if side ~= "enemy" or not (battle and battle.showEnemyTrainer) then
+      return nil
+    end
+    local expected = WORLD_RANK_VOXEL_BY_CLASS[battle.oppClass]
+    if not expected then return nil end
+    if type(worldRankGuestAuthority) ~= "function" then
+      return worldRankAuthorityFailure(expected, "authority-unavailable")
+    end
+    local game = battle.game or activeGame
+    local ok, proof, authorityReason = pcall(worldRankGuestAuthority,
+      expected.class, game)
+    if not ok or type(proof) ~= "table" then
+      return worldRankAuthorityFailure(expected,
+        ok and (authorityReason or "authority-unavailable")
+          or "authority-error")
+    end
+    local data = game and game.data
+    local trainer = data and data.trainers and data.trainers[expected.class]
+    local sprite = data and data.sprites and data.sprites[expected.sprite]
+    local portraitPath = runtimePath(expected.front)
+    local walkPath = runtimePath(expected.walk)
+    local provenance = proof.provenance
+    if proof.schema ~= "ka-world-rank-guest-authority/v1"
+        or proof.live ~= true or proof.class ~= expected.class then
+      return worldRankAuthorityFailure(expected, "authority-schema")
+    end
+    if proof.trainerRecord ~= trainer or type(trainer) ~= "table"
+        or trainer.id ~= expected.class or trainer.pic ~= portraitPath
+        or trainer.trueColor ~= true or type(trainer.parties) ~= "table"
+        or type(trainer.parties[1]) ~= "table"
+        or #trainer.parties[1] ~= 6 then
+      return worldRankAuthorityFailure(expected, "live-trainer")
+    end
+    if type(sprite) ~= "table" or sprite.id ~= expected.sprite
+        or sprite.image ~= walkPath or sprite.frames ~= 6
+        or sprite.walker ~= true or sprite.trueColor ~= true then
+      return worldRankAuthorityFailure(expected, "live-sprite")
+    end
+    if not worldRankOwnedReceipt(proof.battlePortrait, portraitPath)
+        or not worldRankOwnedReceipt(proof.overworldSprite, expected.sprite)
+        or not worldRankOwnedReceipt(proof.character, expected.character)
+        or not worldRankOwnedReceipt(proof.team, expected.team)
+        or type(proof.teamBuilder) ~= "function" then
+      return worldRankAuthorityFailure(expected, "implementation-receipt")
+    end
+    if type(provenance) ~= "table" or provenance.approved ~= true
+        or provenance.class ~= expected.class
+        or provenance.character ~= expected.character
+        or provenance.team ~= expected.team
+        or not worldRankAssetReceipt(provenance, "walk", expected.walk)
+        or not worldRankAssetReceipt(provenance, "front", expected.front)
+        or not worldRankAssetReceipt(provenance, "voxel64", expected.fallback)
+        or not worldRankAssetReceipt(provenance, "voxel128", expected.path) then
+      return worldRankAuthorityFailure(expected, "asset-receipt")
+    end
+    local spec = copy(expected)
+    spec.worldRankGuestClass = expected.class
+    spec.authority = {
+      schema = proof.schema, live = true, class = expected.class,
+      character = expected.character, team = expected.team,
+      portrait = portraitPath,
+      assets = {
+        walk = copy(provenance.assets.walk),
+        front = copy(provenance.assets.front),
+        voxel64 = copy(provenance.assets.voxel64),
+        voxel128 = copy(provenance.assets.voxel128),
+      },
+    }
+    M.worldRankGuestAuthorityStatus = {
+      schema = "ka-world-rank-guest-renderer-authority/v1",
+      ready = true, class = expected.class,
+      authoritySchema = proof.schema, portrait = portraitPath,
+      voxel64 = expected.fallback, voxel128 = expected.path,
+    }
+    return spec
+  end
+  M.worldRankGuestVoxelSpec = sealedWorldRankGuestSpec
+
   -- Inspectable contract used by focused compatibility tests.  A nil result
   -- means "keep DRAMALESS' registered trainerPic card", not "no portrait".
   function M.voxelStandingTrainerCharacter(battle, side)
@@ -1806,6 +1935,13 @@ return function(mod, opts)
       if not state.enabled and GameVersion.get() == "yellow" then return nil end
       return M.getPlayerCharacter()
     end
+    -- Life of a Rival constructs optional meetings through an ordinary
+    -- trainer class so no vanilla story-rival hook can fire. Its explicit
+    -- identity marker alone owns the visiting Red/Blue/Green standee.
+    if side == "enemy" and battle and battle.showEnemyTrainer
+        and CHARACTERS[battle.ascendantLifeRivalCharacter] then
+      return battle.ascendantLifeRivalCharacter
+    end
     if side == "enemy" and battle and battle.showEnemyTrainer
         and RIVAL_CLASS_SET[battle.oppClass] then
       return M.getRivalCharacter()
@@ -1819,6 +1955,9 @@ return function(mod, opts)
   function M.voxelStandingTrainerSpec(battle, side)
     if side ~= "enemy" or not (battle and battle.showEnemyTrainer) then
       return nil
+    end
+    if WORLD_RANK_VOXEL_BY_CLASS[battle.oppClass] then
+      return sealedWorldRankGuestSpec(battle, side)
     end
     local duo = jessieJamesVoxelSpec(battle, side)
     if duo then return copy(duo) end
@@ -1974,13 +2113,17 @@ return function(mod, opts)
       delegated = battleArtIdentityOnly or nil,
       identityOverride = battleArtIdentityOnly or nil,
       sealedJessieJamesOverride = battleArtIdentityOnly or nil,
+      sealedGuestOverride = battleArtIdentityOnly or nil,
+      guestAuthoritySchema = battleArtIdentityOnly
+        and "ka-world-rank-guest-authority/v1" or nil,
       rendererId = rendererId,
       rendererVersion = rendererReceipt and rendererReceipt.rendererVersion,
       rendererProvenance = rendererReceipt and rendererReceipt.provenance,
       module = "OverworldBattle",
       capability = "sideTexture",
       reason = battleArtIdentityOnly
-        and "renderer-owns-stage-kasc-owns-selected-identity" or nil,
+        and "renderer-owns-stage-kasc-owns-selected-and-sealed-identities"
+          or nil,
     }
     local installedRelay =
       overworldBattle.__kantoAscendantApprovedTrainerRelay
@@ -2132,6 +2275,43 @@ return function(mod, opts)
           return nil
         end
       end
+      -- Cynthia and Ash are admitted only through their live per-identity
+      -- provenance receipt. A reserved class ID alone always delegates back
+      -- to Battle Art/native 2D without creating a second stage or HUD.
+      if battleArtIdentityOnly and crystalVoxel and trainerVisible then
+        local guest = sealedWorldRankGuestSpec(battle, side)
+        if guest then
+          local highRes, problem = highResVoxelTrainerTexture(side, guest.id,
+            guest.path, guest.fallback, true)
+          if highRes then
+            highRes.worldRankGuestClass = guest.worldRankGuestClass
+            highRes.worldRankGuestVoxel = true
+            highRes.worldRankGuestAuthority = guest.authority
+            highRes.ascendantApprovedTrainerResolver = {
+              schema = "ka-approved-trainer-texture/v1",
+              role = "world_rank_guest",
+              class = guest.worldRankGuestClass,
+              identity = guest.id,
+              approvedVersion = "SEALED_LIVE_RECEIPT",
+              source = highRes.ascendantHighResSource,
+              authoritySchema = guest.authority.schema,
+              authorityClass = guest.authority.class,
+              sourceSha256 = guest.authority.assets.voxel128.sha256,
+              rendererId = rendererId,
+              rendererVersion = resolverSentinel.rendererVersion,
+              rendererProvenance = resolverSentinel.rendererProvenance,
+            }
+            return highRes
+          end
+          fallbackReceipt = recordVoxelFallback({
+            schema = "ka-approved-trainer-fallback/v1",
+            rendererId = rendererId,
+            rendererVersion = resolverSentinel.rendererVersion,
+            side = side, class = guest.worldRankGuestClass,
+            source = guest.path, reason = problem,
+          })
+        end
+      end
       -- Battle Art continues to own PLAYER ART/TRAINER ART for every source
       -- except the two explicit KASC-selected role identities above.  Do not
       -- run ordinary, Johto or Indigo replacement rules through this mixed
@@ -2147,7 +2327,13 @@ return function(mod, opts)
       -- Red/Blue/Green and Silver/Kris/Gold are identity assets, not a skin;
       -- their approved cards never follow the ordinary trainer option.
       local fixedIdentity = battle and (RIVAL_CLASS_SET[battle.oppClass]
+        or authored and authored.id == battle.oppClass
+          and mod.exports.baldCrewMaleCharacter67
+          and mod.exports.baldCrewMaleCharacter67.matchesBattle(battle)
+        or authored and authored.id == "KA_BALD_CREW_FEMALE"
+          and battle.oppClass == "KA_BALD_CREW_FEMALE"
         or authored and authored.id == "YELLOW_JESSIE_JAMES_MEOWTH"
+        or authored and authored.worldRankGuestClass
         or JOHTO_VOXEL_BY_CLASS[battle.oppClass])
       local style = trainerPortraitStyle(battle and battle.game or activeGame)
       local useAuthored = fixedIdentity or style == "crystal_hd"
@@ -2183,6 +2369,9 @@ return function(mod, opts)
           highRes.johtoMasterClass = JOHTO_VOXEL_BY_CLASS[battle.oppClass]
             and battle.oppClass or nil
           highRes.johtoMasterVoxel = highRes.johtoMasterClass ~= nil
+          highRes.worldRankGuestClass = authored.worldRankGuestClass
+          highRes.worldRankGuestVoxel = highRes.worldRankGuestClass ~= nil
+          highRes.worldRankGuestAuthority = authored.authority
           highRes.indigoEliteClass = INDIGO_VOXEL_BY_CLASS[battle.oppClass]
             and battle.oppClass or nil
           highRes.kantoTrainerClass = authored.class
@@ -2209,8 +2398,9 @@ return function(mod, opts)
               and authored.authority.schema or nil,
             authorityClass = authored.authority
               and authored.authority.class or nil,
-            sourceSha256 = highRes.yellowJessieJames
-              and duoSelected.sha256 or nil,
+            sourceSha256 = highRes.worldRankGuestVoxel
+                and authored.authority.assets.voxel128.sha256
+              or highRes.yellowJessieJames and duoSelected.sha256 or nil,
             assetRole = highRes.yellowJessieJames
               and duoSelected.role or nil,
             rendererId = rendererId,

@@ -14,6 +14,7 @@ return function(mod, opts)
   opts = opts or {}
   local difficulty = assert(opts.difficulty,
     "adaptive trainer levels require difficulty policy")
+  local difficultyContracts = opts.difficultyContracts
   local A = {
     STATE_KEY = "adaptive_trainer_levels_state",
     STATE_VERSION = 1,
@@ -436,6 +437,11 @@ return function(mod, opts)
 
   function A.storyExcluded(battle)
     if not (battle and battle.kind == "trainer") or battle.rematch then return true end
+    if difficultyContracts
+        and type(difficultyContracts.allowAdaptive) == "function" then
+      local allowed = difficultyContracts.allowAdaptive(battle)
+      if not allowed then return true end
+    end
     for _, key in ipairs(EXCLUDED) do if battle[key] then return true end end
     local save = battle.game and battle.game.save
     if save and ((type(save.hallOfFame) == "table" and #save.hallOfFame > 0)

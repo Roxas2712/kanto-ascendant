@@ -1,0 +1,112 @@
+{
+  "schema": "kanto-ascendant-title-trainer-animation/v2",
+  "canvas": [
+    128,
+    128
+  ],
+  "nativeTitleCanvas": [
+    40,
+    56
+  ],
+  "frameCount": 16,
+  "ticksPerFrame": 8,
+  "engineHz": 60,
+  "actionTicks": 128,
+  "actionSeconds": 2.1333333333333333,
+  "playback": "reset on kaTitlePairId change; play once; hold frame 16",
+  "variantSelection": "alternate A/B each time the same character identity appears",
+  "runtimePlacement": {
+    "blueDrawY": 68,
+    "greenDrawY": 68,
+    "redDrawY": 68,
+    "blueScale": 0.5,
+    "greenScale": 0.5,
+    "redScale": 0.5,
+    "footerSafePokemonPadding": 8,
+    "perFrameVerticalOffset": 0,
+    "completeSourceBoardRecovery": [
+      "green",
+      "red"
+    ],
+    "masterFootlineY": 123,
+    "transparentBottomRows": 4
+  },
+  "titleTiming": {
+    "pokemonHoldTicks": 200,
+    "pokemonHoldSeconds": 3.3333333333333335,
+    "legacyPairTicks": 240,
+    "legacyPairSeconds": 4
+  },
+  "characters": {
+    "blue": {
+      "frames": "blue/frames/%03d.png",
+      "sheet": "blue/blue_intro_sheet_16x128.png",
+      "preview": "blue/blue_intro_preview.gif",
+      "titleFrames": "blue/title_40x56/frames/%03d.png",
+      "titleSheet": "blue/title_40x56/blue_title_sheet_16x40.png",
+      "variants": {
+        "A": {
+          "frames": "blue/variants/a/frames/%03d.png",
+          "sheet": "blue/variants/a/blue_a_intro_sheet_16x128.png",
+          "preview": "blue/variants/a/blue_a_intro_preview.gif",
+          "titleFrames": "blue/variants/a/title_40x56/frames/%03d.png",
+          "titleSheet": "blue/variants/a/title_40x56/blue_a_title_sheet_16x40.png"
+        },
+        "B": {
+          "motion": "arrogant grin, right hand on hip, short left-hand ball toss, catch and pocket",
+          "frames": "blue/variants/b/frames/%03d.png",
+          "sheet": "blue/variants/b/blue_b_intro_sheet_16x128.png",
+          "preview": "blue/variants/b/blue_b_intro_preview.gif",
+          "titleFrames": "blue/variants/b/title_40x56/frames/%03d.png",
+          "titleSheet": "blue/variants/b/title_40x56/blue_b_title_sheet_16x40.png"
+        }
+      }
+    },
+    "green": {
+      "frames": "green/frames/%03d.png",
+      "sheet": "green/green_intro_sheet_16x128.png",
+      "preview": "green/green_intro_preview.gif",
+      "titleFrames": "green/title_40x56/frames/%03d.png",
+      "titleSheet": "green/title_40x56/green_title_sheet_16x40.png",
+      "variants": {
+        "A": {
+          "frames": "green/variants/a/frames/%03d.png",
+          "sheet": "green/variants/a/green_a_intro_sheet_16x128.png",
+          "preview": "green/variants/a/green_a_intro_preview.gif",
+          "titleFrames": "green/variants/a/title_40x56/frames/%03d.png",
+          "titleSheet": "green/variants/a/title_40x56/green_a_title_sheet_16x40.png"
+        },
+        "B": {
+          "frames": "green/variants/b/frames/%03d.png",
+          "sheet": "green/variants/b/green_b_intro_sheet_16x128.png",
+          "preview": "green/variants/b/green_b_intro_preview.gif",
+          "titleFrames": "green/variants/b/title_40x56/frames/%03d.png",
+          "titleSheet": "green/variants/b/title_40x56/green_b_title_sheet_16x40.png"
+        }
+      }
+    },
+    "red": {
+      "frames": "red/frames/%03d.png",
+      "sheet": "red/red_intro_sheet_16x128.png",
+      "preview": "red/red_intro_preview.gif",
+      "titleFrames": "red/title_40x56/frames/%03d.png",
+      "titleSheet": "red/title_40x56/red_title_sheet_16x40.png",
+      "variants": {
+        "A": {
+          "frames": "red/variants/a/frames/%03d.png",
+          "sheet": "red/variants/a/red_a_intro_sheet_16x128.png",
+          "preview": "red/variants/a/red_a_intro_preview.gif",
+          "titleFrames": "red/variants/a/title_40x56/frames/%03d.png",
+          "titleSheet": "red/variants/a/title_40x56/red_a_title_sheet_16x40.png"
+        },
+        "B": {
+          "frames": "red/variants/b/frames/%03d.png",
+          "sheet": "red/variants/b/red_b_intro_sheet_16x128.png",
+          "preview": "red/variants/b/red_b_intro_preview.gif",
+          "titleFrames": "red/variants/b/title_40x56/frames/%03d.png",
+          "titleSheet": "red/variants/b/title_40x56/red_b_title_sheet_16x40.png"
+        }
+      }
+    }
+  }
+}

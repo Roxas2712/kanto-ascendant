@@ -1,5 +1,5 @@
--- Discovery-first Pokédex presentation and the four Ascendant completion
--- certificates.  Species registration never counts as discovery: only the
+-- Discovery-first Pokédex presentation, legacy certificates and regional
+-- Master titles. Species registration never counts as discovery: only the
 -- save's ordinary seen/owned flags unlock names, data pages and diplomas.
 
 return function(mod, opts)
@@ -7,8 +7,24 @@ return function(mod, opts)
   local i18n = opts.i18n
   local beyondKanto = opts.beyondKanto or opts.johtoBoundary
   local D = { game = nil }
+  local maximumDex = opts.maximumDex
+  local maximumSurface
+  function D.bindMaximumSurface(surface) maximumSurface = surface end
   local KANTO_DEX_SIZE = 151
   local NATIONAL_DEX_SIZE = 251
+  -- Regional titles refer to the origin-generation groups, not a later
+  -- game's regional encounter list (which can contain earlier species).
+  local REGIONS = {
+    { id = "kanto", en = "Kanto", de = "Kanto" },
+    { id = "johto", en = "Johto", de = "Johto" },
+    { id = "hoenn", en = "Hoenn", de = "Hoenn" },
+    { id = "sinnoh", en = "Sinnoh", de = "Sinnoh" },
+    { id = "unova", en = "Unova", de = "Einall" },
+    { id = "kalos", en = "Kalos", de = "Kalos" },
+    { id = "alola", en = "Alola", de = "Alola" },
+    { id = "galar", en = "Galar", de = "Galar" },
+    { id = "paldea", en = "Paldea", de = "Paldea" },
+  }
 
   local CERTIFICATES = {
     {
@@ -49,11 +65,39 @@ return function(mod, opts)
     return i18n and i18n.text(en, de) or en
   end
 
+  if maximumDex then
+    for generation, group in ipairs(maximumDex.generations) do
+      local region = assert(REGIONS[generation], "missing regional certificate title")
+      CERTIFICATES[#CERTIFICATES + 1] = {
+        id = "generation_" .. generation, generation = generation, count = #group,
+        region = region,
+        title = { en = region.en:upper() .. " MASTER", de = region.de:upper() .. "-MEISTER" },
+        lines = {
+          en = { "All " .. #group .. " species", "from Generation " .. generation,
+            "recorded as owned. You are a " .. region.en .. " Master!" },
+          de = { "Alle " .. #group .. " Arten", "der Generation " .. generation,
+            "als Besitz erfasst. Du bist " .. region.de .. "-Meister!" },
+        },
+      }
+    end
+    CERTIFICATES[#CERTIFICATES + 1] = {
+      id = "maximum_" .. maximumDex.maximum,
+      count = maximumDex.maximum, maximum = true,
+      title = { en = "POKéMON MASTER", de = "POKéMON-MEISTER" },
+      lines = {
+        en = { "All " .. maximumDex.maximum .. " species", "recorded as owned.", "You are a Pokémon Master!" },
+        de = { "Alle " .. maximumDex.maximum .. " Arten", "als Besitz erfasst.", "Du bist Pokémon-Meister!" },
+      },
+    }
+  end
+
   local function localized(row)
     return tr(row.en, row.de)
   end
 
   local function listTitle(cert)
+    if cert.maximum then return tr("MASTER", "MEISTER") end
+    if cert.generation then return localized(cert.region):upper() end
     local titles = {
       kanto_150 = { en = "KANTO", de = "KANTO" },
       kanto_151 = { en = "MEW", de = "MEW" },
@@ -176,7 +220,8 @@ return function(mod, opts)
     -- Celebi exactly as its unlock text and completion contract promise.
     local registered = math.min(NATIONAL_DEX_SIZE, math.max(KANTO_DEX_SIZE,
       math.floor(tonumber(constants.dexSize) or KANTO_DEX_SIZE)))
-    return D.hasNationalDex(game) and registered or KANTO_DEX_SIZE
+    local full = maximumDex and maximumDex.report(game).complete
+    return (full or D.hasNationalDex(game)) and registered or KANTO_DEX_SIZE
   end
 
   -- The engine's ordinary Pokédex builds its list directly from the global
@@ -204,26 +249,78 @@ return function(mod, opts)
         local ok, menu = pcall(patch.original, game, menuOpts)
         constants.dexSize = originalSize
         if not ok then error(menu, 0) end
+
+        -- Species beyond Celebi are modular and may use private runtime Dex
+        -- slots to avoid registry collisions.  Never reveal their mere
+        -- registration. Once ordinary seen/owned evidence exists, append the
+        -- public National Dex identity in canonical order so every functional
+        -- habitat, tournament and reward encounter has a usable Dex entry.
+        local dex = game and game.save and game.save.pokedex or {}
+        local dexSeen = type(dex.seen) == "table" and dex.seen or {}
+        local dexOwned = type(dex.owned) == "table" and dex.owned or {}
+        local discovered = {}
+        for species, def in pairs(game.data.pokemon or {}) do
+          local publicNumber = tonumber(def.sourceDex) or tonumber(def.dex)
+          local runtimeNumber = tonumber(def.dex)
+          local hasFact = dexOwned[species] == true or dexSeen[species] == true
+          local privateCollisionSlot = def.sourceDex == nil
+            and runtimeNumber and runtimeNumber >= 252 and runtimeNumber <= 279
+          if hasFact and publicNumber and publicNumber > NATIONAL_DEX_SIZE
+              and not privateCollisionSlot then
+            discovered[#discovered + 1] = {
+              species = species,
+              definition = def,
+              number = publicNumber,
+            }
+          end
+        end
+        if patch.maximum then
+          local included = {}
+          -- Include hidden native placeholders too: discovery of one high
+          -- gift must not bypass the existing Johto unlock for other rows.
+          for id, def in pairs(game.data.pokemon or {}) do
+            local n = tonumber(def.dex)
+            if n and n >= 1 and n <= limit then included[id] = true end
+          end
+          -- Sealed Johto entries remain behind their existing unlock.
+          for id, def in pairs(game.data.pokemon or {}) do
+            local n = patch.maximum.number(id, def)
+            if n and n <= NATIONAL_DEX_SIZE and not def.formId
+                and not def.backendForm then included[id] = true end
+          end
+          discovered = patch.maximum.discovered(game, included)
+        end
+        table.sort(discovered, function(a, b)
+          if a.number ~= b.number then return a.number < b.number end
+          return a.species < b.species
+        end)
+        local digits = math.max(3, math.floor(tonumber(constants.dexDigits) or 3))
+        local numberFormat = ("%%0%dd %%s"):format(digits)
+        for _, row in ipairs(discovered) do
+          menu.items[#menu.items + 1] = {
+            label = numberFormat:format(row.number, row.definition.name),
+            num = ("%03d"):format(row.number),
+            name = row.definition.name,
+            ball = dexOwned[row.species] == true or nil,
+            value = row.species,
+          }
+        end
+
         -- The engine's original "SEEN %d  OWNED %d" footer exceeds the
         -- 18-glyph Game Boy line as soon as either National Dex count reaches
         -- three digits. ListMenu then wraps it onto row seven. Recompute the
         -- visible counts and use a deliberately compact localized footer.
         if type(menu) == "table" then
           local seen, owned = 0, 0
-          local dex = game and game.save and game.save.pokedex or {}
-          local dexSeen = type(dex.seen) == "table" and dex.seen or {}
-          local dexOwned = type(dex.owned) == "table" and dex.owned or {}
-          for id, def in pairs(game.data.pokemon or {}) do
-            local number = tonumber(def.dex)
-            if number and number >= 1 and number <= limit then
-              if dexOwned[id] then
-                seen, owned = seen + 1, owned + 1
-              elseif dexSeen[id] then
-                seen = seen + 1
-              end
-            end
+          for _, item in ipairs(menu.items or {}) do
+            if item.value then seen = seen + 1 end
+            if item.ball then owned = owned + 1 end
           end
-          if seen >= 100 or owned >= 100 then
+          menu.seenCount, menu.ownedCount = seen, owned
+          if seen >= 1000 or owned >= 1000 then
+            menu.footer = tr(("S:%d O:%d"):format(seen, owned),
+              ("G:%d B:%d"):format(seen, owned))
+          elseif seen >= 100 or owned >= 100 or #discovered > 0 then
             menu.footer = tr(("SEEN %d OWN %d"):format(seen, owned),
               ("GES.%d GEF.%d"):format(seen, owned))
           end
@@ -233,6 +330,32 @@ return function(mod, opts)
     end
     patch.limit = function(game)
       return D.dexLimit(game)
+    end
+    patch.maximum = maximumDex
+    if maximumDex then
+      local Entry = require("src.ui.DexEntryMenu")
+      local entryPatch = rawget(Entry, "_kascMaximumDex67")
+      if not entryPatch then
+        entryPatch = { original = Entry.new, render = Entry.render }
+        Entry._kascMaximumDex67 = entryPatch
+        Entry.new = function(game, args, ...)
+          local page = entryPatch.original(game, args, ...)
+          local id = type(args) == "table" and (args.species or args[1]) or args
+          if page and page.def and entryPatch.owner then
+            page.def = entryPatch.owner.entryDefinition(id, page.def)
+          end
+          return page
+        end
+        if type(entryPatch.render) == "function" then
+          Entry.render = function(game, def, ...)
+            if def and entryPatch.owner then
+              def = entryPatch.owner.entryDefinition(def.id, def)
+            end
+            return entryPatch.render(game, def, ...)
+          end
+        end
+      end
+      entryPatch.owner = maximumDex
     end
     return true
   end
@@ -317,13 +440,45 @@ return function(mod, opts)
     local s = state()
     local newly = {}
     for _, cert in ipairs(CERTIFICATES) do
-      if not s.certificates[cert.id] and complete(game, cert.count) then
+      local eligible
+      if cert.maximum or cert.generation then
+        eligible = maximumDex.report(game, cert.generation).complete
+      else eligible = complete(game, cert.count) end
+      if not s.certificates[cert.id] and eligible then
         s.certificates[cert.id] = true
         newly[#newly + 1] = cert
       end
     end
+    s.pokemonMaster = maximumDex and s.certificates["maximum_" .. maximumDex.maximum] == true or false
+    s.regionalMasters = {}
+    if maximumDex then
+      for generation, region in ipairs(REGIONS) do
+        if s.certificates["generation_" .. generation] == true then
+          s.regionalMasters[region.id] = true
+        end
+      end
+    end
     persist(s)
     return newly
+  end
+
+  function D.masterTitle(game)
+    if game then refresh(game) end
+    local s = state(false)
+    return s and s.pokemonMaster and tr("Pokémon Master", "Pokémon-Meister") or nil
+  end
+
+  function D.regionalTitle(generation, game)
+    if game then refresh(game) end
+    local region = REGIONS[generation]
+    local s = state(false)
+    if not region or not s or not s.regionalMasters or not s.regionalMasters[region.id] then return nil end
+    return tr(region.en .. " Master", region.de .. "-Meister")
+  end
+
+  local function certificateMenu(game, title, rows, args)
+    local menu = (mod.ui.KantoListMenu or mod.ui.ListMenu).new(game, title, rows, args)
+    return maximumSurface and maximumSurface.fitMenu(menu) or menu
   end
 
   local Certificate = {}
@@ -331,6 +486,27 @@ return function(mod, opts)
   Certificate.isOpaque = true
 
   function Certificate.new(game, cert, onDone)
+    if cert.maximum or cert.generation then
+      local lines = cert.lines[i18n and i18n.isGerman() and "de" or "en"]
+      local rows = {
+        { label = tr("TRAINER", "TRAINER"), right = game.save.player.name or "RED" },
+        { label = tr("OWNED", "ERHALTEN"), right = ("%d/%d"):format(cert.count, cert.count) },
+        { label = tr("COMPLETE", "VOLLSTÄNDIG"), help = table.concat(lines, " ") },
+      }
+      rows[#rows + 1] = { label = tr("BACK", "ZURÜCK"), value = "back" }
+      -- Reuse the existing fullscreen/ORAS ListMenu surface, never a new
+      -- hardcoded 160px certificate layered over the wide UI.
+      return certificateMenu(game,
+        localized(cert.title), rows, {
+          onCancel = onDone,
+          onChoose = function(item)
+            if item.value == "back" then
+              game.stack:pop()
+              if onDone then onDone() end
+            end
+          end,
+        })
+    end
     return setmetatable({ game = game, cert = cert, onDone = onDone },
       Certificate)
   end
@@ -375,11 +551,12 @@ return function(mod, opts)
         rows[#rows + 1] = {
           label = ("%03d %s"):format(cert.count, listTitle(cert)),
           right = "OK",
+          help = localized(cert.title),
           value = cert,
         }
       end
     end
-    game.stack:push((mod.ui.KantoListMenu or mod.ui.ListMenu).new(game,
+    game.stack:push(certificateMenu(game,
       #rows == 1 and tr("DEX CERTIFICATE", "DEX-ZERTIFIKAT")
         or tr("DEX CERTIFICATES", "DEX-ZERTIFIKATE"), rows, {
         pageJump = true,
@@ -409,7 +586,7 @@ return function(mod, opts)
             }
           end
         end
-        return (mod.ui.KantoListMenu or mod.ui.ListMenu).new(game,
+        return certificateMenu(game,
           #rows == 1 and tr("DEX CERTIFICATE", "DEX-ZERTIFIKAT")
             or tr("DEX CERTIFICATES", "DEX-ZERTIFIKATE"), rows, {
             pageJump = true,
@@ -430,7 +607,8 @@ return function(mod, opts)
       talk = {
         TEXT_CELADONMANSION3F_GAME_DESIGNER = function(game, ow, npc, done)
           local count = ownedThrough(game, 251)
-          if count < 150 then
+          local newly = refresh(game)
+          if count < 150 and next(state().certificates) == nil then
             game.stack:push(require("src.render.TextBox").new(game, tr(
               ("GAME DESIGNER:\nYour POKéDEX shows\n%d/150.\fKeep discovering and\ncatching POKéMON!"):format(
                 ownedThrough(game, 150)),
@@ -438,7 +616,6 @@ return function(mod, opts)
                 ownedThrough(game, 150))), done))
             return
           end
-          local newly = refresh(game)
           local earned = 0
           for _, value in pairs(state().certificates) do
             if value == true then earned = earned + 1 end
@@ -461,7 +638,9 @@ return function(mod, opts)
 
   mod.hooks:wrap("ui.start_menu.items", function(nextItems, game, items)
     local out = nextItems(game, items)
-    if type(out) ~= "table" or ownedThrough(game, 150) < 150 then return out end
+    if type(out) ~= "table" then return out end
+    refresh(game)
+    if next(state().certificates) == nil then return out end
     return mod.ui.insertBefore(out, "SAVE", {
       label = tr("CERT.", "ZERT."),
       ascendantMenu = true,
@@ -478,6 +657,7 @@ return function(mod, opts)
   function D.install(game)
     D.game = game
     installPokedexGate()
+    if maximumSurface then maximumSurface.install() end
     repairOwnedFromStorage(game)
     state()
     D.reconcileNationalDex(game)

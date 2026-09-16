@@ -1,0 +1,173 @@
+{
+  "schema": "kasc.wave1-vespiquen-shiny/v1",
+  "dex": 416,
+  "sourceCommit": "83133ed40be8b7c7dff5f9058eef16dd8916be6a",
+  "inputSha256": {
+    "front.png": "e582ed7e158d1bb79535528d43fba0c921fc09434ed7f3fc72e1bea1b8a16c0a",
+    "back.png": "4eddc14c7711e6f7f06b2242e8775908d2df0ef5827a9032abb54f16bb5cbae9",
+    "anim.asm": "6fea87cc9bd82866da2d65980d3be7275cc2f318202f245a39990e7e7c3240d6",
+    "shiny.pal": "8858388cceeb23375d0e37f84d84dccde48add06f2172ea64f3a53950ea08db5"
+  },
+  "normalPalette": [
+    [
+      255,
+      255,
+      255
+    ],
+    [
+      248,
+      216,
+      72
+    ],
+    [
+      240,
+      32,
+      8
+    ],
+    [
+      0,
+      0,
+      0
+    ]
+  ],
+  "preservedHighlight": [
+    247,
+    247,
+    247
+  ],
+  "policy": "Authored shiny.pal, exact existing normal poses/alpha/timing; no synthesized motion.",
+  "sets": [
+    {
+      "side": "front",
+      "sha256": [
+        "1d270541c5d2317208cc457a1af8997f1a694cf1f02427df5f74325bc0816392",
+        "1d270541c5d2317208cc457a1af8997f1a694cf1f02427df5f74325bc0816392",
+        "61c27fa7429bc1e05e03feeff2294728fb5725323b4ead6c64691b99ca63dd7b",
+        "c5ee755976c6e4fc919b0ba1057e6ef34e4c113308e903bbd3cc79731d603650",
+        "bb15eadcf81af411138c70cd1ef1701728ea0c3dea1fb9e0ddd3904d1db62ee9",
+        "91554d31591f9042cfa37b9cbbe5846d3383667837374849872ec872cac16d4d",
+        "bb15eadcf81af411138c70cd1ef1701728ea0c3dea1fb9e0ddd3904d1db62ee9",
+        "c5ee755976c6e4fc919b0ba1057e6ef34e4c113308e903bbd3cc79731d603650",
+        "bb15eadcf81af411138c70cd1ef1701728ea0c3dea1fb9e0ddd3904d1db62ee9",
+        "91554d31591f9042cfa37b9cbbe5846d3383667837374849872ec872cac16d4d",
+        "bb15eadcf81af411138c70cd1ef1701728ea0c3dea1fb9e0ddd3904d1db62ee9",
+        "91ee154b6d95813a8b0028a1a4e2ce35470befffb67b647c42034bff94a03ae4",
+        "c2a41866f67b0a5c36eaf4de8403a54fe9655dbe276cdb4f659e8c198a91efcc"
+      ],
+      "geometry": {
+        "sourceUnion": [
+          2,
+          0,
+          53,
+          56
+        ],
+        "stage": [
+          56,
+          56
+        ],
+        "body": [
+          51,
+          56
+        ]
+      },
+      "root": "assets/wave1_vespiquen_shiny_67/front/shiny",
+      "durations": [
+        300,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100
+      ],
+      "animated": true,
+      "scale": 1
+    },
+    {
+      "side": "back",
+      "sha256": [
+        "adbba1a42bc2fceef0c9c88bc907b0262fbdd749d34f8ebf537e615a23352b01"
+      ],
+      "geometry": {
+        "sourceUnion": [
+          0,
+          2,
+          48,
+          48
+        ],
+        "stage": [
+          48,
+          48
+        ],
+        "body": [
+          48,
+          46
+        ]
+      },
+      "root": "assets/wave1_vespiquen_shiny_67/back/shiny",
+      "durations": [
+        1000
+      ],
+      "animated": false,
+      "scale": 1
+    },
+    {
+      "side": "voxel",
+      "sha256": [
+        "17feac134b433554f1a6068d632ec767e9dc94e9d52fadc72d0fd9dd97770282",
+        "17feac134b433554f1a6068d632ec767e9dc94e9d52fadc72d0fd9dd97770282",
+        "94802e9135b90c33e9c21158f6138950b8a0213e7561bbc945e28202435e49e8",
+        "f3f2ff77c64cefd5830b9c47e0d6f60b8d3efe8cc667f507526cfc96af966919",
+        "25d2dfd2865af5263c4446031ee41ca2fa2008554b045d8ee668830847262750",
+        "6d9e1e85b340ca09f4efe3708d5dc9616fd0f3193e5bdbcbf6abc63a188ba0c2",
+        "25d2dfd2865af5263c4446031ee41ca2fa2008554b045d8ee668830847262750",
+        "f3f2ff77c64cefd5830b9c47e0d6f60b8d3efe8cc667f507526cfc96af966919",
+        "25d2dfd2865af5263c4446031ee41ca2fa2008554b045d8ee668830847262750",
+        "6d9e1e85b340ca09f4efe3708d5dc9616fd0f3193e5bdbcbf6abc63a188ba0c2",
+        "25d2dfd2865af5263c4446031ee41ca2fa2008554b045d8ee668830847262750",
+        "56dd52f076bf939b16e9468456c060672ea97399ff19f51590bbcd4c5a59d787",
+        "78ed77e6b655ac6c1c5870ad3a92edc3dbadc5a881f8eb0ffdf666a9b917c8c9"
+      ],
+      "geometry": {
+        "sourceUnion": [
+          2,
+          0,
+          53,
+          56
+        ],
+        "stage": [
+          64,
+          64
+        ],
+        "body": [
+          51,
+          56
+        ]
+      },
+      "root": "assets/wave1_vespiquen_shiny_67/voxel/shiny",
+      "durations": [
+        300,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100
+      ],
+      "animated": true,
+      "scale": 1.5
+    }
+  ]
+}

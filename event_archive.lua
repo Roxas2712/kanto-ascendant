@@ -12,6 +12,28 @@ return function(mod, opts)
   local activeCup
   local profiles = {}
   local refreshCupHosts
+  local receiptCopy
+
+  -- This receipt is deliberately attached to the owned Pokemon rather than
+  -- its species definition.  A distributed Pokemon may therefore use the
+  -- active battle projection without making the same later-generation
+  -- species legal for wild encounters, AI teams or reward pools.
+  local BATTLE_COMPAT_SCHEMA = "kasc/event-gift-battle-compat/v1"
+  local BATTLE_COMPAT_OWNER = "kasc.events.event-archive/v1"
+
+  local function externalHudOwned(battle)
+    local qualityOfLife = type(mod.exports) == "table"
+      and mod.exports.qualityOfLife or nil
+    local battleOverlays = type(qualityOfLife) == "table"
+      and qualityOfLife.battle or nil
+    if type(battleOverlays) ~= "table"
+        or type(battleOverlays.externalHudOwned) ~= "function" then
+      return false
+    end
+    local ok, owned = pcall(
+      battleOverlays.externalHudOwned, battleOverlays, battle)
+    return ok and owned == true
+  end
 
   for _, profile in ipairs(data.profiles) do
     profiles[profile.id] = profile
@@ -67,6 +89,7 @@ return function(mod, opts)
 
   local function profileEnabled(profile)
     if not profile then return false end
+    if profile.giftCodeOnly == true then return false end
     if profile.id == "distribution_mew" then
       return mod.options:get("legend_mew") ~= false
     end
@@ -99,8 +122,47 @@ return function(mod, opts)
     return table.concat(out, "/")
   end
 
+  local function stampBattleCompatibility(mon, profile)
+    if not (type(mon) == "table" and type(profile) == "table") then
+      return false
+    end
+    mon.eventDistribution = type(mon.eventDistribution) == "table"
+      and mon.eventDistribution or {}
+    mon.eventDistribution.battleCompatibility = {
+      version = 1,
+      schema = BATTLE_COMPAT_SCHEMA,
+      owner = BATTLE_COMPAT_OWNER,
+      profileId = profile.id,
+      originalSpecies = profile.species,
+      projection = "active-generation",
+    }
+    return true
+  end
+
+  local function profileForGame(game, profile)
+    if type(profile)=='string' then profile=profiles[profile] end
+    if profile and profile.megaSourceKey and not profile.megaAvailable then
+      return nil,'mega_controller_unavailable'
+    end
+    if profile and profile.gigantamaxSourceKey and not profile.gigantamaxAvailable then
+      return nil,'gigantamax_factor_unavailable'
+    end
+    if not profile or not profile.generationMoves then return profile end
+    local epoch=type(opts.generationEpoch)=='function' and opts.generationEpoch(game) or 1
+    epoch=math.max(1,math.min(7,math.floor(tonumber(epoch) or 1)))
+    local build=profile.generationMoves[epoch]
+    if not build or #build.moves==0 then return nil,'generation_moves_missing' end
+    local resolved={};for k,v in pairs(profile)do resolved[k]=v end
+    resolved.moves={};for i,id in ipairs(build.moves)do resolved.moves[i]=id end
+    resolved.distributionEpoch=epoch
+    resolved.learnsetGeneration=build.sourceEpoch
+    resolved.learnsetVersionGroup=build.versionGroup
+    return resolved
+  end
+
   local function stampProfile(game, mon, profile, origin)
     if not (game and mon and profile) then return mon end
+    profile=assert(profileForGame(game,profile))
     local Pokemon = require("src.pokemon.Pokemon")
     local Stats = require("src.pokemon.Stats")
     local Growth = require("src.pokemon.Growth")
@@ -134,6 +196,44 @@ return function(mod, opts)
       originalMoves = profile.moves,
       origin = origin or "KANTO HERITAGE",
     }
+    if profile.guaranteedShiny then
+      mon.eventDistribution.guaranteedShiny=true
+    end
+    if profile.generationMoves then
+      mon.backendKey=profile.backendKey
+      mon.eventDistribution.backendKey=profile.backendKey
+      mon.eventDistribution.distributionEpoch=profile.distributionEpoch
+      mon.eventDistribution.learnsetGeneration=profile.learnsetGeneration
+      mon.eventDistribution.learnsetVersionGroup=profile.learnsetVersionGroup
+      mon.eventDistribution.generationMoveSchema=profile.generationMoveSchema
+      mon.eventDistribution.generationMoveRevision=profile.generationMoveRevision
+    end
+    mon.eventDistribution.identityRevision=profile.identityRevision
+    stampBattleCompatibility(mon, profile)
+    if profile.megaFormId then
+      -- A gift records a preferred transformation, not permanent Mega stats,
+      -- typing, ability or equipment. Activation still checks the controller.
+      mon._kascGiftMega67={schema='kasc.gift-mega/v1',formId=profile.megaFormId,
+        baseSpecies=profile.species,sourceKey=profile.megaSourceKey}
+      mon.eventDistribution.megaFormId=profile.megaFormId
+      mon.eventDistribution.megaSourceKey=profile.megaSourceKey
+    end
+    if profile.formId then
+      mon.formId = profile.formId
+      mon.form = profile.formId
+      mon.baseSpecies = profile.baseSpecies
+      mon.originGeneration = profile.originGeneration
+      mon.eventDistribution.formId = profile.formId
+      mon.eventDistribution.baseSpecies = profile.baseSpecies
+      mon.eventDistribution.originGeneration = profile.originGeneration
+    end
+    if profile.gigantamaxFormId then
+      mon._kascGigantamax67={schema='kasc.gigantamax-factor/v1',
+        formId=profile.gigantamaxFormId,baseSpecies=profile.species,
+        sourceKey=profile.gigantamaxSourceKey}
+      mon.eventDistribution.gigantamaxFormId=profile.gigantamaxFormId
+      mon.eventDistribution.gigantamaxSourceKey=profile.gigantamaxSourceKey
+    end
     return mon
   end
 
@@ -145,20 +245,256 @@ return function(mod, opts)
     return mon
   end
 
-  local function storeGift(game, profile, origin)
+  receiptCopy = function(receipt)
+    if type(receipt) ~= "table" or receipt.version ~= 1
+        or type(receipt.digest) ~= "string" or #receipt.digest ~= 64
+        or receipt.digest:match("^[0-9a-f]+$") == nil then return nil end
+    local function identifier(value)
+      return type(value) == "string" and #value >= 1 and #value <= 96
+        and value:match("^[a-z0-9][a-z0-9_.-]*$") ~= nil
+    end
+    if not identifier(receipt.campaignId) or not identifier(receipt.eventId)
+        or not identifier(receipt.profileId)
+        or type(receipt.buildId) ~= "string" or #receipt.buildId < 1
+        or #receipt.buildId > 128 then return nil end
+    return {
+      version = 1, digest = receipt.digest,
+      campaignId = receipt.campaignId, buildId = receipt.buildId,
+      eventId = receipt.eventId, profileId = receipt.profileId,
+    }
+  end
+
+
+  local function sameMoves(actual, expected)
+    if type(actual) ~= "table" or type(expected) ~= "table"
+        or #actual ~= #expected then return false end
+    for index, id in ipairs(expected) do
+      if actual[index] ~= id then return false end
+    end
+    return true
+  end
+
+  -- Validate against this archive's registered profile catalogue.  Merely
+  -- sharing a species with a gift is never sufficient, and code-only rows
+  -- additionally require the persisted digest receipt.  The compatibility
+  -- marker survives save/reload and evolution; the immutable distribution
+  -- fields also admit legitimate pre-marker saves so they can be upgraded.
+  local function battleCompatibleGift(mon)
+    if type(mon) ~= "table" then return false, "mon" end
+    local info = mon.eventDistribution
+    if type(info) ~= "table" or type(info.id) ~= "string" then
+      return false, "provenance"
+    end
+    local profile = profiles[info.id]
+    if type(profile) ~= "table" then return false, "profile" end
+    if profile.identityRevisions then
+      local revision=info.identityRevision
+      if revision==nil then revision=1 end
+      local identity=profile.identityRevisions[revision]
+      if not identity then return false,'identity_revision' end
+      local resolved={};for k,v in pairs(profile)do resolved[k]=v end
+      resolved.species=identity.species;resolved.baseSpecies=identity.baseSpecies
+      profile=resolved
+    elseif info.identityRevision~=nil then return false,'identity_revision' end
+    local expectedMoves=profile.moves or {}
+    if profile.generationMoves then
+      local builds=profile.generationMoves
+      if profile.generationMoveRevisions then
+        -- Unversioned saved receipts predate the first move expansion.
+        -- Unknown revisions never become permission to trust arbitrary moves.
+        builds=profile.generationMoveRevisions[info.generationMoveRevision or 1]
+      elseif info.generationMoveRevision~=nil then return false,'generation_revision' end
+      local build=builds and builds[info.distributionEpoch]
+      if not build or #build.moves==0 or info.backendKey~=profile.backendKey
+          or info.generationMoveSchema~=profile.generationMoveSchema
+          or info.learnsetGeneration~=build.sourceEpoch
+          or info.learnsetVersionGroup~=build.versionGroup then
+        return false,'generation_distribution'
+      end
+      expectedMoves=build.moves
+    end
+    if tonumber(info.originalLevel) ~= tonumber(profile.level)
+        or not sameMoves(info.originalMoves, expectedMoves) then
+      return false, "distribution"
+    end
+    if profile.guaranteedShiny and (info.guaranteedShiny~=true
+        or not require('src.pokemon.Stats').isShiny(mon.dvs)) then
+      return false,'shiny_distribution'
+    end
+    if profile.formId then
+      if info.formId ~= profile.formId
+          or info.baseSpecies ~= profile.baseSpecies
+          or tonumber(info.originGeneration)
+            ~= tonumber(profile.originGeneration) then
+        return false, "form"
+      end
+    end
+    if profile.megaFormId then
+      local mega=mon._kascGiftMega67
+      if info.megaFormId~=profile.megaFormId or info.megaSourceKey~=profile.megaSourceKey
+          or type(mega)~='table' or mega.schema~='kasc.gift-mega/v1'
+          or mega.formId~=profile.megaFormId or mega.sourceKey~=profile.megaSourceKey
+          or mega.baseSpecies~=profile.species then return false,'mega_distribution' end
+    end
+    if profile.gigantamaxFormId then
+      local factor=mon._kascGigantamax67
+      if info.gigantamaxFormId~=profile.gigantamaxFormId
+          or info.gigantamaxSourceKey~=profile.gigantamaxSourceKey
+          or type(factor)~='table' or factor.schema~='kasc.gigantamax-factor/v1'
+          or factor.formId~=profile.gigantamaxFormId or factor.sourceKey~=profile.gigantamaxSourceKey
+          or factor.baseSpecies~=profile.species then return false,'gigantamax_distribution' end
+    end
+    if profile.giftCodeOnly == true then
+      local receipt = receiptCopy(info.giftCode)
+      if not receipt or receipt.profileId ~= profile.id then
+        return false, "receipt"
+      end
+    elseif info.giftCode ~= nil then
+      local receipt = receiptCopy(info.giftCode)
+      if not receipt or receipt.profileId ~= profile.id then
+        return false, "receipt"
+      end
+    end
+
+    local marker = info.battleCompatibility
+    if marker ~= nil then
+      if type(marker) ~= "table" or marker.version ~= 1
+          or marker.schema ~= BATTLE_COMPAT_SCHEMA
+          or marker.owner ~= BATTLE_COMPAT_OWNER
+          or marker.profileId ~= profile.id
+          or marker.originalSpecies ~= profile.species
+          or marker.projection ~= "active-generation" then
+        return false, "compatibility_receipt"
+      end
+    end
+    return true, marker and "receipt" or "legacy_distribution", profile
+  end
+
+  local function ensureBattleCompatibility(mon)
+    local compatible, reason, profile = battleCompatibleGift(mon)
+    if not compatible then return false, reason end
+    if not mon.eventDistribution.battleCompatibility then
+      stampBattleCompatibility(mon, profile)
+      return true, "migrated"
+    end
+    return true, "existing"
+  end
+
+  local function migrateBattleCompatibility(game)
+    local root = game and game.save
+    if type(root) ~= "table" then return 0 end
+    local seen, migrated = {}, 0
+    local function walk(value)
+      if type(value) ~= "table" or seen[value] then return end
+      seen[value] = true
+      if type(value.species) ~= "nil"
+          and type(value.eventDistribution) == "table" then
+        local before = value.eventDistribution.battleCompatibility
+        local ok = ensureBattleCompatibility(value)
+        if ok and before == nil then migrated = migrated + 1 end
+      end
+      for _, child in pairs(value) do walk(child) end
+    end
+    walk(root)
+    return migrated
+  end
+
+  local function storeGift(game, profile, origin, receipt, deliveryOpts)
+    local resolved,reason=profileForGame(game,profile)
+    if not resolved then return nil,reason or 'profile' end
+    profile=resolved
+    -- The code UI preflights assets too, but direct archive callers must not
+    -- crash or consume a gift when a diagnostic/pending form has no owner.
+    if not (game and game.data and game.data.pokemon
+        and game.data.pokemon[profile.species]) then return nil,'species_unavailable' end
     local mon = makeGift(game, profile, origin)
-    local Party = require("src.pokemon.Party")
-    if Party.add(game.save.party, mon) then return mon, "party" end
+    if receipt then
+      receipt = receiptCopy(receipt)
+      if not receipt then return nil, "receipt" end
+      -- Only the public digest receipt is persisted. The entered plaintext is
+      -- never attached to a Pokemon, save, archive, log or provenance file.
+      mon.eventDistribution.giftCode = receipt
+      if type(opts.prepareGiftGender)=='function' then
+        local ok,reason=opts.prepareGiftGender(game,mon,receipt)
+        if not ok then return nil,reason or 'gift_gender_binding' end
+      end
+    end
+    if profile.deliveryKind == 'egg' then
+      -- Gift-only exception: this does not add the species to breeding pools.
+      mon.isEgg, mon.eggSpecies, mon.nickname = true, profile.species, 'EGG'
+      mon.eggTotalSteps = math.max(1, math.floor(tonumber(profile.eggSteps) or 5120))
+      mon.eggStepsRemaining = mon.eggTotalSteps
+      mon.eggOrigin = origin or 'KASC NATIONAL GIFT'
+      mon.hp, mon.status = 0, nil
+      mon.eventDistribution.deliveryKind = 'egg'
+      if type(opts.prepareGiftEgg)=='function' then
+        local ok, reason = opts.prepareGiftEgg(game,mon,profile,receipt)
+        if not ok then return nil, reason or 'egg_binding' end
+      end
+    end
+    local boxOnly = type(deliveryOpts) == "table"
+      and deliveryOpts.boxOnly == true
+    if not boxOnly then
+      local Party = require("src.pokemon.Party")
+      if Party.add(game.save.party, mon) then return mon, "party" end
+    end
     local box = require("src.pokemon.Boxes").deposit(game.save, mon)
     if box then return mon, "box", box end
+    return nil, "full"
+  end
+
+  local function nextGiftBox(game)
+    if not (game and game.save) then return nil end
+    local Boxes = require("src.pokemon.Boxes")
+    local boxes = Boxes.ensure(game.save)
+    for offset = 0, Boxes.COUNT - 1 do
+      local index = ((game.save.currentBox - 1 + offset) % Boxes.COUNT) + 1
+      if #boxes[index] < Boxes.CAPACITY then return index end
+    end
     return nil
   end
 
+  local function findGiftReceipt(game, digest)
+    if type(digest) ~= "string" or not (game and game.save) then return nil end
+    for _, mon in ipairs(game.save.party or {}) do
+      local info = mon and mon.eventDistribution
+      local receipt = info and info.giftCode
+      if receipt and receipt.digest == digest then return mon, "party" end
+    end
+    for boxIndex, box in ipairs(game.save.boxes or {}) do
+      for _, mon in ipairs(box) do
+        local info = mon and mon.eventDistribution
+        local receipt = info and info.giftCode
+        if receipt and receipt.digest == digest then
+          return mon, "box", boxIndex
+        end
+      end
+    end
+  end
+
   local function markOwned(game, profile)
+    if profile.deliveryKind == 'egg' then return end
     if game.save.pokedex then
       game.save.pokedex.seen[profile.species] = true
       game.save.pokedex.owned[profile.species] = true
     end
+  end
+
+  local function deliverGift(game, profileId, origin, receipt, deliveryOpts)
+    local profile = profiles[profileId]
+    if not (game and game.save and profile) then return nil, "profile" end
+    local clean = receiptCopy(receipt)
+    if not clean or clean.profileId ~= profileId then return nil, "receipt" end
+    local existing, destination, box = findGiftReceipt(game, clean.digest)
+    if existing then
+      ensureBattleCompatibility(existing)
+      return existing, destination, box
+    end
+    local mon
+    mon, destination, box = storeGift(game, profile, origin, clean, deliveryOpts)
+    if not mon then return nil, destination or "full" end
+    markOwned(game, profile)
+    return mon, destination, box
   end
 
   local function giftMessage(game, profile, destination, box)
@@ -219,6 +555,7 @@ return function(mod, opts)
   local function archiveStatus(game, profile)
     local s = state()
     if s.claimed[profile.id] then return tr("OWNED", "ERHALTEN") end
+    if profile.giftCodeOnly == true then return tr("CODE", "CODE") end
     if s.pending and s.pending.id == profile.id then return tr("CLAIM", "ABHOLEN") end
     if not profileEnabled(profile) then return tr("OFF", "AUS") end
     if profile.id == "distribution_mew" then
@@ -580,7 +917,8 @@ return function(mod, opts)
 
   mod.hooks:wrap("battle.overlay", function(nextDraw, battle)
     nextDraw(battle)
-    if mod.options:get("event_rosette") == false or not love then return end
+    if mod.options:get("event_rosette") == false or not love
+        or externalHudOwned(battle) then return end
     local function rosette(x, y)
       love.graphics.setColor(0, 0, 0, 1)
       love.graphics.rectangle("fill", x + 2, y, 3, 7)
@@ -643,6 +981,7 @@ return function(mod, opts)
         return original(self, user, target, action)
       end
     end
+    migrateBattleCompatibility(game)
     initRoamers(game)
     refreshCupHosts(game)
   end
@@ -657,6 +996,7 @@ return function(mod, opts)
 
   mod.events:on("save.loaded", function()
     state()
+    migrateBattleCompatibility(C.game)
   end)
 
   mod.events:on("mod.options_changed", function(ev)
@@ -777,7 +1117,23 @@ return function(mod, opts)
 
   function C.setAscendant(ascendant) C.ascendant = ascendant end
   C.state = state
+  C.persist = persist
   C.profile = function(id) return profiles[id] end
+  C.profileForGame = profileForGame
+  C.registerGiftProfiles = function(rows)
+    local added = 0
+    for _, profile in ipairs(type(rows) == "table" and rows or {}) do
+      assert(type(profile) == "table" and type(profile.id) == "string",
+        "invalid additive Gift Code profile")
+      assert(profile.giftCodeOnly == true,
+        "additive profile must remain outside rotating events")
+      assert(profiles[profile.id] == nil,
+        "duplicate additive Gift Code profile " .. profile.id)
+      profiles[profile.id] = profile
+      added = added + 1
+    end
+    return added
+  end
   C.profileEnabled = profileEnabled
   C.unlocked = unlocked
   C.badgeCount = badgeCount
@@ -785,6 +1141,21 @@ return function(mod, opts)
   C.give = give
   C.claimPending = claimPending
   C.stampProfile = stampProfile
+  C.battleCompatibleGift = battleCompatibleGift
+  function C.giftEggHatchAllowed(mon)
+    local valid, _, profile = battleCompatibleGift(mon)
+    return valid == true and profile.deliveryKind == 'egg'
+      and mon.isEgg == true and mon.eggSpecies == profile.species
+      and mon.species == profile.species
+      and mon.eventDistribution.deliveryKind == 'egg'
+  end
+  C.ensureBattleCompatibility = ensureBattleCompatibility
+  C.migrateBattleCompatibility = migrateBattleCompatibility
+  C.BATTLE_COMPAT_SCHEMA = BATTLE_COMPAT_SCHEMA
+  C.BATTLE_COMPAT_OWNER = BATTLE_COMPAT_OWNER
+  C.deliverGift = deliverGift
+  C.nextGiftBox = nextGiftBox
+  C.findGiftReceipt = findGiftReceipt
   C.applyHistoricalMew = applyHistoricalMew
   C.awardNext = awardNext
   C.eventMode = eventMode

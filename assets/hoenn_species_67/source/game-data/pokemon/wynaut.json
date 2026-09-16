@@ -1,0 +1,126 @@
+{
+  "klass": "Specie",
+  "id": 360,
+  "dbSymbol": "wynaut",
+  "forms": [
+    {
+      "form": 0,
+      "height": 0.6,
+      "weight": 14,
+      "type1": "psychic",
+      "type2": "__undef__",
+      "baseHp": 95,
+      "baseAtk": 23,
+      "baseDfe": 48,
+      "baseSpd": 23,
+      "baseAts": 23,
+      "baseDfs": 48,
+      "evHp": 1,
+      "evAtk": 0,
+      "evDfe": 0,
+      "evSpd": 0,
+      "evAts": 0,
+      "evDfs": 0,
+      "evolutions": [
+        {
+          "dbSymbol": "wobbuffet",
+          "form": 0,
+          "conditions": [
+            {
+              "type": "minLevel",
+              "value": 15
+            }
+          ]
+        }
+      ],
+      "experienceType": 1,
+      "baseExperience": 52,
+      "baseLoyalty": 70,
+      "catchRate": 125,
+      "femaleRate": 50,
+      "breedGroups": [
+        15,
+        15
+      ],
+      "hatchSteps": 5120,
+      "babyDbSymbol": "wynaut",
+      "babyForm": 0,
+      "itemHeld": [
+        {
+          "dbSymbol": "none",
+          "chance": 0
+        },
+        {
+          "dbSymbol": "none",
+          "chance": 0
+        }
+      ],
+      "abilities": [
+        "shadow_tag",
+        "shadow_tag",
+        "telepathy"
+      ],
+      "frontOffsetY": 0,
+      "resources": {
+        "icon": "0360",
+        "iconShiny": "0360s",
+        "front": "0360",
+        "frontShiny": "0360s",
+        "back": "0360",
+        "backShiny": "0360s",
+        "footprint": "0360",
+        "character": "0360",
+        "characterShiny": "0360s",
+        "cry": "0360.ogg",
+        "hasFemale": false,
+        "egg": "egg",
+        "iconEgg": "egg"
+      },
+      "moveSet": [
+        {
+          "move": "splash",
+          "klass": "LevelLearnableMove",
+          "level": 1
+        },
+        {
+          "move": "charm",
+          "klass": "LevelLearnableMove",
+          "level": 1
+        },
+        {
+          "move": "encore",
+          "klass": "LevelLearnableMove",
+          "level": 1
+        },
+        {
+          "move": "counter",
+          "klass": "LevelLearnableMove",
+          "level": 15
+        },
+        {
+          "move": "destiny_bond",
+          "klass": "LevelLearnableMove",
+          "level": 15
+        },
+        {
+          "move": "safeguard",
+          "klass": "LevelLearnableMove",
+          "level": 15
+        },
+        {
+          "move": "mirror_coat",
+          "klass": "LevelLearnableMove",
+          "level": 15
+        },
+        {
+          "move": "safeguard",
+          "klass": "TechLearnableMove"
+        }
+      ],
+      "formTextId": {
+        "name": 449,
+        "description": 0
+      }
+    }
+  ]
+}
