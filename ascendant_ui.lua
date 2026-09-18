@@ -747,7 +747,9 @@ return function(mod, opts)
     end
     menu.draw = drawFocusHelp
     local card = mod.exports and mod.exports.fullscreenUiCard
-    if card then return card.decorateMenu(menu, provider, menu.rows) end
+    -- Five rows belong to the 160x144 fallback, not the fullscreen surface.
+    -- Let ORAS use its nine-row budget; its renderer clamps to actual height.
+    if card then return card.decorateMenu(menu, provider, 9) end
     return menu
   end
 

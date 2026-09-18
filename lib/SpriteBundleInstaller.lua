@@ -5,7 +5,7 @@ function M.new(d)
  local self={state='idle',doneBytes=0}
  local function log(name,fields)if d.diagnostics then d.diagnostics:event(name,fields or {})end end
  local function finish(outcome,code)if d.diagnostics then d.diagnostics:finish(outcome,{code=code,doneBytes=self.doneBytes})end end
- local function fail(code)self.state='error';self.error=code;if self.importer then self.importer:cancel()end;finish('error',code);return false,code end
+ local function fail(code)self.state='error';self.finishedAt=d.now();self.error=code;if self.importer then self.importer:cancel()end;finish('error',code);return false,code end
  local function cached(c)
   local info=d.cache:info(M.ROOT..c.sha256)
   -- Portable engine caches may report only the file type. Validate the
@@ -34,7 +34,7 @@ function M.new(d)
   if consent~=true then return false,'confirmation_required'end
   if self.state=='downloading'then return false,'busy'end
   if d.diagnostics then d.diagnostics:begin()end
-  self.queue={};self.index=1;self.current=nil;self.pending=nil;self.importer=nil;self.doneBytes=0;self.error=nil
+  self.queue={};self.index=1;self.current=nil;self.pending=nil;self.importer=nil;self.doneBytes=0;self.error=nil;self.totalBytes=0;self.networkBytes=0;self.startedAt=d.now();self.finishedAt=nil
   for _,id in ipairs(plan.missing)do
    local p=d.catalog.packages[id];local meta=d.bundles[id]
    if not p or not p.published or not meta then return fail('package_not_published')end
@@ -45,7 +45,7 @@ function M.new(d)
     total=total+c.bytes
    end
    if total~=meta.bytes or total>1073741824 then return fail('invalid_size')end
-   self.queue[#self.queue+1]=p
+   self.totalBytes=self.totalBytes+total;self.queue[#self.queue+1]=p
   end
   self.state='downloading';return true
  end
@@ -71,12 +71,12 @@ function M.new(d)
    if d.fetch.state~='ready'then return end
    local c=self.meta.chunks[self.chunkIndex];local raw=d.fetch.body;d.fetch.body=nil
    if d.cache:write(M.ROOT..c.sha256,raw)~=true or not cached(c)then return fail('cache_write_failed')end
-   log('chunk_stored',{packageId=self.current.id,bytes=c.bytes});self.doneBytes=self.doneBytes+c.bytes
+   log('chunk_stored',{packageId=self.current.id,bytes=c.bytes});self.doneBytes=self.doneBytes+c.bytes;self.networkBytes=self.networkBytes+c.bytes
    self.chunkIndex=self.chunkIndex+1;self.pending=nil;return
   end
   if not self.current then
    self.current=self.queue[self.index]
-   if not self.current then self.state='ready';finish('success');return end
+   if not self.current then self.state='ready';self.finishedAt=d.now();finish('success');return end
    self.meta=d.bundles[self.current.id];self.chunkIndex=1
    local key='sprite-content/archive-pending/'..self.current.id
    if d.cache:write(key,self.current.manifestSha256)~=true or d.cache:read(key)~=self.current.manifestSha256 then return fail('cache_write_failed')end
@@ -84,7 +84,7 @@ function M.new(d)
   end
   local c=self.meta.chunks[self.chunkIndex]
   if c then
-   if cached(c)then log('chunk_cached',{packageId=self.current.id,bytes=c.bytes});self.chunkIndex=self.chunkIndex+1;return end
+   if cached(c)then self.doneBytes=self.doneBytes+c.bytes;log('chunk_cached',{packageId=self.current.id,bytes=c.bytes});self.chunkIndex=self.chunkIndex+1;return end
    local ok,err=d.fetch:start('/package-versions/'..self.meta.sha256..'/chunks/'..(self.chunkIndex-1),c.bytes,c.sha256)
    if not ok then return fail(err)end
    self.pending=true;return
@@ -93,9 +93,20 @@ function M.new(d)
   local ok,err=self.importer:start(reader(self.meta),self.meta.bytes,self.current,true)
   if not ok then return fail(err)end
  end
+ function self:progress()
+  local elapsed=math.max(.001,(self.finishedAt or d.now())-(self.startedAt or d.now()))
+  local received=self.pending and d.fetch.state=='fetching' and (d.fetch.receivedBytes or 0) or 0
+  local count=#(self.queue or {})
+  return {state=self.state,stage=self.importer and 'installing' or self.pending and (d.fetch.state=='waiting' and (d.fetch.attempt>0 and 'retrying' or 'connecting') or 'downloading') or 'checking',
+   totalBytes=self.totalBytes or 0,doneBytes=math.min(self.totalBytes or 0,self.doneBytes+received),
+   speed=((self.networkBytes or 0)+received)/elapsed,elapsed=elapsed,
+   completed=self.state=='ready' and count or math.max(0,(self.index or 1)-1),total=count,
+   current=self.current,attempt=d.fetch.attempt or 0,server=d.fetch.mirror and d.fetch.mirror.provider,
+   retrySeconds=math.max(0,math.ceil((d.fetch.retryAt or 0)-d.now())),error=self.error}
+ end
  function self:cancel()
   d.fetch:cancel();if self.importer then self.importer:cancel()end
-  self.state='cancelled';self.pending=nil;finish('cancelled')
+  self.state='cancelled';self.finishedAt=d.now();self.pending=nil;finish('cancelled')
  end
  return self
 end

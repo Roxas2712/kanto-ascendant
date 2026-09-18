@@ -243,43 +243,50 @@ return function(mod, opts)
     return row and row.durations or durations(dex, which, side)
   end
 
+  local function assetPresence(path)
+    if type(mod.info)=='function' then
+      local info=mod:info(path)
+      return info and info.type=='file' and (info.size==nil or info.size>0) and true or nil
+    end
+    return mod:read(path)
+  end
   local function scanDex(dex, presenceOnly)
     A.staticAvailable[dex] =
-      mod:read(("assets/crystal_animated/front/normal/%d/001.png"):format(dex))
+      assetPresence(("assets/crystal_animated/front/normal/%d/001.png"):format(dex))
         ~= nil
     A.staticShinyAvailable[dex] =
-      mod:read(("assets/crystal_animated/front/shiny/%d/001.png"):format(dex))
+      assetPresence(("assets/crystal_animated/front/shiny/%d/001.png"):format(dex))
         ~= nil
     A.grayscaleAvailable[dex] =
-      mod:read(("assets/crystal_animated/front/grayscale/%d/001.png"):format(dex))
+      assetPresence(("assets/crystal_animated/front/grayscale/%d/001.png"):format(dex))
         ~= nil
     A.available[dex] = A.staticAvailable[dex]
       and type(durations(dex, "normal", "front")) == "table"
     A.shinyAvailable[dex] = A.staticShinyAvailable[dex]
       and type(durations(dex, "shiny", "front")) == "table"
     A.backStaticAvailable[dex] =
-      mod:read(("assets/crystal_animated/back/normal/%d/001.png"):format(dex))
+      assetPresence(("assets/crystal_animated/back/normal/%d/001.png"):format(dex))
         ~= nil
     A.backAvailable[dex] = A.backStaticAvailable[dex]
       and type(durations(dex, "normal", "back")) == "table"
     A.backStaticShinyAvailable[dex] =
-      mod:read(("assets/crystal_animated/back/shiny/%d/001.png"):format(dex))
+      assetPresence(("assets/crystal_animated/back/shiny/%d/001.png"):format(dex))
         ~= nil
     A.backShinyAvailable[dex] = A.backStaticShinyAvailable[dex]
       and type(durations(dex, "shiny", "back")) == "table"
     A.backGrayscaleAvailable[dex] =
-      mod:read(("assets/crystal_animated/back/grayscale/%d/001.png"):format(dex))
+      assetPresence(("assets/crystal_animated/back/grayscale/%d/001.png"):format(dex))
         ~= nil
     for _, which in ipairs({ "normal", "shiny", "grayscale" }) do
       local frontTiming = durations(dex, which, "front")
       local backTiming = durations(dex, which, "back")
       A.frontAnimatedAvailable[which][dex] =
         type(frontTiming) == "table" and #frontTiming > 1 and
-        mod:read(("assets/crystal_animated/front/%s/%d/002.png")
+        assetPresence(("assets/crystal_animated/front/%s/%d/002.png")
           :format(which, dex)) ~= nil
       A.backAnimatedAvailable[which][dex] =
         type(backTiming) == "table" and #backTiming > 1 and
-        mod:read(("assets/crystal_animated/back/%s/%d/002.png")
+        assetPresence(("assets/crystal_animated/back/%s/%d/002.png")
           :format(which, dex)) ~= nil
       local timing = backTiming
       local frameCount = math.max(1, type(timing) == "table" and #timing or 1)
@@ -289,7 +296,7 @@ return function(mod, opts)
           local relative = ("assets/crystal_animated/back/%s/%d/%03d.png")
             :format(which, dex, frame)
           local optional=mod.exports and mod.exports.optionalPokemonAssets
-          if mod:read(relative) ~= nil or (optional and optional.declared(relative)) then
+          if assetPresence(relative) ~= nil or (optional and optional.declared(relative)) then
             registry:register(("KA_CRYSTAL_BACK_%s_%03d_%03d")
               :format(which:upper(), dex, frame), {
                 path = mod.path .. "/" .. relative,
@@ -844,7 +851,12 @@ return function(mod, opts)
       .. "#" .. tostring(opts.tintTag or "plain")
     if imageCache[key] then return imageCache[key] end
     if not (love and love.graphics and love.graphics.newImage) then return nil end
-    local ok, image = pcall(love.graphics.newImage, path)
+    -- Assets.image participates in the verified DLC resolver. A direct
+    -- filename load sees only the mod folder and freezes downloaded motion.
+    local haveAssets, Assets = pcall(require, "src.render.Assets")
+    local loader = haveAssets and type(Assets.image)=="function"
+      and Assets.image or love.graphics.newImage
+    local ok, image = pcall(loader, path)
     if not (ok and image) then return nil end
     if image.setFilter then
       local filter = opts.filter == "linear" and "linear" or "nearest"
@@ -1292,7 +1304,8 @@ return function(mod, opts)
     surface = type(surface) == "string" and surface:lower() or "scenes"
     local dex = resolveDex({species=species,mon=mon,data=opts.data})
     local forceBundled = opts.forceBundled == true
-    if not dex or (not forceBundled and externalKantoActive(dex)) then
+    local forceStyle = opts.forceStyle == true
+    if not dex or (not forceBundled and not forceStyle and externalKantoActive(dex)) then
       return nil
     end
     local voxelSurface = ({
@@ -1303,7 +1316,7 @@ return function(mod, opts)
       dex = "sprite_style_dex", box = "sprite_style_box",
     })[surface] or (voxelSurface and "sprite_style_battle"
       or "sprite_style_scenes")
-    if not forceBundled
+    if not forceBundled and not forceStyle
         and (mod.options:get("pokemon_sprite_style") ~= "crystal"
           or mod.options:get(scope) == false) then return nil end
     -- Ascendant's full engine-owned title rotation is part of its own
@@ -1335,8 +1348,12 @@ return function(mod, opts)
     -- The title's atomic trainer/Pokémon cycle is an engine-owned authored
     -- presentation and intentionally ignores gameplay sprite toggles. All
     -- ordinary surfaces remain governed by the Crystal motion master.
+    -- An encounter-local Crystal choice overrides style, never the motion
+    -- toggle, side ownership or availability of real authored frames.
+    local wantsMotion = forceStyle and mod.options:get("crystal_animation") ~= false
+      or not forceStyle and motionEnabled(dex)
     local animated = (forceBundled
-        or (motionEnabled(dex) and battleMotionActive(surface, source)))
+        or (wantsMotion and battleMotionActive(surface, source)))
       and type(authoredTiming) == "table"
       and #authoredTiming > 1 and authoredFrames == true
     local timing = animated and authoredTiming or { 1000 }

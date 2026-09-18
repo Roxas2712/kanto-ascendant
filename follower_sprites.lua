@@ -230,11 +230,15 @@ return function(mod, opts)
     return report
   end
 
-  local fallback = absolute(kantoRelative(25))
+  -- Register the engine transport even when optional Pikachu art is absent.
+  -- Gorochu's authored walker ships with KASC. configure() still selects
+  -- only the current Pokemon's real sheet before it can become visible.
+  local initial = kantoRelative(25)
+  if not walkerReadable(initial) then initial = runtimeRelative("GOROCHU", false) end
   local content = mod.content and mod.content.sprites
-  if content and walkerReadable(kantoRelative(25)) then
+  if content and walkerReadable(initial) then
     local def = {
-      id = R.spriteId, image = fallback, frames = 6,
+      id = R.spriteId, image = absolute(initial), frames = 6,
       walker = true, trueColor = true,
     }
     if content:get(R.spriteId) then content:patch(R.spriteId, def)

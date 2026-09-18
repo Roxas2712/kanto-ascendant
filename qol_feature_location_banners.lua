@@ -58,6 +58,13 @@ function feature.install(mod, services)
       return
     end
 
+    local exports=game.mods and game.mods.exports
+    local vasc=exports and exports.VOXEL_ASCENDANT
+    local banner=vasc and vasc.locationBanner
+    if banner and banner.apiVersion==1 and type(banner.present)=="function" then
+      if banner.present(state.name,state.expiresAt,state.duration) then return end
+    end
+
     local Font = mod.ui.Font
     Font.drawBox(0, 14, 20, 4)
     love.graphics.setColor(0, 0, 0, 1)
@@ -82,6 +89,7 @@ function feature.install(mod, services)
     bannerLastNames[ow] = name
     bannerStates[ow] = {
       name = name,
+      duration = duration,
       expiresAt = love.timer.getTime() + duration,
     }
 

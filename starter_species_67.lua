@@ -55,6 +55,11 @@ return function(mod, opts)
   local function png(relative, width, height)
     local bytes = read(relative)
     if bytes == true then return true end
+    if bytes == nil then
+      local optional=mod.exports and mod.exports.optionalPokemonAssets
+      local meta=optional and optional.metadata(relative)
+      if meta then return meta.width==width and meta.height==height end
+    end
     return type(bytes) == "string" and #bytes >= 24
       and bytes:sub(1, 8) == "\137PNG\r\n\26\n"
       and bytes:sub(13, 16) == "IHDR"

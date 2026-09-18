@@ -8,12 +8,14 @@ function M.install(mod,store,cache,fs,graphics,imageApi,Assets,owner)
     return active and type(path)=='string' and store.files[owner..':'..path]~=nil
   end
   local function read(path)
+    if type(store.readVerified)=='function' then return store:readVerified(owner,path) end
     local key,err=store:materialize(owner,path)
     if not key then return nil,err end
     return cache:read(key)
   end
   local function pixels(path)
-    local raw=assert(read(path),'verified sprite unavailable')
+    local raw,err=read(path)
+    assert(raw,'verified sprite unavailable: '..owner..':'..tostring(path)..' ('..tostring(err)..')')
     local data=fs.newFileData(raw,'verified-sprite.png')
     local ok,result=pcall(imageApi.newImageData,data)
     if data.release then data:release()end
@@ -34,28 +36,9 @@ function M.install(mod,store,cache,fs,graphics,imageApi,Assets,owner)
     if not meta or before.info and before.info(mod,path)then return nil end
     return meta
   end
+  local Glitch=assert((loadstring or _G.load)(assert(mod:read('lib/GlitchDlcPixels.lua'))))()
   local function placeholderPixels(meta)
-    -- Presentation only: preserve the declared sheet dimensions for crop/UV
-    -- readers. No PNG bytes, file info or installed marker are fabricated.
-    local w,h=meta.width,meta.height
-    local data=imageApi.newImageData(w,h)
-    local scale=math.max(1,math.floor(math.min(w/15,h/11)))
-    local ox,oy=math.floor((w-15*scale)/2),math.floor((h-11*scale)/2)
-    local function dot(x,y)
-      for dy=0,scale-1 do for dx=0,scale-1 do
-        local px,py=ox+x*scale+dx,oy+y*scale+dy
-        if px>=0 and py>=0 and px<w and py<h then data:setPixel(px,py,.35,.65,1,1)end
-      end end
-    end
-    -- Original tiny DLC lettering with a download arrow, not a species image.
-    local glyphs={'110','101','101','101','110','100','100','100','100','111','111','100','100','100','111'}
-    for letter=0,2 do for y=0,4 do
-      local row=glyphs[letter*5+y+1]
-      for x=0,2 do if row:sub(x+1,x+1)=='1'then dot(2+letter*4+x,y)end end
-    end end
-    for y=6,9 do dot(7,y)end
-    for x=0,2 do dot(5+x,8+x);dot(9-x,8+x)end
-    return data
+    return Glitch.new(imageApi,meta.width,meta.height)
   end
   local function placeholder(meta)
     local key=meta.width..'x'..meta.height
@@ -65,6 +48,10 @@ function M.install(mod,store,cache,fs,graphics,imageApi,Assets,owner)
       assert(ok,result);placeholders[key]=result
     end
     return placeholders[key]
+  end
+  function mod:spriteAssetVersion(path)
+    local f=active and store.files[owner..':'..tostring(path)]
+    return f and f.sha256 or nil
   end
   function mod:read(path)if known(path)then return read(path)end;return before.read(self,path)end
   function mod:info(path)

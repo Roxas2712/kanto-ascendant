@@ -12,9 +12,9 @@
     "walk-right": "Precise-object-edit: this is a pre-mirrored RIGHT-VIEW engine variant of the attached game sprite sheet. Change ONLY the visible GREEN iris in BOTH RIGHT-COLUMN profile sprites to vivid BLUE. Top-right AND bottom-right profile eye: BLUE. Keep their poses facing left because engine mirrors these frames later. ALL other pixels including both front-facing blue/green eye pairs stay unchanged. Preserve canvas size, layout, alpha transparency, pixel style. No other changes."
   },
   "sources": {
-    "cards": "/Users/maarten/.codex/generated_images/01a068d2-c1b5-76a2-8cb0-3ff27c5cc77f/exec-4b918a3b-70a3-4df0-9988-71e6e2fa7b71.png",
-    "actions": "/Users/maarten/.codex/generated_images/01a068d2-c1b5-76a2-8cb0-3ff27c5cc77f/exec-2c2b8c49-782e-47d3-aa5b-307a033a31b3.png",
-    "walk": "/Users/maarten/.codex/generated_images/01a068d2-c1b5-76a2-8cb0-3ff27c5cc77f/exec-00e099d7-babf-4cda-91f3-d28a045341cb.png",
-    "walk-right": "/Users/maarten/.codex/generated_images/01a068d2-c1b5-76a2-8cb0-3ff27c5cc77f/exec-d51c84cd-a7ed-4ef0-bf58-4df35470943c.png"
+    "cards": "<author-home>/.codex/generated_images/01a068d2-c1b5-76a2-8cb0-3ff27c5cc77f/exec-4b918a3b-70a3-4df0-9988-71e6e2fa7b71.png",
+    "actions": "<author-home>/.codex/generated_images/01a068d2-c1b5-76a2-8cb0-3ff27c5cc77f/exec-2c2b8c49-782e-47d3-aa5b-307a033a31b3.png",
+    "walk": "<author-home>/.codex/generated_images/01a068d2-c1b5-76a2-8cb0-3ff27c5cc77f/exec-00e099d7-babf-4cda-91f3-d28a045341cb.png",
+    "walk-right": "<author-home>/.codex/generated_images/01a068d2-c1b5-76a2-8cb0-3ff27c5cc77f/exec-d51c84cd-a7ed-4ef0-bf58-4df35470943c.png"
   }
 }

@@ -118,7 +118,9 @@ function M.new(deps)
       parts[i]=bytes
     end
     local bytes=table.concat(parts)
-    if #bytes~=file.bytes or hash(bytes)~=file.sha256 or bytes:sub(1,8)~="\137PNG\r\n\26\n"
+    local single=file.chunks[1]
+    local alreadyHashed=#file.chunks==1 and single.sha256==file.sha256 and single.bytes==file.bytes
+    if #bytes~=file.bytes or (not alreadyHashed and hash(bytes)~=file.sha256) or bytes:sub(1,8)~="\137PNG\r\n\26\n"
       or bytes:sub(13,16)~="IHDR" or u32(bytes,17)~=file.width or u32(bytes,21)~=file.height then return nil end
     return bytes
   end
@@ -148,7 +150,7 @@ function M.new(deps)
     if not metadata(m,paths,legacy)then return nil end
     return m,paths
   end
-  local function loadSlot(id,slot)
+  local function loadSlot(id,slot,indexOnly)
     local record=read("hd-content/active/"..id.."."..slot,256)
     if not record then return nil end
     local seq,digest,checksum=record:match("^VASC%-HD%-1\n(%d+)\n([0-9a-f]+)\n([0-9a-f]+)$")
@@ -159,7 +161,9 @@ function M.new(deps)
     local raw=read("hd-content/manifests/"..digest,MANIFEST)
     local m,paths=parse(raw,digest)
     if not m or m.id~=id then return nil end
-    for _,f in ipairs(m.files) do if not fileBytes(f) then return nil end end
+    if not indexOnly then
+      for _,f in ipairs(m.files) do if not fileBytes(f) then return nil end end
+    end
     return {sequence=seq,digest=digest,manifest=m,paths=paths,slot=slot}
   end
   function self:inspect(raw,digest) return parse(raw,digest) end
@@ -180,14 +184,19 @@ function M.new(deps)
     self.epoch=self.epoch+1
     return true
   end
-  function self:restore(id)
+  local function restore(id,indexOnly)
     if not idOK(id) then return nil,"invalid_package_id" end
-    local a,b=loadSlot(id,0),loadSlot(id,1)
+    local a,b=loadSlot(id,0,indexOnly),loadSlot(id,1,indexOnly)
     local row=a and b and (a.sequence>b.sequence and a or b) or a or b
     if not row then return nil,"no_verified_activation" end
     return mount(row)
   end
-  -- Split a freshly verified boot mount from its writable download view
+  function self:restore(id)return restore(id,false)end
+  -- Recover only previously committed, checksum-verified activation metadata.
+  -- Every later image read still verifies its chunks, file digest and PNG
+  -- dimensions; activation of a new download still checks the entire package.
+  function self:restoreIndex(id)return restore(id,true)end
+  -- Split the verified activation index from its writable download view
   -- without reading every PNG a second time. Copy metadata only; each view
   -- owns its tables and every later read still verifies the underlying bytes.
   function self:forkVerified()

@@ -191,6 +191,9 @@ return function(mod, opts)
       modId = mod.id,
       fs = opts.archiveFs or storageArchiveFs(),
       editionScoped = storageBackendMode == "edition",
+      readViewScope = function()
+        return storageScopeReady and activeGame and activeGame.save or nil
+      end,
       enforceLegacyMigrationGuard = true,
       log = mod.log,
       isBadge = Bag.isBadge,
@@ -3641,7 +3644,12 @@ return function(mod, opts)
     if ev and ev.game then activeGame = ev.game end
   end, 5000)
 
+  mod.events:on("save.loading", function()
+    if archive.invalidateReadView then archive.invalidateReadView() end
+  end, 9000)
+
   mod.events:on("save.created", function(ev)
+    if archive.invalidateReadView then archive.invalidateReadView() end
     -- The engine's provisional boot save is created before game.ready, while a
     -- player-selected New Game (including our direct handoff) is created after
     -- it. This distinction avoids allocating storage for a title skeleton.
@@ -3651,6 +3659,7 @@ return function(mod, opts)
   end, 9000)
 
   mod.events:on("save.loaded", function(ev)
+    if archive.invalidateReadView then archive.invalidateReadView() end
     if ev and ev.save then
       storageScopeReady = true
       local lineageOk, lineageErr = true, nil

@@ -488,10 +488,10 @@ return function(mod, legends, johto, i18n)
     -- so Pokédex/UI mods which read `spriteFront` directly cannot expose the
     -- old Kanto silhouette fallback (for example Rattata on Hoothoot).
     local spriteFront = art and mod.path .. "/assets/" .. art .. "_front.png"
-      or (mod:read(crystalFront) and mod.path .. "/" .. crystalFront)
+      or ((mod:read(crystalFront) or (mod.exports.optionalPokemonAssets and mod.exports.optionalPokemonAssets.metadata(crystalFront))) and mod.path .. "/" .. crystalFront)
       or template.spriteFront
     local spriteBack = art and mod.path .. "/assets/" .. art .. "_back.png"
-      or (mod:read(crystalBack) and mod.path .. "/" .. crystalBack)
+      or ((mod:read(crystalBack) or (mod.exports.optionalPokemonAssets and mod.exports.optionalPokemonAssets.metadata(crystalBack))) and mod.path .. "/" .. crystalBack)
       or template.spriteBack
     local icon = specialIcons[id] or (iconFor[primary] or "MON")
     local dex = assert(def.dexEntry, "missing Pokédex entry for " .. id)

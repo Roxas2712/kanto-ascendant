@@ -560,6 +560,11 @@ return function(mod, opts)
 
   local function profileName(receipt)
     local profile = eventArchive.profile(receipt.profileId)
+    -- Delivery and recovery messages must not reveal an unhatched gift's
+    -- species, form or shiny status. Keep the actual profile untouched.
+    if profile and profile.deliveryKind == "egg" then
+      return tr("Gift Egg", "Geschenk-Ei")
+    end
     return profile and (localized(profile.name) or localized(profile.short)
       or profile.species or receipt.profileId) or receipt.profileId
   end

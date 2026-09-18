@@ -14,6 +14,7 @@ return function(mod)
   local extendedRuntime
   local kantoDexBySpecies = {}
   local prepared = {}
+  local downloadedPrepared = {}
   local DEFAULT_CACHE_VERSION = "v8"
   local CRYSTAL_CACHE_VERSION = "v9"
 
@@ -133,15 +134,24 @@ return function(mod)
   end
 
   function A.crystal(relativePath)
+    -- Verified mounts are immutable until restart. No file reads or hashing
+    -- in repeated render calls; local legacy sources retain content checks.
+    local version=mod.spriteAssetVersion and mod:spriteAssetVersion(relativePath)
+    local prior=downloadedPrepared[relativePath]
+    if version and prior and prior.version==version then return prior.path end
+    local function remember(path)
+      if version then downloadedPrepared[relativePath]={version=version,path=path} end
+      return path
+    end
     local sourceBytes = readPackaged(relativePath)
     if not sourceBytes then return nil end
     local source = mod.path .. "/" .. relativePath
-    if not available() then return source end
+    if not available() then return remember(source) end
     local fingerprint = sourceFingerprint(sourceBytes)
     local target = cacheTarget("crystal",
       relativePath .. "_source_" .. fingerprint, CRYSTAL_CACHE_VERSION)
     local key = "crystal:" .. source .. ":" .. fingerprint
-    if prepared[key] then return prepared[key] end
+    if prepared[key] then return remember(prepared[key]) end
 
     -- ImageData decode is the only exact-engine-safe persisted-cache probe.
     -- A readable target already represents these exact source bytes and this
@@ -149,19 +159,23 @@ return function(mod)
     local cachedOk, cached = pcall(love.image.newImageData, target)
     if cachedOk and cached then
       prepared[key] = target
-      return target
+      return remember(target)
     end
 
-    local ok, image = pcall(love.image.newImageData, source)
+    local ok, image = pcall(function()
+      local yes, Assets = pcall(require, 'src.render.Assets')
+      if yes and Assets.imageData then return Assets.imageData(source):clone() end
+      return love.image.newImageData(source)
+    end)
     if ok and image then
       clearConnectedBackground(image)
       if encode(image, target) then
         prepared[key] = target
-        return target
+        return remember(target)
       end
     end
     prepared[key] = source
-    return source
+    return remember(source)
   end
 
   -- PokeWilds: side still/walk, up still/walk, down still/walk.
@@ -322,6 +336,7 @@ return function(mod)
 
   function A.invalidate()
     prepared = {}
+    downloadedPrepared = {}
   end
 
   return A

@@ -12,10 +12,13 @@ function M.new(mod)
     local count = 0
     for job in pairs(workers) do
       local response = job.channel:pop()
+      while response do
+        if job.state.status == "pending" then job.state = response end
+        response = job.channel:pop()
+      end
       local running = job.thread:isRunning()
       if job.state.status == "pending" then
-        if response then job.state = response
-        elseif not running then
+        if not running then
           job.state = {status="error", err=job.thread:getError() or "HD worker stopped"}
         end
       end
@@ -35,7 +38,7 @@ function M.new(mod)
     local job = {channel=channel, state={status="pending"}}
     local ok, err = pcall(function()
       job.thread = love.thread.newThread(source)
-      job.thread:start(url, math.min(30, math.max(1, tonumber(opts.maxSeconds) or 30)), channel)
+      job.thread:start(url, math.min(30, math.max(1, tonumber(opts.maxSeconds) or 30)), channel, math.min(4194304, tonumber(opts.maxBytes) or 4194304))
     end)
     if not ok then return nil, tostring(err) end
     jobs[job], workers[job] = true, true
@@ -44,7 +47,7 @@ function M.new(mod)
   function self:poll(job)
     if not jobs[job] then return {status="error",err="Unknown HD job"} end
     collect()
-    return {status=job.state.status, body=job.state.body, err=job.state.err}
+    return {status=job.state.status, body=job.state.body, err=job.state.err, receivedBytes=job.state.receivedBytes}
   end
   function self:cancel(job)
     if not jobs[job] then return false end

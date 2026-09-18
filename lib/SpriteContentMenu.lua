@@ -14,6 +14,7 @@ function M.new(mod,game,guided,de,session)
     local builder=type(rows)=='function' and rows or nil
     local menu=guided(mod,game,{key=key,title=title,rows=builder and builder() or rows,help=help or "",
       footer=tr("A:SELECT SEL:HELP B:BACK","A:WAHL SEL:HILFE B:ZURÜCK"),onChoose=choose})
+    menu.ascendantContentInventory=true
     menu.showFirstGuide=function()return false end
     if builder and menu.items then
       local update,epoch=menu.update,session.epoch
@@ -29,6 +30,40 @@ function M.new(mod,game,guided,de,session)
     end
     return menu
   end
+  local batchHelp=tr('Base + all HD. Only missing files. Then save + restart.',
+    'Basis + alle HD. Nur fehlende Dateien. Dann speichern + Neustart.')
+  local function selection(group)
+    local families={}
+    local function include(g)
+      if g.children then for _,child in ipairs(g.children)do include(child)end else families[g.id]=true end
+    end
+    if group then include(group)end
+    local ids,checking={},false
+    for _,g in ipairs(session.model:groups())do if not group or families[g.id]then
+      for _,p in ipairs(g.packages)do
+        ids[#ids+1]=p.id
+        if not p.installed and p.localFiles and p.localFiles.checking then checking=true end
+      end
+    end end
+    return ids,session:planFor(ids),checking
+  end
+  local function downloadSelection(group)
+    if session.pendingDownloadIds or session.installer and session.installer.state=='downloading'then return session:openStatus()end
+    if busy()then return notice('busy_or_restart_required')end
+    local ids,plan,checking=selection(group)
+    if plan.ready then return notice('already_installed')end
+
+    if not plan.canDownload then return notice('not_yet_available')end
+    return session:confirmDownload(ids)
+  end
+  local function allRow(group)
+    if session.pendingDownloadIds or session.installer and session.installer.state=='downloading'then return {label=tr('VIEW ACTIVE DOWNLOAD','LAUFENDEN DOWNLOAD ANZEIGEN'),action='all',help=batchHelp}end
+    local ids,plan,checking=selection(group)
+    local checked,total=0,0;if session.inventoryProgress then checked,total=session:inventoryProgress(ids)end
+    local status=checking and (tr('Checking: ','Pruefung: ')..checked..'/'..total..'. ')or plan.ready and tr('Already installed. ','Bereits installiert. ')or string.format('%.1f MiB. ',plan.downloadBytes/1048576)
+    return {label=group and tr('DOWNLOAD / UPDATE','LADEN / AKTUALISIEREN')or tr('DOWNLOAD / UPDATE ALL','ALLES LADEN / UPDATEN'),action='all',
+      muted=false,help=status..(group and group.help or batchHelp)}
+  end
   local function confirmDelete(id,p)
     if busy() then return notice("busy_or_restart_required") end
     local localFiles=p and p.localFiles
@@ -39,7 +74,7 @@ function M.new(mod,game,guided,de,session)
         if row.action=="cancel" then return game.stack:pop() end
         if row.action=="delete" then
           if external then
-            local ok,why=session.kascBundledInventory:request(id,true)
+            local ok,why=session.bundledRemoval:request(id,true)
             if not ok then return notice(why)end
             local receipt=session.store:receipt(id)
             if receipt or p.cachePartial then
@@ -60,7 +95,7 @@ function M.new(mod,game,guided,de,session)
         "Löschen erfolgt beim Neustart. Gemeinsame Dateien bleiben erhalten. Fehlende Sprites nutzen den Originalstil.")))
   end
   local function packageMenu(p)
-    if session.kascBundledInventory then session.kascBundledInventory:prioritize(p.id)end
+    if session.bundledRemoval then session.bundledRemoval:prioritize(p.id)end
     local function packageRows()
       for _,group in ipairs(session.model:groups())do for _,fresh in ipairs(group.packages)do if fresh.id==p.id then p=fresh end end end
     local rows={{label=tr("STATUS","STATUS"),right=p.statusLabel,action="status"}}
@@ -69,7 +104,7 @@ function M.new(mod,game,guided,de,session)
       rows[#rows+1]={label=tr('OLD MOD FILES','ALTE MODDATEIEN'),right=f.checking and tr('CHECKING','PRUEFUNG') or (f.present..' / '..f.total),
         help=tr('Actual files in this mod. Presence does not claim verified download checksums. Partial sets remain usable and can be completed by a download.',
           'Tatsaechliche Dateien dieser Mod. Vorhandensein ist keine verifizierte Download-Pruefsumme. Teilsammlungen bleiben nutzbar und koennen per Download ergaenzt werden.')}
-      local job=session.kascBundledInventory and session.kascBundledInventory:pending()
+      local job=session.bundledRemoval and session.bundledRemoval:pending()
       if job and job.packageIds[1]==p.id and f.present>0 then
         rows[#rows+1]={label=tr('EXTERNAL REMOVAL PENDING','EXTERNES ENTFERNEN AUSSTEHEND'),action='externalHelp'}
         rows[#rows+1]={label=tr('CANCEL REMOVAL REQUEST','ENTFERNAUFTRAG ABBRECHEN'),action='cancelExternal'}
@@ -77,9 +112,6 @@ function M.new(mod,game,guided,de,session)
     end
     if p.installed then
       rows[#rows+1]={label=tr("ALREADY INSTALLED","BEREITS INSTALLIERT"),action="status"}
-      local version=p.id:match('^vasc%.sprite%.pokemon%-mega%-original%-20260830%.') and 'original-20260830'
-        or p.id:match('^vasc%.sprite%.pokemon%-mega%.') and 'current'
-      if version then rows[#rows+1]={label=tr('USE THIS MEGA COLLECTION','DIESE MEGA-SAMMLUNG NUTZEN'),action='megaCollection',version=version}end
     else
       rows[#rows+1]={label=tr("DOWNLOAD","HERUNTERLADEN"),right=string.format("%.1f MiB",p.downloadBytes/1048576),action="download",muted=not p.downloadable}
     end
@@ -89,12 +121,14 @@ function M.new(mod,game,guided,de,session)
     rows[#rows+1]={label=tr("DELETE","LÖSCHEN"),action="delete",muted=not p.canDelete}
     return rows
     end
-    push(make("vasc_content_package_"..p.id,p.id,packageRows,function(row)
+    local first,last=p.id:match('dex(%d+)%-(%d+)')
+    local title=first and ('POKEMON '..tonumber(first)..'-'..tonumber(last))or tr('SPRITE PACKAGE','SPRITE-PAKET')
+    push(make("vasc_content_package_"..p.id,title,packageRows,function(row)
       if row.action=='externalHelp' then
         return notice(tr('Close the game. Run manage-sprites.py from the update bundle and select this mod and its shared cache. Restart after the helper confirms removal.',
           'Spiel schliessen. manage-sprites.py aus dem Updatepaket starten und diese Mod samt gemeinsamem Cache waehlen. Nach bestaetigter Entfernung neu starten.'))
       elseif row.action=='cancelExternal' then
-        local inv=session.kascBundledInventory
+        local inv=session.bundledRemoval
         local cached=session.removal:pending()
         if cached and cached.id==p.id then
           local key='sprite-content/removal-pending-v1.json'
@@ -128,22 +162,131 @@ function M.new(mod,game,guided,de,session)
       end
     end))
   end
-  local function groupsMenu(g)
-    if g.children then
-      local children={};for _,child in ipairs(g.children)do children[#children+1]={label=child.label,group=child,help=child.help}end
-      return push(make('vasc_content_category_'..g.id,g.label,children,function(row)if row.group then groupsMenu(row.group)end end,g.help))
-    end
+  local function packageList(g,packages,title)
     local function rows()
-    for _,fresh in ipairs(session.model:groups())do if fresh.id==g.id then g=fresh end end
-    local result={}
-    for _,p in ipairs(g.packages) do
-      local first,last=p.id:match("dex(%d+)%-(%d+)")
-      local label=first and (tonumber(first).."-"..tonumber(last)) or p.id
-      result[#result+1]={label=label,right=p.statusLabel,package=p,help=g.help}
+      local result={}
+      for _,fresh in ipairs(session.model:groups())do if fresh.id==g.id then
+        for _,p in ipairs(fresh.packages)do if not packages or packages[p.id]then
+          local first,last=p.id:match("dex(%d+)%-(%d+)")
+          local label=first and (tonumber(first).."-"..tonumber(last))
+            or p.id:find('pokemon-hoenn-legacy',1,true)and tr('STARTERS 252-260','STARTER 252-260')
+            or p.id:find('pokemon-mega-original-20260830',1,true)and tr('FULL MEGA ANIMATIONS','VOLLE MEGA-ANIMATIONEN')
+            or tr('PART ','TEIL ')..tonumber(p.id:match('part(%d+)$')or 1)
+          result[#result+1]={label=label,right=p.statusLabel,package=p,help=g.help}
+        end end
+      end end
+      return result
     end
-    return result
+    push(make("vasc_content_group_"..g.id,title or g.label,rows,function(row)
+      if row.package then packageMenu(row.package)end
+    end,g.help))
+  end
+  local function hdCollections(g)
+    local names={"KANTO","JOHTO","HOENN"}
+    local ranges={"1-151","152-251","252-386"}
+    local function collection(generation)
+      local c={ids={},selected={},installed=0,checking=false}
+      for _,fresh in ipairs(session.model:groups())do if fresh.id==g.id then
+        for _,p in ipairs(fresh.packages)do
+          local gen=tonumber(p.id:match("%.g(%d+)%."))
+          if not generation or gen==generation then
+            c.ids[#c.ids+1]=p.id;c.selected[p.id]=true
+            if p.installed then c.installed=c.installed+1 end
+            c.checking=c.checking or (p.localFiles and p.localFiles.checking) or false
+          end
+        end
+      end end
+      c.plan=session:planFor(c.ids)
+      c.complete=#c.ids>0 and c.installed==#c.ids
+      c.status=c.complete and tr("Installed","Installiert")
+        or c.checking and tr("Checking","Pruefung")
+        or c.installed>0 and tr("Partial","Teilweise") or tr("Available","Verfuegbar")
+      return c
     end
-    push(make("vasc_content_group_"..g.id,g.label,rows,function(row)if row.package then packageMenu(row.package)end end,g.help))
+    local function download(generation)
+      if busy()then return notice("busy_or_restart_required")end
+      local c=collection(generation)
+      if c.complete then return notice("already_installed")end
+      
+      if not c.plan.canDownload then return notice("not_yet_available")end
+      return session:confirmDownload(c.ids)
+    end
+    local function generationMenu(gen)
+      local help=tr("HD walking sprites for ","HD-Laufsprites fuer ")..names[gen].." ("..ranges[gen].."). "
+        ..tr("Only missing content is downloaded.","Nur fehlende Inhalte werden geladen.")
+      push(make("vasc_content_hd_generation_"..gen,names[gen].." HD",function()
+        local c=collection(gen)
+        return {
+          {label=tr("STATUS","STATUS"),right=c.status,help=help},
+          {label=c.complete and tr("ALREADY INSTALLED","BEREITS INSTALLIERT") or tr("DOWNLOAD","LADEN"),
+            right=c.complete and "" or string.format("%.1f MiB",c.plan.downloadBytes/1048576),action="download",muted=c.complete,help=help},
+          {label=tr("IMPORT FILE","DATEI IMPORTIEREN"),action="import",help=tr("Import a manually downloaded sprite package.","Ein manuell heruntergeladenes Sprite-Paket importieren.")},
+          {label=tr("MANAGE / DELETE","VERWALTEN / LOESCHEN"),action="manage",help=help},
+          {label=tr("DOWNLOAD FAILED?","DOWNLOAD-FEHLER?"),action="manual",help=tr("Choose a missing package, then open its alternative download links. You can import the downloaded file here.","Fehlendes Paket waehlen und dessen alternative Downloadlinks oeffnen. Die heruntergeladene Datei kannst du hier importieren.")},
+        }
+      end,function(row)
+        if row.action=="download"then return download(gen)end
+        if row.action=="import"then
+          if busy()then return notice("busy_or_restart_required")end
+          return session:openPackageImport()
+        end
+        if row.action=="manage"or row.action=="manual"then
+          return packageList(g,collection(gen).selected,names[gen]..tr(" - MANAGE"," - VERWALTEN"))
+        end
+      end,help))
+    end
+    local help=tr("HD walking sprites: Kanto, Johto and Hoenn. Only missing content is downloaded.",
+      "HD-Pokemon aus Kanto, Johto und Hoenn. Nur fehlende Inhalte werden geladen.")
+    return push(make("vasc_content_hd_collections",tr("HD POKEMON","HD-POKEMON"),function()
+      local all=collection()
+      local rows={{label=all.complete and tr("ALREADY INSTALLED","BEREITS INSTALLIERT") or tr("ALL HD","ALLE HD"),
+        action="all",right=all.complete and "" or string.format("%.0f MiB",all.plan.downloadBytes/1048576),muted=all.complete,help=help}}
+      for gen=1,3 do local c=collection(gen)
+        if #c.ids>0 then rows[#rows+1]={label=names[gen],right=c.status,generation=gen,
+          help=names[gen].." HD ("..ranges[gen].."). "..tr("Download only missing sprites of this generation. Open to import, manage or delete.",
+            "Nur fehlende Sprites dieser Generation laden. Oeffnen fuer Import, Verwaltung und Loeschen.")}end
+      end
+      return rows
+    end,function(row)
+      if row.action=="all"then return download()end
+      if row.generation then return generationMenu(row.generation)end
+    end,help))
+  end
+  local function groupsMenu(g)
+    if g.children and g.id~='pokemon'then
+      local function children()
+        local rows={allRow(g)}
+        for _,child in ipairs(g.children)do rows[#rows+1]={label=child.label,group=child,help=child.help}end
+        return rows
+      end
+      return push(make('vasc_content_category_'..g.id,g.label,children,function(row)
+        if row.action=='all'then return downloadSelection(g)end
+        if row.group then groupsMenu(row.group)end
+      end,g.help or batchHelp))
+    end
+    if g.id=="pokemon-hd-3d"then return hdCollections(g)end
+    return push(make('vasc_content_collection_'..g.id,g.label,function()
+      return {allRow(g),
+        {label=tr('IMPORT FILE','DATEI IMPORTIEREN'),action='import',help=tr('Import a sprite package downloaded in your browser.','Ein im Browser geladenes Sprite-Paket importieren.')},
+        {label=tr('MANAGE / DELETE','VERWALTEN / LOESCHEN'),action='manage',help=tr('Check installed parts, delete a part, or download individual Pokemon ranges.','Installierte Teile ansehen, loeschen oder einzelne Pokemon-Bereiche laden.')},
+        {label=tr('DOWNLOAD FAILED?','DOWNLOAD-FEHLER?'),action='manual',help=tr('Choose a part to copy alternative download links and import its file.','Teil auswaehlen, alternative Downloadlinks kopieren und die Datei importieren.')}}
+    end,function(row)
+      if row.action=='all'then return downloadSelection(g)end
+      if row.action=='manage'or row.action=='manual'then
+        if g.id=='pokemon'then
+          local rows={};for _,child in ipairs(g.children)do rows[#rows+1]={label=child.label,group=child}end
+          return push(make('vasc_content_base_manage',tr('MANAGE BASE PACK','BASISPAKET VERWALTEN'),rows,function(row)
+            if row.group then return packageList(row.group)end
+          end,tr('Advanced: installed files, deletion, imports and alternative links. Downloads always complete the whole base pack.','Erweitert: installierte Dateien, Loeschen, Import und alternative Links. Downloads vervollstaendigen immer das gesamte Basispaket.')))
+        end
+        return packageList(g)
+      end
+      if row.action=='import'then
+        if session.pendingDownloadIds or session.installer and session.installer.state=='downloading'then return session:openStatus()end
+    if busy()then return notice('busy_or_restart_required')end
+        return session:openPackageImport()
+      end
+    end,g.help..' '..batchHelp))
   end
   local function importMenu(p)
     local function importRows()
@@ -164,40 +307,30 @@ function M.new(mod,game,guided,de,session)
       end,tr("Use the existing Stadium importer. Deletion removes the generated package; your source ROM stays.",
         "Nutzt den vorhandenen Stadium-Importer. Löschen entfernt das erzeugte Paket; deine Quell-ROM bleibt erhalten.")))
   end
-  local crystalFamilies={['pokemon-crystal']=true,['pokemon-crystal-animation']=true,
-    ['pokemon-crystal-special']=true,['pokemon-neo-crystal']=true,['pokemon-mega']=true,
-    ['pokemon-mega-original-20260830']=true,['pokemon-animation-updates']=true,['pokemon-hoenn-animation']=true}
   local function categoryGroups()
-    local buckets={
-      {id='full-hd',label=tr('POKEMON FULL HD','POKEMON FULL HD'),children={}},
-      {id='pokemon',label=tr('POKEMON GRAPHICS','POKEMON-GRAFIKEN'),children={}},
-    }
-    local crystal={id='crystal-pokemon',label=tr('CRYSTAL POKEMON','CRYSTAL-POKEMON'),children={},
-      help=tr('Crystal Pokemon sprites, their animations and Mega forms belong together here. Choose the current or original Mega collection inside this group.',
-        'Crystal-Pokemon, ihre Animationen und Mega-Formen findest du gemeinsam hier. Die aktuelle oder originale Mega-Sammlung waehlst du innerhalb dieser Gruppe.')}
-    local megas={id='crystal-mega-forms',label=tr('MEGA FORMS','MEGA-FORMEN'),children={},help=crystal.help}
+    local base={id='pokemon',label=tr('BASE SPRITE PACK','BASIS-SPRITEPAKET'),children={},
+      help=tr('Crystal, Mega, animations, pixel sprites + icons. Complete pack.',
+        'Crystal, Mega, Animationen, Pixel-Sprites + Icons. Komplettpaket.')}
+    local hd={id='full-hd',label=tr('OPTIONAL HD SPRITES','OPTIONALE HD-SPRITES'),children={},
+      help=tr('Optional HD sprites. Download all HD or select a collection.','Optionale HD-Sprites. Alle HD laden oder eine Sammlung waehlen.')}
     for _,g in ipairs(session.model:groups())do
-      if g.id:match('^pokemon%-') then
-        if g.id=='pokemon-mega' or g.id=='pokemon-mega-original-20260830'then megas.children[#megas.children+1]=g
-        elseif crystalFamilies[g.id]then crystal.children[#crystal.children+1]=g
-        else local n=g.id=='pokemon-hd-3d' and 1 or 2;buckets[n].children[#buckets[n].children+1]=g end
-      end
+      local bucket=g.id:match('^pokemon%-hd%-')and hd or base
+      bucket.children[#bucket.children+1]=g
     end
-    if #megas.children>0 then crystal.children[#crystal.children+1]=megas end
-    local order={['pokemon-crystal']=1,['pokemon-crystal-animation']=2,['crystal-mega-forms']=3,['pokemon-neo-crystal']=4}
-    table.sort(crystal.children,function(a,b)local x,y=order[a.id]or 10,order[b.id]or 10;if x==y then return a.id<b.id end;return x<y end)
-    if #crystal.children>0 then table.insert(buckets[2].children,1,crystal)end
-    return buckets
+    return {base,hd}
   end
   local function rows()
     local buckets=categoryGroups()
-    local result={}
+    local result={allRow()}
     for _,bucket in ipairs(buckets)do
-      if #bucket.children==1 then local g=bucket.children[1];result[#result+1]={label=bucket.label,group=g}
-      elseif #bucket.children>1 then result[#result+1]={label=bucket.label,group=bucket}end
+      if #bucket.children>0 then
+        local _,plan,checking=selection(bucket)
+        local details=bucket.help..' '..(plan.ready and tr('Already installed.','Bereits installiert.')or string.format('%.1f MiB.',plan.downloadBytes/1048576))
+        result[#result+1]={label=bucket.label,group=#bucket.children==1 and bucket.children[1]or bucket,help=details}
+      end
     end
     for _,p in ipairs(session.model:imports())do result[#result+1]={label='STADIUM 2',right=p.statusLabel,import=p,help=tr('Import your Stadium 2 file or remove its generated models. Your source file is kept.','Stadium-2-Datei importieren oder die erzeugten Modelle löschen. Die Quelldatei bleibt erhalten.')}end
-    result[#result+1]={label=tr('CHOOSE FILE / IMPORT','DATEI WÄHLEN / IMPORTIEREN'),action='packageImport'}
+    result[#result+1]={label=tr('IMPORT FILE','DATEI IMPORTIEREN'),action='packageImport'}
     result[#result+1]={label=tr('DOWNLOAD STATUS','DOWNLOAD-STATUS'),action='status'}
     result[#result+1]={label=tr('STARTUP PROMPT','STARTABFRAGE'),right=session.promptDisabled and tr('OFF','AUS') or tr('ON','AN'),action='startupPrompt',help=tr('Show the graphics choice at startup while packs are missing. Select to turn this on or off.','Grafikauswahl beim Start zeigen, solange Pakete fehlen. Hier die Abfrage an- oder abschalten.')}
     result[#result+1]={label=tr('LOGS & REPORTS','LOGS & BERICHTE'),action='diagnostics'}
@@ -207,6 +340,7 @@ function M.new(mod,game,guided,de,session)
     return result
   end
   local menu=make("vasc_pokemon_hd_downloads",tr("SPRITE DOWNLOADS","SPRITE-DOWNLOADS"),rows,function(row)
+    if row.action=='all'then return downloadSelection()end
     if row.group then return groupsMenu(row.group) end
     if row.import then return importMenu(row.import) end
     if row.action=="packageImport" then
@@ -220,6 +354,7 @@ function M.new(mod,game,guided,de,session)
     if row.action=="status" then return session:openStatus() end
     if row.action=="diagnostics" then return session:openDiagnostics() end
   end)
+  function menu:downloadAll()return downloadSelection()end
   function menu:openCategory(id)
     for _,g in ipairs(categoryGroups())do if g.id==id then
       if #g.children==1 then return groupsMenu(g.children[1])end
@@ -228,6 +363,7 @@ function M.new(mod,game,guided,de,session)
     return notice('not_yet_available')
   end
   function menu:openFamily(id)
+    if not id:match('^pokemon%-hd%-')then return self:openCategory('pokemon')end
     for _,g in ipairs(session.model:groups())do if g.id==id then return groupsMenu(g)end end
     return notice('not_yet_available')
   end

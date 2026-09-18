@@ -1120,6 +1120,7 @@ return function(opts)
   end
 
   local function markFuture(version, path)
+    if A.invalidateReadView then A.invalidateReadView() end
     local reason = ("legacy archive %s uses future schema %d; "
       .. "this build is read-only"):format(tostring(path), version)
     A.readOnly = true
@@ -1130,6 +1131,7 @@ return function(opts)
   end
 
   local function markCorruptWorldRank(path, detail)
+    if A.invalidateReadView then A.invalidateReadView() end
     local reason = ("legacy archive %s has corrupt World Rank receipts; "
       .. "this build is read-only: %s"):format(tostring(path), tostring(detail))
     A.readOnly = true
@@ -1328,6 +1330,7 @@ return function(opts)
   end
 
   local function writePath(path, value)
+    if A.invalidateReadView then A.invalidateReadView() end
     ensureDirectory()
     local ok, err = fs.write(path, SaveSerializer.encode(value))
     if not ok then
@@ -1339,6 +1342,7 @@ return function(opts)
   end
 
   function A.write(archive)
+    if A.invalidateReadView then A.invalidateReadView() end
     if A.readOnly then return false, A.readOnlyReason end
     local currentArchive, currentStatus, _, currentVersion, currentErr =
       decode(filename)
@@ -1437,6 +1441,30 @@ return function(opts)
     end
     clearFuture()
     return empty()
+  end
+
+  -- Hot UI/world queries share one normalized read view per loaded save.
+  -- Mutation/validation paths continue to call A.load and re-read storage.
+  -- Views never escape: public getters return copies of their projection.
+  local readView, readViewScope
+  function A.invalidateReadView()
+    readView, readViewScope = nil, nil
+  end
+
+  local function readArchiveView()
+    local scope = type(opts.readViewScope) == "function"
+      and opts.readViewScope() or nil
+    if scope == nil then return A.load() end
+    if readView ~= nil and readViewScope == scope and not A.readOnly then
+      return readView
+    end
+    local value, err = A.load()
+    if err == nil and not A.readOnly then
+      readView, readViewScope = value, scope
+    else
+      A.invalidateReadView()
+    end
+    return value, err
   end
 
   local function mutableArchive()
@@ -3528,7 +3556,7 @@ return function(opts)
   end
 
   function A.current()
-    local archive, err = A.load()
+    local archive, err = readArchiveView()
     return copy(type(archive.current) == "table" and archive.current or {}), err
   end
 
@@ -3633,7 +3661,7 @@ return function(opts)
   function A.activeCharacter(save)
     local run = runState(save)
     if type(run) ~= "table" or not run.runId then return nil end
-    local archive = A.load()
+    local archive = readArchiveView()
     local current = type(archive.current) == "table" and archive.current or {}
     local avatar = run.avatar or current.avatar
     avatar = tostring(avatar or ""):upper()
@@ -3653,7 +3681,7 @@ return function(opts)
   end
 
   function A.hevoPersistent()
-    local archive, err = A.load()
+    local archive, err = readArchiveView()
     return copy(type(archive.hevoPersistent) == "table"
       and archive.hevoPersistent or {}), err
   end
@@ -3762,7 +3790,7 @@ return function(opts)
   end
 
   function A.worldRankState()
-    local archive, err = A.load()
+    local archive, err = readArchiveView()
     if A.readOnly then
       return nil, err or A.readOnlyReason
         or "Legacy archive is read-only"
@@ -4236,7 +4264,7 @@ return function(opts)
   end
 
   function A.profile()
-    local archive = A.load()
+    local archive = readArchiveView()
     local current = type(archive.current) == "table" and archive.current or {}
     local completedPaths = type(archive.completedPaths) == "table"
       and archive.completedPaths or {}
@@ -4327,11 +4355,13 @@ return function(opts)
   A.runRulesSnapshotVersion = RUN_RULES_SNAPSHOT_VERSION
   A.vaultBindingVersion = VAULT_BINDING_VERSION
   function A.bindSha256(digest)
+    if A.invalidateReadView then A.invalidateReadView() end
     if type(digest) ~= "function" then return false end
     sha256Digest = digest
     return true
   end
   function A.bindData(data)
+    if A.invalidateReadView then A.invalidateReadView() end
     if type(data) ~= "table" or type(data.pokemon) ~= "table"
         or type(data.items) ~= "table" or type(data.moves) ~= "table" then
       registryValidation = false

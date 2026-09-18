@@ -29,6 +29,25 @@ function M.new(mod,options)
     info=function(_,k)return cache:info(k)end,remove=function(_,k)return cache:delete(k)end}
   local sha=function(raw)return love.data.encode('string','hex',love.data.hash('sha256',raw))end
   local catalog=load('SpriteCatalog').new(load(options.catalogModule or 'SpriteCatalogData'))
+  -- The approved longer fronts are part of the normal Mega collection.
+  local repairedMega='vasc.sprite.pokemon-mega-original-20260830.all.part01'
+  local megaStyle=catalog.styles['pokemon-mega']
+  if megaStyle and catalog.packages[repairedMega]then
+    local found=false;for _,id in ipairs(megaStyle.packages)do if id==repairedMega then found=true end end
+    if not found then megaStyle.packages[#megaStyle.packages+1]=repairedMega end
+  end
+  local packageScope=load('SpritePackageScope')
+  catalog.activeOwners={[options.owner or 'vasc']=true}
+  function catalog:relevant(p)
+    -- Gorochu is authored, bundled art; its obsolete catalogue placeholder
+    -- must not turn it into a user-download requirement.
+    if p.family=='pokemon-gorochu' then return false end
+    if p.adapter=='existing-HdContentStore'then return true end
+    for _,owner in ipairs(p.owners or {})do
+      if self.activeOwners[owner] and (not packageScope[p.id] or (packageScope[p.id][owner] or 0)>0)then return true end
+    end
+    return p.owners==nil
+  end
   local cfg=load('SpriteHostConfig')
   local bundles=load('SpriteBundleData')
   for _,p in ipairs(catalog.data.packages)do if bundles[p.id]then p.transferBytes=bundles[p.id].bytes end end
@@ -125,14 +144,35 @@ function M.new(mod,options)
   local pendingDeletion=self.removal:pending()
   if pendingDeletion and pendingDeletion.id=='stadium2-local' then assert(ca:write('sprite-content/stadium-disabled','1'),'could not disable automatic rebuild')end
   local removed,why=self.removal:applyBeforeMount();if not removed then error('Content removal pending: '..tostring(why))end
+  local bootStarted=love.timer.getTime()
+  self.bootTimings={}
   local hd=load('HdContentStore').new{cache=cache,decode=Json.decode,sha256=sha,legacyFlame155=load('HdLegacyFlame155')}
-  for _,p in ipairs(catalog.data.packages)do if p.adapter=='existing-HdContentStore' then hd:restore(p.id)end end
+  for _,p in ipairs(catalog.data.packages)do if p.adapter=='existing-HdContentStore' then hd:restoreIndex(p.id)end end
   self.hdBoot=hd;self.hdWrite=hd:forkVerified()
+  self.bootTimings.hdSeconds=love.timer.getTime()-bootStarted
+  local genericStarted=love.timer.getTime()
   local generic=load('SpritePackageStore').new{catalog=catalog,cache=ca,decode=Json.decode,sha256=sha}
-  for _,p in ipairs(catalog.data.packages)do if p.adapter~='existing-HdContentStore' then generic:restore(p)end end
+  for _,p in ipairs(catalog.data.packages)do if p.adapter~='existing-HdContentStore' then generic:restoreIndex(p)end end
   self.generic=generic
+  self.bootTimings.genericSeconds=love.timer.getTime()-genericStarted
   self.store=load('SpriteStoreBridge').new{catalog=catalog,generic=generic,legacyBoot=hd,legacyWrite=self.hdWrite,
     hasImport=function(id)return self:hasImport(id)end}
+  self.restart=load('SpriteContentRestart').new{
+    worldSafe=load('HdContentOffer').worldSafe,
+    show=function(game,restart)
+      self.game=game
+      local top=game.stack:top()
+      if not top or not top.ascendantContentRestart then
+        local screen=self:openStatus();screen.ascendantContentRestart=true
+      end
+    end}
+  local activate=self.store.activate
+  function self.store:activate(...)
+    local ok,err=activate(self,...)
+    if ok==true then self.contentSession.restart:installed()end
+    return ok,err
+  end
+  self.store.contentSession=self
   local inspect=self.store.inspect
   function self.store:inspect(raw,p)
     local m,err=inspect(self,raw,p)
@@ -154,7 +194,7 @@ function M.new(mod,options)
   self.model=load('SpriteDownloadMenuModel').new(catalog,self.store,{language='de',importIds=importIds,hasPartial=function(id)return ca:info('sprite-content/pending/'..id)~=nil or ca:info('sprite-content/archive-pending/'..id)~=nil end})
   function self:busy()
     if self.stadiumState then local s=self.stadiumState();if s and s.building then return true end end
-    return self.installer and self.installer.state=='downloading' or self.importer and self.importer:busy() or false
+    return self.pendingDownloadIds~=nil or self.installer and self.installer.state=='downloading' or self.importer and self.importer:busy() or false
   end
   function self:hasImport(id)
     if id~='stadium2-local' then return false end
@@ -163,6 +203,7 @@ function M.new(mod,options)
     return state and state.ready==true or false
   end
   function self:notice(code)
+    if code=='busy_or_restart_required' and (self.pendingDownloadIds or self.installer.state=='downloading') then return self:openStatus()end
     self.lastNotice=tostring(code or '');self.epoch=self.epoch+1
     if self.guided and self.game then
       local message=Text.message(self.lastNotice,self.de)
@@ -187,40 +228,50 @@ function M.new(mod,options)
   end
   function self:planFor(ids)return catalog:plan(ids,self.store)end
   function self:confirmDownload(ids)
+    if self.restart.phase~='idle'and self.restart.phase~='waiting'then return self:openStatus()end
+    ids=load('SpriteDownloadSelection').expand(catalog,ids)
+    if self.pendingDownloadIds or self.installer.state=='downloading' then return self:openStatus()end
     self.lastPackage=ids[1]
     local p=self:planFor(ids)
+    if p.ready then return self:notice('already_installed')end
     if not p.canDownload then return self:notice('not_yet_available')end
+    local help=(self.de and 'Alle fehlenden Pakete laufen automatisch nacheinander. Bereits installierte Inhalte werden uebersprungen. Fehlende Pakete: ' or 'All missing packages download automatically, one after another. Installed content is skipped. Missing packages: ')..#p.missing..(self.de and ' Danach wird das Spiel automatisch gespeichert und neu gestartet.' or ' When finished, the game saves and restarts automatically.')
     local rows={{label=self.de and 'ABBRECHEN' or 'CANCEL',action='cancel'},{label=self.de and 'HERUNTERLADEN' or 'DOWNLOAD',action='start',right=string.format('%.1f MiB',p.downloadBytes/1048576)}}
     self:pushMenu('vasc_content_confirm',self.de and 'DOWNLOAD BESTÄTIGEN' or 'CONFIRM DOWNLOAD',rows,function(row)
       if row.action=='start' then
         if self:busy() or self.removal:pending() then return self:notice('busy_or_restart_required')end
-        local yes,err=self.installer:start(self:planFor(ids),true);if not yes then return self:notice(err)end
+        local current=self:planFor(ids)
+        if current.ready then self.game.stack:pop();return self:notice('already_installed')end
+        if not current.canDownload then return self:notice('not_yet_available')end
+        local checked,total=0,0
+        if self.inventoryProgress then checked,total=self:inventoryProgress(ids)end
+        if checked<total then
+          self.pendingDownloadIds={};for i,id in ipairs(ids)do self.pendingDownloadIds[i]=id end
+          if self.bundledRemoval then for i=#ids,1,-1 do self.bundledRemoval:prioritize(ids[i])end end
+        else
+          local yes,err=self.installer:start(current,true);if not yes then return self:notice(err)end
+        end
+        self.activeOperation='download'
+        self.downloadIds={};for i,id in ipairs(ids)do self.downloadIds[i]=id end
+        self.lastPackage=current.missing[1]
+        self.game.stack:pop()
+        return self:openStatus()
       end
       self.game.stack:pop()
-    end)
+    end,help)
   end
   function self:pushMenu(key,title,rows,choose,help)
     local menu=self.guided(mod,self.game,{key=key,title=title,rows=rows,help=help or '',footer=self.de and 'A:WAHL SEL:HILFE B:ZURÜCK' or 'A:SELECT SEL:HELP B:BACK',onChoose=choose})
-    if key=='vasc_content_status' then
-      local update=menu.update;local session=self
-      function menu:update(...)
-        if self.items and self.items[1]then
-          local state=session.importer and session.importer:busy() and 'importing' or session.installer.state
-          self.items[1].right=Text.state(state,session.de);self.items[1].help=Text.message(session.lastNotice,session.de)
-        end
-        if update then return update(self,...)end
-      end
-    end
+    menu.showFirstGuide=function()return false end
     self.game.stack:push(menu);return menu
   end
   function self:openStatus()
-    return self:pushMenu('vasc_content_status',self.de and 'DOWNLOAD-STATUS' or 'DOWNLOAD STATUS',{{label='STATUS',right=Text.state(self.installer.state,self.de),help=Text.message(self.lastNotice,self.de)},
-      {label=self.de and 'ABBRECHEN / TEILE BEHALTEN' or 'CANCEL / KEEP PARTS',action='cancel'}, {label=self.de and 'DATEI WÄHLEN / IMPORTIEREN' or 'CHOOSE FILE / IMPORT',action='import'},{label='Download keeps failing? Click here.',action='manual'},{label=self.de and 'ZURÜCK' or 'BACK',action='back'}},function(row)
-        if row.action=='import' then return self:openPackageImport(self.lastPackage)end
-        if row.action=='manual' and self.lastPackage then return self:openManual(self.lastPackage,self.de)end
-        if row.action=='cancel' then self.installer:cancel();if self.importer then self.importer:cancel()end;self:notice('cancelled')end
-        if row.action=='back' then self.game.stack:pop()end
-      end)
+    self.downloadFamilyLabels={}
+    for _,g in ipairs(self.model:groups())do self.downloadFamilyLabels[g.id]=g.label end
+    local top=self.game.stack:top()
+    if top and top.key=='vasc_content_status'then return top end
+    local menu=load('SpriteDownloadStatus').new(self.game,self,Text)
+    self.game.stack:push(menu);return menu
   end
   function self:openDiagnostics()
     return self:pushMenu('vasc_content_diagnostics',self.de and 'DIAGNOSE & BERICHTE' or 'DIAGNOSTICS & REPORTS',{
@@ -272,7 +323,7 @@ function M.new(mod,options)
     self.diagnostics:begin();self.diagnostics:event('package_started',{packageId=p.id})
     local yes,why=self.importer:start(reader,info.size,p,true)
     if not yes then self.diagnostics:finish('error',{code=why});self:notice(why)end
-    self.importDiagnostic=yes;self.lastPackage=p.id;self:openStatus()
+    self.activeOperation='import';self.importDiagnostic=yes;self.lastPackage=p.id;self:openStatus()
   end
   function self:openPackageImport(id)
     if self:busy() or self.removal:pending() then return self:notice('busy_or_restart_required')end
@@ -318,6 +369,15 @@ function M.new(mod,options)
   end
   local last=self.installer.state
   function self:update(game,dt)
+    if self.pendingDownloadIds then
+      local checked,total=self:inventoryProgress(self.pendingDownloadIds)
+      if checked>=total then
+        local ids=self.pendingDownloadIds;self.pendingDownloadIds=nil
+        local plan=self:planFor(ids)
+        local ok,err=self.installer:start(plan,true)
+        if not ok then self:notice(err)end
+      end
+    end
     self.game=game or self.game
     if self.stadiumState then
       local state=self.stadiumState() or {}
@@ -348,7 +408,7 @@ function M.new(mod,options)
         self.importDiagnostic=false
         if self.importStagingPath then fs.remove(self.importStagingPath);self.importStagingPath=nil end
         self.diagnostics:finish(self.importer.state=='ready' and 'success' or self.importer.state=='cancelled' and 'cancelled' or 'error',{code=self.importer.error})
-        self:notice(self.importer.state=='ready' and 'restart_required' or self.importer.error)
+        if self.importer.state~='ready'then self:notice(self.importer.error)end
       end
     end
     if self.pendingImport and mod.contentActions and mod.contentActions.pollPick then
@@ -357,6 +417,7 @@ function M.new(mod,options)
     end
     for _,gate in pairs(self.rewardMods or {})do gate:update()end
     self.diagnostics:update()
+    self.restart:update(self.game,dt,self.installer.state=='ready'or self.importer and self.importer.state=='ready',self:busy())
     if self.installer.state~=last then last=self.installer.state;self.epoch=self.epoch+1 end
   end
   -- The old seen-once marker is not an explicit opt-out and must not silence this prompt.
@@ -365,7 +426,7 @@ function M.new(mod,options)
   self.onboardingShown=false
   function self:hasAvailableDownloads()
     for _,p in ipairs(catalog.data.packages)do
-      if p.published==true and not catalog:installed(p.id,self.store)then return true end
+      if p.published==true and catalog:relevant(p) and not catalog:installed(p.id,self.store)then return true end
     end
     return false
   end
@@ -380,17 +441,19 @@ function M.new(mod,options)
   function self:offer(game,guided,de,rom)
     self.game=game;self.guided=guided;self.de=de
     local function tr(en,german)return de and german or en end
-    local later=tr('More graphics: Ascendant - Sprite Downloads. This prompt repeats until all packs are installed or you turn it off.','Weitere Grafiken: Ascendant - Sprite-Downloads. Die Abfrage bleibt aktiv, bis alle Pakete da sind oder du sie abschaltest.')
+    local later=tr('More graphics: Ascendant - DLC / Sprites. This prompt appears each start until you explicitly turn it off.','Weitere Grafiken: Ascendant - DLC / Sprites. Diese Abfrage erscheint bei jedem Start, bis du sie ausdruecklich abschaltest.')
     local rows={
-      {label=tr('PLAY WITHOUT DOWNLOAD','OHNE DOWNLOAD SPIELEN'),action='skip',help=tr('Game graphics are already included. No download. Ask again next start while packs are missing.','Die Spielgrafik ist schon da. Kein Download. Beim naechsten Start erneut fragen, solange Pakete fehlen.')},
-      {label=tr('HD POKEMON','HD-POKEMON'),action='hd',help=tr('Animated HD Pokemon in the overworld. Choose Kanto or Johto next. Optional download.','Animierte HD-Pokemon in der Spielwelt. Danach Kanto oder Johto waehlen. Optional.')},
-      {label=tr('CRYSTAL, MEGA & PIXEL','CRYSTAL, MEGA & PIXEL'),action='graphics',help=tr('Choose Crystal, Neo Crystal, animated Pokemon, Mega forms or pixel sprites next. Download or import.','Danach Crystal, Neo Crystal, animierte Pokemon, Mega-Formen oder Pixel-Sprites waehlen. Download oder Import.')},
+      {label=tr('PLAY WITHOUT DOWNLOAD','OHNE DOWNLOAD SPIELEN'),action='skip',help=tr('Continue without a download. Ask again next start.','Kein Download. Weiterspielen und beim naechsten Start erneut fragen.')},
+      {label=tr('DOWNLOAD / UPDATE ALL','ALLES LADEN / UPDATEN'),action='all',help=tr('Download all missing sprite collections in one go: HD, Crystal, Mega and more. Installed sprites are kept. Stadium needs your own file.','Alle fehlenden Sprite-Sammlungen in einem Durchgang laden: HD, Crystal, Mega und weitere. Vorhandene Sprites bleiben. Stadium braucht deine eigene Datei.')},
+      {label=tr('HD WALKING SPRITES','HD-LAUFSPRITES'),action='hd',help=tr('Animated HD Pokemon in the world and as followers. Kanto, Johto and Hoenn; download all or choose a generation.','Animierte HD-Pokemon in der Spielwelt und als Begleiter. Kanto, Johto und Hoenn; alle laden oder Generation waehlen.')},
+      {label=tr('BASE SPRITE PACK','BASIS-SPRITEPAKET'),action='graphics',help=tr('Complete base pack: Crystal, Mega, animations, pixel sprites and icons. One download for all normal Ascendant Pokemon graphics.','Komplettes Basispaket: Crystal, Mega, Animationen, Pixel-Sprites und Icons. Ein Download fuer alle normalen Ascendant-Pokemon-Grafiken.')},
       {label=tr('IMPORT A FILE','DATEI IMPORTIEREN'),action='import',help=tr('Choose a spritepack or vaschd file you already downloaded. The file is checked before import.','Eine geladene spritepack- oder vaschd-Datei auswaehlen. Sie wird vor dem Import geprueft.')},
       {label=tr('TURN OFF THIS PROMPT','ABFRAGE ABSCHALTEN'),action='disablePrompt',help=tr('Stop showing this choice at startup. You can turn it back on in Sprite Downloads.','Diese Startabfrage dauerhaft abschalten. Im Download-Menue kannst du sie wieder einschalten.')},
     }
-    if options.includeHd==false then table.remove(rows,2)end
+    local baseRow=table.remove(rows,4);table.insert(rows,1,baseRow)
+    if options.includeHd==false then table.remove(rows,4)end
     local menu=guided(mod,game,{key='vasc_content_first_choice',title=tr('POKEMON GRAPHICS','POKEMON-GRAFIKEN'),rows=rows,
-      help=tr('Additional Pokemon graphics are optional. Your standard game graphics need no download. ','Zusaetzliche Pokemon-Grafiken sind optional. Die Standardgrafiken brauchen keinen Download. ')..later,
+      help=tr('Start with the complete base sprite pack. HD is optional. Original game graphics need no download. ','Zuerst das komplette Basis-Spritepaket laden. HD ist optional. Original-Spielgrafiken brauchen keinen Download. ')..later,
       footer=tr('A:CHOOSE SEL:HELP','A:WAHL SEL:HILFE'),
       onChoose=function(row)
         if not row or not row.action then return end
@@ -400,6 +463,8 @@ function M.new(mod,options)
         self.onboardingShown=true;game.stack:pop()
         if row.action=='skip' or row.action=='disablePrompt' then return end
         local menu=self:menu(game,guided,de,rom)
+        if row.action=='graphics'then game.stack:push(menu);return self:confirmDownload(load('SpriteDownloadSelection').base(catalog))end
+        if row.action=='all' then game.stack:push(menu);return menu:downloadAll()end
         if row.action=='import' then return self:openPackageImport()end
         menu:openCategory(row.action=='hd' and 'full-hd' or 'pokemon')
       end})

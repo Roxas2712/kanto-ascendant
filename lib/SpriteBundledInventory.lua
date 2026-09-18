@@ -3,9 +3,11 @@
 -- requires the closed-game desktop helper; the sandbox never removes assets.
 local M={REQUEST='sprite-content/bundled-removal-request-v1.json'}
 function M.new(d)
+  local owner=d.owner or 'kasc'
+  local requestKey=owner=='kasc' and M.REQUEST or 'sprite-content/bundled-removal-vasc-v1.json'
   local raw=assert(d.mod:read(d.pin.path),'missing bundled inventory index')
   assert(d.sha(raw)==d.pin.sha256,'bundled inventory index changed')
-  local index=d.decode(raw);assert(index.schema=='ascendant.bundled-manifest-index/v1' and index.owner=='kasc')
+  local index=d.decode(raw);assert(index.schema=='ascendant.bundled-manifest-index/v1' and index.owner==owner)
   local pins={};for _,p in ipairs(index.packages)do pins[p.id]=p end
   local self={states={},queue={},cursor=1,indexSha256=d.pin.sha256}
   local function safe(path)
@@ -13,7 +15,9 @@ function M.new(d)
       and path:match('^[%w_./-]+$') and path:sub(1,1)~='/'
       and not path:match('^assets/characters/') and not path:match('^assets/ui/')
       and not path:match('^assets/title_trainers_67/') and not path:match('^assets/journeys_balls/')
-      and (path:match('^assets/') or path:match('^vendor/wilds_1_12_2/assets/'))
+      and (path:match('^assets/') or path:match('^vendor/wilds_1_12_2/assets/')
+        or owner=='vasc' and (path:match('^integrated/ascendant_pokemon_overworld/assets/pokemmo%-followers/')
+          or path:match('^integrated/ascendant_pokemon_overworld/assets/pokemmo%-runtime/')))
       and (path:match('%.png$') or path:match('%.gif$') or path:match('%.webp$') or path:match('%.jpg$'))
   end
   function self:status(id)
@@ -31,8 +35,33 @@ function M.new(d)
       self.queue[i],self.queue[self.cursor]=self.queue[self.cursor],self.queue[i];return
     end end
   end
+  -- Retained sprites can have hundreds of thousands of frame paths. Prove
+  -- absent directory branches once instead of doing one host stat per frame.
+  local directories={}
+  local directorySupport
+  local function parentExists(path)
+    if not d.directoryInfo then return true end
+    local parent=path:match('^(.*)/[^/]+$');if not parent then return true end
+    if directorySupport==nil then
+      local ok,info=pcall(d.mod.info,d.mod,'assets')
+      directorySupport=ok and info and info.type=='directory' or false
+      directories.assets=directorySupport
+    end
+    if not directorySupport then return true end
+    local prefix=''
+    for part in parent:gmatch('[^/]+')do
+      prefix=prefix==''and part or prefix..'/'..part
+      if directories[prefix]==nil then
+        local ok,info=pcall(d.mod.info,d.mod,prefix)
+        if not ok then return true end -- report real file errors through the normal path
+        directories[prefix]=info~=nil and info.type=='directory'
+      end
+      if not directories[prefix]then return false end
+    end
+    return true
+  end
   function self:advance(limit)
-    local deadline=d.now and d.now()+0.004
+    local deadline=d.now and d.now()+0.001
     for _=1,limit or 128 do
       local id=self.queue[self.cursor];if not id then return end
       local state=self.states[id]
@@ -40,16 +69,17 @@ function M.new(d)
         local pin=pins[id];local data=assert(d.mod:read('assets/sprite-package-manifests/'..pin.manifestSha256..'.json'))
         assert(#data==pin.manifestBytes and d.sha(data)==pin.manifestSha256,'bundled manifest changed')
         local manifest=d.decode(data);assert(manifest.id==id)
-        state.files={}
-        for _,file in ipairs(manifest.files)do if file.owner=='kasc' then
+        local files={}
+        for _,file in ipairs(manifest.files)do if file.owner==owner and not(d.protected and d.protected[file.logicalPath])then
           assert(safe(file.logicalPath),'non-Pokemon inventory path')
-          state.files[#state.files+1]=file.logicalPath
+          files[#files+1]=file.logicalPath
         end end
-        state.total=#state.files
+        state.files=files;state.total=#files
       end
       local path=state.files[state.checked+1]
       if path then
-        local ok,info=pcall(d.mod.info,d.mod,path)
+        local ok,info=true,nil
+        if parentExists(path)then ok,info=pcall(d.mod.info,d.mod,path)end
         if not ok then state.failed=true end
         if ok and info and info.type=='file' and (info.size==nil or info.size>0) then state.present=state.present+1 end
         state.checked=state.checked+1
@@ -64,10 +94,10 @@ function M.new(d)
     end
   end
   function self:pending()
-    local data=d.cache:read(M.REQUEST);if type(data)~='string' then return nil end
+    local data=d.cache:read(requestKey);if type(data)~='string' then return nil end
     local ok,job=pcall(d.decode,data)
     if ok and type(job)=='table' and job.schema=='ascendant-legacy-delete-v1'
-      and job.owner=='kasc' and job.catalogSha256==self.indexSha256 and type(job.packageIds)=='table' then return job end
+      and job.owner==owner and job.catalogSha256==self.indexSha256 and type(job.packageIds)=='table' then return job end
     return nil,'invalid_bundled_removal_request'
   end
   function self:request(id,consent)
@@ -81,14 +111,14 @@ function M.new(d)
       local previous=self:status(old.packageIds[1])
       if not previous or previous.checking or previous.present>0 then return false,'bundled_removal_pending' end
     end
-    local data=d.encode({schema='ascendant-legacy-delete-v1',owner='kasc',packageIds={id},catalogSha256=self.indexSha256})
-    if d.cache:write(M.REQUEST,data)~=true or d.cache:read(M.REQUEST)~=data then return false,'queue_write_failed' end
+    local data=d.encode({schema='ascendant-legacy-delete-v1',owner=owner,packageIds={id},catalogSha256=self.indexSha256})
+    if d.cache:write(requestKey,data)~=true or d.cache:read(requestKey)~=data then return false,'queue_write_failed' end
     return true,'bundled_removal_pending'
   end
   function self:cancel(id)
     local job,err=self:pending();if err then return false,err end
     if not job or job.packageIds[1]~=id then return false,'not_installed' end
-    if d.cache:remove(M.REQUEST)~=true or d.cache:read(M.REQUEST)~=nil then return false,'queue_remove_failed' end
+    if d.cache:remove(requestKey)~=true or d.cache:read(requestKey)~=nil then return false,'queue_remove_failed' end
     return true,'bundled_removal_cancelled'
   end
   return self

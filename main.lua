@@ -1877,7 +1877,7 @@ return function(mod)
   local makeMegaEvolution = loadSibling(mod, "mega_evolution.lua")
   local megaAnimationData = loadSibling(mod, "mega_animation_data.lua")
   mod.exports.megaSpriteCollections = loadSibling(mod, "MegaSpriteCollection.lua").new(
-    mod, loadSibling(mod, "MegaOriginalData.lua"))
+    mod, loadSibling(mod, "MegaOriginalData.lua"), megaAnimationData)
   local megaEvolution = makeMegaEvolution(mod, {
     spriteCollection = mod.exports.megaSpriteCollections,
     postgame = postgame,

@@ -47,11 +47,14 @@ function M.new(d)
     if type(bytes)~="number" or bytes%1~=0 or bytes<1 or bytes>M.MAX_BYTES then return false,"invalid_size" end
     if type(hash)~="string" or #hash~=64 or hash:find("[^a-f0-9]") then return false,"invalid_digest" end
     self.path=path;self.bytes=bytes;self.hash=hash;self.attempt=0;self.body=nil;self.error=nil
-    self.events={};self.state="waiting";self.retryAt=d.now();return true
+    self.startMirror=self.preferredMirror or 1
+    self.receivedBytes=0;self.events={};self.state="waiting";self.retryAt=d.now();return true
   end
   function self:update()
     if self.state=="waiting" and d.now()>=self.retryAt then
-      self.attempt=self.attempt+1;self.mirror=mirrors[(self.attempt-1)%#mirrors+1]
+      self.attempt=self.attempt+1;self.receivedBytes=0
+      self.mirrorIndex=((self.startMirror or 1)+self.attempt-2)%#mirrors+1
+      self.mirror=mirrors[self.mirrorIndex]
       diagnostic("request_started",{mirror=self.mirror.id,attempt=self.attempt,bytes=self.bytes})
       local origin=self.mirror.baseUrl
       if self.mirror.shards then origin=self.mirror.shards[tonumber(self.hash:sub(1,1),16)%4+1]end
@@ -66,12 +69,14 @@ function M.new(d)
     end
     local ok,r=pcall(d.transport.poll,d.transport,self.job)
     if not ok or type(r)~="table" then failed("poll_failed");return end
-    if r.status=="pending" then return end
+    if r.status=="pending" then
+      self.receivedBytes=math.max(0,math.min(self.bytes,tonumber(r.receivedBytes) or 0));return end
     if r.status~="ok" then failed(r.err or "http_error",r.httpStatus or r.statusCode);return end
     if type(r.body)~="string" or #r.body~=self.bytes then failed("size_mismatch");return end
     local hashed,h=pcall(d.sha256,r.body)
     if not hashed or h~=self.hash then failed("checksum_mismatch");return end
     diagnostic("request_verified",{mirror=self.mirror.id,attempt=self.attempt,bytes=self.bytes})
+    self.preferredMirror=self.mirrorIndex
     self.body=r.body;release();self.state="ready"
   end
   function self:cancel()

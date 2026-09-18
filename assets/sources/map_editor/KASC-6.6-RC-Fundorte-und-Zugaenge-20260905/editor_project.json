@@ -90505,8 +90505,8 @@
   },
   "basis": {
     "schema": "map-studio.project-basis.v1",
-    "path": "/Users/maarten/Documents/Recompile/.worktrees/kasc-66-legacy-bank-67-complete-20260904",
-    "root": "/Users/maarten/Documents/Recompile/.worktrees/kasc-66-legacy-bank-67-complete-20260904",
+    "path": "<workspace>/.worktrees/kasc-66-legacy-bank-67-complete-20260904",
+    "root": "<workspace>/.worktrees/kasc-66-legacy-bank-67-complete-20260904",
     "manifest": {
       "id": "kanto_ascendant",
       "name": "Kanto Ascendant",
@@ -90926,10 +90926,10 @@
       "github": "Roxas2712/kanto-ascendant"
     },
     "containerManifest": null,
-    "scanRoot": "/Users/maarten/Documents/Recompile/.worktrees/kasc-66-legacy-bank-67-complete-20260904",
+    "scanRoot": "<workspace>/.worktrees/kasc-66-legacy-bank-67-complete-20260904",
     "companion": null,
     "source": {
-      "path": "/Users/maarten/Documents/Recompile/.worktrees/kasc-66-legacy-bank-67-complete-20260904",
+      "path": "<workspace>/.worktrees/kasc-66-legacy-bank-67-complete-20260904",
       "manifestPath": "@KANTO_ASCENDANT_BASIS@/manifest.json",
       "readOnly": true,
       "fingerprint": "47e09d963c77957965e26e595c7dd09c2a7a702f3944f2ebc2a6b3f3db0edef9",
@@ -103768,7 +103768,7 @@
   "kascMapEditingContract": {
     "schema": "kasc.map-studio.location-workspace.v1",
     "createdAt": "2026-09-05T00:00:00+02:00",
-    "readOnlyRuntimeSource": "/Users/maarten/Documents/Recompile/.worktrees/kasc-66-legacy-bank-67-complete-20260904",
+    "readOnlyRuntimeSource": "<workspace>/.worktrees/kasc-66-legacy-bank-67-complete-20260904",
     "productionExportAllowed": false,
     "handoffRule": "Änderungen werden aus diesem Workspace geprüft und anschließend ownergebunden in KASC übertragen.",
     "categories": {

@@ -447,6 +447,7 @@ return function(mod, opts)
       raw = L.newState()
     end
     local s = normalize(raw)
+    if s then L.reconcileLabIntroduction(s, L.game) end
     if s and not L.readOnly then
       local ok, result = pcall(mod.save.set, mod.save, L.SAVE_KEY, s)
       if not ok or result == false then return nil end
@@ -1031,13 +1032,42 @@ return function(mod, opts)
     end
     s.knownActors[roles.player] = true
     -- In a normal completed story the authored story rival is already known.
-    -- NG+ may use a different archived protagonist, so only actual introduction
-    -- receipts are trusted there.
+    -- NG+ may use a different archived protagonist, so require an actual road
+    -- introduction or the current save's authored lab encounter there.
     if hallOfFame(game and game.save) and not ngplusActive(game and game.save) then
       s.knownActors[roles.rival] = true
     end
+    -- The current save's authored lab battle is also an actual meeting.
+    -- Do not confuse a new NG+ avatar with an unknown story rival after Oak.
+    if L.labRivalKnown(game) then s.knownActors[roles.rival] = true end
     for actor, introduced in pairs(s.thirdIntroductions or {}) do
       if introduced == true then s.knownActors[actor] = true end
+    end
+    return true
+  end
+
+  function L.labRivalKnown(game)
+    return game and game.save and ngplusActive(game.save)
+      and game.save.flags and game.save.flags.EVENT_BATTLED_RIVAL_IN_OAKS_LAB == true
+      or false
+  end
+
+  function L.reconcileLabIntroduction(s, game)
+    if not L.labRivalKnown(game) then return false end
+    local roles = L.characterRoles(game)
+    if not roles then return false end
+    L.syncKnownActors(s, game)
+    local pending = s.pending
+    if pending and pending.arc == "intro" and pending.actor == roles.rival
+        and pending.role == "rival" and not pending.talked
+        and not pending.battleStarted then
+      -- Repair an already queued old-build introduction before it can speak.
+      -- Do not retire accepted battles or an introduction already displayed.
+      s.pending = nil
+      local active = L.active
+      if active and active.save == game.save and active.token == pending.token then
+        L.cleanup(active)
+      end
     end
     return true
   end

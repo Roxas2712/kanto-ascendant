@@ -9,7 +9,7 @@ function M.new(mod,archive,i18n)
   if type(mod.read)~='function' or not mod.cache then return nil end
   local Compat=load('ContentCompat');local Shared=load('AscendantSharedCache')
   local session=load('AscendantContentSession').new(mod,{owner='kasc',compatPath='lib/ContentCompat.lua',
-   cache=Shared.new(assert(Compat.fs())),cacheId=Shared.ID,catalogModule='KascSpriteCatalogData',
+   cache=Shared.new(assert(Compat.fs())),cacheId=Shared.ID,catalogModule='SpriteCatalogData',
    downloadScreenId='KascSpriteDownloads',offerScreenId='KascSpriteOffer',includeHd=false,importIds={}})
   self.ownsSession=true;return session
  end
@@ -20,6 +20,10 @@ function M.new(mod,archive,i18n)
   if not session or type(session.rewardContent)~='function'then self.gate=nil;return false end
   if type(mod.read)=='function' and type(mod.info)=='function' and session.store and session.catalog and session.cache then
    load('SpriteBundledSession').attach(session,mod,nativeInfo)
+  end
+  if type(mod.read)=='function' and type(session.update)=='function'
+    and session.catalog and session.catalog.data then
+   load('SpriteStartupOffer').attach(session)
   end
   local gate=session:rewardContent(mod,archive,game)
   self.session=session;mod.exports.ascendantContent=session

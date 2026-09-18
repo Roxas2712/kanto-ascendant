@@ -244,6 +244,20 @@ return function(mod, opts)
         }
       end
     end
+    local content = mod.exports and mod.exports.ascendantContent
+    if content then
+      root[#root + 1] = {
+        label = tr("DLC / SPRITES", "DLC / SPRITES"),
+        help = tr("Download and manage optional sprite packs.",
+          "Optionale Sprite-Pakete herunterladen und verwalten."),
+        ascendantKey = "sprite_downloads",
+        onSelect = function()
+          local current = mod.exports.ascendantContent
+          return mod.ui.push(mod.world.game,
+            current and current.downloadScreenId or "KascSpriteDownloads")
+        end,
+      }
+    end
     if settings then
       settings.label = tr("SETTINGS", "EINSTELLUNGEN")
       settings.help = settings.help or defaultHelp("options")
@@ -251,11 +265,12 @@ return function(mod, opts)
     end
     if supportLog and type(supportLog.open) == "function" then
       root[#root + 1] = {
-        label=tr("SUPPORT LOG", "FEHLERPROTOKOLL"),
-        help=defaultHelp("support_log"),
-        ascendantKey="support_log",
+        label=tr("DIAGNOSTICS", "DIAGNOSTIK"),
+        help=tr("View diagnostics and send KASC or VASC logs with your support code.",
+          "Diagnostik öffnen und KASC- oder VASC-Logs mit deinem Support-Code senden."),
+        ascendantKey="diagnostics",
         onSelect=function()
-          return supportLog.open(mod.world.game, tr)
+          return A.openDiagnostics(mod.world.game)
         end,
       }
     end
@@ -264,6 +279,48 @@ return function(mod, opts)
       root[#root + 1] = vasc
     end
     return root
+  end
+
+  function A.openDiagnostics(game)
+    -- Use VASC's existing combined diagnostics when that mod is available.
+    -- KASC alone keeps its own complete support path.
+    if type(mod.find) == "function" then
+      local found, vasc = pcall(mod.find, mod, "VOXEL_ASCENDANT")
+      if found and vasc then
+        local opened, screen = pcall(mod.ui.push, game, "VascDiagnostics")
+        if opened and screen then return screen end
+      end
+    end
+    local rows = {{
+      label=tr("SEND KASC LOG", "KASC-LOG SENDEN"),
+      help=defaultHelp("support_log"),
+      onSelect=function()
+        local opened = supportLog.open(game, tr)
+        if opened and game.stack and type(game.stack.top) == "function" then
+          local ok, presentation = pcall(function()
+            return assert((loadstring or load)(assert(mod:read("lib/SupportMenu.lua")),
+              "@lib/SupportMenu.lua"))()
+          end)
+          if ok and presentation and type(presentation.decorate) == "function" then
+            presentation.decorate(game.stack:top(), ascendantUi, tr("en", "de") == "de")
+          end
+        end
+        return opened
+      end,
+    }}
+    local title = tr("DIAGNOSTICS", "DIAGNOSTIK")
+    if ascendantUi and type(ascendantUi.pushGuidedList) == "function" then
+      return ascendantUi.pushGuidedList(game, {
+        key="ascendant_diagnostics", title=title,
+        helpTitle=tr("DIAGNOSTICS HELP", "DIAGNOSTIK-HILFE"),
+        help=tr("Send a log after the problem occurs. Enter your eight-digit support code and confirm sending. VASC logs are available here when VASC is installed.",
+          "Sende nach dem Problem ein Log. Gib deinen achtstelligen Support-Code ein und bestätige den Versand. Mit installiertem VASC sind hier auch VASC-Logs verfügbar."),
+        rows=rows, footer=tr("A:OPEN B:BACK", "A:ÖFFNEN B:ZURÜCK"),
+        options={pageJump=false, wrap=true},
+        onChoose=function(item) if item and item.onSelect then return item.onSelect() end end,
+      })
+    end
+    return game.stack:push(menu(game, title, rows, false))
   end
 
   function A.openCategory(game, title, rows)

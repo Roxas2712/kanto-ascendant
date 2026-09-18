@@ -1,5 +1,5 @@
 {
-  "source": "/Users/maarten/Documents/Recompile/jphyper-gen2ified-sprites/gen_2-ified_pokesprites_kalos_edition.png",
+  "source": "<workspace>/jphyper-gen2ified-sprites/gen_2-ified_pokesprites_kalos_edition.png",
   "sourceSha256": "3a20bd41ca62168a778395474d13e041d34435939985e9e727c00b891913aaba",
   "sets": [
     {
@@ -84,7 +84,7 @@
   "rears": [
     {
       "variant": "normal",
-      "source": "/Users/maarten/Documents/Recompile/jphyper-gen2ified-backsprites/references/pokeapi/normal/0678.png",
+      "source": "<workspace>/jphyper-gen2ified-backsprites/references/pokeapi/normal/0678.png",
       "crop": [
         24,
         20,
@@ -99,7 +99,7 @@
     },
     {
       "variant": "shiny",
-      "source": "/Users/maarten/Documents/Recompile/jphyper-gen2ified-backsprites/references/pokeapi/shiny/0678.png",
+      "source": "<workspace>/jphyper-gen2ified-backsprites/references/pokeapi/shiny/0678.png",
       "crop": [
         24,
         20,

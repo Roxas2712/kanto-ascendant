@@ -1,7 +1,6 @@
--- KASC-owned discovery Card over the existing fullscreen menu bridge.
--- The published VASC renderer files remain untouched. Its four-region list
--- cannot represent the maximum catalogue, so use this surface only when a
--- later discovery actually needs it. Native/off/Gen2 screens stay native.
+-- KASC discovery fallback. VASC owns the graphical screen when available;
+-- its maximum-catalogue adapter retains later discoveries and national numbers.
+-- Native/off/Gen2 screens stay native.
 return function(mod,opts)
   local D,M=assert(opts.dex),assert(opts.maximum)
   local S={CARD_ID='KASC-WAVE1-MAXIMUM-DEX-SURFACE'}
@@ -14,8 +13,19 @@ return function(mod,opts)
     local version=require('src.core.GameVersion').get()
     return D.game==game and (version=='red' or version=='blue' or version=='yellow')
   end
+  local function graphicalProvider()
+    if type(mod.find) ~= 'function' then return nil end
+    local ok, vasc=pcall(mod.find,'VOXEL_ASCENDANT')
+    if not ok or not vasc then ok,vasc=pcall(mod.find,mod,'VOXEL_ASCENDANT')end
+    local provider=ok and vasc and vasc.exports and vasc.exports.modernDex
+    return type(provider)=='table' and provider.active==true and provider or nil
+  end
   function S.needed(game)
     if not S.active(game)then return false end
+    local provider=graphicalProvider()
+    if provider and type(provider.mode)=='function' and provider.mode()=='game' then
+      return false
+    end
     for _,row in ipairs(M.discovered(game,{}))do
       if row.number>411 then return true end
     end
@@ -38,6 +48,11 @@ return function(mod,opts)
   end
   function S.new(game,args)
     args=args or {}
+    local provider=graphicalProvider()
+    if provider and provider.maximumCatalogue and type(provider.build)=='function' then
+      local ok,page=pcall(provider.build,game,args)
+      if ok and type(page)=='table' then return page end
+    end
     local native=require('src.ui.PokedexMenu').new(game)
     local rows={}
     for _,row in ipairs(native.items)do
@@ -75,7 +90,8 @@ return function(mod,opts)
   function S.project(page,game)
     if not (page and page.def and page.def.id)then return page end
     page.def=M.entryDefinition(page.def.id,page.def)
-    if page.__vascModernDexEntry and not page.__kascMaximumDexEntry67 then
+    if page.__vascModernDexEntry and not (page.all and page.all.maximumCatalogue)
+        and not page.__kascMaximumDexEntry67 then
       local original=page.setSpecies
       page.setSpecies=function(self,id,...)
         local result=original(self,id,...)
