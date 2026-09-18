@@ -1,9 +1,20 @@
-# Kanto Ascendant 6.7.13 – iPhone support log hotfix
+# Kanto Ascendant 6.7.14 — Smaller saves, readable battle sprites & gameplay fixes
 
-- Support log sending works around the missing dedicated POST bridge in iOS engine 0.2.61 by using its existing background HTTP request transport.
-- SEND SUPPORT LOG sends with one selection after entering the code, without an extra help popup or confirmation click.
-- HTTP rejection, timeouts and cancellation remain failures; reports are never retried automatically. Uploads remain manual, bounded and redacted, with no save file attached. Desktop and dedicated mobile POST transports are preserved.
+Changes since 6.7.13:
 
-Validation: shared sender regression tests cover success, HTTP rejection, timeout, cancellation, duplicate clicks and desktop routing. The same background request route delivered a verified native test report. Physical iPhone verification is still pending; the separately reported HD-sprite issue remains under investigation.
+- **Smaller saves:** lossless compaction removes unnecessary whitespace from KASC save serialization. Pokémon, boxes and mod data are retained. This reduces size pressure on cloud sync; the server's 2 MiB limit is unchanged, so arbitrarily large saves may still exceed it. Load and save once to apply the compact format.
+- **Readable battle sprites with VASC 3.0.29:** publishes verified visible sprite dimensions across full animations, including normal/shiny, Mega and Gorochu artwork. Transparent borders and high-resolution source cards no longer make Pokémon disproportionately large. Form-specific size data and expanded animation canvases are retained.
+- **Sprite maintenance:** the integrated sprite-content menus support checking/repairing, reinstalling and removing downloaded content while protecting saves, bundled artwork and imports.
+- **Visible Wilds discovery:** fixes the discovery guarantee for eligible visible encounters, including the reported Aron path.
+- **Swagger / Flatter:** fixes the associated stat/confusion behavior while respecting native protection and ability rules.
+- Retains the 6.7.13 iPhone support-log transport fix and the previous sprite upkeep.
 
-Update KASC in the launcher and restart the game. For manual updates over an existing sprite installation, use the preserving installer asset and its included instructions.
+## Updating
+
+Use **KASC 6.7.14 together with VASC 3.0.29** for the complete battle-size update. Update both mods and fully restart the game. Existing saves remain compatible. Keep downloaded/imported sprite content; do not delete the existing mod folders first. The ZIP is the normal mod package. For manual desktop updates, the optional **Preserve-Installed-Sprites** installer creates a backup and preserves optional downloads; follow its included instructions.
+
+## Validation
+
+The reviewed release-candidate runtime is unchanged. Tests covered 1,351 canonical height/form entries, 78,779 PNG records in 6,153 animation/palette groups, 382 animated variants / 3,921 frames and 424 static variants. Native macOS tests included Pikachu versus Manectric and Wailord, Crystal mode, Mega Manectric and Gorochu, plus 1X/3X MAP camera checks. All packaged Lua files, archive integrity and installer preservation checks passed. Fifteen additional gameplay regression tests passed.
+
+Not every form has been manually played. Physical mobile-device and live cloud-sync verification remain pending.

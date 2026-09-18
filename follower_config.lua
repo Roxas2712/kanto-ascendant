@@ -45,6 +45,7 @@ return function(mod, opts)
     -- Options are process-global, while follower configuration belongs to a
     -- save slot. An old Blue/Yellow slot must not inherit Count=4 merely
     -- because Red changed the central option earlier in the same identity.
+    s.enabled = s.enabled ~= false
     s.count = clampCount(s.count ~= nil and s.count or 1)
     s.mode = normalizeMode(s.mode ~= nil and s.mode or "party")
     s.presentation = normalizePresentation(
@@ -182,6 +183,7 @@ return function(mod, opts)
   end
 
   local function syncOptions(s)
+    syncOneOption("follower_enabled", s.enabled)
     syncOneOption("follower_count", s.count)
     syncOneOption("follower_order", s.mode)
     if C.isYellow() then
@@ -208,6 +210,12 @@ return function(mod, opts)
     return gv and gv.isYellow and gv.isYellow() == true
   end
 
+  function C.enabled() return state().enabled end
+  function C.setEnabled(value)
+    local s = state(); s.enabled = value ~= false
+    persist(s); syncOneOption("follower_enabled", s.enabled); refresh()
+    return s.enabled
+  end
   function C.count() return state().count end
   function C.mode() return state().mode end
   function C.presentation() return state().presentation end
@@ -467,7 +475,8 @@ return function(mod, opts)
   if mod.events and mod.events.on then
     mod.events:on("mod.options_changed", function(ev)
       if not (ev and ev.mod == mod.id) then return end
-      if ev.key == "follower_count" then C.setCount(ev.value)
+      if ev.key == "follower_enabled" then C.setEnabled(ev.value)
+      elseif ev.key == "follower_count" then C.setCount(ev.value)
       elseif ev.key == "follower_order" then C.setMode(ev.value)
       elseif ev.key == "yellow_partner_presentation" then
         C.setPresentation(ev.value)

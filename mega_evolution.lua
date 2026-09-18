@@ -1121,6 +1121,11 @@ return function(mod, opts)
         texture.ay = anchorY
         texture.kantoAscendantMegaSupersampled = true
         texture.kantoAscendantMegaSource = relative
+        local metrics = mod.exports and mod.exports.battleSpriteMetrics67
+        local extent = metrics and metrics.forPath(relative)
+        local iw, ih = image:getDimensions()
+        texture.ascendantSpriteReceipt = { apiVersion=1, view=artSide, body="full",
+          referenceExtent=extent and extent*MASTER_CARD/math.max(iw,ih) or nil }
         return texture
       end
 

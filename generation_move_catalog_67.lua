@@ -120,6 +120,12 @@ return function(mod, opts)
       kind=damaging and "secondary" or "primary",
       accuracyChecked=not damaging and row.target~=7 or nil,
       run=function(ctx)
+        local compoundConfusion = not damaging
+          and (row.id == "SWAGGER" or row.id == "FLATTER")
+        if compoundConfusion and (ctx.target.substituteHP
+            or ctx.target.mon.hp <= 0) then
+          return {tr("But, it failed!", "Doch es schlug fehl!")}
+        end
         if damaging and row.statChance>0 then
           local chance=C.secondaryChance and C.secondaryChance(ctx,row.statChance,row.metaCategory==7) or row.statChance
           if ctx.rng(1,100)>chance then return {}end
@@ -140,6 +146,18 @@ return function(mod, opts)
           for _,message in ipairs(changeStage(target,change.stat,
               change.change,target~=ctx.user and change.change<0)) do
             messages[#messages+1]=message
+          end
+        end
+        if compoundConfusion then
+          -- Resolve at use time: the current confusion authority owns
+          -- Safeguard, Own Tempo, terrain, duration and localized feedback.
+          -- A capped stat must not prevent the independent confusion effect.
+          local confusion = ctx.battle and ctx.battle.data
+            and ctx.battle.data.move_effects
+            and ctx.battle.data.move_effects.CONFUSION_EFFECT
+            or mod.content.move_effects:get("CONFUSION_EFFECT")
+          for _, message in ipairs(confusion.run(ctx) or {}) do
+            messages[#messages+1] = message
           end
         end
         return messages

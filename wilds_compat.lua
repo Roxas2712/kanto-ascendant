@@ -549,6 +549,9 @@ return function(mod, opts)
     if spawnSafety and type(spawnSafety.install) == "function" then
       spawnSafety.install(wilds, game)
     end
+    if opts.discovery and type(opts.discovery.installVisibleWilds) == "function" then
+      opts.discovery.installVisibleWilds(logic, game)
+    end
     W.wildsVersion = wilds.version
     syncLivingWorldOptions(game)
     installSourceDexIdentity(wilds, game)

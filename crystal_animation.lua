@@ -867,6 +867,8 @@ return function(mod, opts)
       local filter = opts.filter == "linear" and "linear" or "nearest"
       image:setFilter(filter, filter)
     end
+    local metrics = mod.exports and mod.exports.battleSpriteMetrics67
+    if metrics then metrics.bindImage(image, path) end
     imageCache[key] = image
     return image
   end

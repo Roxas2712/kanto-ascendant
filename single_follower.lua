@@ -105,6 +105,7 @@ return function(mod, opts)
   end
 
   local function rows(game)
+    if config and config.enabled and not config.enabled() then return {} end
     if selection.activeMany then return selection.activeMany(game, N.count) end
     local mon, slot, source = selection.active(game)
     return mon and { { mon = mon, slot = slot, source = source } } or {}
@@ -962,6 +963,11 @@ return function(mod, opts)
     local Follower = require("src.world.PikachuFollower")
     reconcileInterruptedHide(game.overworld)
     local selected = rows(game)
+    if not selected[1] then
+      Follower.onMapEntered(game, game.overworld)
+      removeExtras(game.overworld, movementState(game.overworld))
+      return false
+    end
     sprites.configure(game, selected[1] and selected[1].mon)
     if not Follower.current(game.overworld) then
       Follower.onMapEntered(game, game.overworld)

@@ -252,7 +252,11 @@ return function(mod)
   -- migration, option or feature module can emit a warning. This mirrors the
   -- existing mod.log instance but never replaces its host-facing semantics.
   mod.exports = mod.exports or {}
+  mod.exports.compactSave = loadSibling(mod, "compact_save.lua")
+  mod.exports.compactSave.install(mod)
   mod.exports.optionalPokemonAssets = loadSibling(mod, "PokemonOptionalAssets.lua")
+  mod.exports.battleSpriteMetrics67 = loadSibling(mod, "battle_sprite_metrics_67.lua")(
+    mod, loadSibling(mod, "battle_sprite_metrics_67_data.lua"))
   mod.exports.supportSessionLog =
     loadSibling(mod, "support_session_log.lua")(mod)
   if not mod.exports.supportSessionLog.boot()
@@ -1236,6 +1240,8 @@ return function(mod)
       type = "toggle", default = true },
     { key = "life_of_rival",
       label = menuLabel("A RIVAL'S LIFE", "RIVALENLEBEN"),
+      type = "toggle", default = true },
+    { key = "follower_enabled", label = menuLabel("FOLLOWERS", "BEGLEITER"),
       type = "toggle", default = true },
     { key = "follower_count",
       label = menuLabel("FOLLOWER COUNT", "BEGLEITER-ANZAHL"),
@@ -2986,6 +2992,7 @@ return function(mod)
     })
   local makeWildsCompat = loadSibling(mod, "wilds_compat.lua")
   local wildsCompat = makeWildsCompat(mod, {
+    discovery = mod.exports.discoveryCore.hoenn,
     johtoResearch = johtoResearch,
     johtoSignals = johtoSignals,
     data = johtoData,

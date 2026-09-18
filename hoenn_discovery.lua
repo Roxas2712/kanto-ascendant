@@ -1031,6 +1031,7 @@ function Module.create(State, Overlay, Acquisition)
       eventPriority = H.EVENT_PRIORITY,
     }
     local pendingProposal
+    local visibleBattles = setmetatable({}, { __mode = "k" })
 
     local function profileSpeciesAllowed(game, species)
       local rules = deps.generationRules
@@ -1240,11 +1241,105 @@ function Module.create(State, Overlay, Acquisition)
       return output
     end
 
+    -- Visible Wilds do not roll the native encounter table. Prepare at contact,
+    -- before Pokemon.new/markSeen, then bind the proposal to that exact battle.
+    -- Spawning/rendering a body is never a counted encounter.
+    function C.proposeVisible(game, record)
+      local mapId = mapOf(nil, game)
+      if not mapId or mapId ~= record.mapId
+          or mapId:find("SAFARI_ZONE", 1, true)
+          or record.kaProtected or record.scriptedEncounter
+          or record.testSpawn or record.readinessProbe
+          or runRulesBlocked(deps.runRules, game) then return end
+      local access = deps.fieldAccess
+      if access and type(access.encountersEnabled) == "function" then
+        local ok, enabled = pcall(access.encountersEnabled, game)
+        if not ok or enabled ~= true then return end
+      end
+      local families = registered(game)
+      if #H.activeTraces(manager.root(false), mapId, families) == 0 then return end
+      C.serial = C.serial + 1
+      local _, _, levelMode, badges = fieldPolicy(game)
+      local output, transaction = H.planFieldOverlay(manager.root(true), {
+        native = { species=record.species, level=record.level },
+        mapId=mapId, registeredFamilies=families,
+        roll=random(1, Overlay.ROLL_MAX or 10000, "hoenn-visible-trace"),
+        serial=C.serial, game=game, levelMode=levelMode, badgeCount=badges,
+      })
+      if not transaction or not profileSpeciesAllowed(game, output.species) then return end
+      if not transaction.family then
+        for _, trace in ipairs(transaction.traces) do
+          if output.species == trace.species then
+            transaction.family, transaction.mode = trace.family, "trace"
+            transaction.natural = true
+            break
+          end
+        end
+      end
+      return output, transaction
+    end
+
+    function C.installVisibleWilds(logic, game)
+      if type(logic) ~= "table" or type(logic._startBattle) ~= "function" then return false end
+      logic._kascDiscoveryGame = game
+      if logic._kascDiscoveryBattleWrapped then return true end
+      local Battle = deps.BattleState or require("src.battle.BattleState")
+      local start = logic._startBattle
+      logic._startBattle = function(self, record, ...)
+        local activeGame = self._kascDiscoveryGame
+        if not record or self.pendingBattle
+            or not self.spawns or self.spawns[record.id] ~= record then
+          return start(self, record, ...)
+        end
+        local create = Battle.newWild
+        local used = false
+        local proposedBattle
+        -- WorldAPI.queueScript executes start_battle synchronously. Limit the
+        -- factory adapter to the provider's checked start call; restore it on
+        -- success, rejected queue and exception. Other scripted battles keep
+        -- their source and never acquire a discovery receipt.
+        Battle.newWild = function(battleGame, species, level, options)
+          local output, transaction
+          if not used and battleGame == activeGame
+              and species == record.species and level == record.level
+              and not (options and options.hooked) then
+            used = true
+            output, transaction = C.proposeVisible(activeGame, record)
+          end
+          local battle = create(battleGame, output and output.species or species,
+            output and output.level or level, options)
+          if transaction then
+            visibleBattles[battle] = { transaction=transaction, save=activeGame.save }
+            proposedBattle = battle
+          end
+          return battle
+        end
+        local ok, result, reason = pcall(start, self, record, ...)
+        Battle.newWild = create
+        if (not ok or result ~= true) and proposedBattle then
+          visibleBattles[proposedBattle] = nil
+        end
+        if not ok then error(result, 0) end
+        return result, reason
+      end
+      logic._kascDiscoveryBattleWrapped = true
+      return true
+    end
+
     function C.commitStarted(ev)
-      local transaction = pendingProposal
+      local battle = ev and ev.battle or ev
+      local visible = battle and visibleBattles[battle]
+      if visible then visibleBattles[battle] = nil end
+      local transaction = visible and visible.transaction or pendingProposal
       pendingProposal = nil
       if not transaction then return false, "none" end
-      local battle = ev and ev.battle or ev
+      if visible and (not battle.game or battle.game.save ~= visible.save) then
+        return false, "save-boundary"
+      end
+      if visible and battle.encounterSource ~= nil
+          and battle.encounterSource ~= "wild" then
+        return false, "protected-catch-surface"
+      end
       local mon = battle and battle.enemy and battle.enemy.mon
       local nextRoot, committed, result = H.commitStarted(
         manager.root(true), transaction, {
@@ -1253,6 +1348,7 @@ function Module.create(State, Overlay, Acquisition)
           species = mon and mon.species,
           level = mon and mon.level,
           mapId = mapOf(ev, battle and battle.game),
+          encounterSource = visible and "wild" or nil,
         })
       if not committed then return false, result end
       manager.replace(nextRoot)
@@ -1314,6 +1410,7 @@ function Module.create(State, Overlay, Acquisition)
 
     local function resetRuntime(ev)
       C.game = ev and ev.game or C.game
+      visibleBattles = setmetatable({}, { __mode = "k" })
       C.cancelPending("save-boundary")
       local root = manager.root(true)
       local cleaned, changed = H.clearPending(root)

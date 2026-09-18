@@ -275,6 +275,12 @@ return function(mod, opts)
       texture.ay = anchorY
       texture.kantoAscendantGorochuSupersampled = true
       texture.kantoAscendantGorochuSource = relative
+      local metrics = mod.exports and mod.exports.battleSpriteMetrics67
+      local extent = metrics and metrics.forPath(relative)
+      local iw, ih = image:getDimensions()
+      local drawScale = lane == "crystal-primary" and 1 or MASTER_CARD/math.max(iw,ih)
+      texture.ascendantSpriteReceipt = { apiVersion=1, view=artSide, body="full",
+        referenceExtent=extent and extent*drawScale or nil }
       texture.kantoAscendantGorochuSide = artSide
       texture.kantoAscendantGorochuAnimationFrame = animationFrame
       texture.kantoAscendantGorochuAssetLane = lane

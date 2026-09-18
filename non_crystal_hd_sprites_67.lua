@@ -317,6 +317,16 @@ return function(mod, opts)
       width,height=tonumber(width)or 160,tonumber(height)or 144
       local anchorX=tonumber(texture.ax)or width/2
       local anchorY=tonumber(texture.ay)or 96
+      local iw,ih=state.image:getDimensions()
+      local scale=tonumber(state.scale)or 1.5
+      -- A 96px form master at 1.5x extends above the old y=96 anchor.
+      -- Retain the complete source before VASC applies density conversion.
+      -- Growing this private canvas changes no scene/world coordinates.
+      local left=math.max(0,math.ceil(iw*scale/2-anchorX))
+      local top=math.max(0,math.ceil(ih*scale-anchorY))
+      anchorX,anchorY=anchorX+left,anchorY+top
+      width=math.max(width+left,math.ceil(anchorX+iw*scale/2))
+      height=math.max(height+top,math.ceil(anchorY))
       local canvas=canvasFor(side,width,height)
       if not canvas then return texture end
       local g=love.graphics
@@ -326,8 +336,6 @@ return function(mod, opts)
       local ok=pcall(function()
         g.setCanvas(canvas);g.clear(0,0,0,0);g.setBlendMode("alpha")
         g.setColor(1,1,1,1)
-        local iw,ih=state.image:getDimensions()
-        local scale=tonumber(state.scale)or 1.5
         g.draw(state.image,anchorX-iw*scale/2,anchorY-ih*scale,
           0,scale,scale)
       end)
@@ -336,6 +344,7 @@ return function(mod, opts)
       g.setColor(red or 1,green or 1,blue or 1,a or 1)
       if not ok then return texture end
       texture.canvas=canvas
+      texture.ax,texture.ay=anchorX,anchorY
       -- The side canvas is reused, but its content is now our full front,
       -- not the inner renderer's native sprite (usually a static player
       -- rear). VASC keys its alpha-bounds cache by canvas + inkIdentity.
@@ -360,7 +369,18 @@ return function(mod, opts)
       texture.kantoAscendantNonCrystalHdVariant=state.variant
       texture.kantoAscendantNonCrystalHdProvider=state.source
       texture.kantoAscendantNonCrystalHdStaticFallback=state.static==true
-      texture.ascendantSpriteReceipt={apiVersion=1,view="front",body="full"}
+      -- These cards use 64/96px sources and an authored draw scale, whereas
+      -- the engine's physical battle-card reference is 56px. Publish source
+      -- density independently of species height. VASC can undo this exactly
+      -- once without measuring each animation pose or changing classic 2D.
+      local metrics=mod.exports and mod.exports.battleSpriteMetrics67
+      local extent=metrics and metrics.forPath(state.path)
+      texture.ascendantSpriteReceipt={apiVersion=1,view="front",body="full",
+        referenceExtent=extent and extent*scale or nil,
+        pixelScale=math.max(iw,ih)*scale/56,
+        heightIn=state.row.battleForm and type(meters)=='number'
+          and meters==meters and meters>0 and meters<math.huge
+          and meters/0.0254 or nil}
       return texture
     end
     overworld.kantoAscendantNonCrystalHdFrontHook=true
