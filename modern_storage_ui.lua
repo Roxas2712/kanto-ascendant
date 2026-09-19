@@ -15,6 +15,7 @@ return function(mod, opts)
   local Boxes = require("src.pokemon.Boxes")
   local Strings = require("src.core.Strings")
   local Theme = require("src.ui.Theme")
+  local Assets = require("src.render.Assets")
 
   local C = {
     ink = { 0.08, 0.12, 0.19, 1 },
@@ -500,7 +501,17 @@ return function(mod, opts)
     color(C.white)
   end
 
-  local spriteCache = {}
+  local function drawBall(x, y, selected)
+    color(selected and C.gold or C.white)
+    love.graphics.circle("fill", x, y, 5)
+    color(C.red)
+    love.graphics.arc("fill", x, y, 5, math.pi, math.pi * 2)
+    color(C.ink)
+    love.graphics.rectangle("fill", x - 5, y - 1, 10, 2)
+    love.graphics.circle("line", x, y, 5)
+    love.graphics.circle("fill", x, y, 1.5)
+  end
+
   local function monIsShiny(mon)
     local shiny = mon and mon.shiny == true or false
     local authority = mod.exports and mod.exports.shinySystem
@@ -513,31 +524,29 @@ return function(mod, opts)
   local function monSprite(game, mon)
     if not (mon and mon.species and love.graphics.newImage) then return nil end
     local shiny = monIsShiny(mon)
-    local key = table.concat({
-      mon.species,
-      shiny and "s" or "n",
-      tostring(mod.options:get("pokemon_sprite_style")),
-      tostring(mod.options:get("sprite_style_box")),
-    }, ":")
-    if spriteCache[key] ~= nil then
-      return spriteCache[key] or nil
-    end
     local ok, path = pcall(require("src.pokemon.Sprites").path,
       game.data, mon.species, "front", {
         kind = "box", mon = mon, shiny = shiny,
       })
-    if not ok or not path then
-      spriteCache[key] = false
-      return nil
-    end
-    local made, image = pcall(love.graphics.newImage, path)
-    spriteCache[key] = made and image or false
+    if not ok or not path then return nil end
+    -- Use the engine's override/derived-asset resolver and successful-image
+    -- cache. Resolve the live appearance on every draw: species alone cannot
+    -- identify forms or a changed visual provider, and a failed load must not
+    -- hide that species for the rest of the session.
+    local made, image = pcall(Assets.image, path)
     return made and image or nil
   end
 
   local function drawMonImage(game, mon, x, y, w, h)
     local image = monSprite(game, mon)
-    if not image or not love.graphics.draw then return false end
+    if not image then
+      if not mon then return false end
+      -- A missing cosmetic asset must never make an occupied slot look empty.
+      drawBall(x + w / 2, y + h / 2, false)
+      color(C.white)
+      return true
+    end
+    if not love.graphics.draw then return false end
     local okW, iw = pcall(image.getWidth, image)
     local okH, ih = pcall(image.getHeight, image)
     if not okW or not okH or iw <= 0 or ih <= 0 then return false end
@@ -760,17 +769,6 @@ return function(mod, opts)
       lines, offset = lines + 1, offset + spans[fit].to
     end
     return lines
-  end
-
-  local function drawBall(x, y, selected)
-    color(selected and C.gold or C.white)
-    love.graphics.circle("fill", x, y, 5)
-    color(C.red)
-    love.graphics.arc("fill", x, y, 5, math.pi, math.pi * 2)
-    color(C.ink)
-    love.graphics.rectangle("fill", x - 5, y - 1, 10, 2)
-    love.graphics.circle("line", x, y, 5)
-    love.graphics.circle("fill", x, y, 1.5)
   end
 
   local function boxMonForItem(game, item, title)
