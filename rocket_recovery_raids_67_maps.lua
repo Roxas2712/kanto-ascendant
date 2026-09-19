@@ -30,6 +30,17 @@ M.rows={
     guards={{13,14},{18,12},{21,10}},boss={25,8}},
 }
 
+-- Yellow's Cerulean Cave uses a different floor plan. The Red/Blue route
+-- puts two guards in walls and separates every checkpoint from the entry.
+-- Land the isolated raid in Yellow's connected central pocket instead;
+-- keep the real stock doorway as the return point after leaving the raid.
+local hasVersion,GameVersion=pcall(require,"src.core.GameVersion")
+if hasVersion and GameVersion.isYellow()then
+  local cave=M.rows[3]
+  cave.start={15,12}
+  cave.guards={{15,10},{17,7},{19,6}}
+end
+
 M.byInstance={};M.byMap={};M.byHostMap={}
 for _,row in ipairs(M.rows)do
   M.byInstance[row.id]=row
