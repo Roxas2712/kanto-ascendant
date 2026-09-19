@@ -594,15 +594,13 @@ return function(mod, opts)
       })
   end
 
-  function G.handleTalk(ow, npc, game)
-    if not (G.available and ow and ow.map and npc and npc.def and game) then
-      return false
-    end
-    if ow.map.id == "POWER_PLANT" and npc.def.name == SHRINE then
-      return useShrine(ow, npc, game)
-    end
-    if ow.map.id ~= "VERMILION_GYM" or npc.def.name ~= SURGE
-        or isYellow() or not surgeVictory(game) then
+  -- Shared reward route for Red/Blue and Yellow journeys that deliberately
+  -- chose a different starter. The caller selects the edition-specific path;
+  -- victory, ownership and recovery still share one authoritative handler.
+  function G.handleSurgeHeart(ow, npc, game)
+    if not (G.available and ow and ow.map and npc and npc.def and game)
+        or ow.map.id ~= "VERMILION_GYM" or npc.def.name ~= SURGE
+        or not surgeVictory(game) then
       return false
     end
     -- THUNDERHEART is the durable hand-off marker. If it is missing, always
@@ -621,6 +619,17 @@ return function(mod, opts)
       return repairHeart(ow, npc, game)
     end
     return offerHeart(ow, npc, game)
+  end
+
+  function G.handleTalk(ow, npc, game)
+    if not (G.available and ow and ow.map and npc and npc.def and game) then
+      return false
+    end
+    if ow.map.id == "POWER_PLANT" and npc.def.name == SHRINE then
+      return useShrine(ow, npc, game)
+    end
+    if isYellow() then return false end
+    return G.handleSurgeHeart(ow, npc, game)
   end
 
   local function installItemEffect()

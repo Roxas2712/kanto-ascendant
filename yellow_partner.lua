@@ -764,6 +764,19 @@ return function(mod, opts)
       return false
     end
     if not surgeVictory(game) then return false end
+    -- Oak's current Legacy choice is authoritative even when an old Yellow
+    -- partner still lives in the PC/Bank. A different starter cannot complete
+    -- that partner's trial and must not leave Surge's rematches behind it.
+    local save = game.save
+    local bucket = type(save.modData) == "table" and save.modData[mod.id]
+    local journey = type(bucket) == "table" and bucket.legacy_journey
+    if type(journey) == "table" and journey.partnerChosen == true
+        and type(journey.partnerSpecies) == "string"
+        and journey.partnerSpecies ~= "" and journey.partnerSpecies ~= "PIKACHU"
+        and save.legacyStarter == journey.partnerSpecies
+        and gorochu and type(gorochu.handleSurgeHeart) == "function" then
+      return gorochu.handleSurgeHeart(ow, npc, game)
+    end
     Y.migrate(game)
     local s = state()
     if itemOwned(game, ITEM) then return false end
