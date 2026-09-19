@@ -19,7 +19,8 @@ local modPath = os.getenv("TRAINER_REMATCH_MOD_DIR")
 local Version = require("src.core.Version")
 local savedEngineVersion = Version.engine
 if Version.engine == "0.0.0-dev" then Version.engine = "0.1.90" end
-local sink = dofile(modPath .. "/tests/headless_modkit_asset_sink.lua")(T, modPath, {
+local testSupport = os.getenv("KASC_TEST_SUPPORT_DIR") or modPath .. "/tests"
+local sink = dofile(testSupport .. "/headless_modkit_asset_sink.lua")(T, modPath, {
   derivedPrefix = "save/mod-derived/kanto_ascendant/",
   bridgeLove = true, readOnlyMetadataCache = true,
 })

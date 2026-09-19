@@ -1,20 +1,14 @@
-# Kanto Ascendant 6.7.14 — Smaller saves, readable battle sprites & gameplay fixes
+# Kanto Ascendant 6.7.15 — Yellow quest and Rocket raid fixes
 
-Changes since 6.7.13:
+Two progression fixes for Pokémon Yellow. Existing saves and raid progress remain compatible; no new game is needed.
 
-- **Smaller saves:** lossless compaction removes unnecessary whitespace from KASC save serialization. Pokémon, boxes and mod data are retained. This reduces size pressure on cloud sync; the server's 2 MiB limit is unchanged, so arbitrarily large saves may still exceed it. Load and save once to apply the compact format.
-- **Readable battle sprites with VASC 3.0.29:** publishes verified visible sprite dimensions across full animations, including normal/shiny, Mega and Gorochu artwork. Transparent borders and high-resolution source cards no longer make Pokémon disproportionately large. Form-specific size data and expanded animation canvases are retained.
-- **Sprite maintenance:** the integrated sprite-content menus support checking/repairing, reinstalling and removing downloaded content while protecting saves, bundled artwork and imports.
-- **Visible Wilds discovery:** fixes the discovery guarantee for eligible visible encounters, including the reported Aron path.
-- **Swagger / Flatter:** fixes the associated stat/confusion behavior while respecting native protection and ability rules.
-- Retains the 6.7.13 iPhone support-log transport fix and the previous sprite upkeep.
+- **Thunderheart in NG+:** when a Legacy Journey uses a starter other than Pikachu, Lt. Surge now offers the normal Thunderheart hand-off after his defeat. This also resolves already-stalled partner trials and makes his rematch dialogue reachable after accepting the item. Retrieving an old Pikachu, Raichu or Gorochu from another journey is no longer required. The regular Yellow Pikachu trial, recorded progress and partner identity are preserved.
+- **Cerulean Cave Rocket raid:** Yellow now uses checkpoint positions suited to its own cave layout. All four required fights and the final capture are reachable on foot, including when resuming a checkpoint. Red/Blue layouts and the normal cave are unchanged.
 
 ## Updating
 
-Use **KASC 6.7.14 together with VASC 3.0.29** for the complete battle-size update. Update both mods and fully restart the game. Existing saves remain compatible. Keep downloaded/imported sprite content; do not delete the existing mod folders first. The ZIP is the normal mod package. For manual desktop updates, the optional **Preserve-Installed-Sprites** installer creates a backup and preserves optional downloads; follow its included instructions.
+Update KASC to 6.7.15 and fully restart the game. Resume an existing raid through its normal entry. Keep installed sprite downloads and imports; do not delete the mod folder first. The ZIP is the normal launcher package. The optional **Preserve-Installed-Sprites** installer backs up the existing installation and preserves optional sprite content.
 
 ## Validation
 
-The reviewed release-candidate runtime is unchanged. Tests covered 1,351 canonical height/form entries, 78,779 PNG records in 6,153 animation/palette groups, 382 animated variants / 3,921 frames and 424 static variants. Native macOS tests included Pikachu versus Manectric and Wailord, Crystal mode, Mega Manectric and Gorochu, plus 1X/3X MAP camera checks. All packaged Lua files, archive integrity and installer preservation checks passed. Fifteen additional gameplay regression tests passed.
-
-Not every form has been manually played. Physical mobile-device and live cloud-sync verification remain pending.
+275 Thunderheart checks, 852 native raid-reachability checks across Red/Blue/Yellow, and 2,060 Legacy starter checks passed. The complete package was loaded with actual Yellow data on Gen1 Recomp 0.2.60; packaged Lua syntax, archive integrity and installer payload checks passed. Manual Windows/mobile playthroughs were not performed for this hotfix.
