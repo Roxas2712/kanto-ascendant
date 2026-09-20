@@ -56,6 +56,14 @@ return function(mod,opts)
   -- Requiring OverworldController itself to be top prevents the decoration
   -- from leaking into any battle/menu merely because that map still exists.
   function C.mapViewTarget(game)
+    -- Padding rectangles use the flat map camera. A world renderer has its
+    -- own camera and complete sky/terrain; these rectangles would cover it
+    -- with opaque blocks, even though the native map data is unchanged.
+    local ok,pipelines=pcall(require,"src.render.Pipelines")
+    if ok and pipelines and type(pipelines.worldPipeline)=="function"then
+      local success,owner=pcall(pipelines.worldPipeline)
+      if success and owner then return nil end
+    end
     local stack=game and game.stack
     local top=stack and type(stack.top)=="function"and stack:top()or nil
     if not(top and(top==game.overworld or top.isOverworld==true))then return nil end

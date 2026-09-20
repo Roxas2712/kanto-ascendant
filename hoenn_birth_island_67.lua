@@ -103,7 +103,14 @@ return function(mod,opts)
   end
   function B.syncTriangle(ow)
     local npc=findTriangle(ow);if not npc then return false end
-    local p=B.trianglePositions[triangleStep(activeGame)+1];npc.x,npc.y=p[1],p[2];return true
+    local p=B.trianglePositions[triangleStep(activeGame)+1]
+    -- Native NPC collision/talking uses cellX/Y and rendering uses px/py.
+    -- x/y alone are merely compatibility fields on the released Gen1 host.
+    npc.x,npc.y=p[1],p[2]
+    npc.cellX,npc.cellY=p[1],p[2];npc.px,npc.py=p[1]*16,p[2]*16
+    npc.targetX,npc.targetY=nil,nil
+    npc.moving,npc.marching,npc.hopStep=false,false,nil;npc.progress=0
+    return true
   end
   local function stored(save,mon)for _,m in ipairs(save and save.party or{})do if m==mon then return true end end
     for _,box in ipairs(save and save.boxes or{})do for _,m in ipairs(box)do if m==mon then return true end end end

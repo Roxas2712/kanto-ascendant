@@ -184,6 +184,15 @@ return function(mod,opts)
       indexes[row.index]=row.map
       local returnText=row.text.."_RETURN"
       local isSky=row.character=="GREEN"
+      -- Keep the chamber's scripted encounter/receipt owner, but show the
+      -- actual legendary instead of the shared SPRITE_MONSTER placeholder.
+      -- These three small native sheets are bundled with the room so the
+      -- display does not depend on an optional follower download.
+      local sprite="SPRITE_KA_HEVO_LEGEND_"..row.species
+      mod.content.sprites:register(sprite,{id=sprite,
+        image=mod.path.."/assets/hoenn_legend_rooms/"..row.species:lower()..".png",
+        frames=6,walker=true,trueColor=true,pokemonSpecies=row.species,
+        voxelChamberImage=mod.path..'/assets/hoenn_legend_rooms/'..row.species:lower()..'_front.png'})
       local source=assert(geometry.map(row.map),"missing legend exploration map")
       assert(source.index==row.index,"legend map index changed")
       mod.content.maps:register(row.map,{id=row.map,index=row.index,
@@ -199,7 +208,7 @@ return function(mod,opts)
         voxelMode=isSky and"MAP_STUDIO"or"FULL",
         voxelRevision=source.voxelRevision,voxelAuthority="2D_BLOCKS",
         kaExplorationRevisionSha256=geometry.EXPLORATION_REVISION_SHA256,objects={
-          {index=1,name="KA_HEVO_"..row.species,sprite="SPRITE_MONSTER",x=8,y=4,
+          {index=1,name="KA_HEVO_"..row.species,sprite=sprite,x=8,y=4,
             movement="STAY",range="DOWN",text=row.text,passable=false}}})
       mod.content.encounters:register(row.map,{grass={rate=0,slots={}}})
       if mod.content.map_songs then mod.content.map_songs:register(row.map,"Music_Dungeon1")end

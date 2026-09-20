@@ -192,6 +192,23 @@ return function(mod, opts)
       }
     ]],
   }
+  local WORLD_HEADER = [[
+    extern Image sightSceneDepth;
+    extern mat4 sightInverseVP;
+    extern vec2 sightResolution;
+    vec2 sightWorldPoint(vec2 screen) {
+      vec2 uv=screen/sightResolution;
+      float d=Texel(sightSceneDepth,uv).r;
+      vec4 p=sightInverseVP*vec4(uv*2.0-1.0,min(d,0.99999)*2.0-1.0,1.0);
+      return p.xz/p.w;
+    }
+  ]]
+  local WORLD_SHADERS={}
+  for kind,source in pairs(SHADERS)do
+    source=source:gsub("screen%-sightCenter","sightWorldPoint(screen)-sightCenter")
+    source=source:gsub("distance%(screen,sightCenter%)","distance(sightWorldPoint(screen),sightCenter)")
+    WORLD_SHADERS[kind]=WORLD_HEADER..source
+  end
   V.shaderSources = SHADERS
 
   local function direction(ow)
@@ -261,22 +278,33 @@ return function(mod, opts)
       love.graphics.rectangle("fill", 0, 0, geometry.width, geometry.height)
       love.graphics.setBlendMode("alpha", "alphamultiply")
     end
-    if shaderCache[profile.kind] == nil and love.graphics.newShader then
-      local ok, shader = pcall(love.graphics.newShader, SHADERS[profile.kind])
-      shaderCache[profile.kind] = ok and shader or false
+    local shaderKey=geometry.sceneDepth and (profile.kind.."_WORLD") or profile.kind
+    local shaderSource=geometry.sceneDepth and WORLD_SHADERS[profile.kind] or SHADERS[profile.kind]
+    if shaderCache[shaderKey] == nil and love.graphics.newShader then
+      local ok, shader = pcall(love.graphics.newShader, shaderSource)
+      shaderCache[shaderKey] = ok and shader or false
       if not ok and mod.log and type(mod.log.warn) == "function" then
         mod.log:warn("legacy HEVO %s mask shader unavailable: %s",
           profile.kind, tostring(shader))
       end
     end
-    local shader = shaderCache[profile.kind]
+    local shader = shaderCache[shaderKey]
     if not shader then
+      if geometry.sceneDepth then
+        failClosed(geometry.width,geometry.height,profile)
+        return true,"fail-closed-world-shader"
+      end
       if love.graphics.stencil and love.graphics.setStencilTest then
         stencilFallback(profile, geometry)
         return true, "stencil"
       end
       failClosed(geometry.width, geometry.height, profile)
       return true, "fail-closed-no-stencil"
+    end
+    if geometry.sceneDepth then
+      shader:send("sightSceneDepth",geometry.sceneDepth)
+      shader:send("sightInverseVP","row",geometry.inverseVP)
+      shader:send("sightResolution",{geometry.width,geometry.height})
     end
     shader:send("sightCenter", { geometry.centerX, geometry.centerY })
     shader:send("sightRadius", profile.radius * geometry.cellPixels)
@@ -338,42 +366,80 @@ return function(mod, opts)
     }
   end
 
-  local function voxelPoint(game, ow, wx, wz)
-    local projector = voxelRenderer and voxelRenderer.module(game, "Voxel3D")
-    if not (projector and type(projector.project) == "function") then return nil end
-    local ground = 0
-    local scene = voxelRenderer.module(game, "VoxelScene")
-    if scene and type(scene.groundAt) == "function" then
-      local cellX, cellY = math.floor(wx / 16), math.floor(wz / 16)
-      local ok, value = pcall(scene.groundAt, ow.map, cellX, cellY)
-      if ok and tonumber(value) then ground = tonumber(value) end
-    end
-    local x, y = projector.project(wx, ground, wz)
-    if not (x and y) then return nil end
-    local aa = voxelRenderer.module(game, "AntiAlias")
-    local factor = aa and type(aa.factor) == "function" and aa.factor() or 1
-    if not factor or factor <= 0 then factor = 1 end
-    return x / factor, y / factor
-  end
-
   local function pipelineGeometry(game, ow, canvas, ctx)
     local dir = direction(ow)
-    local wx, wz = ow.player.px + 8, ow.player.py + 16
-    local cx, cy = voxelPoint(game, ow, wx, wz)
-    local ax, ay = voxelPoint(game, ow, wx + dir[1] * 16, wz + dir[2] * 16)
-    local dx, dy, cell
-    if cx and cy and ax and ay then
-      dx, dy = ax - cx, ay - cy
-      cell = math.sqrt(dx * dx + dy * dy)
-    end
     local width, height = canvas:getDimensions()
-    return {
-      width = width, height = height, centerX = cx, centerY = cy,
-      cellPixels = cell, facing = { dx or dir[1], dy or dir[2] },
-      projection = cx and "legacy-voxel-project" or "fail-closed-projection",
-      pipeline = ctx and ctx.pipeline or "voxel",
-      glacier = ow.map and ow.map.id == "KA_HEVO_BLUE_GLACIER_MAZE",
-    }
+    local geometry = {width=width,height=height,facing={dir[1],dir[2]},
+      projection="fail-closed-projection",pipeline=ctx and ctx.pipeline or "voxel",
+      glacier=ow.map and ow.map.id=="KA_HEVO_BLUE_GLACIER_MAZE"}
+    local projector=voxelRenderer and voxelRenderer.module(game,"Voxel3D")
+    if not (projector and type(projector.project)=="function") then return geometry end
+    -- Use actual world positions, not an enlarged screen-space circle, when
+    -- VASC exposes the completed scene depth. Radius remains measured in
+    -- native cells even inside the player's head or after a camera change.
+    if type(projector.visibilityDepth)=="function" then
+      local depth,inverse=projector.visibilityDepth()
+      if depth and inverse then
+        geometry.sceneDepth,geometry.inverseVP=depth,inverse
+        geometry.centerX,geometry.centerY=ow.player.px+8,ow.player.py+8
+        geometry.cellPixels=16
+        geometry.projection="voxel-depth-world-distance"
+        return geometry
+      end
+    end
+    local scene=voxelRenderer.module(game,"VoxelScene")
+    local state=voxelRenderer.module(game,"VoxelState")
+    local first=voxelRenderer.module(game,"FirstPerson")
+    local aa=voxelRenderer.module(game,"AntiAlias")
+    local factor=aa and type(aa.factor)=="function" and aa.factor() or 1
+    if not factor or factor<=0 then factor=1 end
+    local px,py=ow.player.px,ow.player.py
+    local ground=0
+    if scene and type(scene.groundAt)=="function" then
+      local ok,value=pcall(scene.groundAt,ow.map,math.floor((px+8)/16),
+        math.floor((py+8)/16))
+      if ok and tonumber(value) then ground=tonumber(value) end
+    end
+    -- Match VoxelScene's pivot-at-feet card, including its orbit yaw.
+    -- Native and HD source sheets both occupy this same 16-unit world card.
+    local lean=scene and scene.spriteLean or state and state.angle or 0
+    local blend=first and type(first.cardBlend)=="function" and first.cardBlend() or 0
+    blend=math.max(0,math.min(1,tonumber(blend) or 0))
+    local theta=(lean-math.pi/2)*(1-blend)
+    local yaw=first and type(first.cardYaw)=="function" and first.cardYaw(px+8,py+8)*blend or 0
+    local dz=8*math.sin(theta)
+    local wx,wy,wz=px+8+dz*math.sin(yaw),ground+8*math.cos(theta),py+8+dz*math.cos(yaw)
+    local function project(x,y,z)
+      local sx,sy=projector.project(x,y,z)
+      if not (sx and sy) then return nil end
+      return sx/factor,sy/factor
+    end
+    local cx,cy=project(wx,wy,wz)
+    if not (cx and cy) then return geometry end
+    -- A local Jacobian avoids projecting a whole neighbouring cell behind
+    -- the camera. Use both map axes, so turning the player cannot collapse
+    -- BLUE/GREEN's circular aperture or hide the entire world.
+    local function axis(dx,dz)
+      local ax,ay=project(wx+dx*.25,wy,wz+dz*.25)
+      local bx,by=project(wx-dx*.25,wy,wz-dz*.25)
+      if ax and bx then return (ax-bx)*32,(ay-by)*32 end
+      if ax then return (ax-cx)*64,(ay-cy)*64 end
+      if bx then return (cx-bx)*64,(cy-by)*64 end
+    end
+    local xx,xy=axis(1,0);local zx,zy=axis(0,1)
+    if not (xx and zx) then return geometry end
+    local cell=math.max(math.sqrt(xx*xx+xy*xy),math.sqrt(zx*zx+zy*zy))
+    if cell<=0 or cell~=cell or cell==math.huge then return geometry end
+    -- Old renderers lack depth access. Do not let a near-plane singularity
+    -- open the whole maze; retain their fail-closed policy in that case.
+    if cell>math.min(width,height)*.5 then return geometry end
+    geometry.centerX,geometry.centerY,geometry.cellPixels=cx,cy,cell
+    geometry.facing={xx*dir[1]+zx*dir[2],xy*dir[1]+zy*dir[2]}
+    if geometry.facing[1]^2+geometry.facing[2]^2<1e-8 then
+      geometry.facing={dir[1],dir[2]}
+    end
+    geometry.projection="legacy-voxel-card-midpoint"
+    return geometry
   end
 
   local function drawFor(game, ow, geometry)
@@ -396,6 +462,7 @@ return function(mod, opts)
       outerOpaque = profile.outerOpacity >= 1,
       center = { x = geometry.centerX, y = geometry.centerY },
       cellPixels = geometry.cellPixels,
+      radiusSpace = geometry.sceneDepth and "WORLD_UNITS" or "SCREEN_PIXELS",
     }
     return true, path
   end

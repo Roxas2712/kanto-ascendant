@@ -2234,6 +2234,10 @@ return function(mod)
   assert(legacyWanderers.setMegaProvider(mod.exports.surpriseMega67))
   mod.exports.shinySystem = shinySystem
   mod.exports.crystalAnimation = crystalAnimation
+  mod.exports.worldEncounterAnimations = {
+    path=mod.path, rows=loadSibling(mod,"world_encounter_animation_data.lua"),
+    enabled=function() return mod.options:get("crystal_animation") ~= false end,
+  }
   mod.exports.crystalV15 = crystalV15
   -- Hidden Evolution only consumes the established journey/character/Mega
   -- surfaces.  The adapter is exported once so future reward controllers can

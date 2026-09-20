@@ -1,0 +1,4097 @@
+{
+  "source": "Existing KASC Crystal / Emerald runtime frames; unchanged PNG copies, original timings.",
+  "frames": [
+    {
+      "species": "ARTICUNO",
+      "source": "crystal_animated/front/normal/144/001.png",
+      "file": "assets/hoenn_legend_rooms/animated/144/001.png",
+      "sha256": "7a55f3e29512b0ba4d141931a72797175a52754f60eced82ffd325f833d1c205"
+    },
+    {
+      "species": "ARTICUNO",
+      "source": "crystal_animated/front/normal/144/002.png",
+      "file": "assets/hoenn_legend_rooms/animated/144/002.png",
+      "sha256": "b977e25e1dc73b0a5832f93b911c4957540737a5f0ed45cf0a4c2811b46acd2b"
+    },
+    {
+      "species": "ARTICUNO",
+      "source": "crystal_animated/front/normal/144/003.png",
+      "file": "assets/hoenn_legend_rooms/animated/144/003.png",
+      "sha256": "927d12fe60cdbefbaba7277522010bddc754399df4a785ef040d046d4e6925d4"
+    },
+    {
+      "species": "ARTICUNO",
+      "source": "crystal_animated/front/normal/144/004.png",
+      "file": "assets/hoenn_legend_rooms/animated/144/004.png",
+      "sha256": "68eb355d96a16ef0494c3e7de866ee4bee39b510895bd5fc42d49f657cc75f8a"
+    },
+    {
+      "species": "ARTICUNO",
+      "source": "crystal_animated/front/normal/144/005.png",
+      "file": "assets/hoenn_legend_rooms/animated/144/005.png",
+      "sha256": "b977e25e1dc73b0a5832f93b911c4957540737a5f0ed45cf0a4c2811b46acd2b"
+    },
+    {
+      "species": "ARTICUNO",
+      "source": "crystal_animated/front/normal/144/006.png",
+      "file": "assets/hoenn_legend_rooms/animated/144/006.png",
+      "sha256": "927d12fe60cdbefbaba7277522010bddc754399df4a785ef040d046d4e6925d4"
+    },
+    {
+      "species": "ARTICUNO",
+      "source": "crystal_animated/front/normal/144/007.png",
+      "file": "assets/hoenn_legend_rooms/animated/144/007.png",
+      "sha256": "68eb355d96a16ef0494c3e7de866ee4bee39b510895bd5fc42d49f657cc75f8a"
+    },
+    {
+      "species": "ARTICUNO",
+      "source": "crystal_animated/front/normal/144/008.png",
+      "file": "assets/hoenn_legend_rooms/animated/144/008.png",
+      "sha256": "7a55f3e29512b0ba4d141931a72797175a52754f60eced82ffd325f833d1c205"
+    },
+    {
+      "species": "ARTICUNO",
+      "source": "crystal_animated/front/normal/144/009.png",
+      "file": "assets/hoenn_legend_rooms/animated/144/009.png",
+      "sha256": "bdeb5a7ec9840964d1769e0ed8bc28c851ca26c0290410d91784db974e6115cb"
+    },
+    {
+      "species": "ARTICUNO",
+      "source": "crystal_animated/front/normal/144/010.png",
+      "file": "assets/hoenn_legend_rooms/animated/144/010.png",
+      "sha256": "7a55f3e29512b0ba4d141931a72797175a52754f60eced82ffd325f833d1c205"
+    },
+    {
+      "species": "ARTICUNO",
+      "source": "crystal_animated/front/normal/144/011.png",
+      "file": "assets/hoenn_legend_rooms/animated/144/011.png",
+      "sha256": "7d264634807de7e26d62b39a3d57dacde68d5d16f1fd24dda03a5a78806cf3cc"
+    },
+    {
+      "species": "ARTICUNO",
+      "source": "crystal_animated/front/normal/144/012.png",
+      "file": "assets/hoenn_legend_rooms/animated/144/012.png",
+      "sha256": "b977e25e1dc73b0a5832f93b911c4957540737a5f0ed45cf0a4c2811b46acd2b"
+    },
+    {
+      "species": "ARTICUNO",
+      "source": "crystal_animated/front/normal/144/013.png",
+      "file": "assets/hoenn_legend_rooms/animated/144/013.png",
+      "sha256": "7d264634807de7e26d62b39a3d57dacde68d5d16f1fd24dda03a5a78806cf3cc"
+    },
+    {
+      "species": "ARTICUNO",
+      "source": "crystal_animated/front/normal/144/014.png",
+      "file": "assets/hoenn_legend_rooms/animated/144/014.png",
+      "sha256": "b977e25e1dc73b0a5832f93b911c4957540737a5f0ed45cf0a4c2811b46acd2b"
+    },
+    {
+      "species": "ARTICUNO",
+      "source": "crystal_animated/front/normal/144/015.png",
+      "file": "assets/hoenn_legend_rooms/animated/144/015.png",
+      "sha256": "7a55f3e29512b0ba4d141931a72797175a52754f60eced82ffd325f833d1c205"
+    },
+    {
+      "species": "ARTICUNO",
+      "source": "crystal_animated/front/normal/144/016.png",
+      "file": "assets/hoenn_legend_rooms/animated/144/016.png",
+      "sha256": "bdeb5a7ec9840964d1769e0ed8bc28c851ca26c0290410d91784db974e6115cb"
+    },
+    {
+      "species": "ZAPDOS",
+      "source": "crystal_animated/front/normal/145/001.png",
+      "file": "assets/hoenn_legend_rooms/animated/145/001.png",
+      "sha256": "b8167c58ce121ef8d68302e6b7643fc2fbf71699cd753a22e22c45602000477a"
+    },
+    {
+      "species": "ZAPDOS",
+      "source": "crystal_animated/front/normal/145/002.png",
+      "file": "assets/hoenn_legend_rooms/animated/145/002.png",
+      "sha256": "f5f5923b6fe8cb2079e86d31c896eac5adb9ddd80e49e89328ab51619c119ec8"
+    },
+    {
+      "species": "ZAPDOS",
+      "source": "crystal_animated/front/normal/145/003.png",
+      "file": "assets/hoenn_legend_rooms/animated/145/003.png",
+      "sha256": "4027e46cd74df248834474c920b93989b0c5bf80809fb16d2c275133b0f95f4e"
+    },
+    {
+      "species": "ZAPDOS",
+      "source": "crystal_animated/front/normal/145/004.png",
+      "file": "assets/hoenn_legend_rooms/animated/145/004.png",
+      "sha256": "8a0e5923c92a9c086a4c96f4057a89bca9e00e323264535a4b467008890a9d8d"
+    },
+    {
+      "species": "ZAPDOS",
+      "source": "crystal_animated/front/normal/145/005.png",
+      "file": "assets/hoenn_legend_rooms/animated/145/005.png",
+      "sha256": "4027e46cd74df248834474c920b93989b0c5bf80809fb16d2c275133b0f95f4e"
+    },
+    {
+      "species": "ZAPDOS",
+      "source": "crystal_animated/front/normal/145/006.png",
+      "file": "assets/hoenn_legend_rooms/animated/145/006.png",
+      "sha256": "8a0e5923c92a9c086a4c96f4057a89bca9e00e323264535a4b467008890a9d8d"
+    },
+    {
+      "species": "ZAPDOS",
+      "source": "crystal_animated/front/normal/145/007.png",
+      "file": "assets/hoenn_legend_rooms/animated/145/007.png",
+      "sha256": "4027e46cd74df248834474c920b93989b0c5bf80809fb16d2c275133b0f95f4e"
+    },
+    {
+      "species": "ZAPDOS",
+      "source": "crystal_animated/front/normal/145/008.png",
+      "file": "assets/hoenn_legend_rooms/animated/145/008.png",
+      "sha256": "8a0e5923c92a9c086a4c96f4057a89bca9e00e323264535a4b467008890a9d8d"
+    },
+    {
+      "species": "ZAPDOS",
+      "source": "crystal_animated/front/normal/145/009.png",
+      "file": "assets/hoenn_legend_rooms/animated/145/009.png",
+      "sha256": "b8167c58ce121ef8d68302e6b7643fc2fbf71699cd753a22e22c45602000477a"
+    },
+    {
+      "species": "ZAPDOS",
+      "source": "crystal_animated/front/normal/145/010.png",
+      "file": "assets/hoenn_legend_rooms/animated/145/010.png",
+      "sha256": "200f5fd23fa9df7aa0925ea07131700a2281129d5621ed757e8f4b7d4576d2b5"
+    },
+    {
+      "species": "ZAPDOS",
+      "source": "crystal_animated/front/normal/145/011.png",
+      "file": "assets/hoenn_legend_rooms/animated/145/011.png",
+      "sha256": "4027e46cd74df248834474c920b93989b0c5bf80809fb16d2c275133b0f95f4e"
+    },
+    {
+      "species": "ZAPDOS",
+      "source": "crystal_animated/front/normal/145/012.png",
+      "file": "assets/hoenn_legend_rooms/animated/145/012.png",
+      "sha256": "200f5fd23fa9df7aa0925ea07131700a2281129d5621ed757e8f4b7d4576d2b5"
+    },
+    {
+      "species": "ZAPDOS",
+      "source": "crystal_animated/front/normal/145/013.png",
+      "file": "assets/hoenn_legend_rooms/animated/145/013.png",
+      "sha256": "b8167c58ce121ef8d68302e6b7643fc2fbf71699cd753a22e22c45602000477a"
+    },
+    {
+      "species": "MOLTRES",
+      "source": "crystal_animated/front/normal/146/001.png",
+      "file": "assets/hoenn_legend_rooms/animated/146/001.png",
+      "sha256": "1d5327c8e724d59121831210e9cb8588dda0c4d44aa7c10d2685e49895a09332"
+    },
+    {
+      "species": "MOLTRES",
+      "source": "crystal_animated/front/normal/146/002.png",
+      "file": "assets/hoenn_legend_rooms/animated/146/002.png",
+      "sha256": "09898508d4fdb19adad5ec8939f9cd840476c7cbf7e1a12173839622908e9b3d"
+    },
+    {
+      "species": "MOLTRES",
+      "source": "crystal_animated/front/normal/146/003.png",
+      "file": "assets/hoenn_legend_rooms/animated/146/003.png",
+      "sha256": "c376dbc62373c3e1c4383aef2d4188b46654efe21285bd10aa12e6fabcb6c3d3"
+    },
+    {
+      "species": "MOLTRES",
+      "source": "crystal_animated/front/normal/146/004.png",
+      "file": "assets/hoenn_legend_rooms/animated/146/004.png",
+      "sha256": "e95b462ce9e67c924a727003f07e13979d5ce608836aa34ce1312cea193f39ae"
+    },
+    {
+      "species": "MOLTRES",
+      "source": "crystal_animated/front/normal/146/005.png",
+      "file": "assets/hoenn_legend_rooms/animated/146/005.png",
+      "sha256": "a04695ed41adae4c7aeccdb76755d167210d7bc736f3203706a7271ecc43a878"
+    },
+    {
+      "species": "MOLTRES",
+      "source": "crystal_animated/front/normal/146/006.png",
+      "file": "assets/hoenn_legend_rooms/animated/146/006.png",
+      "sha256": "97fd0e6ca70debe61c64474fbea442b090fd462b907a4eba40269e5355a27055"
+    },
+    {
+      "species": "MOLTRES",
+      "source": "crystal_animated/front/normal/146/007.png",
+      "file": "assets/hoenn_legend_rooms/animated/146/007.png",
+      "sha256": "1d5327c8e724d59121831210e9cb8588dda0c4d44aa7c10d2685e49895a09332"
+    },
+    {
+      "species": "MOLTRES",
+      "source": "crystal_animated/front/normal/146/008.png",
+      "file": "assets/hoenn_legend_rooms/animated/146/008.png",
+      "sha256": "09898508d4fdb19adad5ec8939f9cd840476c7cbf7e1a12173839622908e9b3d"
+    },
+    {
+      "species": "MOLTRES",
+      "source": "crystal_animated/front/normal/146/009.png",
+      "file": "assets/hoenn_legend_rooms/animated/146/009.png",
+      "sha256": "c376dbc62373c3e1c4383aef2d4188b46654efe21285bd10aa12e6fabcb6c3d3"
+    },
+    {
+      "species": "MOLTRES",
+      "source": "crystal_animated/front/normal/146/010.png",
+      "file": "assets/hoenn_legend_rooms/animated/146/010.png",
+      "sha256": "09898508d4fdb19adad5ec8939f9cd840476c7cbf7e1a12173839622908e9b3d"
+    },
+    {
+      "species": "MOLTRES",
+      "source": "crystal_animated/front/normal/146/011.png",
+      "file": "assets/hoenn_legend_rooms/animated/146/011.png",
+      "sha256": "1d5327c8e724d59121831210e9cb8588dda0c4d44aa7c10d2685e49895a09332"
+    },
+    {
+      "species": "MOLTRES",
+      "source": "crystal_animated/front/normal/146/012.png",
+      "file": "assets/hoenn_legend_rooms/animated/146/012.png",
+      "sha256": "09898508d4fdb19adad5ec8939f9cd840476c7cbf7e1a12173839622908e9b3d"
+    },
+    {
+      "species": "MOLTRES",
+      "source": "crystal_animated/front/normal/146/013.png",
+      "file": "assets/hoenn_legend_rooms/animated/146/013.png",
+      "sha256": "1d5327c8e724d59121831210e9cb8588dda0c4d44aa7c10d2685e49895a09332"
+    },
+    {
+      "species": "MOLTRES",
+      "source": "crystal_animated/front/normal/146/014.png",
+      "file": "assets/hoenn_legend_rooms/animated/146/014.png",
+      "sha256": "5a2259d13795a251ab0ed31f579827fbb89b02d542fe62df77e62bd07fff3208"
+    },
+    {
+      "species": "MOLTRES",
+      "source": "crystal_animated/front/normal/146/015.png",
+      "file": "assets/hoenn_legend_rooms/animated/146/015.png",
+      "sha256": "1d5327c8e724d59121831210e9cb8588dda0c4d44aa7c10d2685e49895a09332"
+    },
+    {
+      "species": "MOLTRES",
+      "source": "crystal_animated/front/normal/146/016.png",
+      "file": "assets/hoenn_legend_rooms/animated/146/016.png",
+      "sha256": "1c1ba7d834604784957cf1bace4a23fc8b20d3d6e4d5d77add363fd48c6c5374"
+    },
+    {
+      "species": "MOLTRES",
+      "source": "crystal_animated/front/normal/146/017.png",
+      "file": "assets/hoenn_legend_rooms/animated/146/017.png",
+      "sha256": "7dbf2fb8b7a7b37101e1cc6b4cadc48467b248c6f577be11b554c6f793cad62c"
+    },
+    {
+      "species": "MOLTRES",
+      "source": "crystal_animated/front/normal/146/018.png",
+      "file": "assets/hoenn_legend_rooms/animated/146/018.png",
+      "sha256": "1d5327c8e724d59121831210e9cb8588dda0c4d44aa7c10d2685e49895a09332"
+    },
+    {
+      "species": "MOLTRES",
+      "source": "crystal_animated/front/normal/146/019.png",
+      "file": "assets/hoenn_legend_rooms/animated/146/019.png",
+      "sha256": "09898508d4fdb19adad5ec8939f9cd840476c7cbf7e1a12173839622908e9b3d"
+    },
+    {
+      "species": "MOLTRES",
+      "source": "crystal_animated/front/normal/146/020.png",
+      "file": "assets/hoenn_legend_rooms/animated/146/020.png",
+      "sha256": "c376dbc62373c3e1c4383aef2d4188b46654efe21285bd10aa12e6fabcb6c3d3"
+    },
+    {
+      "species": "MOLTRES",
+      "source": "crystal_animated/front/normal/146/021.png",
+      "file": "assets/hoenn_legend_rooms/animated/146/021.png",
+      "sha256": "1d5327c8e724d59121831210e9cb8588dda0c4d44aa7c10d2685e49895a09332"
+    },
+    {
+      "species": "MEWTWO",
+      "source": "crystal_animated/front/normal/150/001.png",
+      "file": "assets/hoenn_legend_rooms/animated/150/001.png",
+      "sha256": "a2f592ca3d7310f8ffcb11653bf7b289a92401289f1f28011120e1f4b4b790a0"
+    },
+    {
+      "species": "MEWTWO",
+      "source": "crystal_animated/front/normal/150/002.png",
+      "file": "assets/hoenn_legend_rooms/animated/150/002.png",
+      "sha256": "ddaf89e17751dfeb45ba416b715ea3432e4f6fbab5f84afadb620b976486151f"
+    },
+    {
+      "species": "MEWTWO",
+      "source": "crystal_animated/front/normal/150/003.png",
+      "file": "assets/hoenn_legend_rooms/animated/150/003.png",
+      "sha256": "d4c8a32de0e0ee419e1bbc1f890ba1f39e909442a1340019a59ccac1db5dc16d"
+    },
+    {
+      "species": "MEWTWO",
+      "source": "crystal_animated/front/normal/150/004.png",
+      "file": "assets/hoenn_legend_rooms/animated/150/004.png",
+      "sha256": "ddaf89e17751dfeb45ba416b715ea3432e4f6fbab5f84afadb620b976486151f"
+    },
+    {
+      "species": "MEWTWO",
+      "source": "crystal_animated/front/normal/150/005.png",
+      "file": "assets/hoenn_legend_rooms/animated/150/005.png",
+      "sha256": "d4c8a32de0e0ee419e1bbc1f890ba1f39e909442a1340019a59ccac1db5dc16d"
+    },
+    {
+      "species": "MEWTWO",
+      "source": "crystal_animated/front/normal/150/006.png",
+      "file": "assets/hoenn_legend_rooms/animated/150/006.png",
+      "sha256": "ddaf89e17751dfeb45ba416b715ea3432e4f6fbab5f84afadb620b976486151f"
+    },
+    {
+      "species": "MEWTWO",
+      "source": "crystal_animated/front/normal/150/007.png",
+      "file": "assets/hoenn_legend_rooms/animated/150/007.png",
+      "sha256": "f4bf05e473d0410fc116a27f61a9e1b038ee1d95e5c20e69e86f1e1f41533867"
+    },
+    {
+      "species": "MEWTWO",
+      "source": "crystal_animated/front/normal/150/008.png",
+      "file": "assets/hoenn_legend_rooms/animated/150/008.png",
+      "sha256": "ddaf89e17751dfeb45ba416b715ea3432e4f6fbab5f84afadb620b976486151f"
+    },
+    {
+      "species": "MEWTWO",
+      "source": "crystal_animated/front/normal/150/009.png",
+      "file": "assets/hoenn_legend_rooms/animated/150/009.png",
+      "sha256": "f4bf05e473d0410fc116a27f61a9e1b038ee1d95e5c20e69e86f1e1f41533867"
+    },
+    {
+      "species": "MEWTWO",
+      "source": "crystal_animated/front/normal/150/010.png",
+      "file": "assets/hoenn_legend_rooms/animated/150/010.png",
+      "sha256": "ddaf89e17751dfeb45ba416b715ea3432e4f6fbab5f84afadb620b976486151f"
+    },
+    {
+      "species": "MEWTWO",
+      "source": "crystal_animated/front/normal/150/011.png",
+      "file": "assets/hoenn_legend_rooms/animated/150/011.png",
+      "sha256": "ef6c9f4504b4ce7aa4aae16e79f8b9a37f14a1dbef47ca3ef3ecf0af14f0e745"
+    },
+    {
+      "species": "MEWTWO",
+      "source": "crystal_animated/front/normal/150/012.png",
+      "file": "assets/hoenn_legend_rooms/animated/150/012.png",
+      "sha256": "ddaf89e17751dfeb45ba416b715ea3432e4f6fbab5f84afadb620b976486151f"
+    },
+    {
+      "species": "MEWTWO",
+      "source": "crystal_animated/front/normal/150/013.png",
+      "file": "assets/hoenn_legend_rooms/animated/150/013.png",
+      "sha256": "ef6c9f4504b4ce7aa4aae16e79f8b9a37f14a1dbef47ca3ef3ecf0af14f0e745"
+    },
+    {
+      "species": "MEWTWO",
+      "source": "crystal_animated/front/normal/150/014.png",
+      "file": "assets/hoenn_legend_rooms/animated/150/014.png",
+      "sha256": "ddaf89e17751dfeb45ba416b715ea3432e4f6fbab5f84afadb620b976486151f"
+    },
+    {
+      "species": "MEWTWO",
+      "source": "crystal_animated/front/normal/150/015.png",
+      "file": "assets/hoenn_legend_rooms/animated/150/015.png",
+      "sha256": "ef6c9f4504b4ce7aa4aae16e79f8b9a37f14a1dbef47ca3ef3ecf0af14f0e745"
+    },
+    {
+      "species": "MEWTWO",
+      "source": "crystal_animated/front/normal/150/016.png",
+      "file": "assets/hoenn_legend_rooms/animated/150/016.png",
+      "sha256": "ddaf89e17751dfeb45ba416b715ea3432e4f6fbab5f84afadb620b976486151f"
+    },
+    {
+      "species": "MEWTWO",
+      "source": "crystal_animated/front/normal/150/017.png",
+      "file": "assets/hoenn_legend_rooms/animated/150/017.png",
+      "sha256": "ef6c9f4504b4ce7aa4aae16e79f8b9a37f14a1dbef47ca3ef3ecf0af14f0e745"
+    },
+    {
+      "species": "MEWTWO",
+      "source": "crystal_animated/front/normal/150/018.png",
+      "file": "assets/hoenn_legend_rooms/animated/150/018.png",
+      "sha256": "ddaf89e17751dfeb45ba416b715ea3432e4f6fbab5f84afadb620b976486151f"
+    },
+    {
+      "species": "MEWTWO",
+      "source": "crystal_animated/front/normal/150/019.png",
+      "file": "assets/hoenn_legend_rooms/animated/150/019.png",
+      "sha256": "ef6c9f4504b4ce7aa4aae16e79f8b9a37f14a1dbef47ca3ef3ecf0af14f0e745"
+    },
+    {
+      "species": "MEWTWO",
+      "source": "crystal_animated/front/normal/150/020.png",
+      "file": "assets/hoenn_legend_rooms/animated/150/020.png",
+      "sha256": "ddaf89e17751dfeb45ba416b715ea3432e4f6fbab5f84afadb620b976486151f"
+    },
+    {
+      "species": "MEWTWO",
+      "source": "crystal_animated/front/normal/150/021.png",
+      "file": "assets/hoenn_legend_rooms/animated/150/021.png",
+      "sha256": "a2f592ca3d7310f8ffcb11653bf7b289a92401289f1f28011120e1f4b4b790a0"
+    },
+    {
+      "species": "MEWTWO",
+      "source": "crystal_animated/front/normal/150/022.png",
+      "file": "assets/hoenn_legend_rooms/animated/150/022.png",
+      "sha256": "fdbf9f57a4f6e3e321ae48ed4800df5424b02a0cf529cfdbdcbadec23f707d44"
+    },
+    {
+      "species": "MEWTWO",
+      "source": "crystal_animated/front/normal/150/023.png",
+      "file": "assets/hoenn_legend_rooms/animated/150/023.png",
+      "sha256": "a2f592ca3d7310f8ffcb11653bf7b289a92401289f1f28011120e1f4b4b790a0"
+    },
+    {
+      "species": "MEWTWO",
+      "source": "crystal_animated/front/normal/150/024.png",
+      "file": "assets/hoenn_legend_rooms/animated/150/024.png",
+      "sha256": "fdbf9f57a4f6e3e321ae48ed4800df5424b02a0cf529cfdbdcbadec23f707d44"
+    },
+    {
+      "species": "MEWTWO",
+      "source": "crystal_animated/front/normal/150/025.png",
+      "file": "assets/hoenn_legend_rooms/animated/150/025.png",
+      "sha256": "a2f592ca3d7310f8ffcb11653bf7b289a92401289f1f28011120e1f4b4b790a0"
+    },
+    {
+      "species": "RAIKOU",
+      "source": "crystal_animated/front/normal/243/001.png",
+      "file": "assets/hoenn_legend_rooms/animated/243/001.png",
+      "sha256": "a1dad886c5bd1c33f6274014c9396549a92c890fa61babd5a7b4e161ac045cd4"
+    },
+    {
+      "species": "RAIKOU",
+      "source": "crystal_animated/front/normal/243/002.png",
+      "file": "assets/hoenn_legend_rooms/animated/243/002.png",
+      "sha256": "853ce3ce8659f731fd5ade2b7d6ca6fc50cf1770d7c0c7e9ee96f3ee3c586255"
+    },
+    {
+      "species": "RAIKOU",
+      "source": "crystal_animated/front/normal/243/003.png",
+      "file": "assets/hoenn_legend_rooms/animated/243/003.png",
+      "sha256": "a1dad886c5bd1c33f6274014c9396549a92c890fa61babd5a7b4e161ac045cd4"
+    },
+    {
+      "species": "RAIKOU",
+      "source": "crystal_animated/front/normal/243/004.png",
+      "file": "assets/hoenn_legend_rooms/animated/243/004.png",
+      "sha256": "869d0fe5fac9a45359fae89fe6ad67a73573ffd978a5ae3bdcb32234249ec8ec"
+    },
+    {
+      "species": "RAIKOU",
+      "source": "crystal_animated/front/normal/243/005.png",
+      "file": "assets/hoenn_legend_rooms/animated/243/005.png",
+      "sha256": "096f0ce7c5ab978f18ee83bb64f931471b59aba0767271c9d133d6989b2a8634"
+    },
+    {
+      "species": "RAIKOU",
+      "source": "crystal_animated/front/normal/243/006.png",
+      "file": "assets/hoenn_legend_rooms/animated/243/006.png",
+      "sha256": "869d0fe5fac9a45359fae89fe6ad67a73573ffd978a5ae3bdcb32234249ec8ec"
+    },
+    {
+      "species": "RAIKOU",
+      "source": "crystal_animated/front/normal/243/007.png",
+      "file": "assets/hoenn_legend_rooms/animated/243/007.png",
+      "sha256": "096f0ce7c5ab978f18ee83bb64f931471b59aba0767271c9d133d6989b2a8634"
+    },
+    {
+      "species": "RAIKOU",
+      "source": "crystal_animated/front/normal/243/008.png",
+      "file": "assets/hoenn_legend_rooms/animated/243/008.png",
+      "sha256": "869d0fe5fac9a45359fae89fe6ad67a73573ffd978a5ae3bdcb32234249ec8ec"
+    },
+    {
+      "species": "RAIKOU",
+      "source": "crystal_animated/front/normal/243/009.png",
+      "file": "assets/hoenn_legend_rooms/animated/243/009.png",
+      "sha256": "096f0ce7c5ab978f18ee83bb64f931471b59aba0767271c9d133d6989b2a8634"
+    },
+    {
+      "species": "RAIKOU",
+      "source": "crystal_animated/front/normal/243/010.png",
+      "file": "assets/hoenn_legend_rooms/animated/243/010.png",
+      "sha256": "869d0fe5fac9a45359fae89fe6ad67a73573ffd978a5ae3bdcb32234249ec8ec"
+    },
+    {
+      "species": "RAIKOU",
+      "source": "crystal_animated/front/normal/243/011.png",
+      "file": "assets/hoenn_legend_rooms/animated/243/011.png",
+      "sha256": "a1dad886c5bd1c33f6274014c9396549a92c890fa61babd5a7b4e161ac045cd4"
+    },
+    {
+      "species": "RAIKOU",
+      "source": "crystal_animated/front/normal/243/012.png",
+      "file": "assets/hoenn_legend_rooms/animated/243/012.png",
+      "sha256": "853ce3ce8659f731fd5ade2b7d6ca6fc50cf1770d7c0c7e9ee96f3ee3c586255"
+    },
+    {
+      "species": "RAIKOU",
+      "source": "crystal_animated/front/normal/243/013.png",
+      "file": "assets/hoenn_legend_rooms/animated/243/013.png",
+      "sha256": "04474b04406c6afb20cb41829e4b1924e598fb2258a0ab51e8fc0c79369f92ee"
+    },
+    {
+      "species": "RAIKOU",
+      "source": "crystal_animated/front/normal/243/014.png",
+      "file": "assets/hoenn_legend_rooms/animated/243/014.png",
+      "sha256": "46d26252f46218593e01adc2e33b117e13a067292923e7711df6948756f15722"
+    },
+    {
+      "species": "RAIKOU",
+      "source": "crystal_animated/front/normal/243/015.png",
+      "file": "assets/hoenn_legend_rooms/animated/243/015.png",
+      "sha256": "853ce3ce8659f731fd5ade2b7d6ca6fc50cf1770d7c0c7e9ee96f3ee3c586255"
+    },
+    {
+      "species": "RAIKOU",
+      "source": "crystal_animated/front/normal/243/016.png",
+      "file": "assets/hoenn_legend_rooms/animated/243/016.png",
+      "sha256": "46d26252f46218593e01adc2e33b117e13a067292923e7711df6948756f15722"
+    },
+    {
+      "species": "RAIKOU",
+      "source": "crystal_animated/front/normal/243/017.png",
+      "file": "assets/hoenn_legend_rooms/animated/243/017.png",
+      "sha256": "853ce3ce8659f731fd5ade2b7d6ca6fc50cf1770d7c0c7e9ee96f3ee3c586255"
+    },
+    {
+      "species": "ENTEI",
+      "source": "crystal_animated/front/normal/244/001.png",
+      "file": "assets/hoenn_legend_rooms/animated/244/001.png",
+      "sha256": "e589f06dcd3264a66ce4b4d8d68425d4854f38725f2390d31f0e4d9e2dcb191a"
+    },
+    {
+      "species": "ENTEI",
+      "source": "crystal_animated/front/normal/244/002.png",
+      "file": "assets/hoenn_legend_rooms/animated/244/002.png",
+      "sha256": "b13db91988c732ec54c692ab065f41ded63cf58f17b68da38502546bc570735a"
+    },
+    {
+      "species": "ENTEI",
+      "source": "crystal_animated/front/normal/244/003.png",
+      "file": "assets/hoenn_legend_rooms/animated/244/003.png",
+      "sha256": "c07707c3fec7b6fdc6c8b95adb76e069102ee247d152ff5bc83c0bd0a2d5a072"
+    },
+    {
+      "species": "ENTEI",
+      "source": "crystal_animated/front/normal/244/004.png",
+      "file": "assets/hoenn_legend_rooms/animated/244/004.png",
+      "sha256": "3e60347731dc0af693215b898e9e5ee190f137dbc0d4fbf35467f1ff8ae5b3fe"
+    },
+    {
+      "species": "ENTEI",
+      "source": "crystal_animated/front/normal/244/005.png",
+      "file": "assets/hoenn_legend_rooms/animated/244/005.png",
+      "sha256": "e589f06dcd3264a66ce4b4d8d68425d4854f38725f2390d31f0e4d9e2dcb191a"
+    },
+    {
+      "species": "ENTEI",
+      "source": "crystal_animated/front/normal/244/006.png",
+      "file": "assets/hoenn_legend_rooms/animated/244/006.png",
+      "sha256": "7e0da35811fb472512ffb5bbae20ef1692c147320d8dafc33645b6f27ab7c323"
+    },
+    {
+      "species": "ENTEI",
+      "source": "crystal_animated/front/normal/244/007.png",
+      "file": "assets/hoenn_legend_rooms/animated/244/007.png",
+      "sha256": "e589f06dcd3264a66ce4b4d8d68425d4854f38725f2390d31f0e4d9e2dcb191a"
+    },
+    {
+      "species": "ENTEI",
+      "source": "crystal_animated/front/normal/244/008.png",
+      "file": "assets/hoenn_legend_rooms/animated/244/008.png",
+      "sha256": "7e0da35811fb472512ffb5bbae20ef1692c147320d8dafc33645b6f27ab7c323"
+    },
+    {
+      "species": "ENTEI",
+      "source": "crystal_animated/front/normal/244/009.png",
+      "file": "assets/hoenn_legend_rooms/animated/244/009.png",
+      "sha256": "e589f06dcd3264a66ce4b4d8d68425d4854f38725f2390d31f0e4d9e2dcb191a"
+    },
+    {
+      "species": "SUICUNE",
+      "source": "crystal_animated/front/normal/245/001.png",
+      "file": "assets/hoenn_legend_rooms/animated/245/001.png",
+      "sha256": "1869f53cfec9650b2febd654721e000a4b6325972a3789f2b669060a61b13c84"
+    },
+    {
+      "species": "SUICUNE",
+      "source": "crystal_animated/front/normal/245/002.png",
+      "file": "assets/hoenn_legend_rooms/animated/245/002.png",
+      "sha256": "ebd4ce4b480c6a63481b2a05ffb5e9733b738531dd2f4e62a0dff7e4497e513b"
+    },
+    {
+      "species": "SUICUNE",
+      "source": "crystal_animated/front/normal/245/003.png",
+      "file": "assets/hoenn_legend_rooms/animated/245/003.png",
+      "sha256": "01cfe6137f5bccd5b3221f61359e317d75a82fed5935322287350971cac0034f"
+    },
+    {
+      "species": "SUICUNE",
+      "source": "crystal_animated/front/normal/245/004.png",
+      "file": "assets/hoenn_legend_rooms/animated/245/004.png",
+      "sha256": "22bab88757f117d773673ac5184e13dd4cf0360ac54b6208428d60c021570664"
+    },
+    {
+      "species": "SUICUNE",
+      "source": "crystal_animated/front/normal/245/005.png",
+      "file": "assets/hoenn_legend_rooms/animated/245/005.png",
+      "sha256": "5a597d31334937b9535a03127147bc7b215c8f91fe30ed51dd0b39e35e220e09"
+    },
+    {
+      "species": "SUICUNE",
+      "source": "crystal_animated/front/normal/245/006.png",
+      "file": "assets/hoenn_legend_rooms/animated/245/006.png",
+      "sha256": "441fe5d85201cdc5e214ef01dcb1434c2a9b96a79726c3a0698bb63b40452f79"
+    },
+    {
+      "species": "SUICUNE",
+      "source": "crystal_animated/front/normal/245/007.png",
+      "file": "assets/hoenn_legend_rooms/animated/245/007.png",
+      "sha256": "39ba826c4b6156117de776a405c92f027925c877a146124fbc2a3bb2d2d69d61"
+    },
+    {
+      "species": "SUICUNE",
+      "source": "crystal_animated/front/normal/245/008.png",
+      "file": "assets/hoenn_legend_rooms/animated/245/008.png",
+      "sha256": "8ef48c4c414179ed3c9cdccab03fcf68ddda6c23489b749f4b22eae0f993591c"
+    },
+    {
+      "species": "SUICUNE",
+      "source": "crystal_animated/front/normal/245/009.png",
+      "file": "assets/hoenn_legend_rooms/animated/245/009.png",
+      "sha256": "35aeac9c41735642bd2e691492e4b3517806b9384484f53e5c6be2d3a81f0bc2"
+    },
+    {
+      "species": "SUICUNE",
+      "source": "crystal_animated/front/normal/245/010.png",
+      "file": "assets/hoenn_legend_rooms/animated/245/010.png",
+      "sha256": "6821ee7658127d2bb3d0a08c159a2cc625d1d01691ac80c01ff2804ba9bdf52c"
+    },
+    {
+      "species": "SUICUNE",
+      "source": "crystal_animated/front/normal/245/011.png",
+      "file": "assets/hoenn_legend_rooms/animated/245/011.png",
+      "sha256": "39ba826c4b6156117de776a405c92f027925c877a146124fbc2a3bb2d2d69d61"
+    },
+    {
+      "species": "SUICUNE",
+      "source": "crystal_animated/front/normal/245/012.png",
+      "file": "assets/hoenn_legend_rooms/animated/245/012.png",
+      "sha256": "8ef48c4c414179ed3c9cdccab03fcf68ddda6c23489b749f4b22eae0f993591c"
+    },
+    {
+      "species": "SUICUNE",
+      "source": "crystal_animated/front/normal/245/013.png",
+      "file": "assets/hoenn_legend_rooms/animated/245/013.png",
+      "sha256": "ba5e08c2a5c22347627d61bc7d6e026fb995648d9460ab587032c67d10c8f741"
+    },
+    {
+      "species": "SUICUNE",
+      "source": "crystal_animated/front/normal/245/014.png",
+      "file": "assets/hoenn_legend_rooms/animated/245/014.png",
+      "sha256": "1869f53cfec9650b2febd654721e000a4b6325972a3789f2b669060a61b13c84"
+    },
+    {
+      "species": "SUICUNE",
+      "source": "crystal_animated/front/normal/245/015.png",
+      "file": "assets/hoenn_legend_rooms/animated/245/015.png",
+      "sha256": "babf0d01da56897912d1459593e9835c50a63659f586c1499dbe6ada868126c5"
+    },
+    {
+      "species": "SUICUNE",
+      "source": "crystal_animated/front/normal/245/016.png",
+      "file": "assets/hoenn_legend_rooms/animated/245/016.png",
+      "sha256": "1869f53cfec9650b2febd654721e000a4b6325972a3789f2b669060a61b13c84"
+    },
+    {
+      "species": "SUICUNE",
+      "source": "crystal_animated/front/normal/245/017.png",
+      "file": "assets/hoenn_legend_rooms/animated/245/017.png",
+      "sha256": "5f6c69760be7e64716292c62eb5c997eaf15657bf714cdc610f671e20769ff8d"
+    },
+    {
+      "species": "SUICUNE",
+      "source": "crystal_animated/front/normal/245/018.png",
+      "file": "assets/hoenn_legend_rooms/animated/245/018.png",
+      "sha256": "c3dd02b05ecf0ad30596ba9314c54273d8f495fcff703d04b7e6b74e26f0d88c"
+    },
+    {
+      "species": "SUICUNE",
+      "source": "crystal_animated/front/normal/245/019.png",
+      "file": "assets/hoenn_legend_rooms/animated/245/019.png",
+      "sha256": "06a6c724d7385dee4a0addacff7c23e60cc896cf66e2ad9302cfec8cb5272265"
+    },
+    {
+      "species": "SUICUNE",
+      "source": "crystal_animated/front/normal/245/020.png",
+      "file": "assets/hoenn_legend_rooms/animated/245/020.png",
+      "sha256": "5f6c69760be7e64716292c62eb5c997eaf15657bf714cdc610f671e20769ff8d"
+    },
+    {
+      "species": "SUICUNE",
+      "source": "crystal_animated/front/normal/245/021.png",
+      "file": "assets/hoenn_legend_rooms/animated/245/021.png",
+      "sha256": "1869f53cfec9650b2febd654721e000a4b6325972a3789f2b669060a61b13c84"
+    },
+    {
+      "species": "LUGIA",
+      "source": "crystal_animated/front/normal/249/001.png",
+      "file": "assets/hoenn_legend_rooms/animated/249/001.png",
+      "sha256": "0950be73880d6f1edacc1b551cd651da7ac96b7f12ca4029a040685a8ac363d6"
+    },
+    {
+      "species": "LUGIA",
+      "source": "crystal_animated/front/normal/249/002.png",
+      "file": "assets/hoenn_legend_rooms/animated/249/002.png",
+      "sha256": "3b436920356ebf8411a7e1227280016eb385d7308948ec6437f406739a3de08a"
+    },
+    {
+      "species": "LUGIA",
+      "source": "crystal_animated/front/normal/249/003.png",
+      "file": "assets/hoenn_legend_rooms/animated/249/003.png",
+      "sha256": "a5d2df66b4a9e8797e2e0c08c26f6de15d7fbd0ccfb547b1017f11a7542564c7"
+    },
+    {
+      "species": "LUGIA",
+      "source": "crystal_animated/front/normal/249/004.png",
+      "file": "assets/hoenn_legend_rooms/animated/249/004.png",
+      "sha256": "de5407d1b7ad75f3456b8f03370c100a2b8dcf641b84971002a511df0542ccc3"
+    },
+    {
+      "species": "LUGIA",
+      "source": "crystal_animated/front/normal/249/005.png",
+      "file": "assets/hoenn_legend_rooms/animated/249/005.png",
+      "sha256": "9f9b4fc78cea4d2475c414b3925c97f732e729f542cc697cdf4ecdfe2bb4db47"
+    },
+    {
+      "species": "LUGIA",
+      "source": "crystal_animated/front/normal/249/006.png",
+      "file": "assets/hoenn_legend_rooms/animated/249/006.png",
+      "sha256": "76cdbf35c6d7f834eef297c7738c1cd5d5d235498067c691d91e08209ec88f64"
+    },
+    {
+      "species": "LUGIA",
+      "source": "crystal_animated/front/normal/249/007.png",
+      "file": "assets/hoenn_legend_rooms/animated/249/007.png",
+      "sha256": "e1295aa29ff924e8e4d7fedd350a693dde5322f1e0bf7217941a3400397a5fd1"
+    },
+    {
+      "species": "LUGIA",
+      "source": "crystal_animated/front/normal/249/008.png",
+      "file": "assets/hoenn_legend_rooms/animated/249/008.png",
+      "sha256": "0950be73880d6f1edacc1b551cd651da7ac96b7f12ca4029a040685a8ac363d6"
+    },
+    {
+      "species": "LUGIA",
+      "source": "crystal_animated/front/normal/249/009.png",
+      "file": "assets/hoenn_legend_rooms/animated/249/009.png",
+      "sha256": "28d534b895caa2070d2984faf9ea7599fd661b0f5233aa5622f52f9bc907196a"
+    },
+    {
+      "species": "LUGIA",
+      "source": "crystal_animated/front/normal/249/010.png",
+      "file": "assets/hoenn_legend_rooms/animated/249/010.png",
+      "sha256": "0950be73880d6f1edacc1b551cd651da7ac96b7f12ca4029a040685a8ac363d6"
+    },
+    {
+      "species": "LUGIA",
+      "source": "crystal_animated/front/normal/249/011.png",
+      "file": "assets/hoenn_legend_rooms/animated/249/011.png",
+      "sha256": "28d534b895caa2070d2984faf9ea7599fd661b0f5233aa5622f52f9bc907196a"
+    },
+    {
+      "species": "LUGIA",
+      "source": "crystal_animated/front/normal/249/012.png",
+      "file": "assets/hoenn_legend_rooms/animated/249/012.png",
+      "sha256": "0950be73880d6f1edacc1b551cd651da7ac96b7f12ca4029a040685a8ac363d6"
+    },
+    {
+      "species": "LUGIA",
+      "source": "crystal_animated/front/normal/249/013.png",
+      "file": "assets/hoenn_legend_rooms/animated/249/013.png",
+      "sha256": "c74af5ea5955d16849c48a332cc05c2f29929bea66d43fe982b288d74bc57a80"
+    },
+    {
+      "species": "LUGIA",
+      "source": "crystal_animated/front/normal/249/014.png",
+      "file": "assets/hoenn_legend_rooms/animated/249/014.png",
+      "sha256": "de5407d1b7ad75f3456b8f03370c100a2b8dcf641b84971002a511df0542ccc3"
+    },
+    {
+      "species": "HO_OH",
+      "source": "crystal_animated/front/normal/250/001.png",
+      "file": "assets/hoenn_legend_rooms/animated/250/001.png",
+      "sha256": "38e7b89337a75d16690ebecb95e10aa0a78108aa89dc0aad1e254fbf18a2d314"
+    },
+    {
+      "species": "HO_OH",
+      "source": "crystal_animated/front/normal/250/002.png",
+      "file": "assets/hoenn_legend_rooms/animated/250/002.png",
+      "sha256": "ab264ab94672e5b65728d4743cd17760ce88be518bf4e03f3ba52160ce0167ba"
+    },
+    {
+      "species": "HO_OH",
+      "source": "crystal_animated/front/normal/250/003.png",
+      "file": "assets/hoenn_legend_rooms/animated/250/003.png",
+      "sha256": "578ed3e0751ee0faf39133c31e506cb19972525b89cec01bb8a9f5ce7bfd8dad"
+    },
+    {
+      "species": "HO_OH",
+      "source": "crystal_animated/front/normal/250/004.png",
+      "file": "assets/hoenn_legend_rooms/animated/250/004.png",
+      "sha256": "38e7b89337a75d16690ebecb95e10aa0a78108aa89dc0aad1e254fbf18a2d314"
+    },
+    {
+      "species": "HO_OH",
+      "source": "crystal_animated/front/normal/250/005.png",
+      "file": "assets/hoenn_legend_rooms/animated/250/005.png",
+      "sha256": "d7edb5031b6f66c31fbbbbaa18f9ae68c342f981646fe2396998b910f11ca2d6"
+    },
+    {
+      "species": "HO_OH",
+      "source": "crystal_animated/front/normal/250/006.png",
+      "file": "assets/hoenn_legend_rooms/animated/250/006.png",
+      "sha256": "38e7b89337a75d16690ebecb95e10aa0a78108aa89dc0aad1e254fbf18a2d314"
+    },
+    {
+      "species": "HO_OH",
+      "source": "crystal_animated/front/normal/250/007.png",
+      "file": "assets/hoenn_legend_rooms/animated/250/007.png",
+      "sha256": "d7edb5031b6f66c31fbbbbaa18f9ae68c342f981646fe2396998b910f11ca2d6"
+    },
+    {
+      "species": "HO_OH",
+      "source": "crystal_animated/front/normal/250/008.png",
+      "file": "assets/hoenn_legend_rooms/animated/250/008.png",
+      "sha256": "38e7b89337a75d16690ebecb95e10aa0a78108aa89dc0aad1e254fbf18a2d314"
+    },
+    {
+      "species": "HO_OH",
+      "source": "crystal_animated/front/normal/250/009.png",
+      "file": "assets/hoenn_legend_rooms/animated/250/009.png",
+      "sha256": "d7edb5031b6f66c31fbbbbaa18f9ae68c342f981646fe2396998b910f11ca2d6"
+    },
+    {
+      "species": "HO_OH",
+      "source": "crystal_animated/front/normal/250/010.png",
+      "file": "assets/hoenn_legend_rooms/animated/250/010.png",
+      "sha256": "38e7b89337a75d16690ebecb95e10aa0a78108aa89dc0aad1e254fbf18a2d314"
+    },
+    {
+      "species": "HO_OH",
+      "source": "crystal_animated/front/normal/250/011.png",
+      "file": "assets/hoenn_legend_rooms/animated/250/011.png",
+      "sha256": "68ca69b71c09d2bb55c15b0c3a34f90c6025620d0ca9b6cbf23248f3c8c0edee"
+    },
+    {
+      "species": "HO_OH",
+      "source": "crystal_animated/front/normal/250/012.png",
+      "file": "assets/hoenn_legend_rooms/animated/250/012.png",
+      "sha256": "38e7b89337a75d16690ebecb95e10aa0a78108aa89dc0aad1e254fbf18a2d314"
+    },
+    {
+      "species": "HO_OH",
+      "source": "crystal_animated/front/normal/250/013.png",
+      "file": "assets/hoenn_legend_rooms/animated/250/013.png",
+      "sha256": "68ca69b71c09d2bb55c15b0c3a34f90c6025620d0ca9b6cbf23248f3c8c0edee"
+    },
+    {
+      "species": "HO_OH",
+      "source": "crystal_animated/front/normal/250/014.png",
+      "file": "assets/hoenn_legend_rooms/animated/250/014.png",
+      "sha256": "38e7b89337a75d16690ebecb95e10aa0a78108aa89dc0aad1e254fbf18a2d314"
+    },
+    {
+      "species": "HO_OH",
+      "source": "crystal_animated/front/normal/250/015.png",
+      "file": "assets/hoenn_legend_rooms/animated/250/015.png",
+      "sha256": "68ca69b71c09d2bb55c15b0c3a34f90c6025620d0ca9b6cbf23248f3c8c0edee"
+    },
+    {
+      "species": "HO_OH",
+      "source": "crystal_animated/front/normal/250/016.png",
+      "file": "assets/hoenn_legend_rooms/animated/250/016.png",
+      "sha256": "38e7b89337a75d16690ebecb95e10aa0a78108aa89dc0aad1e254fbf18a2d314"
+    },
+    {
+      "species": "CELEBI",
+      "source": "crystal_animated/front/normal/251/001.png",
+      "file": "assets/hoenn_legend_rooms/animated/251/001.png",
+      "sha256": "34e0469f135e96c1ac5c957b75239c2d9017cbaa21094063270713a22daf5b3a"
+    },
+    {
+      "species": "CELEBI",
+      "source": "crystal_animated/front/normal/251/002.png",
+      "file": "assets/hoenn_legend_rooms/animated/251/002.png",
+      "sha256": "c48d2dd306c74be047deb8a86c05ce25f80870fa8dd3f74cf320907bb8c82aa8"
+    },
+    {
+      "species": "CELEBI",
+      "source": "crystal_animated/front/normal/251/003.png",
+      "file": "assets/hoenn_legend_rooms/animated/251/003.png",
+      "sha256": "198f88d6d2515db01e36e9f5057a0be4be546e7c5f98cb1427fe18b8f7216713"
+    },
+    {
+      "species": "CELEBI",
+      "source": "crystal_animated/front/normal/251/004.png",
+      "file": "assets/hoenn_legend_rooms/animated/251/004.png",
+      "sha256": "5846f526bdc8990c2330b735865f33e413188d61e3bad8c8f26c6ce97f927de6"
+    },
+    {
+      "species": "CELEBI",
+      "source": "crystal_animated/front/normal/251/005.png",
+      "file": "assets/hoenn_legend_rooms/animated/251/005.png",
+      "sha256": "9d3e2022e3fca694a545e020b77e98588fe85a867392033e047f883e7417db8b"
+    },
+    {
+      "species": "CELEBI",
+      "source": "crystal_animated/front/normal/251/006.png",
+      "file": "assets/hoenn_legend_rooms/animated/251/006.png",
+      "sha256": "7c2a9770a9bf46bcf61ee17b7edbc09b1d1387c0f7d9faf4fcb5de2598bcfd5d"
+    },
+    {
+      "species": "CELEBI",
+      "source": "crystal_animated/front/normal/251/007.png",
+      "file": "assets/hoenn_legend_rooms/animated/251/007.png",
+      "sha256": "2c6618a7107e4b3ae74cae4612fe5014a2d495f6dd0089c6b3513841c9e3b7b1"
+    },
+    {
+      "species": "CELEBI",
+      "source": "crystal_animated/front/normal/251/008.png",
+      "file": "assets/hoenn_legend_rooms/animated/251/008.png",
+      "sha256": "09bd984540101b1423286c810b70b117a4bed28b00673bdb1cd384cd01a49bad"
+    },
+    {
+      "species": "CELEBI",
+      "source": "crystal_animated/front/normal/251/009.png",
+      "file": "assets/hoenn_legend_rooms/animated/251/009.png",
+      "sha256": "7250bb712b8f37b630af1447983adb2a0d9cfaee5a945da77a6a0570a84ca6a5"
+    },
+    {
+      "species": "CELEBI",
+      "source": "crystal_animated/front/normal/251/010.png",
+      "file": "assets/hoenn_legend_rooms/animated/251/010.png",
+      "sha256": "34e0469f135e96c1ac5c957b75239c2d9017cbaa21094063270713a22daf5b3a"
+    },
+    {
+      "species": "CELEBI",
+      "source": "crystal_animated/front/normal/251/011.png",
+      "file": "assets/hoenn_legend_rooms/animated/251/011.png",
+      "sha256": "d83ccf17c2c5a6c3dfedbc7e6f3910bf35761b907dc6ffbd285ed09acdff4ce2"
+    },
+    {
+      "species": "CELEBI",
+      "source": "crystal_animated/front/normal/251/012.png",
+      "file": "assets/hoenn_legend_rooms/animated/251/012.png",
+      "sha256": "34e0469f135e96c1ac5c957b75239c2d9017cbaa21094063270713a22daf5b3a"
+    },
+    {
+      "species": "CELEBI",
+      "source": "crystal_animated/front/normal/251/013.png",
+      "file": "assets/hoenn_legend_rooms/animated/251/013.png",
+      "sha256": "d83ccf17c2c5a6c3dfedbc7e6f3910bf35761b907dc6ffbd285ed09acdff4ce2"
+    },
+    {
+      "species": "CELEBI",
+      "source": "crystal_animated/front/normal/251/014.png",
+      "file": "assets/hoenn_legend_rooms/animated/251/014.png",
+      "sha256": "34e0469f135e96c1ac5c957b75239c2d9017cbaa21094063270713a22daf5b3a"
+    },
+    {
+      "species": "CELEBI",
+      "source": "crystal_animated/front/normal/251/015.png",
+      "file": "assets/hoenn_legend_rooms/animated/251/015.png",
+      "sha256": "d83ccf17c2c5a6c3dfedbc7e6f3910bf35761b907dc6ffbd285ed09acdff4ce2"
+    },
+    {
+      "species": "CELEBI",
+      "source": "crystal_animated/front/normal/251/016.png",
+      "file": "assets/hoenn_legend_rooms/animated/251/016.png",
+      "sha256": "34e0469f135e96c1ac5c957b75239c2d9017cbaa21094063270713a22daf5b3a"
+    },
+    {
+      "species": "REGIROCK",
+      "source": "crystal_animated/front/normal/377/001.png",
+      "file": "assets/hoenn_legend_rooms/animated/377/001.png",
+      "sha256": "80f3ae51592d3388b7b34719f4909b57195f813c0cfa647fb5e1a6549dc00815"
+    },
+    {
+      "species": "REGIROCK",
+      "source": "crystal_animated/front/normal/377/002.png",
+      "file": "assets/hoenn_legend_rooms/animated/377/002.png",
+      "sha256": "3be871873d4337f93fbc5cd66c755cbb7aed10ec75847ec76884cc206bf8177a"
+    },
+    {
+      "species": "REGIROCK",
+      "source": "crystal_animated/front/normal/377/003.png",
+      "file": "assets/hoenn_legend_rooms/animated/377/003.png",
+      "sha256": "112adc7078a9beb1853f9b3369831cd81276e7d5dba394a90fe24f9cf74741b6"
+    },
+    {
+      "species": "REGIROCK",
+      "source": "crystal_animated/front/normal/377/004.png",
+      "file": "assets/hoenn_legend_rooms/animated/377/004.png",
+      "sha256": "1222a4725a84032fe72e70f5ce7681412802c5f0e4d7322ac58bda29970ca280"
+    },
+    {
+      "species": "REGIROCK",
+      "source": "crystal_animated/front/normal/377/005.png",
+      "file": "assets/hoenn_legend_rooms/animated/377/005.png",
+      "sha256": "9b624a0e680117d41b33c09c58113fd3e2e04d9ced90bc8ddf6c79b6c3a36f47"
+    },
+    {
+      "species": "REGIROCK",
+      "source": "crystal_animated/front/normal/377/006.png",
+      "file": "assets/hoenn_legend_rooms/animated/377/006.png",
+      "sha256": "ac73feaa43cab0c00354be864790975733ebdbcda108d2aa9149c224f3908955"
+    },
+    {
+      "species": "REGIROCK",
+      "source": "crystal_animated/front/normal/377/007.png",
+      "file": "assets/hoenn_legend_rooms/animated/377/007.png",
+      "sha256": "6c73e7f8c0fe5db5fa334d793da69c615a9cbafe07911fc69febb0eb1e770423"
+    },
+    {
+      "species": "REGIROCK",
+      "source": "crystal_animated/front/normal/377/008.png",
+      "file": "assets/hoenn_legend_rooms/animated/377/008.png",
+      "sha256": "5a38b9887debee46094afbb0bfb1534b7dc268fdf8a0e25722be0cfcdbec6b6c"
+    },
+    {
+      "species": "REGIROCK",
+      "source": "crystal_animated/front/normal/377/009.png",
+      "file": "assets/hoenn_legend_rooms/animated/377/009.png",
+      "sha256": "171c700964e7e18a51a292f20f25244a7ee2faee1dd160053708d2ebc4082cd5"
+    },
+    {
+      "species": "REGIROCK",
+      "source": "crystal_animated/front/normal/377/010.png",
+      "file": "assets/hoenn_legend_rooms/animated/377/010.png",
+      "sha256": "ecc7594ad48501b4dc1b87ae06dc1e2619ca8bc675c6f7b87bddbf55ab72cc34"
+    },
+    {
+      "species": "REGIROCK",
+      "source": "crystal_animated/front/normal/377/011.png",
+      "file": "assets/hoenn_legend_rooms/animated/377/011.png",
+      "sha256": "f229ce0a916f1622fdd9f107ec9fe7f969cdd43a99f5263a587cb5aea51bbb3a"
+    },
+    {
+      "species": "REGIROCK",
+      "source": "crystal_animated/front/normal/377/012.png",
+      "file": "assets/hoenn_legend_rooms/animated/377/012.png",
+      "sha256": "8338139d5c4210a33852385f370e5bc1cae285c9db3e60a840a60e2bf5c14880"
+    },
+    {
+      "species": "REGIROCK",
+      "source": "crystal_animated/front/normal/377/013.png",
+      "file": "assets/hoenn_legend_rooms/animated/377/013.png",
+      "sha256": "341c39d42d55ed90ef9f3240793724631db446b0ff56196cec3f4ec37fbd2619"
+    },
+    {
+      "species": "REGIROCK",
+      "source": "crystal_animated/front/normal/377/014.png",
+      "file": "assets/hoenn_legend_rooms/animated/377/014.png",
+      "sha256": "c6c63373864a0745a4bc6f5ddcd9142b0db1008d9f791f23f8546b21ee2d077f"
+    },
+    {
+      "species": "REGIROCK",
+      "source": "crystal_animated/front/normal/377/015.png",
+      "file": "assets/hoenn_legend_rooms/animated/377/015.png",
+      "sha256": "a8216bd61c9cef44744d8dcc7d078f96b38fdb3e45e657574158bb257247ec3b"
+    },
+    {
+      "species": "REGIROCK",
+      "source": "crystal_animated/front/normal/377/016.png",
+      "file": "assets/hoenn_legend_rooms/animated/377/016.png",
+      "sha256": "a8856e42cce106370d0b586bda77830869abb8666891088a9f9e3434c19ac058"
+    },
+    {
+      "species": "REGIROCK",
+      "source": "crystal_animated/front/normal/377/017.png",
+      "file": "assets/hoenn_legend_rooms/animated/377/017.png",
+      "sha256": "c646c34c14ec4b3c0e60b9fa3afd5cc698c07e90aa516cecdfe7366e0a615525"
+    },
+    {
+      "species": "REGIROCK",
+      "source": "crystal_animated/front/normal/377/018.png",
+      "file": "assets/hoenn_legend_rooms/animated/377/018.png",
+      "sha256": "4cdead8c6e05c3516fcaa310e9d8f1c12d979e60368163f16b44ab431d53e564"
+    },
+    {
+      "species": "REGIROCK",
+      "source": "crystal_animated/front/normal/377/019.png",
+      "file": "assets/hoenn_legend_rooms/animated/377/019.png",
+      "sha256": "7564725159a695b657251e39595c7ccab840172a475fca0df8e64a211efa2f8b"
+    },
+    {
+      "species": "REGIROCK",
+      "source": "crystal_animated/front/normal/377/020.png",
+      "file": "assets/hoenn_legend_rooms/animated/377/020.png",
+      "sha256": "d9652a67d045a5c53a79b1dc17734c68685631b01a0f984fa379e5ec234e8bef"
+    },
+    {
+      "species": "REGIROCK",
+      "source": "crystal_animated/front/normal/377/021.png",
+      "file": "assets/hoenn_legend_rooms/animated/377/021.png",
+      "sha256": "6a702d4e0353912b99a84a4c9b136ebed0421cb458a746202b2a07dfe1ad127f"
+    },
+    {
+      "species": "REGIROCK",
+      "source": "crystal_animated/front/normal/377/022.png",
+      "file": "assets/hoenn_legend_rooms/animated/377/022.png",
+      "sha256": "3be871873d4337f93fbc5cd66c755cbb7aed10ec75847ec76884cc206bf8177a"
+    },
+    {
+      "species": "REGIROCK",
+      "source": "crystal_animated/front/normal/377/023.png",
+      "file": "assets/hoenn_legend_rooms/animated/377/023.png",
+      "sha256": "112adc7078a9beb1853f9b3369831cd81276e7d5dba394a90fe24f9cf74741b6"
+    },
+    {
+      "species": "REGIROCK",
+      "source": "crystal_animated/front/normal/377/024.png",
+      "file": "assets/hoenn_legend_rooms/animated/377/024.png",
+      "sha256": "1222a4725a84032fe72e70f5ce7681412802c5f0e4d7322ac58bda29970ca280"
+    },
+    {
+      "species": "REGIROCK",
+      "source": "crystal_animated/front/normal/377/025.png",
+      "file": "assets/hoenn_legend_rooms/animated/377/025.png",
+      "sha256": "9b624a0e680117d41b33c09c58113fd3e2e04d9ced90bc8ddf6c79b6c3a36f47"
+    },
+    {
+      "species": "REGIROCK",
+      "source": "crystal_animated/front/normal/377/026.png",
+      "file": "assets/hoenn_legend_rooms/animated/377/026.png",
+      "sha256": "ac73feaa43cab0c00354be864790975733ebdbcda108d2aa9149c224f3908955"
+    },
+    {
+      "species": "REGIROCK",
+      "source": "crystal_animated/front/normal/377/027.png",
+      "file": "assets/hoenn_legend_rooms/animated/377/027.png",
+      "sha256": "6c73e7f8c0fe5db5fa334d793da69c615a9cbafe07911fc69febb0eb1e770423"
+    },
+    {
+      "species": "REGIROCK",
+      "source": "crystal_animated/front/normal/377/028.png",
+      "file": "assets/hoenn_legend_rooms/animated/377/028.png",
+      "sha256": "5a38b9887debee46094afbb0bfb1534b7dc268fdf8a0e25722be0cfcdbec6b6c"
+    },
+    {
+      "species": "REGIROCK",
+      "source": "crystal_animated/front/normal/377/029.png",
+      "file": "assets/hoenn_legend_rooms/animated/377/029.png",
+      "sha256": "171c700964e7e18a51a292f20f25244a7ee2faee1dd160053708d2ebc4082cd5"
+    },
+    {
+      "species": "REGIROCK",
+      "source": "crystal_animated/front/normal/377/030.png",
+      "file": "assets/hoenn_legend_rooms/animated/377/030.png",
+      "sha256": "ecc7594ad48501b4dc1b87ae06dc1e2619ca8bc675c6f7b87bddbf55ab72cc34"
+    },
+    {
+      "species": "REGIROCK",
+      "source": "crystal_animated/front/normal/377/031.png",
+      "file": "assets/hoenn_legend_rooms/animated/377/031.png",
+      "sha256": "f229ce0a916f1622fdd9f107ec9fe7f969cdd43a99f5263a587cb5aea51bbb3a"
+    },
+    {
+      "species": "REGIROCK",
+      "source": "crystal_animated/front/normal/377/032.png",
+      "file": "assets/hoenn_legend_rooms/animated/377/032.png",
+      "sha256": "8338139d5c4210a33852385f370e5bc1cae285c9db3e60a840a60e2bf5c14880"
+    },
+    {
+      "species": "REGIROCK",
+      "source": "crystal_animated/front/normal/377/033.png",
+      "file": "assets/hoenn_legend_rooms/animated/377/033.png",
+      "sha256": "341c39d42d55ed90ef9f3240793724631db446b0ff56196cec3f4ec37fbd2619"
+    },
+    {
+      "species": "REGIROCK",
+      "source": "crystal_animated/front/normal/377/034.png",
+      "file": "assets/hoenn_legend_rooms/animated/377/034.png",
+      "sha256": "c6c63373864a0745a4bc6f5ddcd9142b0db1008d9f791f23f8546b21ee2d077f"
+    },
+    {
+      "species": "REGIROCK",
+      "source": "crystal_animated/front/normal/377/035.png",
+      "file": "assets/hoenn_legend_rooms/animated/377/035.png",
+      "sha256": "a8216bd61c9cef44744d8dcc7d078f96b38fdb3e45e657574158bb257247ec3b"
+    },
+    {
+      "species": "REGIROCK",
+      "source": "crystal_animated/front/normal/377/036.png",
+      "file": "assets/hoenn_legend_rooms/animated/377/036.png",
+      "sha256": "a8856e42cce106370d0b586bda77830869abb8666891088a9f9e3434c19ac058"
+    },
+    {
+      "species": "REGIROCK",
+      "source": "crystal_animated/front/normal/377/037.png",
+      "file": "assets/hoenn_legend_rooms/animated/377/037.png",
+      "sha256": "c646c34c14ec4b3c0e60b9fa3afd5cc698c07e90aa516cecdfe7366e0a615525"
+    },
+    {
+      "species": "REGIROCK",
+      "source": "crystal_animated/front/normal/377/038.png",
+      "file": "assets/hoenn_legend_rooms/animated/377/038.png",
+      "sha256": "4cdead8c6e05c3516fcaa310e9d8f1c12d979e60368163f16b44ab431d53e564"
+    },
+    {
+      "species": "REGIROCK",
+      "source": "crystal_animated/front/normal/377/039.png",
+      "file": "assets/hoenn_legend_rooms/animated/377/039.png",
+      "sha256": "7564725159a695b657251e39595c7ccab840172a475fca0df8e64a211efa2f8b"
+    },
+    {
+      "species": "REGIROCK",
+      "source": "crystal_animated/front/normal/377/040.png",
+      "file": "assets/hoenn_legend_rooms/animated/377/040.png",
+      "sha256": "d9652a67d045a5c53a79b1dc17734c68685631b01a0f984fa379e5ec234e8bef"
+    },
+    {
+      "species": "REGIROCK",
+      "source": "crystal_animated/front/normal/377/041.png",
+      "file": "assets/hoenn_legend_rooms/animated/377/041.png",
+      "sha256": "6a702d4e0353912b99a84a4c9b136ebed0421cb458a746202b2a07dfe1ad127f"
+    },
+    {
+      "species": "REGIROCK",
+      "source": "crystal_animated/front/normal/377/042.png",
+      "file": "assets/hoenn_legend_rooms/animated/377/042.png",
+      "sha256": "80f3ae51592d3388b7b34719f4909b57195f813c0cfa647fb5e1a6549dc00815"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/001.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/001.png",
+      "sha256": "7c7e61ffc068bb31f01e7ccf80fffb90bc49307784fda369548e389e54aad1c4"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/002.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/002.png",
+      "sha256": "19bfd4fede9bbca7c2420972dfa7163283b570b758c47bd587c18283d7977318"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/003.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/003.png",
+      "sha256": "787a5c5a5a2a378b0e1ae994f9eb6efd5dda8059802167a88d09bcdded380769"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/004.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/004.png",
+      "sha256": "d6b588a867f802a2ccb979280c45501870b7edf09e233e5f3cb1af6d00d70348"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/005.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/005.png",
+      "sha256": "0da2de72c944e812e98c01a219c1c853f36c6d06f11891005812222f40b7eae1"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/006.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/006.png",
+      "sha256": "5789335201b51565b6c566e2ca96c2727c2752a1e50c29bf8ea10fb6ae16c92d"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/007.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/007.png",
+      "sha256": "3bb438b9b45e7f4ae804e4242a710ff4ba287feafe679959c1c817bb81efabdf"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/008.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/008.png",
+      "sha256": "63f6bb901936c36a78da23c9e58c9170aef8c2c962133ef94a1ad7fbed4954ce"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/009.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/009.png",
+      "sha256": "d91b8c4a22c0eb2bb172e2e340e2f174d6c48673af578d7ee602961178c5c3cc"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/010.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/010.png",
+      "sha256": "17cd656e77d36c6aba7123164f8892da51ade590f8635f1e8d27164e8659032a"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/011.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/011.png",
+      "sha256": "9241c9e288691ca8e2525291208b3c83905249534a8ca44ede46fb095e6824b2"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/012.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/012.png",
+      "sha256": "56b1ef1ce2c42792e86004f9f3e2e998e9e9d4e0aebb1635db1a88dba5d537c4"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/013.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/013.png",
+      "sha256": "5e0ac0a217a0cb1b5303eca2aab30dbd96030b89602eeb683e3abfc6489bed8f"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/014.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/014.png",
+      "sha256": "79cd06ef4850e5f8097875769085b89b0f0affdcc24a5b14f4a9bf4a0f427f61"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/015.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/015.png",
+      "sha256": "3a6e62471cf49c5cdc4b0bae9e89c0a55bbe30f78ae0388d3f8bc65f0cf3bf42"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/016.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/016.png",
+      "sha256": "35c7709c619ef339104040f314ba99e1f5c2d2c0046552838c1b6dcdb32662ac"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/017.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/017.png",
+      "sha256": "c906ea551673d2449948b5a9bf6d278c9ef752f9c76809174b52ce5faeffec46"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/018.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/018.png",
+      "sha256": "7eef0174a559b8e1c14aeb09790d03a5ba256d897742842da642b173f0feb365"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/019.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/019.png",
+      "sha256": "0f3cf2638526a5c7116c906c2398e0417cdcf27dc5582fd4c2f7ed0c18cf3820"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/020.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/020.png",
+      "sha256": "96ea1410f9490d8669e1c9c2f12d565f939bcd2971fd9ce26821d7ea961d6b9a"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/021.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/021.png",
+      "sha256": "3a65066bdf6f17dd9481661984634536871df1c297bf49e927d76794b1af9f62"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/022.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/022.png",
+      "sha256": "eaf121f70609b9496ff8ff0fc35b982945eddedc351961e52b2f86fe880cfeee"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/023.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/023.png",
+      "sha256": "682863e62d611b292ff74e7a9a347be4f24c864d1db18cc51fbc6e6b9e0086e3"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/024.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/024.png",
+      "sha256": "e9f010f440e2bd288d4419311277e6dcbac02de47e436102ffbf6ad56fd818f1"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/025.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/025.png",
+      "sha256": "3d41fc28c56ec8d009e84a8992b5b19c17ca9976cdc57d8c33483d69e47b0440"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/026.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/026.png",
+      "sha256": "f5531b497a5338ad46b18b0730683bec166a9e6bf2fa74f035d52c082201e2fa"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/027.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/027.png",
+      "sha256": "9cfb6df122a874aeacb5e602df168737d9d7db8a6386c615f4ae882c56a7fcb2"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/028.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/028.png",
+      "sha256": "0800dd2b34722dff032cc9494dfa6058c02758eaf5182803ce355f414e8406d2"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/029.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/029.png",
+      "sha256": "777d4f72baf14709a3dd6d76fdbc57060c171b77eae3004e61789d5e0fe636cf"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/030.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/030.png",
+      "sha256": "feb391fde23b9c8205451607b2ea5946edd79788cea93a35e2e46cbbbf29bba5"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/031.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/031.png",
+      "sha256": "6bf50a5ca486f09eabee7c8b80027c755b485b194fa95fa08fe50218f77db214"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/032.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/032.png",
+      "sha256": "377e3a6cda66ed64c74435a37b7d5cb1e216d6879dad7165bee875c4f1ab7968"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/033.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/033.png",
+      "sha256": "e7a887cc68c52e46836de6b0521c51704eacf9a013e072916f50d45e3f3b6293"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/034.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/034.png",
+      "sha256": "2321d4ca71854391e05d6bddf8a13d72e109fde1cf3afcaa1ce3550ec28e889e"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/035.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/035.png",
+      "sha256": "af6e74569ac9c32494a8e8b18f77d3ec1c42d76fd3a490796da47f928db5d14c"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/036.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/036.png",
+      "sha256": "74fb95903047260b9a8145eb1b3deee35e549b0780fb3a7abf6804f46e076b8f"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/037.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/037.png",
+      "sha256": "e54334275ab562b42f42e525f4739cf1740aba2aac7fc5259805ca4912afff73"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/038.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/038.png",
+      "sha256": "d30bb6d202b1a4129ff7ddcf3ce6ef2955affebf7407dd999cdff6648aed1144"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/039.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/039.png",
+      "sha256": "cd08f6decf605f14c12985f8a556877fe4fdb660b0987d86d0b73b7c4362b1d6"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/040.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/040.png",
+      "sha256": "1141d893aeab122efcc19c0341498fc8c8dc09299b592cf0def8f5c09343b836"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/041.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/041.png",
+      "sha256": "48c5308a3929ce633030bd79dca47dcd5f4d4c3ca0c279a4aa28f019d0d88ab8"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/042.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/042.png",
+      "sha256": "a35c1af650be5ce604cf4fd95c59628f23e91c460d01c5c6d02a44826eb6bf07"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/043.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/043.png",
+      "sha256": "4c34955d094209435a6241ccb446e300c91a9a3ae60525c7ef18a436e40af3c9"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/044.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/044.png",
+      "sha256": "38ba32778400d48f2c7d5ee3b030036cc481d6957a3b8ba32e9e3c62251b2d24"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/045.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/045.png",
+      "sha256": "0c66aee6c527859f4095d8712215f3193a7baf70aebdb4c40024b357dae8f3d0"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/046.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/046.png",
+      "sha256": "5b7451a9ee704edd6c7c001342416a25aaafe6c6124abb02e85552fc84e2abaf"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/047.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/047.png",
+      "sha256": "1ff80d302e126762be2e5847ce73073516f4bf8f213142b6cec00c7cc6be8a7e"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/048.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/048.png",
+      "sha256": "377e3a6cda66ed64c74435a37b7d5cb1e216d6879dad7165bee875c4f1ab7968"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/049.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/049.png",
+      "sha256": "92256ff32108072a7380770df279d1c5cd1529a43b3455bb7376a2aaf0283a75"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/050.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/050.png",
+      "sha256": "51aee7d631c91140fd5a31ec3132651f0a941e93a45c322b8ebd7d596aaf2478"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/051.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/051.png",
+      "sha256": "ac3a15114d793d279fc1120bc1a403c2222f5b6233ad6838cab58fee7fc5d8b6"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/052.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/052.png",
+      "sha256": "9334c30789c1f8fd9148bf956500bac59ca52a07a0ed4475251b56566241fe97"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/053.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/053.png",
+      "sha256": "34444ad6c1e68f09ea3b19b79b7d49f58e1cc69802c7fd2d0fec5d80644840bb"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/054.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/054.png",
+      "sha256": "4eeb237fbee15c1ea733feabb37c1d5843e14bcb697600a54d0e3480c9c392e4"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/055.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/055.png",
+      "sha256": "e9922c4842ad97bbc51c4c80e64bb9bee528cd63e2c1e3a60eab5f7cb9e720a3"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/056.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/056.png",
+      "sha256": "cc1e5cfbe846d17352ee0dbf851c46b6f26d1f6aa2353c8a820219d91efc3907"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/057.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/057.png",
+      "sha256": "10de6f2b260b19dbaa4a73055abc6fb856eeaee81ae788582c073a2a132c0c0c"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/058.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/058.png",
+      "sha256": "3f0e128b59750d181e68e94634b84903ae7a347f8513410882f6e36304e61c53"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/059.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/059.png",
+      "sha256": "6fc03b959b4136486c53508b21c5bc873d56b216955b92f53113594ab964f206"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/060.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/060.png",
+      "sha256": "81bb723531c7ac677fc8cab9ee6954279d6b3bad986109f3ed098a7f4966f141"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/061.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/061.png",
+      "sha256": "b09051722c7310c60174b1ae42a43c7032c4d61e66ac96d0cf266b0a39465dbc"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/062.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/062.png",
+      "sha256": "d39bd8d3f17917d969bf58708c204168d5ea9cec8ee66991e297c4ea17803847"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/063.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/063.png",
+      "sha256": "1b2f00ceab787688365b7472d419340f01b05bb50f872d672a0c5b4b8344cbd6"
+    },
+    {
+      "species": "REGICE",
+      "source": "crystal_animated/front/normal/378/064.png",
+      "file": "assets/hoenn_legend_rooms/animated/378/064.png",
+      "sha256": "35c7709c619ef339104040f314ba99e1f5c2d2c0046552838c1b6dcdb32662ac"
+    },
+    {
+      "species": "REGISTEEL",
+      "source": "crystal_animated/front/normal/379/001.png",
+      "file": "assets/hoenn_legend_rooms/animated/379/001.png",
+      "sha256": "f6d3b83d4eddac20c197fab7d8ec9333d335cf8fa56ed35b452c1e0d113731cf"
+    },
+    {
+      "species": "REGISTEEL",
+      "source": "crystal_animated/front/normal/379/002.png",
+      "file": "assets/hoenn_legend_rooms/animated/379/002.png",
+      "sha256": "b074f40ccbbe6affa5145892578caed63191fd875199985db8bb155372202374"
+    },
+    {
+      "species": "REGISTEEL",
+      "source": "crystal_animated/front/normal/379/003.png",
+      "file": "assets/hoenn_legend_rooms/animated/379/003.png",
+      "sha256": "0f65c6a0ef09ff72cf31d3f21b061022418b791875ec31b0c6f532e45d071925"
+    },
+    {
+      "species": "REGISTEEL",
+      "source": "crystal_animated/front/normal/379/004.png",
+      "file": "assets/hoenn_legend_rooms/animated/379/004.png",
+      "sha256": "b074f40ccbbe6affa5145892578caed63191fd875199985db8bb155372202374"
+    },
+    {
+      "species": "REGISTEEL",
+      "source": "crystal_animated/front/normal/379/005.png",
+      "file": "assets/hoenn_legend_rooms/animated/379/005.png",
+      "sha256": "001ed968d5d49cac67dbcf29fe76094cb0193b5cd1f368b8244da1bd92fa7390"
+    },
+    {
+      "species": "REGISTEEL",
+      "source": "crystal_animated/front/normal/379/006.png",
+      "file": "assets/hoenn_legend_rooms/animated/379/006.png",
+      "sha256": "b074f40ccbbe6affa5145892578caed63191fd875199985db8bb155372202374"
+    },
+    {
+      "species": "REGISTEEL",
+      "source": "crystal_animated/front/normal/379/007.png",
+      "file": "assets/hoenn_legend_rooms/animated/379/007.png",
+      "sha256": "fd6d861973ae9a29516306b33e90bb3f9090e92eb343220ac71ac424f14ffc73"
+    },
+    {
+      "species": "REGISTEEL",
+      "source": "crystal_animated/front/normal/379/008.png",
+      "file": "assets/hoenn_legend_rooms/animated/379/008.png",
+      "sha256": "b074f40ccbbe6affa5145892578caed63191fd875199985db8bb155372202374"
+    },
+    {
+      "species": "REGISTEEL",
+      "source": "crystal_animated/front/normal/379/009.png",
+      "file": "assets/hoenn_legend_rooms/animated/379/009.png",
+      "sha256": "39b259de674253b1aee59437014e2c5593c6e3e41116e5a7e1e74cdabd0652a1"
+    },
+    {
+      "species": "REGISTEEL",
+      "source": "crystal_animated/front/normal/379/010.png",
+      "file": "assets/hoenn_legend_rooms/animated/379/010.png",
+      "sha256": "b074f40ccbbe6affa5145892578caed63191fd875199985db8bb155372202374"
+    },
+    {
+      "species": "REGISTEEL",
+      "source": "crystal_animated/front/normal/379/011.png",
+      "file": "assets/hoenn_legend_rooms/animated/379/011.png",
+      "sha256": "9747ea5033311c5887b249f540700dfbccec4eb7c1a24e05bba2e246500f5533"
+    },
+    {
+      "species": "REGISTEEL",
+      "source": "crystal_animated/front/normal/379/012.png",
+      "file": "assets/hoenn_legend_rooms/animated/379/012.png",
+      "sha256": "cca3854bf162f6e55b52c518a888899660ceb2598660554e0c812291821f8a63"
+    },
+    {
+      "species": "REGISTEEL",
+      "source": "crystal_animated/front/normal/379/013.png",
+      "file": "assets/hoenn_legend_rooms/animated/379/013.png",
+      "sha256": "074dc6d22067fa5f07c983a580d4687a1a5a09280cb3e707de6da535b3be5361"
+    },
+    {
+      "species": "REGISTEEL",
+      "source": "crystal_animated/front/normal/379/014.png",
+      "file": "assets/hoenn_legend_rooms/animated/379/014.png",
+      "sha256": "cca3854bf162f6e55b52c518a888899660ceb2598660554e0c812291821f8a63"
+    },
+    {
+      "species": "REGISTEEL",
+      "source": "crystal_animated/front/normal/379/015.png",
+      "file": "assets/hoenn_legend_rooms/animated/379/015.png",
+      "sha256": "eb31059961a7b9bc3eebc611a626d077824b6aaa063399d857a39c9a97814e11"
+    },
+    {
+      "species": "REGISTEEL",
+      "source": "crystal_animated/front/normal/379/016.png",
+      "file": "assets/hoenn_legend_rooms/animated/379/016.png",
+      "sha256": "cca3854bf162f6e55b52c518a888899660ceb2598660554e0c812291821f8a63"
+    },
+    {
+      "species": "REGISTEEL",
+      "source": "crystal_animated/front/normal/379/017.png",
+      "file": "assets/hoenn_legend_rooms/animated/379/017.png",
+      "sha256": "afd21bcae4fbe3756748efd0ab978c7d76f510d493ca8d6b24005de49b481537"
+    },
+    {
+      "species": "REGISTEEL",
+      "source": "crystal_animated/front/normal/379/018.png",
+      "file": "assets/hoenn_legend_rooms/animated/379/018.png",
+      "sha256": "cca3854bf162f6e55b52c518a888899660ceb2598660554e0c812291821f8a63"
+    },
+    {
+      "species": "REGISTEEL",
+      "source": "crystal_animated/front/normal/379/019.png",
+      "file": "assets/hoenn_legend_rooms/animated/379/019.png",
+      "sha256": "08743197d52e563ed408f0725c053c48f0e1b49d41e5474d2395f8f44124b136"
+    },
+    {
+      "species": "REGISTEEL",
+      "source": "crystal_animated/front/normal/379/020.png",
+      "file": "assets/hoenn_legend_rooms/animated/379/020.png",
+      "sha256": "cca3854bf162f6e55b52c518a888899660ceb2598660554e0c812291821f8a63"
+    },
+    {
+      "species": "REGISTEEL",
+      "source": "crystal_animated/front/normal/379/021.png",
+      "file": "assets/hoenn_legend_rooms/animated/379/021.png",
+      "sha256": "f6d3b83d4eddac20c197fab7d8ec9333d335cf8fa56ed35b452c1e0d113731cf"
+    },
+    {
+      "species": "REGISTEEL",
+      "source": "crystal_animated/front/normal/379/022.png",
+      "file": "assets/hoenn_legend_rooms/animated/379/022.png",
+      "sha256": "82e4f24d2c996eeaceb4c4e14bcae3c2f1917ebe3db3cbc6f6ff49b082e20d55"
+    },
+    {
+      "species": "REGISTEEL",
+      "source": "crystal_animated/front/normal/379/023.png",
+      "file": "assets/hoenn_legend_rooms/animated/379/023.png",
+      "sha256": "7176804dc825d74333d254e906ab76af818960f8bf965c81829bee496a3a40b6"
+    },
+    {
+      "species": "REGISTEEL",
+      "source": "crystal_animated/front/normal/379/024.png",
+      "file": "assets/hoenn_legend_rooms/animated/379/024.png",
+      "sha256": "82e4f24d2c996eeaceb4c4e14bcae3c2f1917ebe3db3cbc6f6ff49b082e20d55"
+    },
+    {
+      "species": "REGISTEEL",
+      "source": "crystal_animated/front/normal/379/025.png",
+      "file": "assets/hoenn_legend_rooms/animated/379/025.png",
+      "sha256": "25281bed77733020871ecfb0b83e425c99b4a3c0eb85da07415859bc58ec1350"
+    },
+    {
+      "species": "REGISTEEL",
+      "source": "crystal_animated/front/normal/379/026.png",
+      "file": "assets/hoenn_legend_rooms/animated/379/026.png",
+      "sha256": "82e4f24d2c996eeaceb4c4e14bcae3c2f1917ebe3db3cbc6f6ff49b082e20d55"
+    },
+    {
+      "species": "REGISTEEL",
+      "source": "crystal_animated/front/normal/379/027.png",
+      "file": "assets/hoenn_legend_rooms/animated/379/027.png",
+      "sha256": "398823399718838c08032eebdaec3e1c54783976d373afb4f47c13114c5746d6"
+    },
+    {
+      "species": "REGISTEEL",
+      "source": "crystal_animated/front/normal/379/028.png",
+      "file": "assets/hoenn_legend_rooms/animated/379/028.png",
+      "sha256": "5ef9091a3cb1ed21624bc59e819150f47dce2203fd9741ba5fa2f9ee5dbf2cfb"
+    },
+    {
+      "species": "REGISTEEL",
+      "source": "crystal_animated/front/normal/379/029.png",
+      "file": "assets/hoenn_legend_rooms/animated/379/029.png",
+      "sha256": "966fe711812fe2d6770b235e9690d2f7b3d5b04a7643eea6287ecd444eb914c2"
+    },
+    {
+      "species": "REGISTEEL",
+      "source": "crystal_animated/front/normal/379/030.png",
+      "file": "assets/hoenn_legend_rooms/animated/379/030.png",
+      "sha256": "5ef9091a3cb1ed21624bc59e819150f47dce2203fd9741ba5fa2f9ee5dbf2cfb"
+    },
+    {
+      "species": "REGISTEEL",
+      "source": "crystal_animated/front/normal/379/031.png",
+      "file": "assets/hoenn_legend_rooms/animated/379/031.png",
+      "sha256": "a004531649bb3b03cbfce7ad959c4e9dab22205b63ec863f145e07dfba6cd829"
+    },
+    {
+      "species": "REGISTEEL",
+      "source": "crystal_animated/front/normal/379/032.png",
+      "file": "assets/hoenn_legend_rooms/animated/379/032.png",
+      "sha256": "1a0359c97fd875e48f7855a8e58745ff53c7a638a218c17b2bf4620c74e1b386"
+    },
+    {
+      "species": "REGISTEEL",
+      "source": "crystal_animated/front/normal/379/033.png",
+      "file": "assets/hoenn_legend_rooms/animated/379/033.png",
+      "sha256": "afa6aa8d366e4e1b081e51b88d1cd78b0d5250279f6a59d58c7d8a4e1bc2fab3"
+    },
+    {
+      "species": "REGISTEEL",
+      "source": "crystal_animated/front/normal/379/034.png",
+      "file": "assets/hoenn_legend_rooms/animated/379/034.png",
+      "sha256": "1a0359c97fd875e48f7855a8e58745ff53c7a638a218c17b2bf4620c74e1b386"
+    },
+    {
+      "species": "REGISTEEL",
+      "source": "crystal_animated/front/normal/379/035.png",
+      "file": "assets/hoenn_legend_rooms/animated/379/035.png",
+      "sha256": "d0cf189c4b47c97160d20b68e1ee5e220f1dec16027ffa0d72a255736a5b7c05"
+    },
+    {
+      "species": "REGISTEEL",
+      "source": "crystal_animated/front/normal/379/036.png",
+      "file": "assets/hoenn_legend_rooms/animated/379/036.png",
+      "sha256": "05a703cb3b0895697afa256f2e0b0bd961ae2e528f0f62f17985cc7b5adfb4fb"
+    },
+    {
+      "species": "REGISTEEL",
+      "source": "crystal_animated/front/normal/379/037.png",
+      "file": "assets/hoenn_legend_rooms/animated/379/037.png",
+      "sha256": "210ca2e773fee0cc3702ca26f1a43fbc5ffc245f38852fe028d87b6d7783648d"
+    },
+    {
+      "species": "REGISTEEL",
+      "source": "crystal_animated/front/normal/379/038.png",
+      "file": "assets/hoenn_legend_rooms/animated/379/038.png",
+      "sha256": "05a703cb3b0895697afa256f2e0b0bd961ae2e528f0f62f17985cc7b5adfb4fb"
+    },
+    {
+      "species": "REGISTEEL",
+      "source": "crystal_animated/front/normal/379/039.png",
+      "file": "assets/hoenn_legend_rooms/animated/379/039.png",
+      "sha256": "988fbb5df2176b1ce0e29ca8ff7c8a5db551763b18cc35d3f345192946ab5c2f"
+    },
+    {
+      "species": "REGISTEEL",
+      "source": "crystal_animated/front/normal/379/040.png",
+      "file": "assets/hoenn_legend_rooms/animated/379/040.png",
+      "sha256": "05a703cb3b0895697afa256f2e0b0bd961ae2e528f0f62f17985cc7b5adfb4fb"
+    },
+    {
+      "species": "REGISTEEL",
+      "source": "crystal_animated/front/normal/379/041.png",
+      "file": "assets/hoenn_legend_rooms/animated/379/041.png",
+      "sha256": "f6d3b83d4eddac20c197fab7d8ec9333d335cf8fa56ed35b452c1e0d113731cf"
+    },
+    {
+      "species": "KYOGRE",
+      "source": "crystal_animated/front/normal/382/001.png",
+      "file": "assets/hoenn_legend_rooms/animated/382/001.png",
+      "sha256": "3125093e48e677161c14aa51cff661d761fe5e289c0d811921fb417b166e3bca"
+    },
+    {
+      "species": "KYOGRE",
+      "source": "crystal_animated/front/normal/382/002.png",
+      "file": "assets/hoenn_legend_rooms/animated/382/002.png",
+      "sha256": "486818044b69551d772333302cda6e45dd9d8c693e7ee07e5f3abe1dcd07ad43"
+    },
+    {
+      "species": "KYOGRE",
+      "source": "crystal_animated/front/normal/382/003.png",
+      "file": "assets/hoenn_legend_rooms/animated/382/003.png",
+      "sha256": "3125093e48e677161c14aa51cff661d761fe5e289c0d811921fb417b166e3bca"
+    },
+    {
+      "species": "KYOGRE",
+      "source": "crystal_animated/front/normal/382/004.png",
+      "file": "assets/hoenn_legend_rooms/animated/382/004.png",
+      "sha256": "486818044b69551d772333302cda6e45dd9d8c693e7ee07e5f3abe1dcd07ad43"
+    },
+    {
+      "species": "KYOGRE",
+      "source": "crystal_animated/front/normal/382/005.png",
+      "file": "assets/hoenn_legend_rooms/animated/382/005.png",
+      "sha256": "3125093e48e677161c14aa51cff661d761fe5e289c0d811921fb417b166e3bca"
+    },
+    {
+      "species": "KYOGRE",
+      "source": "crystal_animated/front/normal/382/006.png",
+      "file": "assets/hoenn_legend_rooms/animated/382/006.png",
+      "sha256": "a56a94e40f10b976b1c7f039dd543e9ce495afb9ce59862d6390c3b641ce7e2a"
+    },
+    {
+      "species": "KYOGRE",
+      "source": "crystal_animated/front/normal/382/007.png",
+      "file": "assets/hoenn_legend_rooms/animated/382/007.png",
+      "sha256": "68012ddce5a0a5a91046d940dae5c4775ee5b629fcbfcce58b45f6a3c17fe6ab"
+    },
+    {
+      "species": "KYOGRE",
+      "source": "crystal_animated/front/normal/382/008.png",
+      "file": "assets/hoenn_legend_rooms/animated/382/008.png",
+      "sha256": "a1183806acf8c4b50829b00d23c21d1c636428cbada4b26e751f08e203804fdb"
+    },
+    {
+      "species": "KYOGRE",
+      "source": "crystal_animated/front/normal/382/009.png",
+      "file": "assets/hoenn_legend_rooms/animated/382/009.png",
+      "sha256": "613a2900157fcd265be13d3468d7be58d75889bb91d961ddf5b5571235c85550"
+    },
+    {
+      "species": "KYOGRE",
+      "source": "crystal_animated/front/normal/382/010.png",
+      "file": "assets/hoenn_legend_rooms/animated/382/010.png",
+      "sha256": "27b1d92f1d2c72a633e3f873697303f9dad5593ffdf5cb724072f019ddb5ccd3"
+    },
+    {
+      "species": "KYOGRE",
+      "source": "crystal_animated/front/normal/382/011.png",
+      "file": "assets/hoenn_legend_rooms/animated/382/011.png",
+      "sha256": "e8ee3b6384e5c77834ebb42b3010c2609fce462aff71167766703b75ae258ebf"
+    },
+    {
+      "species": "KYOGRE",
+      "source": "crystal_animated/front/normal/382/012.png",
+      "file": "assets/hoenn_legend_rooms/animated/382/012.png",
+      "sha256": "8485f3ee7a44b76f0ac690fb2df3550f3c6ccd765dd5cf9f8c18735f48ff3a3b"
+    },
+    {
+      "species": "KYOGRE",
+      "source": "crystal_animated/front/normal/382/013.png",
+      "file": "assets/hoenn_legend_rooms/animated/382/013.png",
+      "sha256": "9356e0736154ba841822b00993890774e4dd720f82fd16a26083ab99e812ad42"
+    },
+    {
+      "species": "KYOGRE",
+      "source": "crystal_animated/front/normal/382/014.png",
+      "file": "assets/hoenn_legend_rooms/animated/382/014.png",
+      "sha256": "a51073c6cc18bacbf76eca90838b0a429417178987457eeafbebf4c146b58bc8"
+    },
+    {
+      "species": "KYOGRE",
+      "source": "crystal_animated/front/normal/382/015.png",
+      "file": "assets/hoenn_legend_rooms/animated/382/015.png",
+      "sha256": "62e2dc5502cd970f3a0ff7e75feb4be2b54dc09f938ce890e6e89279ac549688"
+    },
+    {
+      "species": "KYOGRE",
+      "source": "crystal_animated/front/normal/382/016.png",
+      "file": "assets/hoenn_legend_rooms/animated/382/016.png",
+      "sha256": "a51073c6cc18bacbf76eca90838b0a429417178987457eeafbebf4c146b58bc8"
+    },
+    {
+      "species": "KYOGRE",
+      "source": "crystal_animated/front/normal/382/017.png",
+      "file": "assets/hoenn_legend_rooms/animated/382/017.png",
+      "sha256": "9356e0736154ba841822b00993890774e4dd720f82fd16a26083ab99e812ad42"
+    },
+    {
+      "species": "KYOGRE",
+      "source": "crystal_animated/front/normal/382/018.png",
+      "file": "assets/hoenn_legend_rooms/animated/382/018.png",
+      "sha256": "8485f3ee7a44b76f0ac690fb2df3550f3c6ccd765dd5cf9f8c18735f48ff3a3b"
+    },
+    {
+      "species": "KYOGRE",
+      "source": "crystal_animated/front/normal/382/019.png",
+      "file": "assets/hoenn_legend_rooms/animated/382/019.png",
+      "sha256": "e8ee3b6384e5c77834ebb42b3010c2609fce462aff71167766703b75ae258ebf"
+    },
+    {
+      "species": "KYOGRE",
+      "source": "crystal_animated/front/normal/382/020.png",
+      "file": "assets/hoenn_legend_rooms/animated/382/020.png",
+      "sha256": "27b1d92f1d2c72a633e3f873697303f9dad5593ffdf5cb724072f019ddb5ccd3"
+    },
+    {
+      "species": "KYOGRE",
+      "source": "crystal_animated/front/normal/382/021.png",
+      "file": "assets/hoenn_legend_rooms/animated/382/021.png",
+      "sha256": "cde01af215b1a737f2447fb2c7d35b80ab1ec0f13fa7acfb2b05b6d2c3e1d336"
+    },
+    {
+      "species": "KYOGRE",
+      "source": "crystal_animated/front/normal/382/022.png",
+      "file": "assets/hoenn_legend_rooms/animated/382/022.png",
+      "sha256": "a1183806acf8c4b50829b00d23c21d1c636428cbada4b26e751f08e203804fdb"
+    },
+    {
+      "species": "KYOGRE",
+      "source": "crystal_animated/front/normal/382/023.png",
+      "file": "assets/hoenn_legend_rooms/animated/382/023.png",
+      "sha256": "68012ddce5a0a5a91046d940dae5c4775ee5b629fcbfcce58b45f6a3c17fe6ab"
+    },
+    {
+      "species": "KYOGRE",
+      "source": "crystal_animated/front/normal/382/024.png",
+      "file": "assets/hoenn_legend_rooms/animated/382/024.png",
+      "sha256": "a56a94e40f10b976b1c7f039dd543e9ce495afb9ce59862d6390c3b641ce7e2a"
+    },
+    {
+      "species": "KYOGRE",
+      "source": "crystal_animated/front/normal/382/025.png",
+      "file": "assets/hoenn_legend_rooms/animated/382/025.png",
+      "sha256": "3125093e48e677161c14aa51cff661d761fe5e289c0d811921fb417b166e3bca"
+    },
+    {
+      "species": "KYOGRE",
+      "source": "crystal_animated/front/normal/382/026.png",
+      "file": "assets/hoenn_legend_rooms/animated/382/026.png",
+      "sha256": "7bfaeef1092ba10213d446ece7bd917e8c104f041baa38948e7d38a383cb012a"
+    },
+    {
+      "species": "KYOGRE",
+      "source": "crystal_animated/front/normal/382/027.png",
+      "file": "assets/hoenn_legend_rooms/animated/382/027.png",
+      "sha256": "be145a6aa3cebe4eff748ee7425962644479223f7e29b33c7f64c9bfb4fb022d"
+    },
+    {
+      "species": "KYOGRE",
+      "source": "crystal_animated/front/normal/382/028.png",
+      "file": "assets/hoenn_legend_rooms/animated/382/028.png",
+      "sha256": "4493f57af53192ebaa1881cfed9a041a8b4cb2dab1c6c01eb0112ef09fb77e0b"
+    },
+    {
+      "species": "KYOGRE",
+      "source": "crystal_animated/front/normal/382/029.png",
+      "file": "assets/hoenn_legend_rooms/animated/382/029.png",
+      "sha256": "c0f843aff2f3934ba3b3785fd08b381f554fa20331694ccc68d679a27425f096"
+    },
+    {
+      "species": "KYOGRE",
+      "source": "crystal_animated/front/normal/382/030.png",
+      "file": "assets/hoenn_legend_rooms/animated/382/030.png",
+      "sha256": "6ceb653ddeda46b93f8d3eabdd45f33a9a377f22c6bca9d32014119e8315ec77"
+    },
+    {
+      "species": "KYOGRE",
+      "source": "crystal_animated/front/normal/382/031.png",
+      "file": "assets/hoenn_legend_rooms/animated/382/031.png",
+      "sha256": "4c8f173d440e3dd4a8db61ed4fac8c2b21479624102dc94502f4460137854a8b"
+    },
+    {
+      "species": "KYOGRE",
+      "source": "crystal_animated/front/normal/382/032.png",
+      "file": "assets/hoenn_legend_rooms/animated/382/032.png",
+      "sha256": "371073809735cd66c94e809307f5021aa3fdf4388e63c65b2f3b7eea2ab56b5b"
+    },
+    {
+      "species": "KYOGRE",
+      "source": "crystal_animated/front/normal/382/033.png",
+      "file": "assets/hoenn_legend_rooms/animated/382/033.png",
+      "sha256": "9a9d882ea6f077875621c627257933f6a3b3ed69fcf1ddde4a358d52e7f7eb18"
+    },
+    {
+      "species": "KYOGRE",
+      "source": "crystal_animated/front/normal/382/034.png",
+      "file": "assets/hoenn_legend_rooms/animated/382/034.png",
+      "sha256": "f6cf12f92bda6000bed59e893494896dc332fa594e34cabca424c2fde266848c"
+    },
+    {
+      "species": "KYOGRE",
+      "source": "crystal_animated/front/normal/382/035.png",
+      "file": "assets/hoenn_legend_rooms/animated/382/035.png",
+      "sha256": "93e30daf131ee2b5adff86961f02a834d177b88389fbb33c1b0ad403858bab4b"
+    },
+    {
+      "species": "KYOGRE",
+      "source": "crystal_animated/front/normal/382/036.png",
+      "file": "assets/hoenn_legend_rooms/animated/382/036.png",
+      "sha256": "f6cf12f92bda6000bed59e893494896dc332fa594e34cabca424c2fde266848c"
+    },
+    {
+      "species": "KYOGRE",
+      "source": "crystal_animated/front/normal/382/037.png",
+      "file": "assets/hoenn_legend_rooms/animated/382/037.png",
+      "sha256": "9a9d882ea6f077875621c627257933f6a3b3ed69fcf1ddde4a358d52e7f7eb18"
+    },
+    {
+      "species": "KYOGRE",
+      "source": "crystal_animated/front/normal/382/038.png",
+      "file": "assets/hoenn_legend_rooms/animated/382/038.png",
+      "sha256": "371073809735cd66c94e809307f5021aa3fdf4388e63c65b2f3b7eea2ab56b5b"
+    },
+    {
+      "species": "KYOGRE",
+      "source": "crystal_animated/front/normal/382/039.png",
+      "file": "assets/hoenn_legend_rooms/animated/382/039.png",
+      "sha256": "4c8f173d440e3dd4a8db61ed4fac8c2b21479624102dc94502f4460137854a8b"
+    },
+    {
+      "species": "KYOGRE",
+      "source": "crystal_animated/front/normal/382/040.png",
+      "file": "assets/hoenn_legend_rooms/animated/382/040.png",
+      "sha256": "6ceb653ddeda46b93f8d3eabdd45f33a9a377f22c6bca9d32014119e8315ec77"
+    },
+    {
+      "species": "KYOGRE",
+      "source": "crystal_animated/front/normal/382/041.png",
+      "file": "assets/hoenn_legend_rooms/animated/382/041.png",
+      "sha256": "c7473d2876ec121d7b9c59261cf01b21ef2ab1c72ef81b5cea7803c1c843e413"
+    },
+    {
+      "species": "KYOGRE",
+      "source": "crystal_animated/front/normal/382/042.png",
+      "file": "assets/hoenn_legend_rooms/animated/382/042.png",
+      "sha256": "4493f57af53192ebaa1881cfed9a041a8b4cb2dab1c6c01eb0112ef09fb77e0b"
+    },
+    {
+      "species": "KYOGRE",
+      "source": "crystal_animated/front/normal/382/043.png",
+      "file": "assets/hoenn_legend_rooms/animated/382/043.png",
+      "sha256": "be145a6aa3cebe4eff748ee7425962644479223f7e29b33c7f64c9bfb4fb022d"
+    },
+    {
+      "species": "KYOGRE",
+      "source": "crystal_animated/front/normal/382/044.png",
+      "file": "assets/hoenn_legend_rooms/animated/382/044.png",
+      "sha256": "7bfaeef1092ba10213d446ece7bd917e8c104f041baa38948e7d38a383cb012a"
+    },
+    {
+      "species": "KYOGRE",
+      "source": "crystal_animated/front/normal/382/045.png",
+      "file": "assets/hoenn_legend_rooms/animated/382/045.png",
+      "sha256": "3125093e48e677161c14aa51cff661d761fe5e289c0d811921fb417b166e3bca"
+    },
+    {
+      "species": "GROUDON",
+      "source": "crystal_animated/front/normal/383/001.png",
+      "file": "assets/hoenn_legend_rooms/animated/383/001.png",
+      "sha256": "2b754a448ebeff9bd4016cd5cd2d62e155e32ee6b4c218f2f025bc5d45d8de99"
+    },
+    {
+      "species": "GROUDON",
+      "source": "crystal_animated/front/normal/383/002.png",
+      "file": "assets/hoenn_legend_rooms/animated/383/002.png",
+      "sha256": "8e43511d8c3b159f0cee2c523839aa48748398da23d5a29dcbe56c168475de4e"
+    },
+    {
+      "species": "GROUDON",
+      "source": "crystal_animated/front/normal/383/003.png",
+      "file": "assets/hoenn_legend_rooms/animated/383/003.png",
+      "sha256": "2b754a448ebeff9bd4016cd5cd2d62e155e32ee6b4c218f2f025bc5d45d8de99"
+    },
+    {
+      "species": "GROUDON",
+      "source": "crystal_animated/front/normal/383/004.png",
+      "file": "assets/hoenn_legend_rooms/animated/383/004.png",
+      "sha256": "4a15cd6c2b2d13388c1d14b36930fa08422661f01aa2bd38f231670cb239501d"
+    },
+    {
+      "species": "GROUDON",
+      "source": "crystal_animated/front/normal/383/005.png",
+      "file": "assets/hoenn_legend_rooms/animated/383/005.png",
+      "sha256": "848bcc5f02ce7b931e24c24f387fe9c4279e37b1997df96ac1e33c896642c5ea"
+    },
+    {
+      "species": "GROUDON",
+      "source": "crystal_animated/front/normal/383/006.png",
+      "file": "assets/hoenn_legend_rooms/animated/383/006.png",
+      "sha256": "8e43511d8c3b159f0cee2c523839aa48748398da23d5a29dcbe56c168475de4e"
+    },
+    {
+      "species": "GROUDON",
+      "source": "crystal_animated/front/normal/383/007.png",
+      "file": "assets/hoenn_legend_rooms/animated/383/007.png",
+      "sha256": "23b08f819393a07284e3997dcbd41889beb1becd73e49fad2ddaf18ff78b7ba7"
+    },
+    {
+      "species": "GROUDON",
+      "source": "crystal_animated/front/normal/383/008.png",
+      "file": "assets/hoenn_legend_rooms/animated/383/008.png",
+      "sha256": "4a15cd6c2b2d13388c1d14b36930fa08422661f01aa2bd38f231670cb239501d"
+    },
+    {
+      "species": "GROUDON",
+      "source": "crystal_animated/front/normal/383/009.png",
+      "file": "assets/hoenn_legend_rooms/animated/383/009.png",
+      "sha256": "23b08f819393a07284e3997dcbd41889beb1becd73e49fad2ddaf18ff78b7ba7"
+    },
+    {
+      "species": "GROUDON",
+      "source": "crystal_animated/front/normal/383/010.png",
+      "file": "assets/hoenn_legend_rooms/animated/383/010.png",
+      "sha256": "8e43511d8c3b159f0cee2c523839aa48748398da23d5a29dcbe56c168475de4e"
+    },
+    {
+      "species": "GROUDON",
+      "source": "crystal_animated/front/normal/383/011.png",
+      "file": "assets/hoenn_legend_rooms/animated/383/011.png",
+      "sha256": "30193083f16d771f09ab674fed812ecd465f7b6c211bd0e7ade729ea9d698818"
+    },
+    {
+      "species": "GROUDON",
+      "source": "crystal_animated/front/normal/383/012.png",
+      "file": "assets/hoenn_legend_rooms/animated/383/012.png",
+      "sha256": "99cde5a272c66f837402dd1e5345d4c97fa7e7537e86d21d5ac97e8a72115472"
+    },
+    {
+      "species": "GROUDON",
+      "source": "crystal_animated/front/normal/383/013.png",
+      "file": "assets/hoenn_legend_rooms/animated/383/013.png",
+      "sha256": "db5c71dae63dc26efa762cd74a8c25b4729b23ffa84746d31a6dff87b203740c"
+    },
+    {
+      "species": "GROUDON",
+      "source": "crystal_animated/front/normal/383/014.png",
+      "file": "assets/hoenn_legend_rooms/animated/383/014.png",
+      "sha256": "af70a87f5e5581c7d2cd4fdf586b1c0c2c300ea2be9ab6cadb81d8595d1c82be"
+    },
+    {
+      "species": "GROUDON",
+      "source": "crystal_animated/front/normal/383/015.png",
+      "file": "assets/hoenn_legend_rooms/animated/383/015.png",
+      "sha256": "29947b2750c90b6bd59e7584c6b77b0d9a2250a92581e6fa864859b9c4531df9"
+    },
+    {
+      "species": "GROUDON",
+      "source": "crystal_animated/front/normal/383/016.png",
+      "file": "assets/hoenn_legend_rooms/animated/383/016.png",
+      "sha256": "99cde5a272c66f837402dd1e5345d4c97fa7e7537e86d21d5ac97e8a72115472"
+    },
+    {
+      "species": "GROUDON",
+      "source": "crystal_animated/front/normal/383/017.png",
+      "file": "assets/hoenn_legend_rooms/animated/383/017.png",
+      "sha256": "29947b2750c90b6bd59e7584c6b77b0d9a2250a92581e6fa864859b9c4531df9"
+    },
+    {
+      "species": "GROUDON",
+      "source": "crystal_animated/front/normal/383/018.png",
+      "file": "assets/hoenn_legend_rooms/animated/383/018.png",
+      "sha256": "af70a87f5e5581c7d2cd4fdf586b1c0c2c300ea2be9ab6cadb81d8595d1c82be"
+    },
+    {
+      "species": "GROUDON",
+      "source": "crystal_animated/front/normal/383/019.png",
+      "file": "assets/hoenn_legend_rooms/animated/383/019.png",
+      "sha256": "db5c71dae63dc26efa762cd74a8c25b4729b23ffa84746d31a6dff87b203740c"
+    },
+    {
+      "species": "GROUDON",
+      "source": "crystal_animated/front/normal/383/020.png",
+      "file": "assets/hoenn_legend_rooms/animated/383/020.png",
+      "sha256": "99cde5a272c66f837402dd1e5345d4c97fa7e7537e86d21d5ac97e8a72115472"
+    },
+    {
+      "species": "GROUDON",
+      "source": "crystal_animated/front/normal/383/021.png",
+      "file": "assets/hoenn_legend_rooms/animated/383/021.png",
+      "sha256": "848bcc5f02ce7b931e24c24f387fe9c4279e37b1997df96ac1e33c896642c5ea"
+    },
+    {
+      "species": "GROUDON",
+      "source": "crystal_animated/front/normal/383/022.png",
+      "file": "assets/hoenn_legend_rooms/animated/383/022.png",
+      "sha256": "8e43511d8c3b159f0cee2c523839aa48748398da23d5a29dcbe56c168475de4e"
+    },
+    {
+      "species": "GROUDON",
+      "source": "crystal_animated/front/normal/383/023.png",
+      "file": "assets/hoenn_legend_rooms/animated/383/023.png",
+      "sha256": "23b08f819393a07284e3997dcbd41889beb1becd73e49fad2ddaf18ff78b7ba7"
+    },
+    {
+      "species": "GROUDON",
+      "source": "crystal_animated/front/normal/383/024.png",
+      "file": "assets/hoenn_legend_rooms/animated/383/024.png",
+      "sha256": "4a15cd6c2b2d13388c1d14b36930fa08422661f01aa2bd38f231670cb239501d"
+    },
+    {
+      "species": "GROUDON",
+      "source": "crystal_animated/front/normal/383/025.png",
+      "file": "assets/hoenn_legend_rooms/animated/383/025.png",
+      "sha256": "23b08f819393a07284e3997dcbd41889beb1becd73e49fad2ddaf18ff78b7ba7"
+    },
+    {
+      "species": "GROUDON",
+      "source": "crystal_animated/front/normal/383/026.png",
+      "file": "assets/hoenn_legend_rooms/animated/383/026.png",
+      "sha256": "8e43511d8c3b159f0cee2c523839aa48748398da23d5a29dcbe56c168475de4e"
+    },
+    {
+      "species": "GROUDON",
+      "source": "crystal_animated/front/normal/383/027.png",
+      "file": "assets/hoenn_legend_rooms/animated/383/027.png",
+      "sha256": "848bcc5f02ce7b931e24c24f387fe9c4279e37b1997df96ac1e33c896642c5ea"
+    },
+    {
+      "species": "GROUDON",
+      "source": "crystal_animated/front/normal/383/028.png",
+      "file": "assets/hoenn_legend_rooms/animated/383/028.png",
+      "sha256": "4a15cd6c2b2d13388c1d14b36930fa08422661f01aa2bd38f231670cb239501d"
+    },
+    {
+      "species": "GROUDON",
+      "source": "crystal_animated/front/normal/383/029.png",
+      "file": "assets/hoenn_legend_rooms/animated/383/029.png",
+      "sha256": "2b754a448ebeff9bd4016cd5cd2d62e155e32ee6b4c218f2f025bc5d45d8de99"
+    },
+    {
+      "species": "GROUDON",
+      "source": "crystal_animated/front/normal/383/030.png",
+      "file": "assets/hoenn_legend_rooms/animated/383/030.png",
+      "sha256": "af70a87f5e5581c7d2cd4fdf586b1c0c2c300ea2be9ab6cadb81d8595d1c82be"
+    },
+    {
+      "species": "GROUDON",
+      "source": "crystal_animated/front/normal/383/031.png",
+      "file": "assets/hoenn_legend_rooms/animated/383/031.png",
+      "sha256": "db5c71dae63dc26efa762cd74a8c25b4729b23ffa84746d31a6dff87b203740c"
+    },
+    {
+      "species": "GROUDON",
+      "source": "crystal_animated/front/normal/383/032.png",
+      "file": "assets/hoenn_legend_rooms/animated/383/032.png",
+      "sha256": "99cde5a272c66f837402dd1e5345d4c97fa7e7537e86d21d5ac97e8a72115472"
+    },
+    {
+      "species": "GROUDON",
+      "source": "crystal_animated/front/normal/383/033.png",
+      "file": "assets/hoenn_legend_rooms/animated/383/033.png",
+      "sha256": "29947b2750c90b6bd59e7584c6b77b0d9a2250a92581e6fa864859b9c4531df9"
+    },
+    {
+      "species": "GROUDON",
+      "source": "crystal_animated/front/normal/383/034.png",
+      "file": "assets/hoenn_legend_rooms/animated/383/034.png",
+      "sha256": "af70a87f5e5581c7d2cd4fdf586b1c0c2c300ea2be9ab6cadb81d8595d1c82be"
+    },
+    {
+      "species": "GROUDON",
+      "source": "crystal_animated/front/normal/383/035.png",
+      "file": "assets/hoenn_legend_rooms/animated/383/035.png",
+      "sha256": "552b54aef39e5be8fd1c12dbb0aa457360ac240afcb0c79454c04c68c57fd4e8"
+    },
+    {
+      "species": "GROUDON",
+      "source": "crystal_animated/front/normal/383/036.png",
+      "file": "assets/hoenn_legend_rooms/animated/383/036.png",
+      "sha256": "99cde5a272c66f837402dd1e5345d4c97fa7e7537e86d21d5ac97e8a72115472"
+    },
+    {
+      "species": "GROUDON",
+      "source": "crystal_animated/front/normal/383/037.png",
+      "file": "assets/hoenn_legend_rooms/animated/383/037.png",
+      "sha256": "30193083f16d771f09ab674fed812ecd465f7b6c211bd0e7ade729ea9d698818"
+    },
+    {
+      "species": "GROUDON",
+      "source": "crystal_animated/front/normal/383/038.png",
+      "file": "assets/hoenn_legend_rooms/animated/383/038.png",
+      "sha256": "db5c71dae63dc26efa762cd74a8c25b4729b23ffa84746d31a6dff87b203740c"
+    },
+    {
+      "species": "GROUDON",
+      "source": "crystal_animated/front/normal/383/039.png",
+      "file": "assets/hoenn_legend_rooms/animated/383/039.png",
+      "sha256": "2b754a448ebeff9bd4016cd5cd2d62e155e32ee6b4c218f2f025bc5d45d8de99"
+    },
+    {
+      "species": "RAYQUAZA",
+      "source": "crystal_animated/front/normal/384/001.png",
+      "file": "assets/hoenn_legend_rooms/animated/384/001.png",
+      "sha256": "4d0fcd8b41bab80e173a0c0b4e143aaf78ea7bc2eae6796512b01194e9fc99be"
+    },
+    {
+      "species": "RAYQUAZA",
+      "source": "crystal_animated/front/normal/384/002.png",
+      "file": "assets/hoenn_legend_rooms/animated/384/002.png",
+      "sha256": "22254c997d7e99ae9789d8e8615227730ebd85fb9094c9d0d0bf6b67c7fa1c27"
+    },
+    {
+      "species": "RAYQUAZA",
+      "source": "crystal_animated/front/normal/384/003.png",
+      "file": "assets/hoenn_legend_rooms/animated/384/003.png",
+      "sha256": "4d0fcd8b41bab80e173a0c0b4e143aaf78ea7bc2eae6796512b01194e9fc99be"
+    },
+    {
+      "species": "RAYQUAZA",
+      "source": "crystal_animated/front/normal/384/004.png",
+      "file": "assets/hoenn_legend_rooms/animated/384/004.png",
+      "sha256": "22254c997d7e99ae9789d8e8615227730ebd85fb9094c9d0d0bf6b67c7fa1c27"
+    },
+    {
+      "species": "RAYQUAZA",
+      "source": "crystal_animated/front/normal/384/005.png",
+      "file": "assets/hoenn_legend_rooms/animated/384/005.png",
+      "sha256": "4d0fcd8b41bab80e173a0c0b4e143aaf78ea7bc2eae6796512b01194e9fc99be"
+    },
+    {
+      "species": "RAYQUAZA",
+      "source": "crystal_animated/front/normal/384/006.png",
+      "file": "assets/hoenn_legend_rooms/animated/384/006.png",
+      "sha256": "3e9c043ee33a265e3c8e74088b86145b27679e16c5e93b20360ea1db1b53ab06"
+    },
+    {
+      "species": "RAYQUAZA",
+      "source": "crystal_animated/front/normal/384/007.png",
+      "file": "assets/hoenn_legend_rooms/animated/384/007.png",
+      "sha256": "4d0fcd8b41bab80e173a0c0b4e143aaf78ea7bc2eae6796512b01194e9fc99be"
+    },
+    {
+      "species": "RAYQUAZA",
+      "source": "crystal_animated/front/normal/384/008.png",
+      "file": "assets/hoenn_legend_rooms/animated/384/008.png",
+      "sha256": "e64fecf0736a83cbfbab56522c9dba89cf36ea71e476514dca845ff2f2bd4976"
+    },
+    {
+      "species": "RAYQUAZA",
+      "source": "crystal_animated/front/normal/384/009.png",
+      "file": "assets/hoenn_legend_rooms/animated/384/009.png",
+      "sha256": "b21a6899820b729c23648931a88b4924dffc7c0f42502f231faa2a2699cf47d6"
+    },
+    {
+      "species": "RAYQUAZA",
+      "source": "crystal_animated/front/normal/384/010.png",
+      "file": "assets/hoenn_legend_rooms/animated/384/010.png",
+      "sha256": "3e9c043ee33a265e3c8e74088b86145b27679e16c5e93b20360ea1db1b53ab06"
+    },
+    {
+      "species": "RAYQUAZA",
+      "source": "crystal_animated/front/normal/384/011.png",
+      "file": "assets/hoenn_legend_rooms/animated/384/011.png",
+      "sha256": "1160fa5712fd9f3ccb6147eeea1314740a0d03ff2dc4b25440971ba26e1b0c52"
+    },
+    {
+      "species": "RAYQUAZA",
+      "source": "crystal_animated/front/normal/384/012.png",
+      "file": "assets/hoenn_legend_rooms/animated/384/012.png",
+      "sha256": "e64fecf0736a83cbfbab56522c9dba89cf36ea71e476514dca845ff2f2bd4976"
+    },
+    {
+      "species": "RAYQUAZA",
+      "source": "crystal_animated/front/normal/384/013.png",
+      "file": "assets/hoenn_legend_rooms/animated/384/013.png",
+      "sha256": "1160fa5712fd9f3ccb6147eeea1314740a0d03ff2dc4b25440971ba26e1b0c52"
+    },
+    {
+      "species": "RAYQUAZA",
+      "source": "crystal_animated/front/normal/384/014.png",
+      "file": "assets/hoenn_legend_rooms/animated/384/014.png",
+      "sha256": "3e9c043ee33a265e3c8e74088b86145b27679e16c5e93b20360ea1db1b53ab06"
+    },
+    {
+      "species": "RAYQUAZA",
+      "source": "crystal_animated/front/normal/384/015.png",
+      "file": "assets/hoenn_legend_rooms/animated/384/015.png",
+      "sha256": "b21a6899820b729c23648931a88b4924dffc7c0f42502f231faa2a2699cf47d6"
+    },
+    {
+      "species": "RAYQUAZA",
+      "source": "crystal_animated/front/normal/384/016.png",
+      "file": "assets/hoenn_legend_rooms/animated/384/016.png",
+      "sha256": "e64fecf0736a83cbfbab56522c9dba89cf36ea71e476514dca845ff2f2bd4976"
+    },
+    {
+      "species": "RAYQUAZA",
+      "source": "crystal_animated/front/normal/384/017.png",
+      "file": "assets/hoenn_legend_rooms/animated/384/017.png",
+      "sha256": "4d0fcd8b41bab80e173a0c0b4e143aaf78ea7bc2eae6796512b01194e9fc99be"
+    },
+    {
+      "species": "RAYQUAZA",
+      "source": "crystal_animated/front/normal/384/018.png",
+      "file": "assets/hoenn_legend_rooms/animated/384/018.png",
+      "sha256": "3e9c043ee33a265e3c8e74088b86145b27679e16c5e93b20360ea1db1b53ab06"
+    },
+    {
+      "species": "RAYQUAZA",
+      "source": "crystal_animated/front/normal/384/019.png",
+      "file": "assets/hoenn_legend_rooms/animated/384/019.png",
+      "sha256": "8d0e87f2b27c1f03fe27cc9bcdbc62740af313e1ec5fee556806462a65b14d62"
+    },
+    {
+      "species": "RAYQUAZA",
+      "source": "crystal_animated/front/normal/384/020.png",
+      "file": "assets/hoenn_legend_rooms/animated/384/020.png",
+      "sha256": "e64fecf0736a83cbfbab56522c9dba89cf36ea71e476514dca845ff2f2bd4976"
+    },
+    {
+      "species": "RAYQUAZA",
+      "source": "crystal_animated/front/normal/384/021.png",
+      "file": "assets/hoenn_legend_rooms/animated/384/021.png",
+      "sha256": "8d0e87f2b27c1f03fe27cc9bcdbc62740af313e1ec5fee556806462a65b14d62"
+    },
+    {
+      "species": "RAYQUAZA",
+      "source": "crystal_animated/front/normal/384/022.png",
+      "file": "assets/hoenn_legend_rooms/animated/384/022.png",
+      "sha256": "3e9c043ee33a265e3c8e74088b86145b27679e16c5e93b20360ea1db1b53ab06"
+    },
+    {
+      "species": "RAYQUAZA",
+      "source": "crystal_animated/front/normal/384/023.png",
+      "file": "assets/hoenn_legend_rooms/animated/384/023.png",
+      "sha256": "4d0fcd8b41bab80e173a0c0b4e143aaf78ea7bc2eae6796512b01194e9fc99be"
+    },
+    {
+      "species": "RAYQUAZA",
+      "source": "crystal_animated/front/normal/384/024.png",
+      "file": "assets/hoenn_legend_rooms/animated/384/024.png",
+      "sha256": "e64fecf0736a83cbfbab56522c9dba89cf36ea71e476514dca845ff2f2bd4976"
+    },
+    {
+      "species": "RAYQUAZA",
+      "source": "crystal_animated/front/normal/384/025.png",
+      "file": "assets/hoenn_legend_rooms/animated/384/025.png",
+      "sha256": "b21a6899820b729c23648931a88b4924dffc7c0f42502f231faa2a2699cf47d6"
+    },
+    {
+      "species": "RAYQUAZA",
+      "source": "crystal_animated/front/normal/384/026.png",
+      "file": "assets/hoenn_legend_rooms/animated/384/026.png",
+      "sha256": "3e9c043ee33a265e3c8e74088b86145b27679e16c5e93b20360ea1db1b53ab06"
+    },
+    {
+      "species": "RAYQUAZA",
+      "source": "crystal_animated/front/normal/384/027.png",
+      "file": "assets/hoenn_legend_rooms/animated/384/027.png",
+      "sha256": "1160fa5712fd9f3ccb6147eeea1314740a0d03ff2dc4b25440971ba26e1b0c52"
+    },
+    {
+      "species": "RAYQUAZA",
+      "source": "crystal_animated/front/normal/384/028.png",
+      "file": "assets/hoenn_legend_rooms/animated/384/028.png",
+      "sha256": "e64fecf0736a83cbfbab56522c9dba89cf36ea71e476514dca845ff2f2bd4976"
+    },
+    {
+      "species": "RAYQUAZA",
+      "source": "crystal_animated/front/normal/384/029.png",
+      "file": "assets/hoenn_legend_rooms/animated/384/029.png",
+      "sha256": "1160fa5712fd9f3ccb6147eeea1314740a0d03ff2dc4b25440971ba26e1b0c52"
+    },
+    {
+      "species": "RAYQUAZA",
+      "source": "crystal_animated/front/normal/384/030.png",
+      "file": "assets/hoenn_legend_rooms/animated/384/030.png",
+      "sha256": "3e9c043ee33a265e3c8e74088b86145b27679e16c5e93b20360ea1db1b53ab06"
+    },
+    {
+      "species": "RAYQUAZA",
+      "source": "crystal_animated/front/normal/384/031.png",
+      "file": "assets/hoenn_legend_rooms/animated/384/031.png",
+      "sha256": "b21a6899820b729c23648931a88b4924dffc7c0f42502f231faa2a2699cf47d6"
+    },
+    {
+      "species": "RAYQUAZA",
+      "source": "crystal_animated/front/normal/384/032.png",
+      "file": "assets/hoenn_legend_rooms/animated/384/032.png",
+      "sha256": "e64fecf0736a83cbfbab56522c9dba89cf36ea71e476514dca845ff2f2bd4976"
+    },
+    {
+      "species": "RAYQUAZA",
+      "source": "crystal_animated/front/normal/384/033.png",
+      "file": "assets/hoenn_legend_rooms/animated/384/033.png",
+      "sha256": "4d0fcd8b41bab80e173a0c0b4e143aaf78ea7bc2eae6796512b01194e9fc99be"
+    },
+    {
+      "species": "RAYQUAZA",
+      "source": "crystal_animated/front/normal/384/034.png",
+      "file": "assets/hoenn_legend_rooms/animated/384/034.png",
+      "sha256": "3e9c043ee33a265e3c8e74088b86145b27679e16c5e93b20360ea1db1b53ab06"
+    },
+    {
+      "species": "RAYQUAZA",
+      "source": "crystal_animated/front/normal/384/035.png",
+      "file": "assets/hoenn_legend_rooms/animated/384/035.png",
+      "sha256": "4d0fcd8b41bab80e173a0c0b4e143aaf78ea7bc2eae6796512b01194e9fc99be"
+    },
+    {
+      "species": "RAYQUAZA",
+      "source": "crystal_animated/front/normal/384/036.png",
+      "file": "assets/hoenn_legend_rooms/animated/384/036.png",
+      "sha256": "e64fecf0736a83cbfbab56522c9dba89cf36ea71e476514dca845ff2f2bd4976"
+    },
+    {
+      "species": "RAYQUAZA",
+      "source": "crystal_animated/front/normal/384/037.png",
+      "file": "assets/hoenn_legend_rooms/animated/384/037.png",
+      "sha256": "8d0e87f2b27c1f03fe27cc9bcdbc62740af313e1ec5fee556806462a65b14d62"
+    },
+    {
+      "species": "RAYQUAZA",
+      "source": "crystal_animated/front/normal/384/038.png",
+      "file": "assets/hoenn_legend_rooms/animated/384/038.png",
+      "sha256": "3e9c043ee33a265e3c8e74088b86145b27679e16c5e93b20360ea1db1b53ab06"
+    },
+    {
+      "species": "RAYQUAZA",
+      "source": "crystal_animated/front/normal/384/039.png",
+      "file": "assets/hoenn_legend_rooms/animated/384/039.png",
+      "sha256": "1160fa5712fd9f3ccb6147eeea1314740a0d03ff2dc4b25440971ba26e1b0c52"
+    },
+    {
+      "species": "RAYQUAZA",
+      "source": "crystal_animated/front/normal/384/040.png",
+      "file": "assets/hoenn_legend_rooms/animated/384/040.png",
+      "sha256": "e64fecf0736a83cbfbab56522c9dba89cf36ea71e476514dca845ff2f2bd4976"
+    },
+    {
+      "species": "RAYQUAZA",
+      "source": "crystal_animated/front/normal/384/041.png",
+      "file": "assets/hoenn_legend_rooms/animated/384/041.png",
+      "sha256": "b21a6899820b729c23648931a88b4924dffc7c0f42502f231faa2a2699cf47d6"
+    },
+    {
+      "species": "RAYQUAZA",
+      "source": "crystal_animated/front/normal/384/042.png",
+      "file": "assets/hoenn_legend_rooms/animated/384/042.png",
+      "sha256": "4d0fcd8b41bab80e173a0c0b4e143aaf78ea7bc2eae6796512b01194e9fc99be"
+    },
+    {
+      "species": "MAGMAR",
+      "source": "crystal_animated/front/normal/126/001.png",
+      "file": "assets/hoenn_legend_rooms/animated/126/001.png",
+      "sha256": "4bac39d7ceb320648db6ea71255db413c345ac9780ba5c6df77cf858403dbf90"
+    },
+    {
+      "species": "MAGMAR",
+      "source": "crystal_animated/front/normal/126/002.png",
+      "file": "assets/hoenn_legend_rooms/animated/126/002.png",
+      "sha256": "2c8d229d04f0c659d491fb4abd0f7e8f238f9ba5b5d62b170bf8700cd936cd2b"
+    },
+    {
+      "species": "MAGMAR",
+      "source": "crystal_animated/front/normal/126/003.png",
+      "file": "assets/hoenn_legend_rooms/animated/126/003.png",
+      "sha256": "8458d16110ef0e41dc25635a7312cf62da4db8283d9c96637440589a5cc7ad01"
+    },
+    {
+      "species": "MAGMAR",
+      "source": "crystal_animated/front/normal/126/004.png",
+      "file": "assets/hoenn_legend_rooms/animated/126/004.png",
+      "sha256": "fec3d7bd4cb3ffd5407bf74eb6993ba9497869f1a298853968f11d2542a66f59"
+    },
+    {
+      "species": "MAGMAR",
+      "source": "crystal_animated/front/normal/126/005.png",
+      "file": "assets/hoenn_legend_rooms/animated/126/005.png",
+      "sha256": "8458d16110ef0e41dc25635a7312cf62da4db8283d9c96637440589a5cc7ad01"
+    },
+    {
+      "species": "MAGMAR",
+      "source": "crystal_animated/front/normal/126/006.png",
+      "file": "assets/hoenn_legend_rooms/animated/126/006.png",
+      "sha256": "fec3d7bd4cb3ffd5407bf74eb6993ba9497869f1a298853968f11d2542a66f59"
+    },
+    {
+      "species": "MAGMAR",
+      "source": "crystal_animated/front/normal/126/007.png",
+      "file": "assets/hoenn_legend_rooms/animated/126/007.png",
+      "sha256": "8458d16110ef0e41dc25635a7312cf62da4db8283d9c96637440589a5cc7ad01"
+    },
+    {
+      "species": "MAGMAR",
+      "source": "crystal_animated/front/normal/126/008.png",
+      "file": "assets/hoenn_legend_rooms/animated/126/008.png",
+      "sha256": "fec3d7bd4cb3ffd5407bf74eb6993ba9497869f1a298853968f11d2542a66f59"
+    },
+    {
+      "species": "MAGMAR",
+      "source": "crystal_animated/front/normal/126/009.png",
+      "file": "assets/hoenn_legend_rooms/animated/126/009.png",
+      "sha256": "4bac39d7ceb320648db6ea71255db413c345ac9780ba5c6df77cf858403dbf90"
+    },
+    {
+      "species": "MAGMAR",
+      "source": "crystal_animated/front/normal/126/010.png",
+      "file": "assets/hoenn_legend_rooms/animated/126/010.png",
+      "sha256": "44169c52ef3d32cf19521fd53a8b66c8a62d3e3d09223df6de474f7eeacc1f16"
+    },
+    {
+      "species": "MAGMAR",
+      "source": "crystal_animated/front/normal/126/011.png",
+      "file": "assets/hoenn_legend_rooms/animated/126/011.png",
+      "sha256": "4bac39d7ceb320648db6ea71255db413c345ac9780ba5c6df77cf858403dbf90"
+    },
+    {
+      "species": "MAGMAR",
+      "source": "crystal_animated/front/normal/126/012.png",
+      "file": "assets/hoenn_legend_rooms/animated/126/012.png",
+      "sha256": "44169c52ef3d32cf19521fd53a8b66c8a62d3e3d09223df6de474f7eeacc1f16"
+    },
+    {
+      "species": "MAGMAR",
+      "source": "crystal_animated/front/normal/126/013.png",
+      "file": "assets/hoenn_legend_rooms/animated/126/013.png",
+      "sha256": "4bac39d7ceb320648db6ea71255db413c345ac9780ba5c6df77cf858403dbf90"
+    },
+    {
+      "species": "MAGMAR",
+      "source": "crystal_animated/front/normal/126/014.png",
+      "file": "assets/hoenn_legend_rooms/animated/126/014.png",
+      "sha256": "44169c52ef3d32cf19521fd53a8b66c8a62d3e3d09223df6de474f7eeacc1f16"
+    },
+    {
+      "species": "MAGMAR",
+      "source": "crystal_animated/front/normal/126/015.png",
+      "file": "assets/hoenn_legend_rooms/animated/126/015.png",
+      "sha256": "4bac39d7ceb320648db6ea71255db413c345ac9780ba5c6df77cf858403dbf90"
+    },
+    {
+      "species": "MEW",
+      "source": "crystal_animated/front/normal/151/001.png",
+      "file": "assets/hoenn_legend_rooms/animated/151/001.png",
+      "sha256": "a6b1ba4af15e0bc8a86e7f22df33517e94b6065487830fb33c147247937e37a8"
+    },
+    {
+      "species": "MEW",
+      "source": "crystal_animated/front/normal/151/002.png",
+      "file": "assets/hoenn_legend_rooms/animated/151/002.png",
+      "sha256": "8c7f345f30e3a0a2e6e6e1728422c7455b246b30368e34112ace18e04c55b321"
+    },
+    {
+      "species": "MEW",
+      "source": "crystal_animated/front/normal/151/003.png",
+      "file": "assets/hoenn_legend_rooms/animated/151/003.png",
+      "sha256": "a9e4937ee64bc3f967da5252198723457d2bff79c011b31cd5815bbddf97d3ad"
+    },
+    {
+      "species": "MEW",
+      "source": "crystal_animated/front/normal/151/004.png",
+      "file": "assets/hoenn_legend_rooms/animated/151/004.png",
+      "sha256": "8c7f345f30e3a0a2e6e6e1728422c7455b246b30368e34112ace18e04c55b321"
+    },
+    {
+      "species": "MEW",
+      "source": "crystal_animated/front/normal/151/005.png",
+      "file": "assets/hoenn_legend_rooms/animated/151/005.png",
+      "sha256": "a9e4937ee64bc3f967da5252198723457d2bff79c011b31cd5815bbddf97d3ad"
+    },
+    {
+      "species": "MEW",
+      "source": "crystal_animated/front/normal/151/006.png",
+      "file": "assets/hoenn_legend_rooms/animated/151/006.png",
+      "sha256": "8c7f345f30e3a0a2e6e6e1728422c7455b246b30368e34112ace18e04c55b321"
+    },
+    {
+      "species": "MEW",
+      "source": "crystal_animated/front/normal/151/007.png",
+      "file": "assets/hoenn_legend_rooms/animated/151/007.png",
+      "sha256": "a9e4937ee64bc3f967da5252198723457d2bff79c011b31cd5815bbddf97d3ad"
+    },
+    {
+      "species": "MEW",
+      "source": "crystal_animated/front/normal/151/008.png",
+      "file": "assets/hoenn_legend_rooms/animated/151/008.png",
+      "sha256": "8c7f345f30e3a0a2e6e6e1728422c7455b246b30368e34112ace18e04c55b321"
+    },
+    {
+      "species": "MEW",
+      "source": "crystal_animated/front/normal/151/009.png",
+      "file": "assets/hoenn_legend_rooms/animated/151/009.png",
+      "sha256": "a9e4937ee64bc3f967da5252198723457d2bff79c011b31cd5815bbddf97d3ad"
+    },
+    {
+      "species": "MEW",
+      "source": "crystal_animated/front/normal/151/010.png",
+      "file": "assets/hoenn_legend_rooms/animated/151/010.png",
+      "sha256": "8c7f345f30e3a0a2e6e6e1728422c7455b246b30368e34112ace18e04c55b321"
+    },
+    {
+      "species": "MEW",
+      "source": "crystal_animated/front/normal/151/011.png",
+      "file": "assets/hoenn_legend_rooms/animated/151/011.png",
+      "sha256": "a9e4937ee64bc3f967da5252198723457d2bff79c011b31cd5815bbddf97d3ad"
+    },
+    {
+      "species": "MEW",
+      "source": "crystal_animated/front/normal/151/012.png",
+      "file": "assets/hoenn_legend_rooms/animated/151/012.png",
+      "sha256": "8c7f345f30e3a0a2e6e6e1728422c7455b246b30368e34112ace18e04c55b321"
+    },
+    {
+      "species": "MEW",
+      "source": "crystal_animated/front/normal/151/013.png",
+      "file": "assets/hoenn_legend_rooms/animated/151/013.png",
+      "sha256": "a9e4937ee64bc3f967da5252198723457d2bff79c011b31cd5815bbddf97d3ad"
+    },
+    {
+      "species": "MEW",
+      "source": "crystal_animated/front/normal/151/014.png",
+      "file": "assets/hoenn_legend_rooms/animated/151/014.png",
+      "sha256": "8c7f345f30e3a0a2e6e6e1728422c7455b246b30368e34112ace18e04c55b321"
+    },
+    {
+      "species": "MEW",
+      "source": "crystal_animated/front/normal/151/015.png",
+      "file": "assets/hoenn_legend_rooms/animated/151/015.png",
+      "sha256": "6d82f912930641deff366f6914ead169d5c0d0f28372ae7463979f5ae1da8d80"
+    },
+    {
+      "species": "MEW",
+      "source": "crystal_animated/front/normal/151/016.png",
+      "file": "assets/hoenn_legend_rooms/animated/151/016.png",
+      "sha256": "dbec7ab8c592a57fce46d03dbea02426f424274d7eea98634adce6396d230bb6"
+    },
+    {
+      "species": "MEW",
+      "source": "crystal_animated/front/normal/151/017.png",
+      "file": "assets/hoenn_legend_rooms/animated/151/017.png",
+      "sha256": "6d82f912930641deff366f6914ead169d5c0d0f28372ae7463979f5ae1da8d80"
+    },
+    {
+      "species": "MEW",
+      "source": "crystal_animated/front/normal/151/018.png",
+      "file": "assets/hoenn_legend_rooms/animated/151/018.png",
+      "sha256": "dbec7ab8c592a57fce46d03dbea02426f424274d7eea98634adce6396d230bb6"
+    },
+    {
+      "species": "MEW",
+      "source": "crystal_animated/front/normal/151/019.png",
+      "file": "assets/hoenn_legend_rooms/animated/151/019.png",
+      "sha256": "6d82f912930641deff366f6914ead169d5c0d0f28372ae7463979f5ae1da8d80"
+    },
+    {
+      "species": "MEW",
+      "source": "crystal_animated/front/normal/151/020.png",
+      "file": "assets/hoenn_legend_rooms/animated/151/020.png",
+      "sha256": "dbec7ab8c592a57fce46d03dbea02426f424274d7eea98634adce6396d230bb6"
+    },
+    {
+      "species": "MEW",
+      "source": "crystal_animated/front/normal/151/021.png",
+      "file": "assets/hoenn_legend_rooms/animated/151/021.png",
+      "sha256": "6d82f912930641deff366f6914ead169d5c0d0f28372ae7463979f5ae1da8d80"
+    },
+    {
+      "species": "MEW",
+      "source": "crystal_animated/front/normal/151/022.png",
+      "file": "assets/hoenn_legend_rooms/animated/151/022.png",
+      "sha256": "dbec7ab8c592a57fce46d03dbea02426f424274d7eea98634adce6396d230bb6"
+    },
+    {
+      "species": "MEW",
+      "source": "crystal_animated/front/normal/151/023.png",
+      "file": "assets/hoenn_legend_rooms/animated/151/023.png",
+      "sha256": "6d82f912930641deff366f6914ead169d5c0d0f28372ae7463979f5ae1da8d80"
+    },
+    {
+      "species": "LATIAS",
+      "source": "crystal_animated/front/normal/380/001.png",
+      "file": "assets/hoenn_legend_rooms/animated/380/001.png",
+      "sha256": "82c791af7e8d614c9de63a672e08f69e368b46533157cafa60d1f3079911e714"
+    },
+    {
+      "species": "LATIAS",
+      "source": "crystal_animated/front/normal/380/002.png",
+      "file": "assets/hoenn_legend_rooms/animated/380/002.png",
+      "sha256": "9d99066d6ed8e56a63ad7137fbb17d49bf86f6f8b9999747aeca189bf76cd999"
+    },
+    {
+      "species": "LATIAS",
+      "source": "crystal_animated/front/normal/380/003.png",
+      "file": "assets/hoenn_legend_rooms/animated/380/003.png",
+      "sha256": "9cd480110fd9fb3275844ef44375d4f8f28d3f13ff2670039a2ebcfc0c52acec"
+    },
+    {
+      "species": "LATIAS",
+      "source": "crystal_animated/front/normal/380/004.png",
+      "file": "assets/hoenn_legend_rooms/animated/380/004.png",
+      "sha256": "c92091e88651b28fa69c6aed3039227454dbd367fcb902ebba2cab16cee18978"
+    },
+    {
+      "species": "LATIAS",
+      "source": "crystal_animated/front/normal/380/005.png",
+      "file": "assets/hoenn_legend_rooms/animated/380/005.png",
+      "sha256": "315eb7429bbb2bc837188d8621ad3d008573cb2e86116e8541c20eda23023b1f"
+    },
+    {
+      "species": "LATIAS",
+      "source": "crystal_animated/front/normal/380/006.png",
+      "file": "assets/hoenn_legend_rooms/animated/380/006.png",
+      "sha256": "cadc3dee97a123b8eb8241d45f5d0777c90b9411db82a28e11a45ebafbe7d077"
+    },
+    {
+      "species": "LATIAS",
+      "source": "crystal_animated/front/normal/380/007.png",
+      "file": "assets/hoenn_legend_rooms/animated/380/007.png",
+      "sha256": "082519660e8a6043e5ad30e7dc69da6156fbf04d371cd9e457ce312897066e8c"
+    },
+    {
+      "species": "LATIAS",
+      "source": "crystal_animated/front/normal/380/008.png",
+      "file": "assets/hoenn_legend_rooms/animated/380/008.png",
+      "sha256": "f3f2402c18754755f0c67bd59fefe895778c004aed48023123cdf9d569ff3259"
+    },
+    {
+      "species": "LATIAS",
+      "source": "crystal_animated/front/normal/380/009.png",
+      "file": "assets/hoenn_legend_rooms/animated/380/009.png",
+      "sha256": "f83fe0075e325af25e2b82bf49e9d91747e44dd67be03edcf43f9ca042bc424b"
+    },
+    {
+      "species": "LATIAS",
+      "source": "crystal_animated/front/normal/380/010.png",
+      "file": "assets/hoenn_legend_rooms/animated/380/010.png",
+      "sha256": "446346bf01f5afd512422aa42c5978d0f061bf98b708e1e78faa5a37d0a7464c"
+    },
+    {
+      "species": "LATIAS",
+      "source": "crystal_animated/front/normal/380/011.png",
+      "file": "assets/hoenn_legend_rooms/animated/380/011.png",
+      "sha256": "d6b0726f1232da219dac4b93ff5898473a2b6990ff009f5ec0f690571730b883"
+    },
+    {
+      "species": "LATIAS",
+      "source": "crystal_animated/front/normal/380/012.png",
+      "file": "assets/hoenn_legend_rooms/animated/380/012.png",
+      "sha256": "f876731e80455d33dec2e1d9139c3acabb37be0af265d604a43db7b273e5560f"
+    },
+    {
+      "species": "LATIAS",
+      "source": "crystal_animated/front/normal/380/013.png",
+      "file": "assets/hoenn_legend_rooms/animated/380/013.png",
+      "sha256": "8960740a837ba95e56328c56730c7d071392047f13ffaabf5e4c09fcc80cbdc7"
+    },
+    {
+      "species": "LATIAS",
+      "source": "crystal_animated/front/normal/380/014.png",
+      "file": "assets/hoenn_legend_rooms/animated/380/014.png",
+      "sha256": "31a2981bcade24b0f2d83f6d83abd73d803188d5303ea902bac267d888b4c8b3"
+    },
+    {
+      "species": "LATIAS",
+      "source": "crystal_animated/front/normal/380/015.png",
+      "file": "assets/hoenn_legend_rooms/animated/380/015.png",
+      "sha256": "7ff8b643e2000d1fd6aa90fc61352e745edf3241f8eba29fa7b56d97b5526946"
+    },
+    {
+      "species": "LATIAS",
+      "source": "crystal_animated/front/normal/380/016.png",
+      "file": "assets/hoenn_legend_rooms/animated/380/016.png",
+      "sha256": "cadc3dee97a123b8eb8241d45f5d0777c90b9411db82a28e11a45ebafbe7d077"
+    },
+    {
+      "species": "LATIAS",
+      "source": "crystal_animated/front/normal/380/017.png",
+      "file": "assets/hoenn_legend_rooms/animated/380/017.png",
+      "sha256": "eac935a12e9f328e1533a7f1677a0d10ff7da7cf21b414043c30c44a23edd9be"
+    },
+    {
+      "species": "LATIAS",
+      "source": "crystal_animated/front/normal/380/018.png",
+      "file": "assets/hoenn_legend_rooms/animated/380/018.png",
+      "sha256": "c92091e88651b28fa69c6aed3039227454dbd367fcb902ebba2cab16cee18978"
+    },
+    {
+      "species": "LATIAS",
+      "source": "crystal_animated/front/normal/380/019.png",
+      "file": "assets/hoenn_legend_rooms/animated/380/019.png",
+      "sha256": "9cd480110fd9fb3275844ef44375d4f8f28d3f13ff2670039a2ebcfc0c52acec"
+    },
+    {
+      "species": "LATIAS",
+      "source": "crystal_animated/front/normal/380/020.png",
+      "file": "assets/hoenn_legend_rooms/animated/380/020.png",
+      "sha256": "9d99066d6ed8e56a63ad7137fbb17d49bf86f6f8b9999747aeca189bf76cd999"
+    },
+    {
+      "species": "LATIAS",
+      "source": "crystal_animated/front/normal/380/021.png",
+      "file": "assets/hoenn_legend_rooms/animated/380/021.png",
+      "sha256": "82c791af7e8d614c9de63a672e08f69e368b46533157cafa60d1f3079911e714"
+    },
+    {
+      "species": "LATIAS",
+      "source": "crystal_animated/front/normal/380/022.png",
+      "file": "assets/hoenn_legend_rooms/animated/380/022.png",
+      "sha256": "21ecebe1705976e0084780595bf222768f9e92e95026cde9871a5dbe219dff43"
+    },
+    {
+      "species": "LATIAS",
+      "source": "crystal_animated/front/normal/380/023.png",
+      "file": "assets/hoenn_legend_rooms/animated/380/023.png",
+      "sha256": "65046b0a8b955092afac721cb622ffeefe9df2f8a73ba1f96b9c17823bb253a0"
+    },
+    {
+      "species": "LATIAS",
+      "source": "crystal_animated/front/normal/380/024.png",
+      "file": "assets/hoenn_legend_rooms/animated/380/024.png",
+      "sha256": "94c8fce2c84c2c79581650344b1bc29eaf41a5fb9461fc31da210f656036d9a2"
+    },
+    {
+      "species": "LATIAS",
+      "source": "crystal_animated/front/normal/380/025.png",
+      "file": "assets/hoenn_legend_rooms/animated/380/025.png",
+      "sha256": "a7ac943bc61b8a4c6a797c1a5400c82ca04d09151b4b74658b3811cbf6ce58c3"
+    },
+    {
+      "species": "LATIAS",
+      "source": "crystal_animated/front/normal/380/026.png",
+      "file": "assets/hoenn_legend_rooms/animated/380/026.png",
+      "sha256": "19a0ce686315291063b3019c12ca3a01397eca4b3db75767c7e6ebbc93ca4e7d"
+    },
+    {
+      "species": "LATIAS",
+      "source": "crystal_animated/front/normal/380/027.png",
+      "file": "assets/hoenn_legend_rooms/animated/380/027.png",
+      "sha256": "49bac7efcca13e8a7b671ebc6e4255e7166cb12e4ac7bc531f2479b1cc7c632b"
+    },
+    {
+      "species": "LATIAS",
+      "source": "crystal_animated/front/normal/380/028.png",
+      "file": "assets/hoenn_legend_rooms/animated/380/028.png",
+      "sha256": "a2618ef8074c92bcb3af6087a5c96f0544062b9a1bd92d32bade65fc3c36152c"
+    },
+    {
+      "species": "LATIAS",
+      "source": "crystal_animated/front/normal/380/029.png",
+      "file": "assets/hoenn_legend_rooms/animated/380/029.png",
+      "sha256": "14f88f23d3bee83d5bcd85a060a5e29a717e871e54f7684ceca99801b148837f"
+    },
+    {
+      "species": "LATIAS",
+      "source": "crystal_animated/front/normal/380/030.png",
+      "file": "assets/hoenn_legend_rooms/animated/380/030.png",
+      "sha256": "f6c27414a9959c6b43ef041923b4558f216a1a7bdb2680e242839d722cdde041"
+    },
+    {
+      "species": "LATIAS",
+      "source": "crystal_animated/front/normal/380/031.png",
+      "file": "assets/hoenn_legend_rooms/animated/380/031.png",
+      "sha256": "d9f8e1c091c966851710bda2710357821bfd35145af662d3f0bf80474dcb903d"
+    },
+    {
+      "species": "LATIAS",
+      "source": "crystal_animated/front/normal/380/032.png",
+      "file": "assets/hoenn_legend_rooms/animated/380/032.png",
+      "sha256": "18a98d93196414eec3921cab6beb623bb7ef816b4ce9b7f34d557762dce869b3"
+    },
+    {
+      "species": "LATIAS",
+      "source": "crystal_animated/front/normal/380/033.png",
+      "file": "assets/hoenn_legend_rooms/animated/380/033.png",
+      "sha256": "c54c07c49e142c6dcdfdaea51a818fc66790dc86d1e0aa4366256461222dc5c7"
+    },
+    {
+      "species": "LATIAS",
+      "source": "crystal_animated/front/normal/380/034.png",
+      "file": "assets/hoenn_legend_rooms/animated/380/034.png",
+      "sha256": "924b04840db47c146ddc8def8222985aeb11794b10dbc188722b47935267a554"
+    },
+    {
+      "species": "LATIAS",
+      "source": "crystal_animated/front/normal/380/035.png",
+      "file": "assets/hoenn_legend_rooms/animated/380/035.png",
+      "sha256": "4e1270abe74a2fad47e93d21830b4fd399e4ab457d79a1b0538ec459aecc0412"
+    },
+    {
+      "species": "LATIAS",
+      "source": "crystal_animated/front/normal/380/036.png",
+      "file": "assets/hoenn_legend_rooms/animated/380/036.png",
+      "sha256": "8324d0ea12bbaf847ff10eee966fd0ca07796a5323da5813f1c90dc6e00c98fa"
+    },
+    {
+      "species": "LATIAS",
+      "source": "crystal_animated/front/normal/380/037.png",
+      "file": "assets/hoenn_legend_rooms/animated/380/037.png",
+      "sha256": "6df694261fd4647c8733416d0dd8936f611cc63902f40fbdc7f935f31e012114"
+    },
+    {
+      "species": "LATIAS",
+      "source": "crystal_animated/front/normal/380/038.png",
+      "file": "assets/hoenn_legend_rooms/animated/380/038.png",
+      "sha256": "996771ffa9bfef15f7b935db507d3c6da4ec6ae83c9fbdc7d43ddbe1de043300"
+    },
+    {
+      "species": "LATIAS",
+      "source": "crystal_animated/front/normal/380/039.png",
+      "file": "assets/hoenn_legend_rooms/animated/380/039.png",
+      "sha256": "94c8fce2c84c2c79581650344b1bc29eaf41a5fb9461fc31da210f656036d9a2"
+    },
+    {
+      "species": "LATIAS",
+      "source": "crystal_animated/front/normal/380/040.png",
+      "file": "assets/hoenn_legend_rooms/animated/380/040.png",
+      "sha256": "65046b0a8b955092afac721cb622ffeefe9df2f8a73ba1f96b9c17823bb253a0"
+    },
+    {
+      "species": "LATIAS",
+      "source": "crystal_animated/front/normal/380/041.png",
+      "file": "assets/hoenn_legend_rooms/animated/380/041.png",
+      "sha256": "21ecebe1705976e0084780595bf222768f9e92e95026cde9871a5dbe219dff43"
+    },
+    {
+      "species": "LATIAS",
+      "source": "crystal_animated/front/normal/380/042.png",
+      "file": "assets/hoenn_legend_rooms/animated/380/042.png",
+      "sha256": "82c791af7e8d614c9de63a672e08f69e368b46533157cafa60d1f3079911e714"
+    },
+    {
+      "species": "LATIOS",
+      "source": "crystal_animated/front/normal/381/001.png",
+      "file": "assets/hoenn_legend_rooms/animated/381/001.png",
+      "sha256": "7979ea5f55a11e8d0f7b48b8037a6584c2ae47a3c15f8739e20ac9db44775f97"
+    },
+    {
+      "species": "LATIOS",
+      "source": "crystal_animated/front/normal/381/002.png",
+      "file": "assets/hoenn_legend_rooms/animated/381/002.png",
+      "sha256": "89577f02a2fa97a5ec095b5975607d07818a71c53f8685f69247bea8b42c190b"
+    },
+    {
+      "species": "LATIOS",
+      "source": "crystal_animated/front/normal/381/003.png",
+      "file": "assets/hoenn_legend_rooms/animated/381/003.png",
+      "sha256": "7979ea5f55a11e8d0f7b48b8037a6584c2ae47a3c15f8739e20ac9db44775f97"
+    },
+    {
+      "species": "LATIOS",
+      "source": "crystal_animated/front/normal/381/004.png",
+      "file": "assets/hoenn_legend_rooms/animated/381/004.png",
+      "sha256": "5ce1a742d092c0466c56860d38a590b6f45d3fad93464fa6508a5027513dcff8"
+    },
+    {
+      "species": "LATIOS",
+      "source": "crystal_animated/front/normal/381/005.png",
+      "file": "assets/hoenn_legend_rooms/animated/381/005.png",
+      "sha256": "9119f3d25a7472ecc72222ed88e2047ee260ca7a1eea0402f8d2d0878d20e4f6"
+    },
+    {
+      "species": "LATIOS",
+      "source": "crystal_animated/front/normal/381/006.png",
+      "file": "assets/hoenn_legend_rooms/animated/381/006.png",
+      "sha256": "89577f02a2fa97a5ec095b5975607d07818a71c53f8685f69247bea8b42c190b"
+    },
+    {
+      "species": "LATIOS",
+      "source": "crystal_animated/front/normal/381/007.png",
+      "file": "assets/hoenn_legend_rooms/animated/381/007.png",
+      "sha256": "fed102de3d6f3f6f99d3b387c51dbe79ee4341ec4b6bcfe8028ea3e51b938ab8"
+    },
+    {
+      "species": "LATIOS",
+      "source": "crystal_animated/front/normal/381/008.png",
+      "file": "assets/hoenn_legend_rooms/animated/381/008.png",
+      "sha256": "5ce1a742d092c0466c56860d38a590b6f45d3fad93464fa6508a5027513dcff8"
+    },
+    {
+      "species": "LATIOS",
+      "source": "crystal_animated/front/normal/381/009.png",
+      "file": "assets/hoenn_legend_rooms/animated/381/009.png",
+      "sha256": "fed102de3d6f3f6f99d3b387c51dbe79ee4341ec4b6bcfe8028ea3e51b938ab8"
+    },
+    {
+      "species": "LATIOS",
+      "source": "crystal_animated/front/normal/381/010.png",
+      "file": "assets/hoenn_legend_rooms/animated/381/010.png",
+      "sha256": "1bb1ab1d4dde28086e28262f4bc3addb64b762df6ac8da16aaf4354ea2847e7e"
+    },
+    {
+      "species": "LATIOS",
+      "source": "crystal_animated/front/normal/381/011.png",
+      "file": "assets/hoenn_legend_rooms/animated/381/011.png",
+      "sha256": "fa0efc5104687ea6a8ece00c1aba33fd1044ccb3296ca8b06edfb014cb63fef7"
+    },
+    {
+      "species": "LATIOS",
+      "source": "crystal_animated/front/normal/381/012.png",
+      "file": "assets/hoenn_legend_rooms/animated/381/012.png",
+      "sha256": "327cddb49cbdff9e45cb0cb77f3ce1c763a76bf67df3a2f2b39251ae14690467"
+    },
+    {
+      "species": "LATIOS",
+      "source": "crystal_animated/front/normal/381/013.png",
+      "file": "assets/hoenn_legend_rooms/animated/381/013.png",
+      "sha256": "aaa7135870ad9c281857d87ad25e0668f933e428a090ea6cd7d1e50997a8fb59"
+    },
+    {
+      "species": "LATIOS",
+      "source": "crystal_animated/front/normal/381/014.png",
+      "file": "assets/hoenn_legend_rooms/animated/381/014.png",
+      "sha256": "1bb1ab1d4dde28086e28262f4bc3addb64b762df6ac8da16aaf4354ea2847e7e"
+    },
+    {
+      "species": "LATIOS",
+      "source": "crystal_animated/front/normal/381/015.png",
+      "file": "assets/hoenn_legend_rooms/animated/381/015.png",
+      "sha256": "a007632756294f26a6078b6cf1c7ea2640051d4106fa51103cb839377691cace"
+    },
+    {
+      "species": "LATIOS",
+      "source": "crystal_animated/front/normal/381/016.png",
+      "file": "assets/hoenn_legend_rooms/animated/381/016.png",
+      "sha256": "327cddb49cbdff9e45cb0cb77f3ce1c763a76bf67df3a2f2b39251ae14690467"
+    },
+    {
+      "species": "LATIOS",
+      "source": "crystal_animated/front/normal/381/017.png",
+      "file": "assets/hoenn_legend_rooms/animated/381/017.png",
+      "sha256": "a007632756294f26a6078b6cf1c7ea2640051d4106fa51103cb839377691cace"
+    },
+    {
+      "species": "LATIOS",
+      "source": "crystal_animated/front/normal/381/018.png",
+      "file": "assets/hoenn_legend_rooms/animated/381/018.png",
+      "sha256": "1bb1ab1d4dde28086e28262f4bc3addb64b762df6ac8da16aaf4354ea2847e7e"
+    },
+    {
+      "species": "LATIOS",
+      "source": "crystal_animated/front/normal/381/019.png",
+      "file": "assets/hoenn_legend_rooms/animated/381/019.png",
+      "sha256": "aaa7135870ad9c281857d87ad25e0668f933e428a090ea6cd7d1e50997a8fb59"
+    },
+    {
+      "species": "LATIOS",
+      "source": "crystal_animated/front/normal/381/020.png",
+      "file": "assets/hoenn_legend_rooms/animated/381/020.png",
+      "sha256": "5ce1a742d092c0466c56860d38a590b6f45d3fad93464fa6508a5027513dcff8"
+    },
+    {
+      "species": "LATIOS",
+      "source": "crystal_animated/front/normal/381/021.png",
+      "file": "assets/hoenn_legend_rooms/animated/381/021.png",
+      "sha256": "9119f3d25a7472ecc72222ed88e2047ee260ca7a1eea0402f8d2d0878d20e4f6"
+    },
+    {
+      "species": "LATIOS",
+      "source": "crystal_animated/front/normal/381/022.png",
+      "file": "assets/hoenn_legend_rooms/animated/381/022.png",
+      "sha256": "89577f02a2fa97a5ec095b5975607d07818a71c53f8685f69247bea8b42c190b"
+    },
+    {
+      "species": "LATIOS",
+      "source": "crystal_animated/front/normal/381/023.png",
+      "file": "assets/hoenn_legend_rooms/animated/381/023.png",
+      "sha256": "fed102de3d6f3f6f99d3b387c51dbe79ee4341ec4b6bcfe8028ea3e51b938ab8"
+    },
+    {
+      "species": "LATIOS",
+      "source": "crystal_animated/front/normal/381/024.png",
+      "file": "assets/hoenn_legend_rooms/animated/381/024.png",
+      "sha256": "5ce1a742d092c0466c56860d38a590b6f45d3fad93464fa6508a5027513dcff8"
+    },
+    {
+      "species": "LATIOS",
+      "source": "crystal_animated/front/normal/381/025.png",
+      "file": "assets/hoenn_legend_rooms/animated/381/025.png",
+      "sha256": "fed102de3d6f3f6f99d3b387c51dbe79ee4341ec4b6bcfe8028ea3e51b938ab8"
+    },
+    {
+      "species": "LATIOS",
+      "source": "crystal_animated/front/normal/381/026.png",
+      "file": "assets/hoenn_legend_rooms/animated/381/026.png",
+      "sha256": "89577f02a2fa97a5ec095b5975607d07818a71c53f8685f69247bea8b42c190b"
+    },
+    {
+      "species": "LATIOS",
+      "source": "crystal_animated/front/normal/381/027.png",
+      "file": "assets/hoenn_legend_rooms/animated/381/027.png",
+      "sha256": "9119f3d25a7472ecc72222ed88e2047ee260ca7a1eea0402f8d2d0878d20e4f6"
+    },
+    {
+      "species": "LATIOS",
+      "source": "crystal_animated/front/normal/381/028.png",
+      "file": "assets/hoenn_legend_rooms/animated/381/028.png",
+      "sha256": "5ce1a742d092c0466c56860d38a590b6f45d3fad93464fa6508a5027513dcff8"
+    },
+    {
+      "species": "LATIOS",
+      "source": "crystal_animated/front/normal/381/029.png",
+      "file": "assets/hoenn_legend_rooms/animated/381/029.png",
+      "sha256": "aaa7135870ad9c281857d87ad25e0668f933e428a090ea6cd7d1e50997a8fb59"
+    },
+    {
+      "species": "LATIOS",
+      "source": "crystal_animated/front/normal/381/030.png",
+      "file": "assets/hoenn_legend_rooms/animated/381/030.png",
+      "sha256": "1bb1ab1d4dde28086e28262f4bc3addb64b762df6ac8da16aaf4354ea2847e7e"
+    },
+    {
+      "species": "LATIOS",
+      "source": "crystal_animated/front/normal/381/031.png",
+      "file": "assets/hoenn_legend_rooms/animated/381/031.png",
+      "sha256": "aaa7135870ad9c281857d87ad25e0668f933e428a090ea6cd7d1e50997a8fb59"
+    },
+    {
+      "species": "LATIOS",
+      "source": "crystal_animated/front/normal/381/032.png",
+      "file": "assets/hoenn_legend_rooms/animated/381/032.png",
+      "sha256": "327cddb49cbdff9e45cb0cb77f3ce1c763a76bf67df3a2f2b39251ae14690467"
+    },
+    {
+      "species": "LATIOS",
+      "source": "crystal_animated/front/normal/381/033.png",
+      "file": "assets/hoenn_legend_rooms/animated/381/033.png",
+      "sha256": "a007632756294f26a6078b6cf1c7ea2640051d4106fa51103cb839377691cace"
+    },
+    {
+      "species": "LATIOS",
+      "source": "crystal_animated/front/normal/381/034.png",
+      "file": "assets/hoenn_legend_rooms/animated/381/034.png",
+      "sha256": "1bb1ab1d4dde28086e28262f4bc3addb64b762df6ac8da16aaf4354ea2847e7e"
+    },
+    {
+      "species": "LATIOS",
+      "source": "crystal_animated/front/normal/381/035.png",
+      "file": "assets/hoenn_legend_rooms/animated/381/035.png",
+      "sha256": "4af5f75b1592ca84c4b02d0a208129037c47bc72df6d5deb4de842344b0e48ce"
+    },
+    {
+      "species": "LATIOS",
+      "source": "crystal_animated/front/normal/381/036.png",
+      "file": "assets/hoenn_legend_rooms/animated/381/036.png",
+      "sha256": "327cddb49cbdff9e45cb0cb77f3ce1c763a76bf67df3a2f2b39251ae14690467"
+    },
+    {
+      "species": "LATIOS",
+      "source": "crystal_animated/front/normal/381/037.png",
+      "file": "assets/hoenn_legend_rooms/animated/381/037.png",
+      "sha256": "fa0efc5104687ea6a8ece00c1aba33fd1044ccb3296ca8b06edfb014cb63fef7"
+    },
+    {
+      "species": "LATIOS",
+      "source": "crystal_animated/front/normal/381/038.png",
+      "file": "assets/hoenn_legend_rooms/animated/381/038.png",
+      "sha256": "aaa7135870ad9c281857d87ad25e0668f933e428a090ea6cd7d1e50997a8fb59"
+    },
+    {
+      "species": "LATIOS",
+      "source": "crystal_animated/front/normal/381/039.png",
+      "file": "assets/hoenn_legend_rooms/animated/381/039.png",
+      "sha256": "7979ea5f55a11e8d0f7b48b8037a6584c2ae47a3c15f8739e20ac9db44775f97"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/001.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/001.png",
+      "sha256": "7521d858b56da75fa958d11ffef7a3c4921e57e177266f6867b7dbb20ab09dd7"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/002.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/002.png",
+      "sha256": "e5cc29bb525cb3cc45cfc8a46f42f95a7671a0146948e751437d01e6dec3d2ac"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/003.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/003.png",
+      "sha256": "e4f6a1cacbcecedd895807c2dd73c3f594c824a856e92af4f5049f28a193a544"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/004.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/004.png",
+      "sha256": "41df6a9c46cc317f76510e0bb53336959bd83b53b51d951d7bb293eeb2fb771d"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/005.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/005.png",
+      "sha256": "2d39640368d8841719434613565c7dde04ad8cd7bd0294328fdd25ab7c8da45b"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/006.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/006.png",
+      "sha256": "5bb9027ef7e75ccb81fec6a0a1463e1d0d9aed9390e33e3720f9a7bab2940988"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/007.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/007.png",
+      "sha256": "2e2d0a540d409a4d281eabf9b02a627a2bd0d2a21564d46c43386169ae1559d4"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/008.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/008.png",
+      "sha256": "a6277be4c150b6110551d543cf77232e3e7007c61a284a2a676fde8c6b1cb722"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/009.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/009.png",
+      "sha256": "26b18700a4cb05a6e8e5a839abde144ffffa0401e900b4d3c6090014e30b88a0"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/010.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/010.png",
+      "sha256": "404a93a092a356f4e44186f6572187adfb66c96b62d910ea22aa966d8de49a00"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/011.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/011.png",
+      "sha256": "735e915fb3ce702ab3a11ca880610c22c71106fc08fd41e7dc6fad09d31fd49a"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/012.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/012.png",
+      "sha256": "d96c322c7f0d0f1e703afb7c9e185ce2e7c9dcc13bb20340a3360c4b55fb1f10"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/013.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/013.png",
+      "sha256": "940034bf31406b25311b2b9361cadb82335802f0dea0ed39c6ec36d223b8959f"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/014.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/014.png",
+      "sha256": "d75eeb8ffb1e71301843f911b7aae821460f7643e0226c89ea75c5b51b51a259"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/015.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/015.png",
+      "sha256": "99911d43272ce0997d7e4da94a2fbc9afa5c76a8e25673eedf1a493d976f300e"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/016.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/016.png",
+      "sha256": "d00b094767051332a5d35e4c60613488971c8507bb33e9d6eb8db0f8e31bc8da"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/017.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/017.png",
+      "sha256": "99911d43272ce0997d7e4da94a2fbc9afa5c76a8e25673eedf1a493d976f300e"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/018.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/018.png",
+      "sha256": "10b49751400eb2299f235ffb1901aad576635541c235b779a51588e13f9cce91"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/019.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/019.png",
+      "sha256": "d75eeb8ffb1e71301843f911b7aae821460f7643e0226c89ea75c5b51b51a259"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/020.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/020.png",
+      "sha256": "940034bf31406b25311b2b9361cadb82335802f0dea0ed39c6ec36d223b8959f"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/021.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/021.png",
+      "sha256": "d96c322c7f0d0f1e703afb7c9e185ce2e7c9dcc13bb20340a3360c4b55fb1f10"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/022.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/022.png",
+      "sha256": "735e915fb3ce702ab3a11ca880610c22c71106fc08fd41e7dc6fad09d31fd49a"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/023.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/023.png",
+      "sha256": "404a93a092a356f4e44186f6572187adfb66c96b62d910ea22aa966d8de49a00"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/024.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/024.png",
+      "sha256": "1332813d17ba250917e695277b414655ac4ad2a3aad4034c8094f711e00c57de"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/025.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/025.png",
+      "sha256": "d0e62d1013f89f87899029a7b48285949919936596a21af4bfd07477f25fef4d"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/026.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/026.png",
+      "sha256": "2e2d0a540d409a4d281eabf9b02a627a2bd0d2a21564d46c43386169ae1559d4"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/027.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/027.png",
+      "sha256": "5bb9027ef7e75ccb81fec6a0a1463e1d0d9aed9390e33e3720f9a7bab2940988"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/028.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/028.png",
+      "sha256": "9b1ddc5f8ade1fc528bcd4a3268ef77345e2eb4cbe432e52103b852fb52a8951"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/029.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/029.png",
+      "sha256": "2d39640368d8841719434613565c7dde04ad8cd7bd0294328fdd25ab7c8da45b"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/030.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/030.png",
+      "sha256": "41df6a9c46cc317f76510e0bb53336959bd83b53b51d951d7bb293eeb2fb771d"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/031.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/031.png",
+      "sha256": "e4f6a1cacbcecedd895807c2dd73c3f594c824a856e92af4f5049f28a193a544"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/032.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/032.png",
+      "sha256": "e5cc29bb525cb3cc45cfc8a46f42f95a7671a0146948e751437d01e6dec3d2ac"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/033.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/033.png",
+      "sha256": "7521d858b56da75fa958d11ffef7a3c4921e57e177266f6867b7dbb20ab09dd7"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/034.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/034.png",
+      "sha256": "8f01c7629ad0e13775d8c36533d52f551a4f926726f3be8552775a690e2cb58e"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/035.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/035.png",
+      "sha256": "915659edb64f01a4f5a0739ac24abfb6cf1445fa3329c96760fe672c2304e6b0"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/036.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/036.png",
+      "sha256": "6d2f9599c035428676840398fe4a6a423456c04b098317f537cc7ec0f75aabd9"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/037.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/037.png",
+      "sha256": "274caa737e6cc42d31fc5822e02312516c0416d42ac08f2ed67aebf0f0f2bd45"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/038.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/038.png",
+      "sha256": "144c04e19daa55f37fff2fb586d0e73505b798da90bd970b479f94bee06a1c28"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/039.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/039.png",
+      "sha256": "3facdac4ec437161ccc1958f6df08b8d8b7267526fd9e360ffa0933061f2485d"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/040.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/040.png",
+      "sha256": "f9767b04f1c2553452552e0c81eef649cee2f97b95fbeb49210be0dfed3a823b"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/041.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/041.png",
+      "sha256": "b50271a87671d6d66290756aebd73bbed7a3157c1cafbc56b90d046d95238005"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/042.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/042.png",
+      "sha256": "1da66c42635cf257878635bd26b666159397828d125c86c0616bed4eb07090c3"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/043.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/043.png",
+      "sha256": "7bcbb9ed7f8b380ba86d30b438444f3e4b97a13483e20d804e515f57703cd8b1"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/044.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/044.png",
+      "sha256": "71a4fd72f6042408795f0e40e58a89eac17a46d357556a9ce7f4ca46cb31d6bf"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/045.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/045.png",
+      "sha256": "5c5011892b93acda648a53cd477b4c8da87a0bc49b09a5273cec8d131f5aeb35"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/046.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/046.png",
+      "sha256": "4f46b1153634ee53aa9f77120774da297c2cf668f84bbf2095fc269e7d405edc"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/047.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/047.png",
+      "sha256": "fe24d62b318de3dfbcb660aae507cb1cef8209269fe80b28dad32136b53ccf66"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/048.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/048.png",
+      "sha256": "09171fa55d1715ee9ca873d83c72c2bda4acdd7c4b958856248a05ae62e0e0ff"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/049.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/049.png",
+      "sha256": "fa80030f65332eb4d5fe13ccdd1efc72bca00108e0d28129cfee71c0a43e41f1"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/050.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/050.png",
+      "sha256": "fe24d62b318de3dfbcb660aae507cb1cef8209269fe80b28dad32136b53ccf66"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/051.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/051.png",
+      "sha256": "4f46b1153634ee53aa9f77120774da297c2cf668f84bbf2095fc269e7d405edc"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/052.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/052.png",
+      "sha256": "5c5011892b93acda648a53cd477b4c8da87a0bc49b09a5273cec8d131f5aeb35"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/053.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/053.png",
+      "sha256": "71a4fd72f6042408795f0e40e58a89eac17a46d357556a9ce7f4ca46cb31d6bf"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/054.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/054.png",
+      "sha256": "7bcbb9ed7f8b380ba86d30b438444f3e4b97a13483e20d804e515f57703cd8b1"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/055.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/055.png",
+      "sha256": "5bde9df662e4c823e2775c49b9e6b997a09e5dd7bd13e3ff36249a52d11b88d3"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/056.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/056.png",
+      "sha256": "f9767b04f1c2553452552e0c81eef649cee2f97b95fbeb49210be0dfed3a823b"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/057.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/057.png",
+      "sha256": "3facdac4ec437161ccc1958f6df08b8d8b7267526fd9e360ffa0933061f2485d"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/058.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/058.png",
+      "sha256": "144c04e19daa55f37fff2fb586d0e73505b798da90bd970b479f94bee06a1c28"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/059.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/059.png",
+      "sha256": "274caa737e6cc42d31fc5822e02312516c0416d42ac08f2ed67aebf0f0f2bd45"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/060.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/060.png",
+      "sha256": "6d2f9599c035428676840398fe4a6a423456c04b098317f537cc7ec0f75aabd9"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/061.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/061.png",
+      "sha256": "915659edb64f01a4f5a0739ac24abfb6cf1445fa3329c96760fe672c2304e6b0"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/062.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/062.png",
+      "sha256": "8f01c7629ad0e13775d8c36533d52f551a4f926726f3be8552775a690e2cb58e"
+    },
+    {
+      "species": "JIRACHI",
+      "source": "crystal_animated/front/normal/385/063.png",
+      "file": "assets/hoenn_legend_rooms/animated/385/063.png",
+      "sha256": "7521d858b56da75fa958d11ffef7a3c4921e57e177266f6867b7dbb20ab09dd7"
+    },
+    {
+      "species": "DEOXYS",
+      "source": "crystal_animated/front/normal/386/001.png",
+      "file": "assets/hoenn_legend_rooms/animated/386/001.png",
+      "sha256": "6fb26413d15b8c0484972d934a516839ffa0a5ca8cc9f234b1de9fed9ef9c11e"
+    },
+    {
+      "species": "DEOXYS",
+      "source": "crystal_animated/front/normal/386/002.png",
+      "file": "assets/hoenn_legend_rooms/animated/386/002.png",
+      "sha256": "cdbb230f973a4834a6a3a981d3433d8f80ed949540d9220f939ced3933e8273f"
+    },
+    {
+      "species": "DEOXYS",
+      "source": "crystal_animated/front/normal/386/003.png",
+      "file": "assets/hoenn_legend_rooms/animated/386/003.png",
+      "sha256": "56b15f0b6e30575f1906c08252d90ff76648b55c2eadafda9d09c079784ce2cf"
+    },
+    {
+      "species": "DEOXYS",
+      "source": "crystal_animated/front/normal/386/004.png",
+      "file": "assets/hoenn_legend_rooms/animated/386/004.png",
+      "sha256": "fc8662e52a4c7674cfd0dfef702a7fa8695ee3aaaaf11bff18a2644724fcc6b0"
+    },
+    {
+      "species": "DEOXYS",
+      "source": "crystal_animated/front/normal/386/005.png",
+      "file": "assets/hoenn_legend_rooms/animated/386/005.png",
+      "sha256": "21b6252efb24dde4e49ca078b1dfdd2027e123e3bbc79b71242d6b028a430099"
+    },
+    {
+      "species": "DEOXYS",
+      "source": "crystal_animated/front/normal/386/006.png",
+      "file": "assets/hoenn_legend_rooms/animated/386/006.png",
+      "sha256": "322e8e7f7112f9066cb6145174ea12b38bb9cdee46958ae6db15f1a73fea7f3e"
+    },
+    {
+      "species": "DEOXYS",
+      "source": "crystal_animated/front/normal/386/007.png",
+      "file": "assets/hoenn_legend_rooms/animated/386/007.png",
+      "sha256": "affcc2c90d8f75745f3cf3eb6a93464514feb11aaaf4cb8b48ead16b4500f8d3"
+    },
+    {
+      "species": "DEOXYS",
+      "source": "crystal_animated/front/normal/386/008.png",
+      "file": "assets/hoenn_legend_rooms/animated/386/008.png",
+      "sha256": "807c4f3057201d4b76f4a1f4792447f46e54d528650fc7b754b0f78b8ee339c0"
+    },
+    {
+      "species": "DEOXYS",
+      "source": "crystal_animated/front/normal/386/009.png",
+      "file": "assets/hoenn_legend_rooms/animated/386/009.png",
+      "sha256": "9de68867d4e89f5512c21148306d086377dff33c4c778c55b7de2f39e7218776"
+    },
+    {
+      "species": "DEOXYS",
+      "source": "crystal_animated/front/normal/386/010.png",
+      "file": "assets/hoenn_legend_rooms/animated/386/010.png",
+      "sha256": "ffe76491f07ab9f66d45882771fc4c3481487321ffe4a5572d6e45f7e8d9783e"
+    },
+    {
+      "species": "DEOXYS",
+      "source": "crystal_animated/front/normal/386/011.png",
+      "file": "assets/hoenn_legend_rooms/animated/386/011.png",
+      "sha256": "24ca35f861cfae65c425a7ff8909cfe27c349d776e7f4f7294d1966bb8467aa0"
+    },
+    {
+      "species": "DEOXYS",
+      "source": "crystal_animated/front/normal/386/012.png",
+      "file": "assets/hoenn_legend_rooms/animated/386/012.png",
+      "sha256": "ab26b7cb41bde5be2cba7f8b1a7e2859bec5a6105bbb2959c2801f487d5f4600"
+    },
+    {
+      "species": "DEOXYS",
+      "source": "crystal_animated/front/normal/386/013.png",
+      "file": "assets/hoenn_legend_rooms/animated/386/013.png",
+      "sha256": "6c816201e851c4490feb85cf6a6b996a7eeed56934cc1673514b8147f3e306da"
+    },
+    {
+      "species": "DEOXYS",
+      "source": "crystal_animated/front/normal/386/014.png",
+      "file": "assets/hoenn_legend_rooms/animated/386/014.png",
+      "sha256": "7be53b8fd0e26db419ca181b82a4e6566aa740b0490828b7b452f5693a0cd3a2"
+    },
+    {
+      "species": "DEOXYS",
+      "source": "crystal_animated/front/normal/386/015.png",
+      "file": "assets/hoenn_legend_rooms/animated/386/015.png",
+      "sha256": "3df00a0460e88081aa824345a66c00c6e724c314a03c3b741b24f3df406926a0"
+    },
+    {
+      "species": "DEOXYS",
+      "source": "crystal_animated/front/normal/386/016.png",
+      "file": "assets/hoenn_legend_rooms/animated/386/016.png",
+      "sha256": "7be53b8fd0e26db419ca181b82a4e6566aa740b0490828b7b452f5693a0cd3a2"
+    },
+    {
+      "species": "DEOXYS",
+      "source": "crystal_animated/front/normal/386/017.png",
+      "file": "assets/hoenn_legend_rooms/animated/386/017.png",
+      "sha256": "6c816201e851c4490feb85cf6a6b996a7eeed56934cc1673514b8147f3e306da"
+    },
+    {
+      "species": "DEOXYS",
+      "source": "crystal_animated/front/normal/386/018.png",
+      "file": "assets/hoenn_legend_rooms/animated/386/018.png",
+      "sha256": "ab26b7cb41bde5be2cba7f8b1a7e2859bec5a6105bbb2959c2801f487d5f4600"
+    },
+    {
+      "species": "DEOXYS",
+      "source": "crystal_animated/front/normal/386/019.png",
+      "file": "assets/hoenn_legend_rooms/animated/386/019.png",
+      "sha256": "24ca35f861cfae65c425a7ff8909cfe27c349d776e7f4f7294d1966bb8467aa0"
+    },
+    {
+      "species": "DEOXYS",
+      "source": "crystal_animated/front/normal/386/020.png",
+      "file": "assets/hoenn_legend_rooms/animated/386/020.png",
+      "sha256": "ffe76491f07ab9f66d45882771fc4c3481487321ffe4a5572d6e45f7e8d9783e"
+    },
+    {
+      "species": "DEOXYS",
+      "source": "crystal_animated/front/normal/386/021.png",
+      "file": "assets/hoenn_legend_rooms/animated/386/021.png",
+      "sha256": "9de68867d4e89f5512c21148306d086377dff33c4c778c55b7de2f39e7218776"
+    },
+    {
+      "species": "DEOXYS",
+      "source": "crystal_animated/front/normal/386/022.png",
+      "file": "assets/hoenn_legend_rooms/animated/386/022.png",
+      "sha256": "807c4f3057201d4b76f4a1f4792447f46e54d528650fc7b754b0f78b8ee339c0"
+    },
+    {
+      "species": "DEOXYS",
+      "source": "crystal_animated/front/normal/386/023.png",
+      "file": "assets/hoenn_legend_rooms/animated/386/023.png",
+      "sha256": "2cd292f3f825281769f472249a4b4ca922f07d365f066350c283d7401027ac0c"
+    },
+    {
+      "species": "DEOXYS",
+      "source": "crystal_animated/front/normal/386/024.png",
+      "file": "assets/hoenn_legend_rooms/animated/386/024.png",
+      "sha256": "322e8e7f7112f9066cb6145174ea12b38bb9cdee46958ae6db15f1a73fea7f3e"
+    },
+    {
+      "species": "DEOXYS",
+      "source": "crystal_animated/front/normal/386/025.png",
+      "file": "assets/hoenn_legend_rooms/animated/386/025.png",
+      "sha256": "21b6252efb24dde4e49ca078b1dfdd2027e123e3bbc79b71242d6b028a430099"
+    },
+    {
+      "species": "DEOXYS",
+      "source": "crystal_animated/front/normal/386/026.png",
+      "file": "assets/hoenn_legend_rooms/animated/386/026.png",
+      "sha256": "c041aa3a742dfc419adde43093ec3171088ef24949d5b7c4b4645a2e789ab8d0"
+    },
+    {
+      "species": "DEOXYS",
+      "source": "crystal_animated/front/normal/386/027.png",
+      "file": "assets/hoenn_legend_rooms/animated/386/027.png",
+      "sha256": "fc8662e52a4c7674cfd0dfef702a7fa8695ee3aaaaf11bff18a2644724fcc6b0"
+    },
+    {
+      "species": "DEOXYS",
+      "source": "crystal_animated/front/normal/386/028.png",
+      "file": "assets/hoenn_legend_rooms/animated/386/028.png",
+      "sha256": "56b15f0b6e30575f1906c08252d90ff76648b55c2eadafda9d09c079784ce2cf"
+    },
+    {
+      "species": "DEOXYS",
+      "source": "crystal_animated/front/normal/386/029.png",
+      "file": "assets/hoenn_legend_rooms/animated/386/029.png",
+      "sha256": "cdbb230f973a4834a6a3a981d3433d8f80ed949540d9220f939ced3933e8273f"
+    },
+    {
+      "species": "DEOXYS",
+      "source": "crystal_animated/front/normal/386/030.png",
+      "file": "assets/hoenn_legend_rooms/animated/386/030.png",
+      "sha256": "6fb26413d15b8c0484972d934a516839ffa0a5ca8cc9f234b1de9fed9ef9c11e"
+    },
+    {
+      "species": "DEOXYS",
+      "source": "crystal_animated/front/normal/386/031.png",
+      "file": "assets/hoenn_legend_rooms/animated/386/031.png",
+      "sha256": "9a29859ef8334eae4d8617f413cda2af83debd6f8aeb178315f597512fc5944c"
+    },
+    {
+      "species": "DEOXYS",
+      "source": "crystal_animated/front/normal/386/032.png",
+      "file": "assets/hoenn_legend_rooms/animated/386/032.png",
+      "sha256": "a61ce473ff613697e49a47572b997b9f719ebdb946a1ee7dc0af24a583451ca8"
+    },
+    {
+      "species": "DEOXYS",
+      "source": "crystal_animated/front/normal/386/033.png",
+      "file": "assets/hoenn_legend_rooms/animated/386/033.png",
+      "sha256": "3a0f711552e71597d335ed9833e6df14b5b4c9f7d833fd4b586c137a1e7518b0"
+    },
+    {
+      "species": "DEOXYS",
+      "source": "crystal_animated/front/normal/386/034.png",
+      "file": "assets/hoenn_legend_rooms/animated/386/034.png",
+      "sha256": "56e6694f246651678dc54642218e7b2291128fe60fb7e379f670ef36f8b53298"
+    },
+    {
+      "species": "DEOXYS",
+      "source": "crystal_animated/front/normal/386/035.png",
+      "file": "assets/hoenn_legend_rooms/animated/386/035.png",
+      "sha256": "71570ad420a2aa4a248b738032a5575aff933fd51afaa5822357689041769179"
+    },
+    {
+      "species": "DEOXYS",
+      "source": "crystal_animated/front/normal/386/036.png",
+      "file": "assets/hoenn_legend_rooms/animated/386/036.png",
+      "sha256": "493cf97654022dc6ff9124548666d23c2eb66bac256f5880e5b5c2c59385d7d7"
+    },
+    {
+      "species": "DEOXYS",
+      "source": "crystal_animated/front/normal/386/037.png",
+      "file": "assets/hoenn_legend_rooms/animated/386/037.png",
+      "sha256": "aa452238eef4ddc96a771c41e122f97f9e44f67a006aa7e4641ce9e6ae299c0a"
+    },
+    {
+      "species": "DEOXYS",
+      "source": "crystal_animated/front/normal/386/038.png",
+      "file": "assets/hoenn_legend_rooms/animated/386/038.png",
+      "sha256": "ec1e16a7fb625fef6a8d3f3ec245f0bea34b73add3b33b8318090c1dc77f065f"
+    },
+    {
+      "species": "DEOXYS",
+      "source": "crystal_animated/front/normal/386/039.png",
+      "file": "assets/hoenn_legend_rooms/animated/386/039.png",
+      "sha256": "4572917ea0677cff16dbc03bb5308471c824d883343558ff3b910f65319ec522"
+    },
+    {
+      "species": "DEOXYS",
+      "source": "crystal_animated/front/normal/386/040.png",
+      "file": "assets/hoenn_legend_rooms/animated/386/040.png",
+      "sha256": "d868ffc901faacac753bdd7bbba3912b1ee491a50efd0455deb0fecf2e995142"
+    },
+    {
+      "species": "DEOXYS",
+      "source": "crystal_animated/front/normal/386/041.png",
+      "file": "assets/hoenn_legend_rooms/animated/386/041.png",
+      "sha256": "ee478bb4345a41f6b616db9448d0024aeb99a2d8c9c21b88926698ae81bd44f0"
+    },
+    {
+      "species": "DEOXYS",
+      "source": "crystal_animated/front/normal/386/042.png",
+      "file": "assets/hoenn_legend_rooms/animated/386/042.png",
+      "sha256": "ba9919ea5cde15c01762ff4451a0d13163c85e6bafef5b707f52c0bc9778b53d"
+    },
+    {
+      "species": "DEOXYS",
+      "source": "crystal_animated/front/normal/386/043.png",
+      "file": "assets/hoenn_legend_rooms/animated/386/043.png",
+      "sha256": "f528586764d649dcea55d337baeb7bf7051db7555d1c369b859a2423819869d5"
+    },
+    {
+      "species": "DEOXYS",
+      "source": "crystal_animated/front/normal/386/044.png",
+      "file": "assets/hoenn_legend_rooms/animated/386/044.png",
+      "sha256": "f569692f23bff23773e3f1bbb82c869f780b61ee721a82c2faea84d8dfc96d47"
+    },
+    {
+      "species": "DEOXYS",
+      "source": "crystal_animated/front/normal/386/045.png",
+      "file": "assets/hoenn_legend_rooms/animated/386/045.png",
+      "sha256": "f528586764d649dcea55d337baeb7bf7051db7555d1c369b859a2423819869d5"
+    },
+    {
+      "species": "DEOXYS",
+      "source": "crystal_animated/front/normal/386/046.png",
+      "file": "assets/hoenn_legend_rooms/animated/386/046.png",
+      "sha256": "ba9919ea5cde15c01762ff4451a0d13163c85e6bafef5b707f52c0bc9778b53d"
+    },
+    {
+      "species": "DEOXYS",
+      "source": "crystal_animated/front/normal/386/047.png",
+      "file": "assets/hoenn_legend_rooms/animated/386/047.png",
+      "sha256": "ee478bb4345a41f6b616db9448d0024aeb99a2d8c9c21b88926698ae81bd44f0"
+    },
+    {
+      "species": "DEOXYS",
+      "source": "crystal_animated/front/normal/386/048.png",
+      "file": "assets/hoenn_legend_rooms/animated/386/048.png",
+      "sha256": "d868ffc901faacac753bdd7bbba3912b1ee491a50efd0455deb0fecf2e995142"
+    },
+    {
+      "species": "DEOXYS",
+      "source": "crystal_animated/front/normal/386/049.png",
+      "file": "assets/hoenn_legend_rooms/animated/386/049.png",
+      "sha256": "4572917ea0677cff16dbc03bb5308471c824d883343558ff3b910f65319ec522"
+    },
+    {
+      "species": "DEOXYS",
+      "source": "crystal_animated/front/normal/386/050.png",
+      "file": "assets/hoenn_legend_rooms/animated/386/050.png",
+      "sha256": "ec1e16a7fb625fef6a8d3f3ec245f0bea34b73add3b33b8318090c1dc77f065f"
+    },
+    {
+      "species": "DEOXYS",
+      "source": "crystal_animated/front/normal/386/051.png",
+      "file": "assets/hoenn_legend_rooms/animated/386/051.png",
+      "sha256": "d5c8df047b3c34a1735da3c3cb35ea47b7262ec387daa1decee596e5c40b9ad7"
+    },
+    {
+      "species": "DEOXYS",
+      "source": "crystal_animated/front/normal/386/052.png",
+      "file": "assets/hoenn_legend_rooms/animated/386/052.png",
+      "sha256": "493cf97654022dc6ff9124548666d23c2eb66bac256f5880e5b5c2c59385d7d7"
+    },
+    {
+      "species": "DEOXYS",
+      "source": "crystal_animated/front/normal/386/053.png",
+      "file": "assets/hoenn_legend_rooms/animated/386/053.png",
+      "sha256": "71570ad420a2aa4a248b738032a5575aff933fd51afaa5822357689041769179"
+    },
+    {
+      "species": "DEOXYS",
+      "source": "crystal_animated/front/normal/386/054.png",
+      "file": "assets/hoenn_legend_rooms/animated/386/054.png",
+      "sha256": "102a3c1b31bacbc3e9bbc201bb51c48a5152b334cf844d34a9579ed565c40381"
+    },
+    {
+      "species": "DEOXYS",
+      "source": "crystal_animated/front/normal/386/055.png",
+      "file": "assets/hoenn_legend_rooms/animated/386/055.png",
+      "sha256": "56e6694f246651678dc54642218e7b2291128fe60fb7e379f670ef36f8b53298"
+    },
+    {
+      "species": "DEOXYS",
+      "source": "crystal_animated/front/normal/386/056.png",
+      "file": "assets/hoenn_legend_rooms/animated/386/056.png",
+      "sha256": "3a0f711552e71597d335ed9833e6df14b5b4c9f7d833fd4b586c137a1e7518b0"
+    },
+    {
+      "species": "DEOXYS",
+      "source": "crystal_animated/front/normal/386/057.png",
+      "file": "assets/hoenn_legend_rooms/animated/386/057.png",
+      "sha256": "a61ce473ff613697e49a47572b997b9f719ebdb946a1ee7dc0af24a583451ca8"
+    },
+    {
+      "species": "DEOXYS",
+      "source": "crystal_animated/front/normal/386/058.png",
+      "file": "assets/hoenn_legend_rooms/animated/386/058.png",
+      "sha256": "9a29859ef8334eae4d8617f413cda2af83debd6f8aeb178315f597512fc5944c"
+    },
+    {
+      "species": "DEOXYS",
+      "source": "crystal_animated/front/normal/386/059.png",
+      "file": "assets/hoenn_legend_rooms/animated/386/059.png",
+      "sha256": "6fb26413d15b8c0484972d934a516839ffa0a5ca8cc9f234b1de9fed9ef9c11e"
+    }
+  ]
+}
