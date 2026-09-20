@@ -1,3 +1,15 @@
+# KASC 6.7.18 — Character selection confirmation
+
+• Added a YES / NO confirmation after choosing a New Game character.
+• NO or Back returns to the selection; the character is committed only after YES.
+• NO is selected initially to prevent accidental confirmation.
+
+Validation: native selection flow checked for confirm, cancel and return; paired with VASC 3.0.36.
+
+---
+
+## Previous release documentation
+
 # Kanto Ascendant 6.7.17
 
 World encounter artwork and Hoenn compatibility for Voxel Ascendant 3.0.34. Includes the occupied PC-box visibility fix from 6.7.16.
