@@ -879,17 +879,31 @@ return function(mod, opts)
 
   function CharacterSelect:update()
     local input = self.game.input
+    if self.confirming then
+      if input:wasPressed("b") then
+        self.confirming = false
+      elseif input:wasPressed("up") or input:wasPressed("down")
+          or input:wasPressed("left") or input:wasPressed("right") then
+        self.confirmYes = not self.confirmYes
+      elseif input:wasPressed("a") then
+        require("src.core.Sound").play(self.game.data, "Press_AB")
+        if not self.confirmYes then self.confirming = false; return end
+        self.confirming = false
+        M.select(SELECTION_ORDER[self.index])
+        refreshVisuals(self.game)
+        updateOakSpeechVisuals(self.speech)
+        self.game.stack:pop()
+        self.done()
+      end
+      return
+    end
     if input:wasPressed("up") then
       self.index = self.index > 1 and self.index - 1 or #SELECTION_ORDER
     elseif input:wasPressed("down") then
       self.index = self.index < #SELECTION_ORDER and self.index + 1 or 1
     elseif input:wasPressed("a") then
       require("src.core.Sound").play(self.game.data, "Press_AB")
-      M.select(SELECTION_ORDER[self.index])
-      refreshVisuals(self.game)
-      updateOakSpeechVisuals(self.speech)
-      self.game.stack:pop()
-      self.done()
+      self.confirming, self.confirmYes = true, false
     end
   end
 
@@ -926,6 +940,14 @@ return function(mod, opts)
 
     Font.drawBox(0, 11, 20, 7)
     love.graphics.setColor(0, 0, 0, 1)
+    if self.confirming then
+      Font.draw(text("ARE YOU SURE?", "BIST DU SICHER?"), 16, 96)
+      Font.draw(text("YES", "JA"), 32, 112)
+      Font.draw(text("NO", "NEIN"), 96, 112)
+      Font.drawCode(Theme.cursor, self.confirmYes and 16 or 80, 112)
+      love.graphics.setColor(1, 1, 1, 1)
+      return
+    end
     local relation = pair(dialogue.selection[id].relation)
     local lines = {}
     for line in tostring(relation or ""):gmatch("[^\n]+") do
