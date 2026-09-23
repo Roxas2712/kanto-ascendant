@@ -155,48 +155,88 @@ return function(mod)
     return type(maps) == "table" and maps[map.id] or nil
   end
 
-  local function staticSignature(game, map)
-    local def = defFor(game, map) or {}
-    local parts = {
-      tostring(map.widthCells or def.widthCells or def.width or 0),
-      "x",
-      tostring(map.heightCells or def.heightCells or def.height or 0),
-      "@",
-      tostring(def),
-      "#",
-      tostring(S.storyReservationRevision),
-    }
-    local function append(label, rows)
-      parts[#parts + 1] = "|" .. label
-      eachRow(rows, function(row)
+  local EMPTY = {}
+  local ROW_FIELDS = {
+    "warps", "objects", "signs", "scriptedPositions", "storyPositions",
+    "kaWildsReservedCells", "wildsReservedCells",
+  }
+  local MAP_ROW_FIELDS = { "kaWildsReservedCells", "wildsReservedCells" }
+
+  -- Compare the authored coordinates/blocks directly. The old signature
+  -- serialized every block for every candidate cell (twice through nested
+  -- validators), even though the safety plan itself was already cached.
+  -- Snapshots are copied only on a change, so in-place edits still invalidate
+  -- the plan without a persistent cache of potentially stale spawn decisions.
+  local function coordinatesMatch(rows, snapshot)
+    local n = 0
+    if type(rows) == "table" then
+      for _, row in pairs(rows) do
         local x, y = xyOf(row)
         if x ~= nil then
-          parts[#parts + 1] = ";" .. tostring(x) .. "," .. tostring(y)
+          n = n + 2
+          if snapshot[n - 1] ~= x or snapshot[n] ~= y then return false end
         end
-      end)
+      end
     end
-    append("w", def.warps)
-    append("o", def.objects)
-    append("s", def.signs)
-    append("sp", def.scriptedPositions)
-    append("st", def.storyPositions)
-    append("kr", def.kaWildsReservedCells)
-    append("wr", def.wildsReservedCells)
-    append("mkr", map.kaWildsReservedCells)
-    append("mwr", map.wildsReservedCells)
-    parts[#parts + 1] = "|b"
-    for index, block in ipairs(def.blocks or {}) do
-      parts[#parts + 1] = ";" .. tostring(index) .. "=" .. tostring(block)
+    return n == #snapshot
+  end
+
+  local function coordinatesCopy(rows)
+    local result = {}
+    if type(rows) == "table" then
+      for _, row in pairs(rows) do
+        local x, y = xyOf(row)
+        if x ~= nil then
+          result[#result + 1] = x
+          result[#result + 1] = y
+        end
+      end
     end
-    return table.concat(parts)
+    return result
+  end
+
+  local function sourceMatches(map, def, source)
+    if not source or source.def ~= def
+        or source.width ~= (map.widthCells or def.widthCells or def.width or 0)
+        or source.height ~= (map.heightCells or def.heightCells or def.height or 0)
+        or source.revision ~= S.storyReservationRevision then return false end
+    for _, name in ipairs(ROW_FIELDS) do
+      if not coordinatesMatch(def[name], source.rows[name]) then return false end
+    end
+    for _, name in ipairs(MAP_ROW_FIELDS) do
+      if not coordinatesMatch(map[name], source.mapRows[name]) then return false end
+    end
+    local blocks = def.blocks or EMPTY
+    local n = 0
+    for index, block in ipairs(blocks) do
+      if source.blocks[index] ~= block then return false end
+      n = index
+    end
+    return n == #source.blocks
+  end
+
+  local function sourceCopy(map, def)
+    local source = {
+      def = def,
+      width = map.widthCells or def.widthCells or def.width or 0,
+      height = map.heightCells or def.heightCells or def.height or 0,
+      revision = S.storyReservationRevision,
+      rows = {}, mapRows = {}, blocks = {},
+    }
+    for _, name in ipairs(ROW_FIELDS) do
+      source.rows[name] = coordinatesCopy(def[name])
+    end
+    for _, name in ipairs(MAP_ROW_FIELDS) do
+      source.mapRows[name] = coordinatesCopy(map[name])
+    end
+    for index, block in ipairs(def.blocks or EMPTY) do source.blocks[index] = block end
+    return source
   end
 
   local function buildStaticPlan(game, map)
-    local signature = staticSignature(game, map)
+    local def = defFor(game, map) or EMPTY
     local cached = staticCache[map]
-    if cached and cached.signature == signature then return cached end
-
-    local def = defFor(game, map) or {}
+    if cached and sourceMatches(map, def, cached.source) then return cached end
     local width = tonumber(map.widthCells or def.widthCells or def.width) or 0
     local height = tonumber(map.heightCells or def.heightCells or def.height) or 0
     local reserved = {}
@@ -384,7 +424,7 @@ return function(mod)
     end
 
     cached = {
-      signature = signature,
+      source = sourceCopy(map, def),
       width = width,
       height = height,
       reserved = reserved,

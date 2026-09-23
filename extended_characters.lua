@@ -440,6 +440,10 @@ return function(mod, opts)
     local characterId = normalizedId(character, "RED")
     local style = M.characterStyle()
     local portraitStyle = trainerPortraitStyle(activeGame)
+    local wardrobe=mod.exports and mod.exports.wardrobe
+    if wardrobe and wardrobe.native(characterId)then
+      style,portraitStyle='ascendant','original'
+    end
     -- Battle/portrait art follows the explicit trainer family. ORIGINAL is
     -- the edition/base pair for each identity; CRYSTAL HD is the packaged
     -- Crystal family. Field sheets remain governed independently below.
@@ -1381,6 +1385,10 @@ return function(mod, opts)
     if not spriteDef then return end
     local SpriteRenderer = require("src.render.SpriteRenderer")
     actor.sprite = SpriteRenderer.new(spriteDef, seed)
+    local wardrobe=mod.exports and mod.exports.wardrobe
+    if wardrobe and wardrobe.walker2d and game.overworld and actor==game.overworld.player then
+      wardrobe.walker2d.bind(game,actor,character,actor.sprite)
+    end
     -- Keep the resolved identity inspectable.  Rival story events reuse the
     -- same role under several map object names; this tag proves that the
     -- field actor and its later battle card came from one identity matrix.

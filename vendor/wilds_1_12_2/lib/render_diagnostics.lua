@@ -5,6 +5,28 @@ local Config = V.require("config")
 
 local RenderDiagnostics = {}
 
+-- Successful diagnostic probes need not repeat the asset override filesystem
+-- search for every visible entity on every frame. Keep a bounded set, and use
+-- the asset owner's invalidation/release hooks so hot reload never reports a
+-- stale image as usable. Failed probes are retried normally.
+local probeOwner, probeCaching
+local probes, probeOrder, probeCursor = {}, {}, 1
+local function clearProbes()
+  probes, probeOrder, probeCursor = {}, {}, 1
+end
+local function canCacheProbe(Assets)
+  if probeOwner ~= Assets then
+    clearProbes()
+    probeOwner, probeCaching = Assets, false
+    if type(Assets.register) == "function" then
+      probeCaching = pcall(Assets.register, {
+        invalidate=clearProbes, release=clearProbes,
+      })
+    end
+  end
+  return probeCaching
+end
+
 function RenderDiagnostics.ensure(entity)
   if not entity then return nil end
   local d = entity.renderDiagnostics
@@ -88,6 +110,10 @@ function RenderDiagnostics.probeAssetsImage(path)
   if not okAssets or not Assets or type(Assets.image) ~= "function" then
     return false, "Assets.image unavailable"
   end
+  local cached = canCacheProbe(Assets) and probes[path]
+  if cached and cached.reader == Assets.image then
+    return true, nil, cached.image, cached.dim
+  end
   local ok, imgOrErr = pcall(Assets.image, path)
   if not ok then
     return false, "Assets.image error: " .. tostring(imgOrErr)
@@ -96,9 +122,14 @@ function RenderDiagnostics.probeAssetsImage(path)
     return false, "Assets.image returned nil for " .. path
   end
   local dim = RenderDiagnostics.describeImage(imgOrErr)
-  if dim.w ~= 16 or dim.h ~= 16 then
-    -- Still usable for UV card if dimensions work; SpriteBillboards clamps.
-    return true, nil, imgOrErr, dim
+  if probeCaching then
+    if not probes[path] then
+      local previous = probeOrder[probeCursor]
+      if previous then probes[previous] = nil end
+      probeOrder[probeCursor] = path
+      probeCursor = probeCursor % 64 + 1
+    end
+    probes[path] = {image=imgOrErr, dim=dim, reader=Assets.image}
   end
   return true, nil, imgOrErr, dim
 end

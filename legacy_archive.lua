@@ -2811,6 +2811,11 @@ return function(opts)
     mergeHevoPersistent(archive, save)
     mergeJohtoMastersPersistent(archive, save)
     mergeTitleState(archive, save)
+    -- Carry the complete club ledger through the same durable journey transaction.
+    -- Points/claims are a snapshot, never a union that could restore spent rewards.
+    if type(localBucket) == "table" and type(localBucket.hunting_club) == "table" then
+      archive.huntingClubPersistent = copy(localBucket.hunting_club)
+    end
     if archive.transaction and archive.transaction.state == "prepared" then
       archive = applyPrepared(archive)
       local recovered, recoverErr = A.write(archive)
@@ -2919,6 +2924,9 @@ return function(opts)
     }
     bucket.hevo_persistent = copy(archive.hevoPersistent)
     bucket.johto_masters = copy(archive.johtoMastersPersistent)
+    if type(archive.huntingClubPersistent) == "table" then
+      bucket.hunting_club = copy(archive.huntingClubPersistent)
+    end
     seedTitleState(bucket, archive)
     -- Full, data-only bridge between the source and target opaque storage
     -- scopes. It exists only in the fresh in-memory save, is imported and

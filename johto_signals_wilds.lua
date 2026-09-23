@@ -408,10 +408,17 @@ return function(mod, opts)
     end
 
     local mythicTransaction
-    if integrationEnabled() and not worldEvent and not runtime.mythicClaim then
+    if integrationEnabled() and not worldEvent then
       local mythicSelected
       mythicSelected, mythicTransaction =
         mythic.rollReplacement(selected, encDef, ctx, game)
+      if mythicTransaction and mythicTransaction.pending and runtime.mythicClaim then
+        local reserved = mythicTransaction
+        mythicTransaction = type(mythic.deferWildsReplacement) == "function"
+          and mythic.deferWildsReplacement(reserved, selected) or nil
+        cancelMythic(reserved)
+        mythicSelected = selected
+      end
       if type(mythicSelected) == "table" and mythicSelected.species then
         selected = mythicSelected
       else
@@ -450,7 +457,7 @@ return function(mod, opts)
       randomizerTicket = randomizerTicket,
     }
     if rareClaim then runtime.rareClaims[rareClaim] = bundle end
-    if mythicTransaction then runtime.mythicClaim = bundle end
+    if mythicTransaction and mythicTransaction.pending then runtime.mythicClaim = bundle end
     return selected, bundle, nil
   end
 

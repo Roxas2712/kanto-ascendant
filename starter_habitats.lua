@@ -612,9 +612,10 @@ local function create(mod, opts)
     return out
   end
 
-  local function legacyActive(game)
+  local function starterAccessAllowed(game)
     local ok, active = pcall(journey.isActive, game and game.save)
-    return ok and active == true
+    if ok and active == true then return true end
+    return opts.normalStarterAccess and opts.normalStarterAccess.allowed(game) == true or false
   end
 
   function H.bindReceiptAuthority(authority)
@@ -659,7 +660,7 @@ local function create(mod, opts)
   function H.available(game, mapId, sourceMap)
     local access = H.accesses[mapId] and H.accesses[mapId][sourceMap]
     return enabled() and H.accessAuthorityBound and access ~= nil
-      and legacyActive(game) and entranceOpen(access)
+      and starterAccessAllowed(game) and entranceOpen(access)
   end
 
   -- Explicit pre-warp transaction used by Access V3.1's guarded interaction
@@ -679,7 +680,7 @@ local function create(mod, opts)
         or access.targetMap ~= targetMap then
       return nil, "invalid-handoff-contract"
     end
-    if not legacyActive(game) then return nil, "legacy-journey-required" end
+    if not starterAccessAllowed(game) then return nil, "starter-access-required" end
     if not entranceOpen(access) then return nil, "entrance-closed" end
     if currentMapId(game) ~= sourceMap then
       return nil, "source-map-mismatch"
@@ -779,7 +780,7 @@ local function create(mod, opts)
     local access = H.accesses[mapId]
       and H.accesses[mapId][active.sourceMap]
     if not access or active.receiptId ~= access.receiptId
-        or not legacyActive(game) or not entranceOpen(access) then return nil end
+        or not starterAccessAllowed(game) or not entranceOpen(access) then return nil end
     return access, state
   end
 

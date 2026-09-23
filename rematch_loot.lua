@@ -16,6 +16,10 @@ function L.bindEquipmentRewards(provider)
 end
 
 L.ROLL_MAX = 100000
+-- The dormant Driftglass crystal's five evolution tools remain obtainable
+-- from won rematches, including before the receiver's generation unlock.
+-- A small ordinary-loot weight keeps the existing BAG/reservation handling.
+L.PRISM_EVOLUTION_ITEMS={'SUN_STONE','KINGS_ROCK','METAL_COAT','DRAGON_SCALE','UPGRADE'}
 L.SPECIAL = {
   expShare = { denominator = 10000, hits = 225 }, -- 2.25 percent
   multiplier2 = { denominator = 300, hits = 1 },
@@ -185,6 +189,12 @@ function L.pool(data, ctx)
   -- Ascendant's Gen-II evolution registry is authoritative.  Any supported
   -- item evolution absent from the native five stones joins automatically;
   -- unsupported placeholders never do.
+  for _,id in ipairs(L.PRISM_EVOLUTION_ITEMS)do
+    if not seenEvolution[id] and genericEvolutionLootAllowed(data,id,nil) then
+      rows[#rows+1]={item=id,qty=1,weight=.25,category='evolution'}
+      seenEvolution[id]=true
+    end
+  end
   for id in pairs(evolutionItems(data, tonumber(ctx.activeEpoch))) do
     if not seenEvolution[id] then
       rows[#rows + 1] = {

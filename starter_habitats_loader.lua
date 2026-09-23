@@ -24,6 +24,7 @@ return function(mod, opts)
     discoveryCore = assert(opts.discoveryCore,
       "starter habitat loader needs Discovery Core"),
     legacyJourney = journey,
+    normalStarterAccess = opts.normalStarterAccess,
     explorationDevice = assert(opts.explorationDevice,
       "starter habitat loader needs the TRACE FINDER"),
     speciesAuthority = opts.speciesAuthority,
@@ -60,7 +61,8 @@ return function(mod, opts)
   -- in cycle 2 even when the fresh TRACE FINDER table is empty.
   if type(journey.hiddenAccessIsOpen) == "function" then
     assert(habitats.bindReceiptAuthority(function(id)
-      return journey.hiddenAccessIsOpen(id)
+      return opts.normalStarterAccess and opts.normalStarterAccess.isOpen(id)
+        or journey.hiddenAccessIsOpen(id)
     end))
     habitats.loaderBindings.receipt = true
   end

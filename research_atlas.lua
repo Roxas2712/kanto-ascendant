@@ -314,11 +314,17 @@ return function(mod, opts)
   local function nativeHabitats(game, species)
     local rows, seen = {}, {}
     for mapId, encounter in pairs(game.data.encounters or {}) do
-      for _, group in pairs(encounter or {}) do
-        for _, slot in ipairs(group.slots or {}) do
-          if slot.species == species and not seen[mapId] then
-            seen[mapId] = true
-            rows[#rows + 1] = cleanMapName(game, mapId)
+      -- Encounter rows also contain scalar rates. Only actual slot groups
+      -- describe habitats; those metadata fields must never be indexed.
+      if type(encounter) == "table" then
+        for _, group in pairs(encounter) do
+          if type(group) == "table" and type(group.slots) == "table" then
+            for _, slot in ipairs(group.slots) do
+              if type(slot) == "table" and slot.species == species and not seen[mapId] then
+                seen[mapId] = true
+                rows[#rows + 1] = cleanMapName(game, mapId)
+              end
+            end
           end
         end
       end

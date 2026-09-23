@@ -684,23 +684,21 @@ return function(mod, opts)
     end
     for _,row in ipairs(rows)do local source=row.source
       -- Transitions are visible native staircase tiles, not misleading rocks.
-      -- Sign interactions reuse the exact gated/default-NO passage scripts.
-      local signs,objects={},{}
+      -- Walking onto the far stair row triggers the gated transition below.
+      local objects={}
       for _,object in ipairs(row.objects)do
         local passage=false
         for _,name in ipairs(V.PASSAGE_NAMES)do
           if object.name==name then passage=true;break end
         end
-        if passage then
-          signs[#signs+1]={name=object.name,x=object.x,y=object.y,text=object.text}
-        else
+        if not passage then
           object.index=#objects+1;objects[#objects+1]=object
         end
       end
       mod.content.maps:register(row.id,{id=row.id,index=row.index,
         label=tr(row.label.en,row.label.de),
         tileset=volcanoTileset,width=source.width,height=source.height,borderBlock=125,
-        blocks=source.blocks,warps={},signs=signs,connections={},outdoor=false,
+        blocks=source.blocks,warps={},signs={},connections={},outdoor=false,
         voxelMode="FULL",voxelRevision=source.voxelRevision,voxelSurround="volcano",
         voxelAuthority="2D_BLOCKS",
         kaExplorationRevisionSha256=geometry.EXPLORATION_REVISION_SHA256,
@@ -759,37 +757,36 @@ return function(mod, opts)
       [V.SUMMIT_DRILL_TEXT]=function(game,ow,_,done)return V.blockageTalk(game,"summit",ow,done)end,
     }
     local passageRows={
-      {map=V.ASCENT_MAP,point={x=10,y=18,facing="up"},up=true,
+      {source=V.ENTRY_MAP,x=10,y=4,map=V.ASCENT_MAP,point={x=10,y=18,facing="up"},up=true,
         ready=function(p)return p.baseDrilled end,
         locked=tr("The first blockage still seals the stairs.","Die erste Blockade versperrt noch die Treppe.")},
-      {map=V.ENTRY_MAP,point={x=10,y=5,facing="down"},up=false,ready=function()return true end},
-      {map=V.MAP,point={x=8,y=14,facing="up"},up=true,
+      {source=V.ASCENT_MAP,x=10,y=19,map=V.ENTRY_MAP,point={x=10,y=5,facing="down"},up=false,ready=function()return true end},
+      {source=V.ASCENT_MAP,x=10,y=4,map=V.MAP,point={x=8,y=14,facing="up"},up=true,
         ready=function(p)return p.upperPlugCleared end,
         locked=tr("The upper blockage still seals the summit.","Die obere Blockade versperrt noch den Gipfel.")},
-      {map=V.ASCENT_MAP,point={x=10,y=5,facing="down"},up=false,ready=function()return true end},
+      {source=V.MAP,x=8,y=15,map=V.ASCENT_MAP,point={x=10,y=5,facing="down"},up=false,ready=function()return true end},
     }
-    local owners={baseTalk,ascentTalk,ascentTalk,summitTalk}
-    for index,textId in ipairs(V.PASSAGE_TEXTS)do local row=passageRows[index]
-      owners[index][textId]=function(game,_,_,done)
-        local p=normalisePuzzle(game)
-        if row.up and not V.available(game)then return show(game,tr(
-          "This expedition is currently inactive. Go back down.",
-          "Diese Expedition ist gerade nicht aktiv. Geh wieder nach unten."),done)end
-        if not row.ready(p)then return show(game,row.locked,done)end
-        return show(game,row.up and tr("Climb to the next volcanic level?",
-          "Zur nächsten Vulkanebene hinaufsteigen?")or tr(
-          "Return to the lower volcanic level?","Zur unteren Vulkanebene zurückkehren?"),nil,
-          {defaultNo=true,choice=function(yes)
-            if yes then warp(game,row.map,row.point)elseif done then done()end
-          end})
+    local function stairStep(game,ow,x,y)
+      -- Both cells across the stair are usable. Arrival is on the adjacent
+      -- landing row, so standing still cannot send the player back upstairs.
+      for _,row in ipairs(passageRows)do
+        if ow and ow.map and ow.map.id==row.source and y==row.y
+          and (x==row.x or x==row.x+1)then
+          if row.up and not V.available(game)then return show(game,tr(
+            "This expedition is currently inactive. Go back down.",
+            "Diese Expedition ist gerade nicht aktiv. Geh wieder nach unten."))end
+          if not row.ready(normalisePuzzle(game))then return show(game,row.locked)end
+          return warp(game,row.map,row.point)
+        end
       end
+      return false
     end
     mod.content.map_scripts:register(V.ENTRY_MAP,{priority=3390,
-      onEnter=function(game)V.syncPuzzleVisibility(game)end,talk=baseTalk})
+      onEnter=function(game)V.syncPuzzleVisibility(game)end,onStep=stairStep,talk=baseTalk})
     mod.content.map_scripts:register(V.ASCENT_MAP,{priority=3390,
-      onEnter=function(game)V.syncPuzzleVisibility(game)end,talk=ascentTalk})
+      onEnter=function(game)V.syncPuzzleVisibility(game)end,onStep=stairStep,talk=ascentTalk})
     mod.content.map_scripts:register(V.MAP,{priority=3390,
-      onEnter=function(game)V.syncPuzzleVisibility(game)end,talk=summitTalk})
+      onEnter=function(game)V.syncPuzzleVisibility(game)end,onStep=stairStep,talk=summitTalk})
     V.registered=true;return true
   end
 

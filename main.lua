@@ -499,6 +499,8 @@ return function(mod)
     end,
   })
   mod.exports.extendedCharacters = extendedCharacters
+  loadSibling(mod,'wardrobe_card.lua')(mod,{load=loadSibling,
+    characters=extendedCharacters,i18n=i18n})
   mod.exports.baldCrewCharacter67 = loadSibling(mod, "bald_crew_67_character.lua")(mod)
   mod.exports.baldCrewCharacter67.register()
   mod.exports.baldCrewMaleCharacter67 = loadSibling(mod, "bald_crew_67_male_character.lua")(mod, {
@@ -842,6 +844,8 @@ return function(mod)
         { menuLabel("GAME-ORIGINAL", "SPIEL-ORIGINAL"), "original" },
         { "CRYSTAL 2D", "crystal" },
       } },
+    { key = "wardrobe_enabled", label = menuLabel("WARDROBE CARD", "KLEIDERSCHRANK"),
+      type = "toggle", default = true },
     { key = "character_sprite_style",
       label = menuLabel("FIELD CHARACTERS", "SPIELERFIGUREN"),
       type = "choice", default = "crystal",
@@ -2889,10 +2893,20 @@ return function(mod)
   -- Access V3.1 is inert outside a Legacy run. Each edge reveal requires a
   -- traced starter family and writes a monotonic archive receipt before the
   -- corresponding compact habitat can be entered.
+  mod.exports.normalStarterAccess = loadSibling(mod, "normal_starter_access.lua")(mod, {
+    isNewGamePlus = function(game) return legacyJourney.isActive(game and game.save) == true end,
+    rivalsEligible = function(game)
+      local rivals = mod.exports.lifeOfRival
+      return rivals and rivals.eligible(game) == true or false
+    end,
+  })
   mod.exports.hiddenAccessReveal = loadSibling(
     mod, "hidden_access_reveal.lua")(mod, mod.exports.explorationDevice, {
       isNewGamePlus = function(game)
         return legacyJourney.isActive(game and game.save) == true
+      end,
+      normalStarterAllowed = function(game)
+        return mod.exports.normalStarterAccess.allowed(game)
       end,
       prerequisite = function(game, def)
         local gate = def and def.eligibility or {}
@@ -2929,12 +2943,20 @@ return function(mod)
       end,
       durableReceipts = {
         all = function()
-          return legacyJourney.hiddenAccessReceipts()
+          local rows = legacyJourney.hiddenAccessReceipts()
+          for id, receipt in pairs(mod.exports.normalStarterAccess.receipts()) do
+            rows[id] = receipt
+          end
+          return rows
         end,
         isOpen = function(id)
-          return legacyJourney.hiddenAccessIsOpen(id)
+          return mod.exports.normalStarterAccess.isOpen(id)
+            or legacyJourney.hiddenAccessIsOpen(id)
         end,
         markOpen = function(id, receipt, game)
+          if not legacyJourney.isActive(game and game.save) then
+            return mod.exports.normalStarterAccess.markOpen(game, id, receipt)
+          end
           return legacyJourney.markHiddenAccessOpen(
             game and game.save, id, receipt)
         end,
@@ -2978,6 +3000,7 @@ return function(mod)
       discoveryCore = mod.exports.discoveryCore,
       legacyJourney = legacyJourney,
       explorationDevice = mod.exports.explorationDevice,
+      normalStarterAccess = mod.exports.normalStarterAccess,
       wildsSpawnSafety = wildsSpawnSafety,
       hiddenAccessReveal = mod.exports.hiddenAccessReveal,
       signalsWilds = signalsWilds,
@@ -4905,6 +4928,15 @@ return function(mod)
     placement = mod.exports.runtimeNpcPlacement,
   })
   mod.exports.starterRelicQuests = starterRelicQuests
+  mod.exports.huntingClub = loadSibling(mod, "hunting_club.lua")(mod, {
+    data = loadSibling(mod, "hunting_club_data.lua"),
+    generationRules = mod.exports.generationRules,
+    breedingData = breedingData, shinySystem = shinySystem,
+    i18n = i18n, placement = mod.exports.runtimeNpcPlacement,
+  })
+
+  loadSibling(mod, "hunting_club_wardrobe.lua")(mod.exports.huntingClub, mod.exports.wardrobe, mod)
+
 
   local makeResearchAtlas = loadSibling(mod, "research_atlas.lua")
   local researchAtlas = makeResearchAtlas(mod, {
@@ -6036,6 +6068,7 @@ return function(mod)
     if dexProgress then dexProgress.install(game, deps) end
     if ascendantTyphlosion then ascendantTyphlosion.install(game, deps) end
     if starterRelicQuests then starterRelicQuests.install(game, deps) end
+    mod.exports.huntingClub.install(game)
     if researchAtlas then researchAtlas.install(game, deps) end
     if grandTour then grandTour.install(game, deps) end
     if questTracker then questTracker.install(game, deps) end

@@ -548,6 +548,7 @@ function SpawnLogic:_clearMap(mapId)
 end
 
 function SpawnLogic:clearAll()
+  self.pendingRefill = nil
   local maps = {}
   for mapId in pairs(self.byMap) do maps[#maps + 1] = mapId end
   for _, mapId in ipairs(maps) do
@@ -2502,6 +2503,7 @@ function SpawnLogic:testSpawn(species, opts)
 end
 
 function SpawnLogic:onMapEntered(ev)
+  self.pendingRefill = nil
   local mapId = ev.mapId
   if self.activeMapId and self.activeMapId ~= mapId then
     self:_clearMap(self.activeMapId)
@@ -2551,6 +2553,7 @@ function SpawnLogic:onMapEntered(ev)
 end
 
 function SpawnLogic:onMapExited(ev)
+  self.pendingRefill = nil
   if ev.mapId then self:_clearMap(ev.mapId) end
   if self.overlay then self.overlay:clear() end
   -- Safari flee state must not leak onto the next map.
@@ -2941,6 +2944,14 @@ function SpawnLogic:onStepped(ev)
 
   local every = Config.refillSteps(self.mod)
   if self.stepsOnMap % every == 0 then
+    -- The embedded owner supplies an update pump. Keep the standalone
+    -- provider's synchronous behavior when no pump is installed.
+    if self.deferRefills and ow and ow.map then
+      if not self.pendingRefill then
+        self.pendingRefill = { map = ow.map, mapId = ev.mapId, land = 3, water = 2 }
+      end
+      return
+    end
     local game = gameOf(self.mod)
     if game then
       local surface = self.surfaceInfo and self.surfaceInfo.surface
@@ -2973,6 +2984,54 @@ function SpawnLogic:onStepped(ev)
       end
     end
   end
+end
+
+-- One attempt per core update; never retain candidate cells across frames.
+-- Every attempt uses the normal live occupancy/reservation/encounter policy.
+function SpawnLogic:pumpRefill(game)
+  local job = self.pendingRefill
+  if not job then return end
+  local world = self.mod.world
+  local ow = world and world.overworld and world:overworld()
+  if not self:featureActive() or not self.state.initialized or self.state.lastError
+      or not ow or ow.map ~= job.map or self.activeMapId ~= job.mapId then
+    self.pendingRefill = nil
+    return
+  end
+  local stack = game and game.stack
+  if not stack or type(stack.top) ~= "function" or stack:top() ~= ow
+      or self.pendingBattle or ow.engaging or ow.emote
+      or (ow.runner and ow.runner.isBusy and ow.runner:isBusy()) then return end
+
+  local kind, method
+  if job.land > 0 and not (self.surfaceInfo and self.surfaceInfo.surface == Surface.WATER)
+      and self:countLandOnMap(job.mapId)
+        < (self.targetSpawnCount or Config.maxVisible(self.mod)) then
+    kind, method = "land", self.trySpawn
+  else
+    job.land = 0
+  end
+  if not kind then
+    if job.water > 0 and Config.waterMons(self.mod)
+        and self:countWaterOnMap(job.mapId) < (self.targetWaterCount or 0) then
+      kind, method = "water", self.trySpawnWater
+    else
+      job.water = 0
+    end
+  end
+  if not kind then self.pendingRefill = nil; return end
+  job[kind] = job[kind] - 1
+  local ok, result = pcall(method, self, game, {})
+  if not ok then
+    self.pendingRefill = nil
+    self:_warn("deferred spawn error: %s", tostring(result))
+    DebugLog.error(self.mod, "deferred spawn error: %s", tostring(result))
+    self.state:markError(result)
+    self:_restoreVanillaEncounters("deferred spawn error")
+  elseif not result then
+    job[kind] = 0
+  end
+  if job.land == 0 and job.water == 0 then self.pendingRefill = nil end
 end
 
 function SpawnLogic:_logDiag()

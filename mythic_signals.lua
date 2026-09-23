@@ -517,15 +517,57 @@ return function(mod, opts)
       return false, "inactive transaction"
     end
     local live = state()
-    if not sameState(live, transaction.before) then
+    local after = transaction.after
+    -- Visible wilds coexist: another ordinary battle may advance this same
+    -- hunt while the proposed entity stays on the map. Rebase only its pity
+    -- counter, never progression, ownership, or a different bound signal.
+    local beforeComparable, liveComparable = copy(transaction.before), copy(live)
+    local field, limit, nested
+    if transaction.kind == "echo_roll" or transaction.kind == "echo" then
+      field = "echoRolls"
+      limit = live.echoes == 0 and ECHO_FIRST_DENOMINATOR or ECHO_LATER_DENOMINATOR
+    elseif transaction.kind == "true_roll" or transaction.kind == "true" then
+      field, limit = "trueRolls", TRUE_DENOMINATOR
+    elseif transaction.kind == "retry_roll" or transaction.kind == "retry" then
+      field, limit, nested = "retryRolls", RETRY_GUARANTEE, "bound"
+    end
+    if field then
+      local a = nested and beforeComparable[nested] or beforeComparable
+      local b = nested and liveComparable[nested] or liveComparable
+      if type(a) == "table" and type(b) == "table" then
+        a[field], b[field] = 0, 0
+      end
+    end
+    if not sameState(liveComparable, beforeComparable) then
       transaction.cancelled = true
       return false, "stale transaction"
     end
-    replaceTable(live, transaction.after)
+    if field and not transaction.pending then
+      after = copy(live)
+      local counter = nested and after[nested] or after
+      counter[field] = math.min(limit, (counter[field] or 0) + 1)
+    end
+    replaceTable(live, after)
     persist()
     transaction.committed = true
     return transaction.output, transaction.kind,
       transaction.pending and copy(transaction.pending) or nil
+  end
+
+  -- A second visible hit must stay native while one signal is reserved.
+  -- Keep its eligible battle progress; do not consume anything on spawn.
+  function M.deferWildsReplacement(transaction, native)
+    if not (transaction and transaction.pending and native) then return nil end
+    local before = copy(transaction.before)
+    local after, kind = copy(before), transaction.kind
+    if kind == "echo" then
+      after.echoRolls = after.echoRolls + 1; kind = "echo_roll"
+    elseif kind == "true" then
+      after.trueRolls = after.trueRolls + 1; kind = "true_roll"
+    elseif kind == "retry" then
+      after.bound.retryRolls = after.bound.retryRolls + 1; kind = "retry_roll"
+    else return nil end
+    return makeTransaction(before, after, native, nil, kind)
   end
 
   function M.cancel(transaction)
@@ -893,25 +935,28 @@ return function(mod, opts)
         "MYTHIC SIGNALS\nAll enabled traces\nare complete.",
         "MYTHOS-SIGNALE\nAlle Mythos-Spuren\nsind vollständig.")
     end
+    local counting = tr(
+      "\fCounts ordinary\nKanto land fights.\fNo water, Safari\nor special spawns.",
+      "\fZählt normale\nKanto-Landkämpfe.\fKein Wasser, Safari\noder Spezialfund.")
     if d.bound then
       return tr(
         ("BOUND SIGNAL\nTrace:\n%s\fRetry: 1/%d\nGuaranteed in:\n%d")
           :format(d.bound.species, d.retryOdds, d.bound.guaranteeIn),
         ("GEBUNDENES SIGNAL\nSpur:\n%s\fChance: 1/%d\nGarantiert in:\n%d")
-          :format(d.bound.species, d.retryOdds, d.bound.guaranteeIn))
+          :format(d.bound.species, d.retryOdds, d.bound.guaranteeIn)) .. counting
     end
     if d.sealed then
       return tr(
         ("RESONANCE SEALED\nTrue trace:\n1/%d\fGuaranteed in:\n%d")
           :format(d.trueOdds, d.trueGuaranteeIn),
         ("RESONANZ-SIEGEL\nEchte Spur:\n1/%d\fGarantiert in:\n%d")
-          :format(d.trueOdds, d.trueGuaranteeIn))
+          :format(d.trueOdds, d.trueGuaranteeIn)) .. counting
     end
     return tr(
       ("MYTHIC SIGNALS\nEchoes: %d/3\fPressure: 1/%d\nGuaranteed in:\n%d")
         :format(d.echoes, d.echoOdds, d.echoGuaranteeIn),
       ("MYTHOS-SIGNALE\nEchos: %d/3\fDruck: 1/%d\nGarantiert in:\n%d")
-        :format(d.echoes, d.echoOdds, d.echoGuaranteeIn))
+        :format(d.echoes, d.echoOdds, d.echoGuaranteeIn)) .. counting
   end
 
   function M.objective(game)

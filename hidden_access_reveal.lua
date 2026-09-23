@@ -96,6 +96,7 @@ return function(mod, device, opts)
         kind = nativeEdgeWarp and H.TRANSPORT_NATIVE
           or H.TRANSPORT_INTERACT,
         interactFrom = row.interactFrom,
+        edgeDirection = row.edgeDirection or row.revealDirection,
         destination = row.destination,
       },
       returnToKanto = {
@@ -144,7 +145,12 @@ return function(mod, device, opts)
       starter="TURTWIG", role="STARTER_PRIMARY", physicalKind="ROCK_WALL",
       physical="existing paired root/rock boundary column", motion="ROLLS" }),
     entrance({ id="ROUTE14_SURF_HIDDEN_HABITAT", mapId="ROUTE_14", mapIndex=25,
-      reveal={x=18,y=51}, revealDirection="east", sourceMode="SURF",
+      -- Reveal from the reachable north side of the native boulder row.
+      -- The former water-side point (18,51) was beyond the very barrier
+      -- this reveal opens, making the finder direct players into the wall.
+      reveal={x=12,y=49}, revealDirection="south", edgeDirection="east", sourceMode="SURF",
+      path={{x=12,y=50},{x=12,y=51},{x=13,y=51},{x=14,y=51},
+        {x=15,y=51},{x=16,y=51},{x=17,y=51},{x=18,y=51}},
       patches={patch(6,25,0x51,0x53)}, warp={x=19,y=51},
       interactFrom={x=18,y=51,facing="right"}, returnCell={x=17,y=51,facing="left"},
       destination={map="KA_HABITAT_SNIVY_PROTOTYPE",mapIndex=2001,x=13,y=15,facing="up"},
@@ -185,11 +191,12 @@ return function(mod, device, opts)
       progression={from={map="MT_MOON_B1F",x=24,y=5},to={map="ROUTE_4",x=36,y=2},
         normalLandSteps=17,directedLedgeJumps=0} }),
     entrance({ id="ROUTE6_HIDDEN_HABITAT", mapId="ROUTE_6", mapIndex=17,
-      reveal={x=1,y=29}, revealDirection="west", path={{x=0,y=29}},
-      patches={patch(0,14,0x51,0x0a)}, warp={x=0,y=28},
-      interactFrom={x=0,y=29,facing="up"}, returnCell={x=1,y=29,facing="right"},
+      reveal={x=4,y=29}, revealDirection="west",
+      path={{x=3,y=29},{x=2,y=29},{x=1,y=29},{x=0,y=29}},
+      patches={patch(0,14,0x51,0x0a),patch(1,14,0x63,0x0a)}, warp={x=0,y=28},
+      interactFrom={x=0,y=29,facing="up"}, returnCell={x=4,y=29,facing="right"},
       destination={map="KA_HABITAT_PIPLUP_PROTOTYPE",mapIndex=2005,x=12,y=19,facing="up"},
-      reservedRect={xMin=0,xMax=3,yMin=27,yMax=31}, eligibility=starter("PIPLUP","gen4"),
+      reservedRect={xMin=0,xMax=5,yMin=27,yMax=31}, eligibility=starter("PIPLUP","gen4"),
       starter="PIPLUP", role="STARTER_BACKUP", physicalKind="LOG",
       physical="existing west-edge boulder/hedge/log boundary", motion="FOLDS" }),
     entrance({ id="ROUTE8_HIDDEN_HABITAT", mapId="ROUTE_8", mapIndex=19,
@@ -233,11 +240,14 @@ return function(mod, device, opts)
       starter="OSHAWOTT", role="STARTER_BACKUP", physicalKind="BOULDER",
       physical="single native lower boundary boulder", motion="RETRACTS" }),
     entrance({ id="FUCHSIA_HIDDEN_HABITAT", mapId="FUCHSIA_CITY", mapIndex=7,
-      reveal={x=34,y=4}, revealDirection="north", path={{x=34,y=3},{x=34,y=2},{x=34,y=1}},
-      patches={patch(17,0,0x0f,0x01),patch(17,1,0x6f,0x01)}, warp={x=34,y=0},
-      interactFrom={x=34,y=1,facing="up"}, returnCell={x=34,y=4,facing="down"},
+      -- The original reveal point was inside the closed zoo enclosure.
+      -- Open a narrow empty edge column from the public path instead.
+      reveal={x=34,y=8}, revealDirection="north", path={{x=34,y=7},{x=34,y=6},
+        {x=34,y=5},{x=34,y=4},{x=34,y=3},{x=34,y=2},{x=34,y=1}},
+      patches={patch(17,0,0x0f,0x01),patch(17,1,0x6f,0x01),patch(17,3,0x77,0x01)}, warp={x=34,y=0},
+      interactFrom={x=34,y=1,facing="up"}, returnCell={x=34,y=8,facing="down"},
       destination={map="KA_HABITAT_POPPLIO_PROTOTYPE",mapIndex=2011,x=14,y=19,facing="up"},
-      reservedRect={xMin=33,xMax=36,yMin=0,yMax=5}, eligibility=starter("POPPLIO","gen7"),
+      reservedRect={xMin=33,xMax=36,yMin=0,yMax=9}, eligibility=starter("POPPLIO","gen7"),
       starter="POPPLIO", role="STARTER_BACKUP", physicalKind="BOULDER",
       physical="stacked inner/outer boulder/shrub rows", motion="PARTS" }),
     entrance({ id="SEAFOAM_KYOGRE_ACCESS", mapId="SEAFOAM_ISLANDS_1F", mapIndex=192,
@@ -316,6 +326,7 @@ return function(mod, device, opts)
       tostring(def.revealDirection),
       tostring(def.warp and def.warp.x), tostring(def.warp and def.warp.y),
       tostring(def.handoff and def.handoff.kind),
+      tostring(def.handoff and def.handoff.edgeDirection),
       tostring(def.handoff and def.handoff.interactFrom
         and def.handoff.interactFrom.x),
       tostring(def.handoff and def.handoff.interactFrom
@@ -398,8 +409,8 @@ return function(mod, device, opts)
         and not editionSet(def.editions).yellow then
       return false, "no-supported-edition"
     end
-    if type(def.patches) ~= "table" or #def.patches < 1 or #def.patches > 2 then
-      return false, "patch-count-must-be-one-or-two"
+    if type(def.patches) ~= "table" or #def.patches < 1 or #def.patches > 3 then
+      return false, "patch-count-must-be-one-to-three"
     end
     local seen = {}
     for _, patch in ipairs(def.patches) do
@@ -756,7 +767,7 @@ return function(mod, device, opts)
         mapId = def.mapId,
         x = def.warp.x,
         y = def.warp.y,
-        direction = edgeDirection[def.revealDirection],
+        direction = edgeDirection[def.handoff.edgeDirection or def.revealDirection],
         destination = {
           mapId = destination.map,
           x = destination.x,
@@ -807,13 +818,22 @@ return function(mod, device, opts)
     return ok and available ~= false
   end
 
+  local function normalStarterAllowed(game, def)
+    if not (def and def.eligibility and def.eligibility.kind == "starter"
+        and type(opts.normalStarterAllowed) == "function") then return false end
+    local ok, allowed = pcall(opts.normalStarterAllowed, game)
+    return ok and allowed == true
+  end
+
   local function progressionAllowed(game, def)
     if opts.allowUngatedForTests == true then return true end
     if type(opts.isNewGamePlus) ~= "function" then
       return false, "new-game-plus-gate-unavailable"
     end
     local ngOk, active = pcall(opts.isNewGamePlus, game)
-    if not ngOk or active ~= true then return false, "new-game-plus-required" end
+    if (not ngOk or active ~= true) and not normalStarterAllowed(game, def) then
+      return false, "new-game-plus-required"
+    end
     if type(opts.prerequisite) ~= "function" then
       return false, "prerequisite-gate-unavailable"
     end
@@ -866,7 +886,9 @@ return function(mod, device, opts)
       return false, "new-game-plus-gate-unavailable"
     end
     local ok, active = pcall(opts.isNewGamePlus, game)
-    if not ok or active ~= true then return false, "new-game-plus-required" end
+    if (not ok or active ~= true) and not normalStarterAllowed(game, canonical) then
+      return false, "new-game-plus-required"
+    end
     return true
   end
 
@@ -1202,6 +1224,9 @@ return function(mod, device, opts)
       for _, def in ipairs(definitions) do
         opts.reserveWilds(def.mapId, H.reservedCells(def), def.id)
       end
+    end
+    for _, event in ipairs({"save.loaded", "save.created"}) do
+      mod.events:on(event, function() durableReceiptCache = nil end, 2670)
     end
     installed = true
     return true

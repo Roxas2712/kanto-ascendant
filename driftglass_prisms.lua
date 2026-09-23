@@ -1141,38 +1141,21 @@ function Module.create(mod, opts)
   end
 
   function P.modeHint(mode)
-    if mode == "UNLEASHED" then
-      return tr(
-        "\fRESEARCHER:\nBefore you leave,\nsee glass seam.\f"
-          .. "The PRISM GROTTO\nholds tools early\nmigrants may need.",
-        "\fFORSCHER:\nBevor du gehst,\nsieh zur Glasfuge.\f"
-          .. "Die PRISMENGROTTE\nbirgt Hilfen für\nfrühe Wanderer.")
-    end
     return tr(
-      "\fRESEARCHER:\nGlass seam hides\nan extra grotto.\f"
-        .. "Old riddles can\nhelp Johto species\nevolve.",
-      "\fFORSCHER:\nDie Glasfuge birgt\neine freiwillige\nGrotte.\f"
-        .. "Ihre Rätsel helfen\nJohto-Pokémon bei\nder Entwicklung.")
+      "\fRESEARCHER:\nThe crystal is\ncurrently dormant.\f"
+        .. "Rare evolution\nitems can be found\nafter rematches.",
+      "\fFORSCHER:\nDer Kristall ist\nderzeit inaktiv.\f"
+        .. "Entwicklungsitems\ngibt es sehr selten\nnach Revanchesiegen.")
   end
 
   function P.enter(game, onDone)
     P.game = game or P.game
     game = game or P.game
-    if not mapSupported then
-      return show(game, tr(
-        "The grotto cannot be\nmapped in this game.",
-        "Die Grotte kann hier\nnicht kartiert werden."), onDone)
-    end
-    if earlyState().receiverRepaired ~= true then
-      return show(game, P.dialogues(game).locked, onDone)
-    end
-    return show(game, P.dialogues(game).entrance, nil, {
-      defaultNo = true,
-      choice = function(yes)
-        if yes then warp(game, Module.MAP_ID, Module.ARRIVAL) end
-        if onDone then onDone() end
-      end,
-    })
+    -- Keep the registered grotto/exit for existing saves already inside.
+    -- Interacting with the outpost crystal no longer opens an evolution rite.
+    return show(game, tr(
+      "The crystal has\nno effect at\nthe moment.",
+      "Der Kristall hat\naktuell keine\nWirkung."), onDone)
   end
 
   function P.returnToOutpost(game, onDone)

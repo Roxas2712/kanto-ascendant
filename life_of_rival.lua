@@ -348,6 +348,7 @@ return function(mod, opts)
         and out.repeatTalks[actor] or 0, 0, 1000000)
     end
     out.repeatTalks = repeats
+    out.starterHints = type(out.starterHints) == "table" and out.starterHints or {}
     return out
   end
 
@@ -2589,14 +2590,25 @@ return function(mod, opts)
     if visit.talked[actor] then
       visit.repeatTalks = visit.repeatTalks or {}
       local count = integer(visit.repeatTalks[actor]) + 1
-      local follow = visit.duel and row.dialogue
+      -- Eligible postgame and NG+ rivals provide the next starter clue on the
+      -- next follow-up, instead of burying it in the generic dialogue pool.
+      -- Intro/result/duel conversations retain their existing ownership.
+      visit.starterHints = visit.starterHints or {}
+      local rumor = not visit.starterHints[actor] and not visit.duel
+        and L.eligible(game)
+        and L.selectStarterRumor(game, s, actor) or nil
+      local follow = rumor or (visit.duel and row.dialogue)
         or L.followupDialogue(game, actor, active.mapId, count,visit.rareHint)
       local shown = pushText(game, duelText or follow.text, function()
         releaseVisitTalk(active, entry, done)
       end)
       if shown then
         visit.repeatTalks[actor] = count
-        persist(s)
+        if rumor then
+          visit.starterHints[actor] = true
+          L.commitDialogue(s, actor, row.role, rumor)
+        end
+        if persist(s) and rumor then L.reconcileRumorDiscoveries(s) end
       end
       if not shown then releaseVisitTalk(active, entry, done) end
       return shown

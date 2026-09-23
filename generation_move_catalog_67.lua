@@ -316,7 +316,7 @@ return function(mod, opts)
     local state=ev and battleState(ev.battle)
     if not state then return end
     state.moved[ev.user]=true
-    state.damageTarget,state.damageMove=ev.target,ev.move
+    state.damageUser,state.damageTarget,state.damageMove=ev.user,ev.target,ev.move
     state.beforeHP=ev.target and ev.target.mon and ev.target.mon.hp
   end
   function C.conditionalDamage(ev)
@@ -324,10 +324,16 @@ return function(mod, opts)
     if not state or not ev.target or ev.user==ev.target then return end
     -- Compare real HP, not damage credited to a Substitute. This also
     -- excludes recoil, weather, poison and other non-attack HP changes.
-    if state.damageTarget==ev.target and state.damageMove==ev.move
-        and (tonumber(ev.damage)or 0)>0 and state.beforeHP
+    -- Power/type adapters use detached move views after move_used. Identity
+    -- of the Lua table is not identity of the attack (e.g. Heavy Slam).
+    local source,move=state.damageMove,ev.move
+    local sameMove=source~=nil and (source==move
+      or type(source)=="table" and type(move)=="table"
+        and type(source.id)=="string" and source.id~="" and source.id==move.id)
+    if state.damageUser~=ev.user or state.damageTarget~=ev.target or not sameMove then return end
+    if (tonumber(ev.damage)or 0)>0 and state.beforeHP
         and ev.target.mon.hp<state.beforeHP then state.hit[ev.target]=true end
-    if state.damageTarget==ev.target then state.beforeHP=ev.target.mon.hp end
+    state.beforeHP=ev.target.mon.hp
   end
   function C.clearConditional(ev)
     if ev and ev.battle then ev.battle._kaConditionalMoves67=nil end

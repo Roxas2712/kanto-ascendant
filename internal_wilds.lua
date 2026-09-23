@@ -541,6 +541,8 @@ return function(mod, opts)
 
   local unwraps = {}
   local function removeHooks()
+    logic.deferRefills = false
+    logic.pendingRefill = nil
     for key, unwrap in pairs(unwraps) do
       if type(unwrap) == "function" then unwrap() end
       unwraps[key] = nil
@@ -554,6 +556,11 @@ return function(mod, opts)
 
   local function installHooks()
     if unwraps.encounter or unwraps.collision then return end
+    unwraps.refill = proxy.hooks:wrap("core.update", function(nextUpdate, game, ...)
+      if logic.pendingRefill then safe("spawn refill", logic.pumpRefill, logic, game) end
+      return nextUpdate(game, ...)
+    end)
+    logic.deferRefills = true
     unwraps.encounter = proxy.hooks:wrap("encounter.roll",
       function(next, encDef, ctx)
         if logic:shouldSuppressClassicEncounter(ctx) then return nil end

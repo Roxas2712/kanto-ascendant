@@ -241,12 +241,16 @@ return function(mod, opts)
     local activeGame=game or P.game
     local s=baseline.syncCadence and baseline.syncCadence(activeGame) or state()
     if not s then return nil end
+    -- Availability checks run several times per answer. Only a real gate
+    -- transition needs another durable archive checkpoint.
+    local changed=false
     if s.activeRun then
-      if s.passages.silver.status=="locked" then s.passages.silver.status="unlocked" end
-      if s.passages.silver.status=="cleared" and s.passages.kris.status=="locked" then s.passages.kris.status="unlocked" end
-      if s.passages.kris.status=="cleared" and s.passages.gold.status=="locked" then s.passages.gold.status="unlocked" end
+      if s.passages.silver.status=="locked" then s.passages.silver.status="unlocked";changed=true end
+      if s.passages.silver.status=="cleared" and s.passages.kris.status=="locked" then s.passages.kris.status="unlocked";changed=true end
+      if s.passages.kris.status=="cleared" and s.passages.gold.status=="locked" then s.passages.gold.status="unlocked";changed=true end
     end
-    save(s,game);return s
+    if changed then save(s,game) end
+    return s
   end
   function P.canEnter(game,key)if baseline.eligible and not baseline.eligible(game) then return false end;local s=P.sync(game);local p=s and s.passages[key];return s and s.activeRun==true and p and (p.status=="unlocked" or p.status=="entered" or p.status=="cleared") or false end
   function P.enter(game,key)
@@ -360,7 +364,9 @@ return function(mod, opts)
   end
   function P.question(game,key,station)
     if not P.canEnter(game,key) then return nil,"locked" end
-    local s=state();local p=s.passages[key];ensureQuiz(s,key)
+    local s=state();local p=s.passages[key]
+    local priorQuiz=p.quizIds
+    ensureQuiz(s,key)
     local expected=p.step+1
     if expected>3 then return nil,"complete" end
     station=math.floor(tonumber(station) or expected)
@@ -376,12 +382,11 @@ return function(mod, opts)
     end
     local localized={}
     for index,value in ipairs(choices) do localized[index]=tr(value.en,value.de) end
-    save(s,game)
+    if priorQuiz~=p.quizIds then save(s,game) end
     return {id=row.id,station=station,prompt=tr(row.prompt.en,row.prompt.de),
       choices=localized,correct=correct,correctLabel=tr(row.answers[1].en,row.answers[1].de)}
   end
   function P.answer(game,key,station,questionId,choice)
-    if not P.canEnter(game,key) then return false,"locked" end
     local qrow,reason=P.question(game,key,station)
     if not qrow then return false,reason end
     if qrow.id~=questionId then return false,"stale" end
@@ -904,7 +909,8 @@ return function(mod, opts)
         local rows={}
         for index,label in ipairs(question.choices) do rows[#rows+1]={label=label,value=index} end
         local menu=openList(game,tr(QUIZ_COPY[key].title.en,QUIZ_COPY[key].title.de).." "..station.."/3",rows,{
-          pageJump=false,ascendantLayout=false,
+          pageJump=false,ascendantLayout=true,ascendantStyle="firered-question",
+          ascendantFocusHelp=function()return question.prompt end,
           onChoose=function(item,menu)
             if not item then return end
             if menu then menu.johtoResolved=true end
