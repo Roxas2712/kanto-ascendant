@@ -15,7 +15,7 @@ return function(mod,opts)
     TRIANGLE_TEXT="TEXT_KA_HOENN_BIRTH_TRIANGLE",
     RETURN_TEXT="TEXT_KA_HOENN_BIRTH_RETURN",
     RETURN={map="VERMILION_CITY",x=25,y=26,facing="down"},
-    ENTRY={x=8,y=13,facing="up"},registered=false}
+    ENTRY={x=8,y=12,facing="up"},registered=false}
   B.trianglePositions={{8,8},{5,6},{11,6},{6,3},{10,3},{8,4}}
   local activeGame,mapScripts,originalCaptain
   local function copy(v,seen)if type(v)~="table"then return v end;seen=seen or{}

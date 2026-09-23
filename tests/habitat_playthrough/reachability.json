@@ -1,0 +1,222 @@
+[
+  {
+    "edition": "red",
+    "accessId": "VIRIDIAN_TOP_HIDDEN_HABITAT",
+    "approach": [
+      {
+        "y": 14,
+        "entry": "connection:ROUTE_22",
+        "x": 0
+      }
+    ]
+  },
+  {
+    "edition": "red",
+    "accessId": "ROUTE14_SURF_HIDDEN_HABITAT",
+    "approach": [
+      {
+        "y": 49,
+        "entry": "connection:ROUTE_15",
+        "x": 0
+      }
+    ]
+  },
+  {
+    "edition": "red",
+    "accessId": "VIRIDIAN_FOREST_ROOT_HABITAT",
+    "approach": [
+      {
+        "y": 47,
+        "entry": "warp:VIRIDIAN_FOREST_SOUTH_GATE",
+        "x": 15
+      }
+    ]
+  },
+  {
+    "edition": "red",
+    "accessId": "ROUTE15_HIDDEN_HABITAT",
+    "approach": [
+      {
+        "y": 4,
+        "entry": "connection:ROUTE_14",
+        "x": 59
+      }
+    ]
+  },
+  {
+    "edition": "red",
+    "accessId": "MT_MOON_B1F_HIDDEN_HABITAT",
+    "approach": [
+      {
+        "y": 17,
+        "entry": "warp:MT_MOON_B2F",
+        "x": 21
+      }
+    ]
+  },
+  {
+    "edition": "red",
+    "accessId": "ROUTE4_HIDDEN_HABITAT",
+    "approach": [
+      {
+        "y": 5,
+        "entry": "warp:MT_MOON_B1F",
+        "x": 24
+      }
+    ]
+  },
+  {
+    "edition": "red",
+    "accessId": "ROUTE6_HIDDEN_HABITAT",
+    "approach": [
+      {
+        "y": 35,
+        "entry": "connection:VERMILION_CITY",
+        "x": 8
+      }
+    ]
+  },
+  {
+    "edition": "red",
+    "accessId": "ROUTE8_HIDDEN_HABITAT",
+    "approach": [
+      {
+        "y": 8,
+        "entry": "connection:LAVENDER_TOWN",
+        "x": 59
+      }
+    ]
+  },
+  {
+    "edition": "red",
+    "accessId": "ROCK_TUNNEL_1F_SKY_PILLAR_ACCESS",
+    "approach": [
+      {
+        "y": 17,
+        "entry": "warp:ROCK_TUNNEL_B1F",
+        "x": 37
+      }
+    ]
+  },
+  {
+    "edition": "red",
+    "accessId": "ROUTE10_HIDDEN_HABITAT",
+    "approach": [
+      {
+        "y": 53,
+        "entry": "warp:ROCK_TUNNEL_1F",
+        "x": 8
+      }
+    ]
+  },
+  {
+    "edition": "red",
+    "accessId": "CELADON_HIDDEN_HABITAT",
+    "approach": [
+      {
+        "y": 27,
+        "entry": "warp:CELADON_GYM",
+        "x": 12
+      }
+    ]
+  },
+  {
+    "edition": "red",
+    "accessId": "ROUTE12_HIDDEN_HABITAT",
+    "approach": [
+      {
+        "y": 62,
+        "entry": "connection:ROUTE_11",
+        "x": 0
+      }
+    ]
+  },
+  {
+    "edition": "red",
+    "accessId": "FUCHSIA_HIDDEN_HABITAT",
+    "approach": [
+      {
+        "y": 13,
+        "entry": "warp:FUCHSIA_MEETING_ROOM",
+        "x": 22
+      }
+    ]
+  },
+  {
+    "edition": "red",
+    "accessId": "SEAFOAM_KYOGRE_ACCESS",
+    "approach": [
+      {
+        "y": 5,
+        "entry": "warp:SEAFOAM_ISLANDS_B1F",
+        "x": 7
+      }
+    ]
+  },
+  {
+    "edition": "red",
+    "accessId": "ROUTE18_HIDDEN_HABITAT",
+    "approach": [
+      {
+        "y": 9,
+        "entry": "warp:ROUTE_18_GATE_1F",
+        "x": 40
+      }
+    ]
+  },
+  {
+    "edition": "red",
+    "accessId": "ROUTE21_HIDDEN_HABITAT",
+    "approach": [
+      {
+        "y": 0,
+        "entry": "connection:PALLET_TOWN",
+        "x": 4
+      }
+    ]
+  },
+  {
+    "edition": "red",
+    "accessId": "ROUTE25_HIDDEN_HABITAT",
+    "approach": [
+      {
+        "y": 3,
+        "entry": "warp:BILLS_HOUSE",
+        "x": 45
+      }
+    ]
+  },
+  {
+    "edition": "red",
+    "accessId": "ROUTE23_SKY_PILLAR_ACCESS",
+    "approach": [
+      {
+        "y": 139,
+        "entry": "warp:ROUTE_22_GATE",
+        "x": 8
+      }
+    ]
+  },
+  {
+    "edition": "red",
+    "accessId": "VICTORY_ROAD_JIRACHI_ACCESS",
+    "approach": [
+      {
+        "y": 1,
+        "entry": "warp:VICTORY_ROAD_2F",
+        "x": 1
+      }
+    ]
+  },
+  {
+    "edition": "red",
+    "accessId": "POWER_PLANT_HIDDEN_HABITAT",
+    "approach": [
+      {
+        "y": 11,
+        "entry": "warp:LAST_MAP",
+        "x": 0
+      }
+    ]
+  }
+]

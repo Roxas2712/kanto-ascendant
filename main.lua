@@ -2297,8 +2297,10 @@ return function(mod)
     voxelRenderer = mod.exports.voxelRendererCompat,
     beyondKanto = mod.exports.beyondKanto,
   })
+  mod.exports.hiddenAccessReturn = loadSibling(mod, "hidden_access_return.lua")(mod)
   mod.exports.hoennLegendPortals67 = loadSibling(
     mod, "hoenn_legend_portals_67.lua")(mod, {
+      accessReturn = mod.exports.hiddenAccessReturn,
       dex = mod.exports.hoennDexCompletion67,
       journey = legacyJourney,
       skyTileset = mod.exports.hoennEndgameTilesets67.ID,
@@ -2315,6 +2317,7 @@ return function(mod)
     })
   mod.exports.hoennJirachiFinale67 = loadSibling(
     mod, "hoenn_jirachi_finale_67.lua")(mod, {
+      accessReturn = mod.exports.hiddenAccessReturn,
       dex = mod.exports.hoennDexCompletion67,
       journey = legacyJourney, i18n = i18n,
     })
@@ -2933,11 +2936,13 @@ return function(mod)
         end
         if gate.kind == "profile_legend" then
           return hasCurrentSeal(gate.profile)
+            and mod.exports.hoennLegendPortals67.available(game, gate.profile)
         end
         if gate.kind == "jirachi_convergence" then
           return completed.red == true and completed.blue == true
             and completed.green == true and profile
             and profile.legacyPass == true and hasCurrentSeal(active)
+            and mod.exports.hoennJirachiFinale67.available(game)
         end
         return false, "unknown Access V3.1 prerequisite"
       end,
@@ -2978,7 +2983,9 @@ return function(mod)
         local habitats = mod.exports.starterHabitats
         local destination = def and def.handoff and def.handoff.destination
         if not (habitats and destination and habitats.maps
-            and habitats.maps[destination.map]) then return true end
+            and habitats.maps[destination.map]) then
+          return mod.exports.hiddenAccessReturn.prepare(game, def)
+        end
         return habitats.prepareHandoff(
           game, def.id, def.mapId, destination.map)
       end,
@@ -2986,12 +2993,15 @@ return function(mod)
         local habitats = mod.exports.starterHabitats
         local destination = def and def.handoff and def.handoff.destination
         if not (habitats and destination and habitats.maps
-            and habitats.maps[destination.map]) then return false end
+            and habitats.maps[destination.map]) then
+          return mod.exports.hiddenAccessReturn.rollback(game, token)
+        end
         return habitats.rollbackHandoff(game, token, reason)
       end,
     })
   assert(mod.exports.hiddenAccessReveal.register(),
     "Access V3.1 definition registration failed")
+  mod.exports.hiddenAccessReturn.bind(mod.exports.hiddenAccessReveal.definitions())
   assert(mod.exports.hiddenAccessReveal.registerInteractions(),
     "Access V3.1 interaction registration failed")
   mod.exports.starterHabitats = loadSibling(

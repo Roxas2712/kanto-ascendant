@@ -63,8 +63,13 @@ return function(mod,opts)
       local ok=mod.world:warpTo(mapId,p.x,p.y,p.facing);if ok then return true end end
     local ow=game and game.overworld;if not(ow and type(ow.startWarpTo)=="function")then return false end
     ow:startWarpTo(mapId,p.x,p.y,p.facing);return true end
-  function J.enter(game)if not J.available(game)then return false,"unavailable"end;writeSave(game);return warp(game,J.MAP,J.ENTRY)end
-  function J.leave(game)return warp(game,J.RETURN.map,J.RETURN)end
+  function J.enter(game)if not J.available(game)then return false,"unavailable"end;writeSave(game);if opts.accessReturn then opts.accessReturn.clear(game.save)end;return warp(game,J.MAP,J.ENTRY)end
+  function J.leave(game)
+    local back=opts.accessReturn and opts.accessReturn.point(game.save,J.MAP)
+    local target=back or J.RETURN;local ok=warp(game,target.map,target)
+    if ok and back then opts.accessReturn.clear(game.save)end
+    return ok
+  end
   local function fallback(game,ow,npc,done)if type(originalCaptain)=="function"then return originalCaptain(game,ow,npc,done)end
     if done then done()end;return false end
   function J.captainTalk(game,ow,npc,done)if not J.available(game)then return fallback(game,ow,npc,done)end
@@ -108,13 +113,14 @@ return function(mod,opts)
     mod.content.text_pointers:patch("???",{[J.JIRACHI_TEXT]={text=J.JIRACHI_TEXT},[J.RETURN_TEXT]={text=J.RETURN_TEXT}})
     mod.content.map_scripts:register(J.MAP,{priority=3420,talk={
       [J.JIRACHI_TEXT]=function(game,ow,npc,done)return J.challenge(game,ow,npc,done)end,
-      [J.RETURN_TEXT]=function(game,_,_,done)return show(game,tr("Return to VERMILION CITY?","Zurück nach ORANIA CITY?"),nil,
+      [J.RETURN_TEXT]=function(game,_,_,done)return show(game,tr("Return through the entrance?","Durch den Eingang zurückkehren?"),nil,
         {defaultNo=true,choice=function(yes)if yes then J.leave(game)elseif done then done()end end})end}})
     if mod.content.screens then mod.content.screens:register("HoennCompletionCertificate",{
       new=function(game,args)return Certificate.new(game,args and args.onDone)end})end
     J.registered=true;return true end
   function J.secureSave(save)local p=save and save.player;if not(type(p)=="table"and p.map==J.MAP)then return false end
-    p.map,p.x,p.y,p.facing=J.RETURN.map,J.RETURN.x,J.RETURN.y,J.RETURN.facing;p.surfing=false;return true end
+    local back=opts.accessReturn and opts.accessReturn.point(save,J.MAP)or J.RETURN
+    p.map,p.x,p.y,p.facing=back.map,back.x,back.y,back.facing;p.surfing=false;return true end
   function J.install(game,deps)activeGame=game or activeGame;deps=deps or{};opts.battleState=deps.battleState or opts.battleState
     mapScripts=deps.mapScripts or mapScripts or require("data.scripts.init");local map=mapScripts.get and mapScripts.get(J.CAPTAIN_MAP)
     if map and type(map.talk)=="table"and map.talk[J.CAPTAIN_TEXT]~=J.captainTalk then

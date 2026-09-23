@@ -374,6 +374,23 @@ return function(mod, opts)
     writeSave(game);return true
   end
 
+  function S.update(game)
+    local ow = game and game.overworld
+    local row = ow and ow.map and S.byMap[ow.map.id]
+    if not row or row.puzzle.kind ~= "vigil" or ow.transitioning
+        or not ow.player or ow.player.moving or not game.stack
+        or game.stack:top() ~= ow then return false end
+    local p = puzzleState(game, row)
+    local started = tonumber(p.vigilStartedAt)
+    if not p.armed or p.solved or not started
+        or not onStart(row, ow) or not S.available(game) then return false end
+    if clock(game) - started < S.VIGIL_SECONDS then return false end
+    solvePuzzle(game, row, ow)
+    show(game, tr("Two silent minutes pass. The frozen wall opens.",
+      "Zwei stille Minuten vergehen. Die Eiswand öffnet sich."))
+    return true
+  end
+
   function S.useTechnique(game,row,moveId,ow)
     row=type(row)=="table"and row or S.bySpecies[row]
     if not row or row.puzzle.move~=moveId then return false,"move"end
@@ -545,7 +562,9 @@ return function(mod, opts)
         x=3+index,y=7,movement="STAY",range="NONE",
         text=row.inscriptionText,passable=false}
     end
-    for i,object in ipairs(objects)do object.index=i end
+    -- Inscriptions, technique stones and seals are fixed puzzle objects.
+    -- Do not let STRENGTH push them or replace their authored dialogue.
+    for i,object in ipairs(objects)do object.index=i;object.pushable=false end
     return objects
   end
 
@@ -624,6 +643,14 @@ return function(mod, opts)
     state()
     if activeGame then for _,row in ipairs(S.rows)do S.syncPuzzleVisibility(activeGame,row)end end
     return true
+  end
+
+  if mod.hooks and type(mod.hooks.wrap) == "function" then
+    mod.hooks:wrap("core.update", function(nextUpdate, game, dt)
+      local result = nextUpdate(game, dt)
+      S.update(game)
+      return result
+    end, 3380)
   end
 
   if mod.events and type(mod.events.on)=="function"then

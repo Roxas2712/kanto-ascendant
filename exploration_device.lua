@@ -362,6 +362,13 @@ return function(mod, opts)
     game.stack:push(TextBox.new(game, text))
   end
 
+  local function openedGuidance(game, def)
+    if type(def.openedGuidance) ~= "function" then return nil end
+    local ok, text = pcall(def.openedGuidance, game)
+    if ok and type(text) == "table" and type(text.en) == "string"
+        and type(text.de) == "string" then return tr(text.en, text.de) end
+  end
+
   function E.use(game, deps)
     local s = adoptInventory(game)
     if not s.owned and not owns(game) then
@@ -372,6 +379,15 @@ return function(mod, opts)
     end
     local target = targetFor(game)
     if not target then
+      for _, id in ipairs(entranceOrder) do
+        if E.isOpen(id) then
+          local hint = openedGuidance(game, entrances[id])
+          if hint then
+            show(game, hint, deps)
+            return hint, { used = true, target = id, reason = "already-open" }
+          end
+        end
+      end
       local text
       if type(noTargetHint) == "function" then
         local ok, hint = pcall(noTargetHint, game)
@@ -392,6 +408,8 @@ return function(mod, opts)
         local text = tr(
           "Signal locked!\fThe hidden path is\nnow open.",
           "Signal rastet ein!\fDer geheime Weg\nist nun offen.")
+        local hint = openedGuidance(game, target.def)
+        if hint then text = text .. "\f" .. hint end
         show(game, text, deps)
         return text, { used = true, target = target.id, opened = true }
       end

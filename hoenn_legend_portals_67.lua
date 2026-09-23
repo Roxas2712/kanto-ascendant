@@ -113,9 +113,16 @@ return function(mod,opts)
     if type(game.writeSave)=="function"and game:writeSave()==false then
       return false,"save"
     end
+    if opts.accessReturn then opts.accessReturn.clear(game.save) end
     return warp(game,row.map,8,11,"up")
   end
   function P.leave(game,row)
+    local back = opts.accessReturn and opts.accessReturn.point(game.save, row.map)
+    if back then
+      local ok = warp(game, back.map, back.x, back.y, back.facing)
+      if ok then opts.accessReturn.clear(game.save) end
+      return ok
+    end
     return warp(game,shared.ID,row.returnX,20,"down")
   end
   function P.doorInteraction(game,ow,npc,done)
@@ -195,10 +202,19 @@ return function(mod,opts)
         voxelChamberImage=mod.path..'/assets/hoenn_legend_rooms/'..row.species:lower()..'_front.png'})
       local source=assert(geometry.map(row.map),"missing legend exploration map")
       assert(source.index==row.index,"legend map index changed")
+      local chamberBlocks={};for i,block in ipairs(source.blocks)do chamberBlocks[i]=block end
+      if row.character=="RED"then
+        -- CAVERN block 1 uses elevation tile 0x20. The two blocks under
+        -- the arrival point form an island: native tile-pair collision
+        -- forbids every step onto the surrounding 0x05 floor. Continue
+        -- the ordinary cave floor through the landing to the encounter.
+        chamberBlocks[4+4*source.width+1]=25
+        chamberBlocks[4+5*source.width+1]=25
+      end
       mod.content.maps:register(row.map,{id=row.map,index=row.index,
         label=tr(row.label.en,row.label.de),tileset=isSky and skyTileset or"CAVERN",
         width=source.width,height=source.height,borderBlock=isSky and 0 or 125,
-        blocks=source.blocks,warps={},
+        blocks=chamberBlocks,warps={},
         signs={{name="KA_HEVO_"..row.species.."_RETURN",x=8,y=13,text=returnText}},
         connections={},
         outdoor=isSky,
@@ -206,7 +222,7 @@ return function(mod,opts)
         -- its tile IDs as generic FULL geometry invents forest walls around
         -- Rayquaza; MAP_STUDIO keeps that additive visual map flat and airy.
         voxelMode=isSky and"MAP_STUDIO"or"FULL",
-        voxelRevision=source.voxelRevision,voxelAuthority="2D_BLOCKS",
+        voxelRevision=source.voxelRevision+(row.character=="RED"and 1 or 0),voxelAuthority="2D_BLOCKS",
         kaExplorationRevisionSha256=geometry.EXPLORATION_REVISION_SHA256,objects={
           {index=1,name="KA_HEVO_"..row.species,sprite=sprite,x=8,y=4,
             movement="STAY",range="DOWN",text=row.text,passable=false}}})
@@ -219,8 +235,8 @@ return function(mod,opts)
       mod.content.map_scripts:register(row.map,{priority=3400,talk={
         [row.text]=function(game,ow,npc,done)return P.challenge(game,ow,npc,done,row)end,
         [returnText]=function(game,_,_,done)
-          return show(game,tr("Return to the sealed antechamber?",
-            "Zurück in den versiegelten Vorraum?"),nil,{defaultNo=true,
+          return show(game,tr("Return through the entrance?",
+            "Durch den Eingang zurückkehren?"),nil,{defaultNo=true,
               choice=function(yes)if yes then P.leave(game,row)elseif done then done()end end})
         end}})
     end
@@ -229,7 +245,9 @@ return function(mod,opts)
   function P.secureSave(save)
     local player=save and save.player;local row=player and P.byMap[player.map]
     if not row then return false end
-    player.map,player.x,player.y,player.facing=shared.ID,row.returnX,20,"down"
+    local back = opts.accessReturn and opts.accessReturn.point(save, row.map)
+    if back then player.map,player.x,player.y,player.facing=back.map,back.x,back.y,back.facing
+    else player.map,player.x,player.y,player.facing=shared.ID,row.returnX,20,"down" end
     player.surfing=false;return true
   end
   function P.install(game,deps)

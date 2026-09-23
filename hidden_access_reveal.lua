@@ -6,7 +6,7 @@
 --   * a renderer-neutral runtime adapter using only public Gen1Recomp seams.
 --
 -- Gen1Recomp 0.1.96/0.1.98 do not expose a supported way to add a live
--- walk-on warp.  Guarded mode therefore uses map_scripts.onInteract plus
+-- walk-on warp.  Guarded mode therefore uses map_scripts.onStep (and onInteract) plus
 -- mod.world:warpTo after the receipt.  It is invisible and collision-free
 -- before and after discovery.  A future setConditionalWarp adapter can opt
 -- into native walk-on behaviour without changing this contract.  Never write
@@ -78,9 +78,10 @@ return function(mod, device, opts)
   local function entrance(row)
     -- Newer Gen-I engines expose a live, owner-scoped edge exit.  Prefer the
     -- natural walk-off transition there; older supported engines retain the
-    -- receipt-gated A-button handoff without touching private map internals.
+    -- receipt-gated walk-on handoff without touching private map internals.
     local nativeEdgeWarp = mod and mod.world
       and type(mod.world.addEdgeWarp) == "function"
+      and row.eligibility.kind == "starter"
     local def = {
       id = row.id,
       editions = { red = true, blue = true, yellow = true },
@@ -211,7 +212,7 @@ return function(mod, device, opts)
       reveal={x=37,y=25}, revealDirection="east", path={{x=38,y=25}},
       patches={patch(19,12,0x17,0x01)}, warp={x=39,y=25},
       interactFrom={x=38,y=25,facing="right"}, returnCell={x=37,y=25,facing="left"},
-      destination={map="KA_HEVO_GREEN_SKY_PILLAR_LOWER",mapIndex=1956,x=17,y=24,facing="up"},
+      destination={map="KA_HEVO_RAYQUAZA_CHAMBER",mapIndex=1986,x=8,y=11,facing="up"},
       reservedRect={xMin=36,xMax=39,yMin=23,yMax=27}, eligibility=legend("GREEN","RAYQUAZA"),
       role="LEGEND_RAYQUAZA_BACKUP", physicalKind="ROCK_WALL",
       physical="existing rock-wall seam/plug", motion="SLIDES" }),
@@ -254,7 +255,7 @@ return function(mod, device, opts)
       reveal={x=15,y=2}, revealDirection="north", path={{x=15,y=1}},
       patches={patch(7,0,0x2e,0x15)}, warp={x=15,y=0},
       interactFrom={x=15,y=1,facing="up"}, returnCell={x=15,y=2,facing="down"},
-      destination={map="KA_HEVO_BLUE_KYOGRE_ABYSS",mapIndex=1955,x=19,y=24,facing="up"},
+      destination={map="KA_HEVO_KYOGRE_CHAMBER",mapIndex=1985,x=8,y=11,facing="up"},
       reservedRect={xMin=14,xMax=16,yMin=0,yMax=3}, eligibility=legend("BLUE","KYOGRE"),
       role="LEGEND_KYOGRE_BACKUP", physicalKind="ICE_PANEL",
       physical="native ice/rock slab", motion="SLIDES" }),
@@ -287,7 +288,7 @@ return function(mod, device, opts)
       reveal={x=18,y=111}, revealDirection="east", patches={patch(9,55,0x2a,0x01)},
       warp={x=19,y=111}, interactFrom={x=18,y=111,facing="right"},
       returnCell={x=18,y=111,facing="left"},
-      destination={map="KA_HEVO_GREEN_SKY_PILLAR_LOWER",mapIndex=1956,x=17,y=24,facing="up"},
+      destination={map="KA_HEVO_RAYQUAZA_CHAMBER",mapIndex=1986,x=8,y=11,facing="up"},
       reservedRect={xMin=16,xMax=19,yMin=108,yMax=113}, eligibility=legend("GREEN","RAYQUAZA"),
       role="LEGEND_RAYQUAZA_PRIMARY", physicalKind="RUBBLE",
       physical="existing lower parapet boundary stone", motion="RETRACTS" }),
@@ -295,7 +296,7 @@ return function(mod, device, opts)
       reveal={x=2,y=7}, revealDirection="west", path={{x=1,y=7}},
       patches={patch(0,3,0x7d,0x01)}, warp={x=0,y=7},
       interactFrom={x=1,y=7,facing="left"}, returnCell={x=2,y=7,facing="right"},
-      destination={map="KA_HEVO_SHARED_SEALED_ANTECHAMBER",mapIndex=1948,x=15,y=7,facing="up"},
+      destination={map="KA_HOENN_WISH_CHAMBER",mapIndex=1988,x=8,y=11,facing="up"},
       reservedRect={xMin=0,xMax=4,yMin=5,yMax=9}, eligibility={kind="jirachi_convergence",
         profiles={"RED","BLUE","GREEN"},requiresLegacyPass=true},
       role="JIRACHI_CONVERGENCE", physicalKind="RUBBLE",
@@ -1090,6 +1091,34 @@ return function(mod, device, opts)
       reason or "handoff-warp-failed")
   end
 
+  local function enterOpened(game, def)
+    if not receiptIsOpen(def.id) or not featureAvailable(game, def)
+        or transportAllowed(game, def) ~= true then return false end
+    if not H.repair(game, def.id)
+        or adapter.validateDestination(game, def) ~= true then return false end
+    local token, why, owned = prepareHandoff(game, def)
+    if not token then
+      record("failures", def, why)
+      return false
+    end
+    local ok, warpWhy = adapter.warpTo(game, def.handoff.destination, def)
+    if ok ~= true then rollbackHandoff(game, def, token, warpWhy, owned) end
+    return ok == true
+  end
+
+  function H.step(game, mapId, x, y)
+    for _, def in ipairs(definitions) do
+      if def.mapId == mapId and def.warp.x == x and def.warp.y == y
+          and def.handoff.kind == H.TRANSPORT_INTERACT then
+        local current = adapter.current(game)
+        if not current or current.mapId ~= mapId
+            or current.x ~= x or current.y ~= y then return false end
+        return enterOpened(game, def)
+      end
+    end
+    return false
+  end
+
   function H.interact(game, mapId, fx, fy, player)
     for _, def in ipairs(definitions) do
       if def.mapId == mapId and def.warp.x == fx and def.warp.y == fy
@@ -1100,21 +1129,7 @@ return function(mod, device, opts)
             or (from.facing and player.facing ~= from.facing)) then
           return false
         end
-        if transportAllowed(game, def) ~= true then return false end
-        local repaired = H.repair(game, def.id)
-        if not repaired then return false end
-        local targetOk = adapter.validateDestination(game, def)
-        if targetOk ~= true then return false end
-        local token, prepareWhy, owned = prepareHandoff(game, def)
-        if not token then
-          record("failures", def, prepareWhy)
-          return false
-        end
-        local ok, why = adapter.warpTo(game, def.handoff.destination, def)
-        if ok ~= true then
-          rollbackHandoff(game, def, token, why, owned)
-        end
-        return ok == true
+        return enterOpened(game, def)
       end
     end
     return false
@@ -1147,6 +1162,15 @@ return function(mod, device, opts)
             return snapshot ~= nil and H.resolve(site, snapshot, false).ok
           end,
           open = function(game) return H.open(game, site) end,
+          openedGuidance = site.id == "ROUTE14_SURF_HIDDEN_HABITAT" and function(game)
+            if not receiptIsOpen(site.id) or not featureAvailable(game, site) then return nil end
+            local current = adapter.current and adapter.current(game)
+            if not current or current.mapId ~= site.mapId then return nil end
+            return {
+              en = "Go south through the gap, then east along the shore.\fUse SURF and follow the shore east to the habitat.",
+              de = "Geh durch die Lücke nach Süden, dann am Ufer nach Osten.\fNutze SURFER und folge dem Ufer nach Osten zum Habitat.",
+            }
+          end or nil,
         })
         if accepted ~= true then return false, deviceWhy or "device-registration-failed" end
       end
@@ -1155,9 +1179,9 @@ return function(mod, device, opts)
     return true
   end
 
-  -- Register only the supported, invisible onInteract hand-off.  It does not
-  -- add objects, signs, markers or native warps, so closed maps retain their
-  -- exact collision and rendered content.
+  -- Engines without owner-scoped edge warps still enter an opened path by
+  -- walking onto its exit cell. Keep A as a compatibility shortcut from the
+  -- authored approach; both paths enforce the same receipts and live gates.
   function H.registerInteractions()
     if interactionsRegistered then return true, "already-registered" end
     if not (mod and mod.content and mod.content.map_scripts
@@ -1169,6 +1193,9 @@ return function(mod, device, opts)
       if site.handoff.kind == H.TRANSPORT_INTERACT then
         mod.content.map_scripts:register(site.mapId, {
           priority = 2670,
+          onStep = function(game, _, x, y)
+            return H.step(game, site.mapId, x, y)
+          end,
           onInteract = function(game, ow, fx, fy)
             local player = ow and ow.player and {
               x = ow.player.cellX, y = ow.player.cellY, facing = ow.player.facing,

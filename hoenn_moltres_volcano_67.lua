@@ -609,9 +609,11 @@ return function(mod, opts)
     V.syncPuzzleVisibility(game);return true
   end
 
+  -- Authored drill walls and stair markers are not native STRENGTH rocks.
+  -- Otherwise Easy Interactions replaces their puzzle dialogue after A.
   local function addObject(objects,name,sprite,x,y,text,range)
     objects[#objects+1]={index=#objects+1,name=name,sprite=sprite,x=x,y=y,
-      movement="STAY",range=range or"NONE",text=text,passable=false}
+      movement="STAY",range=range or"NONE",text=text,passable=false,pushable=false}
   end
   local function addWall(objects,names,y,text,x0)
     for index,name in ipairs(names)do
