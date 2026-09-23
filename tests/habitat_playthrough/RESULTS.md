@@ -56,3 +56,8 @@ All three Regi scientist visits, puzzle solutions, actual captures, completion r
 ## Delivery
 
 `Kanto-Ascendant-6.7.20-rc.1.zip` is a local test candidate only, not uploaded or installed in the player's game. It overlays the listed source changes onto the exact public 6.7.19 archive; every unchanged archive member remains byte-identical. `package-verification.json` records SHA-256 hashes and CRC verification. The nine changed runtime Lua files were byte-compared against the tested host and syntax-checked; the focused 20-entrance/40-guard-case suite passed.
+
+
+## Public hotfix packaging
+
+The same nine tested runtime Lua files are shipped in public test release 6.7.20. Release packaging changes version metadata and documentation only; runtime bytes are compared with the verified candidate. The candidate history above records the original validation, not an additional physical-device test.
