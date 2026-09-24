@@ -334,6 +334,20 @@ return function(mod, opts)
     if found and vasc and vasc.exports and vasc.exports.setupCard then
       table.insert(root,1,{label=vasc.exports.setupCard.title(),help=vasc.exports.setupCard.description(),onSelect=function() return vasc.exports.setupCard.open(game) end})
     end
+    local errors=found and vasc and vasc.exports and vasc.exports.errors
+    if not errors then
+      errors=mod.exports.errors
+      if not errors then
+        local function module(name)
+          return assert((loadstring or load)(assert(mod:read("lib/"..name..".lua")),"@"..name))()
+        end
+        errors=module("ErrorsMenu").install(mod,module("ErrorInbox").new(),{language=function()return tr("en","de")end})
+      end
+    end
+    if errors then
+      errors.poll(game)
+      table.insert(root,1,{label="ERRORS",right=tostring(errors.count()),help=errors.description(),onSelect=function() return errors.open(game) end})
+    end
     -- KASC-66-BILINGUAL-HELP-PRESENTATION owns only this optional adapter.
     -- The established 6.6 groups and the ordinary ListMenu path remain the
     -- exact fail-open behavior when the shared guided API is unavailable.

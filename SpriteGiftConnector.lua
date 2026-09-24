@@ -23,7 +23,7 @@ function M.new(mod,archive,i18n)
   end
   if type(mod.read)=='function' and type(session.update)=='function'
     and session.catalog and session.catalog.data then
-   load('SpriteStartupOffer').attach(session)
+   load('SpriteStartupOffer').attach(session,mod)
   end
   local gate=session:rewardContent(mod,archive,game)
   self.session=session;mod.exports.ascendantContent=session
