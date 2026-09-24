@@ -459,6 +459,17 @@ local function create(mod, opts)
         end
         return false
       end,
+      -- Free-camera movement can stop just short of the exit cell. The
+      -- marked exit also accepts A from its immediate approach; walking
+      -- onto it remains automatic and both routes use the same receipt.
+      onInteract = function(game, ow, x, y)
+        local p = ow and ow.player
+        if x == row.exit.x and y == row.exit.y and p
+            and math.abs(p.cellX-x)+math.abs(p.cellY-y) == 1 then
+          return H.leave(game, row.id) == true
+        end
+        return false
+      end,
     })
     if spawnSafety and type(spawnSafety.reserveCells) == "function" then
       spawnSafety.reserveCells(row.id, reserved,

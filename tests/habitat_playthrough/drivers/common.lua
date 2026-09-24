@@ -89,7 +89,7 @@ return function(game)
     for frame=1,70 do
      if game.stack:top()~=game.overworld then Q.settle()end
      if game.overworld.map.id~=mapid then assert(game.overworld.map.id==expectedMap,'unexpected transition '..game.overworld.map.id);Q.settle();return true end
-     if p.cellX==q.x and p.cellY==q.y then break end
+     if p.cellX==q.x and p.cellY==q.y and math.abs(p.px-q.x*16)<1.1 and math.abs(p.py-q.y*16)<1.1 then break end
      U.hold(game,q.dir,1)
     end
     for frame=1,80 do if game.overworld.map.id~=mapid then assert(game.overworld.map.id==expectedMap,'unexpected transition '..game.overworld.map.id);Q.settle();return true end;if not p.moving then break end;U.wait(1)end

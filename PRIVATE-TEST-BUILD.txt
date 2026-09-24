@@ -1,1 +1,0 @@
-Private KASC Test-RC9: Test-RC8 retained plus three shared startup index modules. Pair with VASC 3.0.24-rc.18. Not a public final release.

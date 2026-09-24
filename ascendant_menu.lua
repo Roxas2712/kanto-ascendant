@@ -329,6 +329,11 @@ return function(mod, opts)
 
   function A.open(game, rows)
     local root = A.buildRoot(rows)
+    local found, vasc = pcall(mod.find, "VOXEL_ASCENDANT")
+    if not found or not vasc then found, vasc = pcall(mod.find, mod, "VOXEL_ASCENDANT") end
+    if found and vasc and vasc.exports and vasc.exports.setupCard then
+      table.insert(root,1,{label=vasc.exports.setupCard.title(),help=vasc.exports.setupCard.description(),onSelect=function() return vasc.exports.setupCard.open(game) end})
+    end
     -- KASC-66-BILINGUAL-HELP-PRESENTATION owns only this optional adapter.
     -- The established 6.6 groups and the ordinary ListMenu path remain the
     -- exact fail-open behavior when the shared guided API is unavailable.

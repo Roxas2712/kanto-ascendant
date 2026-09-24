@@ -1,6 +1,6 @@
 -- KASC 6.7 physical access layer for Moltres, the Regis and Deoxys.
 -- Existing Kanto maps host four runtime scientists; the encounter rooms stay
--- separately removable Cards.  No quest marker or advance hint is emitted.
+-- separately removable Cards. Waymarkers only describe eligible access.
 
 return function(mod,opts)
   opts=opts or{}
@@ -91,6 +91,12 @@ return function(mod,opts)
   local function show(game,text,done,boxOpts)
     game.stack:push(require("src.render.TextBox").new(game,text,done,boxOpts));return true
   end
+  function A.researchHint(game)
+    if not regis.available(game) then return "" end
+    return tr(
+      "\fOur seal researchers are at the north wall of Seafoam Islands B4F and Victory Road 2F.\fAfter the volcanic expedition, look in the northwest passage of the volcano ascent, below the summit.",
+      "\fUnsere Siegelforscher stehen an der Nordwand der Seeschauminseln U4 und der Siegesstraße im 1. Stock.\fNach der Vulkanexpedition suche im Nordwestgang des Vulkanaufstiegs, unterhalb des Gipfels.")
+  end
   function A.regiTalk(row,game,ow,npc,done)
     if regis.eventComplete(game,row.species)then
       return show(game,tr("RESEARCHER: The chamber is quiet now.",
@@ -109,7 +115,7 @@ return function(mod,opts)
     if not moltres.eventComplete(game)then
       return show(game,tr(
         "RESEARCHER: I am leaving for the volcanic island. Come with me?",
-        "FORSCHER: Ich breche zur Vulkaninsel auf. Kommst du mit?"),nil,
+        "FORSCHER: Ich breche zur Vulkaninsel auf. Kommst du mit?")..A.researchHint(game),nil,
         {defaultNo=true,choice=function(yes)
           if yes then moltres.openExpedition(game)elseif done then done()end
         end})
@@ -117,7 +123,7 @@ return function(mod,opts)
     if not regis.eventComplete(game,"REGIROCK")then
       return show(game,tr(
         "RESEARCHER: I still have equipment on the volcanic island. Return there?",
-        "FORSCHER: Auf der Vulkaninsel steht noch meine Ausrüstung. Sollen wir zurückkehren?"),nil,
+        "FORSCHER: Auf der Vulkaninsel steht noch meine Ausrüstung. Sollen wir zurückkehren?")..A.researchHint(game),nil,
         {defaultNo=true,choice=function(yes)
           if yes then moltres.openExpedition(game)elseif done then done()end
         end})
@@ -125,22 +131,41 @@ return function(mod,opts)
     if birth.available(game)and not birth.caught(game)then
       return show(game,tr(
         "RESEARCHER: The signal now points to Birth Island. Ready to depart?",
-        "FORSCHER: Das Signal führt jetzt zur Entstehungsinsel. Bist du bereit?"),nil,
+        "FORSCHER: Das Signal führt jetzt zur Entstehungsinsel. Bist du bereit?")..A.researchHint(game),nil,
         {defaultNo=true,choice=function(yes)
           if yes then birth.enter(game)elseif done then done()end
         end})
     end
     if birth.caught(game)then return show(game,tr(
       "RESEARCHER: This expedition is complete.",
-      "FORSCHER: Diese Expedition ist abgeschlossen."),done)end
+      "FORSCHER: Diese Expedition ist abgeschlossen.")..A.researchHint(game),done)end
     return show(game,tr(
       "RESEARCHER: The volcanic readings are complete. I am still checking the other data.",
-      "FORSCHER: Die Vulkanmessungen sind abgeschlossen. Die übrigen Daten prüfe ich noch."),done)
+      "FORSCHER: Die Vulkanmessungen sind abgeschlossen. Die übrigen Daten prüfe ich noch.")..A.researchHint(game),done)
   end
   function A.talk(row,game,ow,npc,done)
     if not wanted(game,row)then if done then done()end;return false end
     if row.kind=="expedition"then return A.expeditionTalk(game,ow,npc,done)end
     return A.regiTalk(row,game,ow,npc,done)
+  end
+
+  function A.wayfinding(game, mapId)
+    local out = {}
+    for _, row in ipairs(A.rows) do
+      if row.kind == "regi" and row.map == mapId and wanted(game, row) then
+        local map = game.data and game.data.maps and game.data.maps[mapId]
+        for _, object in ipairs(map and map.objects or {}) do
+          if object.runtime and object.owner == mod.id and object.name == row.name then
+            -- Frame the actual researcher, including safe-placement fallbacks.
+            -- The player still speaks to him to enter; no new collision/warp.
+            out[#out + 1] = {id=row.name, kind="researcher", x=object.x,
+              y=object.y, facing="up", theme=row.species,
+              lit=regis.accessLight(game, row.species)}
+          end
+        end
+      end
+    end
+    return out
   end
 
   function A.register()

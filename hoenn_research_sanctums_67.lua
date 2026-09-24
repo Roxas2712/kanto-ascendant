@@ -174,6 +174,12 @@ return function(mod, opts)
   end
   S.puzzleState = function(value,row)return copy(puzzleState(value,row))end
 
+  function S.accessLight(value, species)
+    local row = S.bySpecies[species]
+    local p = row and rawProgress(value, row)
+    return row ~= nil and (eventComplete(value, species) or p ~= nil and p.solved == true)
+  end
+
   function S.puzzleSolved(value, row)
     row = type(row) == "table" and row or S.bySpecies[row]
     return row and (eventComplete(value,row.species)
@@ -297,6 +303,9 @@ return function(mod, opts)
 
   function S.onStep(game,row,ow,x,y)
     row=type(row)=="table"and row or S.bySpecies[row]
+    -- The marked southern passage is an exit, not an invisible sign the
+    -- player must stop one cell before. It also works after the seal/catch.
+    if row and x==8 and y==13 then return S.leave(game,row.species) end
     if not row or not S.available(game)or S.puzzleSolved(game,row)then return false end
     local p=puzzleState(game,row)
     if row.puzzle.kind=="vigil"then

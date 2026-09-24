@@ -39,6 +39,13 @@ Windows or mobile coverage.
   directions of both stairs, departure. Puzzle flags are not pre-completed.
 - `route14-reload`: actual guidance text, entry, save, restore, guidance reuse,
   re-entry and physical exit.
+- `route14-voxel`: the same roundtrip with third-person free movement, plus
+  the adjacent-A return alternative. Screenshots briefly use the orbit camera
+  to show the markings and path. Movement uses input, not coordinate writes.
+- `regi-wayfinding`: walks from public approach stairs to each researcher,
+  enters each unsolved chamber and walks out without A. A solved-state fixture
+  then verifies exterior marker lighting; this case does **not** replay the puzzles
+  or captures. Requires the matching VASC access-wayfinding renderer.
 - `gates`: actual runtime authorities for normal/NG+, missing seal/collection,
   disabled portal card and incomplete finale.
 

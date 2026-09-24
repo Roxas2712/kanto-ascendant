@@ -1263,5 +1263,20 @@ return function(mod, device, opts)
     return copy(definitions)
   end
 
+  -- Read-only presentation contract: undiscovered or disabled entrances
+  -- must not become visible merely because another mod draws waymarkers.
+  function H.wayfinding(game, mapId)
+    local out = {}
+    for _, def in ipairs(definitions) do
+      if def.mapId == mapId and receiptIsOpen(def.id)
+          and featureAvailable(game, def) and transportAllowed(game, def) == true then
+        out[#out + 1] = {id=def.id, kind="entrance", x=def.warp.x,
+          y=def.warp.y, facing=def.handoff.edgeDirection or def.revealDirection,
+          lit=true, path=copy(def.path or {})}
+      end
+    end
+    return out
+  end
+
   return H
 end

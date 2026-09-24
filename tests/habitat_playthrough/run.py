@@ -6,7 +6,7 @@ import subprocess
 import time
 
 parser = argparse.ArgumentParser(description=__doc__)
-parser.add_argument('case', choices=['starters', 'regis', 'legends', 'portals', 'birth', 'volcano', 'rivals', 'route14-reload', 'gates'])
+parser.add_argument('case', choices=['starters', 'regis', 'legends', 'portals', 'birth', 'volcano', 'rivals', 'route14-reload', 'gates', 'route14-voxel', 'regi-wayfinding'])
 parser.add_argument('--host', type=Path, required=True, help='Isolated Gen1Recomp checkout with the driver hook and tested mods installed')
 parser.add_argument('--love', default='love', help='LÖVE executable')
 parser.add_argument('--timeout', type=int, default=600)
@@ -16,7 +16,7 @@ root = Path(__file__).resolve().parent
 env = os.environ.copy()
 env.update(POKEPORT_IDENTITY='kasc-habitat-playthrough-qa', POKEPORT_VERSION='red',
            POKEPORT_DRIVER=str(root / 'drivers' / (args.case + '.lua')),
-           HABITAT_QA_ROOT=str(root), POKEPORT_SPEED='2')
+           HABITAT_QA_ROOT=str(root), POKEPORT_SPEED='1' if args.case in ('route14-voxel', 'regi-wayfinding') else '2')
 log = root / 'evidence' / (args.case + '.log')
 failed = None
 with log.open('w') as output:
@@ -41,7 +41,9 @@ body = log.read_text(errors='replace')
 failed = failed or (f'exit {process.returncode}' if process.returncode else None)
 if 'driver error:' in body or '\nError:' in body:
     failed = failed or 'native driver failed'
-markers = {'starters': 'PHYSICAL_STARTER_TOTAL', 'regis': 'ALL_REGI_PHYSICAL_PASS', 'legends': 'LEGEND_PHYSICAL_ROUNDTRIP_PASS', 'portals': 'GROUDON_PORTAL_PHYSICAL_PASS', 'birth': 'BIRTH_PHYSICAL_ROUNDTRIP_PASS', 'volcano': 'VOLCANO_PHYSICAL_ROUNDTRIP_PASS', 'rivals': 'RIVAL_INPUT_HINT_PASS', 'route14-reload': 'ROUTE14_NATIVE_RELOAD_PASS', 'gates': 'NGPLUS_LIVE_LEGEND_GATES_PASS'}
+markers = {'starters': 'PHYSICAL_STARTER_TOTAL', 'regis': 'ALL_REGI_PHYSICAL_PASS', 'legends': 'LEGEND_PHYSICAL_ROUNDTRIP_PASS', 'portals': 'GROUDON_PORTAL_PHYSICAL_PASS', 'birth': 'BIRTH_PHYSICAL_ROUNDTRIP_PASS', 'volcano': 'VOLCANO_PHYSICAL_ROUNDTRIP_PASS', 'rivals': 'RIVAL_INPUT_HINT_PASS', 'route14-reload': 'ROUTE14_NATIVE_RELOAD_PASS', 'gates': 'NGPLUS_LIVE_LEGEND_GATES_PASS', 'route14-voxel': 'ROUTE14_NATIVE_RELOAD_PASS', 'regi-wayfinding': 'ALL_REGI_ACCESS_ROUNDTRIPS_PASS_WITH_SOLVED_LIGHT_FIXTURE'}
+if args.case in ('route14-voxel', 'regi-wayfinding') and 'render pipeline voxel failed:' in body:
+    failed = failed or 'voxel renderer fell back'
 if markers[args.case] not in body:
     failed = failed or 'completion marker missing'
 print(f'{args.case}: {failed or "completed"}; log: {log}')

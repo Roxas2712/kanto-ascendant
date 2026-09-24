@@ -16,10 +16,18 @@ local game={save={}}
 for _,d in ipairs(h.definitions())do
  blocks={};for _,p in ipairs(d.patches)do blocks[(p.bx..':'..p.by)]=p.fromByEdition.red end
  current={mapId=d.mapId,x=d.warp.x,y=d.warp.y};assert(not h.step(game,d.mapId,current.x,current.y),'closed entry')
+ for _,marker in ipairs(h.wayfinding(game,d.mapId))do assert(marker.id~=d.id,'undiscovered entrance leaked')end
  current.x,current.y=d.reveal.x,d.reveal.y;assert(h.open(game,d))
+ local marker;for _,m in ipairs(h.wayfinding(game,d.mapId))do if m.id==d.id then marker=m end end
+ assert(marker and marker.lit and marker.x==d.warp.x and marker.y==d.warp.y,'opened entrance absent')
+ marker.path[1]={x=-100,y=-100};assert(h.definitions()[1].path[1].x~=-100,'presentation mutated authority')
  assert(not h.step(game,d.mapId,d.warp.x,d.warp.y),'stale step event')
  current.x,current.y=d.warp.x,d.warp.y
- if d.eligibility.kind~='starter'then gate=false;assert(not h.step(game,d.mapId,current.x,current.y),'live seal bypass');gate=true end
+ if d.eligibility.kind~='starter'then
+  gate=false;assert(not h.step(game,d.mapId,current.x,current.y),'live seal bypass')
+  for _,m in ipairs(h.wayfinding(game,d.mapId))do assert(m.id~=d.id,'inactive seal marker leaked')end
+  gate=true
+ end
  warpOK=false;assert(not h.step(game,d.mapId,current.x,current.y));assert(not R.point(game.save,d.handoff.destination.map),'failed warp retained return')
  warpOK=true;assert(h.step(game,d.mapId,current.x,current.y),'walk-on transition')
  if d.eligibility.kind~='starter'then

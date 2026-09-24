@@ -3027,6 +3027,7 @@ return function(mod)
         end
       end,
     })
+  mod.exports.worldAccessPresentation = loadSibling(mod, "world_access_presentation.lua")(mod)
   local makeWildsCompat = loadSibling(mod, "wilds_compat.lua")
   local wildsCompat = makeWildsCompat(mod, {
     discovery = mod.exports.discoveryCore.hoenn,
