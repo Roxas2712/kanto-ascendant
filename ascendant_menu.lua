@@ -244,6 +244,15 @@ return function(mod, opts)
         }
       end
     end
+    if settings then
+      settings.label = tr("SETTINGS", "EINSTELLUNGEN")
+      settings.help = settings.help or defaultHelp("options")
+      root[#root + 1] = settings
+    end
+    if vasc then
+      vasc.help = vasc.help or defaultHelp("voxel_ascendant")
+      root[#root + 1] = vasc
+    end
     local content = mod.exports and mod.exports.ascendantContent
     if content then
       root[#root + 1] = {
@@ -258,11 +267,6 @@ return function(mod, opts)
         end,
       }
     end
-    if settings then
-      settings.label = tr("SETTINGS", "EINSTELLUNGEN")
-      settings.help = settings.help or defaultHelp("options")
-      root[#root + 1] = settings
-    end
     if supportLog and type(supportLog.open) == "function" then
       root[#root + 1] = {
         label=tr("DIAGNOSTICS", "DIAGNOSTIK"),
@@ -273,10 +277,6 @@ return function(mod, opts)
           return A.openDiagnostics(mod.world.game)
         end,
       }
-    end
-    if vasc then
-      vasc.help = vasc.help or defaultHelp("voxel_ascendant")
-      root[#root + 1] = vasc
     end
     return root
   end
@@ -332,7 +332,11 @@ return function(mod, opts)
     local found, vasc = pcall(mod.find, "VOXEL_ASCENDANT")
     if not found or not vasc then found, vasc = pcall(mod.find, mod, "VOXEL_ASCENDANT") end
     if found and vasc and vasc.exports and vasc.exports.setupCard then
-      table.insert(root,1,{label=vasc.exports.setupCard.title(),help=vasc.exports.setupCard.description(),onSelect=function() return vasc.exports.setupCard.open(game) end})
+      local at = #root + 1
+      for i, row in ipairs(root) do
+        if row.ascendantKey == "sprite_downloads" or row.ascendantKey == "diagnostics" then at = i; break end
+      end
+      table.insert(root,at,{ascendantKey="your_look",label=vasc.exports.setupCard.title(),help=vasc.exports.setupCard.description(),onSelect=function() return vasc.exports.setupCard.open(game) end})
     end
     local errors=found and vasc and vasc.exports and vasc.exports.errors
     if not errors then
@@ -346,7 +350,11 @@ return function(mod, opts)
     end
     if errors then
       errors.poll(game)
-      table.insert(root,1,{label="ERRORS",right=tostring(errors.count()),help=errors.description(),onSelect=function() return errors.open(game) end})
+      local at = #root + 1
+      for i, row in ipairs(root) do
+        if row.ascendantKey == "diagnostics" then at = i; break end
+      end
+      table.insert(root,at,{ascendantKey="errors",label="ERRORS",right=tostring(errors.count()),help=errors.description(),onSelect=function() return errors.open(game) end})
     end
     -- KASC-66-BILINGUAL-HELP-PRESENTATION owns only this optional adapter.
     -- The established 6.6 groups and the ordinary ListMenu path remain the
