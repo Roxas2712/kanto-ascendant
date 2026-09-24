@@ -2998,6 +2998,7 @@ return function(opts)
     end
     local current = type(archive.current) == "table" and archive.current or {}
     local ownsCurrent = current.runId == run.runId
+    if not ownsCurrent then return false, "different_run", nil, nil end
     -- The external current-run record is immutable authority for a new-format
     -- journey. A modified live save cannot switch pact or Bank rule mid-run.
     local pact = pactId(ownsCurrent and current.pact or run.pact)
@@ -3041,6 +3042,20 @@ return function(opts)
     end
     scan(save.party)
     for _, box in ipairs(boxesFrom(save)) do scan(box) end
+    -- Day-Care occupants still belong to this save, even though they are
+    -- temporarily absent from party/PC. Never offer their Bank identities.
+    local function held(row)
+      if type(row) ~= "table" then return end
+      local mon = type(row.mon) == "table" and row.mon or row
+      if mon.__kaLegacyId then found[mon.__kaLegacyId] = mon end
+    end
+    held(save.daycare)
+    local bucket = saveBucket(save, false)
+    local plus = bucket and bucket.daycare_plus
+    if type(plus) == "table" then
+      for _, row in pairs(type(plus.parents) == "table" and plus.parents or {}) do held(row) end
+      for _, row in pairs(type(plus.reservedEggs) == "table" and plus.reservedEggs or {}) do held(row) end
+    end
     return found
   end
 
@@ -3066,24 +3081,65 @@ return function(opts)
     return slots, boxCount
   end
 
-  function A.reconcileLeases(save)
-    local state = runState(save)
-    if type(state) ~= "table" or not state.runId then return false end
-    local archive, loadErr = mutableArchive()
-    if not archive then return false, loadErr end
+  -- A committed handoff retires the source run's Bank ownership even while
+  -- that exact source save remains loadable to retry a failed New Game.
+  local function bankRunOwner(archive, save)
+    local id = localRunId(save)
+    if id and archive.current.runId == id then return true end
+    return false, "Legacy Bank belongs to a different active run"
+  end
+
+  -- Older builds could re-lease the committed payload to the source run.
+  -- Recover only rows witnessed by this exact handoff and its rollback save;
+  -- a foreign lease alone is never evidence that a Pokemon may be returned.
+  local function retiredLeaseEvidence(archive, runId)
+    if archive.bankAuthority ~= "legacy_archive" then return nil end
+    local tx = archive.transaction or archive.lastTransaction
+    local current, rollback = archive.current, archive.lastRollback
+    if type(tx) ~= "table" or tx.id ~= runId or tx.state ~= "committed"
+        or archive.appliedTransactions[tx.id] ~= true
+        or tx.targetCycle ~= current.cycle or tx.targetCycle ~= archive.cycle
+        or type(tx.source) ~= "table" or type(tx.source.runId) ~= "string"
+        or tx.source.runId == "" or tx.source.runId == runId
+        or type(rollback) ~= "table" or rollback.transactionId ~= tx.id
+        or type(rollback.save) ~= "table"
+        or localRunId(rollback.save) ~= tx.source.runId then return nil end
+    return { runId = tx.source.runId, mons = liveLegacyMons(rollback.save) }
+  end
+
+  local function reconcileBankRows(archive, save, runId)
     local live = liveLegacyMons(save)
+    local retired = retiredLeaseEvidence(archive, runId)
     local changed = false
     for _, row in ipairs(archive.bank) do
       if type(row) == "table" and row.id then
         local mon = live[row.id]
         if mon then
-          if row.lease ~= state.runId then row.lease, changed = state.runId, true end
+          if row.lease ~= runId then row.lease, changed = runId, true end
           row.mon = copy(mon)
-        elseif row.lease == state.runId then
+        elseif row.lease == runId
+            or retired and row.lease == retired.runId
+              and row.depositedBy == runId and retired.mons[row.id]
+              and type(row.mon) == "table"
+              and row.mon.__kaLegacyId == row.id then
           row.lease, changed = nil, true
         end
       end
     end
+    return changed
+  end
+
+  function A.reconcileLeases(save)
+    local state = runState(save)
+    if type(state) ~= "table" or not state.runId then return false end
+    local archive, loadErr = mutableArchive()
+    if not archive then return false, loadErr end
+    local owned, ownerErr = bankRunOwner(archive, save)
+    if not owned then
+      if pendingSourceOwned(archive, save) then return true end
+      return false, ownerErr
+    end
+    local changed = reconcileBankRows(archive, save, state.runId)
     if changed then return A.write(archive) end
     return true
   end
@@ -3222,18 +3278,7 @@ return function(opts)
     -- Fold stale-lease reconciliation into this candidate instead of writing
     -- it separately. Thus even a 180-Pokémon transfer has exactly one durable
     -- archive commit before its one game-save commit.
-    local live = liveLegacyMons(save)
-    for _, row in ipairs(archive.bank) do
-      if type(row) == "table" and row.id then
-        local mon = live[row.id]
-        if mon then
-          row.lease = state.runId
-          row.mon = copy(mon)
-        elseif row.lease == state.runId then
-          row.lease = nil
-        end
-      end
-    end
+    reconcileBankRows(archive, save, state.runId)
     local byId = {}
     for _, row in ipairs(archive.bank) do
       if type(row) == "table" and type(row.id) == "string" then
@@ -3283,6 +3328,8 @@ return function(opts)
     local state = runState(save)
     local archive, loadErr = mutableArchive()
     if not archive then return false, loadErr end
+    local owned, ownerErr = bankRunOwner(archive, save)
+    if not owned then return false, ownerErr end
     local byId = {}
     for _, row in ipairs(archive.bank) do
       if type(row) == "table" and type(row.id) == "string" then
@@ -3356,6 +3403,8 @@ return function(opts)
     if type(state) ~= "table" or not state.runId then return false end
     local archive, loadErr = mutableArchive()
     if not archive then return false, loadErr end
+    local owned, ownerErr = bankRunOwner(archive, save)
+    if not owned then return false, ownerErr end
     for _, row in ipairs(archive.bank) do
       if row.id == id and row.lease == state.runId then
         row.lease = nil

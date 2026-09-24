@@ -2677,6 +2677,11 @@ return function(mod, opts)
 
   function J.bankPolicyHint(save)
     local allowed, why, policy, pact = J.bankAccess(save)
+    if why == "different_run" then
+      return twoLinePages(tr(
+        "BANK BELONGS TO\nANOTHER JOURNEY.\fLoad the new NG+ save.\fNew Game interrupted?\nRetry NG+ at Oak.",
+        "BANK GEHÖRT ZU\nEINER ANDEREN REISE.\fLade den neuen\nNG+-Spielstand.\fNeustart abgebrochen?\nNG+ bei Eich fortsetzen."))
+    end
     if not policy then
       return twoLinePages(tr(
         "LEGACY BANK:\nNO ACTIVE JOURNEY.",
