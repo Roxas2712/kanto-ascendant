@@ -110,12 +110,15 @@ return function(mod)
     return payload
   end
   local sender
-  function S.openSupportSend(game, de)
+  function S.supportSender()
     if not sender then
       local source=assert(mod:read("support_send.lua"))
       sender=assert((loadstring or load)(source,"@support_send"))().new(mod,S.supportPayload)
     end
-    return sender.open(game,de)
+    return sender
+  end
+  function S.openSupportSend(game,de)
+    return S.supportSender().open(game,de)
   end
   function S.open(game,tr) return S.openSupportSend(game,tr("en","de")=="de") end
   return S
