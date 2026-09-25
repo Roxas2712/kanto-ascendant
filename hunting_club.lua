@@ -4,6 +4,13 @@ return function(mod, opts)
   local H = { total = D.total }
   local KEY, MAP, NPC, TEXT = 'hunting_club', 'CELADON_CITY',
     'KANTO_ASCENDANT_HUNTING_LEAD', 'MOD_KANTO_ASCENDANT_HUNTING_CLUB'
+  local SPRITE = 'SPRITE_KA_MIRA_WALK'
+  if mod.content.sprites then
+    mod.content.sprites:register(SPRITE, {
+      id=SPRITE, image=mod.path..'/assets/hunting_club/mira_walk.png',
+      frames=6, walker=true, trueColor=false,
+    })
+  end
   local badges = {'BOULDERBADGE','CASCADEBADGE','THUNDERBADGE','RAINBOWBADGE',
     'SOULBADGE','MARSHBADGE','VOLCANOBADGE','EARTHBADGE'}
   local byId = {}
@@ -381,7 +388,7 @@ return function(mod, opts)
     for _,obj in ipairs((game.data.maps[MAP] or {}).objects or {}) do if obj.name==NPC then return end end
     if not H.unlocked(game) then return end
     local x,y=opts.placement.findWideRandom(ow,{{30,10},{31,10},{29,10}})
-    if x then mod.world:spawnNpc(MAP,{name=NPC,sprite='SPRITE_COOLTRAINER_F',movement='STAY',range='DOWN',text=TEXT,x=x,y=y}) end
+    if x then mod.world:spawnNpc(MAP,{name=NPC,sprite=SPRITE,movement='STAY',range='DOWN',text=TEXT,x=x,y=y}) end
   end
   mod.content.map_scripts:register(MAP,{priority=2400,talk={[TEXT]=function(game,ow,npc)
     if not H.unlocked(game) then return false end
