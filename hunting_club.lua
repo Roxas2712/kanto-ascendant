@@ -23,6 +23,8 @@ return function(mod, opts)
     s.version=1; s.done=s.done or {}; s.used=s.used or {}; s.points=s.points or 0
     s.claimed=s.claimed or {}; s.purchases=s.purchases or {}; s.serial=s.serial or 0
     s.cursor=s.cursor or 0; s.sealed=s.sealed or {}
+    -- Older saves already contain accepted work; do not reintroduce Mira.
+    s.acceptedOnce=s.acceptedOnce or s.active~=nil or next(s.done)~=nil or next(s.sealed)~=nil
     return s
   end
   local function persist(s) local ok,why=mod.save:set(KEY,s); if ok==false then error(why or 'club save failed') end end
@@ -117,7 +119,7 @@ return function(mod, opts)
     if not H.unlocked(game) then return false,'locked' end
     local s=state(); if s.active then return false,'active' end
     for _,q in ipairs(H.offers(game)) do
-      if q.id==id then s.active=q; s.sealed[id]=copy(q); persist(s); return true end
+      if q.id==id then s.active=q; s.acceptedOnce=true; s.sealed[id]=copy(q); persist(s); return true end
     end
     return false,'unavailable'
   end
@@ -223,90 +225,155 @@ return function(mod, opts)
   function H.status() local s=state(); return {completed=completed(s),points=s.points,active=s.active,total=D.total} end
   local function monName(game,id) return (game.data.pokemon[id] or {}).name or id end
   local function details(game,q)
-    local text=q.id..' / '..q.rank:upper()..'\n'..q.points..tr(' club points',' Clubpunkte')
+    local lines={}
     for i,r in ipairs(q.requirements) do
-      text=text..'\f'..(q.shown[i] and '[OK] ' or '')..monName(game,r.species)..'\nLv. '..r.level..'+'
-      for _,m in ipairs(r.moves) do text=text..'\n'..((game.data.moves[m]or {}).name or m) end
+      lines[#lines+1]=(q.shown[i] and '[OK] ' or '')..monName(game,r.species)..' Lv. '..r.level..'+'
+      local moves={}
+      for _,m in ipairs(r.moves) do moves[#moves+1]=((game.data.moves[m]or {}).name or m) end
+      lines[#lines+1]=table.concat(moves,', ')
     end
-    return text
+    return table.concat(lines,'\n')
+  end
+  local function contractLabel(game,q)
+    local label=monName(game,q.requirements[1].species)
+    if #q.requirements>1 then label=label..' +'..(#q.requirements-1) end
+    return label
   end
   local function box(game,text,done) game.stack:push(require('src.render.TextBox').new(game,text,done)) end
   local function menu(game,title,rows,done)
-    game.stack:push((mod.ui.KantoListMenu or mod.ui.ListMenu).new(game,title,rows,{
+    local screen=(mod.ui.KantoListMenu or mod.ui.ListMenu).new(game,title,rows,{
       onCancel=done or function()end,
       onChoose=function(item,m) if item.action then item.action(m) end end,
-    }))
+    })
+    -- Refreshing a board is a new choice, not a return to its old PAUSE row.
+    screen.index,screen.scroll=1,0
+    screen.__vascHeaderLabel='PKMN HUNTING CLUB'
+    game.stack:push(screen)
+    return screen
+  end
+  -- Only earned/affordable rewards enter the UI. Future milestones and their
+  -- contents remain a surprise; the reward ledger itself is unchanged.
+  local function rewardRows(game)
+    local s=state();local n=completed(s);local rows={}
+    if H.wardrobe then
+      for _,entry in ipairs(H.wardrobe.rewards()) do
+        local reward=entry
+        if n>=reward.required and s.points>=reward.cost then
+          rows[#rows+1]={label=reward.name,right=reward.cost..' CP',claim=function()
+            return H.wardrobe.claim(game,reward.id)
+          end,message=tr('Outfit unlocked!','Outfit freigeschaltet!')}
+        end
+      end
+    end
+    for _,item in ipairs(shop) do
+      local row=item
+      if game.data.items[row.id] and s.points>=row.cost
+          and (not row.limit or (s.purchases[row.id]or 0)<row.limit) then
+        rows[#rows+1]={label=game.data.items[row.id].name or row.id,right=row.cost..' CP',claim=function()
+          return H.buy(game,row.id)
+        end,message=tr('Reward received!','Belohnung erhalten!')}
+      end
+    end
+    for _,threshold in ipairs({30,60,90,120}) do
+      local milestone=threshold;local key=tostring(milestone)
+      local id=s.eggs and s.eggs[key]
+      if n>=milestone and id and not s.claimed[key] and game.data.pokemon[id]
+          and rules.speciesAvailable(game,id,game.data.pokemon[id]) then
+        rows[#rows+1]={label=tr('COLLECT GIFT','GESCHENK ABHOLEN'),claim=function()
+          return H.claimEgg(game,milestone)
+        end,message=tr('An EGG for you!','Ein EI für dich!')}
+      end
+    end
+    return rows
   end
   function H.open(game,done)
     if not H.unlocked(game) then if done then done()end;return false end
     H.sealRewards(game)
-    local s=state(); local n=completed(s); local rows={}
-    rows[#rows+1]={label=tr('CLUB RULES','CLUBREGELN'),action=function()
-      box(game,tr('I am Mira, club leader!\fAfter eight Kanto badges:\n120 unique contracts.\nBring trained POKéMON.\fKeep your partners! Each\ncan be registered once.\nMinimum levels count.\fOnly acquired, breedable\nspecies and unlocked\ngeneration rules qualify.\fSilver: 10 / Gold: 30\nMaster: 45 completions.\fA shiny EGG awaits at\n30 / 60 / 90 / 120.\nChampion clothes excluded.',
-      'Ich bin Mira, Clubleiterin!\fNach acht Kanto-Orden:\n120 einmalige Aufträge.\nZeige trainierte POKéMON.\fDu behältst deine Partner!\nJeder zählt nur einmal.\nMindestlevel genügt.\fNur bereits erhaltene,\nzüchtbare Arten nach\nfreigeschalteten Regeln.\fSilber: 10 / Gold: 30\nMeister: 45 Abschlüsse.\fEin Shiny-EI wartet bei\n30 / 60 / 90 / 120.\nChampion-Kleidung ausgenommen.'))
-    end}
+    local s=state();local rows={}
+    local function board() H.open(game,done) end
+    local function replace(screen,nextScreen)
+      screen:close()
+      nextScreen()
+    end
     if s.active then
-      rows[#rows+1]={label=s.active.id..tr(' REQUIREMENTS',' ANFORDERUNGEN'),action=function()box(game,details(game,s.active))end}
-      rows[#rows+1]={label=tr('SHOW POKéMON','POKéMON VORZEIGEN'),action=function()
+      local q=s.active
+      rows[#rows+1]={label=contractLabel(game,q),right='+'..q.points..' CP',help=details(game,q),action=function(screen)
         local party={}
         for i,mon in ipairs(game.save.party or {}) do
           local index=i
-          party[#party+1]={label=mon.nickname or monName(game,mon.species),action=function()
+          party[#party+1]={label=mon.nickname or monName(game,mon.species),right='Lv. '..mon.level,action=function(current)
             local ok,why=H.present(game,index)
             if ok then H.sealRewards(game) end
-            local messages={complete=tr('Contract complete!','Auftrag abgeschlossen!'),registered=tr('Partner registered!','Partner registriert!'),used=tr('Already registered.','Bereits registriert.'),requirements=tr('Requirements not met.','Anforderungen nicht erfüllt.'),inactive=tr('No active contract.','Kein aktiver Auftrag.')}
-            box(game,messages[why] or tr('Unavailable.','Nicht verfügbar.'))
+            local messages={complete=tr('Contract complete!','Auftrag abgeschlossen!')..'\n+'..q.points..' CP',
+              registered=tr('Partner registered!','Partner registriert!'),used=tr('Already registered.','Bereits registriert.'),
+              requirements=tr('Level or moves do not match.','Level oder Attacken passen nicht.'),
+              inactive=tr('No active contract.','Kein aktiver Auftrag.')}
+            if ok then replace(current,function()box(game,messages[why],board)end)
+            else box(game,messages[why] or tr('Unavailable.','Nicht verfügbar.')) end
           end}
         end
-        menu(game,tr('SHOW PARTNER','PARTNER VORZEIGEN'),party)
+        replace(screen,function()menu(game,tr('SHOW POKéMON','POKéMON VORZEIGEN'),party,board)end)
       end}
-      rows[#rows+1]={label=tr('PAUSE CONTRACT','AUFTRAG PAUSIEREN'),action=function()
-        H.pause(game); box(game,tr('Progress retained.\nReopen the club menu.','Fortschritt bleibt erhalten.\nClubmenü erneut öffnen.'))
+      rows[#rows+1]={label=tr('PAUSE CONTRACT','AUFTRAG PAUSIEREN'),action=function(screen)
+        H.pause(game);replace(screen,board)
       end}
     else
       for _,offer in ipairs(H.offers(game)) do
         local q=offer
-        rows[#rows+1]={label=q.id..' '..q.rank:upper(),action=function()
-          box(game,details(game,q),function()
-            menu(game,tr('ACCEPT CONTRACT?','AUFTRAG ANNEHMEN?'),{{label=tr('ACCEPT','ANNEHMEN'),action=function()
-              local ok=H.accept(game,q.id)
-              box(game,ok and tr('Accepted! Reopen the\nclub menu to show partners.','Angenommen! Öffne das\nClubmenü zum Vorzeigen.') or tr('Unavailable.','Nicht verfügbar.'))
-            end}})
-          end)
+        rows[#rows+1]={label=contractLabel(game,q),right='+'..q.points..' CP',help=details(game,q),action=function(screen)
+          if H.accept(game,q.id) then replace(screen,board)
+          else box(game,tr('Unavailable.','Nicht verfügbar.')) end
         end}
       end
-      rows[#rows+1]={label=tr('OTHER CONTRACTS','ANDERE AUFTRÄGE'),action=function()
-        H.rotate(game); box(game,tr('Selection changed.\nReopen the club menu.','Auswahl gewechselt.\nClubmenü erneut öffnen.'))
-      end}
+      if #rows==0 then
+        rows[#rows+1]={label=completed(s)==D.total and tr('ALL DONE','ALLES ERLEDIGT') or tr('NO CONTRACTS','KEINE AUFTRÄGE')}
+      else
+        rows[#rows+1]={label=tr('OTHER CONTRACTS','ANDERE AUFTRÄGE'),action=function(screen)
+          H.rotate(game);replace(screen,board)
+        end}
+      end
     end
-    rows[#rows+1]={label=tr('REWARDS','BELOHNUNGEN'),action=function()
-      local rewards={}
-      if H.wardrobe then
-        for _,entry in ipairs(H.wardrobe.rewards()) do
+    if #rewardRows(game)>0 then
+      local function rewards()
+        local entries=rewardRows(game)
+        if #entries==0 then board();return end
+        for _,entry in ipairs(entries)do
           local reward=entry
-          rewards[#rewards+1]={label=reward.character..' '..reward.name,right=reward.cost..' CP',action=function()
-            local ok=H.wardrobe.claim(game,reward.id)
-            box(game,ok and tr('Outfit unlocked in\nthe wardrobe!','Outfit im Kleiderschrank\nfreigeschaltet!') or tr('Need club rank and points.','Clubrang und Punkte nötig.'))
-          end}
+          reward.action=function(screen)
+            local ok,why=reward.claim()
+            if ok then replace(screen,function()box(game,reward.message,rewards)end)
+            else box(game,why=='party_full' and tr('Make room in your party.','Mach Platz in deinem Team.')
+              or why=='bag_full' and tr('Your Bag is full.','Dein Beutel ist voll.')
+              or tr('Unavailable.','Nicht verfügbar.')) end
+          end
         end
+        menu(game,tr('REWARDS','BELOHNUNGEN')..' - '..state().points..' CP',entries,board)
       end
-      for _,item in ipairs(shop) do
-        local row=item
-        rewards[#rewards+1]={label=((game.data.items[row.id]or {}).name or row.id),right=row.cost..' CP',action=function()
-          local ok=H.buy(game,row.id)
-          box(game,ok and tr('Reward received!','Belohnung erhalten!') or tr('Need points, bag space\nor an unclaimed reward.','Punkte, Taschenplatz oder\noffene Belohnung benötigt.'))
-        end}
-      end
-      for _,threshold in ipairs({30,60,90,120}) do
-        local milestone=threshold
-        rewards[#rewards+1]={label=tr('SHINY EGG ','SHINY-EI ')..milestone,action=function()
-          local ok=H.claimEgg(game,milestone)
-          box(game,ok and tr('Shiny EGG received!','Shiny-EI erhalten!') or tr('Need milestone, party\nspace and unlocked species.','Meilenstein, Teamplatz und\nfreigeschaltete Art nötig.'))
-        end}
-      end
-      menu(game,tr('CLUB REWARDS','CLUBBELOHNUNGEN'),rewards)
-    end}
-    menu(game,'PKMNHC '..n..'/120 - '..s.points..' CP',rows,done)
+      rows[#rows+1]={label=tr('COLLECT REWARDS','PRÄMIEN ABHOLEN'),action=function(screen)replace(screen,rewards)end}
+    end
+    menu(game,(s.active and tr('ACTIVE CONTRACT','AKTIVER AUFTRAG') or tr('CONTRACTS','AUFTRÄGE'))..' - '..s.points..' CP',rows,done)
+    return true
+  end
+  local greetingIndex={}
+  local function greeting()
+    local s=state()
+    if not s.acceptedOnce then
+      return tr("Badges look nice. But I\nwant to see what your\npartners can really do.\fPick something off the\nboard and show me. Your\npartners stay with you!",
+        "Orden glänzen hübsch.\nMich interessiert, was\ndeine Partner draufhaben.\fSuch dir was von der Tafel\nund zeig's mir. Deine\nPartner bleiben bei dir!")
+    end
+    local key=s.active and 'active' or 'ready'
+    local lines=s.active and {
+      {"Back already? Let's see\nwhat you've got!", "Schon zurück? Na, dann\nzeig mal, was ihr könnt!"},
+      {"That look says you've\ngot something for me.", "Der Blick sagt mir:\nDu hast was für mich."},
+      {"My clipboard is ready.\nAre your partners?", "Mein Klemmbrett ist bereit.\nDeine Partner auch?"},
+    } or {
+      {"Still hungry? Good.\nThe board's right here.", "Noch nicht genug? Gut.\nDie Tafel hängt noch."},
+      {"There you are! I was\nstarting to get bored.", "Da bist du ja! Mir wurde\nschon fast langweilig."},
+      {"I've got the contracts.\nYou bring the surprises.", "Ich hab die Aufträge.\nDu sorgst für Überraschungen."},
+    }
+    greetingIndex[key]=(greetingIndex[key]or 0)%#lines+1
+    local line=lines[greetingIndex[key]]
+    return tr(line[1],line[2])
   end
   local function refresh(game)
     if not game or not mod.world then return end
@@ -319,7 +386,10 @@ return function(mod, opts)
   mod.content.map_scripts:register(MAP,{priority=2400,talk={[TEXT]=function(game,ow,npc)
     if not H.unlocked(game) then return false end
     npc.frozen=true; npc:facePlayer(ow.player)
-    H.open(game,function()npc.frozen=false end); return true
+    box(game,greeting(),function()
+      H.open(game,function()npc.frozen=false end)
+    end)
+    return true
   end}})
   mod.events:on('map.entered',function(ev) refresh(ev and ev.game or H.game) end)
   mod.events:on('save.loaded',function() refresh(H.game) end)
