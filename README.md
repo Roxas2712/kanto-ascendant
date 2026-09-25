@@ -1,3 +1,9 @@
+# KASC 6.7.27 — Errors / Diagnostics and support logs
+
+One menu for errors, device diagnostics and manually confirmed KASC/VASC support logs, including when no error is present. See [release notes](RELEASE_NOTES.md), [support reports](SUPPORT_REPORTS.md) and [validation](QA-REPORT.md).
+
+---
+
 # KASC 6.7.26 — Habitat, Hunting Club and Mira update
 
 Habitat music, a concise contract board and a distinctive Mira with short returning dialogue. See [release notes](RELEASE_NOTES.md) and [validation](QA-REPORT.md).

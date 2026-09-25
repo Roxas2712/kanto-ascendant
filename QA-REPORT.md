@@ -1,10 +1,12 @@
-# KASC 6.7.26 validation
+# KASC 6.7.27 validation
 
-Date: 2026-09-25. Full package retains 6.7.25.
+2026-09-25. Complete package based on 6.7.26.
 
-4,402 contract checks and menu/dialogue regressions passed. Native Red checks cover music playback in all twelve habitats, battle takeover and return, route exit, Mira's style switching and four facings, and the dialogue/accept/pause/party/cancel flow. Package Lua syntax and archive checks are documented in QA-REPORT.md. No new physical phone test or full playthrough is claimed.
+- Client regressions: KASC-only, VASC-only, combined sends, explicit confirmation with no errors, shared report ID, partial failures, cancel/cooldown/timeout, redaction, 500 KiB cap and marked 48 KiB older-engine fallback.
+- Ticket validation and bounded proof work; controlled iOS bridge success and rate-limit responses.
+- Existing error inbox, detail, menu ownership and support transition regressions; shared Gen-II menu language and start-menu checks.
+- Eleven receiver tests: signed tickets, expiry/IP binding/forgery, global and per-IP limits, size and storage quotas, persistence failures and seven-day cleanup.
+- Native macOS game: both reports delivered through public HTTPS and verified on the NAS, one merged root entry in both menus, device diagnostics accessible. Portrait and landscape rendering inspected.
+- Packaging: compile every Lua file, ZIP CRC, byte-for-byte source comparison and regenerated embedded receipts where present. Public asset hashes and anonymous downloads verified after upload.
 
-
-Packaging: every Lua file is compiled with the bundled Lua runtime; ZIP CRC and byte-for-byte source equality are checked. Embedded receipts, where present, are regenerated and verified. Public asset digests and anonymous downloads are verified after upload.
-
-Limits: native tests use Red on macOS; no fresh native Crystal, physical phone/console test or complete playthrough is claimed. No changes to save-file formats.
+Limits: iOS bridge uses controlled responses; no physical iPhone/Android test, fresh native Crystal test or complete playthrough. No save-format changes. Abuse protection does not verify player accounts.
