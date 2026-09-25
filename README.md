@@ -1,3 +1,9 @@
+# KASC 6.7.26 — Habitat, Hunting Club and Mira update
+
+Habitat music, a concise contract board and a distinctive Mira with short returning dialogue. See [release notes](RELEASE_NOTES.md) and [validation](QA-REPORT.md).
+
+---
+
 # Kanto Ascendant 6.7.23 — Legacy Bank fix
 
 Prevents previous-run saves from re-locking the Bank after an NG+ handoff and recovers affected current saves when the stored transfer evidence is complete. See [release notes](RELEASE_NOTES_6.7.23.md) for installation and recovery details.
