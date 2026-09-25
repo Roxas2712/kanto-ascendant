@@ -446,6 +446,10 @@ local function create(mod, opts)
     assert(not mod.content.maps:get(row.id),
       "starter habitat map id already registered: " .. row.id)
     mod.content.maps:register(row.id, def)
+    if opts.music and mod.content.map_songs then
+      mod.content.map_songs:register(row.id,
+        assert(opts.music[row.category], "missing starter habitat biome music"))
+    end
     local grass = residentEncounter(row.candidates)
     local encounter = { grass = grass, kaWildsStrictSurface = true }
     if row.category == "WATER" then encounter.water = copy(grass) end

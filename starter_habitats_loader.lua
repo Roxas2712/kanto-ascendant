@@ -18,9 +18,11 @@ return function(mod, opts)
   local tilesets = loadSibling(mod, "starter_habitat_tilesets.lua")(mod, {
     json = Json,
   })
+  local music = loadSibling(mod, "starter_habitat_music.lua")(mod)
   local habitats = loadSibling(mod, "starter_habitats.lua")(mod, {
     json = Json,
     tilesets = tilesets,
+    music = music,
     discoveryCore = assert(opts.discoveryCore,
       "starter habitat loader needs Discovery Core"),
     legacyJourney = journey,
