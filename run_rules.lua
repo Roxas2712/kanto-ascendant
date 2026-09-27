@@ -738,8 +738,10 @@ return function(mod, opts)
     local ticket = {
       map = (ctx and ctx.mapId) or mapId(R.game),
       species = encounter.species,
-      protected = ctx and (ctx.kaProtected == true
-        or ctx.kaEncounterSource ~= nil) or false,
+      protected = encounter.kaProtected == true
+        or encounter.kaEncounterSource ~= nil
+        or ctx and (ctx.kaProtected == true
+          or ctx.kaEncounterSource ~= nil) or false,
       active = true,
     }
     R.pendingWild[#R.pendingWild + 1] = ticket
@@ -769,7 +771,8 @@ return function(mod, opts)
       return encounter
     end
     local s = normalize(game.save, game)
-    if ctx and (ctx.kaProtected or ctx.kaEncounterSource) then
+    if encounter.kaProtected or encounter.kaEncounterSource
+        or ctx and (ctx.kaProtected or ctx.kaEncounterSource) then
       return encounter
     end
     if not (s.locked and s.randomizer.enabled and s.randomizer.wild) then
@@ -777,6 +780,10 @@ return function(mod, opts)
     end
     local out = clone(encounter)
     out.species = randomSpecies(s, encounter.species, "wild")
+    -- Runtime provenance for progress proposals prepared before mapping.
+    out.kaRandomizerOriginalSpecies = encounter.species
+    out.kaRandomizerOriginalLevel = encounter.level
+    out.kaRandomizerMappedSpecies = out.species
     return out
   end
 

@@ -1,3 +1,9 @@
+# KASC 6.7.28 — Randomizer progression hotfix
+
+Restores Mythic, Johto and Hoenn progress with the Wild Randomizer while preserving existing saves, seeds and counter values. No new game is required. See [release notes](RELEASE_NOTES_6.7.28.md) and [validation](QA-REPORT.md).
+
+---
+
 # KASC 6.7.27 — Errors / Diagnostics and support logs
 
 One menu for errors, device diagnostics and manually confirmed KASC/VASC support logs, including when no error is present. See [release notes](RELEASE_NOTES.md), [support reports](SUPPORT_REPORTS.md) and [validation](QA-REPORT.md).

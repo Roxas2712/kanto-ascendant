@@ -411,7 +411,8 @@ return function(mod, opts)
     if integrationEnabled() and not worldEvent then
       local mythicSelected
       mythicSelected, mythicTransaction =
-        mythic.rollReplacement(selected, encDef, ctx, game)
+        mythic.rollReplacement(selected, encDef, ctx, game, nil,
+          selected == native and sourceNative or nil)
       if mythicTransaction and mythicTransaction.pending and runtime.mythicClaim then
         local reserved = mythicTransaction
         mythicTransaction = type(mythic.deferWildsReplacement) == "function"

@@ -1008,11 +1008,10 @@ function Module.create(State, Overlay, Acquisition)
     if not ok or type(state) ~= "table" or state.locked ~= true then
       return false
     end
-    local randomizer = state.randomizer
     local nuzlocke = state.nuzlocke
-    return type(randomizer) == "table" and randomizer.enabled == true
-        and randomizer.wild == true
-      or state.failed ~= true and type(nuzlocke) == "table"
+    -- Wild Randomizer retains authored discoveries; active Nuzlocke keeps
+    -- its separate encounter-ownership policy.
+    return state.failed ~= true and type(nuzlocke) == "table"
         and nuzlocke.mode ~= nil and nuzlocke.mode ~= "off"
       or false
   end
@@ -1306,6 +1305,11 @@ function Module.create(State, Overlay, Acquisition)
             used = true
             output, transaction = C.proposeVisible(activeGame, record)
           end
+          if transaction then
+            options = copy(options or {})
+            options.randomizerProtected = true
+            options.encounterSource = options.encounterSource or "wild"
+          end
           local battle = create(battleGame, output and output.species or species,
             output and output.level or level, options)
           if transaction then
@@ -1432,6 +1436,24 @@ function Module.create(State, Overlay, Acquisition)
         if not native then C.cancelPending("no-native-encounter"); return native end
         return C.propose(native, encDef, ctx)
       end, H.ENCOUNTER_PRIORITY)
+    end
+
+    if mod.hooks and type(mod.hooks.wrap) == "function" then
+      mod.hooks:wrap("encounter.species", function(nextEncounter, encounter, ctx)
+        local out = nextEncounter(encounter, ctx)
+        local pending = pendingProposal
+        if pending and not pending.family and type(encounter) == "table"
+            and type(out) == "table" and not out.kaProtected
+            and not out.kaEncounterSource
+            and out.kaRandomizerOriginalSpecies == encounter.species
+            and out.kaRandomizerOriginalLevel == encounter.level
+            and out.kaRandomizerMappedSpecies == out.species
+            and pending.expectedSpecies == encounter.species
+            and pending.expectedLevel == encounter.level then
+          pending.expectedSpecies, pending.expectedLevel = out.species, out.level
+        end
+        return out
+      end, 1800)
     end
 
     if mod.events and type(mod.events.on) == "function" then

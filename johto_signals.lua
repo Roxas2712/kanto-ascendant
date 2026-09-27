@@ -1738,6 +1738,24 @@ return function(mod, opts)
     end, J.ENCOUNTER_PRIORITY)
   end
 
+  if mod.hooks and type(mod.hooks.wrap) == "function" then
+    mod.hooks:wrap("encounter.species", function(nextEncounter, encounter, ctx)
+      local out = nextEncounter(encounter, ctx)
+      local pending = runtime.pendingCandidate
+      if pending and not pending.rareHit and type(encounter) == "table"
+          and type(out) == "table" and not out.kaProtected
+          and not out.kaEncounterSource
+          and out.kaRandomizerOriginalSpecies == encounter.species
+          and out.kaRandomizerOriginalLevel == encounter.level
+          and out.kaRandomizerMappedSpecies == out.species
+          and pending.expectedSpecies == encounter.species
+          and pending.expectedLevel == encounter.level then
+        pending.expectedSpecies, pending.expectedLevel = out.species, out.level
+      end
+      return out
+    end, 1800)
+  end
+
   if mod.events and type(mod.events.on) == "function" then
     mod.events:on("world.stepped", function(ev)
       onStep(ev and ev.game, ev)

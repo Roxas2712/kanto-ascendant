@@ -430,10 +430,11 @@ return function(mod, opts)
 
   -- Pure encounter proposal.  It reads the supplied or current snapshot but
   -- never mutates persistent state and never installs runtime pending data.
-  function M.rollReplacement(out, encDef, ctx, game, snapshot)
+  function M.rollReplacement(out, encDef, ctx, game, snapshot, nativeSource)
     game = game or M.game
     if not optionEnabled() or not hasPokedex(game)
-        or not nativeKantoGrass(out, encDef, ctx)
+        or type(out) ~= "table" or out.kaProtected or out.kaEncounterSource
+        or not nativeKantoGrass(nativeSource or out, encDef, ctx)
         or type(ctx.rng) ~= "function" then
       return out, nil
     end
@@ -616,6 +617,23 @@ return function(mod, opts)
     pendingTransaction = transaction
     return replacement
   end, M.priority)
+
+  -- Keep ordinary pity attached to this exact Randomizer-resolved battle.
+  mod.hooks:wrap("encounter.species", function(nextEncounter, encounter, ctx)
+    local out = nextEncounter(encounter, ctx)
+    local pending = pendingTransaction
+    if pending and not pending.pending and pending.expected and type(encounter) == "table"
+        and type(out) == "table" and not out.kaProtected
+        and not out.kaEncounterSource
+        and out.kaRandomizerOriginalSpecies == encounter.species
+        and out.kaRandomizerOriginalLevel == encounter.level
+        and out.kaRandomizerMappedSpecies == out.species
+        and pending.expected.species == encounter.species
+        and pending.expected.level == encounter.level then
+      pending.expected.species, pending.expected.level = out.species, out.level
+    end
+    return out
+  end, 1800)
 
   mod.hooks:wrap("battle.damage", function(nextDamage, ctx)
     local damage, info = nextDamage(ctx)
