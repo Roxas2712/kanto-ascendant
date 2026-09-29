@@ -173,14 +173,35 @@ return function(ownerMod)
     return type(repository) == "string" and repository:lower() or nil
   end
 
+  -- Parsing the same long admission range for every sprite lookup creates
+  -- substantial short-lived garbage. Cache only this pure string decision;
+  -- discovery, repository provenance and live capability validation still
+  -- run on every call. A changed version or policy gets a different entry.
+  local versionChecks, versionCheckCount = {}, 0
+  local function versionSatisfies(version, range)
+    if type(range) ~= "string" then
+      return Semver.parse(version) ~= nil and Semver.satisfies(version, range)
+    end
+    local key = version .. "\0" .. range
+    local cached = versionChecks[key]
+    if cached ~= nil then return cached end
+    local admitted = Semver.parse(version) ~= nil
+      and Semver.satisfies(version, range) == true
+    if versionCheckCount >= 64 then
+      versionChecks, versionCheckCount = {}, 0
+    end
+    versionChecks[key] = admitted
+    versionCheckCount = versionCheckCount + 1
+    return admitted
+  end
+
   local function admittedVersion(id, exported, handle)
     local policy = R.approvedVersionRanges[id]
     if not policy then return nil, "unsupported-renderer:" .. tostring(id) end
     local value = versionOf(handle, exported)
     if value == nil then return nil, "missing-version:" .. tostring(id) end
     local version = tostring(value)
-    if not Semver.parse(version)
-        or not Semver.satisfies(version, policy.range) then
+    if not versionSatisfies(version, policy.range) then
       return nil, ("unsupported-version:%s:%s"):format(
         tostring(id), version)
     end
@@ -559,7 +580,7 @@ return function(ownerMod)
       and nativeVersions[version]
     local nativeRange = R.nativeRendererRanges[row.id]
     if not nativeProvenance and nativeRange
-        and Semver.satisfies(version, nativeRange.range) then
+        and versionSatisfies(version, nativeRange.range) then
       nativeProvenance = nativeRange.provenance
     end
     if nativeProvenance then

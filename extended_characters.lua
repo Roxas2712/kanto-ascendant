@@ -1299,9 +1299,14 @@ return function(mod, opts)
 
   local function installRivalPresentation(game, rival)
     local data = game and game.data
-    local portraitState = voxelBattleUsesStandingTrainer()
-      and "voxelFront" or "rivalPortrait"
-    local portrait = M.getCharacterSprite(rival, portraitState)
+    local portrait = M.getCharacterSprite(rival, "rivalPortrait")
+    local standing = M.getCharacterSprite(rival, "voxelFront")
+    -- Red/Blue often resolve both roles to exactly the same picture. Asking
+    -- which arena a hypothetical battle would use then only builds the whole
+    -- map/prop geometry during map.entered, without changing the chosen art.
+    if runtimeVisualPath(portrait) ~= runtimeVisualPath(standing) then
+      if voxelBattleUsesStandingTrainer() then portrait = standing end
+    end
     if not (data and data.trainers and portrait) then return end
     for _, classId in ipairs(RIVAL_CLASSES) do
       local trainer = data.trainers[classId]

@@ -1,3 +1,5 @@
+> Lokaler Integrationsstand vom 29.09.2026. Siehe LOCAL_RC.md; die folgenden öffentlichen Release-Dokumente bleiben als Referenz erhalten.
+
 # KASC 6.7.28 — Randomizer progression hotfix
 
 Restores Mythic, Johto and Hoenn progress with the Wild Randomizer while preserving existing saves, seeds and counter values. No new game is required. See [release notes](RELEASE_NOTES_6.7.28.md) and [validation](QA-REPORT.md).

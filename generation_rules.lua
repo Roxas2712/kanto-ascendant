@@ -321,14 +321,23 @@ return function(mod, opts)
     if type(currentDataProvider) == "function" then
       currentDataProvider(game, resolved.activeEpoch, resolved.extensionsEnabled)
     end
+    -- Every species consults the same move registry/epoch during this pass.
+    -- Reuse only within this projection; the next sync rechecks edited data.
+    local availability = {}
+    local function allowed(id)
+      if type(id) ~= "string" then return false end
+      local value = availability[id]
+      if value == nil then
+        value = G.moveAvailable(id, resolved.activeEpoch, game.data)
+        availability[id] = value
+      end
+      return value
+    end
     for species, record in pairs(type(game.data.pokemon) == "table"
         and game.data.pokemon or {}) do
       if type(record) == "table" then
         record.types = projection.projectSpecies(species, record.types,
           resolved.activeEpoch)
-        local function allowed(id)
-          return G.moveAvailable(id, resolved.activeEpoch, game.data)
-        end
         local level1 = {}
         for _, value in ipairs(record.level1Moves or {}) do
           local id = type(value)=="table" and (value.move or value.id) or value

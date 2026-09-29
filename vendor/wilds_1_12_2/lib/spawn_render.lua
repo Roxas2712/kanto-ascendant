@@ -2388,7 +2388,8 @@ end
 -- Call before spawning so a late Followers wrap cannot stay outermost.
 function SpawnRender:ensureStyleOwnedMakeEntity(game)
   if self.spriteProviders and game then
-    pcall(function() self.spriteProviders:finalize(game) end)
+    local ensure = self.spriteProviders.ensureFinalized or self.spriteProviders.finalize
+    pcall(ensure, self.spriteProviders, game)
   end
   self:installLateMakeEntityWrap()
 end

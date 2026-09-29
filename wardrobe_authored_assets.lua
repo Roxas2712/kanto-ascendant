@@ -221,7 +221,7 @@ return function(mod,opts)
     return pcall(function()
       for _,action in ipairs(required)do
        local source=sources[assert(actions[action])]
-       if W.presentation.mode(selection)=='voxel'then W.presentation.resolve(source,id,selection,action)
+       if W.presentation.mode(selection)=='voxel'or W.presentation.mode(selection)=='cobble'then W.presentation.resolve(source,id,selection,action)
        else A.resolve(source,id,selection)end
       end
     end)

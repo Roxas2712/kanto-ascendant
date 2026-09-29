@@ -15,13 +15,14 @@ return function(mod,opts)
   local provider=mod:find('VOXEL_ASCENDANT')
   local api=provider and provider.exports and provider.exports.overworldPokemon
   local walking=api and api.walkingSprites
+  if walking and walking.artStyle and walking.artStyle()=='cobble'then return'cobble'end
   return walking and walking.voxelDemoEnabled and walking.voxelDemoEnabled()and'voxel'or'hd'
  end
  function P.resolve(path,id,selection,action)
   local provider=mod.find and mod:find('VOXEL_ASCENDANT')
   local api=provider and provider.exports and provider.exports.overworldPokemon
   local walking=api and api.walkingSprites
-  if P.mode(selection)=='voxel'and walking and walking.resolveAppearance then
+  if (P.mode(selection)=='voxel'or P.mode(selection)=='cobble')and walking and walking.resolveAppearance then
    return walking.resolveAppearance(path,id,action,selection)
   end
   return W.resolve(path,id,selection)

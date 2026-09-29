@@ -178,6 +178,7 @@ function SpriteProviders:register(provider)
   end
   -- Do not mutate content registries; runtime resolvers only.
   self.providers[provider.id] = provider
+  self.finalized = false
   return true
 end
 
@@ -190,6 +191,7 @@ function SpriteProviders:unregister(id)
   end
   if self.providers[id] == nil then return false end
   self.providers[id] = nil
+  self.finalized = false
   return true
 end
 
@@ -213,12 +215,25 @@ function SpriteProviders:list()
   return out
 end
 
+-- Spawn attempts on one map share source discovery. Explicit finalize()
+-- still forces a refresh, and register/unregister revoke this receipt.
+function SpriteProviders:ensureFinalized(game)
+  local world = game and (game.overworld or game.world)
+  local map = world and world.map
+  if self.finalized and map and self._finalizedGame == game
+      and self._finalizedMap == map then return end
+  return self:finalize(game)
+end
+
 function SpriteProviders:finalize(game)
   self.finalized = true
+  local world = game and (game.overworld or game.world)
+  self._finalizedGame, self._finalizedMap = game, world and world.map
   for _, id in ipairs({ SpriteProviders.ID.GOLD, SpriteProviders.ID.FOLLOWERS_EX }) do
     local provider = self.providers[id]
     if provider and type(provider.refreshAvailability) == "function" then
-      pcall(provider.refreshAvailability, provider, game)
+      local ok = pcall(provider.refreshAvailability, provider, game)
+      if not ok then self.finalized = false end
     end
   end
   if Config.debug(self.mod) then

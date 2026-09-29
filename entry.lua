@@ -14,6 +14,9 @@ local function loadSibling(mod, filename)
 end
 
 return function(mod)
+  local prefix="integrated/ascendant_startup/"
+  local card=loadSibling(mod,prefix.."StartupCard.lua").attach(mod,prefix)
+  mod.exports.startupCard={apiVersion=1,status=function()return card:status()end}
   mod.exports.hdDownloadSupport=loadSibling(mod,'hd_download_support.lua')(
     mod,loadSibling(mod,'hd_download_log.lua'))
   local GameVersion = require("src.core.GameVersion")

@@ -22,7 +22,7 @@ AmbientPokemon.DENSITY = {
   house = { min = 0, max = 1 },
   mart = { min = 0, max = 1 },
   lab = { min = 1, max = 3 },
-  town = { min = 1, max = 3 },
+  town = { min = 1, max = 2 },
   gate = { min = 0, max = 1 },
 }
 
@@ -71,6 +71,17 @@ local function chance(p)
   return math.random() < p
 end
 
+-- Private deterministic stream: never reseed battle/event RNGs.
+local function planRandom(seed, key)
+  local state = seed
+  for i = 1, #key do state = (state * 31 + key:byte(i)) % 2147483647 end
+  if state == 0 then state = 1 end
+  return function(lo, hi)
+    state = (state * 16807) % 2147483647
+    return lo + state % (hi - lo + 1)
+  end
+end
+
 function AmbientPokemon.new(mod, opts)
   opts = opts or {}
   local self = setmetatable({}, AmbientPokemon)
@@ -84,6 +95,9 @@ function AmbientPokemon.new(mod, opts)
   self._talkOrig = nil
   self._installed = false
   self._nextIndex = AmbientPokemon.INDEX_BASE
+  self._planSeedOption = opts.seed -- optional deterministic QA seed
+  self._plans = {}
+  self._planClock = 0
   return self
 end
 
@@ -136,21 +150,11 @@ function AmbientPokemon.isEligibleMap(game, mapId, map)
   return AmbientPokemon.classifyMap(game, mapId, map) ~= nil
 end
 
-function AmbientPokemon.targetCount(game, mapId, map)
+function AmbientPokemon.targetCount(game, mapId, map, random)
   local kind = AmbientPokemon.classifyMap(game, mapId, map)
   if not kind then return 0 end
   local dens = AmbientPokemon.DENSITY[kind] or { min = 0, max = 1 }
-  local n = randInt(dens.min, dens.max)
-  -- Outdoor towns: scale slightly with map size.
-  if kind == "town" and map then
-    local cells = (map.widthCells or 20) * (map.heightCells or 18)
-    if cells >= 400 and n < dens.max then
-      n = math.min(dens.max, n + 1)
-    elseif cells < 200 and n > dens.min then
-      n = dens.min
-    end
-  end
-  return n
+  return (random or randInt)(dens.min, dens.max)
 end
 
 function AmbientPokemon.isLegendary(species)
@@ -204,14 +208,16 @@ end
 
 local function cellOccupied(ow, x, y, ignore)
   if not ow then return true end
-  if ow.player and ow.player.cellX == x and ow.player.cellY == y then
+  if ow.player and ((ow.player.cellX == x and ow.player.cellY == y)
+      or (ow.player.moving and ow.player.targetX == x and ow.player.targetY == y)) then
     return true
   end
-  local lists = { ow.entities, ow.npcs }
+  local lists = { ow.entities or {}, ow.npcs or {} }
   for _, list in ipairs(lists) do
     if type(list) == "table" then
       for _, e in ipairs(list) do
-        if e and e ~= ignore and e.cellX == x and e.cellY == y then
+        if e and e ~= ignore and ((e.cellX == x and e.cellY == y)
+            or (e.moving and e.targetX == x and e.targetY == y)) then
           if e.passable == true and e.overworldWildOverlay == true then
             -- debug overlay
           else
@@ -226,9 +232,13 @@ end
 
 local function isBlockedSpecial(map, x, y)
   if not map then return true end
+  -- Keep connection edges clear as well as authored door/stair warps.
+  if x <= 0 or y <= 0 or x >= (map.widthCells or 20) - 1
+      or y >= (map.heightCells or 18) - 1 then return true end
   if map.inBounds and not map:inBounds(x, y) then return true end
   if map.isWalkableCell and not map:isWalkableCell(x, y) then return true end
   if map.isWaterCell and map:isWaterCell(x, y) then return true end
+  if map.isWarpTileCell and map:isWarpTileCell(x, y) then return true end
   if map.warpAtCell and map:warpAtCell(x, y) then return true end
   if map.isDoorCell and map:isDoorCell(x, y) then return true end
   if map.isCounterCell and map:isCounterCell(x, y) then return true end
@@ -237,6 +247,7 @@ local function isBlockedSpecial(map, x, y)
   for _, d in ipairs(dirs) do
     local nx, ny = x + d[1], y + d[2]
     if map.inBounds and map:inBounds(nx, ny) then
+      if map.isWarpTileCell and map:isWarpTileCell(nx, ny) then return true end
       if map.warpAtCell and map:warpAtCell(nx, ny) then return true end
       if map.isDoorCell and map:isDoorCell(nx, ny) then return true end
     end
@@ -247,11 +258,68 @@ end
 function AmbientPokemon.isSafeSpawnCell(ow, map, x, y, ignore)
   if isBlockedSpecial(map, x, y) then return false end
   if cellOccupied(ow, x, y, ignore) then return false end
+  for _, list in ipairs({ow.entities or {}, ow.npcs or {}}) do
+    for _, npc in ipairs(list) do
+      if npc ~= ignore and npc.wildsAmbientPokemon then
+        local function near(cx,cy)
+          return cx and cy and math.abs(cx-x) <= 1 and math.abs(cy-y) <= 1
+        end
+        if near(npc.cellX,npc.cellY)
+            or (npc.moving and near(npc.targetX,npc.targetY)) then return false end
+      end
+    end
+  end
+  -- Blocking this cell must leave its walkable neighbours connected. A small
+  -- local detour is enough to prove that; if no proof fits, reject conservatively.
+  -- Include NPC reservations so two wandering actors cannot close a passage.
+  local dirs = { {0,-1}, {0,1}, {-1,0}, {1,0} }
+  local function terrain(cx, cy)
+    if cx == x and cy == y then return false end
+    if math.abs(cx-x) > 2 or math.abs(cy-y) > 2 then return false end
+    if map.inBounds and not map:inBounds(cx, cy) then return false end
+    if not map.isWalkableCell or not map:isWalkableCell(cx, cy) then return false end
+    if map.isWaterCell and map:isWaterCell(cx, cy) then return false end
+    if map.isWarpTileCell and map:isWarpTileCell(cx, cy) then return false end
+    if map.warpAtCell and map:warpAtCell(cx, cy) then return false end
+    if map.isDoorCell and map:isDoorCell(cx, cy) then return false end
+    return true
+  end
+  local function open(cx,cy)
+    return terrain(cx,cy) and not cellOccupied(ow,cx,cy,ignore)
+  end
+  local neighbours = {}
+  for _, d in ipairs(dirs) do
+    local nx, ny = x+d[1], y+d[2]
+    if terrain(nx, ny) then
+      -- A temporarily occupied branch must not disappear from the proof.
+      if not open(nx,ny) then return false end
+      neighbours[#neighbours+1] = {nx,ny}
+    end
+  end
+  if #neighbours < 2 then return false end
+  local function key(cx,cy) return (cy-y+2)*5 + cx-x+2 end
+  local queue, seen = {neighbours[1]}, {}
+  seen[key(neighbours[1][1],neighbours[1][2])] = true
+  local head = 1
+  while head <= #queue do
+    local c = queue[head]; head = head+1
+    for _, d in ipairs(dirs) do
+      local nx,ny = c[1]+d[1],c[2]+d[2]
+      if math.abs(nx-x) <= 2 and math.abs(ny-y) <= 2 then
+        local k = key(nx,ny)
+        if not seen[k] and open(nx,ny) then
+          seen[k] = true; queue[#queue+1] = {nx,ny}
+        end
+      end
+    end
+  end
+  for _, c in ipairs(neighbours) do if not seen[key(c[1],c[2])] then return false end end
   return true
 end
 
-function AmbientPokemon:findSpawnCell(ow, map)
+function AmbientPokemon:findSpawnCell(ow, map, random)
   if not (ow and map) then return nil, nil end
+  random = random or randInt
   local player = ow.player
   local px = player and player.cellX or 5
   local py = player and player.cellY or 5
@@ -259,8 +327,8 @@ function AmbientPokemon:findSpawnCell(ow, map)
   local h = map.heightCells or 18
 
   for _ = 1, 120 do
-    local x = randInt(0, math.max(0, w - 1))
-    local y = randInt(0, math.max(0, h - 1))
+    local x = random(0, math.max(0, w - 1))
+    local y = random(0, math.max(0, h - 1))
     local dist = math.abs(x - px) + math.abs(y - py)
     if dist >= 2 and dist <= 10 and AmbientPokemon.isSafeSpawnCell(ow, map, x, y) then
       return x, y
@@ -412,8 +480,7 @@ function AmbientPokemon:_makeNpc(game, ow, species, x, y, behavior)
         if chance(0.55) then return end -- pause more often than stock NPCs
         local Collision = tryRequire("src.world.Collision")
         if not Collision then
-          if origUpdate then return origUpdate(selfNpc, map, entities) end
-          return
+          return -- no unchecked wander fallback when collision is unavailable
         end
         local tx, ty = Collision.target(selfNpc.cellX, selfNpc.cellY, dir)
         if not AmbientPokemon.isSafeSpawnCell(
@@ -471,6 +538,13 @@ function AmbientPokemon:spawnForMap(game, ow)
     return 0
   end
   if not (game and ow and ow.map) then return 0 end
+  if self._planGame ~= game or self._planSave ~= game.save then
+    self:clearAll(ow)
+    self.activeMapId = nil
+    self._planGame, self._planSave = game, game.save
+    self._planSeed = self._planSeedOption or randInt(1, 2147483646)
+    self._plans, self._planClock = {}, 0
+  end
   local map = ow.map
   local mapId = map.id
   if not AmbientPokemon.isEligibleMap(game, mapId, map) then
@@ -483,22 +557,51 @@ function AmbientPokemon:spawnForMap(game, ow)
   if self.activeMapId == mapId then
     local n = 0
     for npc in pairs(self.active) do
-      if npc.mapId == mapId or true then n = n + 1 end
+      if npc.mapId == mapId then n = n + 1 end
     end
     if n > 0 then return n end
   else
     self:clearAll(ow)
   end
 
-  local target = AmbientPokemon.targetCount(game, mapId, map)
+  local pool = AmbientPokemon.speciesPool(game, mapId, map)
+  local kind = AmbientPokemon.classifyMap(game, mapId, map)
+  local dens = AmbientPokemon.DENSITY[kind]
+  local signature = table.concat(pool, ",") .. ":" .. tostring(map.widthCells)
+    .. ":" .. tostring(map.heightCells) .. ":" .. dens.min .. ":" .. dens.max
+  local plan = self._plans[mapId]
+  if not plan or plan.signature ~= signature then
+    local random = planRandom(self._planSeed, tostring(mapId) .. signature)
+    plan = { signature = signature, entries = {} }
+    for i = 1, AmbientPokemon.targetCount(game, mapId, map, random) do
+      if #pool > 0 then
+        plan.entries[i] = { species = pool[random(1,#pool)],
+          behavior = random(1,100) <= 65 and "IDLE" or "WANDER" }
+      end
+    end
+    self._plans[mapId] = plan
+  end
+  self._planClock = self._planClock + 1
+  plan.used = self._planClock
+  -- Metadata only, bounded independently of loaded map and model resources.
+  local count, oldestId, oldest = 0, nil, math.huge
+  for id, p in pairs(self._plans) do
+    count = count+1
+    if id ~= mapId and p.used < oldest then oldestId,oldest = id,p.used end
+  end
+  if count > 64 then self._plans[oldestId] = nil end
   local spawned = 0
-  for _ = 1, target do
-    local x, y = self:findSpawnCell(ow, map)
-    if not x then break end
-    local species = AmbientPokemon.pickSpecies(game, mapId, map)
-    if not species then break end
-    local behavior = chance(0.65) and "IDLE" or "WANDER"
-    local npc = self:_makeNpc(game, ow, species, x, y, behavior)
+  for i, entry in ipairs(plan.entries) do
+    local x, y = entry.x, entry.y
+    if not x or not AmbientPokemon.isSafeSpawnCell(ow, map, x, y) then
+      local random = planRandom(self._planSeed, tostring(mapId) .. ":cell:" .. i)
+      x, y = self:findSpawnCell(ow, map, random)
+    end
+    local npc
+    if x then
+      entry.x, entry.y = x, y
+      npc = self:_makeNpc(game, ow, entry.species, x, y, entry.behavior)
+    end
     if npc then
       npc.mapId = mapId
       table.insert(ow.npcs, npc)

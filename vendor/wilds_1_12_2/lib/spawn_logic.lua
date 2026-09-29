@@ -2909,12 +2909,25 @@ function SpawnLogic:onStepped(ev)
 
   if not self.state.initialized and ow and ow.map then
     local game = gameOf(self.mod)
-    local ok, err = pcall(self.initializeForMap, self, ev.mapId, game)
-    if not ok then
-      self:_warn("late initializeForMap error: %s", tostring(err))
-      self.state:markError(err)
-      self:_restoreVanillaEncounters("late init error")
-      return
+    -- A city without an encounter table cannot become spawnable merely by
+    -- walking. Re-scanning all its tiles on every step only repeats the same
+    -- unsupported result. Recheck the live tables (including in-place rate
+    -- or slot changes), so late content still takes effect on the next step.
+    -- Asset failures, occupied tiles and other transient failures still retry.
+    local encDef = self:_encDef(ev.mapId, game)
+    local noTable = self.state.mapId == ev.mapId
+      and self.state.unsupportedReason == "no supported encounter surface"
+      and not self.state.lastError
+      and not EncounterPick.kindTable(encDef, "grass")
+      and not EncounterPick.kindTable(encDef, "water")
+    if not noTable then
+      local ok, err = pcall(self.initializeForMap, self, ev.mapId, game)
+      if not ok then
+        self:_warn("late initializeForMap error: %s", tostring(err))
+        self.state:markError(err)
+        self:_restoreVanillaEncounters("late init error")
+        return
+      end
     end
   end
 

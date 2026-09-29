@@ -1,18 +1,9 @@
-# KASC 6.7.28 — Randomizer progression hotfix
+# Kanto Ascendant 6.7.29
 
-Complete update based on 6.7.27. Fixes progress that could stop when the Wild Randomizer changed an encounter's species.
+The shared loading intro runs after New Game or Continue, once when both mods are enabled. Pikachu/Eevee animation now advances with presented frames instead of skipping through the sequence after a loading stall. Required preparation stays covered until ready; the native introduction and save-validation prompts retain their ownership.
 
-## Changes
-- Mythic Signals now count eligible randomized grass battles for echoes, true manifestations and retries. This covers visible Wilds and classic encounters; the existing odds and guarantees are unchanged.
-- Johto primal-trace counters follow the actual randomized battle. Guaranteed trace Pokémon retain their authored species.
-- Hoenn introductions and trace hunts now work with the Wild Randomizer, including visible battles and the existing 50-encounter guarantee. Active Nuzlocke exclusions remain unchanged.
-- The Randomizer respects protection carried by authored encounters, including Mythics, Hoenn discoveries/roamers and starter habitats.
-- Only the matching started battle advances encounter progress. Rendering, despawning, suppressed encounters and duplicate notifications do not grant progress.
+Update the existing mod through the launcher, or import this complete ZIP as an update, then restart. Do not create a second mod with the same ID. Existing saves and options are retained; no new game is needed. No separate startup-preview mod is required.
 
-Existing counter values, seeds, run rules and saves are preserved. Missed encounters from before this fix cannot be reconstructed and are not added retroactively. No new game is required.
+Includes the shared startup animation/readiness fixes and the prepared character-provider integration on top of 6.7.28. All 6.7.28 Randomizer progression fixes for Mythic Signals, Johto traces, Hoenn discoveries and starter habitats remain included.
 
-## Validation
-Regression tests cover the reported 509 stall, all three Mythic counters and guarantees, all four Johto primal traces, Hoenn introductions and classic/visible trace hunts, and all twelve Generation IV–VII starter habitats through their 151st encounter and capture, with and without the Randomizer. Additional checks cover Shiny Dex statistics, Trace Finder rematch guarantees, world-event timers, Hunting Club contracts, cancellation, duplicate starts, persistence and existing Nuzlocke exclusions. See QA-REPORT.md for scope and limits.
-
-## Install
-Close the game, update KASC through the launcher or import `Kanto-Ascendant-6.7.28.zip`, then restart. This hotfix does not require a new VASC release.
+When used with VASC 3.0.55, the Game Corner stool fix and VASC rendering/cache changes are supplied by VASC. KASC alone does not install voxel furniture. See QA-REPORT.md for validation scope.

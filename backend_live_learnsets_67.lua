@@ -132,6 +132,23 @@ return function(opts)
     end
     return out
   end
+  -- The live registry needs only machine IDs. rowsFor deliberately creates
+  -- rich teacher/source records and walks level/tutor/egg history; rebuilding
+  -- those discarded records for every species on Continue is unnecessary.
+  -- Preserve its current-first, then historical order and live move filter.
+  local function machineMoves(game,id,active,row)
+    local out,seen={},{}
+    local function append(values)
+      for _,move in ipairs(values)do
+        if game.data.moves[move] and not seen[move] then
+          seen[move]=true;out[#out+1]=move
+        end
+      end
+    end
+    append(row.tmhm)
+    for _,old in ipairs(history(game,id,active))do append(old.tmhm)end
+    return out
+  end
   function L.apply(game,forced)
     local active=epoch(game,forced)
     local audit={activeEpoch=active,species=0,pending={},unavailableMoves={}}
@@ -142,10 +159,7 @@ return function(opts)
         if not row then audit.pending[key]=why
         else
           def.level1Moves=copy(row.level1Moves);def.learnset=copy(row.learnset)
-          def.tmhm={}
-          for _,machine in ipairs(L.rowsFor(game,id,'M',active))do
-            def.tmhm[#def.tmhm+1]=machine.id
-          end
+          def.tmhm=machineMoves(game,id,active,row)
           -- Keep the explicitly authored KASC signature-machine contracts,
           -- not an arbitrary union of historical learnsets.
           local field=opts.fieldTech

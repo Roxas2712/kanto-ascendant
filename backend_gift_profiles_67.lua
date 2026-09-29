@@ -16,6 +16,33 @@ return function(opts)
     for _,row in ipairs(source.learnset)do if row.level<=level then add(row.move)end end
     return result
   end
+  -- Distribution history is immutable. Most revisions select the same four
+  -- moves: retain one value per distinct build instead of millions of copies.
+  -- Delivery copies moves before giving them to a Pokemon (event_archive.lua).
+  local builds, buildIds, vectors, nextBuildId = {}, {}, {}, 0
+  local function internBuild(moves, sourceEpoch, versionGroup)
+    local parts={tostring(sourceEpoch),tostring(versionGroup)}
+    for _,id in ipairs(moves)do
+      local value=tostring(id)
+      parts[#parts+1]=type(id)..':'..#value..':'..value
+    end
+    local key=table.concat(parts,'|')
+    local build=builds[key]
+    if not build then
+      build={moves=moves,sourceEpoch=sourceEpoch,versionGroup=versionGroup}
+      builds[key]=build;nextBuildId=nextBuildId+1;buildIds[build]=nextBuildId
+    end
+    return build
+  end
+  local function internEpochs(epochs)
+    local ids={}
+    for epoch=1,7 do ids[epoch]=buildIds[epochs[epoch]]end
+    local key=table.concat(ids,',')
+    local existing=vectors[key]
+    if existing then return existing end
+    vectors[key]=epochs
+    return epochs
+  end
   local keys={}
   for dex=1,catalog.maximumNationalDex do keys[#keys+1]='dex:'..dex end
   local forms={}
@@ -55,6 +82,9 @@ return function(opts)
     elseif gmaxMeta and not gmax then
       P.pending[key]=opts.gigantamax and opts.gigantamax.pending[key] or 'missing_gigantamax_factor'
     end
+    -- Reuse this species' projected learnsets across its three gift kinds.
+    -- The temporary projection cache is released before the next species.
+    local projected={}
     for _,kind in ipairs({'base','egg','shiny_egg'}) do
       local isEgg=kind~='base'
       local suffix=isEgg and '_'..kind or ''
@@ -109,22 +139,39 @@ return function(opts)
         profile.name={en='Shiny '..names.en..' Egg',de='Shiny-'..names.de..'-Ei'}
       end
       for epoch=1,7 do
-        local learned,reason=species.projectLearnset(ownerKey,epoch)
-        local moves=learned and recent(learned,profile.level,profile.generationMoveRevision)
-        if not moves or #moves==0 then
-          P.pending[key]=reason or 'no_native_level_moves'
+        if not projected[epoch]then
+          local learned,reason=species.projectLearnset(ownerKey,epoch)
+          projected[epoch]={learned,reason}
         end
-        profile.generationMoves[epoch]={moves=moves or {},
-          sourceEpoch=learned and learned.generation or math.max(epoch,owner.originGeneration),
-          versionGroup=learned and learned.versionGroup or 0}
-        -- Freeze historical birth selections: adding a newly implemented
-        -- move must not revoke existing receipts or silently refill/reteach.
+        local learned,reason=projected[epoch][1],projected[epoch][2]
+        local sourceEpoch=learned and learned.generation or math.max(epoch,owner.originGeneration)
+        local versionGroup=learned and learned.versionGroup or 0
+        -- A revision with no newly eligible move has exactly the previous
+        -- selection. Avoid constructing and hashing the same build 34 times.
+        local changes={[1]=true}
+        if learned then
+          local function mark(id)
+            local revision=species.moveRevision and species.moveRevision(id) or 1
+            revision=math.max(1,math.ceil(revision))
+            if revision<=P.moveRevision then changes[revision]=true end
+          end
+          for _,id in ipairs(learned.level1Moves)do mark(id)end
+          for _,row in ipairs(learned.learnset)do if row.level<=profile.level then mark(row.move)end end
+        end
+        local build
+        -- Retain every historical index: old receipts still resolve exactly.
         for revision=1,P.moveRevision do
-          profile.generationMoveRevisions[revision][epoch]={
-            moves=learned and recent(learned,profile.level,revision) or {},
-            sourceEpoch=profile.generationMoves[epoch].sourceEpoch,
-            versionGroup=profile.generationMoves[epoch].versionGroup}
+          if changes[revision]then
+            build=internBuild(learned and recent(learned,profile.level,revision) or {},sourceEpoch,versionGroup)
+          end
+          profile.generationMoveRevisions[revision][epoch]=build
         end
+        profile.generationMoves[epoch]=build
+        if #build.moves==0 then P.pending[key]=reason or 'no_native_level_moves' end
+      end
+      profile.generationMoves=internEpochs(profile.generationMoves)
+      for revision=1,P.moveRevision do
+        profile.generationMoveRevisions[revision]=internEpochs(profile.generationMoveRevisions[revision])
       end
       -- Keep identities in partial diagnostic engines as well. Redemption's
       -- existing species/art/move preflight rejects only that unavailable
