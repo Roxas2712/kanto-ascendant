@@ -1190,7 +1190,8 @@ return function(mod, data, opts)
     end
     local gym
     for _, candidate in ipairs(data.gyms) do
-      if npc.def.trainerClass == candidate.class and ow.map.id == candidate.map then
+      local mapId = opts.canonicalGymMap and opts.canonicalGymMap(ow.map.id) or ow.map.id
+      if npc.def.trainerClass == candidate.class and mapId == candidate.map then
         gym = candidate
         break
       end

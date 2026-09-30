@@ -1,14 +1,11 @@
-# Lokaler Live-/Wetter-/Cobble-Stand
+# Promoted to public KASC 6.7.30
 
-Unterbau: öffentlicher VASC 3.0.54 und KASC 6.7.28, mit unseren RC19-Lade-/Cacheoptimierungen, weather.6 und der vollständigen Figuren-Card 0.2.4 samt Menü-/Kleiderschrank-Anbindung.
+The tested 6.7.30-rc.1 candidate was promoted without runtime code or asset changes. Earlier candidate history follows.
 
-Die drei enthaltenen ZIPs sind einzelne Mods:
-1. Voxel-Ascendant-3.0.55-rc.integration.1.zip — Hauptmod inklusive Wetter und Figuren-Adapter.
-2. Kanto-Ascendant-6.7.29-rc.integration.1.zip — dazu passender Kanto-/Kleiderschrank-Stand.
-3. ASCENDANT_COBBLE_CHARACTERS-0.2.4.zip — alle 136 Cobble-Figuren/Varianten; Rocky, Jessie und James zusätzlich in HD/Voxel.
+# Lokaler KASC 6.7.30-rc.1
 
-Im Launcher vorhandene VASC/KASC-Mods **ersetzen/aktualisieren**, nicht ein zweites Mal unter demselben Namen hinzufügen. Die Figuren-Card ebenfalls importieren und für Gen 1 aktivieren. Unter „Dein Look → Figurenstil“ Cobble auswählen. Der alte separate Adapter-Installer install.py ist hier nicht nötig: die Adapter sind bereits integriert.
+Dieser Kandidat basiert auf dem vollständigen öffentlichen 6.7.29 einschließlich des letzten lokalen Integrations-RC.3. Die Hoenn-NG+-, Pyro- und Gorochu-Änderungen sind zusätzlich integriert. Er ersetzt den fehlerhaft auf 6.7.28 basierenden Begleiter 6.7.29-rc.4.pyro.2.
 
-Der Fehler „already installed“ bedeutet, dass beim Import Ersetzen gewählt werden muss. Die ZIPs enthalten auch explizite Ordner-Einträge einschließlich .modkit. Keine persönlichen Spielstände oder Optionen löschen.
+Mit VASC 3.0.57-rc.15 verwenden. Vorhandene Mods im Launcher aktualisieren/ersetzen; keine zweite Kopie aktivieren. Persönliche Spielstände und Optionen nicht löschen. Nicht automatisch installiert oder veröffentlicht.
 
-Nur lokaler RC; kein öffentlicher Release. Funktionsprüfungen und tatsächliche Grenzen im QA-REPORT.md. Die Original-Card ist vollständig enthalten; Rocky wird nicht wahllos zusätzlich auf Karten gespawnt, sondern an ausdrücklich als Rocky markierten Instanzen dargestellt.
+Der separate Sevii-Entwicklungsstand ist weiterhin separat und laut Liefercheckliste noch nicht freigabefertig. Umfang, Herkunft und Testgrenzen: BASE_INTEGRATION_AUDIT.md.

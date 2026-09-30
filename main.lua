@@ -1663,6 +1663,10 @@ return function(mod)
   local makePostgameEvents = loadSibling(mod, "postgame_events.lua")
   local makePostgame = loadSibling(mod, "postgame.lua")
   local postgame = makePostgame(mod, postgameData, {
+    canonicalGymMap = function(id)
+      local route = mod.exports.blaineVolcanoRoute
+      return route and route.canonicalMap(id) or id
+    end,
     contentEnabled = contentEnabled,
     i18n = i18n,
     makeEvents = makePostgameEvents,
@@ -1795,6 +1799,10 @@ return function(mod)
       json = loadSibling(mod, "world_rank_json.lua"),
     })
   if contentEnabled then assert(mod.exports.hoennEndgameTilesets67.register()) end
+  mod.exports.blaineVolcanoRoute = loadSibling(mod, "blaine_volcano_route.lua")(mod, {
+    i18n = i18n, volcanoTileset = mod.exports.hoennEndgameTilesets67.VOLCANO_ID,
+  })
+  if contentEnabled then assert(mod.exports.blaineVolcanoRoute.register()) end
   mod.exports.hoennResearchSanctums67 = loadSibling(
     mod, "hoenn_research_sanctums_67.lua")(mod, {
       dex = mod.exports.hoennDexCompletion67,
@@ -2768,6 +2776,9 @@ return function(mod)
     "yellow_gym_move_fidelity.lua")
   local storyGymDifficulty = loadSibling(mod,
     "story_gym_difficulty.lua")(mod, {
+      canonicalGymMap = function(id)
+        return mod.exports.blaineVolcanoRoute.canonicalMap(id)
+      end,
       gameVersion = GameVersion,
       usefulLayerId = rematchAI.layerId,
       yellowFidelity = yellowGymMoveFidelity,
@@ -2846,6 +2857,7 @@ return function(mod)
       legacyJourney = legacyJourney,
       runRules = runRules,
       generationRules = mod.exports.generationRules,
+      roamers = mod.exports.hoennRoamers67,
     })
   mod.exports.hoennTraceMusic67 = loadSibling(
     mod, "hoenn_trace_music_67.lua")(mod)
@@ -5330,6 +5342,9 @@ return function(mod)
   })
 
   local function trainerKey(overworld, npc)
+    local route = mod.exports.blaineVolcanoRoute
+    local canonical = route and route.trainerKey(overworld, npc)
+    if canonical then return canonical end
     if npc and npc.id then return tostring(npc.id) end
     local mapId = overworld and overworld.map and overworld.map.id or "UNKNOWN"
     local index = npc and npc.def and npc.def.index or "?"

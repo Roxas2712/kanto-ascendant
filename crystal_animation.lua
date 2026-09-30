@@ -394,7 +394,7 @@ return function(mod, opts)
     return not PaletteFX or PaletteFX.mode == nil or PaletteFX.mode == "redpp"
   end
 
-  local function displayVariant(which, dex, side, surface)
+  local function displayVariant(which, dex, side, surface, forceStyle)
     -- FireRed-style UI surfaces already render in authored full colour.  A
     -- saved GBC/SGB battle palette must not silently replace their Crystal
     -- art with the grayscale source; that made every Box preview (most
@@ -407,8 +407,10 @@ return function(mod, opts)
     -- black-and-white rendition of the same P-Infinity geometry instead of
     -- silently keeping the colour card. The live COLORS hotkey follows the
     -- same rule, while every other private #252-279 guest stays unchanged.
+    -- An encounter-local Crystal choice overrides the saved style, while a
+    -- real native monochrome palette still owns its colour conversion.
     if classicGuestDexes[dex]
-        and (mod.options:get("pokemon_sprite_style") ~= "crystal"
+        and ((not forceStyle and mod.options:get("pokemon_sprite_style") ~= "crystal")
           or not advancedColor()) then
       if side == "back" and A.backGrayscaleAvailable[dex] then
         return "grayscale"
@@ -475,7 +477,8 @@ return function(mod, opts)
     if cosmetic and cosmetic.artSlot==dex then
       return fullPath(dex,which,1,selectedSide,'pixel2d'),true
     end
-    which = displayVariant(which, dex, selectedSide, ctx and ctx.kind)
+    which = displayVariant(which, dex, selectedSide, ctx and ctx.kind,
+      ctx and ctx.forceStyle == true)
     local ready
     if selectedSide == "back" then
       if which == "grayscale" then
@@ -1326,7 +1329,7 @@ return function(mod, opts)
     -- native species uses its bundled normal Crystal front, even when a scene
     -- option is disabled or an external Kanto sprite provider is present.
     local which = forceBundled and "normal"
-      or displayVariant(variant(mon), dex, side, surface)
+      or displayVariant(variant(mon), dex, side, surface, forceStyle)
     local source = not forceBundled and sourceFor(dex, which, side,surface)
       or "crystal"
     local ready

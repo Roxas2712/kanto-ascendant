@@ -18,15 +18,15 @@ return function(mod, opts)
     VISITOR_MAP = "VIRIDIAN_NICKNAME_HOUSE",
     VISITOR_TEXT = "TEXT_KA_HOENN_VISITOR",
     VISITOR_NAME = "KA_HOENN_VISITOR",
-    VISITOR_SPRITE = "SPRITE_LITTLE_GIRL",
+    VISITOR_SPRITE = "SPRITE_KA_HOENN_VISITOR",
     -- Four five-minute / 256-step phases form a twenty-minute / 1024-step
-    -- routine.  She is home for the first half and away for the second.  The
+    -- routine. She visits for one phase and travels for the other three. The
     -- later of the two save-local clocks wins, so waiting or exploring can
     -- both advance the routine without consulting the host computer clock.
     VISITOR_PHASE_SECONDS = 300,
     VISITOR_PHASE_STEPS = 256,
     VISITOR_PHASE_COUNT = 4,
-    VISITOR_HOME_PHASES = 2,
+    VISITOR_HOME_PHASES = 1,
     OAK_MAP = "OAKS_LAB",
     OAK_TEXT = "TEXT_OAKSLAB_OAK1",
     DEX_MILESTONE = 20,
@@ -45,6 +45,7 @@ return function(mod, opts)
   local generationRules = opts.generationRules
   local acquisition = opts.acquisition
   local placement = opts.placement
+  local lineageSave, lineageProfile
   local VISITOR_CELLS = {
     { 3, 4 }, { 2, 4 }, { 3, 5 }, { 2, 5 },
   }
@@ -159,9 +160,10 @@ return function(mod, opts)
   function F.introductionFamilies(game, registered)
     if not F.isLegacy(game) or not generationAvailable(game) then return {} end
     local enabled, out = {}, {}
+    local inherited = F.legacyFamilies(game)
     for _, family in ipairs(F.characterFamilies(game)) do enabled[family] = true end
     for _, family in ipairs(type(registered) == "table" and registered or {}) do
-      if enabled[family] then out[#out + 1] = family end
+      if enabled[family] and not inherited[family] then out[#out + 1] = family end
     end
     return out
   end
@@ -410,12 +412,76 @@ return function(mod, opts)
       and F.honeyCarried(game) and F.hasDex(game)
   end
 
-  -- Latios and Latias are the only legendary-class Honey visitors in a
-  -- standard campaign. Every authored legendary/mythical quest stays behind
-  -- the Legacy boundary.
+  -- Read the archive once per loaded save, never once per encounter. Live
+  -- save receipts below still reflect catches made during this journey.
+  local function lineage(game)
+    local save = activeSave(game)
+    if lineageSave ~= save then
+      lineageSave, lineageProfile = save, {}
+      if legacyProgression and type(legacyProgression.profile) == "function" then
+        local ok, profile = pcall(legacyProgression.profile)
+        if ok and type(profile) == "table" then lineageProfile = profile end
+      end
+    end
+    return lineageProfile
+  end
+
+  function F.legacyFamilies(game)
+    local out = {}
+    if not F.isLegacy(game) or not F.encountersEnabled(game) then return out end
+    local save, profile = activeSave(game), lineage(game)
+    local bucket = save.modData and save.modData[mod.id] or {}
+    local persistent = bucket.hevo_persistent or {}
+    local run = bucket.legacy_journey or {}
+    local cycle = tonumber(run.cycle or profile.cycle) or 0
+    local function previousPath(source, character)
+      local key = character:lower()
+      local completed = source.completedPaths or {}
+      local at = tonumber((source.pathSealCycles or {})[key])
+      return completed[key] == true and (at == nil or at < cycle)
+    end
+    local owned = {}
+    for _, source in ipairs({ profile.hoennDexOwned or {},
+        persistent.hoennDexOwned or {}, save.pokedex and save.pokedex.owned or {} }) do
+      for species, yes in pairs(source) do if yes == true then owned[species] = true end end
+    end
+    local function addMons(rows)
+      for _, mon in ipairs(rows or {}) do
+        if not mon.isEgg and not mon.eggSpecies then owned[mon.species] = true end
+      end
+    end
+    addMons(save.party)
+    for _, box in ipairs(save.boxes or {}) do addMons(box) end
+    local families = {}
+    for _, rows in ipairs({ acquisition and acquisition.traceFamilies or {},
+        acquisition and acquisition.starterFamilies or {} }) do
+      for _, family in ipairs(rows) do families[#families + 1] = family end
+    end
+    for _, family in ipairs(families) do
+      local character = acquisition.familyCharacter[family.id]
+        or ({ TREECKO="GREEN", TORCHIC="RED", MUDKIP="BLUE" })[family.id]
+      local eligible = character and (previousPath(profile, character)
+        or previousPath(run, character)
+        or not STARTERS[family.id] and (
+          (persistent.hoennCharacterPacks or {})[character] == true
+          or (profile.hoennCharacterPacks or {})[character] == true))
+      eligible = eligible or STARTERS[family.id] and F.starterUnlocked(game, family.id)
+      for _, receipts in ipairs({ persistent.hoennDiscoveryUnlocks or {},
+          profile.hoennDiscoveryUnlocks or {} }) do
+        local receipt = receipts[family.id]
+        eligible = eligible or type(receipt) == "table" and receipt.caught == true
+      end
+      for _, species in ipairs(family.members) do eligible = eligible or owned[species] end
+      if eligible then out[family.id] = true end
+    end
+    return out
+  end
+
+  -- NG+ has no Honey visitor. The Hoenn Dex is its explicit roamer key;
+  -- normal campaigns retain the Honey requirement.
   function F.legendAccess(game)
-    return generationAvailable(game) and not F.isLegacy(game)
-      and F.honeyCarried(game) and F.hasDex(game)
+    return F.encountersEnabled(game) and F.hasDex(game)
+      and (F.isLegacy(game) or F.honeyCarried(game))
   end
 
   -- Pure counterpart for observation consumers. Inventory adoption changes
@@ -423,8 +489,9 @@ return function(mod, opts)
   function F.peekLegendAccess(game)
     local generation=not generationRules or generationRules.peekShouldUseEpoch
       and generationRules.peekShouldUseEpoch(game,3,true)==true
-    return generation and not F.isLegacy(game)
-      and inventoryCarries(game,F.HONEY) and inventoryOwns(game,F.DEX) or false
+    return generation and option(game, "hoenn_encounters", true) ~= false
+      and inventoryOwns(game,F.DEX)
+      and (F.isLegacy(game) or inventoryCarries(game,F.HONEY)) or false
   end
 
   function F.questLegendAccess(game)
@@ -469,6 +536,9 @@ return function(mod, opts)
 
   function F.texts()
     return {
+      legacyHabitats = tr(
+        "OAK: Earlier journeys\nleave living traces.\fHoenn families from\ncompleted character paths\ncan return in their habitats,\neven if you missed them.\fPreviously caught families\ncan return there too,\nalways as their base form.\fTogether they have a 1%\nchance per wild encounter\nin a matching habitat.\fWith this HOENN DEX,\nLATIAS and LATIOS also\nroam Kanto's grassy routes.\nNo honey is needed here.",
+        "EICH: Frühere Reisen\nhinterlassen Spuren.\fHoenn-Familien aus\nabgeschlossenen Figuren-\npfaden kehren in ihre\nLebensräume zurück, auch\nwenn du sie verpasst hast.\fBereits gefangene Familien\nkönnen dort ebenfalls\nals Basisform auftauchen.\fZusammen haben sie 1 %\nChance pro Wildbegegnung\nim passenden Lebensraum.\fMit dem HOENN-DEX ziehen\nauch LATIAS und LATIOS\ndurch Kantos Grasrouten.\nHier brauchst du keinen Honig."),
       honeyOffer = tr(
         "I came here from\nHOENN. The POKéMON\nthere are adorable!\fI brought a little\nHOENN HONEY.\nWould you like some?\fWhenever I carried\nit, those sweet\nPOKéMON found me\neverywhere.",
         "Ich komme aus\nHOENN. Die POKéMON\ndort sind zauberhaft!\fIch habe etwas\nHOENN-HONIG dabei.\nMöchtest Du welchen?\fWenn ich ihn bei mir\ntrug, konnte ich mich\nvor den süßen POKéMON\nkaum retten."),
@@ -583,13 +653,22 @@ return function(mod, opts)
   end
 
   handlers.oak = function(game, ow, npc, done)
+    local function explainLegacy(message)
+      if not F.isLegacy(game) or not F.hasDex(game) then
+        return show(game, message, done)
+      end
+      return show(game, message .. "\f" .. F.texts().legacyHabitats, function()
+        local s = state(true); s.legacyHabitatHint = true; persist(s)
+        if done then done() end
+      end)
+    end
     local evaluation = F.evaluateOak(game)
     if evaluation.ready or evaluation.pending then
       local result = F.claimDex(game, runtimeDeps)
       local text = F.texts()
-      return show(game, result.awarded
+      return explainLegacy(result.awarded
           and (evaluation.firstHoennCatch and text.dexAwardFirst or text.dexAward)
-        or text.dexPending, done)
+        or text.dexPending)
     end
     local progress = mod.exports and mod.exports.dexProgress
     local shiny = mod.exports and mod.exports.shinySystem
@@ -629,6 +708,9 @@ return function(mod, opts)
           end)
         end
       end
+    end
+    if F.isLegacy(game) and F.hasDex(game) and not state(true).legacyHabitatHint then
+      return explainLegacy(tr("Welcome back!", "Willkommen zurück!"))
     end
     return runOriginalOak(game, ow, npc, done)
   end
@@ -679,7 +761,10 @@ return function(mod, opts)
     game = game or activeGame
     if not game then return false, "no-game" end
     mapId = mapId or currentMapId(game)
-    local should = mapId == F.VISITOR_MAP and F.visitorScheduled(game)
+    -- Establish the clock as soon as the badge is earned, wherever the
+    -- player is. Entering her house must never start a fresh home phase.
+    local scheduled = F.visitorScheduled(game)
+    local should = mapId == F.VISITOR_MAP and scheduled
     if not should then
       removeVisitor(game)
       return false, mapId == F.VISITOR_MAP and "away" or "other-map"
@@ -729,12 +814,14 @@ return function(mod, opts)
   end
 
   function F.install(game, deps)
+    lineageSave, lineageProfile = nil, nil
     activeGame = game or activeGame
     runtimeDeps = deps or runtimeDeps or {}
     mapScripts = runtimeDeps.mapScripts or mapScripts
       or require("data.scripts.init")
     placement = runtimeDeps.placement or placement
     adopt(activeGame)
+    F.adoptVisitorClock(activeGame)
     local installed, why = F.refresh(activeGame)
     F.refreshVisitor(activeGame)
     -- A hidden visitor is a valid installed state (most notably every NG+
@@ -745,12 +832,51 @@ return function(mod, opts)
 
   function F.status(game) return copy(adopt(game or activeGame)) end
 
+  -- Old saves without a schedule inherit elapsed play, rather than receiving
+  -- a guaranteed new visit whenever the mod is upgraded or the slot is loaded.
+  function F.adoptVisitorClock(game)
+    if not F.visitorEligible(game) then return end
+    local out = state(true)
+    if out.visitorAnchorSteps == nil or out.visitorAnchorPlayTime == nil then
+      out.visitorAnchorSteps = out.visitorAnchorSteps or 0
+      out.visitorAnchorPlayTime = out.visitorAnchorPlayTime or 0
+      persist(out)
+    end
+  end
+
+  local visitorUpdateElapsed = 0
+  if mod.hooks and type(mod.hooks.wrap) == "function" then
+    mod.hooks:wrap("core.update", function(nextUpdate, game, dt)
+      local result = nextUpdate(game, dt)
+      visitorUpdateElapsed = visitorUpdateElapsed + (tonumber(dt) or 0)
+      if visitorUpdateElapsed >= 1 then
+        visitorUpdateElapsed = 0
+        local ow = game and game.overworld
+        if ow and not ow.transitioning and game.stack and game.stack:top() == ow
+            and not (ow.player and ow.player.moving)
+            and not (ow.runner and type(ow.runner.isRunning) == "function"
+              and ow.runner:isRunning()) then
+          -- Waiting inside also advances the visit, but never remove an NPC
+          -- while a dialogue, battle, movement or scripted scene is active.
+          if ow.map and ow.map.id == F.VISITOR_MAP then
+            F.refreshVisitor(game)
+          elseif F.visitorEligible(game) then
+            F.visitorPhase(game)
+          end
+        end
+      end
+      return result
+    end, 4100)
+  end
+
   if mod.events and type(mod.events.on) == "function" then
     for _, event in ipairs({ "save.loaded", "save.created", "game.ready" }) do
       mod.events:on(event, function(ev)
+        lineageSave, lineageProfile = nil, nil
         local game = ev and ev.game or activeGame
         if game then
           adopt(game)
+          F.adoptVisitorClock(game)
           if mapScripts then F.refresh(game) end
           F.refreshVisitor(game)
         end
@@ -780,6 +906,14 @@ return function(mod, opts)
     price=0, keyItem=true, tossable=false, needsTarget=false,
     lootExcluded=true, progressionItem=true,
   })
+  if mod.content.sprites then
+    mod.content.sprites:register(F.VISITOR_SPRITE, {
+      id=F.VISITOR_SPRITE,
+      image=mod.path .. "/assets/characters/hoenn_visitor_walk.png",
+      frames=6, walker=true,
+      paletteSource="ROM:SpriteSheetPointerTable[21]",
+    })
+  end
   mod.content.items:register(F.DEX, {
     id=F.DEX, name=tr("HOENN DEX", "HOENN-DEX"),
     price=0, keyItem=true, tossable=false, needsTarget=false,

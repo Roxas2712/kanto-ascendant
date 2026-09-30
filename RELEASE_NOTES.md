@@ -1,9 +1,10 @@
-# Kanto Ascendant 6.7.29
+# Kanto Ascendant 6.7.30 — integrated Hoenn NG+ and Blaine volcano
 
-The shared loading intro runs after New Game or Continue, once when both mods are enabled. Pikachu/Eevee animation now advances with presented frames instead of skipping through the sequence after a loading stall. Required preparation stays covered until ready; the native introduction and save-validation prompts retain their ownership.
+- Combines the complete public 6.7.29 / latest integration base with Hoenn NG+, the revised Hoenn visitor, Blaine's volcano route and the Crystal colour correction. Keeps the embedded startup/loading screen, character/wardrobe integration, Wilds and memory/performance fixes.
+- Restores eligible previously caught Hoenn families as base forms in the shared NG+ habitat pool. Latias and Latios can roam in NG+ with the Hoenn Dex; the visitor uses revised Gen-1 artwork and visit scheduling.
+- Moves Blaine from the original final Gym room through a connecting tunnel and volcano approach to a compact battle platform. Preserves the quiz, existing saves, native story battle, Volcano Badge, Fire Blast and Master/Crown recognition.
+- Keeps Gorochu's normal/shiny colours when Crystal battle graphics are explicitly selected, including the static fallback. Intentional Classic/native monochrome palettes remain supported.
 
-Update the existing mod through the launcher, or import this complete ZIP as an update, then restart. Do not create a second mod with the same ID. Existing saves and options are retained; no new game is needed. No separate startup-preview mod is required.
+Recommended companion: **VASC 3.0.57**. No new save is required. This replaces the incomplete local 6.7.29-rc.4.pyro.1/.2 companion, which had accidentally been based on 6.7.28. The unfinished, separate Sevii expansion is not included.
 
-Includes the shared startup animation/readiness fixes and the prepared character-provider integration on top of 6.7.28. All 6.7.28 Randomizer progression fixes for Mythic Signals, Johto traces, Hoenn discoveries and starter habitats remain included.
-
-When used with VASC 3.0.55, the Game Corner stool fix and VASC rendering/cache changes are supplied by VASC. KASC alone does not install voxel furniture. See QA-REPORT.md for validation scope.
+13 targeted regression suites plus native startup/continue, save/reload, Blaine route/battle-entry/reward/return checks passed. The reward test completes the native battle callback with a fixture victory; it is not an AI or balance test.

@@ -394,17 +394,24 @@ function Module.create(State, Overlay, Acquisition)
     return out
   end
 
-  -- Caught ordinary families are durable lineage habitats in NG+.  Keep them
-  -- separate from unresolved traces so they cannot accrue/reset pity or
-  -- reopen Wanderer discovery rewards.  Their only route authority is the
-  -- traceMap persisted by the journey in which they were actually found.
-  function H.legacyHabitats(root, mapId, registered)
+  -- Previous character packs and caught families share one 1% habitat
+  -- bucket. Eligibility is not a sighting/catch receipt. Use the authored
+  -- habitat even when an old save has no traceMap for a previously caught mon.
+  function H.legacyHabitats(root, mapId, registered, eligible)
     mapId = mapKey(mapId)
     if not mapId then return {} end
     local out = {}
-    for _, family in ipairs(registeredOrder(registered, "ordinary")) do
-      if State.status(root, "hoenn", family) == "unlocked"
-          and H.traceMap(root, family) == mapId then
+    for _, family in ipairs(registeredOrder(registered)) do
+      local habitat = H.primaryHabitat(family)
+      local status = State.status(root, "hoenn", family)
+      -- Existing saves may be one encounter away from a guaranteed trace.
+      -- Let that live clue finish under its old rules before moving the
+      -- family into the repeatable 1% bucket.
+      local activeTrace = (status == "trace" or status == "sighted")
+        and H.traceMap(root, family) ~= nil
+      if not activeTrace and (status == "unlocked"
+          or type(eligible) == "table" and eligible[family] == true)
+          and (habitat and habitat.map or H.traceMap(root, family)) == mapId then
         out[#out + 1] = {
           family = family,
           species = H.families[family].members[1],
@@ -525,20 +532,19 @@ function Module.create(State, Overlay, Acquisition)
         or not mapId or not validRoll(roll, Overlay.ROLL_MAX or 10000) then
       return native, nil, "invalid-overlay-input"
     end
+    local legacyPool, legacyFamilies = {}, {}
+    if args.legacyEnabled == true then
+      for _, row in ipairs(H.legacyHabitats(root, mapId,
+          args.registeredFamilies, args.legacyFamilies)) do
+        legacyPool[#legacyPool + 1] = row.family
+        legacyFamilies[row.family] = true
+      end
+    end
     local traces = H.activeTraces(root, mapId, args.registeredFamilies)
-    local tracePool, traceFamilies = {}, {}
+    local tracePool = {}
     local forced = dueTrace(traces)
     for _, row in ipairs(traces) do
       tracePool[#tracePool + 1] = row.family
-      traceFamilies[row.family] = true
-    end
-    if args.legacyEnabled == true then
-      for _, row in ipairs(H.legacyHabitats(
-          root, mapId, args.registeredFamilies)) do
-        if not traceFamilies[row.family] then
-          tracePool[#tracePool + 1] = row.family
-        end
-      end
     end
     local normalPool = {}
     if args.normalEnabled == true then
@@ -554,24 +560,30 @@ function Module.create(State, Overlay, Acquisition)
     for _, family in ipairs(familyRowsForMap(
         mapId, "starter", args.registeredFamilies)) do
       if type(args.starterUnlocked) == "table"
-          and args.starterUnlocked[family] == true then
+          and args.starterUnlocked[family] == true and not legacyFamilies[family] then
         starterPool[#starterPool + 1] = family
       end
     end
 
     local family, mode, natural, guaranteed, lower
+    local traceMinimum = #legacyPool > 0 and H.TRACE_HIT_MIN - 100 or H.TRACE_HIT_MIN
+    local traceMaximum = #legacyPool > 0 and H.NORMAL_HIT_MIN - 1 or 10000
     if forced then
       family, mode, guaranteed = forced.family, "trace", true
       natural = false
-    elseif #tracePool > 0 and roll >= H.TRACE_HIT_MIN then
-      family = selectedFamily(tracePool, roll, H.TRACE_HIT_MIN)
-      mode = traceFamilies[family] and "trace" or "legacy"
-      natural, lower = true, H.TRACE_HIT_MIN
+    elseif #legacyPool > 0 and roll >= H.NORMAL_HIT_MIN then
+      family = validRoll(args.familyRoll, #legacyPool) and legacyPool[args.familyRoll]
+        or selectedFamily(legacyPool, roll, H.NORMAL_HIT_MIN)
+      mode, natural, lower = "legacy", true, H.NORMAL_HIT_MIN
+    elseif #tracePool > 0 and roll >= traceMinimum and roll <= traceMaximum then
+      family = selectedFamily(tracePool, roll, traceMinimum)
+      mode = "trace"
+      natural, lower = true, traceMinimum
     else
       local starterMinimum = #tracePool > 0
-        and H.STARTER_WITH_TRACE_HIT_MIN or H.STARTER_HIT_MIN
+        and traceMinimum - 50 or H.STARTER_HIT_MIN
       local starterMaximum = #tracePool > 0
-        and H.TRACE_HIT_MIN - 1 or H.NORMAL_HIT_MIN - 1
+        and traceMinimum - 1 or H.NORMAL_HIT_MIN - 1
       if #starterPool > 0 and roll >= starterMinimum
           and roll <= starterMaximum then
         family = selectedFamily(starterPool, roll, starterMinimum)
@@ -590,7 +602,7 @@ function Module.create(State, Overlay, Acquisition)
         args.levelMode, args.badgeCount)
       local species
       species, level = selectSpecies(args.game, def, roll, level,
-        mode ~= "starter" and mode ~= "trace")
+        mode ~= "starter" and mode ~= "trace" and mode ~= "legacy")
       output.species, output.level = species, level
       output.kaEncounterSource = "hoenn_discovery"
       output.kaProtected = true
@@ -796,6 +808,7 @@ function Module.create(State, Overlay, Acquisition)
     end
     local record = familyRecord(out, family, true)
     record.pendingCatch = nil
+    record.traceMap = record.traceMap or pending.mapId
     out = State.mark(out, "hoenn", family, "caught")
     local unlocked
     out, unlocked = State.unlock(out, "hoenn", family)
@@ -1078,7 +1091,7 @@ function Module.create(State, Overlay, Acquisition)
     local function fieldPolicy(game)
       local access = deps.fieldAccess
       local normal, legacy, levelMode, badges = false, false, "route", 0
-      local starters = {}
+      local starters, legacyFamilies = {}, {}
       local ordinaryAllowed = {}
       if type(access) == "table" then
         if type(access.normalEnabled) == "function" then
@@ -1111,8 +1124,12 @@ function Module.create(State, Overlay, Acquisition)
             for _, family in ipairs(rows) do ordinaryAllowed[family] = true end
           end
         end
+        if legacy and type(access.legacyFamilies) == "function" then
+          local ok, rows = pcall(access.legacyFamilies, game)
+          if ok and type(rows) == "table" then legacyFamilies = rows end
+        end
       end
-      return normal, legacy, levelMode, badges, starters, ordinaryAllowed
+      return normal, legacy, levelMode, badges, starters, ordinaryAllowed, legacyFamilies
     end
 
     function C.cancelPending(reason)
@@ -1198,8 +1215,10 @@ function Module.create(State, Overlay, Acquisition)
         return native
       end
       local families = registered(game)
-      local normal, legacy, levelMode, badges, starters, ordinaryAllowed =
+      local normal, legacy, levelMode, badges, starters, ordinaryAllowed, legacyFamilies =
         fieldPolicy(game)
+      local inherited = legacy and H.legacyHabitats(
+        manager.root(false), ctx.mapId, families, legacyFamilies) or {}
       local normalOnMap = normal
         and #H.familiesForMap(ctx.mapId, "ordinary") > 0
       local hasStarter = false
@@ -1210,8 +1229,7 @@ function Module.create(State, Overlay, Acquisition)
         end
       end
       if #H.activeTraces(manager.root(false), ctx.mapId, families) == 0
-          and (not legacy or #H.legacyHabitats(
-            manager.root(false), ctx.mapId, families) == 0)
+          and #inherited == 0
           and not normalOnMap and not hasStarter then
         return native
       end
@@ -1227,6 +1245,9 @@ function Module.create(State, Overlay, Acquisition)
         game = game,
         normalEnabled = normalOnMap,
         legacyEnabled = legacy,
+        legacyFamilies = legacyFamilies,
+        familyRoll = #inherited > 0 and roll >= H.NORMAL_HIT_MIN
+          and ctx.rng(1, #inherited) or nil,
         levelMode = levelMode,
         badgeCount = badges,
         starterUnlocked = starters,
@@ -1256,13 +1277,20 @@ function Module.create(State, Overlay, Acquisition)
         if not ok or enabled ~= true then return end
       end
       local families = registered(game)
-      if #H.activeTraces(manager.root(false), mapId, families) == 0 then return end
+      local normal, legacy, levelMode, badges, starters, ordinaryAllowed, legacyFamilies =
+        fieldPolicy(game)
+      local inherited = legacy and H.legacyHabitats(
+        manager.root(false), mapId, families, legacyFamilies) or {}
+      if #H.activeTraces(manager.root(false), mapId, families) == 0
+          and #inherited == 0 then return end
       C.serial = C.serial + 1
-      local _, _, levelMode, badges = fieldPolicy(game)
+      local roll = random(1, Overlay.ROLL_MAX or 10000, "hoenn-visible-trace")
       local output, transaction = H.planFieldOverlay(manager.root(true), {
         native = { species=record.species, level=record.level },
         mapId=mapId, registeredFamilies=families,
-        roll=random(1, Overlay.ROLL_MAX or 10000, "hoenn-visible-trace"),
+        roll=roll, legacyEnabled=legacy, legacyFamilies=legacyFamilies,
+        familyRoll=#inherited > 0 and roll >= H.NORMAL_HIT_MIN
+          and random(1, #inherited, "hoenn-visible-family") or nil,
         serial=C.serial, game=game, levelMode=levelMode, badgeCount=badges,
       })
       if not transaction or not profileSpeciesAllowed(game, output.species) then return end
@@ -1293,19 +1321,25 @@ function Module.create(State, Overlay, Acquisition)
         local create = Battle.newWild
         local used = false
         local proposedBattle
+        local roamerBattle
+        local roamers = deps.roamers
         -- WorldAPI.queueScript executes start_battle synchronously. Limit the
         -- factory adapter to the provider's checked start call; restore it on
         -- success, rejected queue and exception. Other scripted battles keep
         -- their source and never acquire a discovery receipt.
         Battle.newWild = function(battleGame, species, level, options)
-          local output, transaction
+          local output, transaction, roamer
           if not used and battleGame == activeGame
               and species == record.species and level == record.level
-              and not (options and options.hooked) then
+              and not (options and (options.hooked or options.scriptedEncounter)) then
             used = true
-            output, transaction = C.proposeVisible(activeGame, record)
+            if roamers and type(roamers.proposeVisible) == "function"
+                and not runRulesBlocked(deps.runRules, activeGame) then
+              output, roamer = roamers.proposeVisible(activeGame, record, self.surfaceInfo)
+            end
+            if not roamer then output, transaction = C.proposeVisible(activeGame, record) end
           end
-          if transaction then
+          if transaction or roamer then
             options = copy(options or {})
             options.randomizerProtected = true
             options.encounterSource = options.encounterSource or "wild"
@@ -1316,12 +1350,19 @@ function Module.create(State, Overlay, Acquisition)
             visibleBattles[battle] = { transaction=transaction, save=activeGame.save }
             proposedBattle = battle
           end
+          if roamer then
+            roamers.bindVisible(battle, roamer)
+            roamerBattle = battle
+          end
           return battle
         end
         local ok, result, reason = pcall(start, self, record, ...)
         Battle.newWild = create
         if (not ok or result ~= true) and proposedBattle then
           visibleBattles[proposedBattle] = nil
+        end
+        if (not ok or result ~= true) and roamerBattle then
+          roamers.bindVisible(roamerBattle, nil)
         end
         if not ok then error(result, 0) end
         return result, reason

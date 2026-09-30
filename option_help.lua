@@ -63,8 +63,8 @@ return function(i18n)
       "Checks Surprise Trainer teams against a documented base-stat window, repairs overly strong members only within their legal evolution family and rebuilds moves from active level, machine and tutor sources. It never reads player types. OFF restores the previous team builder.",
       "Prüft Überraschungstrainer-Teams gegen ein dokumentiertes Basiswerte-Fenster, stuft zu starke Mitglieder nur innerhalb ihrer legalen Entwicklungsfamilie zurück und baut Attacken aus aktiven Level-, Maschinen- und Tutorquellen. Spielertypen werden nie gelesen. AUS stellt den bisherigen Team-Builder wieder her." },
     hoenn_encounters = {
-      "After receiving Hoenn Honey and the Hoenn Dex, allows the character-bound Hoenn habitat layer in a standard journey. Legacy New Game+ uses Wanderer traces instead; Legendary and Mythical Pokémon never enter the ordinary pool.",
-      "Erlaubt nach Erhalt von Hoenn-Honig und Hoenn-Dex die charaktergebundene Hoenn-Habitatschicht im Standardspiel. Legacy-Neues-Spiel-Plus nutzt stattdessen Wandertrainer-Spuren; Legendäre und Mysteriöse Pokémon gelangen nie in den normalen Pool." },
+      "Normal journeys use Hoenn Honey and the Hoenn Dex. In NG+, previous character packs and caught Hoenn families share a 1% base-form encounter chance in their habitats, alongside new Wanderer clues. Legendary and Mythical Pokémon keep their own encounters.",
+      "Im Standardspiel gelten Hoenn-Honig und Hoenn-Dex. Im NG+ teilen frühere Figurenpakete und gefangene Hoenn-Familien eine 1-%-Begegnungschance als Basisform in ihren Lebensräumen; neue Wandertrainer-Spuren bleiben möglich. Legendäre und Mysteriöse behalten eigene Begegnungen." },
     hoenn_level_mode = {
       "Sets levels for ordinary Hoenn visitors: ROUTE follows the native encounter, BADGES follows safe story progress, and PARTY follows the rounded active-party average. Evolution minimums are always respected.",
       "Bestimmt die Level gewöhnlicher Hoenn-Gäste: ROUTE folgt der nativen Begegnung, ORDEN dem sicheren Storyfortschritt und TEAM dem gerundeten Durchschnitt des aktiven Teams. Mindestlevel für Entwicklungen gelten immer." },
@@ -273,8 +273,8 @@ return function(i18n)
       "Enables the Mew and Celebi signal investigations and their associated encounters.",
       "Aktiviert die Mew- und Celebi-Signaluntersuchungen samt zugehörigen Begegnungen." },
     hoenn_roamers = {
-      "Lets Latias and Latios roam Kanto after Hoenn Honey and the Hoenn Dex have unlocked normal Hoenn field access. Their route, DVs, HP and status survive reloads.",
-      "Lässt Latias und Latios durch Kanto wandern, sobald Hoenn-Honig und Hoenn-Dex den normalen Hoenn-Feldzugang öffnen. Route, DVs, KP und Status überstehen Neuladen." },
+      "Lets Latias and Latios roam Kanto with the Hoenn Dex; normal journeys also need Hoenn Honey, NG+ does not. Hoenn encounters must be enabled. Their route, DVs, HP and status survive reloads.",
+      "Lässt Latias und Latios mit dem Hoenn-Dex durch Kanto wandern. Im Standardspiel ist zusätzlich Hoenn-Honig nötig, im NG+ nicht. Hoenn-Begegnungen müssen aktiv sein. Route, DVs, KP und Status überstehen Neuladen." },
     hoenn_roamer_flee = {
       "Allows Latias and Latios to flee after their first action. Damage and status remain for the next encounter; a knockout starts a three-map recovery.",
       "Erlaubt Latias und Latios nach ihrer ersten Aktion zu fliehen. Schaden und Status bleiben bis zur nächsten Begegnung; nach einem K. o. erholen sie sich über drei Kartenwechsel." },

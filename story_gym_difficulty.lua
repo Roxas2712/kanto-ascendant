@@ -239,11 +239,16 @@ return function(mod, opts)
     return true
   end
 
+  local function gymMap(game)
+    local id = game and game.overworld and game.overworld.map and game.overworld.map.id
+    return opts.canonicalGymMap and opts.canonicalGymMap(id) or id
+  end
+
   local function contextFor(game, class, partyIndex, party, version)
     local def = LEADERS[class]
     local core = def and coreFor(def, version)
     if not (def and core and game and game.save and game.overworld
-        and game.overworld.map and game.overworld.map.id == def.map
+        and game.overworld.map and gymMap(game) == def.map
         and tonumber(partyIndex) == def.party and not hallOfFame(game.save)
         and not (game.save.inventory and game.save.inventory[def.badge])
         and exactCore(party, core)) then
@@ -254,7 +259,7 @@ return function(mod, opts)
 
   local function battleContextValid(game, def)
     return def and game and game.save and game.overworld
-      and game.overworld.map and game.overworld.map.id == def.map
+      and game.overworld.map and gymMap(game) == def.map
       and not hallOfFame(game.save)
       and not (game.save.inventory and game.save.inventory[def.badge]) or false
   end
@@ -464,14 +469,14 @@ return function(mod, opts)
       for index = #pending, 1, -1 do
         local old = pending[index]
         if old.class == class and tonumber(old.party) == tonumber(partyIndex)
-            and old.map == def.map then
+            and old.map == currentGame.overworld.map.id then
           table.remove(pending, index)
         end
       end
       if #pending >= 16 then table.remove(pending, 1) end
       pending[#pending + 1] = {
         class = class, party = partyIndex, tier = tier, version = version,
-        map = def.map, authoredParty = clone(authored),
+        map = currentGame.overworld.map.id, authoredParty = clone(authored),
         resolvedParty = clone(resolved),
       }
     end

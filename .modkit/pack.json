@@ -1,7 +1,22 @@
 {
-  "version": "6.7.29",
+  "version": "6.7.30",
   "local_candidate": false,
+  "source_commit": "81523fd929e77bcfb5bafd17e03db792f3b321d7",
+  "source_parents": [
+    "09df020f16c0235d19682d48edb410dedb321523",
+    "5edc6a4bae6a2a4451aebd4ed24478fa412fd8ff"
+  ],
   "files": [
+    {
+      "path": "BASE_INTEGRATION_AUDIT.md",
+      "sha256": "e68533d2ec39e25271d1a27c2c7720a2f1cb97db90e854ce8850f08b83016486",
+      "bytes": 6475
+    },
+    {
+      "path": "BLAINE_VOLCANO_QA.md",
+      "sha256": "517be81852f37f030c2834f90a27969e2614f3c61679188de93eb6165ee0ee8d",
+      "bytes": 6113
+    },
     {
       "path": "HUNTING_CLUB.md",
       "sha256": "dd9fd6dc7715f51d5a7e0d82867b1773f119f2b01d1b98def02f1bfbfd4bd4e1",
@@ -9,8 +24,8 @@
     },
     {
       "path": "LOCAL_RC.md",
-      "sha256": "b62aa1131713792517a18d4f1a0676af190a4f49cdb62ec8a3db005c4d59e047",
-      "bytes": 1455
+      "sha256": "0965b203ff2389fa18bd07889a2e9ea167511dcebce338933d9ca1ba6cd74a8b",
+      "bytes": 858
     },
     {
       "path": "MegaOriginalData.lua",
@@ -21,6 +36,11 @@
       "path": "MegaSpriteCollection.lua",
       "sha256": "58b6aa9ccb7a7b845ce480e320944e208ecf48538e6bf418ace0f6c20fbe8bf3",
       "bytes": 2944
+    },
+    {
+      "path": "NGPLUS_HOENN_QA.md",
+      "sha256": "e6c14a9235913fb810480e7b76b1f1f4bc1bdc07f21c4a641070a06c98265466",
+      "bytes": 5826
     },
     {
       "path": "PERFORMANCE-GIFT-HISTORY.md",
@@ -34,18 +54,18 @@
     },
     {
       "path": "QA-REPORT.md",
-      "sha256": "bde08d2bdeb2d0a92b83443c73969d3730648bc29b0fc3ec0156055567500694",
-      "bytes": 2566
+      "sha256": "46cc2dc0653da13fc642d259d3af4e27cbba0203815cf0a9efa911459474bef4",
+      "bytes": 6819
     },
     {
       "path": "README.md",
-      "sha256": "794072ea0812f5a88a76dd3ee9f734d65510dd35703a9822716522fa2fbfc30f",
-      "bytes": 12902
+      "sha256": "1d7ad62cc35de39706fcb39e3e84a545329c89f31fc8827413a3618ee1615b11",
+      "bytes": 15043
     },
     {
       "path": "RELEASE_NOTES.md",
-      "sha256": "2d2043c3a0644e190f596929a0908f21e0e423b914ecbc99012bd1ac5a2080cf",
-      "bytes": 1066
+      "sha256": "1b703fdce82ac5f80117ea7b991022c7e212137b613e94e3d1652ebc089e687d",
+      "bytes": 1465
     },
     {
       "path": "RELEASE_NOTES_6.7.11_RC1.md",
@@ -166,6 +186,11 @@
       "path": "RELEASE_NOTES_6.7.28.md",
       "sha256": "d83ed668c0aa9ee71ba9f1b429cdb9b17903d1521f22d124d9b48f6315558e7c",
       "bytes": 1899
+    },
+    {
+      "path": "SEPTEMBER30_SPRITE_QA.md",
+      "sha256": "4f947b348ba50b6605a0f404fc768abc89833b46a9730a55239190aa47be57c8",
+      "bytes": 1245
     },
     {
       "path": "SUPPORT_REPORTS.md",
@@ -8828,6 +8853,11 @@
       "bytes": 804
     },
     {
+      "path": "assets/characters/hoenn_visitor_walk.png",
+      "sha256": "b53300933d8858f02cd96c6ac542bcd70a968a94fe63c0872064db2956f0b321",
+      "bytes": 822
+    },
+    {
       "path": "assets/crystal/gorochu_back.png",
       "sha256": "13e40dc1363529e3f8b1e5fea1a7b64cf5818e0838b8e5a7768121ccaebf6ec1",
       "bytes": 1518
@@ -15211,6 +15241,26 @@
       "path": "assets/sources/characters/green_reference_phase5.png",
       "sha256": "2367f78c3f02cb0789d84e9d3af5f1dcc1bc4bf246d39d93f0ccfb9d9b13673b",
       "bytes": 1440906
+    },
+    {
+      "path": "assets/sources/characters/hoenn_visitor/PROVENANCE.md",
+      "sha256": "a3c828cb02fde18c01ca69ad17f20ca6d5ae044e029a02d2dfe673f1d2c24bb6",
+      "bytes": 3823
+    },
+    {
+      "path": "assets/sources/characters/hoenn_visitor/build.py",
+      "sha256": "6da62f0a8b87d2b7097641b1676baf246a1097e9b627dc6c9837b1a08a35b700",
+      "bytes": 1486
+    },
+    {
+      "path": "assets/sources/characters/hoenn_visitor/gen1_master_v2.png",
+      "sha256": "fcb5880778a352f939e2c2d0f50a9c7d7c6666d9c620eaa4bf4ee94a20d53740",
+      "bytes": 1099849
+    },
+    {
+      "path": "assets/sources/characters/hoenn_visitor/master.png",
+      "sha256": "6327c742292e3ab53895217f3783bf759f54d1a236f53dc15678b7281bb0ba73",
+      "bytes": 1089745
     },
     {
       "path": "assets/sources/gorochu/PINFINITY_2D_PROVENANCE.json",
@@ -24508,6 +24558,11 @@
       "bytes": 3413
     },
     {
+      "path": "blaine_volcano_route.lua",
+      "sha256": "fc4a6f97dfa6d01b68f2095081dfcacd08c4ce4a2a5669c3a991d399f7e5039c",
+      "bytes": 7355
+    },
+    {
       "path": "breeding_data.lua",
       "sha256": "4c3e9b2b7757a15a4f16cc00557193a02abb45c930ceab6ce07723fdb2465ceb",
       "bytes": 17921
@@ -24574,8 +24629,8 @@
     },
     {
       "path": "crystal_animation.lua",
-      "sha256": "eedf4b3f048af77bc08fd9c1e7e9ab287abaf7612d3849dd6f176942a7c636c0",
-      "bytes": 72091
+      "sha256": "be2ad45ac8ce6968c3654bf65fb022f5aff44eb70895f2d20c49c823b26aefc5",
+      "bytes": 72322
     },
     {
       "path": "crystal_animation_data.lua",
@@ -25074,8 +25129,8 @@
     },
     {
       "path": "hoenn_discovery.lua",
-      "sha256": "edcf50d6a302594d667ee52b223014612c20689c430ad32dac2589c45add1a8b",
-      "bytes": 56538
+      "sha256": "fa00141e685659837daaaf8c1ea36de4fbec6cd0408c73eb5e46a23b720a87fb",
+      "bytes": 58974
     },
     {
       "path": "hoenn_endgame_access_67.lua",
@@ -25099,8 +25154,8 @@
     },
     {
       "path": "hoenn_field_access_67.lua",
-      "sha256": "050c90070f0521af9abff7449c5f90e666d36f37991305a2bd517ac73871d244",
-      "bytes": 30576
+      "sha256": "f37e6f6803e5b44bfc21e761ae49194b32b94b584e0d819d371a0f8f3210eff8",
+      "bytes": 37278
     },
     {
       "path": "hoenn_jirachi_finale_67.lua",
@@ -25129,8 +25184,8 @@
     },
     {
       "path": "hoenn_roamers_67.lua",
-      "sha256": "01b6dd744cdeaf84129028b895d9421468da682246b7b5b9be3348dd8b29f282",
-      "bytes": 13309
+      "sha256": "29c8f1ba9e53131445824b474045fcf808df13f070123a30979dc33533a09fd7",
+      "bytes": 15156
     },
     {
       "path": "hoenn_species_67.lua",
@@ -25844,8 +25899,8 @@
     },
     {
       "path": "local-rc-receipt.json",
-      "sha256": "883f087611d834d516641955fcd6d03b3a7410d566c131582f7677b5ed574feb",
-      "bytes": 1101363
+      "sha256": "1ff251464074807e28b839bfd9fd2db875d753dc287b53ea99c9d1c5a2a1f1e2",
+      "bytes": 1104490
     },
     {
       "path": "localization.lua",
@@ -25854,12 +25909,12 @@
     },
     {
       "path": "main.lua",
-      "sha256": "70226e606475c3f5f95708bb799f50583a513db80612712da35d443e81732b78",
-      "bytes": 314523
+      "sha256": "a64a8d91a33822581c2f95d869e99ca2681b66637660f299d7fe65fe80ebb073",
+      "bytes": 315234
     },
     {
       "path": "manifest.json",
-      "sha256": "6e5a186c1dba0a247198fd801373bb1cc7301959e8bffd8632352f05ceab3662",
+      "sha256": "baa230e993d9eba65cb263a74ad7648e1a39669b3a287cf2773bbbb00d99dc61",
       "bytes": 30125
     },
     {
@@ -25999,8 +26054,8 @@
     },
     {
       "path": "option_help.lua",
-      "sha256": "21a4041d2842c63931d3e7a0bec7d24ada8707b9144b4e3f4cf33641b93e0af3",
-      "bytes": 44819
+      "sha256": "8533309b3a7f60477e3b11371b2865c848763d2d6210cdd208be9ae8c9350dad",
+      "bytes": 44963
     },
     {
       "path": "party_icons.lua",
@@ -26794,8 +26849,8 @@
     },
     {
       "path": "postgame.lua",
-      "sha256": "a5f8c59e678612896383108d429fdbc01047d1f8495e27d3e4db5fbfbf52f30b",
-      "bytes": 62378
+      "sha256": "5c0c88bbdda74870769724c2d3ff105c170bffda5beff9dcc0860e3a220ace93",
+      "bytes": 62464
     },
     {
       "path": "postgame_data.lua",
@@ -27154,8 +27209,8 @@
     },
     {
       "path": "story_gym_difficulty.lua",
-      "sha256": "4cf76bf49ff368542c2d46508f52d451e43ff58e2af9944607462c30ccaa6138",
-      "bytes": 25532
+      "sha256": "8372fde26e5c8035948d3f7725dfba1e03700132555466d0850e4338269d571f",
+      "bytes": 25748
     },
     {
       "path": "story_level_cap.lua",
@@ -27221,6 +27276,21 @@
       "path": "tests/backend_live_learnsets_performance_test.lua",
       "sha256": "02843bf20e6c1a1b88f2fffa39869163a2b3ad558cfefb0d7eae323d4e749bc2",
       "bytes": 2209
+    },
+    {
+      "path": "tests/blaine_volcano_native_driver.lua",
+      "sha256": "fb3ec541b35883bdaf8166cd36981e687d761be0e2be5ec26bc71500a7765111",
+      "bytes": 3972
+    },
+    {
+      "path": "tests/blaine_volcano_route_test.lua",
+      "sha256": "8978ae98b836969ef49571db8a21d7a4609e26756c3caeedfaeb27f04f23303f",
+      "bytes": 6268
+    },
+    {
+      "path": "tests/crystal_explicit_style_test.lua",
+      "sha256": "4b67f1513edb0c1f462aeb4d19f427586c84dfd01e635b519c88e6d9577c178f",
+      "bytes": 2548
     },
     {
       "path": "tests/error_inbox_test.lua",
@@ -27338,6 +27408,11 @@
       "bytes": 4203
     },
     {
+      "path": "tests/hoenn_visitor_schedule_test.lua",
+      "sha256": "67eaab3b3337af9b637af2424b574c6976575edced1fe7f5aca89896e76f490e",
+      "bytes": 5303
+    },
+    {
       "path": "tests/hunting_club_menu_test.lua",
       "sha256": "aad26f21e5d572b25aab7eea0ec7a48b6355edc1f2fdf914164afa064a121b8d",
       "bytes": 5159
@@ -27346,6 +27421,16 @@
       "path": "tests/hunting_club_test.lua",
       "sha256": "f9b4b1293f9612e4f32af3f31fdff99373ea13227c24376d2a18d2dc40d8de1a",
       "bytes": 8381
+    },
+    {
+      "path": "tests/ngplus_hoenn_habitats_test.lua",
+      "sha256": "29a32ce4e2ff86ffef849b62c032beb97c2233409b32bae18560ee1f304a5939",
+      "bytes": 14683
+    },
+    {
+      "path": "tests/ngplus_hoenn_native_test.lua",
+      "sha256": "3613594c85be513c31be6e692884a56e62b45c5bbca1da4dc8ff2661c795e28b",
+      "bytes": 7266
     },
     {
       "path": "tests/randomizer_progress_test.lua",
@@ -28867,5 +28952,7 @@
       "sha256": "3d8db0eaa8e1a4c1397da439a569d5ffbbed24bdf23dbec9aef1fc42316268e3",
       "bytes": 66347
     }
-  ]
+  ],
+  "source_candidate_version": "6.7.30-rc.1",
+  "source_candidate_sha256": "5c86b31a5beccf8e5eb224c75c59fc4f13d48aba43f6c7ed8ece9b9651ded7f6"
 }

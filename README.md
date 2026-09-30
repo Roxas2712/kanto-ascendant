@@ -1,4 +1,28 @@
-> Lokaler Integrationsstand vom 29.09.2026. Siehe LOCAL_RC.md; die folgenden öffentlichen Release-Dokumente bleiben als Referenz erhalten.
+# Kanto Ascendant 6.7.30 — integrated Hoenn NG+ and Blaine volcano
+
+- Combines the complete public 6.7.29 / latest integration base with Hoenn NG+, the revised Hoenn visitor, Blaine's volcano route and the Crystal colour correction. Keeps the embedded startup/loading screen, character/wardrobe integration, Wilds and memory/performance fixes.
+- Restores eligible previously caught Hoenn families as base forms in the shared NG+ habitat pool. Latias and Latios can roam in NG+ with the Hoenn Dex; the visitor uses revised Gen-1 artwork and visit scheduling.
+- Moves Blaine from the original final Gym room through a connecting tunnel and volcano approach to a compact battle platform. Preserves the quiz, existing saves, native story battle, Volcano Badge, Fire Blast and Master/Crown recognition.
+- Keeps Gorochu's normal/shiny colours when Crystal battle graphics are explicitly selected, including the static fallback. Intentional Classic/native monochrome palettes remain supported.
+
+Recommended companion: **VASC 3.0.57**. No new save is required. This replaces the incomplete local 6.7.29-rc.4.pyro.1/.2 companion, which had accidentally been based on 6.7.28. The unfinished, separate Sevii expansion is not included.
+
+13 targeted regression suites plus native startup/continue, save/reload, Blaine route/battle-entry/reward/return checks passed. The reward test completes the native battle callback with a fixture victory; it is not an AI or balance test.
+
+---
+
+Earlier candidate documentation (historical):
+
+# KASC 6.7.30-rc.1 — vollständige Integration mit Pyro und Hoenn NG+
+
+Lokaler Teststand auf Basis des öffentlichen KASC 6.7.29 und des lokalen Integrations-RC.3. Enthält zusätzlich die Hoenn-NG+-Habitate, Eon-Roamer, den überarbeiteten Hoenn-Besucher, Pyros Vulkanroute mit kompakter 18×12-Kampfplattform und die explizite Crystal-Farbwahl für Gorochu.
+
+Der ältere Begleiter 6.7.29-rc.4.pyro.2 basierte versehentlich auf 6.7.28. Dieser Kandidat stellt die fehlenden Lade-, Figuren- und Performance-Änderungen wieder her. Details und Prüfgrenzen stehen in BASE_INTEGRATION_AUDIT.md. Der separate, noch nicht freigabefertige Sevii-Entwicklungsstand ist nicht Bestandteil dieses Kandidaten.
+
+Siehe auch BLAINE_VOLCANO_QA.md und NGPLUS_HOENN_QA.md.
+
+---
+
 
 # KASC 6.7.28 — Randomizer progression hotfix
 

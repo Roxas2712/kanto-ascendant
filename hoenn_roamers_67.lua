@@ -1,7 +1,7 @@
 -- KASC 6.7 Latias/Latios persistent roaming card.
 --
--- Normal Hoenn field access (Honey + Hoenn Dex, outside Legacy NG+) is the
--- only activation authority.  Each Eon Pokemon owns one durable identity:
+-- Field access owns activation: Honey + Dex normally, Hoenn Dex in NG+.
+-- Each Eon Pokemon owns one durable identity:
 -- route, DVs, HP, status and KO recovery all survive save/reload.
 
 return function(mod, opts)
@@ -33,6 +33,7 @@ return function(mod, opts)
   }
 
   local activeGame, pending
+  local visibleBattles = setmetatable({}, {__mode="k"})
   local randomInt = opts.randomInt or function(lo, hi)
     if love and love.math and love.math.random then return love.math.random(lo, hi) end
     return math.random(lo, hi)
@@ -214,24 +215,49 @@ return function(mod, opts)
     return true, s.caught[species]
   end
 
+  local function proposal(game, mapId, rng)
+    if not R.available(game) then return end
+    R.initialize(game)
+    local s = state(false)
+    for _, species in ipairs(R.order) do
+      local row = s and s.roamers[species]
+      if row and row.recovery <= 0 and row.map == mapId
+          and rng(1, R.ENCOUNTER_DENOMINATOR) == 1 then
+        return {species=species, map=mapId, level=R.LEVEL, save=game.save}
+      end
+    end
+  end
+
+  local function encounter(row)
+    return {species=row.species, level=row.level, kaProtected=true,
+      kaEncounterSource="hoenn_roamer"}
+  end
+
+  function R.proposeVisible(game, record, surface)
+    if not record or record.kaProtected or record.scriptedEncounter
+        or record.testSpawn or record.readinessProbe
+        or not surface or surface.surface ~= "GRASS"
+        or not game.overworld or not game.overworld.map
+        or record.mapId ~= game.overworld.map.id then return end
+    local row = proposal(game, record.mapId, randomInt)
+    if row then return encounter(row), row end
+  end
+
+  function R.bindVisible(battle, row) visibleBattles[battle] = row end
+
   if mod.hooks and type(mod.hooks.wrap) == "function" then
     mod.hooks:wrap("encounter.roll", function(nextRoll, encDef, ctx)
       pending = nil
       local native = nextRoll(encDef, ctx)
-      if not (native and ctx and ctx.terrain == "grass" and R.available(activeGame)) then
+      if not (native and ctx and ctx.terrain == "grass")
+          or native.kaProtected or native.kaEncounterSource
+          or ctx.kaProtected or ctx.kaEncounterSource
+          or ctx.opts and (ctx.opts.hooked or ctx.opts.scriptedEncounter
+            or ctx.opts.randomizerProtected) then
         return native
       end
-      R.initialize(activeGame)
-      local s = state(false)
-      for _, species in ipairs(R.order) do
-        local row = s and s.roamers[species]
-        if row and row.recovery <= 0 and row.map == ctx.mapId
-            and ctx.rng(1, R.ENCOUNTER_DENOMINATOR) == 1 then
-          pending = { species=species, map=ctx.mapId, level=R.LEVEL }
-          return { species=species, level=R.LEVEL, kaProtected=true,
-            kaEncounterSource="hoenn_roamer" }
-        end
-      end
+      pending = proposal(activeGame, ctx.mapId, ctx.rng)
+      if pending then return encounter(pending) end
       return native
     end, R.ENCOUNTER_PRIORITY)
 
@@ -249,11 +275,23 @@ return function(mod, opts)
   if mod.events and type(mod.events.on) == "function" then
     mod.events:on("battle.started", function(ev)
       local battle = ev and ev.battle
-      local proposal = pending
+      local proposal = battle and visibleBattles[battle] or pending
+      if battle then visibleBattles[battle] = nil end
       pending = nil
       if not (proposal and battle and battle.kind == "wild"
+          and battle.game and battle.game.save == proposal.save
+          and R.available(battle.game)
+          and not battle.scriptedEncounter and not battle.noCatch
+          and not battle.demo and not battle.safari and not battle.ghost
           and battle.enemy and battle.enemy.mon
-          and battle.enemy.mon.species == proposal.species) then return end
+          and battle.enemy.mon.species == proposal.species
+          and battle.enemy.mon.level == proposal.level) then return end
+      local origin = battle.checkpointOrigin
+      local mapId = origin and origin.map or battle.game.overworld
+        and battle.game.overworld.map and battle.game.overworld.map.id
+      if mapId ~= proposal.map or battle.encounterSource ~= nil
+          and battle.encounterSource ~= "wild"
+          and battle.encounterSource ~= "hoenn_roamer" then return end
       local s = state(false)
       local row = s and s.roamers[proposal.species]
       if not row or row.map ~= proposal.map or row.recovery > 0 then return end
@@ -330,6 +368,7 @@ return function(mod, opts)
     for _, event in ipairs({ "save.loaded", "save.created", "game.ready" }) do
       mod.events:on(event, function(ev)
         pending = nil
+        visibleBattles = setmetatable({}, {__mode="k"})
         activeGame = ev and ev.game or activeGame
         if activeGame then R.initialize(activeGame) end
       end, R.EVENT_PRIORITY)
@@ -337,6 +376,8 @@ return function(mod, opts)
   end
 
   function R.install(game, deps)
+    pending = nil
+    visibleBattles = setmetatable({}, {__mode="k"})
     activeGame = game or activeGame
     deps = deps or {}
     local BattleState = deps.battleState or require("src.battle.BattleState")
