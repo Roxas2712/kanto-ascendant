@@ -1,11 +1,12 @@
-# Kanto Ascendant 6.7.31 — volcano audio and visitor fixes
+# Kanto Ascendant 6.7.32 — narrower Pyro volcano platform
 
-- Plays one native transition cue after each successful scripted volcano stair link. Failed transitions stay silent.
-- Uses Gym music in Blaine's corridor and battle chamber; keeps Dungeon music at the volcano foot.
-- Supplies exact stair metadata for the matching VASC route geometry without changing collision or destinations.
-- Declining honey no longer makes the Hoenn visitor disappear as her visit timer expires. She stays until the player leaves the house, then resumes her normal return schedule; the reward remains one-time.
-- Makes rival spectator-duel Pokémon available to VASC's follower-style selection while retaining KASC's actor movement and lifetime.
+Pyro/Blaine's suspended court is now 14 rather than 18 cells wide, centered on the same Pokéball marking. This leaves more of the surrounding lava visible with the matching VASC MAP battle view.
 
-Update together with **VASC 3.0.58** for the restored gatehouses, continuous glass-door view, lava battle arena, 3D stairs and seated visitor. Complete public 6.7.30 integration retained; no new save required.
+- Native collision and the VASC v3 geometry contract agree.
+- Bridge, stair destinations, leader identity/party, quiz, music, badge and rewards retain their existing behavior.
+- The engine's existing position recovery safely places older edge saves on the new walkable floor.
+- Includes the complete public 6.7.31 baseline. No stat, ability or battle-rule changes.
 
-The paired candidates passed 25 targeted suites and native desktop checks. A controlled Gorochu/Arcanine entry test found Intimidate lowering temporary Attack only; the user's uncertain historical stat change was not reproduced. No stat or ability logic changed. See the attached QA report for precise coverage.
+**Update together with [VASC 3.0.60](https://github.com/Roxas2712/voxel-ascendant/releases/tag/v3.0.60)** for the central MAP battle, visible lava/fountains and new Sea Terrarium. Replace the existing mod copies and keep saves/settings.
+
+Promoted from the tested 6.7.32-rc.1 candidate with identical runtime code and assets. The route suite passed 1,564 checks, and the native desktop test confirmed safe loading from all four removed edge columns. Lua syntax, archive CRC and file-hash checks passed.

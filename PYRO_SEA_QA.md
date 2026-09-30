@@ -1,6 +1,6 @@
-# KASC 6.7.32 public release verification
+# Promoted to public KASC 6.7.32
 
-Promoted from the tested 6.7.32-rc.1 archive. Runtime Lua and assets are byte-identical; only release metadata, documentation and receipts change. The candidate report below describes the tests performed before promotion; statements that it was not yet published refer to that historical test stage.
+The following candidate test report is historical; this package is the public release.
 
 # Pyro MAP / Sea Terrarium verification — local candidates
 

@@ -65,14 +65,14 @@ check(reachable(R.FOOT,15,19,15,12),'foothill entrance reachable')
 check(reachable(R.CHAMBER,24,28,25,13),'leader approachable from bridge')
 local chamber=maps[R.CHAMBER];local cm=runtime(R.CHAMBER)
 check(chamber.width==24 and chamber.height==18,'48x36 cell envelope')
-for y=10,21 do for x=16,33 do check(cm:isWalkableCell(x,y),'clear arena floor '..x..','..y)end end
+for y=10,21 do for x=18,31 do check(cm:isWalkableCell(x,y),'clear arena floor '..x..','..y)end end
 for y=0,cm.heightCells-1 do for x=0,cm.widthCells-1 do
   if chamber.blocks[math.floor(y/2)*chamber.width+math.floor(x/2)+1]==128 then
     check(not cm:isWalkableCell(x,y) and not cm:isWaterCell(x,y),'lava cannot be walked or surfed')
   end
 end end
-check(chamber.kaArenaGeometry.version==2,'compact court contract')
-check(not cm:isWalkableCell(15,16)and not cm:isWalkableCell(34,16)and not cm:isWalkableCell(25,9)and not cm:isWalkableCell(20,22),'lava surrounds all four court sides')
+check(chamber.kaArenaGeometry.version==3,'compact court contract')
+check(not cm:isWalkableCell(17,16)and not cm:isWalkableCell(32,16)and not cm:isWalkableCell(25,9)and not cm:isWalkableCell(20,22),'lava surrounds all four court sides')
 local npc={def=chamber.objects[1],id=R.CHAMBER..'_obj_1'}
 check(npc.def.name==native.objects[1].name and npc.def.trainerClass=='OPP_BLAINE' and npc.def.trainerParty==1,'native leader identity/party')
 local headers=dofile(dataRoot..'/trainer_headers.lua')

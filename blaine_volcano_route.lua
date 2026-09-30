@@ -112,17 +112,17 @@ return function(mod, opts)
     local chamber=map(R.CHAMBER,1998,gym.label,arenaSkin.id,24,18,125)
     chamber.voxelSurround='volcano';chamber.palette=palette
     rect(chamber,1,1,22,16,128)
-    rect(chamber,8,5,16,10,25)
-    for x=8,16 do put(chamber,x,5,41);put(chamber,x,10,41) end
+    rect(chamber,9,5,15,10,25)
+    for x=9,15 do put(chamber,x,5,41);put(chamber,x,10,41) end
     rect(chamber,12,11,12,14,41)
     put(chamber,12,14,60)
-    -- A compact 3:2 Pokemon court leaves a lava moat on every side.
+    -- A narrow Pokemon court leaves a lava moat on every side.
     -- Keep the broad crater envelope; only the platform and entrance bridge
     -- are walkable. VASC consumes this versioned geometry contract.
-    chamber.kaArenaGeometry={version=2,kind='suspended-over-lava',
-      platform={x=16,y=10,width=18,height=12},
+    chamber.kaArenaGeometry={version=3,kind='suspended-over-lava',
+      platform={x=18,y=10,width=14,height=12},
       bridge={x=24,y=22,width=2,height=8},
-      suspensionAnchors={{16,10},{33,10},{16,21},{33,21}},
+      suspensionAnchors={{18,10},{31,10},{18,21},{31,21}},
       leader={x=25,y=12},entry={x=24,y=28},lavaBlock=128,
       lavaBounds={x=2,y=2,width=44,height=32},
       coordinateUnit='16px-cell',rendering='compact-court-awaiting-VASC-suspension'}

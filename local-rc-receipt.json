@@ -1,9 +1,9 @@
 {
-  "version": "6.7.31",
+  "version": "6.7.32",
   "local_candidate": false,
-  "source_commit": "b51161356fb80c3d949866187c8abcf4772bb9de",
+  "source_commit": "baf066ee9af59c2d8f0d3fafc49521af9b3f2cd0",
   "source_parents": [
-    "89fb0948a02a13092bb980df8abbd545f2a8038c"
+    "24f300c5103f78a631f87fc2037cb2da0ed68f9e"
   ],
   "files": [
     {
@@ -23,8 +23,8 @@
     },
     {
       "path": "LOCAL_RC.md",
-      "sha256": "f42d4c68296072d25592185b62611dddc217e3dbc47550b23b1718dc5ed555c0",
-      "size_bytes": 1483
+      "sha256": "2908c0c1bf9fa398e0664d8fa8f3d14e59142dc8be4897fafbf1564cd7275550",
+      "size_bytes": 2319
     },
     {
       "path": "MegaOriginalData.lua",
@@ -52,24 +52,29 @@
       "size_bytes": 3930
     },
     {
+      "path": "PYRO_SEA_QA.md",
+      "sha256": "f2a981564258789d9b33a758011cdf7cfae018933c8cbf12146be4a5b5a0e86b",
+      "size_bytes": 2850
+    },
+    {
       "path": "PokemonOptionalAssets.lua",
       "sha256": "08525ba1c3bc5c923a49c45ec4cd46c3e5e0aff55191ac617f649170e59984bc",
       "size_bytes": 12959906
     },
     {
       "path": "QA-REPORT.md",
-      "sha256": "83adeda111e015f0efb40975e089d66ccda27bb3c12d85148cec7dcd8af74230",
-      "size_bytes": 4274
+      "sha256": "a49e20bbe8f9913c498034c14df111489c1b75a6983cd6d80590374ffc7da0de",
+      "size_bytes": 3072
     },
     {
       "path": "README.md",
-      "sha256": "381879257ab5c13ae4ce17f63f53793d6eac73587d9e420aeddafd9392a0ab85",
-      "size_bytes": 16351
+      "sha256": "410ebed94271efa0b0afe3d2eafa8aa8a0fea8d102995f5a82cc88b4068daa6e",
+      "size_bytes": 18211
     },
     {
       "path": "RELEASE_NOTES.md",
-      "sha256": "33ae87f4fd07da859753c7635fa28229cefeba6bcd51ea4f49a01b1ec30a607c",
-      "size_bytes": 1255
+      "sha256": "237ce7ad732dc0f25c92e84190992dbb89dd5986f0bb22c511f929b53c8ab028",
+      "size_bytes": 1126
     },
     {
       "path": "RELEASE_NOTES_6.7.11_RC1.md",
@@ -24563,8 +24568,8 @@
     },
     {
       "path": "blaine_volcano_route.lua",
-      "sha256": "78e4e5a89adcef1dc776524b189f67eb816cf5981b2d40d7145500f41a5a6757",
-      "size_bytes": 8040
+      "sha256": "8c08e2cd16ded2f5522373e67b632c9f186adf96103d64090f0f3349c00bfd9a",
+      "size_bytes": 8035
     },
     {
       "path": "breeding_data.lua",
@@ -25913,7 +25918,7 @@
     },
     {
       "path": "manifest.json",
-      "sha256": "eab845d1568d309875a8cf580282b6eaaf1601bb88fbcc91b6e4953be69b5bf4",
+      "sha256": "2c8ac73d49483b83ffaca1755895a7ace5b49fdc21694fb221b06669dd92658d",
       "size_bytes": 30125
     },
     {
@@ -27283,7 +27288,7 @@
     },
     {
       "path": "tests/blaine_volcano_route_test.lua",
-      "sha256": "588959cabd26310b4690a32cf227222b57d1c182cced7cd7dd7373bdfd175a22",
+      "sha256": "f018ad8e6892a6bd7ea1397c2e95ed779d5fd27e2e329616579e24ee61e7dae5",
       "size_bytes": 7072
     },
     {
@@ -28952,6 +28957,6 @@
       "size_bytes": 66347
     }
   ],
-  "source_candidate_version": "6.7.31-rc.1",
-  "source_candidate_sha256": "34bc64b777829b99d26cb79942866787049ce7191edba4115e89747eef5ad5df"
+  "source_candidate_version": "6.7.32-rc.1",
+  "source_candidate_sha256": "137fbcd05b87411b1d2549fbcd0760205e12c0c9aa0cdff0555d06c2f6ec12e9"
 }

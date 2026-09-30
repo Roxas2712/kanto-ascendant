@@ -1,3 +1,17 @@
+# Promoted to public KASC 6.7.32
+
+The tested 6.7.32-rc.1 candidate was promoted without runtime code or asset changes. Earlier candidate history follows.
+
+# KASC 6.7.32-rc.1 — narrower Blaine volcano court
+
+Local candidate based on complete public KASC 6.7.31. The suspended court changes from 18 to 14 cells wide, centered on the same Pokéball. Native collision and the VASC v3 geometry contract agree. Bridge, stair destinations, Pyro's identity/party, quiz, music, badge and rewards are retained. The engine's existing invalid-position recovery places older edge saves on the new walkable floor.
+
+Use with VASC 3.0.60-rc.1 for the central MAP battle, visible lava/fountains and new Sea Terrarium. Keep saves/settings and replace the existing mod copies. No stat or ability changes. Not publicly released.
+
+---
+
+Historical notes:
+
 # Promoted to public KASC 6.7.31
 
 The tested 6.7.31-rc.1 candidate was promoted without runtime code or asset changes. Earlier candidate history follows.
