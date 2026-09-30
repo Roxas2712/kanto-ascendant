@@ -72,6 +72,23 @@ f.saved.step_clock=0
 local home=0
 for slot=0,39 do game.save.playTime=2400+slot*300;if F.visitorScheduled(game)then home=home+1 end end
 check(home==10,'one quarter of routine is home')
+-- Declining near the end of a visit must not make her vanish or consume the gift.
+f=fixture();F,game=f.F,f.game
+game.save.inventory.BOULDERBADGE=1
+f.tick();f.enter(F.VISITOR_MAP)
+check(f.count()==1,'visitor home for decline')
+check(F.claimHoney(game,false).declined,'honey declined')
+game.save.playTime=2701;f.tick()
+check(f.count()==1,'declined visitor remains until house exit')
+check(F.evaluateGirl(game).offer and not game.save.inventory.HOENN_HONEY,'offer unconsumed')
+f.enter('VIRIDIAN_CITY');f.enter(F.VISITOR_MAP)
+check(f.count()==0,'departure resumes outside visit')
+game.save.playTime=3600;f.tick()
+check(f.count()==1 and F.evaluateGirl(game).offer,'returns with offer next cycle')
+local awarded=F.claimHoney(game,true,{addItem=function(g,id)g.save.inventory[id]=1;return true end})
+check(awarded.awarded and game.save.inventory.HOENN_HONEY==1,'later acceptance works')
+check(F.claimHoney(game,true).owned,'no duplicate gift')
+f.untouched()
 -- Old saves: retain Honey/Dex/pack/clock and unrelated gameplay; missing
 -- anchors use elapsed saved play rather than reset on each load.
 f=fixture();F,game=f.F,f.game

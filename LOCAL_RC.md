@@ -1,3 +1,15 @@
+# Promoted to public KASC 6.7.31
+
+The tested 6.7.31-rc.1 candidate was promoted without runtime code or asset changes. Earlier candidate history follows.
+
+# Lokaler Teststand 6.7.31-rc.1
+
+Zusammen mit VASC 3.0.58-rc.1 verwenden. Vollständiger Nachfolger des letzten öffentlichen Pakets. Enthält die Wärterhaus-/Glastür-, Pyro-Treppen-/Arena-, Hoenn-Besucherin- und Rivalen-Darstellungskorrekturen. Details und Testgrenzen: POSTRELEASE_QA.md.
+
+Bestehende Mods im Launcher ersetzen/aktualisieren, keine zweite Kopie aktivieren. Spielstände und Optionen behalten. Nicht automatisch installiert oder veröffentlicht.
+
+---
+
 # Promoted to public KASC 6.7.30
 
 The tested 6.7.30-rc.1 candidate was promoted without runtime code or asset changes. Earlier candidate history follows.

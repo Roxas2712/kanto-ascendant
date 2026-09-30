@@ -1,10 +1,9 @@
 {
-  "version": "6.7.30",
+  "version": "6.7.31",
   "local_candidate": false,
-  "source_commit": "81523fd929e77bcfb5bafd17e03db792f3b321d7",
+  "source_commit": "b51161356fb80c3d949866187c8abcf4772bb9de",
   "source_parents": [
-    "09df020f16c0235d19682d48edb410dedb321523",
-    "5edc6a4bae6a2a4451aebd4ed24478fa412fd8ff"
+    "89fb0948a02a13092bb980df8abbd545f2a8038c"
   ],
   "files": [
     {
@@ -24,8 +23,8 @@
     },
     {
       "path": "LOCAL_RC.md",
-      "sha256": "0965b203ff2389fa18bd07889a2e9ea167511dcebce338933d9ca1ba6cd74a8b",
-      "bytes": 858
+      "sha256": "f42d4c68296072d25592185b62611dddc217e3dbc47550b23b1718dc5ed555c0",
+      "bytes": 1483
     },
     {
       "path": "MegaOriginalData.lua",
@@ -48,24 +47,29 @@
       "bytes": 1467
     },
     {
+      "path": "POSTRELEASE_QA.md",
+      "sha256": "6a55549eaeb991ca41324bc0d3807d77c4985f08d5bbcc8114fc2a18bf200a4d",
+      "bytes": 3930
+    },
+    {
       "path": "PokemonOptionalAssets.lua",
       "sha256": "08525ba1c3bc5c923a49c45ec4cd46c3e5e0aff55191ac617f649170e59984bc",
       "bytes": 12959906
     },
     {
       "path": "QA-REPORT.md",
-      "sha256": "46cc2dc0653da13fc642d259d3af4e27cbba0203815cf0a9efa911459474bef4",
-      "bytes": 6819
+      "sha256": "83adeda111e015f0efb40975e089d66ccda27bb3c12d85148cec7dcd8af74230",
+      "bytes": 4274
     },
     {
       "path": "README.md",
-      "sha256": "1d7ad62cc35de39706fcb39e3e84a545329c89f31fc8827413a3618ee1615b11",
-      "bytes": 15043
+      "sha256": "381879257ab5c13ae4ce17f63f53793d6eac73587d9e420aeddafd9392a0ab85",
+      "bytes": 16351
     },
     {
       "path": "RELEASE_NOTES.md",
-      "sha256": "1b703fdce82ac5f80117ea7b991022c7e212137b613e94e3d1652ebc089e687d",
-      "bytes": 1465
+      "sha256": "33ae87f4fd07da859753c7635fa28229cefeba6bcd51ea4f49a01b1ec30a607c",
+      "bytes": 1255
     },
     {
       "path": "RELEASE_NOTES_6.7.11_RC1.md",
@@ -24559,8 +24563,8 @@
     },
     {
       "path": "blaine_volcano_route.lua",
-      "sha256": "fc4a6f97dfa6d01b68f2095081dfcacd08c4ce4a2a5669c3a991d399f7e5039c",
-      "bytes": 7355
+      "sha256": "78e4e5a89adcef1dc776524b189f67eb816cf5981b2d40d7145500f41a5a6757",
+      "bytes": 8040
     },
     {
       "path": "breeding_data.lua",
@@ -25154,8 +25158,8 @@
     },
     {
       "path": "hoenn_field_access_67.lua",
-      "sha256": "f37e6f6803e5b44bfc21e761ae49194b32b94b584e0d819d371a0f8f3210eff8",
-      "bytes": 37278
+      "sha256": "80b3af76803d38e76155896a009d01f20408a4c916981807dc186dccaec6199f",
+      "bytes": 37770
     },
     {
       "path": "hoenn_jirachi_finale_67.lua",
@@ -25899,8 +25903,8 @@
     },
     {
       "path": "local-rc-receipt.json",
-      "sha256": "1ff251464074807e28b839bfd9fd2db875d753dc287b53ea99c9d1c5a2a1f1e2",
-      "bytes": 1104490
+      "sha256": "1eaaca50747f84af65dfc43e269ea2d0cddf35dcc12abe66c76ea942dbe3b37a",
+      "bytes": 1104601
     },
     {
       "path": "localization.lua",
@@ -25914,7 +25918,7 @@
     },
     {
       "path": "manifest.json",
-      "sha256": "baa230e993d9eba65cb263a74ad7648e1a39669b3a287cf2773bbbb00d99dc61",
+      "sha256": "eab845d1568d309875a8cf580282b6eaaf1601bb88fbcc91b6e4953be69b5bf4",
       "bytes": 30125
     },
     {
@@ -26994,8 +26998,8 @@
     },
     {
       "path": "rival_duel_scene_67.lua",
-      "sha256": "fae2bbadc3e3be9c6eb4af0c32457700408ad6fd50411b9c37b9e289821a1ebc",
-      "bytes": 9934
+      "sha256": "0e3d188228e9e6b84c81c532bd2502c427f3824d074b71736f5035d02eb51a82",
+      "bytes": 10631
     },
     {
       "path": "rival_duel_snapshot_67.lua",
@@ -27284,8 +27288,8 @@
     },
     {
       "path": "tests/blaine_volcano_route_test.lua",
-      "sha256": "8978ae98b836969ef49571db8a21d7a4609e26756c3caeedfaeb27f04f23303f",
-      "bytes": 6268
+      "sha256": "588959cabd26310b4690a32cf227222b57d1c182cced7cd7dd7373bdfd175a22",
+      "bytes": 7072
     },
     {
       "path": "tests/crystal_explicit_style_test.lua",
@@ -27409,8 +27413,8 @@
     },
     {
       "path": "tests/hoenn_visitor_schedule_test.lua",
-      "sha256": "67eaab3b3337af9b637af2424b574c6976575edced1fe7f5aca89896e76f490e",
-      "bytes": 5303
+      "sha256": "053c3d20c5290ed86ae45ed47e15e4f3edb314845df60e56b948d5fcf356c3c2",
+      "bytes": 6255
     },
     {
       "path": "tests/hunting_club_menu_test.lua",
@@ -28953,6 +28957,6 @@
       "bytes": 66347
     }
   ],
-  "source_candidate_version": "6.7.30-rc.1",
-  "source_candidate_sha256": "5c86b31a5beccf8e5eb224c75c59fc4f13d48aba43f6c7ed8ece9b9651ded7f6"
+  "source_candidate_version": "6.7.31-rc.1",
+  "source_candidate_sha256": "34bc64b777829b99d26cb79942866787049ce7191edba4115e89747eef5ad5df"
 }

@@ -49,7 +49,13 @@ return function(mod, opts)
   function R.onStep(game, ow, x, y)
     for _,link in ipairs(R.links[ow.map.id] or {}) do
       if link.x==x and link.y==y then
-        return mod.world:warpTo(link.map,link.toX,link.toY,link.facing)
+        local ok,reason=mod.world:warpTo(link.map,link.toX,link.toY,link.facing)
+        if ok then
+          -- Scripted links bypass native door SFX; play exactly one normal
+          -- map-transition cue without enabling the door auto-walk behavior.
+          require('src.core.Sound').play(game.data,link.map==R.FOOT and 'Go_Outside' or 'Go_Inside')
+        end
+        return ok,reason
       end
     end
     return false
@@ -134,13 +140,20 @@ return function(mod, opts)
     for _,w in ipairs(warps) do
       if w.destMap=='LAST_MAP' then w.destMap='CINNABAR_ISLAND' end
     end
-    mod.content.maps:patch(R.GYM,{objects=objects,blocks=blocks,warps=warps})
+    local function stairs(m,points)
+      m.kaBlaineStairs={owner='kasc.blaine-volcano-route/v1',points=points}
+    end
+    local pins={{x=3,y=2,class='stair_down_w'}}
+    mod.content.maps:patch(R.GYM,{objects=objects,blocks=blocks,warps=warps,
+      kaBlaineStairs={owner='kasc.blaine-volcano-route/v1',points=pins}})
+    stairs(tunnel,{{x=45,y=8,class='stair_e'},{x=5,y=4,class='stair_e'}})
+    stairs(foot,{{x=15,y=20,class='stair_down_w'}})
     R.maps={tunnel,foot,chamber}
     for _,m in ipairs(R.maps) do
       mod.content.maps:register(m.id,m)
       mod.content.encounters:register(m.id,{grass={rate=0,slots={}}})
       if mod.content.map_songs then
-        mod.content.map_songs:register(m.id,m.id==R.TUNNEL and 'Music_Gym' or 'Music_Dungeon1')
+        mod.content.map_songs:register(m.id,m.id==R.FOOT and 'Music_Dungeon1' or 'Music_Gym')
       end
     end
     for id in pairs(R.links) do

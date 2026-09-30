@@ -1,7 +1,3 @@
-# KASC 6.7.31 public release verification
-
-Promoted from the tested 6.7.31-rc.1 archive. Runtime Lua and assets are byte-identical; only release metadata, documentation and receipts change. The candidate report below describes the tests performed before promotion; statements that it was not yet published refer to that historical test stage.
-
 # Post-release regression checks, 2026-09-30
 
 Local pair: VASC 3.0.58-rc.1 + KASC 6.7.31-rc.1. Complete baselines: public VASC 3.0.57 and KASC 6.7.30. No release publication or automatic installation.

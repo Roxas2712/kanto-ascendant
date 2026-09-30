@@ -6,6 +6,8 @@ local Map=require('src.world.Map')
 local Hooks=require('src.mods.Hooks')
 local maps=dofile(dataRoot..'/maps.lua')
 local tiles=dofile(dataRoot..'/tilesets.lua')
+local sounds={}
+package.loaded['src.core.Sound']={play=function(_,id)sounds[#sounds+1]=id end}
 local checks=0
 local function check(v,m)checks=checks+1;assert(v,m)end
 local function copy(v)if type(v)~='table'then return v end;local t={};for k,x in pairs(v)do t[k]=copy(x)end;return t end
@@ -52,7 +54,9 @@ for id,links in pairs(R.links)do
       check(back.x~=p.toX or back.y~=p.toY,'no arrival bounce '..p.map)
       if id~=R.GYM then check(reachable(p.map,p.toX,p.toY,back.x,back.y),'reciprocal route reachable '..p.map)end
     end
+    local before=#sounds
     check(R.onStep({}, {map={id=id}},p.x,p.y),'physical step warp')
+    check(#sounds==before+1 and sounds[#sounds]==(p.map==R.FOOT and 'Go_Outside'or'Go_Inside'),'one transition sound')
     check(moves[#moves][1]==p.map and moves[#moves][2]==p.toX,'correct destination')
   end
 end
@@ -96,6 +100,12 @@ for _,id in ipairs{R.GYM,R.CHAMBER,'ROUTE_1'}do
     check(battle.ascendantStoryGymHealCap==1,'healing budget preserved '..id)
   end
 end
+check(tables.map_songs[R.CHAMBER]=='Music_Gym'and tables.map_songs[R.TUNNEL]=='Music_Gym','Gym music inside arena and connecting corridor')
+check(tables.map_songs[R.FOOT]=='Music_Dungeon1','volcanic approach keeps dungeon music')
+check(#maps[R.GYM].kaBlaineStairs.points==1 and #maps[R.TUNNEL].kaBlaineStairs.points==2 and #maps[R.FOOT].kaBlaineStairs.points==1,'all four scripted stair pins')
+local played=#sounds
+mod.world.warpTo=function()return nil,'blocked'end
+check(not R.onStep({}, {map={id=R.GYM}},3,2)and #sounds==played,'failed warp does not play sound')
 local outPath=os.getenv('BLAINE_MAP_EXPORT')
 if outPath then
   local f=assert(io.open(outPath,'w'));f:write(require('src.link.Json').encode({maps=R.maps,gym=maps.CINNABAR_GYM,tilesets=tiles,links=R.links}));f:close()

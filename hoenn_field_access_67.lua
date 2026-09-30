@@ -46,6 +46,9 @@ return function(mod, opts)
   local acquisition = opts.acquisition
   local placement = opts.placement
   local lineageSave, lineageProfile
+  -- A declined offer stays available for this visit; the normal schedule
+  -- resumes after leaving the house or loading another save.
+  local declinedVisitSave
   local VISITOR_CELLS = {
     { 3, 4 }, { 2, 4 }, { 3, 5 }, { 2, 5 },
   }
@@ -370,6 +373,7 @@ return function(mod, opts)
     if evaluation.reason == "badge-required"
         or evaluation.reason == "legacy-hidden" then return evaluation end
     if not evaluation.pending and accepted ~= true then
+      declinedVisitSave = activeSave(game)
       return { reason="declined", declined=true }
     end
     local result = deliver(game, "honey", F.HONEY, deps)
@@ -764,7 +768,11 @@ return function(mod, opts)
     -- Establish the clock as soon as the badge is earned, wherever the
     -- player is. Entering her house must never start a fresh home phase.
     local scheduled = F.visitorScheduled(game)
-    local should = mapId == F.VISITOR_MAP and scheduled
+    if mapId ~= F.VISITOR_MAP or not F.visitorEligible(game) then
+      declinedVisitSave = nil
+    end
+    local held = declinedVisitSave ~= nil and declinedVisitSave == activeSave(game)
+    local should = mapId == F.VISITOR_MAP and (scheduled or held)
     if not should then
       removeVisitor(game)
       return false, mapId == F.VISITOR_MAP and "away" or "other-map"
@@ -814,7 +822,7 @@ return function(mod, opts)
   end
 
   function F.install(game, deps)
-    lineageSave, lineageProfile = nil, nil
+    lineageSave, lineageProfile, declinedVisitSave = nil, nil, nil
     activeGame = game or activeGame
     runtimeDeps = deps or runtimeDeps or {}
     mapScripts = runtimeDeps.mapScripts or mapScripts
@@ -860,8 +868,9 @@ return function(mod, opts)
           -- while a dialogue, battle, movement or scripted scene is active.
           if ow.map and ow.map.id == F.VISITOR_MAP then
             F.refreshVisitor(game)
-          elseif F.visitorEligible(game) then
-            F.visitorPhase(game)
+          else
+            declinedVisitSave = nil
+            if F.visitorEligible(game) then F.visitorPhase(game) end
           end
         end
       end
@@ -872,7 +881,7 @@ return function(mod, opts)
   if mod.events and type(mod.events.on) == "function" then
     for _, event in ipairs({ "save.loaded", "save.created", "game.ready" }) do
       mod.events:on(event, function(ev)
-        lineageSave, lineageProfile = nil, nil
+        lineageSave, lineageProfile, declinedVisitSave = nil, nil, nil
         local game = ev and ev.game or activeGame
         if game then
           adopt(game)

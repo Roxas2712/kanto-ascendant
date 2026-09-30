@@ -118,6 +118,12 @@ return function(mod,opts)
           x=cell.x,y=cell.y}))
         entry.npc=assert(mod.world:npc(active.mapId,entry.npcId))
         local npc=raw(entry);npc.sprite=sprite;npc.frozen=true
+        -- Publish presentation identity without marking this actor as a
+        -- player follower. The duel controller still owns motion and lifetime.
+        npc.kascSpectatorPokemon='kasc.rival-duel/v1'
+        npc.pokemon=data.mons[actor]
+        npc.pokemonSpecies=data.mons[actor].species
+        npc.facing=index==1 and (facing and 'right' or 'left')or (facing and 'left' or 'right')
         entry.px,entry.py=npc.px,npc.py
       end
       scene.control=controller(mod,{actorPair=data.pair,enabled=function()return true end,
@@ -137,6 +143,10 @@ return function(mod,opts)
     if not ok then cleanup();return false,tostring(why)end
     visit.duelPresentation=data
     active.duelScene=scene
+    local exports=active.game.mods and active.game.mods.exports
+    local vasc=exports and exports.VOXEL_ASCENDANT
+    local visuals=vasc and vasc.overworldPokemon and vasc.overworldPokemon.pokemonWorldSprites
+    if visuals and type(visuals.refresh)=='function'then pcall(visuals.refresh,active.game)end
     persist()
     return true
   end
